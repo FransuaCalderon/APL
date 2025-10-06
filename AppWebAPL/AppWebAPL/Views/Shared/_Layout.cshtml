@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AppWebAPL</title>
+    <script type="importmap"></script>
+    <script src="~/css/js/color-modes.js"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <meta name="theme-color" content="#712cf9">
+
+    <link rel="stylesheet" href="~/css/headers.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sidebars.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/principal.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="~/AppWebAPL.styles.css" asp-append-version="true" />
+</head>
+<body>
+
+
+
+
+	<header class="fixed-top">
+
+		<div class="px-3 py-2 text-bg-dark border-bottom">
+			<div class="container">
+				<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+					<a href="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
+
+						<img class="bi me-2 svg-color-blanco" width="40" height="32" role="img" aria-label="Bootstrap" src="~/img/ico/bootstrap.svg" alt="Bootstrap"> APL Software
+
+					</a>
+
+					<ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+						<li> <a href="#" class="nav-link text-white"> <img class="bi d-block mx-auto mb-1 svg-color-blanco" width="30" height="24" src="~/img/ico/house.svg" alt="Bootstrap">Home</a> </li>
+						<li> <a href="#" class="nav-link text-white"> <img class="bi d-block mx-auto mb-1 svg-color-blanco" width="24" height="24" src="~/img/ico/speedometer2.svg" alt="Bootstrap">Dashboard</a></li>
+						<li> <a href="#" class="nav-link text-white"> <img class="bi d-block mx-auto mb-1 svg-color-blanco" width="24" height="24" src="~/img/ico/table.svg" alt="Bootstrap">Orders</a> </li>
+						<li> <a href="#" class="nav-link text-white"> <img class="bi d-block mx-auto mb-1 svg-color-blanco" width="24" height="24" src="~/img/ico/grid.svg" alt="Bootstrap">Products</a> </li>
+						<li> <a href="#" class="nav-link text-white"> <img class="bi d-block mx-auto mb-1 svg-color-blanco" width="24" height="24" src="~/img/ico/people.svg" alt="Bootstrap">Customers</a> </li>
+						<li>
+
+							<a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+								<img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="bi d-block mx-auto mb-1 rounded-circle">
+							</a>
+
+							<ul class="dropdown-menu ">
+								<li><a class="dropdown-item text-dark text-center bg-warning" href="#">Ali Macias</a></li>
+								<li><hr class="dropdown-divider"></li>
+								<li><a class="dropdown-item" href="#">Settings</a></li>
+								<li><a class="dropdown-item" href="#">Profile</a></li>
+								<li><hr class="dropdown-divider"></li>
+								<li><a class="dropdown-item" href="#">Sign out</a></li>
+							</ul>
+
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+
+
+	</header>
+
+	<div class="b-example-divider"></div>
+	<div class="b-example-divider"></div>
+
+	<div class="container-fluid">
+
+		<div class="row">
+
+			<div class="flex-shrink-0 p-3 scrollarea border col-2" style="height: 590px;">
+				<a href="/" class="d-flex align-items-center pb-3 mb-3 link-body-emphasis text-decoration-none border-bottom">
+
+					<img class="bi pe-none me-2" width="30" height="24" aria-hidden="true" src="~/img/ico/bootstrap-fill.svg" alt="Bootstrap">
+					<span class="fs-5 fw-semibold">Opciones</span>
+				</a>
+
+				<ul class="list-unstyled ps-0">
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">Fondos</button>
+						<div class="collapse show" id="home-collapse">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Creación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Aprobación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consulta</a></li>
+							</ul>
+						</div>
+					</li>
+
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#home-acuerdos" aria-expanded="true">Acuerdos</button>
+						<div class="collapse show" id="home-acuerdos">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Creación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Aprobación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consulta</a></li>
+							</ul>
+						</div>
+					</li>
+
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#home-promociones" aria-expanded="true">Promociones</button>
+						<div class="collapse show" id="home-promociones">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" asp-area="" asp-controller="Promocion" asp-action="CrearPromocion">Creación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Aprobación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consulta</a></li>
+							</ul>
+						</div>
+					</li>
+
+
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="false">Dashboard</button>
+						<div class="collapse" id="dashboard-collapse">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Overview</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Weekly</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Monthly</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Annually</a></li>
+							</ul>
+						</div>
+					</li>
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#orders-collapse" aria-expanded="false">Orders</button>
+						<div class="collapse" id="orders-collapse">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">New</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Processed</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Shipped</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Returned</a></li>
+							</ul>
+						</div>
+					</li>
+					<li class="border-top my-3"></li>
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#account-collapse" aria-expanded="false">Account</button>
+						<div class="collapse" id="account-collapse">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">New...</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Profile</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Settings</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Sign out</a></li>
+							</ul>
+						</div>
+					</li>
+				</ul>
+
+			</div>
+
+			<main class="col-10 ">
+				@RenderBody()				
+			</main>
+
+		</div>
+
+		
+	</div>
+
+
+
+	
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
