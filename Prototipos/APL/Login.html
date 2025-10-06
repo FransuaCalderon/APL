@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Multi-país / Multi-empresa</title>
+  <style>
+    :root{
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --primary:#1775f2;
+      --input-border:#e6e9ee;
+      --shadow: 0 8px 30px rgba(22, 28, 37, 0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg, var(--bg), #fbfdff 60%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+      color:#0f172a;
+    }
+
+    .container{
+      width:100%;
+      max-width:420px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:14px;
+      padding:28px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(15,23,42,0.03);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .logo{
+      width:44px;
+      height:44px;
+      background:#15395f;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:700;
+      font-size:18px;
+    }
+
+    h1{font-size:20px; margin:0; letter-spacing:0.2px}
+
+    label{
+      display:block;
+      font-size:14px;
+      margin:14px 0 8px;
+      color:#0f172a;
+      font-weight:600;
+    }
+
+    .field{
+      position:relative;
+    }
+
+    .select, input[type="text"], input[type="password"], input[list]{
+      width:100%;
+      box-sizing:border-box;
+      padding:12px 14px;
+      border-radius:8px;
+      border:1px solid var(--input-border);
+      background:white;
+      font-size:15px;
+      color:#0f172a;
+      outline:none;
+      transition: box-shadow .12s, border-color .12s;
+      -webkit-appearance:none;
+    }
+
+    .select:focus, input[type="text"]:focus, input[list]:focus, input[type="password"]:focus{
+      box-shadow:0 6px 18px rgba(23,117,242,0.12);
+      border-color: rgba(23,117,242,0.6);
+    }
+
+    .inline-row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:10px;
+    }
+
+    .remember{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .btn{
+      margin-top:16px;
+      background:var(--primary);
+      color:white;
+      border:none;
+      width:100%;
+      padding:12px 16px;
+      font-size:16px;
+      border-radius:10px;
+      cursor:pointer;
+      box-shadow: 0 8px 20px rgba(23,117,242,0.16);
+      transition: transform .06s ease, box-shadow .06s;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .footer{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-top:16px;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .lang-select{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 8px;
+      border-radius:8px;
+      border:1px solid var(--input-border);
+      background:transparent;
+      cursor:pointer;
+    }
+
+    .flag{
+      margin-right:8px;
+      font-size:18px;
+      line-height:1;
+      display:inline-block;
+    }
+
+    /* small screens */
+    @media (max-width:420px){
+      body{padding:16px}
+      .card{padding:20px}
+    }
+
+    /* small icon inside inputs */
+    .input-icon{
+      position:absolute;
+      left:10px;
+      top:50%;
+      transform:translateY(-50%);
+      opacity:0.9;
+      font-size:16px;
+      color:var(--muted);
+      pointer-events:none;
+    }
+
+    .with-icon{
+      padding-left:40px;
+    }
+
+    /* custom select arrow */
+    .select-wrapper{
+      position:relative;
+    }
+    .select-arrow{
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      pointer-events:none;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    a.link{
+      color:var(--muted);
+      text-decoration:none;
+    }
+    a.link:hover{ text-decoration:underline; color: #0f172a }
+
+    /* subtle divider */
+    .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(15,23,42,0.04),transparent);margin:18px 0;border-radius:4px}
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <div class="card" aria-labelledby="title">
+      <div class="brand" aria-hidden="true">
+        <div class="logo">S</div>
+        <h1 id="title">System Logo</h1>
+      </div>
+
+      <!-- País -->
+      <label for="country">País</label>
+      <div class="field">
+        <div class="select-wrapper" style="display:flex; gap:8px;">
+          <select id="country" class="select" aria-label="Seleccionar país">
+            <option value="ec" data-flag="🇪🇨">Ecuador</option>
+            <option value="mx" data-flag="🇲🇽">México</option>
+            <option value="co" data-flag="🇨🇴">Colombia</option>
+            <option value="us" data-flag="🇺🇸">Estados Unidos</option>
+            <option value="pe" data-flag="🇵🇪">Perú</option>
+            <option value="es" data-flag="🇪🇸">España</option>
+          </select>
+          <div id="countryFlag" aria-hidden="true" style="display:flex;align-items:center;font-size:20px;padding:0 6px">🇪🇨</div>
+        </div>
+      </div>
+
+      <!-- Empresa (datalist para sugerencias) -->
+      <label for="company">Empresa</label>
+      <div class="field">
+        <input list="companyList" id="company" class="select" placeholder="Selecciona o escribe el nombre de la empresa" aria-label="Empresa" />
+        <datalist id="companyList">
+          <option value="Empresa A S.A."></option>
+          <option value="Empresa B S.A."></option>
+          <option value="Empresa C Ltda."></option>
+          <option value="Empresa Global SA"></option>
+          <option value="Operaciones & Co"></option>
+        </datalist>
+      </div>
+
+      <!-- Usuario -->
+      <label for="user">Usuario / Correo</label>
+      <div class="field" style="margin-bottom:4px;">
+        <span class="input-icon" aria-hidden="true">👤</span>
+        <input id="user" type="text" class="with-icon" placeholder="Usuario / Correo" autocomplete="username" />
+      </div>
+
+      <!-- Contraseña -->
+      <label for="password">Contraseña</label>
+      <div class="field">
+        <span class="input-icon" aria-hidden="true">🔒</span>
+        <input id="password" type="password" class="with-icon" placeholder="Contraseña" autocomplete="current-password" />
+      </div>
+
+      <div class="inline-row">
+        <label class="remember">
+          <input id="remember" type="checkbox" style="width:16px;height:16px;border-radius:4px" />
+          Recordarme
+        </label>
+        <a href="#" class="link" id="forgot">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button class="btn" id="loginBtn" type="button">Ingresar</button>
+
+      <div class="divider" role="separator" aria-hidden="true"></div>
+
+      <div class="footer" style="gap:10px;">
+        <div style="font-size:13px;color:var(--muted)">¿Necesitas ayuda? <a href="#" class="link">Soporte</a></div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="font-size:13px;color:var(--muted);">Idioma</div>
+          <select id="lang" class="lang-select" aria-label="Cambiar idioma">
+            <option value="es">ES</option>
+            <option value="en">EN</option>
+            <option value="pt">PT</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Elementos
+    const countryEl = document.getElementById('country');
+    const flagEl = document.getElementById('countryFlag');
+    const companyEl = document.getElementById('company');
+    const userEl = document.getElementById('user');
+    const passEl = document.getElementById('password');
+    const rememberEl = document.getElementById('remember');
+    const loginBtn = document.getElementById('loginBtn');
+    const langEl = document.getElementById('lang');
+
+    // Inicializar desde localStorage
+    const storage = window.localStorage;
+    function initFromStorage(){
+      const savedCountry = storage.getItem('login_country');
+      const savedCompany = storage.getItem('login_company');
+      const savedUser = storage.getItem('login_user');
+      const savedLang = storage.getItem('login_lang');
+      const savedRemember = storage.getItem('login_remember');
+
+      if(savedCountry){
+        countryEl.value = savedCountry;
+        updateFlag();
+      }
+      if(savedCompany) companyEl.value = savedCompany;
+      if(savedUser) userEl.value = savedUser;
+      if(savedLang) langEl.value = savedLang;
+      rememberEl.checked = savedRemember === 'true';
+    }
+    initFromStorage();
+
+    // Update flag by reading data-flag of selected option
+    function updateFlag(){
+      const opt = countryEl.options[countryEl.selectedIndex];
+      const flag = opt && opt.dataset && opt.dataset.flag ? opt.dataset.flag : '🏳️';
+      flagEl.textContent = flag;
+    }
+    countryEl.addEventListener('change', () => {
+      updateFlag();
+      storage.setItem('login_country', countryEl.value);
+      // optionally: switch endpoints / i18n based on country here
+    });
+
+    // Save other quick preferences
+    companyEl.addEventListener('change', () => storage.setItem('login_company', companyEl.value));
+    userEl.addEventListener('input', () => storage.setItem('login_user', userEl.value));
+    langEl.addEventListener('change', () => storage.setItem('login_lang', langEl.value));
+    rememberEl.addEventListener('change', () => storage.setItem('login_remember', rememberEl.checked));
+
+    // Login button action (dummy)
+    loginBtn.addEventListener('click', () => {
+      // Basic client-side validation
+      const country = countryEl.value || '';
+      const company = companyEl.value.trim();
+      const user = userEl.value.trim();
+      const pass = passEl.value;
+
+      if(!company){
+        alert('Por favor selecciona o escribe la empresa.');
+        companyEl.focus();
+        return;
+      }
+      if(!user){
+        alert('Por favor ingresa tu usuario o correo.');
+        userEl.focus();
+        return;
+      }
+      if(!pass){
+        alert('Por favor ingresa tu contraseña.');
+        passEl.focus();
+        return;
+      }
+
+      // If remember checkbox is set, we'll keep user in localStorage; otherwise optionally clear credentials.
+      if(!rememberEl.checked){
+        storage.removeItem('login_user');
+      } else {
+        storage.setItem('login_user', user);
+      }
+
+      // Simular envío — en un sistema real aquí:
+      // - elegir endpoint según country / company
+      // - POST a /auth con body {country, company, user, password}
+      // - manejar MFA / SSO
+      // Para este mockup sólo mostramos un mensaje.
+      alert('Enviando credenciales para: ' + user + '\\nEmpresa: ' + company + '\\nPaís: ' + country.toUpperCase());
+    });
+
+    // On page load, update flag
+    updateFlag();
+
+    // Accessibility improvement: allow Enter to submit from password field
+    passEl.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter') loginBtn.click();
+    });
+
+    // optional: preselect country by IP (disabled in demo)
+    // Example: fetch('https://ipapi.co/json').then(...)
+    // Not used here because this is static local demo.
+  </script>
+</body>
+</html>
