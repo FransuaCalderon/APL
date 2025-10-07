@@ -1,8 +1,14 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "E61oX+31XCU=",
   "success": true,
   "projectFilePath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj",
+=======
+  "dgSpecHash": "14efhZATkAo=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj",
+>>>>>>> fe9601b765ac77f8b38cd7f9047d425a4f1e77e6
   "expectedPackageFiles": [],
   "logs": []
 }

@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AppAPL.AccesoDatos\AppAPL.AccesoDatos.csproj" />
+    <ProjectReference Include="..\AppAPL.Dto\AppAPL.Dto.csproj" />
+  </ItemGroup>
+
 </Project>

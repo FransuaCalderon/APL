@@ -1,6 +1,7 @@
 {
   "format": 1,
   "restore": {
+<<<<<<< HEAD
     "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj": {}
   },
   "projects": {
@@ -12,12 +13,29 @@
         "projectPath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj",
         "packagesPath": "C:\\Users\\Daniel\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Portal\\obj\\",
+=======
+    "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj",
+        "projectName": "AppAPL.Portal",
+        "projectPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj",
+        "packagesPath": "C:\\Users\\Usuario iTC\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\obj\\",
+>>>>>>> fe9601b765ac77f8b38cd7f9047d425a4f1e77e6
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
+<<<<<<< HEAD
           "C:\\Users\\Daniel\\AppData\\Roaming\\NuGet\\NuGet.Config",
+=======
+          "C:\\Users\\Usuario iTC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+>>>>>>> fe9601b765ac77f8b38cd7f9047d425a4f1e77e6
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
