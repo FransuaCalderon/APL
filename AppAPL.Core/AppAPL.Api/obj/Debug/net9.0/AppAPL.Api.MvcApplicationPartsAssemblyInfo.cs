@@ -12,6 +12,10 @@ using System;
 using System.Reflection;
 
 [assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPartAttribute("Microsoft.AspNetCore.OpenApi")]
+<<<<<<< HEAD
+=======
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPartAttribute("Swashbuckle.AspNetCore.SwaggerGen")]
+>>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
 
 // Generado por la clase WriteCodeFragment de MSBuild.
 
