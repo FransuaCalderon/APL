@@ -1,12 +1,37 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\FuentesAppBM\\AppAPL.Core\\",
-  "Documents": [],
+  "WorkspaceRootPath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.accesodatos\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|solutionrelative:appapl.accesodatos\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\Class1.cs",
+              "RelativeDocumentMoniker": "AppAPL.AccesoDatos\\Class1.cs",
+              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\Class1.cs",
+              "RelativeToolTip": "AppAPL.AccesoDatos\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-07T16:40:55.365Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
