@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\FuentesAppBM\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj": {}
+    "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj": {}
   },
   "projects": {
-    "D:\\FuentesAppBM\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj": {
+    "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\FuentesAppBM\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj",
+        "projectUniqueName": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj",
         "projectName": "AppAPL.Api",
-        "projectPath": "D:\\FuentesAppBM\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj",
-        "packagesPath": "C:\\Users\\mjtor\\.nuget\\packages\\",
-        "outputPath": "D:\\FuentesAppBM\\AppAPL.Core\\AppAPL.Api\\obj\\",
+        "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj",
+        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\mjtor\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -25,7 +25,8 @@
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {}
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
@@ -73,7 +74,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

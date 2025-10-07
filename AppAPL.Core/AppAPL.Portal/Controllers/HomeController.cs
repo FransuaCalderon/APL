@@ -1,8 +1,8 @@
 using System.Diagnostics;
-using AppAPL.Portal.Models;
+using AppWebAPL.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AppAPL.Portal.Controllers
+namespace AppWebAPL.Controllers
 {
     public class HomeController : Controller
     {

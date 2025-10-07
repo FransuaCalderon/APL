@@ -1,20 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "bjZylHns7gc=",
-  "success": false,
-  "projectFilePath": "D:\\FuentesAppBM\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj",
-  "expectedPackageFiles": [],
-  "logs": [
-    {
-      "code": "NU1101",
-      "level": "Error",
-      "message": "Unable to find package Microsoft.AspNetCore.OpenApi. No packages exist with this id in source(s): Microsoft Visual Studio Offline Packages",
-      "projectPath": "D:\\FuentesAppBM\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj",
-      "filePath": "D:\\FuentesAppBM\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj",
-      "libraryId": "Microsoft.AspNetCore.OpenApi",
-      "targetGraphs": [
-        "net9.0"
-      ]
-    }
-  ]
+  "dgSpecHash": "EHqAwxiwHPU=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Api\\AppAPL.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\HP\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.8\\microsoft.aspnetcore.openapi.9.0.8.nupkg.sha512",
+    "C:\\Users\\HP\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
 }

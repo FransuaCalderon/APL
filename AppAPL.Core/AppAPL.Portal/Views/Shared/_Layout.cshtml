@@ -3,45 +3,158 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AppAPL.Portal</title>
+    <title>@ViewData["Title"] - AppWebAPL</title>
     <script type="importmap"></script>
+    <script src="~/css/js/color-modes.js"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/AppAPL.Portal.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">AppAPL.Portal</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - AppAPL.Portal - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    <meta name="theme-color" content="#712cf9">
+
+    <link rel="stylesheet" href="~/css/headers.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sidebars.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/principal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/AppWebAPL.styles.css" asp-append-version="true" />
+</head>
+
+
+
+<body>
+
+
+
+	<header class="fixed-top">
+		<div class="px-3 py-2 text-bg-dark border-bottom">
+			<div class="container">
+				<div class="d-flex align-items-center justify-content-between">
+
+					<a href="/" class="d-flex align-items-center text-white text-decoration-none">
+						<img class="me-2" width="40" height="32" src="~/img/ico/APL.png" alt="Logo APL">
+						<span style="font-size: 1.25rem; font-weight: bold;">APL Software</span>
+					</a>
+
+					<ul class="nav text-small mb-0">
+						<li class="nav-item dropdown">
+							<a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+								<img src="https://github.com/mdo.png" alt="Perfil" width="32" height="32" class="rounded-circle">
+							</a>
+							<ul class="dropdown-menu dropdown-menu-end">
+								<li><a class="dropdown-item text-dark text-center bg-warning" href="#">Ali Macias</a></li>
+								<li><hr class="dropdown-divider"></li>
+								<li><a class="dropdown-item" href="#">Configuración</a></li>
+								<li><a class="dropdown-item" href="#">Perfil</a></li>
+								<li><hr class="dropdown-divider"></li>
+								<li><a class="dropdown-item" href="#">Cerrar Sesión</a></li>
+							</ul>
+						</li>
+					</ul>
+
+				</div>
+			</div>
+		</div>
+	</header>
+
+
+	<div class="b-example-divider"></div>
+	<div class="b-example-divider"></div>
+
+	<div class="container-fluid">
+
+		<div class="row">
+
+			<div class="flex-shrink-0 p-3 scrollarea border col-2" style="height: 590px;">
+				<a href="/" class="d-flex align-items-center pb-3 mb-3 link-body-emphasis text-decoration-none border-bottom">
+
+					<img class="bi pe-none me-2" width="30" height="24" aria-hidden="true" src="~/img/ico/bootstrap-fill.svg" alt="Bootstrap">
+					<span class="fs-5 fw-semibold">Opciones</span>
+				</a>
+
+				<ul class="list-unstyled ps-0">
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">Fondos</button>
+						<div class="collapse show" id="home-collapse">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" asp-area="" asp-controller="Fondo" asp-action="CrearFondo">Creación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Aprobación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consulta</a></li>
+							</ul>
+						</div>
+					</li>
+
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#home-acuerdos" aria-expanded="true">Acuerdos</button>
+						<div class="collapse show" id="home-acuerdos">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" asp-area="" asp-controller="Acuerdo" asp-action="CrearAcuerdo">Creación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Aprobación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consulta</a></li>
+							</ul>
+						</div>
+					</li>
+
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#home-promociones" aria-expanded="true">Promociones</button>
+						<div class="collapse show" id="home-promociones">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" asp-area="" asp-controller="Promocion" asp-action="CrearPromocion">Creación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Aprobación</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consulta</a></li>
+							</ul>
+						</div>
+					</li>
+
+
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="false">Dashboard</button>
+						<div class="collapse" id="dashboard-collapse">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Overview</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Weekly</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Monthly</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Annually</a></li>
+							</ul>
+						</div>
+					</li>
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#orders-collapse" aria-expanded="false">Orders</button>
+						<div class="collapse" id="orders-collapse">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">New</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Processed</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Shipped</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Returned</a></li>
+							</ul>
+						</div>
+					</li>
+					<li class="border-top my-3"></li>
+					<li class="mb-1">
+						<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#account-collapse" aria-expanded="false">Cuenta</button>
+						<div class="collapse" id="account-collapse">
+							<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">New...</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Profile</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Settings</a></li>
+								<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Sign out</a></li>
+							</ul>
+						</div>
+					</li>
+				</ul>
+
+			</div>
+
+			<main class="col-10 ">
+				@RenderBody()				
+			</main>
+
+		</div>
+
+		
+	</div>
+
+
+
+	
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
