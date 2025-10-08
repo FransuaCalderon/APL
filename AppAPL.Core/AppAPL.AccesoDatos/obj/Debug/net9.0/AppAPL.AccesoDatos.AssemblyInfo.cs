@@ -14,11 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AppAPL.AccesoDatos")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+50a6b02c49ad31072d7926843c1cea89b178bd6c")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d4d8f54ff81e6f27542d171c4852bce4e9a247f0")]
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+647ac6309e7dc56d26d6a0f688a1eb3f862fda75")]
 [assembly: System.Reflection.AssemblyProductAttribute("AppAPL.AccesoDatos")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AppAPL.AccesoDatos")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,14 +1,18 @@
 {
   "version": 2,
-<<<<<<< HEAD
   "dgSpecHash": "przqVyZD1n4=",
   "success": true,
   "projectFilePath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
-=======
-  "dgSpecHash": "DjiNzrq80CY=",
-  "success": true,
-  "projectFilePath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
   "expectedPackageFiles": [],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "message": "Problema al leer el archivo de caché C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
+      "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
+      "targetGraphs": []
+    }
+  ]
 }

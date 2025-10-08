@@ -1,41 +1,23 @@
 {
   "format": 1,
   "restore": {
-<<<<<<< HEAD
     "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj": {}
   },
   "projects": {
-    "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj": {
+    "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
-        "projectName": "AppAPL.Negocio",
-        "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\obj\\",
-=======
-    "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj": {}
-  },
-  "projects": {
-    "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj",
+        "projectUniqueName": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj",
         "projectName": "AppAPL.AccesoDatos",
-        "projectPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj",
-        "packagesPath": "C:\\Users\\Usuario iTC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\obj\\",
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
+        "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj",
+        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-<<<<<<< HEAD
           "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
-=======
-          "C:\\Users\\Usuario iTC\\AppData\\Roaming\\NuGet\\NuGet.Config",
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -45,15 +27,13 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
-<<<<<<< HEAD
-=======
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
-                "projectPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj"
+              "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
+                "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj"
               }
             }
           }
@@ -103,24 +83,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
+    "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
+        "projectUniqueName": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
         "projectName": "AppAPL.Dto",
-        "projectPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
-        "packagesPath": "C:\\Users\\Usuario iTC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\obj\\",
+        "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
+        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Usuario iTC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -130,7 +110,6 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
         },
         "frameworks": {
           "net9.0": {
@@ -173,20 +152,20 @@
         }
       }
     },
-    "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj": {
+    "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
+        "projectUniqueName": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
         "projectName": "AppAPL.Negocio",
-        "projectPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
-        "packagesPath": "C:\\Users\\Usuario iTC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Negocio\\obj\\",
+        "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
+        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Usuario iTC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -201,11 +180,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj": {
-                "projectPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj"
+              "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj": {
+                "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj"
               },
-              "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
-                "projectPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj"
+              "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
+                "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj"
               }
             }
           }
@@ -241,7 +220,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
