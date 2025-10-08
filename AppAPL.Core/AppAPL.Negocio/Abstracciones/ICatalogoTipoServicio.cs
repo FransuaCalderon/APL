@@ -1,4 +1,5 @@
-﻿using apiOracle.DTOs;
+﻿
+using AppAPL.Dto.CatalogoTipo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,15 @@ namespace AppAPL.Negocio.Abstracciones
 {
     public interface ICatalogoTipoServicio
     {
-        Task<int> ActualizarAsync(CatalogoTipoDTO catalogoTipoDTO);
-        Task<int> CrearAsync(CatalogoTipoDTO catalogoTipoDTO);
-        Task<int> EliminarAsync(int id);
-        Task<IEnumerable<CatalogoTipoDTO>> ListarAsync();
-        Task<CatalogoTipoDTO?> ObtenerByIdAsync(int id);
+        Task ActualizarAsync(CrearActualizarCatalogoTipoRequest catalogo, int idCatalogoTipo);
+        Task<int> CrearAsync(CrearActualizarCatalogoTipoRequest catalogo);
+        Task EliminarAsync(int idCatalogoTipo);
+        Task<IEnumerable<CatalogoTipoDTO>> ListarAsync(string? nombre = null,
+           int? idEstado = null,
+           DateTime? creadoDesde = null,
+           DateTime? creadoHasta = null,
+           int pageNumber = 1,
+           int pageSize = 50);
+        Task<CatalogoTipoDTO?> ObtenerPorIdAsync(int idCatalogoTipo);
     }
 }

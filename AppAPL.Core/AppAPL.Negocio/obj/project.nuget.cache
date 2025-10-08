@@ -1,16 +1,6 @@
 {
   "version": 2,
-<<<<<<< HEAD
   "dgSpecHash": "mPn1rcSowTQ=",
-=======
-<<<<<<< HEAD
-  "dgSpecHash": "8MAixvbmtcA=",
-  "success": true,
-  "projectFilePath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
-  "expectedPackageFiles": [],
-=======
-  "dgSpecHash": "eCyXWlmuxwk=",
->>>>>>> 647ac6309e7dc56d26d6a0f688a1eb3f862fda75
   "success": true,
   "projectFilePath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
   "expectedPackageFiles": [
@@ -28,6 +18,5 @@
     "C:\\Users\\Daniel\\.nuget\\packages\\system.security.cryptography.pkcs\\8.0.1\\system.security.cryptography.pkcs.8.0.1.nupkg.sha512",
     "C:\\Users\\Daniel\\.nuget\\packages\\system.security.cryptography.protecteddata\\8.0.0\\system.security.cryptography.protecteddata.8.0.0.nupkg.sha512"
   ],
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
   "logs": []
 }

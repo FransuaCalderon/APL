@@ -17,8 +17,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<OpcionDto?> ObtenerPorIdAsync(int idOpcion, CancellationToken ct)
             => repo.ObtenerPorIdAsync(idOpcion, ct);
-        /*
-        public Task<PagedResult<OpcionDto>> ListarAsync(string? search, int page, int size, CancellationToken ct)
-            => repo.ListarAsync(search, page, size, ct);*/
+        
+        public Task<IEnumerable<OpcionDto>> ListarAsync(string? search, int page, int size, CancellationToken ct)
+            => repo.ListarAsync(search, page, size, ct);
     }
 }

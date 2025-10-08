@@ -1,4 +1,4 @@
-﻿using apiOracle.DTOs;
+﻿
 using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
 using Oracle.ManagedDataAccess.Client;
@@ -9,108 +9,138 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+//using Dapper.Oracle;
+using AppAPL.Dto.CatalogoTipo;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
     public sealed class CatalogoTipoRepositorio (OracleConnectionFactory factory) : ICatalogoTipoRepositorio
     {
-        public async Task<int> InsertarCatalogoTipoAsync(CatalogoTipoDTO catalogoTipoDTO)
-        {
-            using var connection = factory.CreateOpenConnection();
-            var parametros = new OracleDynamicParameters(new
-            {
-                p_Nombre = catalogoTipoDTO.Nombre,
-                p_Descripcion = catalogoTipoDTO.Descripcion,
-                p_IdUsuarioCreacion = catalogoTipoDTO.IdUsuarioCreacion,
-                p_FechaCreacion = catalogoTipoDTO.FechaCreacion,
-                p_IdUsuarioModificacion = catalogoTipoDTO.IdUsuarioModificacion,
-                p_FechaModificacion = catalogoTipoDTO.FechaModificacion,
-                p_IdEstado = catalogoTipoDTO.IdEstado,
-                p_IdMarcaAbreviaturaAutomatica = catalogoTipoDTO.IdMarcaAbreviaturaAutomatica,
-                p_IdEtiqueta = catalogoTipoDTO.IdEtiqueta
-            });
-
-            // Agregamos el parámetro OUT
-            parametros.Add("p_IdCatalogoTipo", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-
-            await connection.ExecuteAsync(
-                "Insertar_Apl_Tb_CatalogoTipo",
-                parametros,
-                commandType: CommandType.StoredProcedure
-            );
-
-            // Recuperamos el ID generado
-            int idGenerado = parametros.Get<int>("p_IdCatalogoTipo");
-
-
-            return idGenerado;
-        }
+        
 
         // 🔹 Obtener todos
-        public async Task<IEnumerable<CatalogoTipoDTO>> ObtenerCatalogosTipoAsync()
+        public async Task<IEnumerable<CatalogoTipoDTO>> ObtenerCatalogosTipoAsync(
+            string? nombre = null,
+            int? idEstado = null,
+            DateTime? creadoDesde = null,
+            DateTime? creadoHasta = null,
+            int pageNumber = 1,
+            int pageSize = 50)
         {
             using var connection = factory.CreateOpenConnection();
 
-            var parameters = new OracleDynamicParameters();
-            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            // 🔹 Crear un objeto anónimo con los parámetros de entrada
+            var paramObject = new
+            {
+                p_nombre = nombre,
+                p_idestado = idEstado,
+                p_creado_desde = creadoDesde,
+                p_creado_hasta = creadoHasta,
+                p_page_number = pageNumber,
+                p_page_size = pageSize
+            };
 
-            var result = await connection.QueryAsync<CatalogoTipoDTO>(
-                "sp_obtener_catalogotipos",
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("o_cur", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("o_total", OracleDbType.Int32, ParameterDirection.Output);
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<CatalogoTipoDTO>(
+                "APL_CATALOGOTIPO_PKG.listar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
 
-            return result;
+            // 🔹 Obtener el total
+            int total = parameters.Get<int>("o_total");
+
+            return datos;
         }
 
+
         // 🔹 Obtener por ID
-        public async Task<CatalogoTipoDTO?> ObtenerCatalogoTipoPorIdAsync(int id)
+        public async Task<CatalogoTipoDTO?> ObtenerPorIdAsync(int idCatalogoTipo)
         {
             using var connection = factory.CreateOpenConnection();
-            var p = new OracleDynamicParameters(new { p_IdCatalogoTipo = id });
-            p.Add("p_cursor", OracleDbType.RefCursor, direction: ParameterDirection.Output);
 
-            return await connection.QueryFirstOrDefaultAsync<CatalogoTipoDTO>(
-                "sp_obtener_catalogotipo_por_id",
-                p,
+            var paramObject = new { p_idcatalogotipo = idCatalogoTipo };
+            var parameters = new OracleDynamicParameters(paramObject);
+            parameters.Add("o_cur", OracleDbType.RefCursor, ParameterDirection.Output);
+
+            var datos = await connection.QueryAsync<CatalogoTipoDTO>(
+                "APL_CATALOGOTIPO_PKG.obtener_por_id",
+                parameters,
                 commandType: CommandType.StoredProcedure
             );
+
+            return datos.FirstOrDefault();
+        }
+
+        public async Task<int> CrearAsync(CrearActualizarCatalogoTipoRequest catalogo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_nombre = catalogo.Nombre,
+                p_descripcion = catalogo.Descripcion,
+                p_idusuariocreacion = catalogo.IdUsuarioCreacion,
+                p_idestado = catalogo.IdEstado,
+                p_idmarcaabreviaturaautomatica = catalogo.IdMarcaAbreviaturaAutomatica,
+                p_idetiqueta = catalogo.IdEtiqueta
+            };
+
+            var parameters = new OracleDynamicParameters(paramObject);
+            parameters.Add("o_idcatalogotipo", OracleDbType.Int32, ParameterDirection.Output);
+
+            await connection.ExecuteAsync(
+                "APL_CATALOGOTIPO_PKG.crear",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return parameters.Get<int>("o_idcatalogotipo");
         }
 
         // 🔹 Actualizar
-        public async Task<int> ActualizarCatalogoTipoAsync(CatalogoTipoDTO dto)
+        public async Task ActualizarAsync(CrearActualizarCatalogoTipoRequest catalogo, int idCatalogoTipo)
         {
             using var connection = factory.CreateOpenConnection();
 
-            var parametros = new
+            var paramObject = new
             {
-                p_IdCatalogoTipo = dto.IdCatalogoTipo,
-                p_Nombre = dto.Nombre,
-                p_Descripcion = dto.Descripcion,
-                p_IdUsuarioModificacion = dto.IdUsuarioModificacion,
-                p_FechaModificacion = dto.FechaModificacion,
-                p_IdEstado = dto.IdEstado,
-                p_IdMarcaAbreviaturaAutomatica = dto.IdMarcaAbreviaturaAutomatica,
-                p_IdEtiqueta = dto.IdEtiqueta
+                p_idcatalogotipo = idCatalogoTipo,
+                p_nombre = catalogo.Nombre,
+                p_descripcion = catalogo.Descripcion,
+                p_idusuariomodificacion = catalogo.IdUsuarioModificacion,
+                p_idestado = catalogo.IdEstado,
+                p_idmarcaabreviaturaautomatica = catalogo.IdMarcaAbreviaturaAutomatica,
+                p_idetiqueta = catalogo.IdEtiqueta
             };
 
-            return await connection.ExecuteAsync(
-                "sp_actualizar_catalogotipo",
-                parametros,
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            await connection.ExecuteAsync(
+                "APL_CATALOGOTIPO_PKG.actualizar",
+                parameters,
                 commandType: CommandType.StoredProcedure
             );
         }
 
         // 🔹 Eliminar
-        public async Task<int> EliminarCatalogoTipoAsync(int id)
+        public async Task EliminarAsync(int idCatalogoTipo)
         {
             using var connection = factory.CreateOpenConnection();
-            var parametros = new { p_IdCatalogoTipo = id };
 
-            return await connection.ExecuteAsync(
-                "sp_eliminar_catalogotipo",
-                parametros,
+            var paramObject = new { p_idcatalogotipo = idCatalogoTipo };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            await connection.ExecuteAsync(
+                "APL_CATALOGOTIPO_PKG.eliminar",
+                parameters,
                 commandType: CommandType.StoredProcedure
             );
         }

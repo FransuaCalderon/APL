@@ -1,46 +1,53 @@
-﻿using apiOracle.DTOs;
+﻿
+using AppAPL.Dto.CatalogoTipo;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace AppAPL.Api.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class CatalogoTipoController (ICatalogoTipoServicio servicio,
         ILogger<CatalogoTipoController> logger) : ControllerBase
     {
-        [HttpGet("prueba")]
-        public ActionResult Get()
-        {
-            logger.LogInformation("Este mensaje se va a guardar en el archivo de log4net");
-            logger.LogWarning("Esto es una advertencia");
-            logger.LogError("Esto es un error de prueba");
-            return Ok("Logs escritos correctamente.");
-        }
-
-        
-
 
         // 🔹 GET: Obtener todos
         [HttpGet("listar")]
-        public async Task<ActionResult<List<CatalogoTipoDTO>>> ObtenerTodos()
+        public async Task<ActionResult<List<CatalogoTipoDTO>>> ObtenerTodos([FromQuery] string? nombre = null,
+        [FromQuery] int? idEstado = null,
+        [FromQuery] DateTime? creadoDesde = null,
+        [FromQuery] DateTime? creadoHasta = null,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 50)
         {
             logger.LogInformation("esto es una prueba de log");
-            var lista = await servicio.ListarAsync();
-            return lista.ToList();
+            var listaCatalogoTipo = await servicio.ListarAsync(nombre, idEstado, creadoDesde, creadoHasta, pageNumber, pageSize);
+            // Puedes devolver paginación en headers o dentro del cuerpo
+
+            /*
+            var result = new
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Items = datos
+            };*/
+
+            return listaCatalogoTipo.ToList();
         }
 
         // 🔹 GET: Obtener por ID
-        [HttpGet("obtener/{id}")]
+        [HttpGet("obtener/{id:int}")]
         public async Task<ActionResult<CatalogoTipoDTO>> ObtenerPorId(int id)
         {
-            var item = await servicio.ObtenerByIdAsync(id);
+            var item = await servicio.ObtenerPorIdAsync(id);
             if (item == null)
                 return NotFound(new { mensaje = "No se encontró el catálogo tipo." });
             return item;
         }
 
         [HttpPost("insertar")]
-        public async Task<ActionResult> Insertar(CatalogoTipoDTO catalogoTipoDTO)
+        public async Task<ActionResult> Insertar(CrearActualizarCatalogoTipoRequest catalogoTipoDTO)
         {
             int idNuevo = await servicio.CrearAsync(catalogoTipoDTO);
 
@@ -52,13 +59,14 @@ namespace AppAPL.Api.Controllers
         }
 
         // 🔹 PUT: Actualizar
-        [HttpPut("actualizar")]
-        public async Task<ActionResult> Actualizar(CatalogoTipoDTO dto)
+        [HttpPut("actualizar/{idCatalogoTipo:int}")]
+        public async Task<ActionResult> Actualizar(CrearActualizarCatalogoTipoRequest dto, int idCatalogoTipo)
         {
-            if (dto.IdCatalogoTipo is null)
-                return BadRequest(new { mensaje = "El campo IdCatalogoTipo es obligatorio." });
+            /*
+            if (idCatalogoTipo is null)
+                return BadRequest(new { mensaje = "El campo IdCatalogoTipo es obligatorio." });*/
 
-            await servicio.ActualizarAsync(dto);
+            await servicio.ActualizarAsync(dto, idCatalogoTipo);
             return Ok(new { mensaje = "Actualizado correctamente" });
         }
 

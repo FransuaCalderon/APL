@@ -8,55 +8,23 @@
     "net9.0": []
   },
   "packageFolders": {
-<<<<<<< HEAD
     "C:\\Users\\Daniel\\.nuget\\packages\\": {},
-=======
-<<<<<<< HEAD
-    "C:\\Users\\HP\\.nuget\\packages\\": {},
-=======
-    "C:\\Users\\Usuario iTC\\.nuget\\packages\\": {},
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
->>>>>>> 647ac6309e7dc56d26d6a0f688a1eb3f862fda75
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-<<<<<<< HEAD
       "projectUniqueName": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
       "projectName": "AppAPL.Dto",
       "projectPath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
       "packagesPath": "C:\\Users\\Daniel\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Dto\\obj\\",
-=======
-<<<<<<< HEAD
-      "projectUniqueName": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
-      "projectName": "AppAPL.Dto",
-      "projectPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
-      "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\APL\\AppAPL.Core\\AppAPL.Dto\\obj\\",
-=======
-      "projectUniqueName": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
-      "projectName": "AppAPL.Dto",
-      "projectPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
-      "packagesPath": "C:\\Users\\Usuario iTC\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\obj\\",
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
->>>>>>> 647ac6309e7dc56d26d6a0f688a1eb3f862fda75
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-<<<<<<< HEAD
         "C:\\Users\\Daniel\\AppData\\Roaming\\NuGet\\NuGet.Config",
-=======
-<<<<<<< HEAD
-        "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
-=======
-        "C:\\Users\\Usuario iTC\\AppData\\Roaming\\NuGet\\NuGet.Config",
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
->>>>>>> 647ac6309e7dc56d26d6a0f688a1eb3f862fda75
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -104,11 +72,7 @@
             "privateAssets": "all"
           }
         },
-<<<<<<< HEAD
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
-=======
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
->>>>>>> 647ac6309e7dc56d26d6a0f688a1eb3f862fda75
       }
     }
   }

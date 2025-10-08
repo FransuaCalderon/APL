@@ -3,40 +3,36 @@
   "WorkspaceRootPath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|solutionrelative:appapl.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.api\\filtros\\filtrodeexcepcion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|solutionrelative:appapl.api\\filtros\\filtrodeexcepcion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.api\\log4net.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|solutionrelative:appapl.api\\log4net.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.api\\controllers\\catalogotipocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|solutionrelative:appapl.api\\controllers\\catalogotipocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.accesodatos\\repositorio\\catalogotiporepositorio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|solutionrelative:appapl.accesodatos\\repositorio\\catalogotiporepositorio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F595FFEC-8C3E-47E9-AF8D-18BEB161FECA}|AppAPL.Negocio\\AppAPL.Negocio.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.negocio\\ioc\\businessservicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F595FFEC-8C3E-47E9-AF8D-18BEB161FECA}|AppAPL.Negocio\\AppAPL.Negocio.csproj|solutionrelative:appapl.negocio\\ioc\\businessservicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.api\\controllers\\opcionescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|solutionrelative:appapl.api\\controllers\\opcionescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F595FFEC-8C3E-47E9-AF8D-18BEB161FECA}|AppAPL.Negocio\\AppAPL.Negocio.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.negocio\\servicios\\catalogotiposervicio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F595FFEC-8C3E-47E9-AF8D-18BEB161FECA}|AppAPL.Negocio\\AppAPL.Negocio.csproj|solutionrelative:appapl.negocio\\servicios\\catalogotiposervicio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F595FFEC-8C3E-47E9-AF8D-18BEB161FECA}|AppAPL.Negocio\\AppAPL.Negocio.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.negocio\\servicios\\opcionservicio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F595FFEC-8C3E-47E9-AF8D-18BEB161FECA}|AppAPL.Negocio\\AppAPL.Negocio.csproj|solutionrelative:appapl.negocio\\servicios\\opcionservicio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F595FFEC-8C3E-47E9-AF8D-18BEB161FECA}|AppAPL.Negocio\\AppAPL.Negocio.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.negocio\\abstracciones\\icatalogotiposervicio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F595FFEC-8C3E-47E9-AF8D-18BEB161FECA}|AppAPL.Negocio\\AppAPL.Negocio.csproj|solutionrelative:appapl.negocio\\abstracciones\\icatalogotiposervicio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.accesodatos\\repositorio\\catalogotiporepositorio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|solutionrelative:appapl.accesodatos\\repositorio\\catalogotiporepositorio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.accesodatos\\abstracciones\\icatalogotiporepositorio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|solutionrelative:appapl.accesodatos\\abstracciones\\icatalogotiporepositorio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{20E77743-47E7-43BF-B490-03505E4E6B8F}|AppAPL.Dto\\AppAPL.Dto.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.dto\\catalogotipo\\catalogotipodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{20E77743-47E7-43BF-B490-03505E4E6B8F}|AppAPL.Dto\\AppAPL.Dto.csproj|solutionrelative:appapl.dto\\catalogotipo\\catalogotipodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{20E77743-47E7-43BF-B490-03505E4E6B8F}|AppAPL.Dto\\AppAPL.Dto.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.dto\\opciones\\opciondto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{20E77743-47E7-43BF-B490-03505E4E6B8F}|AppAPL.Dto\\AppAPL.Dto.csproj|solutionrelative:appapl.dto\\opciones\\opciondto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|c:\\users\\daniel\\desktop\\proyecto apl este si\\apl\\appapl.core\\appapl.accesodatos\\oracle\\oracledynamicparameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|solutionrelative:appapl.accesodatos\\oracle\\oracledynamicparameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,115 +46,107 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "log4net.config",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\log4net.config",
-              "RelativeDocumentMoniker": "AppAPL.Api\\log4net.config",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\log4net.config",
-              "RelativeToolTip": "AppAPL.Api\\log4net.config",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAhAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
-              "WhenOpened": "2025-10-07T22:10:42.925Z",
+              "DocumentIndex": 6,
+              "Title": "OpcionDto.cs",
+              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Dto\\Opciones\\OpcionDto.cs",
+              "RelativeDocumentMoniker": "AppAPL.Dto\\Opciones\\OpcionDto.cs",
+              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Dto\\Opciones\\OpcionDto.cs",
+              "RelativeToolTip": "AppAPL.Dto\\Opciones\\OpcionDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T19:23:09.536Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FiltroDeExcepcion.cs",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\Filtros\\FiltroDeExcepcion.cs",
-              "RelativeDocumentMoniker": "AppAPL.Api\\Filtros\\FiltroDeExcepcion.cs",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\Filtros\\FiltroDeExcepcion.cs",
-              "RelativeToolTip": "AppAPL.Api\\Filtros\\FiltroDeExcepcion.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAAqwC8AAAAWAAAAAAAAAA==",
+              "DocumentIndex": 5,
+              "Title": "CatalogoTipoDTO.cs",
+              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Dto\\CatalogoTipo\\CatalogoTipoDTO.cs",
+              "RelativeDocumentMoniker": "AppAPL.Dto\\CatalogoTipo\\CatalogoTipoDTO.cs",
+              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Dto\\CatalogoTipo\\CatalogoTipoDTO.cs",
+              "RelativeToolTip": "AppAPL.Dto\\CatalogoTipo\\CatalogoTipoDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-07T21:39:10.757Z",
+              "WhenOpened": "2025-10-08T19:23:04.358Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\Program.cs",
-              "RelativeDocumentMoniker": "AppAPL.Api\\Program.cs",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\Program.cs",
-              "RelativeToolTip": "AppAPL.Api\\Program.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAAACkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-07T21:38:39.896Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "CatalogoTipoController.cs",
               "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\Controllers\\CatalogoTipoController.cs",
               "RelativeDocumentMoniker": "AppAPL.Api\\Controllers\\CatalogoTipoController.cs",
               "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\Controllers\\CatalogoTipoController.cs",
               "RelativeToolTip": "AppAPL.Api\\Controllers\\CatalogoTipoController.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAgwBsAAAA1AAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAEwBUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-07T20:46:32.718Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "BusinessServiceCollectionExtensions.cs",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\IoC\\BusinessServiceCollectionExtensions.cs",
-              "RelativeDocumentMoniker": "AppAPL.Negocio\\IoC\\BusinessServiceCollectionExtensions.cs",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\IoC\\BusinessServiceCollectionExtensions.cs",
-              "RelativeToolTip": "AppAPL.Negocio\\IoC\\BusinessServiceCollectionExtensions.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "ICatalogoTipoServicio.cs",
+              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\Abstracciones\\ICatalogoTipoServicio.cs",
+              "RelativeDocumentMoniker": "AppAPL.Negocio\\Abstracciones\\ICatalogoTipoServicio.cs",
+              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\Abstracciones\\ICatalogoTipoServicio.cs",
+              "RelativeToolTip": "AppAPL.Negocio\\Abstracciones\\ICatalogoTipoServicio.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-07T20:45:28.069Z"
+              "WhenOpened": "2025-10-08T17:16:52.225Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "OpcionServicio.cs",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\Servicios\\OpcionServicio.cs",
-              "RelativeDocumentMoniker": "AppAPL.Negocio\\Servicios\\OpcionServicio.cs",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\Servicios\\OpcionServicio.cs",
-              "RelativeToolTip": "AppAPL.Negocio\\Servicios\\OpcionServicio.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-07T20:10:18.08Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 1,
               "Title": "CatalogoTipoServicio.cs",
               "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\Servicios\\CatalogoTipoServicio.cs",
               "RelativeDocumentMoniker": "AppAPL.Negocio\\Servicios\\CatalogoTipoServicio.cs",
               "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\Servicios\\CatalogoTipoServicio.cs",
               "RelativeToolTip": "AppAPL.Negocio\\Servicios\\CatalogoTipoServicio.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABkAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwB8AAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-07T20:10:04.282Z"
+              "WhenOpened": "2025-10-07T20:10:04.282Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "CatalogoTipoRepositorio.cs",
               "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\Repositorio\\CatalogoTipoRepositorio.cs",
               "RelativeDocumentMoniker": "AppAPL.AccesoDatos\\Repositorio\\CatalogoTipoRepositorio.cs",
               "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\Repositorio\\CatalogoTipoRepositorio.cs",
               "RelativeToolTip": "AppAPL.AccesoDatos\\Repositorio\\CatalogoTipoRepositorio.cs",
-              "ViewState": "AgIAAD8AAAAAAAAAAAAowE8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAiwBsAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-07T19:48:08.086Z"
+              "WhenOpened": "2025-10-07T19:48:08.086Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "OpcionesController.cs",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\Controllers\\OpcionesController.cs",
-              "RelativeDocumentMoniker": "AppAPL.Api\\Controllers\\OpcionesController.cs",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Api\\Controllers\\OpcionesController.cs",
-              "RelativeToolTip": "AppAPL.Api\\Controllers\\OpcionesController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAXAAAAAAAAAA==",
+              "DocumentIndex": 4,
+              "Title": "ICatalogoTipoRepositorio.cs",
+              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\Abstracciones\\ICatalogoTipoRepositorio.cs",
+              "RelativeDocumentMoniker": "AppAPL.AccesoDatos\\Abstracciones\\ICatalogoTipoRepositorio.cs",
+              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\Abstracciones\\ICatalogoTipoRepositorio.cs",
+              "RelativeToolTip": "AppAPL.AccesoDatos\\Abstracciones\\ICatalogoTipoRepositorio.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBQAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-07T19:38:41.864Z"
+              "WhenOpened": "2025-10-08T15:12:07.644Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "OracleDynamicParameters.cs",
+              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\Oracle\\OracleDynamicParameters.cs",
+              "RelativeDocumentMoniker": "AppAPL.AccesoDatos\\Oracle\\OracleDynamicParameters.cs",
+              "ToolTip": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\Oracle\\OracleDynamicParameters.cs",
+              "RelativeToolTip": "AppAPL.AccesoDatos\\Oracle\\OracleDynamicParameters.cs",
+              "ViewState": "AgIAAGwAAAAAAAAAAAAmwBUAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T17:29:17.475Z",
+              "EditorCaption": ""
             }
           ]
         }

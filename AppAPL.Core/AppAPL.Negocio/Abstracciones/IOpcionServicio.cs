@@ -8,6 +8,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task ActualizarAsync(UpdateOpcionRequest req, CancellationToken ct);
         Task EliminarLogicoAsync(int idOpcion, int idUsuario, CancellationToken ct);
         Task<OpcionDto?> ObtenerPorIdAsync(int idOpcion, CancellationToken ct);
-       // Task<PagedResult<OpcionDto>> ListarAsync(string? search, int page, int size, CancellationToken ct);
+        Task<IEnumerable<OpcionDto>> ListarAsync(string? search, int page, int size, CancellationToken ct);
     }
 }

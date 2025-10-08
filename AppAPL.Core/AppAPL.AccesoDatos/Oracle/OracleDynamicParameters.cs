@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,16 +11,13 @@ using System.Threading.Tasks;
 
 namespace AppAPL.AccesoDatos.Oracle
 {
-    public class OracleDynamicParameters: SqlMapper.IDynamicParameters
+    public class OracleDynamicParameters : SqlMapper.IDynamicParameters
     {
         private readonly List<OracleParameter> _parameters = new();
 
-        public OracleDynamicParameters()
-        {
+        public OracleDynamicParameters() { }
 
-        }
-
-        // 🔹 Permite pasar objetos anónimos
+        // 🔹 Constructor con objeto anónimo
         public OracleDynamicParameters(object paramObject)
         {
             if (paramObject == null) return;
@@ -39,7 +37,7 @@ namespace AppAPL.AccesoDatos.Oracle
             }
         }
 
-        // 🔹 Añadir parámetros manualmente (versión OracleDbType)
+        // 🔹 Agregar parámetro manualmente (OracleDbType)
         public void Add(string name, OracleDbType oracleType, ParameterDirection direction, object? value = null, int? size = null)
         {
             var param = new OracleParameter
@@ -55,7 +53,7 @@ namespace AppAPL.AccesoDatos.Oracle
             _parameters.Add(param);
         }
 
-        // 🔹 Añadir parámetros con DbType (para compatibilidad con Dapper normal)
+        // 🔹 Agregar parámetro con DbType (compatibilidad Dapper)
         public void Add(string name, DbType dbType, ParameterDirection direction, object? value = null, int? size = null)
         {
             var oracleType = ConvertDbTypeToOracleDbType(dbType);
@@ -73,7 +71,7 @@ namespace AppAPL.AccesoDatos.Oracle
             _parameters.Add(param);
         }
 
-        // 🔹 Obtener el valor de un parámetro OUT después de ejecutar
+        // 🔹 Obtener valor de parámetro OUT
         public T? Get<T>(string name)
         {
             var param = _parameters.FirstOrDefault(p =>
@@ -84,6 +82,20 @@ namespace AppAPL.AccesoDatos.Oracle
 
             if (param.Value == DBNull.Value || param.Value == null)
                 return default;
+
+            // ⚡ Soporte para OracleDecimal, OracleString, etc.
+            if (param.Value is OracleDecimal od)
+            {
+                return (T)Convert.ChangeType(od.ToInt32(), typeof(T));
+            }
+            if (param.Value is OracleString os)
+            {
+                return (T)Convert.ChangeType(os.Value, typeof(T));
+            }
+            if (param.Value is OracleDate odate)
+            {
+                return (T)Convert.ChangeType(odate.Value, typeof(T));
+            }
 
             return (T)Convert.ChangeType(param.Value, typeof(T));
         }
@@ -112,11 +124,12 @@ namespace AppAPL.AccesoDatos.Oracle
                 DateTime => OracleDbType.Date,
                 bool => OracleDbType.Int16,
                 byte[] => OracleDbType.Blob,
+                OracleDbType => (OracleDbType)value, // Soporte directo si se pasa OracleDbType
                 _ => OracleDbType.Varchar2
             };
         }
 
-        // 🔹 Conversión entre DbType → OracleDbType
+        // 🔹 Conversión DbType → OracleDbType
         private static OracleDbType ConvertDbTypeToOracleDbType(DbType dbType) => dbType switch
         {
             DbType.Int32 => OracleDbType.Int32,

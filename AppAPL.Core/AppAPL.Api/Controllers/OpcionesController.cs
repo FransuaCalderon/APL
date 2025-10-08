@@ -9,9 +9,9 @@ namespace AppAPL.Api.Controllers
     public class OpcionesController(IOpcionServicio servicio) : ControllerBase
     {
         [HttpGet]
-        /*
-        public async Task<ActionResult<PagedResult<OpcionDto>>> Get([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int size = 20, CancellationToken ct = default)
-            => Ok(await servicio.ListarAsync(q, page, size, ct));*/
+        
+        public async Task<ActionResult<List<OpcionDto>>> Get([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int size = 20, CancellationToken ct = default)
+            => Ok(await servicio.ListarAsync(q, page, size, ct));
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<OpcionDto>> GetById(int id, CancellationToken ct)
