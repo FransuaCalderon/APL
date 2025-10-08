@@ -14,11 +14,15 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AppAPL.Negocio")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8533fe3883683d2259f8da25775ea0b715eab464")]
 =======
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4c596b8b0559675663aef2e223d88bdeffab1d56")]
 >>>>>>> 60655b0 (Actualizacion de Front)
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+60655b0bda703342778f79b129906a66a36e5fb5")]
+>>>>>>> Stashed changes
 [assembly: System.Reflection.AssemblyProductAttribute("AppAPL.Negocio")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AppAPL.Negocio")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

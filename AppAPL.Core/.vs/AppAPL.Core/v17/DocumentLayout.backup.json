@@ -1,6 +1,10 @@
 {
   "Version": 1,
+<<<<<<< Updated upstream
   "WorkspaceRootPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\",
+=======
+  "WorkspaceRootPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\",
+>>>>>>> Stashed changes
   "Documents": [],
   "DocumentGroupContainers": [
     {
@@ -13,10 +17,13 @@
           "Children": [
             {
               "$type": "Bookmark",
+<<<<<<< Updated upstream
               "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
             },
             {
               "$type": "Bookmark",
+=======
+>>>>>>> Stashed changes
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             }
           ]
