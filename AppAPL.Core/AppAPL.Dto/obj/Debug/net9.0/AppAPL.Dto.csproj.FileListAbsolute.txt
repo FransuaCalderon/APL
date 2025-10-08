@@ -22,3 +22,15 @@ C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Dto\obj\Debu
 C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\refint\AppAPL.Dto.dll
 C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\AppAPL.Dto.pdb
 C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\ref\AppAPL.Dto.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\bin\Debug\net9.0\AppAPL.Dto.deps.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\bin\Debug\net9.0\AppAPL.Dto.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\bin\Debug\net9.0\AppAPL.Dto.pdb
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\AppAPL.Dto.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\AppAPL.Dto.AssemblyInfoInputs.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\AppAPL.Dto.AssemblyInfo.cs
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\AppAPL.Dto.csproj.CoreCompileInputs.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\AppAPL.Dto.sourcelink.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\AppAPL.Dto.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\refint\AppAPL.Dto.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\AppAPL.Dto.pdb
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Dto\obj\Debug\net9.0\ref\AppAPL.Dto.dll

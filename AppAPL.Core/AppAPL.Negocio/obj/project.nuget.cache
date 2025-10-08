@@ -1,14 +1,8 @@
 {
   "version": 2,
-<<<<<<< HEAD
-  "dgSpecHash": "mPn1rcSowTQ=",
+  "dgSpecHash": "dY03QoA8luE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
-=======
-  "dgSpecHash": "eCyXWlmuxwk=",
-  "success": true,
-  "projectFilePath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
->>>>>>> b5ac1ff8a9ac61c442220c29602645d08ee42e6f
+  "projectFilePath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Daniel\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\Daniel\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\9.0.9\\microsoft.extensions.configuration.abstractions.9.0.9.nupkg.sha512",

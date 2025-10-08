@@ -18,6 +18,7 @@ namespace AppAPL.AccesoDatos.IoC
             services.AddSingleton<OracleConnectionFactory>();
             services.AddScoped<IOpcionRepositorio, OpcionRepositorio>();
             services.AddScoped<ICatalogoTipoRepositorio, CatalogoTipoRepositorio>();
+            services.AddScoped<ICatalogoRepositorio, CatalogoRepositorio>();
             return services;
         }
     }

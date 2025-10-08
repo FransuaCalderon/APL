@@ -10,6 +10,7 @@ namespace AppAPL.Negocio.IoC
         {
             services.AddScoped<IOpcionServicio, OpcionServicio>();
             services.AddScoped<ICatalogoTipoServicio, CatalogoTipoServicio>();
+            services.AddScoped<ICatalogoServicio, CatalogoServicio>();
             return services;
         }
     }

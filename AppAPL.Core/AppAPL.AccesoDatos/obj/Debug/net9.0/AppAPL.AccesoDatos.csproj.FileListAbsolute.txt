@@ -30,3 +30,19 @@ C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.AccesoDatos\
 C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\refint\AppAPL.AccesoDatos.dll
 C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.AccesoDatos.pdb
 C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\ref\AppAPL.AccesoDatos.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\bin\Debug\net9.0\AppAPL.AccesoDatos.deps.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\bin\Debug\net9.0\AppAPL.AccesoDatos.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\bin\Debug\net9.0\AppAPL.AccesoDatos.pdb
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\bin\Debug\net9.0\AppAPL.Dto.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\bin\Debug\net9.0\AppAPL.Dto.pdb
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.AccesoDatos.csproj.AssemblyReference.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.AccesoDatos.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.AccesoDatos.AssemblyInfoInputs.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.AccesoDatos.AssemblyInfo.cs
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.AccesoDatos.csproj.CoreCompileInputs.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.AccesoDatos.sourcelink.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.A.925F410A.Up2Date
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.AccesoDatos.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\refint\AppAPL.AccesoDatos.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\AppAPL.AccesoDatos.pdb
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.AccesoDatos\obj\Debug\net9.0\ref\AppAPL.AccesoDatos.dll

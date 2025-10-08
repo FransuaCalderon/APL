@@ -21,18 +21,9 @@ namespace AppAPL.Api.Controllers
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 50)
         {
-            logger.LogInformation("esto es una prueba de log");
+           
             var listaCatalogoTipo = await servicio.ListarAsync(nombre, idEstado, creadoDesde, creadoHasta, pageNumber, pageSize);
-            // Puedes devolver paginación en headers o dentro del cuerpo
-
-            /*
-            var result = new
-            {
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                Items = datos
-            };*/
-
+            
             return listaCatalogoTipo.ToList();
         }
 

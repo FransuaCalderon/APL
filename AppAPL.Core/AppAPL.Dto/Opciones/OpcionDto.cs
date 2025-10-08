@@ -6,31 +6,33 @@ using System.Threading.Tasks;
 
 namespace AppAPL.Dto.Opciones
 {
-    public sealed record OpcionDto(
-    int IdOpcion,
-    string Nombre,
-    string Descripcion,
-    int IdGrupo,
-    string Vista,
-    int IdEstado
-);
+    public class OpcionDTO
+    {
+        public int? IdOpcion { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string Descripcion { get; set; } = string.Empty;
+        public int IdGrupo { get; set; }
+        public string Vista { get; set; } = string.Empty;
+        public int IdUsuarioCreacion { get; set; }
+        public int? IdUsuarioModificacion { get; set; }
+        public int IdEstado { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public DateTime? FechaModificacion { get; set; }
+    }
 
-    public sealed record CreateOpcionRequest(
-        string Nombre,
-        string Descripcion,
-        int IdGrupo,
-        string Vista,
-        int IdUsuarioCreacion,
-        int IdEstado
-    );
 
-    public sealed record UpdateOpcionRequest(
-        int IdOpcion,
-        string Nombre,
-        string Descripcion,
-        int IdGrupo,
-        string Vista,
-        int IdUsuarioModificacion,
-        int IdEstado
-    );
+    public class CrearActualizarOpcionRequest
+    {
+        public string Nombre { get; set; } = string.Empty;
+        public string Descripcion { get; set; } = string.Empty;
+        public int IdGrupo { get; set; }
+        public string Vista { get; set; } = string.Empty;
+        public int IdUsuarioCreacion { get; set; }
+        public int? IdUsuarioModificacion { get; set; }
+        public int IdEstado { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public DateTime? FechaModificacion { get; set; }
+    }
+
+    
 }
