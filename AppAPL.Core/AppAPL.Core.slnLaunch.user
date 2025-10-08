@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Nuevo perfil",
+    "Projects": [
+      {
+        "Path": "AppAPL.Portal\\AppAPL.Portal.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "AppAPL.Api\\AppAPL.Api.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

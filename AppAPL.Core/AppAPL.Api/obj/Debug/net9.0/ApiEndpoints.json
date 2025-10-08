@@ -1,5 +1,17 @@
 [
   {
+<<<<<<< HEAD
+    "ContainingType": "AppAPL.Api.Controllers.WeatherForecastController",
+    "Method": "Get",
+    "RelativePath": "WeatherForecast",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[AppAPL.Api.WeatherForecast, AppAPL.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+=======
     "ContainingType": "AppAPL.Api.Controllers.OpcionesController",
     "Method": "Get",
     "RelativePath": "api/Opciones",
@@ -26,6 +38,7 @@
     "ReturnTypes": [
       {
         "Type": "AppAPL.Dto.Opciones.PagedResult\u00601[[AppAPL.Dto.Opciones.OpcionDto, AppAPL.Dto, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+>>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -33,6 +46,10 @@
         ],
         "StatusCode": 200
       }
+<<<<<<< HEAD
+    ],
+    "EndpointName": "GetWeatherForecast"
+=======
     ]
   },
   {
@@ -118,5 +135,6 @@
       }
     ],
     "ReturnTypes": []
+>>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
   }
 ]

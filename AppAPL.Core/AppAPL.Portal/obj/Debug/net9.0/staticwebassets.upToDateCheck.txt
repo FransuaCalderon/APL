@@ -1,5 +1,25 @@
+wwwroot\css\principal.css
+wwwroot\css\sidebars.css
 wwwroot\css\site.css
 wwwroot\favicon.ico
+wwwroot\img\ico\APL.png
+wwwroot\img\ico\bootstrap-fill.svg
+wwwroot\img\ico\bootstrap.svg
+wwwroot\img\ico\calendar2-week.svg
+wwwroot\img\ico\calendar3.svg
+wwwroot\img\ico\check-lg.svg
+wwwroot\img\ico\grid.svg
+wwwroot\img\ico\house.svg
+wwwroot\img\ico\list.svg
+wwwroot\img\ico\pencil-square.svg
+wwwroot\img\ico\people.svg
+wwwroot\img\ico\plus-square.svg
+wwwroot\img\ico\search.svg
+wwwroot\img\ico\speedometer2.svg
+wwwroot\img\ico\table.svg
+wwwroot\img\ico\trash.svg
+wwwroot\js\color-modes.js
+wwwroot\js\sidebars.js
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
@@ -61,6 +81,91 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
+<<<<<<< HEAD
+wwwroot\css\headers.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\css\principal.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\css\sidebars.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\css\site.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\favicon.ico
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\bootstrap-fill.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\bootstrap.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\calendar2-week.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\calendar3.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\check-lg.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\grid.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\house.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\list.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\pencil-square.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\people.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\plus-square.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\search.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\speedometer2.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\table.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\img\ico\trash.svg
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\js\color-modes.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\js\sidebars.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\js\site.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap.min.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.js.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.min.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery-validation-unobtrusive\dist\jquery.validate.unobtrusive.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery-validation-unobtrusive\dist\jquery.validate.unobtrusive.min.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery-validation\dist\additional-methods.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery-validation\dist\additional-methods.min.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery-validation\dist\jquery.validate.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery-validation\dist\jquery.validate.min.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery-validation\LICENSE.md
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\dist\jquery.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\dist\jquery.min.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\dist\jquery.min.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\dist\jquery.slim.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\dist\jquery.slim.min.js
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\dist\jquery.slim.min.map
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\LICENSE.txt
+C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\wwwroot\css\headers.css
+=======
 C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\wwwroot\css\site.css
 C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\wwwroot\favicon.ico
 C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\wwwroot\js\site.js
@@ -123,3 +228,4 @@ C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.
 C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\dist\jquery.slim.min.js
 C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\dist\jquery.slim.min.map
 C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\wwwroot\lib\jquery\LICENSE.txt
+>>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
