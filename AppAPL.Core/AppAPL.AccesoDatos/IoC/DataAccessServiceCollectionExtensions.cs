@@ -1,5 +1,6 @@
 ﻿using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
+using AppAPL.AccesoDatos.Repositorio;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,7 @@ namespace AppAPL.AccesoDatos.IoC
             });
             services.AddSingleton<OracleConnectionFactory>();
             services.AddScoped<IOpcionRepositorio, OpcionRepositorio>();
+            services.AddScoped<ICatalogoTipoRepositorio, CatalogoTipoRepositorio>();
             return services;
         }
     }

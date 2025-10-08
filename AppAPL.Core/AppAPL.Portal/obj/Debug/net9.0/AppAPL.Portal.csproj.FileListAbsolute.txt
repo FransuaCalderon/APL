@@ -193,3 +193,6 @@ C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.
 C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.pdb
 C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.genruntimeconfig.cache
 C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\ref\AppAPL.Portal.dll
+C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.dll
+C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\refint\AppAPL.Portal.dll
+C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.pdb

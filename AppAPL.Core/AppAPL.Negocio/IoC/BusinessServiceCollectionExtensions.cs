@@ -9,6 +9,7 @@ namespace AppAPL.Negocio.IoC
         public static IServiceCollection AddBusiness(this IServiceCollection services)
         {
             services.AddScoped<IOpcionServicio, OpcionServicio>();
+            services.AddScoped<ICatalogoTipoServicio, CatalogoTipoServicio>();
             return services;
         }
     }
