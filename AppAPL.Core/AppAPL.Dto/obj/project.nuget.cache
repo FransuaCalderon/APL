@@ -1,8 +1,14 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "Vium/b87xHM=",
   "success": true,
   "projectFilePath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
+=======
+  "dgSpecHash": "DjiNzrq80CY=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
+>>>>>>> b5ac1ff8a9ac61c442220c29602645d08ee42e6f
   "expectedPackageFiles": [],
   "logs": []
 }

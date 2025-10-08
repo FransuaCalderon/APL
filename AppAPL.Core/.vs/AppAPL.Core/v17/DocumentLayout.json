@@ -1,5 +1,6 @@
 {
   "Version": 1,
+<<<<<<< HEAD
   "WorkspaceRootPath": "C:\\Users\\Daniel\\Desktop\\proyecto apl este si\\APL\\AppAPL.Core\\",
   "Documents": [
     {
@@ -15,6 +16,10 @@
       "RelativeMoniker": "D:0:0:{33E83E6D-A4BB-472F-87C0-ADA50EC1D416}|AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj|solutionrelative:appapl.accesodatos\\abstracciones\\iopcionrepositorio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
+=======
+  "WorkspaceRootPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\",
+  "Documents": [],
+>>>>>>> b5ac1ff8a9ac61c442220c29602645d08ee42e6f
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -22,6 +27,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
+<<<<<<< HEAD
           "SelectedChildIndex": 0,
           "Children": [
             {
@@ -62,6 +68,13 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-08T19:23:09.536Z",
               "EditorCaption": ""
+=======
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+>>>>>>> b5ac1ff8a9ac61c442220c29602645d08ee42e6f
             }
           ]
         }
