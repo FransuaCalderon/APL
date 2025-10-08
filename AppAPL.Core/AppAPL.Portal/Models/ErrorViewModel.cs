@@ -1,4 +1,4 @@
-namespace AppAPL.Portal.Models
+namespace AppWebAPL.Models
 {
     public class ErrorViewModel
     {
