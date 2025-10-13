@@ -1,322 +1,118 @@
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\appsettings.Development.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\appsettings.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.staticwebassets.runtime.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.staticwebassets.endpoints.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.exe
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.deps.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.runtimeconfig.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.dll
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.pdb
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rpswa.dswa.cache.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.GeneratedMSBuildEditorConfig.editorconfig
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.AssemblyInfoInputs.cache
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.AssemblyInfo.cs
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.csproj.CoreCompileInputs.cache
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.MvcApplicationPartsAssemblyInfo.cache
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.RazorAssemblyInfo.cache
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.RazorAssemblyInfo.cs
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjimswa.dswa.cache.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\bundle\AppAPL.Portal.styles.css
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\projectbundle\AppAPL.Portal.bundle.scp.css
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\kgvz6tnmmx-b9sayid5wm.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\u45odl3dx4-61n19gt1b8.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\3wz3e83qym-xtxxf3hu2r.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xe9a86352u-bqjiyaj88i.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\2et7td9vct-c2jlpeoesf.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\3sy5ell8vg-erw9l3u2r3.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5viot70r9j-aexeepp0ev.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dftqibdkun-d7shbmvgxk.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vn6u2oflcd-ausgxo2sd3.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dvdvycsow3-k8d9w2qqmf.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\8zkjn13x74-cosvhxvwiu.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\bst4k66anp-ub07r2b239.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\a0x2w0ft0z-fvhpjtyr6v.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xkv55yd8kw-b7pk76d08c.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\pgtqr0lvi7-fsbi9cje9m.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yrblp8uvb7-rzd6atqjts.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0b1q970xv6-ee0r1s7dh0.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\31k1cnksow-dxx9fxp4il.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rc3k090d0u-jd9uben2k1.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xivcftl34k-khv3u5hwcm.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\o2blh8c9r1-r4e9w2rdcm.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vb0sms1npk-lcd1t2u6c8.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tvdbiq1bn1-c2oey78nd0.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\cgv8prgsdh-tdbxkamptv.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\fe4px411kd-j5mq2jizvt.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yrql07sbvi-06098lyss8.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\d22cwvg25d-nvvlpmu67g.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tue7ial852-s35ty4nyc5.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xwnki8496c-pj5nd1wqec.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\jwb2p1enbq-46ein0sx1k.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ysiyk0kpl9-v0zj4ognzu.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9yb9yh1opc-37tfw0ft22.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\evsgnw7hhw-hrwsygsryq.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ou1iqkyk15-pk9g2wxc8p.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rujs0j2km5-ft3s53vfgj.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\akyeqijrz2-6cfz1n2cew.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yn87k6hwj0-6pdc2jztkx.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xab0nrzgz2-493y06b0oq.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\f53kmxprqx-iovd86k7lj.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\qtzqcxtm4j-vr1egmr9el.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\6b6jf8do8w-kbrnm935zg.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\zz4chbmqt7-jj8uyg4cgr.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\nk1t8lf4l5-y7v9cxd14o.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9s3evc4zq9-notf2xhcfb.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\90kjcm7urr-h1s4sie4z3.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vt4iwft6lr-63fj8s7r0e.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0vsqef7vsp-0j3bgjxly4.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\az1wk74bot-47otxtyo56.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9zbpzm7gg4-4v8eqarkd7.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yo258kc0un-356vix0kms.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5ghu0sz8af-83jwlth58m.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\w8104tspcw-mrlpezrjn3.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rwtx7xhmsn-lzl9nlhx6b.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\t1th5kc8b5-ag7o75518u.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\7fawtkr8v4-x0q3zqp4vz.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vvub8bkrgf-0i3buxo5is.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\t7gi9uia49-o1o13a6vjx.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ixxcrdcbb4-ttgo8qnofa.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\voe7tm5w9o-2z0ns9nrw6.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\uys12zo6it-muycvpuwrr.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\cciipj1o0d-87fc7y1x7t.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tg257vxvta-mlv21k5csn.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\980f533wdb-0ri7t2kp6o.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\p6a1brhvk0-0ri7t2kp6o.gz
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.json.cache
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.development.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.endpoints.json
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.dll
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\refint\AppAPL.Portal.dll
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.pdb
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.genruntimeconfig.cache
-D:\FuentesAppBM\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\ref\AppAPL.Portal.dll
-<<<<<<< HEAD
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\appsettings.Development.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\appsettings.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.staticwebassets.runtime.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.staticwebassets.endpoints.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.exe
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.deps.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.runtimeconfig.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.dll
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.pdb
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rpswa.dswa.cache.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.AssemblyInfoInputs.cache
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.AssemblyInfo.cs
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.csproj.CoreCompileInputs.cache
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.RazorAssemblyInfo.cache
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.RazorAssemblyInfo.cs
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.sourcelink.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjimswa.dswa.cache.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\bundle\AppAPL.Portal.styles.css
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\projectbundle\AppAPL.Portal.bundle.scp.css
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\kgvz6tnmmx-b9sayid5wm.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\3wz3e83qym-xtxxf3hu2r.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xe9a86352u-t1cqhe9u97.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\2et7td9vct-c2jlpeoesf.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\3sy5ell8vg-sejl45xvog.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5viot70r9j-aexeepp0ev.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dftqibdkun-xvp3kq03qx.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vn6u2oflcd-ausgxo2sd3.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dvdvycsow3-22vffe00uq.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\8zkjn13x74-cosvhxvwiu.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\bst4k66anp-qesaa3a1fm.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\a0x2w0ft0z-fvhpjtyr6v.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xkv55yd8kw-tmc1g35s3z.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\pgtqr0lvi7-fsbi9cje9m.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yrblp8uvb7-rxsg74s51o.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0b1q970xv6-ee0r1s7dh0.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\31k1cnksow-q9ht133ko3.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rc3k090d0u-jd9uben2k1.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xivcftl34k-gye83jo8yx.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\o2blh8c9r1-r4e9w2rdcm.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vb0sms1npk-wl58j5mj3v.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tvdbiq1bn1-c2oey78nd0.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\cgv8prgsdh-d4r6k3f320.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\fe4px411kd-j5mq2jizvt.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yrql07sbvi-keugtjm085.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\d22cwvg25d-nvvlpmu67g.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tue7ial852-zub09dkrxp.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xwnki8496c-pj5nd1wqec.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\jwb2p1enbq-43atpzeawx.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ysiyk0kpl9-v0zj4ognzu.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9yb9yh1opc-ynyaa8k90p.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\evsgnw7hhw-hrwsygsryq.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ou1iqkyk15-c63t5i9ira.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rujs0j2km5-ft3s53vfgj.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\akyeqijrz2-4094rpi4f9.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yn87k6hwj0-6pdc2jztkx.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xab0nrzgz2-hd3gran6i8.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\f53kmxprqx-iovd86k7lj.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\qtzqcxtm4j-ltid2c489k.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\6b6jf8do8w-kbrnm935zg.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\zz4chbmqt7-8vyfqsqgz1.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\nk1t8lf4l5-y7v9cxd14o.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9s3evc4zq9-u9q1upor1n.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\90kjcm7urr-h1s4sie4z3.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vt4iwft6lr-4d85u1mtcx.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0vsqef7vsp-0j3bgjxly4.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\az1wk74bot-03hjc8e09r.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9zbpzm7gg4-48y08845bh.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yo258kc0un-356vix0kms.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5ghu0sz8af-83jwlth58m.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\w8104tspcw-mrlpezrjn3.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rwtx7xhmsn-worgj0nhwm.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\t1th5kc8b5-gk0pw8i4co.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\7fawtkr8v4-x0q3zqp4vz.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vvub8bkrgf-d6nrnj6jjx.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\t7gi9uia49-m9qm4tazc0.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ixxcrdcbb4-ttgo8qnofa.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\voe7tm5w9o-jjsuc0puko.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\uys12zo6it-9vr69e8ynj.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\cciipj1o0d-87fc7y1x7t.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tg257vxvta-mlv21k5csn.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.json.cache
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.development.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.endpoints.json
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.dll
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\refint\AppAPL.Portal.dll
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.pdb
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.genruntimeconfig.cache
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\ref\AppAPL.Portal.dll
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\z4x7hqsbhy-uiypxcyscd.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\igjmq420ve-gqs95appl6.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\qlh2uh2b73-uo9di35pc4.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\n5s80xx85e-ipwdqkwuau.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\d55ujycm8a-bwuqvvqfo3.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\hy16e609uo-ad61p6mfo9.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0plg6fue0r-euxrwxojdg.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\oie2jjbhzt-jd6tj277vk.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\nja2uzpbk7-qqo9fqs06m.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5gwvt9h8lb-sfe2hs6ved.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\1gvs1txaci-jf0jabmxgv.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5v6syvbl9l-r7hwvuv6pp.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\soo091kmqi-e8g67i00mq.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\q5rul26x1e-0wnrf2x5wn.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\w6lxsgpcse-5wzu30ecg0.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dyzfqqjmd6-9vjs5k5nbw.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\do3n0h94s4-8za3ag2ta3.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\wq5rt6zdtg-pbwnhuunbn.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\l8rkf254ub-j76b3hkwzw.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\980f533wdb-xzbho7zyim.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\p6a1brhvk0-xzbho7zyim.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\u45odl3dx4-7l3hoxknjd.gz
-C:\Users\HP\Desktop\PROYECTO APL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ftpcrxtz4z-lj0o1vfxi3.gz
-=======
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\appsettings.Development.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\appsettings.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.staticwebassets.runtime.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.staticwebassets.endpoints.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.exe
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.deps.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.runtimeconfig.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.dll
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.pdb
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rpswa.dswa.cache.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.AssemblyInfoInputs.cache
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.AssemblyInfo.cs
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.csproj.CoreCompileInputs.cache
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.RazorAssemblyInfo.cache
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.RazorAssemblyInfo.cs
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.sourcelink.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjimswa.dswa.cache.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\bundle\AppAPL.Portal.styles.css
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\projectbundle\AppAPL.Portal.bundle.scp.css
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\kgvz6tnmmx-b9sayid5wm.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\u45odl3dx4-61n19gt1b8.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\3wz3e83qym-xtxxf3hu2r.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xe9a86352u-t1cqhe9u97.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\2et7td9vct-c2jlpeoesf.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\3sy5ell8vg-sejl45xvog.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5viot70r9j-aexeepp0ev.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dftqibdkun-xvp3kq03qx.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vn6u2oflcd-ausgxo2sd3.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dvdvycsow3-22vffe00uq.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\8zkjn13x74-cosvhxvwiu.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\bst4k66anp-qesaa3a1fm.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\a0x2w0ft0z-fvhpjtyr6v.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xkv55yd8kw-tmc1g35s3z.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\pgtqr0lvi7-fsbi9cje9m.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yrblp8uvb7-rxsg74s51o.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0b1q970xv6-ee0r1s7dh0.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\31k1cnksow-q9ht133ko3.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rc3k090d0u-jd9uben2k1.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xivcftl34k-gye83jo8yx.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\o2blh8c9r1-r4e9w2rdcm.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vb0sms1npk-wl58j5mj3v.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tvdbiq1bn1-c2oey78nd0.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\cgv8prgsdh-d4r6k3f320.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\fe4px411kd-j5mq2jizvt.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yrql07sbvi-keugtjm085.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\d22cwvg25d-nvvlpmu67g.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tue7ial852-zub09dkrxp.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xwnki8496c-pj5nd1wqec.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\jwb2p1enbq-43atpzeawx.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ysiyk0kpl9-v0zj4ognzu.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9yb9yh1opc-ynyaa8k90p.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\evsgnw7hhw-hrwsygsryq.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ou1iqkyk15-c63t5i9ira.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rujs0j2km5-ft3s53vfgj.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\akyeqijrz2-4094rpi4f9.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yn87k6hwj0-6pdc2jztkx.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xab0nrzgz2-hd3gran6i8.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\f53kmxprqx-iovd86k7lj.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\qtzqcxtm4j-ltid2c489k.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\6b6jf8do8w-kbrnm935zg.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\zz4chbmqt7-8vyfqsqgz1.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\nk1t8lf4l5-y7v9cxd14o.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9s3evc4zq9-u9q1upor1n.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\90kjcm7urr-h1s4sie4z3.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vt4iwft6lr-4d85u1mtcx.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0vsqef7vsp-0j3bgjxly4.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\az1wk74bot-03hjc8e09r.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9zbpzm7gg4-48y08845bh.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yo258kc0un-356vix0kms.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5ghu0sz8af-83jwlth58m.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\w8104tspcw-mrlpezrjn3.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rwtx7xhmsn-worgj0nhwm.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\t1th5kc8b5-gk0pw8i4co.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\7fawtkr8v4-x0q3zqp4vz.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vvub8bkrgf-d6nrnj6jjx.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\t7gi9uia49-m9qm4tazc0.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ixxcrdcbb4-ttgo8qnofa.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\voe7tm5w9o-jjsuc0puko.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\uys12zo6it-9vr69e8ynj.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\cciipj1o0d-87fc7y1x7t.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tg257vxvta-mlv21k5csn.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\980f533wdb-0ri7t2kp6o.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\p6a1brhvk0-0ri7t2kp6o.gz
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.json.cache
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.development.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.endpoints.json
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.dll
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\refint\AppAPL.Portal.dll
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.pdb
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.genruntimeconfig.cache
-C:\Users\Usuario iTC\Documents\PROYECTO_BMTECSA_APL_2025\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\ref\AppAPL.Portal.dll
-<<<<<<< HEAD
-C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.dll
-C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\refint\AppAPL.Portal.dll
-C:\Users\Daniel\Desktop\proyecto apl este si\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.pdb
-=======
->>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
->>>>>>> 647ac6309e7dc56d26d6a0f688a1eb3f862fda75
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\appsettings.Development.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\appsettings.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.staticwebassets.runtime.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.staticwebassets.endpoints.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.exe
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.deps.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.runtimeconfig.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debug\net9.0\AppAPL.Portal.pdb
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rpswa.dswa.cache.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.AssemblyInfoInputs.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.AssemblyInfo.cs
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.csproj.CoreCompileInputs.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.RazorAssemblyInfo.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.RazorAssemblyInfo.cs
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.sourcelink.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjimswa.dswa.cache.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\bundle\AppAPL.Portal.styles.css
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\scopedcss\projectbundle\AppAPL.Portal.bundle.scp.css
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ftpcrxtz4z-dr4yypcshv.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\z4x7hqsbhy-uiypxcyscd.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\igjmq420ve-gqs95appl6.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\kgvz6tnmmx-b9sayid5wm.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\u45odl3dx4-7l3hoxknjd.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\qlh2uh2b73-uo9di35pc4.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\n5s80xx85e-ipwdqkwuau.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\d55ujycm8a-bwuqvvqfo3.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\hy16e609uo-ad61p6mfo9.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0plg6fue0r-euxrwxojdg.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\oie2jjbhzt-jd6tj277vk.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\nja2uzpbk7-qqo9fqs06m.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5gwvt9h8lb-sfe2hs6ved.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\1gvs1txaci-jf0jabmxgv.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5v6syvbl9l-r7hwvuv6pp.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\soo091kmqi-e8g67i00mq.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\q5rul26x1e-0wnrf2x5wn.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\w6lxsgpcse-5wzu30ecg0.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dyzfqqjmd6-9vjs5k5nbw.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\do3n0h94s4-8za3ag2ta3.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\wq5rt6zdtg-pbwnhuunbn.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\l8rkf254ub-j76b3hkwzw.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\3wz3e83qym-xtxxf3hu2r.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xe9a86352u-t1cqhe9u97.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\2et7td9vct-c2jlpeoesf.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\3sy5ell8vg-sejl45xvog.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5viot70r9j-aexeepp0ev.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dftqibdkun-xvp3kq03qx.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vn6u2oflcd-ausgxo2sd3.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dvdvycsow3-22vffe00uq.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\8zkjn13x74-cosvhxvwiu.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\bst4k66anp-qesaa3a1fm.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\a0x2w0ft0z-fvhpjtyr6v.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xkv55yd8kw-tmc1g35s3z.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\pgtqr0lvi7-fsbi9cje9m.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yrblp8uvb7-rxsg74s51o.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0b1q970xv6-ee0r1s7dh0.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\31k1cnksow-q9ht133ko3.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rc3k090d0u-jd9uben2k1.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xivcftl34k-gye83jo8yx.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\o2blh8c9r1-r4e9w2rdcm.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vb0sms1npk-wl58j5mj3v.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tvdbiq1bn1-c2oey78nd0.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\cgv8prgsdh-d4r6k3f320.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\fe4px411kd-j5mq2jizvt.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yrql07sbvi-keugtjm085.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\d22cwvg25d-nvvlpmu67g.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tue7ial852-zub09dkrxp.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xwnki8496c-pj5nd1wqec.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\jwb2p1enbq-43atpzeawx.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ysiyk0kpl9-v0zj4ognzu.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9yb9yh1opc-ynyaa8k90p.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\evsgnw7hhw-hrwsygsryq.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ou1iqkyk15-c63t5i9ira.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rujs0j2km5-ft3s53vfgj.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\akyeqijrz2-4094rpi4f9.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yn87k6hwj0-6pdc2jztkx.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\xab0nrzgz2-hd3gran6i8.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\f53kmxprqx-iovd86k7lj.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\qtzqcxtm4j-ltid2c489k.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\6b6jf8do8w-kbrnm935zg.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\zz4chbmqt7-8vyfqsqgz1.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\nk1t8lf4l5-y7v9cxd14o.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9s3evc4zq9-u9q1upor1n.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\90kjcm7urr-h1s4sie4z3.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vt4iwft6lr-4d85u1mtcx.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0vsqef7vsp-0j3bgjxly4.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\az1wk74bot-03hjc8e09r.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\9zbpzm7gg4-48y08845bh.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\yo258kc0un-356vix0kms.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\5ghu0sz8af-83jwlth58m.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\w8104tspcw-mrlpezrjn3.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\rwtx7xhmsn-worgj0nhwm.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\t1th5kc8b5-gk0pw8i4co.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\7fawtkr8v4-x0q3zqp4vz.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\vvub8bkrgf-d6nrnj6jjx.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\t7gi9uia49-m9qm4tazc0.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\ixxcrdcbb4-ttgo8qnofa.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\voe7tm5w9o-jjsuc0puko.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\uys12zo6it-9vr69e8ynj.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\cciipj1o0d-87fc7y1x7t.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\tg257vxvta-mlv21k5csn.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\980f533wdb-0ri7t2kp6o.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\p6a1brhvk0-0ri7t2kp6o.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.json.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.development.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.build.endpoints.json
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\refint\AppAPL.Portal.dll
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.pdb
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.genruntimeconfig.cache
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\ref\AppAPL.Portal.dll
