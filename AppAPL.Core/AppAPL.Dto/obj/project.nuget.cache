@@ -1,8 +1,14 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "DTJoj/YLAKc=",
   "success": true,
   "projectFilePath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
+=======
+  "dgSpecHash": "IynUwv9DKVs=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
+>>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
   "expectedPackageFiles": [],
   "logs": []
 }

@@ -1,0 +1,232 @@
+﻿/* Busca esta sección de Variables */
+:root {
+    --primary-color: #0E1561;
+    /* ... otras variables ... */
+    --logo-bg: #212529; /* <-- CAMBIA ESTE COLOR */
+}
+
+/* Modificación de Variables */
+:root {
+    --primary-color: #007bff;
+    --text-color: #333;
+    --label-color: #6c757d;
+    --border-color: #ced4da;
+    --background-color: #f8f9fa;
+    --card-background: #fff;
+    --logo-bg: #1c529c; /* Nuevo Azul Oscuro, similar al del Header en el original */
+}
+
+/* El selector .logo-box ya usa --logo-bg, por lo que hereda el nuevo color. */
+.logo-box {
+    background-color: var(--logo-bg); /* Usará el nuevo azul */
+    color: white;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    /* No es necesario cambiar el tamaño, se mantiene el padding y font-size */
+}
+
+/* -------------------------------------- */
+/* Estilos del Layout para Centrado (usado por _LoginLayout.cshtml) */
+/* -------------------------------------- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+}
+
+/* Contenedor que centra el card en la pantalla */
+.full-screen-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Contenedor principal del formulario */
+.login-container {
+    width: 200%;
+    max-width: 500px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* -------------------------------------- */
+/* Tarjeta de Login (Card) */
+/* -------------------------------------- */
+.login-card {
+    background: var(--card-background);
+    border-radius: 8px; /* Borde redondeado suave */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra sutil y visible */
+    padding: 30px;
+}
+
+/* Encabezado */
+.card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.logo-box {
+    background-color: var(--logo-bg);
+    color: white;
+    font-weight: 500; /* Menos negrita que 'bold' */
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+.system-name {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-color);
+    margin: 0;
+}
+
+/* -------------------------------------- */
+/* Formulario y Campos */
+/* -------------------------------------- */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    color: var(--label-color);
+    margin-bottom: 5px;
+    font-weight: normal;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    /* El efecto placeholder gris */
+    &::placeholder
+
+{
+    color: #adb5bd;
+}
+
+}
+
+/* Contenedor del select para la flecha personalizada */
+.input-container {
+    position: relative;
+}
+
+.select-container select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 30px;
+}
+
+.select-arrow {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--label-color);
+}
+
+/* -------------------------------------- */
+/* Opciones (Recordarme / Olvidaste) */
+/* -------------------------------------- */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+}
+
+    .remember-me input[type="checkbox"] {
+        margin-right: 5px;
+    }
+
+.forgot-password {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+/* Botón */
+.btn-primary {
+    width: 100%;
+    color: #fff;
+    background-color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 10px 16px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+/* -------------------------------------- */
+/* Selector de Idioma */
+/* -------------------------------------- */
+/* Selector de Idioma */
+.language-switch {
+    display: flex;
+    align-items: center;
+    /* CAMBIA 'justify-content: flex-start;' por 'flex-end' */
+    justify-content: flex-end;
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--label-color);
+}
+
+    .language-switch span {
+        /* Agregamos margin-right automático para empujar el texto a la izquierda del select */
+        margin-right: auto;
+    }
+
+/* Si quieres que el texto "Cambiar idioma" también quede a la derecha, 
+   simplemente remueve la línea 'margin-right: auto;' en .language-switch span.
+   PERO, basado en la imagen, el texto está a la izquierda del selector, 
+   así que 'margin-right: auto;' es la opción correcta para empujarlo a la izquierda.
+*/
+
+.language-select {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: #fff;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none;
+    width: auto;
+}

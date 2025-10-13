@@ -1,0 +1,74 @@
+﻿@{
+    // Asegura el uso del layout simple
+    Layout = "_LoginLayout";
+    ViewData["Title"] = "APL System - Login";
+}
+
+<div class="login-container">
+    <div class="login-card">
+        <header class="card-header">
+            <div class="logo-box">BM</div>
+            <h1 class="system-name">APL System</h1>
+        </header>
+
+        <form class="login-form" method="post" asp-controller="Login" asp-action="Login">
+
+            @* Muestra el mensaje de error si existe, por ejemplo, si la validación falla *@
+            @if (ViewData["Error"] != null)
+            {
+                <div class="alert alert-danger" role="alert" style="font-size: 14px; margin-bottom: 15px;">
+                    @ViewData["Error"]
+                </div>
+            }
+
+            <div class="form-group">
+                <label for="pais">País</label>
+                <div class="input-container select-container">
+                    <select id="pais" name="pais" class="form-control">
+                        <option value="EC" selected>EC - Ecuador</option>
+                        <option value="MX">MX - México</option>
+                        <option value="CO">CO - Colombia</option>
+                        <option value="US">US - Estados Unidos</option>
+                        <option value="ES">ES - España</option>
+                    </select>
+                    <span class="select-arrow"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="empresa">Empresa</label>
+                <input type="text" id="empresa" name="empresa" class="form-control" placeholder="Selecciona o escribe empresa">
+            </div>
+
+            <div class="form-group">
+                <label for="usuario">Usuario / Correo</label>
+                <input type="text" id="usuario" name="Usuario" class="form-control" placeholder="usuario@ejemplo.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="contrasena">Contraseña</label>
+                @* CLAVE: name="Clave" para el controlador *@
+                <input type="password" id="contrasena" name="Clave" class="form-control" value="" required>
+            </div>
+
+            <div class="form-options">
+                <div class="remember-me">
+                    <input type="checkbox" id="recordarme" name="recordarme">
+                    <label for="recordarme">Recordarme</label>
+                </div>
+                <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Ingresar</button>
+        </form>
+
+        <div class="language-switch">
+            <span>Cambiar idioma:</span>
+            <select class="language-select">
+                <option value="es" selected>ES</option>
+                <option value="en">EN</option>
+                <option value="pt">PT</option>
+            </select>
+        </div>
+    </div>
+</div>

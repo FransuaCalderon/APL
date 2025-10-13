@@ -10,16 +10,22 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
+
+// -----------------------------------------------------------
+// AÑADIDO: Habilita el servicio de archivos estáticos (CSS, JS, imágenes)
+// -----------------------------------------------------------
+app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
+// app.MapStaticAssets(); // Mantienes esta línea si es necesaria para tu setup específico
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    // Esta ruta ya es correcta y apunta al Login/Login
+    pattern: "{controller=Login}/{action=Login}/{id?}");
 
 
 app.Run();
