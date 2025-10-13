@@ -1,11 +1,48 @@
 {
   "Version": 1,
-<<<<<<< Updated upstream
-  "WorkspaceRootPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\",
-=======
   "WorkspaceRootPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\",
->>>>>>> Stashed changes
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\wwwroot\\css\\login.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\css\\login.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\views\\shared\\_loginlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\shared\\_loginlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\views\\login\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\login\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\views\\shared\\_layout.cshtml.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\shared\\_layout.cshtml.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\apl\\apl\\appapl.core\\appapl.portal\\views\\shared\\error.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\shared\\error.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -13,18 +50,134 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
-              "$type": "Bookmark",
-<<<<<<< Updated upstream
-              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "login.css",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\css\\login.css",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\css\\login.css",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\css\\login.css",
+              "RelativeToolTip": "AppAPL.Portal\\wwwroot\\css\\login.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-10-13T14:09:48.626Z",
+              "EditorCaption": ""
             },
             {
-              "$type": "Bookmark",
-=======
->>>>>>> Stashed changes
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "LoginController.cs",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Controllers\\LoginController.cs",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Controllers\\LoginController.cs",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Controllers\\LoginController.cs",
+              "RelativeToolTip": "AppAPL.Portal\\Controllers\\LoginController.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAkwCsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-13T14:03:39.887Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Program.cs",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Program.cs",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Program.cs",
+              "RelativeToolTip": "AppAPL.Portal\\Program.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAwwB4AAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-13T13:55:14.544Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "_ViewStart.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\_ViewStart.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\_ViewStart.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\_ViewStart.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\_ViewStart.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-13T13:54:29.931Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "_Layout.cshtml.css",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_Layout.cshtml.css",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Shared\\_Layout.cshtml.css",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_Layout.cshtml.css",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Shared\\_Layout.cshtml.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-10-08T22:05:08.505Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "_LoginLayout.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_LoginLayout.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Shared\\_LoginLayout.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_LoginLayout.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Shared\\_LoginLayout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-08T22:05:06.463Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "_ValidationScriptsPartial.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-08T22:05:05.022Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Error.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\Error.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Shared\\Error.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\Error.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Shared\\Error.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-08T22:05:02.438Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAQwKMAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-08T21:59:35.161Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Login.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Login\\Login.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Login\\Login.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Login\\Login.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Login\\Login.cshtml",
+              "ViewState": "AgIAACoAAAAAAAAAAAAQwEkAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-08T21:56:36.033Z",
+              "EditorCaption": ""
             }
           ]
         }

@@ -1,20 +1,21 @@
-﻿<!DOCTYPE html>
+﻿﻿
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AppWebAPL</title>
-    <script type="importmap"></script>
-    <script src="~/css/js/color-modes.js"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - AppWebAPL</title>
+	<script type="importmap"></script>
+	<script src="~/css/js/color-modes.js"></script>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
-    <meta name="theme-color" content="#712cf9">
+	<meta name="theme-color" content="#712cf9">
 
-    <link rel="stylesheet" href="~/css/headers.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/sidebars.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/principal.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/AppWebAPL.styles.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/headers.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/sidebars.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/principal.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/AppWebAPL.styles.css" asp-append-version="true" />
 </head>
 
 
@@ -143,21 +144,21 @@
 			</div>
 
 			<main class="col-10 ">
-				@RenderBody()				
+				@RenderBody()
 			</main>
 
 		</div>
 
-		
+
 	</div>
 
 
 
-	
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
