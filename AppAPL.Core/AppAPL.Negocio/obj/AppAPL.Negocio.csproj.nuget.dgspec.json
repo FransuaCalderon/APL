@@ -1,7 +1,6 @@
 {
   "format": 1,
   "restore": {
-<<<<<<< HEAD
     "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj": {}
   },
   "projects": {
@@ -13,29 +12,12 @@
         "projectPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj",
         "packagesPath": "C:\\Users\\Daniel\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\obj\\",
-=======
-    "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj": {}
-  },
-  "projects": {
-    "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj",
-        "projectName": "AppAPL.AccesoDatos",
-        "projectPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\obj\\",
->>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-<<<<<<< HEAD
           "C:\\Users\\Daniel\\AppData\\Roaming\\NuGet\\NuGet.Config",
-=======
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
->>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -50,13 +32,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-<<<<<<< HEAD
               "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
                 "projectPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj"
-=======
-              "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
-                "projectPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj"
->>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
               }
             }
           }
@@ -110,7 +87,6 @@
               "privateAssets": "all"
             }
           },
-<<<<<<< HEAD
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
@@ -123,30 +99,12 @@
         "projectPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
         "packagesPath": "C:\\Users\\Daniel\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Dto\\obj\\",
-=======
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
-        "projectName": "AppAPL.Dto",
-        "projectPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Dto\\obj\\",
->>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-<<<<<<< HEAD
           "C:\\Users\\Daniel\\AppData\\Roaming\\NuGet\\NuGet.Config",
-=======
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
->>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -194,7 +152,6 @@
               "privateAssets": "all"
             }
           },
-<<<<<<< HEAD
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
@@ -207,30 +164,12 @@
         "projectPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
         "packagesPath": "C:\\Users\\Daniel\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Negocio\\obj\\",
-=======
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
-        "projectName": "AppAPL.Negocio",
-        "projectPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\AppAPL.Negocio.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Negocio\\obj\\",
->>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-<<<<<<< HEAD
           "C:\\Users\\Daniel\\AppData\\Roaming\\NuGet\\NuGet.Config",
-=======
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
->>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -245,19 +184,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-<<<<<<< HEAD
               "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj": {
                 "projectPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj"
               },
               "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
                 "projectPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj"
-=======
-              "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj": {
-                "projectPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\AppAPL.AccesoDatos.csproj"
-              },
-              "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj": {
-                "projectPath": "C:\\Users\\HP\\Desktop\\APL\\APL\\AppAPL.Core\\AppAPL.Dto\\AppAPL.Dto.csproj"
->>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
               }
             }
           }
@@ -293,11 +224,7 @@
               "privateAssets": "all"
             }
           },
-<<<<<<< HEAD
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
-=======
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
->>>>>>> bdc747fc34aee8748cddf2e64ded878c9a112726
         }
       }
     }

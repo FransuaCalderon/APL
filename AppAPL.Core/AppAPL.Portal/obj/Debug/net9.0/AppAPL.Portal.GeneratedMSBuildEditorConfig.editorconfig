@@ -36,12 +36,32 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Daniel/Desktop/PROYECTO APL REAL/APL/AppAPL.Core/AppAPL.Portal/Views/Login/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cTG9naW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Daniel/Desktop/PROYECTO APL REAL/APL/AppAPL.Core/AppAPL.Portal/Views/Opciones/Catalogo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3BjaW9uZXNcQ2F0YWxvZ28uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Daniel/Desktop/PROYECTO APL REAL/APL/AppAPL.Core/AppAPL.Portal/Views/Opciones/CatalogoTipo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3BjaW9uZXNcQ2F0YWxvZ29UaXBvLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Daniel/Desktop/PROYECTO APL REAL/APL/AppAPL.Core/AppAPL.Portal/Views/Opciones/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3BjaW9uZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Daniel/Desktop/PROYECTO APL REAL/APL/AppAPL.Core/AppAPL.Portal/Views/Promocion/CrearPromocion.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvbW9jaW9uXENyZWFyUHJvbW9jaW9uLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Daniel/Desktop/PROYECTO APL REAL/APL/AppAPL.Core/AppAPL.Portal/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Daniel/Desktop/PROYECTO APL REAL/APL/AppAPL.Core/AppAPL.Portal/Views/Shared/_LoginLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpbkxheW91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Daniel/Desktop/PROYECTO APL REAL/APL/AppAPL.Core/AppAPL.Portal/Views/Shared/_ValidationScriptsPartial.cshtml]

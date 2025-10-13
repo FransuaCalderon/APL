@@ -1,0 +1,29 @@
+﻿@using AppAPL.Dto.CatalogoTipo
+@model IEnumerable<CatalogoTipoDTO>;
+
+@{
+}
+
+
+
+<h2>Catalogo</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.IdCatalogoTipo</td>
+                <td>@item.Nombre</td>
+                <td>@item.Descripcion</td>
+            </tr>
+        }
+    </tbody>
+</table>

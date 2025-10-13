@@ -13,12 +13,7 @@ namespace AppAPL.Negocio.Abstracciones
         Task ActualizarAsync(CrearActualizarCatalogoTipoRequest catalogo, int idCatalogoTipo);
         Task<int> CrearAsync(CrearActualizarCatalogoTipoRequest catalogo);
         Task EliminarAsync(int idCatalogoTipo);
-        Task<IEnumerable<CatalogoTipoDTO>> ListarAsync(string? nombre = null,
-           int? idEstado = null,
-           DateTime? creadoDesde = null,
-           DateTime? creadoHasta = null,
-           int pageNumber = 1,
-           int pageSize = 50);
+        Task<IEnumerable<CatalogoTipoDTO>> ListarAsync(string? nombre = null, int? idEstado = null, DateTime? creadoDesde = null, DateTime? creadoHasta = null, int pageNumber = 1,int pageSize = 50);
         Task<CatalogoTipoDTO?> ObtenerPorIdAsync(int idCatalogoTipo);
     }
 }

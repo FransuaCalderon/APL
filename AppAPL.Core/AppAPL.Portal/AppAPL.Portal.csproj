@@ -12,4 +12,9 @@
     <Folder Include="Pages\Opciones\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AppAPL.Api\AppAPL.Api.csproj" />
+    <ProjectReference Include="..\AppAPL.Dto\AppAPL.Dto.csproj" />
+  </ItemGroup>
+
 </Project>

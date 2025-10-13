@@ -1,0 +1,28 @@
+﻿@using AppAPL.Dto.Opciones
+@model IEnumerable<OpcionDTO>;
+@{
+}
+
+
+<h2>Opciones</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.IdOpcion</td>
+                <td>@item.Nombre</td>
+                <td>@item.Descripcion</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
