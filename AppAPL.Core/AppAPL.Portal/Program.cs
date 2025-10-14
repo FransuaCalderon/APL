@@ -61,7 +61,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 // -----------------------------------------------------------
-// AÑADIDO: Habilita el servicio de archivos estáticos (CSS, JS, imágenes)
+// Habilita el servicio de archivos estáticos (CSS, JS, imágenes)
 // -----------------------------------------------------------
 app.UseStaticFiles();
 
@@ -77,12 +77,12 @@ app.MapGet("/config", (IConfiguration config) =>
     return Results.Json(new { apiBaseUrl });
 });
 
-// app.MapStaticAssets(); // Mantienes esta línea si es necesaria para tu setup específico
+// app.MapStaticAssets(); // Mantenemos tu MapStaticAssets si es necesario para tu setup específico
 
 app.MapControllerRoute(
     name: "default",
-    // Esta ruta ya es correcta y apunta al Login/Login
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    // MODIFICADO: Apunta al LoginController y la acción Login
+    pattern: "{controller=Login}/{action=Login}/{id?}"); // <-- CAMBIO APLICADO AQUÍ
 
 
 
