@@ -69,12 +69,22 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+
+
+app.MapGet("/config", (IConfiguration config) =>
+{
+    var apiBaseUrl = config["ApiSettings:BaseUrl"];
+    return Results.Json(new { apiBaseUrl });
+});
+
 // app.MapStaticAssets(); // Mantienes esta línea si es necesaria para tu setup específico
 
 app.MapControllerRoute(
     name: "default",
     // Esta ruta ya es correcta y apunta al Login/Login
-    pattern: "{controller=Opciones}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
 
 
 app.Run();

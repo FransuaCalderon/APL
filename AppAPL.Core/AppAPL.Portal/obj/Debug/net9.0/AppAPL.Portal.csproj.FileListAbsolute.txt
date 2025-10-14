@@ -202,3 +202,8 @@ C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\bin\Debu
 C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.csproj.AssemblyReference.cache
 C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.Portal.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\AppAPL.P.EAE88994.Up2Date
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\olv3vukv1g-xowj75vshv.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\0iyzcebr6l-nyrecwsx0m.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\dqykyqzqa9-d2mfyeunvo.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\gacf5xzglc-gp6td25a6z.gz
+C:\Users\Daniel\Desktop\PROYECTO APL REAL\APL\AppAPL.Core\AppAPL.Portal\obj\Debug\net9.0\compressed\hbwbroy7qb-4vizb3kp66.gz
