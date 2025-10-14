@@ -29,3 +29,43 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Estilos para alinear y espaciar los botones */
+.action-buttons {
+    display: flex;
+    gap: 10px; /* Espacio entre los botones */
+    justify-content: flex-start; /* Centrar los íconos en la celda */
+}
+
+/* Estilo base para los botones de acción */
+.btn-action {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    font-size: 1.4em; /* Tamaño del ícono */
+    line-height: 1;
+    text-decoration: none;
+    /* Esto es importante si tus íconos tienen un contorno o fondo */
+    box-shadow: none;
+}
+
+    /* Estilo para el ícono de Editar (Lápiz - Verde) */
+    .btn-action.edit-btn i {
+        color: #008000; /* Color Verde */
+        /* Puedes añadir una ligera sombra o filtro para el efecto de resplandor (opcional) */
+        /* filter: drop-shadow(0 0 1px #008000); */
+    }
+
+    /* Estilo para el ícono de Eliminar (Papelera - Rojo) */
+    .btn-action.delete-btn i {
+        color: #ff0000; /* Color Rojo */
+        /* Puedes añadir una ligera sombra o filtro para el efecto de resplandor (opcional) */
+        /* filter: drop-shadow(0 0 1px #ff0000); */
+    }
+
+    /* Opcional: Efecto al pasar el ratón */
+    .btn-action:hover i {
+        opacity: 0.8;
+    }

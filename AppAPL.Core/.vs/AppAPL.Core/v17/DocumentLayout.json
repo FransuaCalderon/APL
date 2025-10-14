@@ -1,34 +1,30 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\",
+  "WorkspaceRootPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\daniel\\desktop\\proyecto apl real\\apl\\appapl.core\\appapl.portal\\wwwroot\\js\\tipocatalogo\\tipocatalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\js\\tipocatalogo\\tipocatalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\daniel\\desktop\\proyecto apl real\\apl\\appapl.core\\appapl.portal\\views\\catalogotipo\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\views\\catalogotipo\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\catalogotipo\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\daniel\\desktop\\proyecto apl real\\apl\\appapl.core\\appapl.portal\\services\\catalogotipoapicliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\services\\catalogotipoapicliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\wwwroot\\js\\tipocatalogo\\tipocatalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\js\\tipocatalogo\\tipocatalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|c:\\users\\daniel\\desktop\\proyecto apl real\\apl\\appapl.core\\appapl.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|solutionrelative:appapl.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|c:\\users\\daniel\\desktop\\proyecto apl real\\apl\\appapl.core\\appapl.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|solutionrelative:appapl.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\daniel\\desktop\\proyecto apl real\\apl\\appapl.core\\appapl.portal\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\appapl.portal.csproj.bak||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\appapl.portal.csproj.bak||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\daniel\\desktop\\proyecto apl real\\apl\\appapl.core\\appapl.portal\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,97 +34,84 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "site.css",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\css\\site.css",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\css\\site.css",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\css\\site.css",
+              "RelativeToolTip": "AppAPL.Portal\\wwwroot\\css\\site.css",
+              "ViewState": "AgIAABsAAAAAAAAAAAAYwCQAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-10-14T20:35:12.585Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Api\\Program.cs",
-              "RelativeDocumentMoniker": "AppAPL.Api\\Program.cs",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Api\\Program.cs",
-              "RelativeToolTip": "AppAPL.Api\\Program.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAAAC0AAAAcAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-14T17:49:33.536Z",
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAI4AAAAAAAAAAAAqwK8AAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-14T20:31:57.433Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Api\\appsettings.json",
-              "RelativeDocumentMoniker": "AppAPL.Api\\appsettings.json",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Api\\appsettings.json",
-              "RelativeToolTip": "AppAPL.Api\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-10-14T17:49:27.249Z",
+              "Title": "AppAPL.Portal.csproj.bak",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj.bak",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\AppAPL.Portal.csproj.bak",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\AppAPL.Portal.csproj.bak",
+              "RelativeToolTip": "AppAPL.Portal\\AppAPL.Portal.csproj.bak",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-10-14T20:31:12.424Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\Program.cs",
-              "RelativeDocumentMoniker": "AppAPL.Portal\\Program.cs",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\Program.cs",
-              "RelativeToolTip": "AppAPL.Portal\\Program.cs",
-              "ViewState": "AgIAADYAAAAAAAAAAAAAAEsAAAAzAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-14T17:47:29.703Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\appsettings.json",
-              "RelativeDocumentMoniker": "AppAPL.Portal\\appsettings.json",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\appsettings.json",
-              "RelativeToolTip": "AppAPL.Portal\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-10-14T17:47:18.988Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "CatalogoTipoApiCliente.cs",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\Services\\CatalogoTipoApiCliente.cs",
-              "RelativeDocumentMoniker": "AppAPL.Portal\\Services\\CatalogoTipoApiCliente.cs",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\Services\\CatalogoTipoApiCliente.cs",
-              "RelativeToolTip": "AppAPL.Portal\\Services\\CatalogoTipoApiCliente.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-14T16:19:24.128Z",
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-14T20:30:35.295Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
-              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
-              "RelativeToolTip": "AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-14T16:15:30.169Z",
+              "Title": "TipoCatalogo.js",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
+              "RelativeToolTip": "AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
+              "ViewState": "AgIAADwAAAAAAAAAAAAYwKEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-10-14T20:27:41.591Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "TipoCatalogo.js",
-              "DocumentMoniker": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
-              "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
-              "ToolTip": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
-              "RelativeToolTip": "AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACkAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-10-14T16:13:51.039Z",
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-14T20:25:41.496Z",
               "EditorCaption": ""
             }
           ]
