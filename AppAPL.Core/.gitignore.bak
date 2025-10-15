@@ -1,0 +1,13 @@
+# Visual Studio / .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.rsuser
+*.sln.docstates
+# Logs/temps
+*.log
+*.tmp
+# Opcional: settings locales
+appsettings.*.local.json
