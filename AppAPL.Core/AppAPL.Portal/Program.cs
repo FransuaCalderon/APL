@@ -82,7 +82,7 @@ app.MapGet("/config", (IConfiguration config) =>
 app.MapControllerRoute(
     name: "default",
     // MODIFICADO: Apunta al LoginController y la acción Login
-    pattern: "{controller=Login}/{action=Login}/{id?}"); // <-- CAMBIO APLICADO AQUÍ
+    pattern: "{controller=Home}/{action=Index}/{id?}"); // <-- CAMBIO APLICADO AQUÍ
 
 
 

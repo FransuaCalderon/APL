@@ -1,6 +1,7 @@
 ﻿// ~/js/TipoCatalogo/TipoCatalogo.js
 
 // Se ejecuta cuando el DOM está listo
+let tabla; // GLOBAL
 $(document).ready(function () {
 
     // Configuración inicial y carga de datos
@@ -32,6 +33,65 @@ $(document).ready(function () {
             .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')
             .removeClass('btn-success')
             .addClass('btn-primary');
+    });
+
+
+
+    $("#btnGuardarCambios").on("click", function (e) {
+        e.preventDefault(); // Evita que recargue la página
+
+        const id = $("#modal-idCatalogoTipo").val(); // si está vacío, es creación
+        const isCrear = !id;
+
+
+        const data = {
+            nombre: $("#modal-nombre").val(),
+            descripcion: $("#modal-descripcion").val(),
+            idUsuarioCreacion: 1,
+            fechaCreacion: new Date().toISOString(),
+            idUsuarioModificacion: 1,
+            fechaModificacion: new Date().toISOString(),
+            idEstado: $("#modal-activo").is(":checked") ? 1: 0,
+            idMarcaAbreviaturaAutomatica: 1,
+            idEtiqueta: $("#modal-etiqueta").val()
+        };
+
+        // Solo para creación
+        if (isCrear) {
+            data.idUsuarioCreacion = 1;
+            data.fechaCreacion = new Date().toISOString();
+        }
+
+
+        const url = id ? `${window.apiBaseUrl}/api/CatalogoTipo/actualizar/${id}`
+            : `${window.apiBaseUrl}/api/CatalogoTipo/insertar`;
+
+        const method = id ? "PUT" : "POST";
+
+
+
+        console.log(data); // Verifica los valores antes de enviar
+        console.log(window.apiBaseUrl);
+
+        
+        $.ajax({
+            url: url,
+            type: method,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (response) {
+                $("#editarModal").modal("hide"); // ✅ Cierra el modal
+                alert("Guardado correctamente");
+                // ✅ Recarga la tabla
+                $.get(`${window.apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
+                    crearListado(data);
+                });
+            },
+            error: function () {
+                const mensaje = id ? "actualizar" : "guardar"
+                alert(`Error al ${mensaje}`);
+            }
+        });
     });
 });
 
@@ -79,7 +139,7 @@ function crearListado(data) {
     $('#tabla').html(html);
 
     // Inicialización de DataTables
-    $('#tabla-curso').DataTable({
+    tabla = $('#tabla-curso').DataTable({
         // ... opciones de DataTables ...
     });
 
@@ -108,6 +168,7 @@ function crearListado(data) {
 // -------------------------------------------------------------
 
 function abrirModalEditar(id) {
+
     // 1. Limpiar el formulario del modal antes de cargar nuevos datos
     $('#formEditar')[0].reset();
 
@@ -120,6 +181,27 @@ function abrirModalEditar(id) {
         .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')
         .removeClass('btn-success')
         .addClass('btn-primary');
+
+
+    // Obtén los datos del registro por ID desde la API
+    $.get(`${window.apiBaseUrl}/api/CatalogoTipo/obtener/${id}`, function (data) {
+
+        console.log(data);
+        
+        // Llena el formulario del modal
+        $("#IdCatalogoTipo").val(data.idCatalogoTipo);
+        $("#modal-nombre").val(data.nombre);
+        $("#modal-descripcion").val(data.descripcion);
+       
+        // Supongamos que `data.activo` viene como 1 o 0
+        $("#modal-activo").prop("checked", data.idEstado === 1);
+
+        $("#modal-etiqueta").val(data.idEtiqueta);
+        // Cambia el texto del botón y abre el modal
+        $("#btnGuardar").text("Actualizar");
+        $("#editarModal").modal("show");
+    });
+
 
     // 4. Mostrar el modal de Bootstrap
     var editarModal = new bootstrap.Modal(document.getElementById('editarModal'));
@@ -155,8 +237,41 @@ function abrirModalCrear() {
 // -------------------------------------------------------------
 
 function confirmDelete(id) {
-    if (confirm("¿Estás seguro de que deseas eliminar el registro con ID: " + id + "?")) {
-        // **TODO:** Aquí debes implementar la llamada AJAX (POST) a tu controlador
-        console.log("Procediendo a eliminar el registro: " + id);
-    }
+
+    Swal.fire({
+        title: 'Confirmar Eliminacion',
+        text: "¿Estás seguro de que deseas eliminar el registro con ID: " + id + "?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#009845',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, Eliminar',
+        cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            // **TODO:** Aquí debes implementar la llamada AJAX (POST) a tu controlador
+            console.log("Procediendo a eliminar el registro: " + id);
+
+
+            $.ajax({
+                url: `${window.apiBaseUrl}/api/CatalogoTipo/eliminar/${id}`,
+                type: "DELETE",
+                success: function () {
+                    alert("Registro eliminado correctamente");
+
+                    // Recarga la tabla
+                    $.get(`${window.apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
+                        crearListado(data);
+                    });
+                },
+                error: function () {
+                    alert("Error al eliminar");
+                }
+            });
+        }
+    });
+
 }
+
+
+
