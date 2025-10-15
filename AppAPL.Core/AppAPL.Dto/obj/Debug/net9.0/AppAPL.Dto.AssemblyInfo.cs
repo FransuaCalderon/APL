@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AppAPL.Dto")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+57c9c2e5cf9bc23734c82363549c6c8d29e3fb7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b519d9704dbe8e1f4f72305885160877c0f369ee")]
 [assembly: System.Reflection.AssemblyProductAttribute("AppAPL.Dto")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AppAPL.Dto")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -7,13 +7,11 @@ namespace AppAPL.Portal.Controllers
     {
         private readonly OpcionesApiClient opcionesApiClient;
         private readonly CatalogoApiClient catalogoApiClient;
-        private readonly CatalogoTipoApiCliente catalogoTipoApiCliente;
 
-        public OpcionesController(OpcionesApiClient opcionesApiClient, CatalogoApiClient catalogoApiClient, CatalogoTipoApiCliente catalogoTipoApiCliente)
+        public OpcionesController(OpcionesApiClient opcionesApiClient)
         {
             this.opcionesApiClient = opcionesApiClient;
             this.catalogoApiClient = catalogoApiClient;
-            this.catalogoTipoApiCliente = catalogoTipoApiCliente;
         }
 
         //[HttpGet]
@@ -24,17 +22,9 @@ namespace AppAPL.Portal.Controllers
         }
 
 
-        public async Task<IActionResult> Catalogo()
-        {
-            var catalogos = await catalogoApiClient.ListarAsync();
-            return View(catalogos);
-        }
+        
 
 
-        public async Task<IActionResult> CatalogoTipo()
-        {
-            var catalogoTipos = await catalogoTipoApiCliente.ListarAsync();
-            return View(catalogoTipos);
-        }
+        
     }
 }

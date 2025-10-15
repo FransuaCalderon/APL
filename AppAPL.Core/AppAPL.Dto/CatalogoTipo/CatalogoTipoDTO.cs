@@ -18,8 +18,8 @@
     {
         public string Nombre { get; set; }
         public string? Descripcion { get; set; }
-        public int IdUsuarioCreacion { get; set; }
-        public DateTime FechaCreacion { get; set; }
+        public int? IdUsuarioCreacion { get; set; }
+        public DateTime? FechaCreacion { get; set; }
         public int? IdUsuarioModificacion { get; set; }
         public DateTime? FechaModificacion { get; set; }
         public int IdEstado { get; set; }

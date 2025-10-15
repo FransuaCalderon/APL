@@ -24,6 +24,14 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWN1ZXJkb1xDcmVhckFjdWVyZG8uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Usuario iTC/Documents/PROYECTO_BMTECSA_APL_2025/APL/AppAPL.Core/AppAPL.Portal/Views/CatalogoTipo/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0YWxvZ29UaXBvXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Usuario iTC/Documents/PROYECTO_BMTECSA_APL_2025/APL/AppAPL.Core/AppAPL.Portal/Views/Catalogo/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2F0YWxvZ29cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Usuario iTC/Documents/PROYECTO_BMTECSA_APL_2025/APL/AppAPL.Core/AppAPL.Portal/Views/Fondo/CrearFondo.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRm9uZG9cQ3JlYXJGb25kby5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -38,14 +46,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Usuario iTC/Documents/PROYECTO_BMTECSA_APL_2025/APL/AppAPL.Core/AppAPL.Portal/Views/Login/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cTG9naW4uY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Usuario iTC/Documents/PROYECTO_BMTECSA_APL_2025/APL/AppAPL.Core/AppAPL.Portal/Views/Opciones/Catalogo.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3BjaW9uZXNcQ2F0YWxvZ28uY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Usuario iTC/Documents/PROYECTO_BMTECSA_APL_2025/APL/AppAPL.Core/AppAPL.Portal/Views/Opciones/CatalogoTipo.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3BjaW9uZXNcQ2F0YWxvZ29UaXBvLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Usuario iTC/Documents/PROYECTO_BMTECSA_APL_2025/APL/AppAPL.Core/AppAPL.Portal/Views/Opciones/Index.cshtml]
