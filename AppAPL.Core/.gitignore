@@ -1,13 +1,13 @@
-# Visual Studio / .NET
 .vs/
+.vscode/
+*.suo
+*.user
+**/CopilotIndices/
+**/*.db
+**/.dtbcache.v2
+**/.futdcache.v2
+**/DocumentLayout*.json
 bin/
 obj/
-*.user
-*.suo
-*.rsuser
-*.sln.docstates
-# Logs/temps
-*.log
-*.tmp
-# Opcional: settings locales
-appsettings.*.local.json
+*.pdb
+*.cache
