@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-
+<<<<<<< HEAD
     <Folder Include="wwwroot\img\" />
-
+=======
     <Folder Include="Pages\Opciones\" />
-
+>>>>>>> ddc5b6b6be7c9dacfca815827586cd1c306be3f8
   </ItemGroup>
 
 </Project>
