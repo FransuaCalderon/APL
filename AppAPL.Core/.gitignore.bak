@@ -1,13 +1,26 @@
-# Visual Studio / .NET
+# Visual Studio / VS Code
 .vs/
+.vscode/
+*.suo
+*.user
+
+# Build .NET
 bin/
 obj/
-*.user
-*.suo
-*.rsuser
-*.sln.docstates
-# Logs/temps
+*.pdb
+*.cache
+
+# Varios VS / índices / temporales
+**/CopilotIndices/
+**/*.db
+**/.dtbcache.v2
+**/.futdcache.v2
+**/DocumentLayout*.json
+
+# Publicaciones locales
+*.Publish.xml
+*.pubxml
+*.pubxml.user
+
+# Logs
 *.log
-*.tmp
-# Opcional: settings locales
-appsettings.*.local.json

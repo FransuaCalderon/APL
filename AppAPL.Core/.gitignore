@@ -22,5 +22,8 @@ obj/
 *.pubxml
 *.pubxml.user
 
+**/appsettings*.json
+
+
 # Logs
 *.log
