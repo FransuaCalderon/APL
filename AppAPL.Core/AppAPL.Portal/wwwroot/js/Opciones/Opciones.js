@@ -10,7 +10,7 @@ $(document).ready(function () {
         // La base URL se mantiene, aunque no la usemos para el modal por ahora
         window.apiBaseUrl = apiBaseUrl;
 
-        $.get(`${apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
+        $.get(`${apiBaseUrl}/api/Opciones/listar`, function (data) {
             console.log(data);
             crearListado(data);
         });
@@ -35,15 +35,11 @@ $(document).ready(function () {
             .addClass('btn-primary');
     });
 
-
-
     $("#btnGuardarCambios").on("click", function (e) {
         e.preventDefault(); // Evita que recargue la página
 
         const id = $("#modal-idCatalogoTipo").val(); // si está vacío, es creación
         const isCrear = !id;
-
-
         const data = {
             nombre: $("#modal-nombre").val(),
             descripcion: $("#modal-descripcion").val(),
@@ -63,8 +59,8 @@ $(document).ready(function () {
         }
 
 
-        const url = id ? `${window.apiBaseUrl}/api/CatalogoTipo/actualizar/${id}`
-            : `${window.apiBaseUrl}/api/CatalogoTipo/insertar`;
+        const url = id ? `${window.apiBaseUrl}/api/Opciones/actualizar/${id}`
+            : `${window.apiBaseUrl}/api/Opciones/insertar`;
 
         const method = id ? "PUT" : "POST";
 
@@ -83,7 +79,7 @@ $(document).ready(function () {
                 $("#editarModal").modal("hide"); // ✅ Cierra el modal
                 alert("Guardado correctamente");
                 // ✅ Recarga la tabla
-                $.get(`${window.apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
+                $.get(`${window.apiBaseUrl}/api/Opciones/listar`, function (data) {
                     crearListado(data);
                 });
             },
@@ -109,7 +105,7 @@ function crearListado(data) {
         for (var i = 0; i < data.length; i++) {
             var c = data[i];
 
-            var id = c.idCatalogoTipo;
+            var id = c.idOpcion;
 
             // 1. Botón Editar: Usando fa-solid fa-pen-to-square
             var editButton = '<button type="button" class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(' + id + ')">' +
@@ -124,7 +120,7 @@ function crearListado(data) {
             var optionsHtml = '<div class="action-buttons">' + editButton + deleteButton + '</div>';
 
             html += "<tr>";
-            html += "  <td>" + (c.idCatalogoTipo ?? "") + "</td>";
+            html += "  <td>" + (c.idOpcion ?? "") + "</td>";
             html += "  <td>" + (c.nombre ?? "") + "</td>";
             html += "  <td>" + (c.descripcion ?? "") + "</td>";
             // Insertamos los botones en la columna de Opciones
@@ -207,12 +203,12 @@ function abrirModalEditar(id) {
 
 
     // Obtén los datos del registro por ID desde la API
-    $.get(`${window.apiBaseUrl}/api/CatalogoTipo/obtener/${id}`, function (data) {
+    $.get(`${window.apiBaseUrl}/api/Opciones/obtener/${id}`, function (data) {
 
         console.log(data);
 
         // ✅ CORRECCIÓN CLAVE: Asigna el ID al campo VISIBLE "modal-id"
-        $("#modal-id").val(data.idCatalogoTipo); // <--- Corregido
+        $("#modal-id").val(data.idOpcion); // <--- Corregido
 
         // Llena los demás campos del formulario del modal
         $("#modal-nombre").val(data.nombre);
@@ -243,7 +239,7 @@ function abrirModalEditar(id) {
 function abrirModalCrear() {
     // 1. Limpiar el formulario y resetear el ID
     $('#formEditar')[0].reset();
-    $('#modal-idCatalogoTipo').val('');
+    $('#modal-idOpciones').val('');
 
     // 2. Cambiar el título del modal y el texto del botón para la acción de Creación
     $('#editarModalLabel').text('Crear Nuevo Tipo de Catálogo');
@@ -280,13 +276,13 @@ function confirmDelete(id) {
 
 
             $.ajax({
-                url: `${window.apiBaseUrl}/api/CatalogoTipo/eliminar/${id}`,
+                url: `${window.apiBaseUrl}/api/Opciones/eliminar/${id}`,
                 type: "DELETE",
                 success: function () {
                     alert("Registro eliminado correctamente");
 
                     // Recarga la tabla
-                    $.get(`${window.apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
+                    $.get(`${window.apiBaseUrl}/api/Opciones/listar`, function (data) {
                         crearListado(data);
                     });
                 },
