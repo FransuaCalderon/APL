@@ -51,21 +51,56 @@ body {
     box-shadow: none;
 }
 
-    /* Estilo para el ícono de Editar (Lápiz - Verde) */
-    .btn-action.edit-btn i {
-        color: #008000; /* Color Verde */
-        /* Puedes añadir una ligera sombra o filtro para el efecto de resplandor (opcional) */
-        /* filter: drop-shadow(0 0 1px #008000); */
-    }
+/* Estilo para el ícono de Editar (Lápiz - Verde) */
+.btn-action.edit-btn i {
+color: #008000; /* Color Verde */
+/* Puedes añadir una ligera sombra o filtro para el efecto de resplandor (opcional) */
+/* filter: drop-shadow(0 0 1px #008000); */
+}
 
-    /* Estilo para el ícono de Eliminar (Papelera - Rojo) */
-    .btn-action.delete-btn i {
-        color: #ff0000; /* Color Rojo */
-        /* Puedes añadir una ligera sombra o filtro para el efecto de resplandor (opcional) */
-        /* filter: drop-shadow(0 0 1px #ff0000); */
-    }
+/* Estilo para el ícono de Eliminar (Papelera - Rojo) */
+.btn-action.delete-btn i {
+color: #ff0000; /* Color Rojo */
+/* Puedes añadir una ligera sombra o filtro para el efecto de resplandor (opcional) */
+/* filter: drop-shadow(0 0 1px #ff0000); */
+}
 
-    /* Opcional: Efecto al pasar el ratón */
-    .btn-action:hover i {
-        opacity: 0.8;
-    }
+/* Opcional: Efecto al pasar el ratón */
+.btn-action:hover i {
+opacity: 0.8;
+}
+
+#sidebar.hidden {
+    width: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    border: none;
+}
+
+#mainContent.fullscreen {
+    width: 100% !important;
+    margin-left: 0 !important;
+}
+
+/* === ESTILOS PERSONALIZADOS PARA LA CABECERA DE DATATABLES === */
+
+/* 1. Aplica el fondo azul y el texto blanco a las celdas de la cabecera */
+table.dataTable thead th,
+table.dataTable thead td {
+    background-color: #1b2c9e !important; /* Color de fondo azul */
+    color: white !important; /* Color del texto blanco */
+    border-bottom: 1px solid #1b2c9e; /* Opcional: para que el borde combine */
+}
+
+/* 2. Cambia el color de los iconos de ordenamiento (flechas) para que sean visibles */
+table.dataTable thead .dt-column-order::before,
+table.dataTable thead .dt-column-order::after {
+    color: white !important;
+    opacity: 0.7; /* Hacemos las flechas un poco tenues */
+}
+
+/* 3. Hace que la flecha de la columna activa sea completamente blanca y visible */
+table.dataTable thead .dt-ordering-asc .dt-column-order::before,
+table.dataTable thead .dt-ordering-desc .dt-column-order::after {
+    opacity: 1;
+}
