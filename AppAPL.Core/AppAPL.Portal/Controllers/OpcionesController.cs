@@ -11,14 +11,13 @@ namespace AppAPL.Portal.Controllers
         public OpcionesController(OpcionesApiClient opcionesApiClient)
         {
             this.opcionesApiClient = opcionesApiClient;
-            this.catalogoApiClient = catalogoApiClient;
         }
 
         //[HttpGet]
         public async Task<IActionResult> Index()
         {
-            var opciones = await opcionesApiClient.ListarAsync();
-            return View(opciones);
+            //var opciones = await opcionesApiClient.ListarAsync();
+            return View();
         }
 
 

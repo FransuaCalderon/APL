@@ -15,8 +15,8 @@ namespace AppAPL.Portal.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var catalogoTipos = await catalogoTipoApiCliente.ListarAsync();
-            return View(catalogoTipos);
+            //var catalogoTipos = await catalogoTipoApiCliente.ListarAsync();
+            return View();
         }
     }
 }
