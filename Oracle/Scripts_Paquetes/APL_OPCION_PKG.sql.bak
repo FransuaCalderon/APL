@@ -234,6 +234,3 @@ END APL_OPCIONES_PKG;
 
 
 ===========================================================PRUEBAS
-VARIABLE rc REFCURSOR
-EXEC APL_OPCIONES_PKG.obtener_por_id(8, :rc);
-PRINT rc
