@@ -5,8 +5,8 @@
 *.user
 
 # Build .NET
-bin/
-obj/
+**/bin/
+**/obj/
 *.pdb
 *.cache
 
@@ -23,7 +23,6 @@ obj/
 *.pubxml.user
 
 **/appsettings*.json
-
 
 # Logs
 *.log
