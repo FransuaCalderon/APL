@@ -1,16 +1,43 @@
-﻿@{
+﻿@* Asumiendo que usarás un DTO similar. Ajusta el namespace si es necesario. *@
+@using AppAPL.Dto.Catalogo
+@model IEnumerable<CatalogoDTO>;
+
+@{
 }
 
 <h2>Catálogo</h2>
+<hr />
+
+<style>
+    /* Estilos de paginación (sin cambios) */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #6c757d !important;
+        color: white !important;
+        border-color: #6c757d !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: #6c757d !important;
+    }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            border-color: #6c757d !important;
+            color: #6c757d !important;
+            background: rgba(108, 117, 125, 0.1) !important;
+        }
+</style>
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
-<div class="d-flex justify-content-end mb-3">
-    <button type="button" class="btn btn-primary" id="btnAgregarNuevo" title="Agregar Nuevo">
-        <i class="fa-solid fa-plus"></i>
+<div id="tabla"></div>
+
+<div class="d-flex justify-content-end mt-3">
+    <button type="button" class="btn" id="btnAgregarNuevo" title="Agregar Nuevo" style="background-color: #1b2c9e; border-color: #1b2c9e; color: white;">
+        <i class="fa-solid fa-plus"></i> Agregar
     </button>
 </div>
-<div id="tabla"></div>
+
 
 @section Scripts {
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
@@ -18,10 +45,9 @@
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 }
 
-@* El modal se mantiene aquí. *@
-
+@* El modal no necesita cambios *@
 <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editarModalLabel">Editar Catálogo</h5>
@@ -32,37 +58,33 @@
                     <input type="hidden" id="modal-idCatalogo" name="idCatalogo">
 
                     <div class="mb-3">
-                        <label for="modal-tipoServicio" class="form-label">Tipo Servicio</label>
-                        <select class="form-select" id="modal-tipoServicio" name="tipoServicio">
-                            <option value="1">Administración y Configuración Sistema</option>
-                        </select>
+                        <label for="modal-id" class="form-label fw-bold">ID</label>
+                        <input type="text" class="form-control" id="modal-id" name="id" disabled>
                     </div>
 
                     <div class="mb-3">
-                        <label for="modal-nombre" class="form-label">Nombre</label>
+                        <label for="modal-nombre" class="form-label fw-bold">Nombre <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="modal-nombre" name="nombre">
                     </div>
 
                     <div class="mb-3">
-                        <label for="modal-abreviatura" class="form-label">Abreviatura</label>
+                        <label for="modal-abreviatura" class="form-label fw-bold">Abreviatura <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="modal-abreviatura" name="abreviatura">
                     </div>
 
                     <div class="mb-3">
-                        <label for="modal-adicional" class="form-label">Adicional</label>
+                        <label for="modal-adicional" class="form-label fw-bold">Adicional</label>
                         <input type="text" class="form-control" id="modal-adicional" name="adicional">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="modal-grupo" class="form-label">Grupo</label>
-                        <select class="form-select" id="modal-grupo" name="grupo">
-                            <option value="Configuracion">Configuracion</option>
-                        </select>
                     </div>
 
                     <div class="mb-3 form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="modal-activo" name="activo">
-                        <label class="form-check-label" for="modal-activo">Activo</label>
+                        <label class="form-check-label fw-bold" for="modal-activo">Activo <span class="text-danger">*</span></label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modal-etiqueta" class="form-label fw-bold">Etiqueta <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="modal-etiqueta" name="etiqueta">
                     </div>
 
                 </form>
@@ -76,19 +98,3 @@
         </div>
     </div>
 </div>
-
-<<<<<<< HEAD
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-        </tr>
-    </thead>
-    <tbody>
-        
-    </tbody>
-</table>
-=======
->>>>>>> f80758a6ab625aed23e1d16e053b1314200a7a08
