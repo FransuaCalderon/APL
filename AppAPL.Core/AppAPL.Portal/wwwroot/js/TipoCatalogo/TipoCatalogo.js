@@ -1,7 +1,10 @@
 ﻿// ~/js/TipoCatalogo/TipoCatalogo.js
 
-// Se ejecuta cuando el DOM está listo
+// Variables globales
 let tabla; // GLOBAL
+let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
+
+// Se ejecuta cuando el DOM está listo
 $(document).ready(function () {
 
     // Configuración inicial y carga de datos
@@ -29,12 +32,18 @@ $(document).ready(function () {
 
             // 2. Regresa la tabla a la primera página
             tabla.page(0).draw('page');
+
+            // 3. Limpiar también la fila marcada
+            ultimaFilaModificada = null;
+            $('#tabla-curso tbody tr').removeClass('fila-seleccionada');
         }
     });
     // ===== FIN DE LA IMPLEMENTACIÓN =====
 
     // Lógica para el cierre del modal
     $('#editarModal').on('hidden.bs.modal', function () {
+        // NO limpiamos la selección aquí - la fila permanece marcada
+
         $('#editarModalLabel').text('Editar Tipo de Catálogo');
         $('#btnGuardarCambios')
             .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')
@@ -78,6 +87,7 @@ $(document).ready(function () {
             data: JSON.stringify(data),
             success: function (response) {
                 $("#editarModal").modal("hide");
+
                 Swal.fire({
                     icon: 'success',
                     title: '¡Guardado!',
@@ -85,6 +95,12 @@ $(document).ready(function () {
                     showConfirmButton: false,
                     timer: 1500
                 });
+
+                // Si es edición, mantén el ID para marcarlo
+                if (!isCrear && id) {
+                    ultimaFilaModificada = id;
+                }
+
                 $.get(`${window.apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
                     crearListado(data);
                 });
@@ -99,7 +115,63 @@ $(document).ready(function () {
             }
         });
     });
-});
+
+    // ===================================================================
+    // ===== CÓDIGO PARA HOVER EN LA FILA =====
+    // ===================================================================
+    // Cuando el mouse entra en el div de los botones...
+    $('#tabla').on('mouseenter', '.action-buttons', function () {
+        // ...busca la fila (tr) más cercana y agrégale nuestra clase.
+        $(this).closest('tr').addClass('fila-marcada');
+    });
+
+    // Cuando el mouse sale del div de los botones...
+    $('#tabla').on('mouseleave', '.action-buttons', function () {
+        // ...busca la fila (tr) y quítale la clase.
+        $(this).closest('tr').removeClass('fila-marcada');
+    });
+
+    // ===================================================================
+    // ===== MARCAR FILA AL HACER CLIC EN EDITAR/ELIMINAR =====
+    // ===================================================================
+
+    // Cuando se hace clic en el botón de editar
+    $('body').on('click', '.edit-btn', function (e) {
+        const $fila = $(this).closest('tr');
+        const id = $fila.find('td:first').text().trim();
+        marcarFilaPorId(id);
+    });
+
+    // Cuando se hace clic en el botón de eliminar
+    $('body').on('click', '.delete-btn', function (e) {
+        const $fila = $(this).closest('tr');
+        const id = $fila.find('td:first').text().trim();
+        marcarFilaPorId(id);
+    });
+
+}); // <-- FIN de $(document).ready
+
+
+// ===================================================================
+// ===== FUNCIONES GLOBALES =====
+// ===================================================================
+
+// Función para marcar una fila específica por ID
+function marcarFilaPorId(id) {
+    // Quita el marcado de todas las filas
+    $('#tabla-curso tbody tr').removeClass('fila-seleccionada');
+
+    // Busca la fila con ese ID y márcala
+    $('#tabla-curso tbody tr').each(function () {
+        const filaId = $(this).find('td:first').text().trim();
+        if (filaId == id) {
+            $(this).addClass('fila-seleccionada');
+
+            // Guarda el ID de la última fila modificada
+            ultimaFilaModificada = id;
+        }
+    });
+}
 
 
 function crearListado(data) {
@@ -175,6 +247,13 @@ function crearListado(data) {
                 sortAscending: ": activar para ordenar la columna de manera ascendente",
                 sortDescending: ": activar para ordenar la columna de manera descendente"
             }
+        },
+        // ===== NUEVO: Callback cuando la tabla termina de dibujarse =====
+        drawCallback: function () {
+            // Si hay una fila marcada anteriormente, volver a marcarla
+            if (ultimaFilaModificada !== null) {
+                marcarFilaPorId(ultimaFilaModificada);
+            }
         }
     });
 
@@ -226,7 +305,7 @@ function abrirModalCrear() {
 
 function confirmDelete(id) {
     Swal.fire({
-        title: 'Confirmar Eliminacion',
+        title: 'Confirmar Eliminación',
         text: "¿Estás seguro de que deseas eliminar el registro con ID: " + id + "?",
         icon: 'warning',
         showCancelButton: true,
@@ -238,15 +317,31 @@ function confirmDelete(id) {
         if (result.isConfirmed) {
             $.ajax({
                 url: `${window.apiBaseUrl}/api/CatalogoTipo/eliminar/${id}`,
-                type: "DELETE", 
+                type: "DELETE",
                 success: function () {
-                    alert("Registro eliminado correctamente");
+                    // Mostrar alerta de éxito con SweetAlert2
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Eliminado!',
+                        text: 'El registro se ha eliminado correctamente.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+
+                    // Limpia la referencia de la última fila modificada
+                    // ya que esta fila ya no existe
+                    ultimaFilaModificada = null;
+
                     $.get(`${window.apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
                         crearListado(data);
                     });
                 },
                 error: function () {
-                    alert("Error al eliminar");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: '¡Algo salió mal al eliminar el registro!'
+                    });
                 }
             });
         }

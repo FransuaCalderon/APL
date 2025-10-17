@@ -863,4 +863,19 @@ html.dark .dt-container .dt-paging .dt-paging-button:active {
   margin: 0 3px 0 0;
 }
 
+/*
+ * Personalización del color de hover para DataTables
+ * Se sobreescriben las variables CSS por defecto de la librería.
+*/
+:root {
+    --dt-row-hover: 192, 192, 192; /* Los números RGB para un color gris (R, G, B) */
+    --dt-row-hover-alpha: 1; /* La opacidad. 1 es sólido, 0.5 es 50% transparente */
+}
 
+/*
+ * Estilo para forzar el resaltado de la fila cuando el mouse
+ * está sobre los botones de acción. Usa las mismas variables que el hover.
+*/
+table.dataTable > tbody > tr.fila-marcada > * {
+    box-shadow: inset 0 0 0 9999px rgba(var(--dt-row-hover), var(--dt-row-hover-alpha));
+}

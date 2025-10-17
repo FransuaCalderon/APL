@@ -271,3 +271,96 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
     color: #6c757d !important;
     background: rgba(108, 117, 125, 0.1) !important; /* Un fondo gris claro al pasar el mouse */
 }
+
+/* Regla específica para el hover en tablas con la clase .table 
+  o el ID #tabla-curso. Esto sobreescribe los estilos de 
+  Bootstrap y DataTables.
+*/
+#tabla-curso tbody tr:hover {
+    background-color: #e0e0e0 !important; /* Un gris medio, puedes cambiarlo */
+    cursor: pointer;
+}
+
+/*
+ * Estilo para forzar el resaltado de la fila (versión final con !important).
+ * Esto garantiza que se sobreescriba cualquier otro estilo de box-shadow de DataTables.
+*/
+table.dataTable.display > tbody > tr.fila-marcada > *,
+
+/* Estilos para la fila cuando se pasa el mouse */
+.fila-marcada {
+    background-color: rgba(255, 252, 127, 0.4) !important;
+}
+
+/* Estilos para la fila cuando se hace clic */
+.fila-seleccionada {
+    background-color: rgba(255, 252, 127, 0.4) !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Asegura que el efecto se vea bien con las filas de DataTables */
+#tabla-curso tbody tr.fila-seleccionada td {
+    position: relative;
+}
+
+/* Opcional: Agrega un borde izquierdo para mayor énfasis */
+.fila-seleccionada td:first-child {
+    border-left: 3px solid #FFD700;
+}
+
+/* Más suave */
+background-color: rgba(255, 252, 127, 0.3) !important;
+/* Medio (actual) */
+background-color: rgba(255, 252, 127, 0.5) !important;
+/* Más intenso */
+background-color: rgba(255, 252, 127, 0.7) !important;
+/* ============================================================
+   ESTILOS PARA MARCADO DE FILAS EN DATATABLES
+   ============================================================ */
+/* Estilos para la fila cuando se pasa el mouse sobre los botones */
+.fila-marcada {
+    background-color: rgba(169, 169, 169, 0.2) !important;
+}
+
+/* Estilos para la fila cuando se hace clic - TODA LA FILA EN AMARILLO */
+#tabla-curso tbody tr.fila-seleccionada {
+    background-color: rgba(255, 252, 127, 0.5) !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Asegura que TODAS las celdas tengan el color de fondo amarillo */
+#tabla-curso tbody tr.fila-seleccionada td {
+    background-color: rgba(255, 252, 127, 0.5) !important;
+    position: relative;
+}
+
+/* Opcional: Agrega un borde izquierdo dorado para mayor énfasis */
+#tabla-curso tbody tr.fila-seleccionada td:first-child {
+    border-left: 4px solid #FFD700;
+}
+
+/* CRÍTICO: Sobrescribe el estilo de DataTables para filas alternas (striped) */
+#tabla-curso tbody tr.fila-seleccionada.odd {
+    background-color: rgba(255, 252, 127, 0.5) !important;
+}
+
+#tabla-curso tbody tr.fila-seleccionada.even {
+    background-color: rgba(255, 252, 127, 0.5) !important;
+}
+
+#tabla-curso tbody tr.fila-seleccionada.odd td {
+    background-color: rgba(255, 252, 127, 0.5) !important;
+}
+
+#tabla-curso tbody tr.fila-seleccionada.even td {
+    background-color: rgba(255, 252, 127, 0.5) !important;
+}
+
+/* Asegura que el hover no afecte la fila seleccionada */
+#tabla-curso tbody tr.fila-seleccionada:hover td {
+    background-color: rgba(255, 252, 127, 0.5) !important;
+}
+
+/* ============================================================
+   FIN DE ESTILOS PARA MARCADO DE FILAS
+   ============================================================ */
