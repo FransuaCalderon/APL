@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="wwwroot\js\Configuration\ApiSettings.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
 
     <Folder Include="wwwroot\img\" />
     <Folder Include="Pages\Opciones\" />

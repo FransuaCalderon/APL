@@ -1,75 +1,53 @@
+﻿/* === 1. GLOBALES Y RESET === */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 body {
-  margin-bottom: 60px;
+    background-color: #f4f7f6;
+    overflow-x: hidden;
+    /* CLAVE #1: Esta regla empuja TODO el contenido hacia abajo, dejando
+       espacio para el header fijo. Ajusta '60px' si tu header es más alto o más bajo. */
+    padding-top: 60px;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+
+/* === 2. ESTRUCTURA PRINCIPAL (LAYOUT) === */
+
+/* Contenedor de la fila principal (sidebar + contenido) */
+.container-fluid .row {
+    /* CLAVE #2: En lugar de 'vh-100' que causaba el problema, calculamos
+       la altura que DEBE tener: 100% de la pantalla MENOS la altura del header. */
+    height: calc(100vh - 60px);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Aseguramos que el sidebar y el contenido principal puedan tener su propio scroll */
+#sidebar, #mainContent {
+    overflow-y: auto;
+    height: 100%; /* Ocupan toda la altura de su contenedor padre (.row) */
 }
 
-/* Estilos para alinear y espaciar los botones */
-.action-buttons {
-    display: flex;
-    gap: 10px; /* Espacio entre los botones */
-    justify-content: flex-start; /* Centrar los �conos en la celda */
+#sidebar {
+    background-color: #fff;
+    transition: all 0.3s;
 }
 
-/* Estilo base para los botones de acci�n */
-.btn-action {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    font-size: 1.4em; /* Tama�o del �cono */
-    line-height: 1;
-    text-decoration: none;
-    /* Esto es importante si tus �conos tienen un contorno o fondo */
-    box-shadow: none;
-}
-
-/* Estilo para el �cono de Editar (L�piz - Verde) */
-.btn-action.edit-btn i {
-color: #008000; /* Color Verde */
-/* Puedes a�adir una ligera sombra o filtro para el efecto de resplandor (opcional) */
-/* filter: drop-shadow(0 0 1px #008000); */
-}
-
-/* Estilo para el �cono de Eliminar (Papelera - Rojo) */
-.btn-action.delete-btn i {
-color: #ff0000; /* Color Rojo */
-/* Puedes a�adir una ligera sombra o filtro para el efecto de resplandor (opcional) */
-/* filter: drop-shadow(0 0 1px #ff0000); */
-}
-
-/* Opcional: Efecto al pasar el rat�n */
-.btn-action:hover i {
-opacity: 0.8;
-}
-
+/* === 3. LÓGICA PARA OCULTAR/MOSTRAR SIDEBAR === */
+/*
+Esta lógica oculta el sidebar y, como resultado, Bootstrap
+automáticamente expande el <main class="col"> para que ocupe el espacio liberado.
+Se alineará a la izquierda hasta topar con el botón de menú.
+*/
 #sidebar.hidden {
     width: 0 !important;
     padding: 0 !important;
@@ -77,30 +55,219 @@ opacity: 0.8;
     border: none;
 }
 
-#mainContent.fullscreen {
-    width: 100% !important;
-    margin-left: 0 !important;
+
+/* === 4. ESTILOS DEL HEADER Y SIDEBAR (Sin cambios mayores) === */
+.bg-wine-red {
+    background-color: #722F37;
 }
 
-/* === ESTILOS PERSONALIZADOS PARA LA CABECERA DE DATATABLES === */
-
-/* 1. Aplica el fondo azul y el texto blanco a las celdas de la cabecera */
-table.dataTable thead th,
-table.dataTable thead td {
-    background-color: #1b2c9e !important; /* Color de fondo azul */
-    color: white !important; /* Color del texto blanco */
-    border-bottom: 1px solid #1b2c9e; /* Opcional: para que el borde combine */
+.logo-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
 }
 
-/* 2. Cambia el color de los iconos de ordenamiento (flechas) para que sean visibles */
+#sidebar h5 {
+    color: #333;
+}
+
+#sidebar ul li a {
+    color: #343a40 !important;
+    font-weight: 500;
+}
+
+#sidebar .link-body-emphasis:hover {
+    background-color: #e9ecef;
+}
+
+/* === 5. ESTILOS DE LA VISTA DE CONTENIDO (TABLA) === */
+.card {
+    background-color: #fff;
+    border: none;
+    border-radius: .5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-action {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.4em;
+}
+
+.btn-action.edit-btn i {
+    color: #28a745;
+}
+
+.btn-action.delete-btn i {
+    color: #dc3545;
+}
+
+.btn-action:hover i {
+    opacity: 0.7;
+}
+
+/* === 6. ESTILOS PERSONALIZADOS PARA DATATABLES === */
+table.dataTable thead th {
+    background-color: #0d2d6d !important;
+    color: white !important;
+}
+
 table.dataTable thead .dt-column-order::before,
 table.dataTable thead .dt-column-order::after {
     color: white !important;
-    opacity: 0.7; /* Hacemos las flechas un poco tenues */
+    opacity: 0.6;
 }
 
-/* 3. Hace que la flecha de la columna activa sea completamente blanca y visible */
 table.dataTable thead .dt-ordering-asc .dt-column-order::before,
 table.dataTable thead .dt-ordering-desc .dt-column-order::after {
     opacity: 1;
+}
+
+div.dt-container .dt-paging .dt-paging-button {
+    border: none !important;
+    background: transparent !important;
+    color: #0d2d6d !important;
+}
+
+div.dt-container .dt-paging .dt-paging-button.current,
+div.dt-container .dt-paging .dt-paging-button.current:hover {
+    background: #0d2d6d !important;
+    color: white !important;
+    border-radius: .25rem;
+}
+
+/* === ESTILO PARA MINIMIZAR EL BOTÓN DE MENÚ === */
+
+#toggleMenu {
+    background-color: transparent !important; /* Quita el fondo azul */
+    border: none !important; /* Quita el borde */
+    color: #6c757d !important; /* Color gris sutil para el ícono */
+    padding: 0.1rem 0.5rem; /* Reduce al mínimo el espacio interno */
+    font-size: 1.2rem; /* Ajusta el tamaño del ícono '☰' */
+    line-height: 1; /* Asegura que el ícono no se desalinee */
+}
+
+/* Opcional: Cambia el color al pasar el mouse para que siga siendo usable */
+#toggleMenu:hover {
+    color: #212529 !important; /* Un gris más oscuro al pasar el mouse */
+}
+
+/* === MENÚ LATERAL CON FLECHAS Y TEXTO ALINEADO A LA IZQUIERDA === */
+
+/* 1. Botones principales (Configuración, Acuerdos, etc.) */
+#sidebar .btn-toggle {
+    width: 100%;
+    padding: .5rem 0; /* Quita el padding lateral para alinear bien */
+    font-weight: 600;
+    color: #343a40;
+    background-color: transparent;
+    border: 0;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    text-align: left;
+}
+
+/* 2. Flecha tipo chevron, alineada a la izquierda del texto */
+#sidebar .btn-toggle::before {
+    content: '';
+    display: inline-block;
+    width: .4rem;
+    height: .4rem;
+    border-right: 2px solid #6c757d;
+    border-bottom: 2px solid #6c757d;
+    transform: rotate(45deg); /* Flecha hacia la derecha */
+    margin-right: .6rem;
+    margin-left: 1rem; /* Espacio desde el borde izquierdo */
+    transition: transform 0.2s ease-in-out;
+}
+
+/* 3. Flecha rota hacia abajo al expandirse */
+#sidebar .btn-toggle[aria-expanded="true"]::before {
+    transform: rotate(135deg); /* Flecha hacia abajo */
+}
+
+/* 4. Enlaces internos (Tipo Catálogo, etc.) */
+#sidebar .btn-toggle-nav a {
+    display: block;
+    padding: .35rem 0 .35rem 2.3rem; /* Subopciones alineadas con texto principal */
+    font-size: 0.9em;
+    color: #495057;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+/* 5. Efecto hover */
+#sidebar .btn-toggle:hover,
+#sidebar .btn-toggle-nav a:hover {
+    background-color: #f8f9fa;
+    border-radius: .25rem;
+}
+
+/* 6. Encabezado del menú lateral */
+#sidebar h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+}
+
+/* Estilo para el paginador de DataTables */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background-color: #e6f4ff; /* Fondo suave celeste */
+    border: 1px solid #b3daff;
+    color: #007acc !important; /* Texto azul suave */
+    border-radius: 5px;
+    margin: 2px;
+}
+
+/* Al pasar el mouse */
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #b3daff !important;
+    border: 1px solid #80c1ff;
+    color: #004c99 !important;
+}
+
+/* Página activa */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #00bfff !important; /* Celeste brillante */
+    color: white !important;
+    border: 1px solid #00a3cc;
+}
+
+/* Deshabilitado */
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    color: #a0a0a0 !important;
+    background: #f5f5f5 !important;
+    border: 1px solid #ddd !important;
+}
+
+/* Cambia el color de fondo del botón de paginación activo */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #6c757d !important; /* Un tono de gris de Bootstrap */
+    color: white !important; /* Asegura que el texto sea blanco y legible */
+    border-color: #6c757d !important; /* Cambia el color del borde para que coincida */
+}
+
+/* Cambia el color del texto de los otros botones de paginación para que coincida */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #6c757d !important;
+}
+
+/* Cambia el color del borde de los botones al pasar el mouse sobre ellos */
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    border-color: #6c757d !important;
+    color: #6c757d !important;
+    background: rgba(108, 117, 125, 0.1) !important; /* Un fondo gris claro al pasar el mouse */
 }

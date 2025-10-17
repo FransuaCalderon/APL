@@ -1,63 +1,106 @@
-body {
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  height: -webkit-fill-available;
+    position: relative;
+    min-height: 100%;
 }
 
-main {
-  height: 100vh;
-  height: -webkit-fill-available;
-  max-height: 100vh;
-  overflow-x: auto;
-  overflow-y: auto;
+body {
+    margin-bottom: 60px;
 }
 
-.dropdown-toggle { outline: 0; }
-
-.btn-toggle {
-  padding: .25rem .5rem;
-  font-weight: 600;
-  color: var(--bs-emphasis-color);
-  background-color: transparent;
-}
-.btn-toggle:hover,
-.btn-toggle:focus {
-  color: rgba(var(--bs-emphasis-color-rgb), .85);
-  background-color: var(--bs-tertiary-bg);
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
 }
 
-.btn-toggle::before {
-  width: 1.25em;
-  line-height: 0;
-  content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%280,0,0,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
-  transition: transform .35s ease;
-  transform-origin: .5em 50%;
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+    text-align: start;
 }
 
-[data-bs-theme="dark"] .btn-toggle::before {
-  content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%28255,255,255,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+/* Estilos para alinear y espaciar los botones */
+.action-buttons {
+    display: flex;
+    gap: 10px; /* Espacio entre los botones */
+    justify-content: flex-start; /* Centrar los íconos en la celda */
 }
 
-.btn-toggle[aria-expanded="true"] {
-  color: rgba(var(--bs-emphasis-color-rgb), .85);
-}
-.btn-toggle[aria-expanded="true"]::before {
-  transform: rotate(90deg);
-}
-
-.btn-toggle-nav a {
-  padding: .1875rem .5rem;
-  margin-top: .125rem;
-  margin-left: 1.25rem;
-}
-.btn-toggle-nav a:hover,
-.btn-toggle-nav a:focus {
-  background-color: var(--bs-tertiary-bg);
+/* Estilo base para los botones de acción */
+.btn-action {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    font-size: 1.4em; /* Tamaño del ícono */
+    line-height: 1;
+    text-decoration: none;
+    /* Esto es importante si tus íconos tienen un contorno o fondo */
+    box-shadow: none;
 }
 
-.scrollarea {
-  overflow-y: auto;
+    /* Estilo para el ícono de Editar (Lápiz - Verde) */
+    .btn-action.edit-btn i {
+        color: #008000; /* Color Verde */
+        /* Puedes añadir una ligera sombra o filtro para el efecto de resplandor (opcional) */
+        /* filter: drop-shadow(0 0 1px #008000); */
+    }
+
+    /* Estilo para el ícono de Eliminar (Papelera - Rojo) */
+    .btn-action.delete-btn i {
+        color: #ff0000; /* Color Rojo */
+        /* Puedes añadir una ligera sombra o filtro para el efecto de resplandor (opcional) */
+        /* filter: drop-shadow(0 0 1px #ff0000); */
+    }
+
+    /* Opcional: Efecto al pasar el ratón */
+    .btn-action:hover i {
+        opacity: 0.8;
+    }
+
+#sidebar.hidden {
+    width: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    border: none;
+}
+
+#mainContent.fullscreen {
+    width: 100% !important;
+    margin-left: 0 !important;
+}
+
+/* === ESTILOS PERSONALIZADOS PARA LA CABECERA DE DATATABLES === */
+
+/* 1. Aplica el fondo azul y el texto blanco a las celdas de la cabecera */
+table.dataTable thead th,
+table.dataTable thead td {
+    background-color: #1b2c9e !important; /* Color de fondo azul */
+    color: white !important; /* Color del texto blanco */
+    border-bottom: 1px solid #1b2c9e; /* Opcional: para que el borde combine */
+}
+
+/* 2. Cambia el color de los iconos de ordenamiento (flechas) para que sean visibles */
+table.dataTable thead .dt-column-order::before,
+table.dataTable thead .dt-column-order::after {
+    color: white !important;
+    opacity: 0.7; /* Hacemos las flechas un poco tenues */
+}
+
+/* 3. Hace que la flecha de la columna activa sea completamente blanca y visible */
+table.dataTable thead .dt-ordering-asc .dt-column-order::before,
+table.dataTable thead .dt-ordering-desc .dt-column-order::after {
+    opacity: 1;
 }

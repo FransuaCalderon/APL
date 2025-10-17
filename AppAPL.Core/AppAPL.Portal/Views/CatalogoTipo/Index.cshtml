@@ -8,17 +8,35 @@
 
 <hr>
 
+<style>
+    /* Cambia el color de fondo del botón de paginación activo */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #6c757d !important; /* Un tono de gris de Bootstrap */
+        color: white !important; /* Asegura que el texto sea blanco y legible */
+        border-color: #6c757d !important; /* Cambia el color del borde para que coincida */
+    }
+
+    /* Cambia el color del texto de los otros botones de paginación */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: #6c757d !important;
+    }
+
+        /* Cambia el color y fondo de los botones al pasar el mouse sobre ellos */
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            border-color: #6c757d !important;
+            color: #6c757d !important;
+            background: rgba(108, 117, 125, 0.1) !important; /* Un fondo gris claro al pasar el mouse */
+        }
+</style>
+
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
 <div id="tabla"></div>
 
 <div class="d-flex justify-content-end mt-3">
-    <button type="button" class="btn me-2" id="btnLimpiar" title="Limpiar campos" style="background-color: #1b2c9e; border-color: #1b2c9e; color: white;">
-        Limpiar
-    </button>
-
     <button type="button" class="btn" id="btnAgregarNuevo" title="Agregar Nuevo" style="background-color: #1b2c9e; border-color: #1b2c9e; color: white;">
-        Agregar
+        <i class="fa-solid fa-plus"></i> Agregar
     </button>
 </div>
 

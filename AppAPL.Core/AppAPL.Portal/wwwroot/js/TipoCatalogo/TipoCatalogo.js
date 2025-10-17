@@ -7,7 +7,6 @@ $(document).ready(function () {
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
-        // La base URL se mantiene, aunque no la usemos para el modal por ahora
         window.apiBaseUrl = apiBaseUrl;
 
         $.get(`${apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
@@ -16,33 +15,39 @@ $(document).ready(function () {
         });
     });
 
-    // -------------------------------------------------------------
-    // FUNCIONALIDAD DEL BOTÓN AGREGAR (USANDO DELEGACIÓN PARA EL CLIC)
-    // Usamos delegación en 'body' porque el botón se añade dinámicamente por JS
-    // -------------------------------------------------------------
+    // Delegación para el botón "Agregar Nuevo"
     $('body').on('click', '#btnAgregarNuevo', function () {
         abrirModalCrear();
     });
 
-    // Lógica para manejar el cierre del modal y restaurar el estado de Edición
+    // ===== INICIO DE LA IMPLEMENTACIÓN DEL BOTÓN LIMPIAR =====
+    // Funcionalidad del botón Limpiar
+    $('body').on('click', '#btnLimpiar', function () {
+        if (tabla) { // Se asegura de que la tabla ya esté inicializada
+            // 1. Limpia el texto del campo de búsqueda
+            tabla.search('').draw();
+
+            // 2. Regresa la tabla a la primera página
+            tabla.page(0).draw('page');
+        }
+    });
+    // ===== FIN DE LA IMPLEMENTACIÓN =====
+
+    // Lógica para el cierre del modal
     $('#editarModal').on('hidden.bs.modal', function () {
-        // Asegurarse de que el modal vuelva a su estado original de Edición
         $('#editarModalLabel').text('Editar Tipo de Catálogo');
-        // Restaurar el botón a Modificar (azul)
         $('#btnGuardarCambios')
             .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')
             .removeClass('btn-success')
             .addClass('btn-primary');
     });
 
-
-
+    // Lógica para Guardar o Crear
     $("#btnGuardarCambios").on("click", function (e) {
-        e.preventDefault(); // Evita que recargue la página
+        e.preventDefault();
 
-        const id = $("#modal-idCatalogoTipo").val(); // si está vacío, es creación
+        const id = $("#modal-idCatalogoTipo").val();
         const isCrear = !id;
-
 
         const data = {
             nombre: $("#modal-nombre").val(),
@@ -56,23 +61,15 @@ $(document).ready(function () {
             idEtiqueta: $("#modal-etiqueta").val()
         };
 
-        // Solo para creación
         if (isCrear) {
             data.idUsuarioCreacion = 1;
             data.fechaCreacion = new Date().toISOString();
         }
 
-
         const url = id ? `${window.apiBaseUrl}/api/CatalogoTipo/actualizar/${id}`
             : `${window.apiBaseUrl}/api/CatalogoTipo/insertar`;
 
         const method = id ? "PUT" : "POST";
-
-
-
-        console.log(data); // Verifica los valores antes de enviar
-        console.log(window.apiBaseUrl);
-
 
         $.ajax({
             url: url,
@@ -80,16 +77,25 @@ $(document).ready(function () {
             contentType: "application/json",
             data: JSON.stringify(data),
             success: function (response) {
-                $("#editarModal").modal("hide"); // ✅ Cierra el modal
-                alert("Guardado correctamente");
-                // ✅ Recarga la tabla
+                $("#editarModal").modal("hide");
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Guardado!',
+                    text: 'El registro se ha guardado correctamente.',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
                 $.get(`${window.apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
                     crearListado(data);
                 });
             },
             error: function () {
-                const mensaje = id ? "actualizar" : "guardar"
-                alert(`Error al ${mensaje}`);
+                const mensaje = id ? "actualizar" : "guardar";
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `¡Algo salió mal al ${mensaje} el registro!`
+                });
             }
         });
     });
@@ -97,10 +103,13 @@ $(document).ready(function () {
 
 
 function crearListado(data) {
+    if (tabla) {
+        tabla.destroy();
+    }
+
     var html = "";
-    // Asegúrate de usar la clase 'table-striped' de Bootstrap y 'display' de DataTables
     html += "<table id='tabla-curso' class='table table-striped display'>";
-    html += "  <thead><tr><th>Id</th><th>Nombre</th><th>Descripcion</th><th>Opciones</th></tr></thead>";
+    html += "  <thead><tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Opciones</th></tr></thead>";
     html += "  <tbody>";
 
     if (!data || data.length === 0) {
@@ -108,17 +117,14 @@ function crearListado(data) {
     } else {
         for (var i = 0; i < data.length; i++) {
             var c = data[i];
-
             var id = c.idCatalogoTipo;
 
-            // 1. Botón Editar: Usando fa-solid fa-pen-to-square
             var editButton = '<button type="button" class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(' + id + ')">' +
-                '<i class="fa-solid fa-pen-to-square"></i>' + // Ícono de edición actualizado
+                '<i class="fa-regular fa-pen-to-square"></i>' +
                 '</button>';
 
-            // 2. Botón Eliminar: Usando fa-regular fa-trash-can
             var deleteButton = '<button type="button" class="btn-action delete-btn" title="Eliminar" onclick="confirmDelete(' + id + ')">' +
-                '<i class="fa-regular fa-trash-can"></i>' + // Ícono de eliminación actualizado
+                '<i class="fa-regular fa-trash-can"></i>' +
                 '</button>';
 
             var optionsHtml = '<div class="action-buttons">' + editButton + deleteButton + '</div>';
@@ -127,7 +133,6 @@ function crearListado(data) {
             html += "  <td>" + (c.idCatalogoTipo ?? "") + "</td>";
             html += "  <td>" + (c.nombre ?? "") + "</td>";
             html += "  <td>" + (c.descripcion ?? "") + "</td>";
-            // Insertamos los botones en la columna de Opciones
             html += "  <td>" + optionsHtml + "</td>";
             html += "</tr>";
         }
@@ -138,8 +143,15 @@ function crearListado(data) {
 
     $('#tabla').html(html);
 
-    // Inicialización de DataTables CON TRADUCCIÓN AL ESPAÑOL
     tabla = $('#tabla-curso').DataTable({
+        pageLength: 5,
+        lengthMenu: [5, 10, 50],
+        pagingType: 'full_numbers',
+        columnDefs: [
+            { targets: 0, width: "5%", className: "dt-left" },
+            { targets: 3, width: "10%", className: "dt-center", orderable: false },
+            { targets: 2, width: "60%" }
+        ],
         language: {
             decimal: "",
             emptyTable: "No hay datos disponibles en la tabla",
@@ -166,104 +178,53 @@ function crearListado(data) {
         }
     });
 
-    // -------------------------------------------------------------
-    // INYECTAR BOTÓN AGREGAR EN EL CONTROL DE PÁGINAS DE DATATABLES
-    // -------------------------------------------------------------
     const addButtonHtml = `
         <button type="button" class="btn btn-primary ms-2" id="btnAgregarNuevo" title="Agregar Nuevo" style="height: 38px;">
             <i class="fa-solid fa-plus"></i>
         </button>
     `;
 
-    // El ID del contenedor de "entries per page" es 'tabla-curso_length'
     const lengthContainer = $('#tabla-curso_length');
-
-    // 1. Inyectamos el botón (con margen a la izquierda de 2)
+    lengthContainer.find('#btnAgregarNuevo').remove();
     lengthContainer.prepend(addButtonHtml);
-
-    // 2. Aplicamos estilos flex para asegurar alineación vertical con el select
-    lengthContainer.css('display', 'flex');
-    lengthContainer.css('align-items', 'center');
+    lengthContainer.css('display', 'flex').css('align-items', 'center');
 }
 
-// -------------------------------------------------------------
-// FUNCIONALIDAD DEL MODAL DE EDICIÓN
-// -------------------------------------------------------------
-
 function abrirModalEditar(id) {
-
-    // 1. Limpiar el formulario del modal antes de cargar nuevos datos
     $('#formEditar')[0].reset();
-
-    // 2. Establecer el ID para la acción de Edición
     $('#modal-idCatalogoTipo').val(id);
-
-    // 3. Restaurar título y botón a modo Edición (en caso de que estuviera en modo Creación)
     $('#editarModalLabel').text('Editar Tipo de Catálogo');
     $('#btnGuardarCambios')
         .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')
         .removeClass('btn-success')
         .addClass('btn-primary');
 
-
-    // Obtén los datos del registro por ID desde la API
     $.get(`${window.apiBaseUrl}/api/CatalogoTipo/obtener/${id}`, function (data) {
-
-        console.log(data);
-
-        // ✅ CORRECCIÓN CLAVE: Asigna el ID al campo VISIBLE "modal-id"
-        $("#modal-id").val(data.idCatalogoTipo); // <--- Corregido
-
-        // Llena los demás campos del formulario del modal
+        $("#modal-id").val(data.idCatalogoTipo);
         $("#modal-nombre").val(data.nombre);
         $("#modal-descripcion").val(data.descripcion);
-
-        // Supongamos que `data.idEstado` viene como 1 o 0
         $("#modal-activo").prop("checked", data.idEstado === 1);
-
         $("#modal-etiqueta").val(data.idEtiqueta);
-        // Cambia el texto del botón y abre el modal (Nota: el botón ya se actualizó arriba, pero esta línea no afecta)
-        $("#btnGuardar").text("Actualizar"); // <--- Posiblemente innecesario ya que usas btnGuardarCambios
-        $("#editarModal").modal("show"); // <--- Esto es suficiente para mostrarlo, aunque también usas new bootstrap.Modal().show() más abajo
+
+        var editarModal = new bootstrap.Modal(document.getElementById('editarModal'));
+        editarModal.show();
     });
-    // ...
-
-
-    // 4. Mostrar el modal de Bootstrap
-    var editarModal = new bootstrap.Modal(document.getElementById('editarModal'));
-    editarModal.show();
-
-    // **TODO:** Aquí iría la lógica AJAX para cargar los datos del ID
 }
 
-// -------------------------------------------------------------
-// NUEVA FUNCIONALIDAD: ABRIR MODAL PARA CREACIÓN
-// -------------------------------------------------------------
-
 function abrirModalCrear() {
-    // 1. Limpiar el formulario y resetear el ID
     $('#formEditar')[0].reset();
     $('#modal-idCatalogoTipo').val('');
-
-    // 2. Cambiar el título del modal y el texto del botón para la acción de Creación
     $('#editarModalLabel').text('Crear Nuevo Tipo de Catálogo');
     $('#btnGuardarCambios')
-        // Usamos el ícono de más y cambiamos el color a verde (btn-success) para distinguirlo
         .html('<i class="fa-solid fa-plus me-2"></i> Crear')
         .removeClass('btn-primary')
         .addClass('btn-success');
 
-    // 3. Mostrar el modal de Bootstrap
     var crearModal = new bootstrap.Modal(document.getElementById('editarModal'));
     crearModal.show();
 }
 
-// -------------------------------------------------------------
-// FUNCIONALIDAD DE ELIMINACIÓN
-// -------------------------------------------------------------
-
 function confirmDelete(id) {
-
     Swal.fire({
         title: 'Confirmar Eliminacion',
         text: "¿Estás seguro de que deseas eliminar el registro con ID: " + id + "?",
@@ -273,19 +234,13 @@ function confirmDelete(id) {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Sí, Eliminar',
         cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
+    }).then((result) => {
         if (result.isConfirmed) {
-            // **TODO:** Aquí debes implementar la llamada AJAX (POST) a tu controlador
-            console.log("Procediendo a eliminar el registro: " + id);
-
-
             $.ajax({
                 url: `${window.apiBaseUrl}/api/CatalogoTipo/eliminar/${id}`,
-                type: "DELETE",
+                type: "DELETE", 
                 success: function () {
                     alert("Registro eliminado correctamente");
-
-                    // Recarga la tabla
                     $.get(`${window.apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
                         crearListado(data);
                     });
@@ -296,5 +251,4 @@ function confirmDelete(id) {
             });
         }
     });
-
 }
