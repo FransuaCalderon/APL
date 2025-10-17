@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="wwwroot\js\Configuration\ApiSettings.cs" />
+    <Content Include="Configuration\ApiSettings.cs" />
   </ItemGroup>
 
   <ItemGroup>

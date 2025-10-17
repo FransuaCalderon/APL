@@ -71,18 +71,26 @@ app.UseAuthorization();
 
 
 
-app.MapGet("/config", (IConfiguration config) =>
+app.MapGet("/config", (IOptions<ApiSettings> options) =>
 {
-    var apiBaseUrl = config["ApiSettings:BaseUrl"];
-    return Results.Json(new { apiBaseUrl });
+    var settings = options.Value;
+
+    var configuracion = new
+    {
+        apiBaseUrl = settings.BaseUrl,
+        settings.IdGrupo
+    };
+
+    return Results.Json(configuracion);
 });
+
 
 // app.MapStaticAssets(); // Mantenemos tu MapStaticAssets si es necesario para tu setup específico
 
 app.MapControllerRoute(
     name: "default",
     // MODIFICADO: Apunta al LoginController y la acción Login
-    pattern: "{controller=Login}/{action=Login}/{id?}"); // <-- CAMBIO APLICADO AQUÍ
+    pattern: "{controller=Home}/{action=Index}/{id?}"); // <-- CAMBIO APLICADO AQUÍ
 
 
 

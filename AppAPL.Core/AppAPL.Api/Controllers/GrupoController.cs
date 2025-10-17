@@ -1,4 +1,5 @@
-﻿using AppAPL.Dto.Grupo;
+﻿using AppAPL.Dto.Catalogo;
+using AppAPL.Dto.Grupo;
 using AppAPL.Dto.Opciones;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,72 @@ namespace AppAPL.Api.Controllers
             logger.LogInformation($"catalogo consultados : {catalogoFiltrado.Count()}");
 
             var grupos = new List<GrupoDTO>();
+
+
+            //---------temporal  --------
+            var grupoTemporal = new GrupoDTO()
+            {
+                Catalogo = new CatalogoDTO()
+                {
+                    IdCatalogo = 0,
+                    Nombre = "Configuracion",
+                    Adicional = "",
+                    Abreviatura = "",
+                    IdCatalogoTipo = 9,
+                    IdUsuarioCreacion = 1,
+                    FechaCreacion = DateTime.Now,
+                    IdUsuarioModificacion = 1,
+                    FechaModificacion = DateTime.Now,
+                    IdEstado = 0,
+                    IdEtiqueta = "GRconfig"
+
+                },
+                Opciones = new List<OpcionDTO>()
+                {
+                    new OpcionDTO()
+                    {
+                        IdOpcion = 0,
+                        Nombre = "Tipo Catalogo",
+                        Descripcion = "",
+                        IdGrupo = 9,
+                        Vista = "CatalogoTipo",
+                        IdUsuarioCreacion = 1,
+                        IdUsuarioModificacion = null,
+                        IdEstado = 12,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = null
+                    },
+                    new OpcionDTO()
+                    {
+                        IdOpcion = 0,
+                        Nombre = "Catalogo",
+                        Descripcion = "",
+                        IdGrupo = 9,
+                        Vista = "Catalogo",
+                        IdUsuarioCreacion = 1,
+                        IdUsuarioModificacion = null,
+                        IdEstado = 12,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = null
+                    },
+                    new OpcionDTO()
+                    {
+                        IdOpcion = 0,
+                        Nombre = "Opciones",
+                        Descripcion = "",
+                        IdGrupo = 9,
+                        Vista = "Opciones",
+                        IdUsuarioCreacion = 1,
+                        IdUsuarioModificacion = null,
+                        IdEstado = 12,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = null
+                    }
+                }
+            };
+
+            grupos.Add(grupoTemporal);
+            //---------------------------
 
 
             foreach (var item in catalogoFiltrado)
