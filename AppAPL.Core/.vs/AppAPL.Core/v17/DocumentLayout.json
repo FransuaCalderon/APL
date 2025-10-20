@@ -3,14 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\",
   "Documents": [
     {
+<<<<<<< Updated upstream
       "AbsoluteMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|c:\\users\\usuario itc\\documents\\proyecto_bmtecsa_apl_2025\\apl\\appapl.core\\appapl.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|solutionrelative:appapl.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+=======
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+>>>>>>> Stashed changes
     },
     {
       "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\usuario itc\\documents\\proyecto_bmtecsa_apl_2025\\apl\\appapl.core\\appapl.portal\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
       "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
+<<<<<<< Updated upstream
       "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\usuario itc\\documents\\proyecto_bmtecsa_apl_2025\\apl\\appapl.core\\appapl.portal\\wwwroot\\js\\catalogo\\catalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\js\\catalogo\\catalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
@@ -32,6 +38,21 @@
     },
     {
       "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\usuario itc\\documents\\proyecto_bmtecsa_apl_2025\\apl\\appapl.core\\appapl.portal\\views\\catalogotipo\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+=======
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\wwwroot\\js\\tipocatalogo\\tipocatalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\js\\tipocatalogo\\tipocatalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\views\\catalogo\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\catalogo\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\views\\catalogotipo\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+>>>>>>> Stashed changes
       "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\views\\catalogotipo\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
@@ -42,7 +63,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
+<<<<<<< Updated upstream
           "SelectedChildIndex": 1,
+=======
+          "SelectedChildIndex": 5,
+>>>>>>> Stashed changes
           "Children": [
             {
               "$type": "Bookmark",
@@ -50,6 +75,7 @@
             },
             {
               "$type": "Document",
+<<<<<<< Updated upstream
               "DocumentIndex": 0,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Api\\appsettings.json",
@@ -99,19 +125,27 @@
             },
             {
               "$type": "Document",
+=======
+>>>>>>> Stashed changes
               "DocumentIndex": 1,
               "Title": "site.css",
               "DocumentMoniker": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\css\\site.css",
               "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\css\\site.css",
               "ToolTip": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\css\\site.css",
               "RelativeToolTip": "AppAPL.Portal\\wwwroot\\css\\site.css",
-              "ViewState": "AgIAAHsBAAAAAAAAAAAkwI4BAAAvAAAAAAAAAA==",
+              "ViewState": "AgIAACQBAAAAAAAAAAAAwE4BAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+<<<<<<< Updated upstream
               "WhenOpened": "2025-10-17T20:23:03.828Z"
+=======
+              "WhenOpened": "2025-10-20T22:13:37.092Z",
+              "EditorCaption": ""
+>>>>>>> Stashed changes
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
+<<<<<<< Updated upstream
               "Title": "Catalogo.js",
               "DocumentMoniker": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\Catalogo\\Catalogo.js",
               "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\js\\Catalogo\\Catalogo.js",
@@ -136,14 +170,73 @@
             {
               "$type": "Document",
               "DocumentIndex": 7,
+=======
+              "Title": "TipoCatalogo.js",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
+              "RelativeToolTip": "AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
+              "ViewState": "AgIAACoBAAAAAAAAAADwv1IBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-10-20T21:24:42.508Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+>>>>>>> Stashed changes
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
               "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
               "ToolTip": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
               "RelativeToolTip": "AppAPL.Portal\\Views\\CatalogoTipo\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAmwGcAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+<<<<<<< Updated upstream
               "WhenOpened": "2025-10-17T19:46:54.806Z"
+=======
+              "WhenOpened": "2025-10-20T21:17:57.337Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAACoAAAAAAAAAAAAAAA0BAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-20T17:07:27.715Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Catalogo\\Index.cshtml",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\Views\\Catalogo\\Index.cshtml",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\Views\\Catalogo\\Index.cshtml",
+              "RelativeToolTip": "AppAPL.Portal\\Views\\Catalogo\\Index.cshtml",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAAGMAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-20T17:03:41.513Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "site.js",
+              "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\site.js",
+              "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\js\\site.js",
+              "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\site.js",
+              "RelativeToolTip": "AppAPL.Portal\\wwwroot\\js\\site.js",
+              "ViewState": "AgIAAJwAAAAAAAAAAADwv7YAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-10-20T16:58:48.861Z",
+              "EditorCaption": ""
+>>>>>>> Stashed changes
             }
           ]
         }

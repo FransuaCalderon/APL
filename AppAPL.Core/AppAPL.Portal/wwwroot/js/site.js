@@ -1,5 +1,38 @@
 ﻿// wwwroot/js/site.js
 $(document).ready(function () {
+    // Mapeo de rutas de la API a rutas reales de MVC
+    const rutasMapeo = {
+        '/Configuracion/TipoCatalogo': '/CatalogoTipo/Index',
+        '/Configuracion/Catalogos': '/Catalogo/Index',
+        '/Configuracion/Opciones': '/Opciones/Index',
+        '/Configuracion/Pais': '/Pais/Index',
+        '/Configuracion/EstructuraPais': '/EstructuraPais/Index',
+        '/Configuracion/DivisionPolitica': '/DivisionPolitica/Index'
+    };
+
+    // Función para convertir ruta de API a ruta real
+    function obtenerRutaReal(rutaApi) {
+        return rutasMapeo[rutaApi] || rutaApi || '#';
+    }
+
+    // Función para resaltar la opción activa
+    function resaltarOpcionActiva() {
+        const rutaActual = window.location.pathname;
+
+        $('#menu-dinamico a').each(function () {
+            const $link = $(this);
+            const href = $link.attr('href');
+
+            // Comparar la ruta actual con el href del enlace
+            if (href && href !== '#' && (href === rutaActual || rutaActual.startsWith(href))) {
+                $link.addClass('active');
+                // Expandir el grupo padre
+                $link.closest('.collapse').addClass('show');
+                $link.closest('.collapse').prev('button').attr('aria-expanded', 'true').removeClass('collapsed');
+            }
+        });
+    }
+
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
@@ -52,11 +85,15 @@ $(document).ready(function () {
                 grupo.opciones.sort((a, b) => a.idOpcion - b.idOpcion);
 
                 grupo.opciones.forEach(opcion => {
+                    // Convertir la ruta de la API a la ruta real del controlador
+                    const rutaReal = obtenerRutaReal(opcion.vista);
+
                     const $li = $(`
                         <li>
-                            <a href="${opcion.vista || '#'}"
+                            <a href="${rutaReal}"
                                class="link-body-emphasis d-inline-flex text-decoration-none rounded"
-                               data-id-opcion="${opcion.idOpcion}">
+                               data-id-opcion="${opcion.idOpcion}"
+                               data-ruta-original="${opcion.vista}">
                                ${opcion.opcion_Nombre}
                             </a>
                         </li>
@@ -78,6 +115,9 @@ $(document).ready(function () {
                 $menu.append($liCatalogo);
             });
 
+            // Resaltar la opción activa después de cargar el menú
+            resaltarOpcionActiva();
+
             console.log("Menú cargado exitosamente");
         })
             .fail(function (xhr, status, error) {
@@ -87,3 +127,79 @@ $(document).ready(function () {
             });
     });
 });
+
+
+// Función para inicializar el marcado de filas en cualquier DataTable
+function inicializarMarcadoFilas(tablaSelector) {
+    console.log('Inicializando marcado de filas para:', tablaSelector);
+
+    // Click en la fila completa
+    $(document).on('click', `${tablaSelector} tbody tr`, function (e) {
+        // Evitar que se active si se hizo clic en un botón o dentro de action-buttons
+        if ($(e.target).closest('.action-buttons, .btn-action').length > 0) {
+            console.log('Click en botón, ignorando marcado de fila');
+            return;
+        }
+
+        const $fila = $(this);
+        console.log('Click en fila detectado');
+
+        // Si la fila ya está seleccionada (con cualquier clase), la deseleccionamos
+        if ($fila.hasClass('fila-seleccionada') || $fila.hasClass('fila-accion')) {
+            $fila.removeClass('fila-seleccionada fila-accion');
+            console.log('Fila deseleccionada');
+        } else {
+            // Remover ambas clases de todas las filas
+            $(`${tablaSelector} tbody tr`).removeClass('fila-seleccionada fila-accion');
+            // Agregar la clase GRIS solo a la fila clickeada
+            $fila.addClass('fila-seleccionada');
+            console.log('Fila seleccionada con GRIS');
+        }
+    });
+
+    // Efecto hover solo si NO está seleccionada
+    $(document).on('mouseenter', `${tablaSelector} tbody tr`, function () {
+        if (!$(this).hasClass('fila-seleccionada') && !$(this).hasClass('fila-accion')) {
+            $(this).addClass('fila-marcada');
+        }
+    });
+
+    $(document).on('mouseleave', `${tablaSelector} tbody tr`, function () {
+        $(this).removeClass('fila-marcada');
+    });
+}
+
+// Función global para obtener los datos de la fila seleccionada
+function obtenerFilaSeleccionada(tablaSelector) {
+    const tabla = $(tablaSelector).DataTable();
+    const $filaSeleccionada = $(`${tablaSelector} tbody tr.fila-seleccionada`);
+
+    if ($filaSeleccionada.length > 0) {
+        return tabla.row($filaSeleccionada).data();
+    }
+
+    return null;
+}
+
+// Función para limpiar selección
+function limpiarSeleccion(tablaSelector) {
+    $(`${tablaSelector} tbody tr`).removeClass('fila-seleccionada fila-accion');
+    console.log('Selección limpiada para:', tablaSelector);
+}
+
+// Función para marcar una fila por ID (compatible con tu código existente)
+// Esta función es SOLO para cuando se hace clic en botones de ACCIÓN
+function marcarFilaPorId(tablaSelector, id) {
+    console.log('Marcando fila por ID (acción):', id);
+    // Quita ambas clases de todas las filas
+    $(`${tablaSelector} tbody tr`).removeClass('fila-seleccionada fila-accion');
+
+    // Busca la fila con ese ID y márcala con el estilo AMARILLO
+    $(`${tablaSelector} tbody tr`).each(function () {
+        const filaId = $(this).find('td:first').text().trim();
+        if (filaId == id) {
+            $(this).addClass('fila-accion'); // AMARILLO para acciones
+            console.log('Fila marcada con AMARILLO (acción) - ID:', id);
+        }
+    });
+}
