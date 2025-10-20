@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE sp_ListarOpciones 
+create or replace PROCEDURE APL_SP_ListarOpciones 
 ( 
   p_usuarioRol IN VARCHAR2,
   p_cursor     OUT SYS_REFCURSOR 
@@ -22,11 +22,11 @@ BEGIN
     JOIN   APL_TB_CATALOGO      c  ON c.idcatalogo      = o.idgrupo 
     JOIN   APL_TB_CATALOGOTIPO  ct ON ct.idcatalogotipo = c.idcatalogotipo 
     ORDER BY ct.nombre, c.nombre, o.nombre; 
-END sp_ListarOpciones;
+END APL_SP_ListarOpciones;
 
 
 
 ===========================PRUEBAS
 VAR cursor REFCURSOR;
-EXEC sp_ListarOpciones(p_usuarioRol => 'ADMIN', p_cursor => :cursor);
+EXEC APL_SP_ListarOpciones(p_usuarioRol => 'ADMIN', p_cursor => :cursor);
 PRINT cursor;
