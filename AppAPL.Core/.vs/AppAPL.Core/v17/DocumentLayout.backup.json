@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\wwwroot\\js\\catalogo\\catalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\js\\catalogo\\catalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\wwwroot\\js\\tipocatalogo\\tipocatalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\js\\tipocatalogo\\tipocatalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
@@ -17,10 +21,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\wwwroot\\css\\datatables.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
       "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\css\\datatables.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\wwwroot\\js\\catalogo\\catalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|solutionrelative:appapl.portal\\wwwroot\\js\\catalogo\\catalogo.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6F995BE1-1BFA-46FB-92D9-E12FA4430AC8}|AppAPL.Portal\\AppAPL.Portal.csproj|c:\\users\\hp\\desktop\\proyecto apl\\appapl.core\\appapl.portal\\views\\catalogo\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -38,11 +38,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "TipoCatalogo.js",
               "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
               "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\js\\TipoCatalogo\\TipoCatalogo.js",
@@ -55,7 +55,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "datatables.css",
               "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\css\\datatables.css",
               "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\css\\datatables.css",
@@ -68,7 +68,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Opciones.js",
               "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\Opciones\\Opciones.js",
               "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\js\\Opciones\\Opciones.js",
@@ -81,7 +81,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "site.css",
               "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\css\\site.css",
               "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\css\\site.css",
@@ -94,13 +94,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 0,
               "Title": "Catalogo.js",
               "DocumentMoniker": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\Catalogo\\Catalogo.js",
               "RelativeDocumentMoniker": "AppAPL.Portal\\wwwroot\\js\\Catalogo\\Catalogo.js",
               "ToolTip": "C:\\Users\\HP\\Desktop\\PROYECTO APL\\AppAPL.Core\\AppAPL.Portal\\wwwroot\\js\\Catalogo\\Catalogo.js",
               "RelativeToolTip": "AppAPL.Portal\\wwwroot\\js\\Catalogo\\Catalogo.js",
-              "ViewState": "AgIAAOYAAAAAAAAAAAAwwAoBAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAEoBAAAAAAAAAAAIwGIBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
               "WhenOpened": "2025-10-17T19:58:47.33Z",
               "EditorCaption": ""
