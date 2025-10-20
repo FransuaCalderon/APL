@@ -8,6 +8,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiExplorerSettings(IgnoreApi = true)] // 👈 Oculta este controlador del Swagger
     public class GrupoController : ControllerBase
     {
         private readonly ILogger<GrupoController> logger;

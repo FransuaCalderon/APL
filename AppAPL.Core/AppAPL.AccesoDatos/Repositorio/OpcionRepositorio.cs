@@ -10,6 +10,23 @@ namespace AppAPL_AccesoDatos.Repositorio
 {
     public sealed class OpcionRepositorio(OracleConnectionFactory factory) : IOpcionRepositorio
     {
+        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesPorRolAsync(string usuarioRol)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var parameters = new OracleDynamicParameters();
+            parameters.Add("p_usuarioRol", OracleDbType.Varchar2, ParameterDirection.InputOutput, usuarioRol);
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+
+            var opciones = await connection.QueryAsync<OpcionJoinDTO>(
+                "sp_ListarOpciones", // Nombre completo del procedimiento
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return opciones;
+        }
+
         public async Task<IEnumerable<OpcionDTO>> ListarAsync(
             string? nombre = null,
             int? idGrupo = null,

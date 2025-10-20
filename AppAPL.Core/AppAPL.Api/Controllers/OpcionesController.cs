@@ -24,6 +24,24 @@ namespace AppAPL.Api.Controllers
             return listaOpciones.ToList();
         }
 
+        [HttpGet("listarPorRol/{usuarioRol}")]
+        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(string usuarioRol)
+        {
+            var listaOpcionesPorRol = await servicio.ListarOpcionesPorRolAsync(usuarioRol);
+
+            var grupos = (from filtrado in listaOpcionesPorRol
+                          select filtrado.IdCatalogo)
+             .Distinct();
+
+            var grupoOpciones = new GrupoOpcionDTO()
+            {
+                Grupos = grupos,
+                Opciones = listaOpcionesPorRol
+            };
+
+            return grupoOpciones;
+        }
+
         [HttpGet("obtener/{id:int}")]
         public async Task<ActionResult<OpcionDTO>> ObtenerPorId(int id)
         {
