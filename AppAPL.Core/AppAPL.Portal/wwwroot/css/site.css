@@ -362,5 +362,52 @@ background-color: rgba(255, 252, 127, 0.7) !important;
 }
 
 /* ============================================================
-   FIN DE ESTILOS PARA MARCADO DE FILAS
+   ESTILOS PARA PAGINADOR DE DATATABLES
+   ============================================================ */
+
+/* Página activa - Texto blanco sobre fondo azul */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    color: white !important;
+    background: #1e3a8a !important; /* Azul oscuro */
+    border: 1px solid #1e3a8a !important;
+}
+
+/* Asegura que el enlace dentro del botón también sea blanco */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current a,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover a {
+    color: white !important;
+}
+
+/* Páginas no activas - Texto normal */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #374151 !important; /* Gris oscuro */
+    background: white !important;
+    border: 1px solid #d1d5db !important;
+}
+
+/* Hover en páginas no activas */
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    color: white !important;
+    background: #3b82f6 !important; /* Azul más claro */
+    border: 1px solid #3b82f6 !important;
+}
+
+/* Páginas deshabilitadas (Primero/Último cuando no están disponibles) */
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+    color: #9ca3af !important; /* Gris claro */
+    background: #f3f4f6 !important;
+    border: 1px solid #e5e7eb !important;
+    cursor: not-allowed !important;
+}
+
+/* Página activa - Cambia estos valores */
+background: #1e3a8a !important; /* Color de fondo azul oscuro */
+color: white !important; /* Color del texto */
+/* Hover */
+background: #3b82f6 !important; /* Azul más claro */
+
+/* ============================================================
+   FIN DE ESTILOS PARA PAGINADOR
    ============================================================ */

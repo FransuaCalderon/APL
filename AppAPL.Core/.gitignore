@@ -1,28 +1,56 @@
+# ========================
 # Visual Studio / VS Code
+# ========================
 .vs/
 .vscode/
 *.suo
 *.user
 
-# Build .NET
+# ========================
+# Build .NET (todos los proyectos)
+# ========================
 **/bin/
 **/obj/
+AppAPL.Core/AppAPL.Api/bin/
+AppAPL.Core/AppAPL.Api/obj/
+AppAPL.Core/AppAPL.Portal/bin/
+AppAPL.Core/AppAPL.Portal/obj/
+AppAPL.Core/AppAPL.Negocio/bin/
+AppAPL.Core/AppAPL.Negocio/obj/
+AppAPL.Core/AppAPL.Dto/bin/
+AppAPL.Core/AppAPL.Dto/obj/
 *.pdb
 *.cache
 
+# ========================
 # Varios VS / índices / temporales
+# ========================
 **/CopilotIndices/
 **/*.db
 **/.dtbcache.v2
 **/.futdcache.v2
 **/DocumentLayout*.json
 
+# ========================
 # Publicaciones locales
+# ========================
 *.Publish.xml
 *.pubxml
 *.pubxml.user
 
+# ========================
+# Archivos de configuración
+# ========================
 **/appsettings*.json
 
+# ========================
 # Logs
+# ========================
 *.log
+
+# ========================
+# Archivos de sistema
+# ========================
+Thumbs.db
+Desktop.ini
+*.DS_Store
