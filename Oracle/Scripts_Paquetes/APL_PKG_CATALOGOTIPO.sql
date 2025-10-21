@@ -1,4 +1,4 @@
-create or replace NONEDITIONABLE PACKAGE APL_CATALOGOTIPO_PKG AS
+create or replace NONEDITIONABLE PACKAGE APL_PKG_CATALOGOTIPO AS
   TYPE t_cursor IS REF CURSOR;
 
   -- Crea un registro y devuelve el ID generado
@@ -45,10 +45,10 @@ create or replace NONEDITIONABLE PACKAGE APL_CATALOGOTIPO_PKG AS
     o_cur           OUT t_cursor,
     o_total         OUT PLS_INTEGER
   );
-END APL_CATALOGOTIPO_PKG;
+END APL_PKG_CATALOGOTIPO;
 
 =========================BODY===========================================
-CREATE OR REPLACE PACKAGE BODY APL_CATALOGOTIPO_PKG AS
+CREATE OR REPLACE PACKAGE BODY APL_PKG_CATALOGOTIPO AS
 
   PROCEDURE crear(
     p_nombre                        IN  VARCHAR2,
@@ -211,7 +211,7 @@ CREATE OR REPLACE PACKAGE BODY APL_CATALOGOTIPO_PKG AS
         'Error en listar: '||SQLERRM);
   END listar;
 
-END APL_CATALOGOTIPO_PKG;
+END APL_PKG_CATALOGOTIPO;
 /
 
 ===========================================PRUEBAS===========================================

@@ -35,7 +35,7 @@ $(document).ready(function () {
 
             // 3. Limpiar también la fila marcada
             ultimaFilaModificada = null;
-            $('#tabla-curso tbody tr').removeClass('fila-seleccionada');
+            limpiarSeleccion('#tabla-curso');
         }
     });
     // ===== FIN DE LA IMPLEMENTACIÓN =====
@@ -117,7 +117,7 @@ $(document).ready(function () {
     });
 
     // ===================================================================
-    // ===== CÓDIGO PARA HOVER EN LA FILA =====
+    // ===== CÓDIGO PARA HOVER EN LA FILA (SOLO EN BOTONES) =====
     // ===================================================================
     // Cuando el mouse entra en el div de los botones...
     $('#tabla').on('mouseenter', '.action-buttons', function () {
@@ -137,16 +137,20 @@ $(document).ready(function () {
 
     // Cuando se hace clic en el botón de editar
     $('body').on('click', '.edit-btn', function (e) {
+        e.stopPropagation(); // Evita que se active el click de la fila
         const $fila = $(this).closest('tr');
         const id = $fila.find('td:first').text().trim();
-        marcarFilaPorId(id);
+        marcarFilaPorId('#tabla-curso', id);
+        ultimaFilaModificada = id;
     });
 
     // Cuando se hace clic en el botón de eliminar
     $('body').on('click', '.delete-btn', function (e) {
+        e.stopPropagation(); // Evita que se active el click de la fila
         const $fila = $(this).closest('tr');
         const id = $fila.find('td:first').text().trim();
-        marcarFilaPorId(id);
+        marcarFilaPorId('#tabla-curso', id);
+        ultimaFilaModificada = id;
     });
 
 }); // <-- FIN de $(document).ready
@@ -155,24 +159,6 @@ $(document).ready(function () {
 // ===================================================================
 // ===== FUNCIONES GLOBALES =====
 // ===================================================================
-
-// Función para marcar una fila específica por ID
-function marcarFilaPorId(id) {
-    // Quita el marcado de todas las filas
-    $('#tabla-curso tbody tr').removeClass('fila-seleccionada');
-
-    // Busca la fila con ese ID y márcala
-    $('#tabla-curso tbody tr').each(function () {
-        const filaId = $(this).find('td:first').text().trim();
-        if (filaId == id) {
-            $(this).addClass('fila-seleccionada');
-
-            // Guarda el ID de la última fila modificada
-            ultimaFilaModificada = id;
-        }
-    });
-}
-
 
 function crearListado(data) {
     if (tabla) {
@@ -248,14 +234,17 @@ function crearListado(data) {
                 sortDescending: ": activar para ordenar la columna de manera descendente"
             }
         },
-        // ===== NUEVO: Callback cuando la tabla termina de dibujarse =====
+        // ===== Callback cuando la tabla termina de dibujarse =====
         drawCallback: function () {
             // Si hay una fila marcada anteriormente, volver a marcarla
             if (ultimaFilaModificada !== null) {
-                marcarFilaPorId(ultimaFilaModificada);
+                marcarFilaPorId('#tabla-curso', ultimaFilaModificada);
             }
         }
     });
+
+    // Inicializar el marcado de filas al hacer clic
+    inicializarMarcadoFilas('#tabla-curso');
 
     const addButtonHtml = `
         <button type="button" class="btn btn-primary ms-2" id="btnAgregarNuevo" title="Agregar Nuevo" style="height: 38px;">
@@ -331,6 +320,7 @@ function confirmDelete(id) {
                     // Limpia la referencia de la última fila modificada
                     // ya que esta fila ya no existe
                     ultimaFilaModificada = null;
+                    limpiarSeleccion('#tabla-curso');
 
                     $.get(`${window.apiBaseUrl}/api/CatalogoTipo/listar`, function (data) {
                         crearListado(data);

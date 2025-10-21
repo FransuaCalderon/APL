@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE APL_OPCIONES_PKG AS
+CREATE OR REPLACE PACKAGE APL_PKG_OPCIONES AS
   TYPE t_cursor IS REF CURSOR;
 
   PROCEDURE crear(
@@ -229,11 +229,11 @@ CREATE OR REPLACE PACKAGE BODY APL_OPCIONES_PKG AS
         'Error en listar: '||SQLERRM);
   END listar;
 
-END APL_OPCIONES_PKG;
+END APL_PKG_OPCIONES;
 /
 
 
 ===========================================================PRUEBAS
 VARIABLE rc REFCURSOR
-EXEC APL_OPCIONES_PKG.obtener_por_id(8, :rc);
+EXEC APL_PKG_OPCIONES.obtener_por_id(8, :rc);
 PRINT rc

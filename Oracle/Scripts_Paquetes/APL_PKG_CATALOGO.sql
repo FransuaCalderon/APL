@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE APL_CATALOGO_PKG AS
+CREATE OR REPLACE PACKAGE APL_PKG_CATALOGO AS
   TYPE t_cursor IS REF CURSOR;
 
   -- Crear un catálogo y devolver el ID generado
@@ -48,11 +48,11 @@ CREATE OR REPLACE PACKAGE APL_CATALOGO_PKG AS
     o_cur            OUT t_cursor,
     o_total          OUT PLS_INTEGER
   );
-END APL_CATALOGO_PKG;
+END APL_PKG_CATALOGO;
 /
 
 =============================================================Body=========================
-CREATE OR REPLACE PACKAGE BODY APL_CATALOGO_PKG AS
+CREATE OR REPLACE PACKAGE BODY APL_PKG_CATALOGO AS
 
   PROCEDURE crear(
     p_nombre            IN  VARCHAR2,
@@ -231,7 +231,7 @@ CREATE OR REPLACE PACKAGE BODY APL_CATALOGO_PKG AS
         'Error en listar: '||SQLERRM);
   END listar;
 
-END APL_CATALOGO_PKG;
+END APL_PKG_CATALOGO;
 /
 
 =======================================================PRUEBAS=================================

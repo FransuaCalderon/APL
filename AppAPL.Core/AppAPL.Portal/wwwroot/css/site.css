@@ -16,25 +16,17 @@ html {
 body {
     background-color: #f4f7f6;
     overflow-x: hidden;
-    /* CLAVE #1: Esta regla empuja TODO el contenido hacia abajo, dejando
-       espacio para el header fijo. Ajusta '60px' si tu header es más alto o más bajo. */
     padding-top: 60px;
 }
 
-
 /* === 2. ESTRUCTURA PRINCIPAL (LAYOUT) === */
-
-/* Contenedor de la fila principal (sidebar + contenido) */
 .container-fluid .row {
-    /* CLAVE #2: En lugar de 'vh-100' que causaba el problema, calculamos
-       la altura que DEBE tener: 100% de la pantalla MENOS la altura del header. */
     height: calc(100vh - 60px);
 }
 
-/* Aseguramos que el sidebar y el contenido principal puedan tener su propio scroll */
 #sidebar, #mainContent {
     overflow-y: auto;
-    height: 100%; /* Ocupan toda la altura de su contenedor padre (.row) */
+    height: 100%;
 }
 
 #sidebar {
@@ -42,21 +34,15 @@ body {
     transition: all 0.3s;
 }
 
-/* === 3. LÓGICA PARA OCULTAR/MOSTRAR SIDEBAR === */
-/*
-Esta lógica oculta el sidebar y, como resultado, Bootstrap
-automáticamente expande el <main class="col"> para que ocupe el espacio liberado.
-Se alineará a la izquierda hasta topar con el botón de menú.
-*/
-#sidebar.hidden {
-    width: 0 !important;
-    padding: 0 !important;
-    overflow: hidden;
-    border: none;
-}
+    /* === 3. LÓGICA PARA OCULTAR/MOSTRAR SIDEBAR === */
+    #sidebar.hidden {
+        width: 0 !important;
+        padding: 0 !important;
+        overflow: hidden;
+        border: none;
+    }
 
-
-/* === 4. ESTILOS DEL HEADER Y SIDEBAR (Sin cambios mayores) === */
+/* === 4. ESTILOS DEL HEADER Y SIDEBAR === */
 .bg-wine-red {
     background-color: #722F37;
 }
@@ -69,6 +55,11 @@ Se alineará a la izquierda hasta topar con el botón de menú.
 
 #sidebar h5 {
     color: #333;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
 }
 
 #sidebar ul li a {
@@ -102,17 +93,17 @@ Se alineará a la izquierda hasta topar con el botón de menú.
     font-size: 1.4em;
 }
 
-.btn-action.edit-btn i {
-    color: #28a745;
-}
+    .btn-action.edit-btn i {
+        color: #28a745;
+    }
 
-.btn-action.delete-btn i {
-    color: #dc3545;
-}
+    .btn-action.delete-btn i {
+        color: #dc3545;
+    }
 
-.btn-action:hover i {
-    opacity: 0.7;
-}
+    .btn-action:hover i {
+        opacity: 0.7;
+    }
 
 /* === 6. ESTILOS PERSONALIZADOS PARA DATATABLES === */
 table.dataTable thead th {
@@ -137,35 +128,31 @@ div.dt-container .dt-paging .dt-paging-button {
     color: #0d2d6d !important;
 }
 
-div.dt-container .dt-paging .dt-paging-button.current,
-div.dt-container .dt-paging .dt-paging-button.current:hover {
-    background: #0d2d6d !important;
-    color: white !important;
-    border-radius: .25rem;
-}
+    div.dt-container .dt-paging .dt-paging-button.current,
+    div.dt-container .dt-paging .dt-paging-button.current:hover {
+        background: #0d2d6d !important;
+        color: white !important;
+        border-radius: .25rem;
+    }
 
 /* === ESTILO PARA MINIMIZAR EL BOTÓN DE MENÚ === */
-
 #toggleMenu {
-    background-color: transparent !important; /* Quita el fondo azul */
-    border: none !important; /* Quita el borde */
-    color: #6c757d !important; /* Color gris sutil para el ícono */
-    padding: 0.1rem 0.5rem; /* Reduce al mínimo el espacio interno */
-    font-size: 1.2rem; /* Ajusta el tamaño del ícono '☰' */
-    line-height: 1; /* Asegura que el ícono no se desalinee */
+    background-color: transparent !important;
+    border: none !important;
+    color: #6c757d !important;
+    padding: 0.1rem 0.5rem;
+    font-size: 1.2rem;
+    line-height: 1;
 }
 
-/* Opcional: Cambia el color al pasar el mouse para que siga siendo usable */
-#toggleMenu:hover {
-    color: #212529 !important; /* Un gris más oscuro al pasar el mouse */
-}
+    #toggleMenu:hover {
+        color: #212529 !important;
+    }
 
 /* === MENÚ LATERAL CON FLECHAS Y TEXTO ALINEADO A LA IZQUIERDA === */
-
-/* 1. Botones principales (Configuración, Acuerdos, etc.) */
 #sidebar .btn-toggle {
     width: 100%;
-    padding: .5rem 0; /* Quita el padding lateral para alinear bien */
+    padding: .5rem 0;
     font-weight: 600;
     color: #343a40;
     background-color: transparent;
@@ -177,237 +164,172 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
     text-align: left;
 }
 
-/* 2. Flecha tipo chevron, alineada a la izquierda del texto */
-#sidebar .btn-toggle::before {
-    content: '';
-    display: inline-block;
-    width: .4rem;
-    height: .4rem;
-    border-right: 2px solid #6c757d;
-    border-bottom: 2px solid #6c757d;
-    transform: rotate(45deg); /* Flecha hacia la derecha */
-    margin-right: .6rem;
-    margin-left: 1rem; /* Espacio desde el borde izquierdo */
-    transition: transform 0.2s ease-in-out;
-}
+    #sidebar .btn-toggle::before {
+        content: '';
+        display: inline-block;
+        width: .4rem;
+        height: .4rem;
+        border-right: 2px solid #6c757d;
+        border-bottom: 2px solid #6c757d;
+        transform: rotate(45deg);
+        margin-right: .6rem;
+        margin-left: 1rem;
+        transition: transform 0.2s ease-in-out;
+    }
 
-/* 3. Flecha rota hacia abajo al expandirse */
-#sidebar .btn-toggle[aria-expanded="true"]::before {
-    transform: rotate(135deg); /* Flecha hacia abajo */
-}
+    #sidebar .btn-toggle[aria-expanded="true"]::before {
+        transform: rotate(135deg);
+    }
 
-/* 4. Enlaces internos (Tipo Catálogo, etc.) */
 #sidebar .btn-toggle-nav a {
     display: block;
-    padding: .35rem 0 .35rem 2.3rem; /* Subopciones alineadas con texto principal */
+    padding: .35rem 0 .35rem 2.3rem;
     font-size: 0.9em;
     color: #495057;
     text-decoration: none;
     transition: background-color 0.2s ease;
 }
 
-/* 5. Efecto hover */
-#sidebar .btn-toggle:hover,
-#sidebar .btn-toggle-nav a:hover {
-    background-color: #f8f9fa;
-    border-radius: .25rem;
-}
+    #sidebar .btn-toggle:hover,
+    #sidebar .btn-toggle-nav a:hover {
+        background-color: #f8f9fa;
+        border-radius: .25rem;
+    }
 
-/* 6. Encabezado del menú lateral */
-#sidebar h5 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #212529;
-    margin-bottom: 1rem;
-    padding-left: 1rem;
-}
-
-/* Estilo para el paginador de DataTables */
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    background-color: #e6f4ff; /* Fondo suave celeste */
-    border: 1px solid #b3daff;
-    color: #007acc !important; /* Texto azul suave */
-    border-radius: 5px;
-    margin: 2px;
-}
-
-/* Al pasar el mouse */
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background-color: #b3daff !important;
-    border: 1px solid #80c1ff;
-    color: #004c99 !important;
-}
-
-/* Página activa */
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background-color: #00bfff !important; /* Celeste brillante */
-    color: white !important;
-    border: 1px solid #00a3cc;
-}
-
-/* Deshabilitado */
-.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-    color: #a0a0a0 !important;
-    background: #f5f5f5 !important;
-    border: 1px solid #ddd !important;
-}
-
-/* Cambia el color de fondo del botón de paginación activo */
-.dataTables_wrapper .dataTables_paginate .paginate_button.current,
-.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-    background: #6c757d !important; /* Un tono de gris de Bootstrap */
-    color: white !important; /* Asegura que el texto sea blanco y legible */
-    border-color: #6c757d !important; /* Cambia el color del borde para que coincida */
-}
-
-/* Cambia el color del texto de los otros botones de paginación para que coincida */
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    color: #6c757d !important;
-}
-
-/* Cambia el color del borde de los botones al pasar el mouse sobre ellos */
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    border-color: #6c757d !important;
-    color: #6c757d !important;
-    background: rgba(108, 117, 125, 0.1) !important; /* Un fondo gris claro al pasar el mouse */
-}
-
-/* Regla específica para el hover en tablas con la clase .table 
-  o el ID #tabla-curso. Esto sobreescribe los estilos de 
-  Bootstrap y DataTables.
-*/
-#tabla-curso tbody tr:hover {
-    background-color: #e0e0e0 !important; /* Un gris medio, puedes cambiarlo */
-    cursor: pointer;
-}
-
-/*
- * Estilo para forzar el resaltado de la fila (versión final con !important).
- * Esto garantiza que se sobreescriba cualquier otro estilo de box-shadow de DataTables.
-*/
-table.dataTable.display > tbody > tr.fila-marcada > *,
-
-/* Estilos para la fila cuando se pasa el mouse */
-.fila-marcada {
-    background-color: rgba(255, 252, 127, 0.4) !important;
-}
-
-/* Estilos para la fila cuando se hace clic */
-.fila-seleccionada {
-    background-color: rgba(255, 252, 127, 0.4) !important;
-    transition: background-color 0.2s ease;
-}
-
-/* Asegura que el efecto se vea bien con las filas de DataTables */
-#tabla-curso tbody tr.fila-seleccionada td {
-    position: relative;
-}
-
-/* Opcional: Agrega un borde izquierdo para mayor énfasis */
-.fila-seleccionada td:first-child {
-    border-left: 3px solid #FFD700;
-}
-
-/* Más suave */
-background-color: rgba(255, 252, 127, 0.3) !important;
-/* Medio (actual) */
-background-color: rgba(255, 252, 127, 0.5) !important;
-/* Más intenso */
-background-color: rgba(255, 252, 127, 0.7) !important;
-/* ============================================================
-   ESTILOS PARA MARCADO DE FILAS EN DATATABLES
-   ============================================================ */
-/* Estilos para la fila cuando se pasa el mouse sobre los botones */
-.fila-marcada {
-    background-color: rgba(169, 169, 169, 0.2) !important;
-}
-
-/* Estilos para la fila cuando se hace clic - TODA LA FILA EN AMARILLO */
-#tabla-curso tbody tr.fila-seleccionada {
-    background-color: rgba(255, 252, 127, 0.5) !important;
-    transition: background-color 0.2s ease;
-}
-
-/* Asegura que TODAS las celdas tengan el color de fondo amarillo */
-#tabla-curso tbody tr.fila-seleccionada td {
-    background-color: rgba(255, 252, 127, 0.5) !important;
-    position: relative;
-}
-
-/* Opcional: Agrega un borde izquierdo dorado para mayor énfasis */
-#tabla-curso tbody tr.fila-seleccionada td:first-child {
-    border-left: 4px solid #FFD700;
-}
-
-/* CRÍTICO: Sobrescribe el estilo de DataTables para filas alternas (striped) */
-#tabla-curso tbody tr.fila-seleccionada.odd {
-    background-color: rgba(255, 252, 127, 0.5) !important;
-}
-
-#tabla-curso tbody tr.fila-seleccionada.even {
-    background-color: rgba(255, 252, 127, 0.5) !important;
-}
-
-#tabla-curso tbody tr.fila-seleccionada.odd td {
-    background-color: rgba(255, 252, 127, 0.5) !important;
-}
-
-#tabla-curso tbody tr.fila-seleccionada.even td {
-    background-color: rgba(255, 252, 127, 0.5) !important;
-}
-
-/* Asegura que el hover no afecte la fila seleccionada */
-#tabla-curso tbody tr.fila-seleccionada:hover td {
-    background-color: rgba(255, 252, 127, 0.5) !important;
-}
-
-/* ============================================================
-   ESTILOS PARA PAGINADOR DE DATATABLES
-   ============================================================ */
-
-/* Página activa - Texto blanco sobre fondo azul */
+/* === ESTILOS PARA PAGINADOR DE DATATABLES === */
 .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
     color: white !important;
-    background: #1e3a8a !important; /* Azul oscuro */
+    background: #1e3a8a !important;
     border: 1px solid #1e3a8a !important;
 }
 
-/* Asegura que el enlace dentro del botón también sea blanco */
-.dataTables_wrapper .dataTables_paginate .paginate_button.current a,
-.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover a {
-    color: white !important;
-}
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current a,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover a {
+        color: white !important;
+    }
 
-/* Páginas no activas - Texto normal */
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-    color: #374151 !important; /* Gris oscuro */
+    color: #374151 !important;
     background: white !important;
     border: 1px solid #d1d5db !important;
 }
 
-/* Hover en páginas no activas */
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    color: white !important;
-    background: #3b82f6 !important; /* Azul más claro */
-    border: 1px solid #3b82f6 !important;
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        color: white !important;
+        background: #3b82f6 !important;
+        border: 1px solid #3b82f6 !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+        color: #9ca3af !important;
+        background: #f3f4f6 !important;
+        border: 1px solid #e5e7eb !important;
+        cursor: not-allowed !important;
+    }
+
+/* === ESTILOS PARA OPCIÓN ACTIVA DEL MENÚ === */
+#menu-dinamico a.active {
+    background-color: #e9ecef;
+    font-weight: bold;
+    color: #0d6efd !important;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
 }
 
-/* Páginas deshabilitadas (Primero/Último cuando no están disponibles) */
-.dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
-.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
-    color: #9ca3af !important; /* Gris claro */
-    background: #f3f4f6 !important;
-    border: 1px solid #e5e7eb !important;
-    cursor: not-allowed !important;
+#menu-dinamico a:hover {
+    background-color: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
 }
 
-/* Página activa - Cambia estos valores */
-background: #1e3a8a !important; /* Color de fondo azul oscuro */
-color: white !important; /* Color del texto */
-/* Hover */
-background: #3b82f6 !important; /* Azul más claro */
+#menu-dinamico a {
+    transition: all 0.2s ease;
+}
 
 /* ============================================================
-   FIN DE ESTILOS PARA PAGINADOR
+   ESTILOS PARA MARCADO DE FILAS EN DATATABLES
    ============================================================ */
+
+/* Estilos para la fila cuando se pasa el mouse (hover temporal) - GRIS */
+.fila-marcada {
+    background-color: rgba(169, 169, 169, 0.2) !important;
+}
+
+/* Estilos para la fila cuando se hace clic EN LA FILA - GRIS */
+#tabla-curso tbody tr.fila-seleccionada {
+    background-color: rgba(169, 169, 169, 0.2) !important;
+    transition: background-color 0.2s ease;
+}
+
+    #tabla-curso tbody tr.fila-seleccionada td {
+        background-color: rgba(169, 169, 169, 0.2) !important;
+        position: relative;
+    }
+
+        #tabla-curso tbody tr.fila-seleccionada td:first-child {
+            border-left: 3px solid #6c757d;
+        }
+
+    /* CRÍTICO: Sobrescribe el estilo de DataTables para filas alternas (striped) */
+    #tabla-curso tbody tr.fila-seleccionada.odd {
+        background-color: rgba(169, 169, 169, 0.2) !important;
+    }
+
+    #tabla-curso tbody tr.fila-seleccionada.even {
+        background-color: rgba(169, 169, 169, 0.2) !important;
+    }
+
+    #tabla-curso tbody tr.fila-seleccionada.odd td {
+        background-color: rgba(169, 169, 169, 0.2) !important;
+    }
+
+    #tabla-curso tbody tr.fila-seleccionada.even td {
+        background-color: rgba(169, 169, 169, 0.2) !important;
+    }
+
+    #tabla-curso tbody tr.fila-seleccionada:hover td {
+        background-color: rgba(169, 169, 169, 0.2) !important;
+    }
+
+/* Estilos para la fila cuando se hace clic EN BOTONES DE ACCIÓN - AMARILLO */
+#tabla-curso tbody tr.fila-accion {
+    background-color: rgba(255, 252, 127, 0.5) !important;
+    transition: background-color 0.2s ease;
+}
+
+    #tabla-curso tbody tr.fila-accion td {
+        background-color: rgba(255, 252, 127, 0.5) !important;
+        position: relative;
+    }
+
+        #tabla-curso tbody tr.fila-accion td:first-child {
+            border-left: 4px solid #FFD700;
+        }
+
+    /* CRÍTICO: Sobrescribe el estilo de DataTables para filas alternas (striped) */
+    #tabla-curso tbody tr.fila-accion.odd {
+        background-color: rgba(255, 252, 127, 0.5) !important;
+    }
+
+    #tabla-curso tbody tr.fila-accion.even {
+        background-color: rgba(255, 252, 127, 0.5) !important;
+    }
+
+    #tabla-curso tbody tr.fila-accion.odd td {
+        background-color: rgba(255, 252, 127, 0.5) !important;
+    }
+
+    #tabla-curso tbody tr.fila-accion.even td {
+        background-color: rgba(255, 252, 127, 0.5) !important;
+    }
+
+    #tabla-curso tbody tr.fila-accion:hover td {
+        background-color: rgba(255, 252, 127, 0.5) !important;
+    }
+
+/* Hover general en las filas */
+#tabla-curso tbody tr:hover {
+    cursor: pointer;
+}
