@@ -8,7 +8,7 @@ namespace AppAPL.Dto.Parametros
 {
     public class ParametroDTO
     {
-        public int IdCatalogo { get; set; }
+        public int IdParametro { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public string? Adicional { get; set; }
         public string? Abreviatura { get; set; }
@@ -26,7 +26,7 @@ namespace AppAPL.Dto.Parametros
         public string Nombre { get; set; } = string.Empty;
         public string? Adicional { get; set; }
         public string? Abreviatura { get; set; }
-        public int IdCatalogoTipo { get; set; }
+        public int IdParametroTipo { get; set; }
         public int IdUsuarioCreacion { get; set; }
         public DateTime FechaCreacion { get; set; }
         public int? IdUsuarioModificacion { get; set; }

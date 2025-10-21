@@ -20,7 +20,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
         public async Task<IEnumerable<ParametroDTO>> ListarAsync(
             string? nombre = null,
-            int? idCatalogoTipo = null,
+            int? idParametroTipo = null,
             int? idEstado = null,
             DateTime? creadoDesde = null,
             DateTime? creadoHasta = null,
@@ -32,7 +32,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             var paramObject = new
             {
                 p_nombre = nombre,
-                p_idcatalogotipo = idCatalogoTipo,
+                p_idparametrotipo = idParametroTipo,
                 p_idestado = idEstado,
                 p_creado_desde = creadoDesde,
                 p_creado_hasta = creadoHasta,
@@ -45,7 +45,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("o_total", OracleDbType.Int32, ParameterDirection.Output);
 
             var datos = await connection.QueryAsync<ParametroDTO>(
-                "APL_PKG_CATALOGO.listar",
+                "APL_PKG_PARAMETRO.listar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -60,11 +60,11 @@ namespace AppAPL.AccesoDatos.Repositorio
         {
             using var connection = factory.CreateOpenConnection();
 
-            var parameters = new OracleDynamicParameters(new { p_idcatalogo = idParametro });
+            var parameters = new OracleDynamicParameters(new { p_idparametro = idParametro });
             parameters.Add("o_cur", OracleDbType.RefCursor, ParameterDirection.Output);
 
             var datos = await connection.QueryAsync<ParametroDTO>(
-                "APL_PKG_CATALOGO.obtener_por_id",
+                "APL_PKG_PARAMETRO.obtener_por_id",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -81,7 +81,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_nombre = parametro.Nombre,
                 p_adicional = parametro.Adicional,
                 p_abreviatura = parametro.Abreviatura,
-                p_idcatalogotipo = parametro.IdCatalogoTipo,
+                p_idparametrotipo = parametro.IdParametroTipo,
                 p_idusuariocreacion = parametro.IdUsuarioCreacion,
                 p_idestado = parametro.IdEstado,
                 p_idetiqueta = parametro.IdEtiqueta
@@ -91,7 +91,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("o_idcatalogo", OracleDbType.Int32, ParameterDirection.Output);
 
             await connection.ExecuteAsync(
-                "APL_PKG_CATALOGO.crear",
+                "APL_PKG_PARAMETRO.crear",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -105,11 +105,11 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var paramObject = new
             {
-                p_idcatalogo = idParametro,
+                p_idparametro = idParametro,
                 p_nombre = parametro.Nombre,
                 p_adicional = parametro.Adicional,
                 p_abreviatura = parametro.Abreviatura,
-                p_idcatalogotipo = parametro.IdCatalogoTipo,
+                p_idparametrotipo = parametro.IdParametroTipo,
                 p_idusuariomodificacion = parametro.IdUsuarioModificacion,
                 p_idestado = parametro.IdEstado,
                 p_idetiqueta = parametro.IdEtiqueta
@@ -118,7 +118,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters(paramObject);
 
             await connection.ExecuteAsync(
-                "APL_PKG_CATALOGO.actualizar",
+                "APL_PKG_PARAMETRO.actualizar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -129,10 +129,10 @@ namespace AppAPL.AccesoDatos.Repositorio
         {
             using var connection = factory.CreateOpenConnection();
 
-            var parameters = new OracleDynamicParameters(new { p_idcatalogo = idParametro });
+            var parameters = new OracleDynamicParameters(new { p_idparametro = idParametro });
 
             await connection.ExecuteAsync(
-                "APL_PKG_CATALOGO.eliminar",
+                "APL_PKG_PARAMETRO.eliminar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );

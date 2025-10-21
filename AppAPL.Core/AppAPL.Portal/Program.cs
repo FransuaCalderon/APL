@@ -5,6 +5,10 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ✅ Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 // 🔹 Vincular ApiSettings
 builder.Services.Configure<ApiSettings>(
     builder.Configuration.GetSection("ApiSettings")

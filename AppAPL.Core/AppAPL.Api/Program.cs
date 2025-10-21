@@ -1,10 +1,14 @@
-
+﻿
 
 using AppAPL.AccesoDatos.IoC;
 using AppAPL.Negocio.IoC;
 using ExpertoAPI2.Filtros;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ✅ Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Logging.AddLog4Net("log4net.config");
 
@@ -31,7 +35,7 @@ builder.Services.AddControllers(opciones =>
 
 
 
-// Cargar la configuraci�n de CORS desde appsettings.json
+// Cargar la configuración de CORS desde appsettings.json
 var corsSettings = builder.Configuration.GetSection("CorsSettings");
 bool allowAllOrigins = corsSettings.GetValue<bool>("AllowAllOrigins");
 
@@ -51,7 +55,7 @@ builder.Services.AddCors(options =>
         }
         else if (allowedOrigins.Count > 0)
         {
-            builder.WithOrigins(allowedOrigins.ToArray()) // Convertir a array para la pol�tica
+            builder.WithOrigins(allowedOrigins.ToArray()) // Convertir a array para la política
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         }

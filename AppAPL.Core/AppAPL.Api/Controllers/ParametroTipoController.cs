@@ -19,9 +19,11 @@ namespace AppAPL.Api.Controllers
         [FromQuery] int pageSize = 50)
         {
 
-            var listaCatalogoTipo = await servicio.ListarAsync(nombre, idEstado, creadoDesde, creadoHasta, pageNumber, pageSize);
+            var listaParametroTipo = await servicio.ListarAsync(nombre, idEstado, creadoDesde, creadoHasta, pageNumber, pageSize);
 
-            return listaCatalogoTipo.ToList();
+            logger.LogInformation($"listaCatalogoTipo obtuvo {listaParametroTipo.Count()}");
+
+            return listaParametroTipo.ToList();
         }
 
         // 🔹 GET: Obtener por ID

@@ -1,52 +1,47 @@
-create or replace PACKAGE APL_PKG_PARAMETRO AS
+CREATE OR REPLACE PACKAGE APL_PKG_PARAMETRO AS
   TYPE t_cursor IS REF CURSOR;
 
-  -- Crear un catálogo y devolver el ID generado
   PROCEDURE crear(
     p_nombre            IN  VARCHAR2,
     p_adicional         IN  VARCHAR2 DEFAULT NULL,
-    p_abreviatura       IN  VARCHAR2 DEFAULT NULL, -- se recorta a 10 chars
-    p_idcatalogotipo    IN  NUMBER,                -- FK a APL_TB_CATALOGOTIPO
+    p_abreviatura       IN  VARCHAR2 DEFAULT NULL,
+    p_idparametrotipo   IN  NUMBER,
     p_idusuariocreacion IN  NUMBER,
     p_idestado          IN  NUMBER,
     p_idetiqueta        IN  VARCHAR2 DEFAULT NULL,
-    o_idcatalogo        OUT NUMBER
+    o_idparametro       OUT NUMBER
   );
 
-  -- Actualizar un catálogo existente
   PROCEDURE actualizar(
-    p_idcatalogo            IN  NUMBER,
-    p_nombre                IN  VARCHAR2,
-    p_adicional             IN  VARCHAR2,
-    p_abreviatura           IN  VARCHAR2, -- se recorta a 10 chars
-    p_idcatalogotipo        IN  NUMBER,
-    p_idusuariomodificacion IN  NUMBER,
-    p_idestado              IN  NUMBER,
-    p_idetiqueta            IN  VARCHAR2 DEFAULT NULL
+    p_idparametro            IN  NUMBER,
+    p_nombre                 IN  VARCHAR2,
+    p_adicional              IN  VARCHAR2,
+    p_abreviatura            IN  VARCHAR2,
+    p_idparametrotipo        IN  NUMBER,
+    p_idusuariomodificacion  IN  NUMBER,
+    p_idestado               IN  NUMBER,
+    p_idetiqueta             IN  VARCHAR2 DEFAULT NULL
   );
 
-  -- Eliminar (hard delete) por ID
   PROCEDURE eliminar(
-    p_idcatalogo IN NUMBER
+    p_idparametro IN NUMBER
   );
 
-  -- Obtener registro por ID
   PROCEDURE obtener_por_id(
-    p_idcatalogo IN  NUMBER,
-    o_cur        OUT t_cursor
+    p_idparametro IN  NUMBER,
+    o_cur         OUT t_cursor
   );
 
-  -- Listar con filtros y paginación; retorna también el total filtrado
   PROCEDURE listar(
-    p_nombre         IN  VARCHAR2   DEFAULT NULL,  -- filtro LIKE (case-insensitive)
-    p_idcatalogotipo IN  NUMBER     DEFAULT NULL,  -- por tipo
-    p_idestado       IN  NUMBER     DEFAULT NULL,  -- por estado
-    p_creado_desde   IN  DATE       DEFAULT NULL,  -- rango de creación (desde)
-    p_creado_hasta   IN  DATE       DEFAULT NULL,  -- rango de creación (hasta, inclusivo)
-    p_page_number    IN  PLS_INTEGER DEFAULT 1,    -- 1-based
-    p_page_size      IN  PLS_INTEGER DEFAULT 50,
-    o_cur            OUT t_cursor,
-    o_total          OUT PLS_INTEGER
+    p_nombre          IN  VARCHAR2   DEFAULT NULL,
+    p_idparametrotipo IN  NUMBER     DEFAULT NULL,
+    p_idestado        IN  NUMBER     DEFAULT NULL,
+    p_creado_desde    IN  DATE       DEFAULT NULL,
+    p_creado_hasta    IN  DATE       DEFAULT NULL,
+    p_page_number     IN  PLS_INTEGER DEFAULT 1,
+    p_page_size       IN  PLS_INTEGER DEFAULT 50,
+    o_cur             OUT t_cursor,
+    o_total           OUT PLS_INTEGER
   );
 END APL_PKG_PARAMETRO;
 

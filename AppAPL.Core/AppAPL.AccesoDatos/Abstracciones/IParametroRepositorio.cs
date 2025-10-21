@@ -14,7 +14,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<int> CrearAsync(CrearActualizarParametroRequest parametro);
         Task EliminarAsync(int idParametro);
         Task<IEnumerable<ParametroDTO>> ListarAsync(
-          string? nombre = null, int? idCatalogoTipo = null, int? idEstado = null, DateTime? creadoDesde = null, DateTime? creadoHasta = null, int pageNumber = 1, int pageSize = 50);
+          string? nombre = null, int? idParametroTipo = null, int? idEstado = null, DateTime? creadoDesde = null, DateTime? creadoHasta = null, int pageNumber = 1, int pageSize = 50);
         Task<ParametroDTO?> ObtenerPorIdAsync(int idParametro);
     }
 }

@@ -2,7 +2,7 @@
 {
     public class ParametroTipoDTO
     {
-        public int? IdCatalogoTipo { get; set; }
+        public int? IdParametroTipo { get; set; }
         public string Nombre { get; set; }
         public string? Descripcion { get; set; }
         public int IdUsuarioCreacion { get; set; }

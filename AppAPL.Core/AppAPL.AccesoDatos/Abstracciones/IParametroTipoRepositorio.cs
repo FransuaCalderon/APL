@@ -13,7 +13,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task ActualizarAsync(CrearActualizarParametroTipoRequest parametroTipo, int idParametroTipo);
         Task<int> CrearAsync(CrearActualizarParametroTipoRequest parametroTipo);
         Task EliminarAsync(int idParametroTipo);
-        Task<IEnumerable<ParametroTipoDTO>> ObtenerCatalogosTipoAsync(
+        Task<IEnumerable<ParametroTipoDTO>> ObtenerParametrosTipoAsync(
            string? nombre = null,
            int? idEstado = null,
            DateTime? creadoDesde = null,
