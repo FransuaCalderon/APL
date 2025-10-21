@@ -1,6 +1,7 @@
 ﻿using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
 using AppAPL.Dto.Catalogo;
+using AppAPL.Dto.Parametros;
 using Dapper;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -12,9 +13,12 @@ using System.Threading.Tasks;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
-    public class CatalogoRepositorio (OracleConnectionFactory factory) : ICatalogoRepositorio
+    public sealed class ParametroRepositorio(OracleConnectionFactory factory) : IParametroRepositorio
     {
-        public async Task<IEnumerable<CatalogoDTO>> ListarAsync(
+
+
+
+        public async Task<IEnumerable<ParametroDTO>> ListarAsync(
             string? nombre = null,
             int? idCatalogoTipo = null,
             int? idEstado = null,
@@ -40,7 +44,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("o_cur", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("o_total", OracleDbType.Int32, ParameterDirection.Output);
 
-            var datos = await connection.QueryAsync<CatalogoDTO>(
+            var datos = await connection.QueryAsync<ParametroDTO>(
                 "APL_PKG_CATALOGO.listar",
                 parameters,
                 commandType: CommandType.StoredProcedure
@@ -49,16 +53,17 @@ namespace AppAPL.AccesoDatos.Repositorio
             int total = parameters.Get<int>("o_total");
 
             return datos;
-        }
+        } 
+        
 
-        public async Task<CatalogoDTO?> ObtenerPorIdAsync(int idCatalogo)
+        public async Task<ParametroDTO?> ObtenerPorIdAsync(int idParametro)
         {
             using var connection = factory.CreateOpenConnection();
 
-            var parameters = new OracleDynamicParameters(new { p_idcatalogo = idCatalogo });
+            var parameters = new OracleDynamicParameters(new { p_idcatalogo = idParametro });
             parameters.Add("o_cur", OracleDbType.RefCursor, ParameterDirection.Output);
 
-            var datos = await connection.QueryAsync<CatalogoDTO>(
+            var datos = await connection.QueryAsync<ParametroDTO>(
                 "APL_PKG_CATALOGO.obtener_por_id",
                 parameters,
                 commandType: CommandType.StoredProcedure
@@ -67,19 +72,19 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos.FirstOrDefault();
         }
 
-        public async Task<int> CrearAsync(CrearActualizarCatalogoRequest catalogo)
+        public async Task<int> CrearAsync(CrearActualizarParametroRequest parametro)
         {
             using var connection = factory.CreateOpenConnection();
 
             var paramObject = new
             {
-                p_nombre = catalogo.Nombre,
-                p_adicional = catalogo.Adicional,
-                p_abreviatura = catalogo.Abreviatura,
-                p_idcatalogotipo = catalogo.IdCatalogoTipo,
-                p_idusuariocreacion = catalogo.IdUsuarioCreacion,
-                p_idestado = catalogo.IdEstado,
-                p_idetiqueta = catalogo.IdEtiqueta
+                p_nombre = parametro.Nombre,
+                p_adicional = parametro.Adicional,
+                p_abreviatura = parametro.Abreviatura,
+                p_idcatalogotipo = parametro.IdCatalogoTipo,
+                p_idusuariocreacion = parametro.IdUsuarioCreacion,
+                p_idestado = parametro.IdEstado,
+                p_idetiqueta = parametro.IdEtiqueta
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
@@ -94,20 +99,20 @@ namespace AppAPL.AccesoDatos.Repositorio
             return parameters.Get<int>("o_idcatalogo");
         }
 
-        public async Task ActualizarAsync(CrearActualizarCatalogoRequest catalogo, int IdCatalogo)
+        public async Task ActualizarAsync(CrearActualizarParametroRequest parametro, int idParametro)
         {
             using var connection = factory.CreateOpenConnection();
 
             var paramObject = new
             {
-                p_idcatalogo = IdCatalogo,
-                p_nombre = catalogo.Nombre,
-                p_adicional = catalogo.Adicional,
-                p_abreviatura = catalogo.Abreviatura,
-                p_idcatalogotipo = catalogo.IdCatalogoTipo,
-                p_idusuariomodificacion = catalogo.IdUsuarioModificacion,
-                p_idestado = catalogo.IdEstado,
-                p_idetiqueta = catalogo.IdEtiqueta
+                p_idcatalogo = idParametro,
+                p_nombre = parametro.Nombre,
+                p_adicional = parametro.Adicional,
+                p_abreviatura = parametro.Abreviatura,
+                p_idcatalogotipo = parametro.IdCatalogoTipo,
+                p_idusuariomodificacion = parametro.IdUsuarioModificacion,
+                p_idestado = parametro.IdEstado,
+                p_idetiqueta = parametro.IdEtiqueta
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
@@ -120,11 +125,11 @@ namespace AppAPL.AccesoDatos.Repositorio
         }
 
 
-        public async Task EliminarAsync(int idCatalogo)
+        public async Task EliminarAsync(int idParametro)
         {
             using var connection = factory.CreateOpenConnection();
 
-            var parameters = new OracleDynamicParameters(new { p_idcatalogo = idCatalogo });
+            var parameters = new OracleDynamicParameters(new { p_idcatalogo = idParametro });
 
             await connection.ExecuteAsync(
                 "APL_PKG_CATALOGO.eliminar",
@@ -133,6 +138,6 @@ namespace AppAPL.AccesoDatos.Repositorio
             );
         }
 
-
+        
     }
 }

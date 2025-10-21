@@ -1,4 +1,5 @@
 ﻿using AppAPL.Dto.Catalogo;
+using AppAPL.Dto.CatalogoTipo;
 using System;
 using System.Collections.Generic;
 using System.Linq;

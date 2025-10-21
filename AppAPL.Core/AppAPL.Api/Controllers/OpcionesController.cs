@@ -33,10 +33,61 @@ namespace AppAPL.Api.Controllers
                           select filtrado.IdCatalogo)
              .Distinct();
 
+
+
+            // ----------------------- temporal 
+            var listaConvertido = listaOpcionesPorRol.ToList();
+
+            var catalogotipo = new OpcionJoinDTO()
+            {
+                IdOpcion = 0,
+                Opcion_Nombre = "Catalogo Tipo",
+                Opcion_Descripcion = "Catalogo Tipo",
+                IdCatalogo = 21,
+                Vista = "CatalogoTipo",
+                Catalogo_Nombre = "Configuracion",
+                Adicional = "fas fa-cog",
+                IdEstado = 12
+            };
+
+            listaConvertido.Add(catalogotipo);
+
+            var catalogo = new OpcionJoinDTO()
+            {
+                IdOpcion = 0,
+                Opcion_Nombre = "Catalogo",
+                Opcion_Descripcion = "Catalogo",
+                IdCatalogo = 21,
+                Vista = "Catalogo",
+                Catalogo_Nombre = "Configuracion",
+                Adicional = "fas fa-cog",
+                IdEstado = 12
+            };
+
+            listaConvertido.Add(catalogo);
+
+            var opciones = new OpcionJoinDTO()
+            {
+                IdOpcion = 0,
+                Opcion_Nombre = "Opciones",
+                Opcion_Descripcion = "Opciones",
+                IdCatalogo = 21,
+                Vista = "Opciones",
+                Catalogo_Nombre = "Configuracion",
+                Adicional = "fas fa-cog",
+                IdEstado = 12
+            };
+
+            listaConvertido.Add(opciones);
+
+
+
+            //------------------------------------------
+
             var grupoOpciones = new GrupoOpcionDTO()
             {
                 Grupos = grupos,
-                Opciones = listaOpcionesPorRol
+                Opciones = listaConvertido
             };
 
             return grupoOpciones;

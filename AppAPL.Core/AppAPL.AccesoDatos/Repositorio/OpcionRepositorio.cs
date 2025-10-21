@@ -54,7 +54,7 @@ namespace AppAPL_AccesoDatos.Repositorio
             parameters.Add("o_total", OracleDbType.Int32, ParameterDirection.Output);
 
             var datos = await connection.QueryAsync<OpcionDTO>(
-                "APL_OPCIONES_PKG.listar",
+                "APL_PKG_OPCIONES.listar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -73,7 +73,7 @@ namespace AppAPL_AccesoDatos.Repositorio
             parameters.Add("o_cur", OracleDbType.RefCursor, ParameterDirection.Output);
 
             var datos = await connection.QueryAsync<OpcionDTO>(
-                "APL_OPCIONES_PKG.obtener_por_id",
+                "APL_PKG_OPCIONES.obtener_por_id",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -100,7 +100,7 @@ namespace AppAPL_AccesoDatos.Repositorio
             parameters.Add("o_idopcion", OracleDbType.Int32, ParameterDirection.Output);
 
             await connection.ExecuteAsync(
-                "APL_OPCIONES_PKG.crear",
+                "APL_PKG_OPCIONES.crear",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -126,7 +126,7 @@ namespace AppAPL_AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters(paramObject);
 
             await connection.ExecuteAsync(
-                "APL_OPCIONES_PKG.actualizar",
+                "APL_PKG_OPCIONES.actualizar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -140,7 +140,7 @@ namespace AppAPL_AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters(paramObject);
 
             await connection.ExecuteAsync(
-                "APL_OPCIONES_PKG.eliminar",
+                "APL_PKG_OPCIONES.eliminar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );

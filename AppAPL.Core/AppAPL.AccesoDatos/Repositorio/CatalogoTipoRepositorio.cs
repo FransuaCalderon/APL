@@ -1,6 +1,10 @@
 ﻿
 using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto.Catalogo;
+//using Dapper.Oracle;
+using AppAPL.Dto.CatalogoTipo;
+using Dapper;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
@@ -8,9 +12,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dapper;
-//using Dapper.Oracle;
-using AppAPL.Dto.CatalogoTipo;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
@@ -49,7 +50,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<CatalogoTipoDTO>(
-                "APL_CATALOGOTIPO_PKG.listar",
+                "APL_PKG_CATALOGOTIPO.listar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -71,7 +72,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("o_cur", OracleDbType.RefCursor, ParameterDirection.Output);
 
             var datos = await connection.QueryAsync<CatalogoTipoDTO>(
-                "APL_CATALOGOTIPO_PKG.obtener_por_id",
+                "APL_PKG_CATALOGOTIPO.obtener_por_id",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -79,25 +80,25 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos.FirstOrDefault();
         }
 
-        public async Task<int> CrearAsync(CrearActualizarCatalogoTipoRequest catalogo)
+        public async Task<int> CrearAsync(CrearActualizarCatalogoTipoRequest catalogoTipo)
         {
             using var connection = factory.CreateOpenConnection();
 
             var paramObject = new
             {
-                p_nombre = catalogo.Nombre,
-                p_descripcion = catalogo.Descripcion,
-                p_idusuariocreacion = catalogo.IdUsuarioCreacion,
-                p_idestado = catalogo.IdEstado,
-                p_idmarcaabreviaturaautomatica = catalogo.IdMarcaAbreviaturaAutomatica,
-                p_idetiqueta = catalogo.IdEtiqueta
+                p_nombre = catalogoTipo.Nombre,
+                p_descripcion = catalogoTipo.Descripcion,
+                p_idusuariocreacion = catalogoTipo.IdUsuarioCreacion,
+                p_idestado = catalogoTipo.IdEstado,
+                p_idmarcaabreviaturaautomatica = catalogoTipo.IdMarcaAbreviaturaAutomatica,
+                p_idetiqueta = catalogoTipo.IdEtiqueta
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
             parameters.Add("o_idcatalogotipo", OracleDbType.Int32, ParameterDirection.Output);
 
             await connection.ExecuteAsync(
-                "APL_CATALOGOTIPO_PKG.crear",
+                "APL_PKG_CATALOGOTIPO.crear",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -106,25 +107,25 @@ namespace AppAPL.AccesoDatos.Repositorio
         }
 
         // 🔹 Actualizar
-        public async Task ActualizarAsync(CrearActualizarCatalogoTipoRequest catalogo, int idCatalogoTipo)
+        public async Task ActualizarAsync(CrearActualizarCatalogoTipoRequest catalogoTipo, int idCatalogoTipo)
         {
             using var connection = factory.CreateOpenConnection();
 
             var paramObject = new
             {
                 p_idcatalogotipo = idCatalogoTipo,
-                p_nombre = catalogo.Nombre,
-                p_descripcion = catalogo.Descripcion,
-                p_idusuariomodificacion = catalogo.IdUsuarioModificacion,
-                p_idestado = catalogo.IdEstado,
-                p_idmarcaabreviaturaautomatica = catalogo.IdMarcaAbreviaturaAutomatica,
-                p_idetiqueta = catalogo.IdEtiqueta
+                p_nombre = catalogoTipo.Nombre,
+                p_descripcion = catalogoTipo.Descripcion,
+                p_idusuariomodificacion = catalogoTipo.IdUsuarioModificacion,
+                p_idestado = catalogoTipo.IdEstado,
+                p_idmarcaabreviaturaautomatica = catalogoTipo.IdMarcaAbreviaturaAutomatica,
+                p_idetiqueta = catalogoTipo.IdEtiqueta
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
 
             await connection.ExecuteAsync(
-                "APL_CATALOGOTIPO_PKG.actualizar",
+                "APL_PKG_CATALOGOTIPO.actualizar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -139,7 +140,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters(paramObject);
 
             await connection.ExecuteAsync(
-                "APL_CATALOGOTIPO_PKG.eliminar",
+                "APL_PKG_CATALOGOTIPO.eliminar",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
