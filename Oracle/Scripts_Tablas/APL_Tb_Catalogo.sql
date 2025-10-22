@@ -88,8 +88,8 @@ VALUES ('Registros', 'far fa-address-card', '', 9, 1, TO_DATE('2022-08-08 11:10:
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Seguridad', 'fas fa-user', '', 9, 1, TO_DATE('2022-08-08 11:10:54', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 'GRSEGURIDAD');
 
-INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, IdEstado, IdEtiqueta) 
-VALUES ('Consultas', 'fas fa-desktop', '', 9, 1, TO_DATE('2022-08-08 11:10:54', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 'GRCONSULTAS');
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo,IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion,IdEstado, IdEtiqueta) 
+VALUES ('Consultas', 'fas fa-desktop', '', 9, 1, TO_DATE('2022-08-08 11:10:54', 'YYYY-MM-DD HH24:MI:SS'), NULL,12, 'GRCONSULTAS');
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Información Cuenta', 'fas fa-user', 'CTA', 9, 1, TO_DATE('2022-09-22 12:40:46', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 'GRADMINCUENTA');
