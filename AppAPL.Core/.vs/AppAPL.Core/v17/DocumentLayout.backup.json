@@ -1,5 +1,6 @@
 {
   "Version": 1,
+<<<<<<< Updated upstream
   "WorkspaceRootPath": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\",
   "Documents": [
     {
@@ -27,6 +28,10 @@
       "RelativeMoniker": "D:0:0:{864B51DB-FB89-422F-B0DC-5C7040FC275A}|AppAPL.Api\\AppAPL.Api.csproj|solutionrelative:appapl.api\\controllers\\parametrotipocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
+=======
+  "WorkspaceRootPath": "C:\\Users\\Usuario iTC\\Documents\\PROYECTO_BMTECSA_APL_2025\\APL\\AppAPL.Core\\",
+  "Documents": [],
+>>>>>>> Stashed changes
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -34,6 +39,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
+<<<<<<< Updated upstream
           "SelectedChildIndex": 3,
           "Children": [
             {
@@ -83,7 +89,7 @@
               "RelativeDocumentMoniker": "AppAPL.AccesoDatos\\Repositorio\\ParametroRepositorio.cs",
               "ToolTip": "C:\\Users\\Daniel\\Desktop\\PROYECTO APL REAL\\APL\\AppAPL.Core\\AppAPL.AccesoDatos\\Repositorio\\ParametroRepositorio.cs",
               "RelativeToolTip": "AppAPL.AccesoDatos\\Repositorio\\ParametroRepositorio.cs",
-              "ViewState": "AgIAABwAAAAAAAAAAAD4vzcAAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAlwC0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-21T17:00:16.201Z",
               "EditorCaption": ""
@@ -113,6 +119,13 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-21T15:14:21.424Z",
               "EditorCaption": ""
+=======
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+>>>>>>> Stashed changes
             }
           ]
         }

@@ -1,0 +1,10 @@
+CREATE TABLE APL_TB_LOG (
+  IDLOG         NUMBER(18,0) GENERATED ALWAYS AS IDENTITY NOT NULL,
+  FECHAHORATRX  DATE,                 -- Datetime
+  IDUSER        VARCHAR2(50 CHAR),    -- string(50)
+  IDOPCION      NUMBER(10,0),         -- Int
+  IDEVENTO      NUMBER(10,0),         -- Int
+  DATOS         CLOB,                 -- JSON
+  CONSTRAINT PK_APL_TB_LOG PRIMARY KEY (IDLOG),
+  CONSTRAINT CK_LOG_DATOS_JSON CHECK (DATOS IS JSON)   -- requiere 12.1.0.2+
+);

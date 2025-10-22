@@ -35,3 +35,10 @@ VALUES ('Config. Div.Politica', '.', 21, '/Configuracion/DivisionPolitica', 1, T
 
 INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
 VALUES ('Config. Opciones', '.', 21, '/Configuracion/Opciones', 1, TO_DATE('2022-08-08 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 28);
+
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
+VALUES ('Usuarios - Editar', 'Permite editar usuarios', 23, '/Seguridad/usuarios/editar', 1001, TO_DATE('2022-08-08 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 1, 10);
+
+
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
+VALUES ('Usuarios - Editar', 'Permite editar usuarios', 23, '/Seguridad/usuarios/editar', 1001, TO_DATE('2022-08-22 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 1, 10);
