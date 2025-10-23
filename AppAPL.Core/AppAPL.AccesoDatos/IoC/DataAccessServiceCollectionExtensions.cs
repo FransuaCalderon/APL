@@ -21,6 +21,8 @@ namespace AppAPL.AccesoDatos.IoC
             services.AddScoped<ICatalogoRepositorio, CatalogoRepositorio>();
             services.AddScoped<IParametroTipoRepositorio, ParametroTipoRepositorio>();
             services.AddScoped<IParametroRepositorio, ParametroRepositorio>();
+            services.AddScoped<ILogRepositorio, LogRepositorio>();
+            services.AddScoped<IFondoRepositorio, FondoRepositorio>();
             return services;
         }
     }
