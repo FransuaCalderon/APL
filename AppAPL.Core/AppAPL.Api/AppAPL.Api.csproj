@@ -21,8 +21,4 @@
     <ProjectReference Include="..\AppAPL.Negocio\AppAPL.Negocio.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Middlewares\" />
-  </ItemGroup>
-
 </Project>

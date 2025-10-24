@@ -1,7 +1,12 @@
 ﻿
 
+using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.IoC;
+using AppAPL.AccesoDatos.Repositorio;
+using AppAPL.Api.Middlewares;
+using AppAPL.Negocio.Abstracciones;
 using AppAPL.Negocio.IoC;
+using AppAPL.Negocio.Servicios;
 using ExpertoAPI2.Filtros;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,6 +69,13 @@ builder.Services.AddCors(options =>
 
 
 
+//habilitar middleware por archivo appsetting.sjon
+var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
+
+
+
+//builder.Services.AddScoped<ILogServicio, LogServicio>();
+//builder.Services.AddScoped<ILogRepositorio, LogRepositorio>();
 
 var app = builder.Build();
 
@@ -96,7 +108,10 @@ lifetime.ApplicationStopping.Register(() =>
 logger.LogInformation("------------------ INICIANDO API ----------------------");
 
 
-
+if (enableAuditoria)
+{
+    app.UseMiddleware<AuditoriaMiddleware>();
+}
 
 app.MapControllers();
 
