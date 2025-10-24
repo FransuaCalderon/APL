@@ -1,0 +1,113 @@
+# ========================
+# Visual Studio / VS Code
+# ========================
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ========================
+# Build .NET (todos los proyectos)
+# ========================
+**/bin/
+**/obj/
+*.pdb
+*.cache
+*.dll
+*.exe
+*.appx
+*.appxupload
+*.appxsym
+*.msi
+*.msix
+*.msixupload
+*.msixsym
+*.deps.json
+*.runtimeconfig.json
+
+# ========================
+# AppAPL (carpetas específicas)
+# ========================
+AppAPL.Core/AppAPL.Api/bin/
+AppAPL.Core/AppAPL.Api/obj/
+AppAPL.Core/AppAPL.Portal/bin/
+AppAPL.Core/AppAPL.Portal/obj/
+AppAPL.Core/AppAPL.Negocio/bin/
+AppAPL.Core/AppAPL.Negocio/obj/
+AppAPL.Core/AppAPL.Dto/bin/
+AppAPL.Core/AppAPL.Dto/obj/
+
+# ========================
+# Razor / MVC / Frontend
+# ========================
+**/wwwroot/lib/
+**/wwwroot/node_modules/
+**/wwwroot/dist/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ========================
+# Varios VS / índices / temporales
+# ========================
+**/CopilotIndices/
+**/*.db
+**/.dtbcache.v2
+**/.futdcache.v2
+**/.suo
+**/DocumentLayout*.json
+*.tmp
+*.bak
+*.swp
+*.dbmdl
+*.jfm
+*.tlog
+*.vscode
+*.sqlite
+*.ncb
+*.aps
+*.opendb
+
+# ========================
+# Publicaciones locales
+# ========================
+*.Publish.xml
+*.pubxml
+*.pubxml.user
+**/Properties/PublishProfiles/
+
+# ========================
+# Archivos de configuración (opcional, si no los quieres subir)
+# ========================
+**/appsettings*.json
+
+# ========================
+# Logs
+# ========================
+*.log
+*.svclog
+*.etl
+*.trace
+
+# ========================
+# Archivos de sistema
+# ========================
+Thumbs.db
+Desktop.ini
+*.DS_Store
+$RECYCLE.BIN/
+ehthumbs.db
+
+# ========================
+# Otros
+# ========================
+*.coverage
+*.coveragexml
+*.TestResult.xml
+TestResult.xml
+TestResults/
+*.nunit.xml
+*.trx

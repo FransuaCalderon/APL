@@ -12,6 +12,8 @@
 
   <ItemGroup>
 
+    <Folder Include="Views\ParametroTipo\" />
+
     <Folder Include="wwwroot\img\" />
     <Folder Include="Pages\Opciones\" />
   </ItemGroup>
