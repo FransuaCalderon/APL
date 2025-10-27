@@ -13,7 +13,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task ActualizarAsync(CrearActualizarFondoRequest fondo, int idFondo);
         Task<int> CrearAsync(CrearActualizarFondoRequest fondo);
         Task EliminarAsync(int idFondo);
-        Task<IEnumerable<FondoDTO>> ListarAsync(string? nombre = null, int? idEstado = null, DateTime? creadoDesde = null, DateTime? creadoHasta = null, int pageNumber = 1, int pageSize = 50);
-        Task<FondoDTO?> ObtenerPorIdAsync(int idFondo);
+        Task<IEnumerable<FondoDTO>> ListarAsync();
     }
 }

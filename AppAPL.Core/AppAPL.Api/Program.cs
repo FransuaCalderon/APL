@@ -4,6 +4,7 @@ using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.IoC;
 using AppAPL.AccesoDatos.Repositorio;
 using AppAPL.Api.Middlewares;
+using AppAPL.Api.Utilidades;
 using AppAPL.Negocio.Abstracciones;
 using AppAPL.Negocio.IoC;
 using AppAPL.Negocio.Servicios;
@@ -31,6 +32,9 @@ builder.Services.AddControllers(opciones =>
 {
     opciones.Filters.Add<FiltroDeExcepcion>();
     opciones.Filters.Add<FiltroAccion>();
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = new CustomSnakeCaseNamingPolicy();
 });
 
 

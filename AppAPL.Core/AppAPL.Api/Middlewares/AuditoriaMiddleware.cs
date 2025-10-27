@@ -110,17 +110,13 @@ namespace AppAPL.Api.Middlewares
 
                 var log = new CrearActualizarLogRequest()
                 {
-                    FechaHoraTrx = DateTime.Now,
-                    IdOpcion = idopcion,
                     IdUser = usuario,
+                    IdOpcion = Convert.ToInt32(idopcionHeader),
                     IdEvento = 0,
-                    Datos = requestBody
+                    Datos = metodo is "POST" or "PUT" or "PATCH" ? requestBody : "{}"
                 };
-
-                int idRetorno = await logServicio.CrearAsync(log);
-                logger.LogInformation($"idRetorno: {idRetorno}");
-
-
+                
+                await logServicio.RegistrarLogOpcionAsync(log);
 
             }
             else

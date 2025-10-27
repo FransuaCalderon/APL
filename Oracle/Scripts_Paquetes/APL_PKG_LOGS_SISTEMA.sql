@@ -46,7 +46,7 @@ CREATE OR REPLACE PACKAGE BODY APL_PKG_LOGS_SISTEMA AS
         P_IDEVENTO IN APL_TB_LOG.IDEVENTO%TYPE,
         P_DATOS IN APL_TB_LOG.DATOS%TYPE
     ) AS
-        V_IDLOG APL_TB_LOG.IDLOG%TYPE;
+       
         V_EXISTE_OPCION NUMBER;
     BEGIN
         -- Validar que la opción exista
@@ -61,14 +61,14 @@ CREATE OR REPLACE PACKAGE BODY APL_PKG_LOGS_SISTEMA AS
         
         -- Insertar el registro de log (ID se genera automáticamente con trigger o identity)
         INSERT INTO APL_TB_LOG (
-            IDLOG,
+           
             FECHAHORATRX,
             IDUSER,
             IDOPCION,
             IDEVENTO,
             DATOS
         ) VALUES (
-            V_IDLOG,
+           
             SYSTIMESTAMP,
             P_IDUSER,
             P_IDOPCION,

@@ -10,8 +10,9 @@ namespace AppAPL.Negocio.Abstracciones
 {
     public interface ILogServicio
     {
-        Task<IEnumerable<LogDTO>> ListarAsync(string? nombre = null, int? idEstado = null, DateTime? creadoDesde = null, DateTime? creadoHasta = null, int pageNumber = 1, int pageSize = 50);
-        Task<LogDTO?> ObtenerPorIdAsync(int idLog);
-        Task<int> CrearAsync(CrearActualizarLogRequest log);
+        Task<IEnumerable<LogDTO>> ObtenerLogsPorOpcionAsync(int idOpcion, DateTime? fechaInicio = null, DateTime? fechaFin = null);
+        Task<IEnumerable<LogDTO>> ObtenerLogsPorUsuarioAsync(int idUser, DateTime? fechaInicio = null, DateTime? fechaFin = null);
+        Task RegistrarLogNombreAsync(CrearActualizarLogRequest log);
+        Task RegistrarLogOpcionAsync(CrearActualizarLogRequest log);
     }
 }
