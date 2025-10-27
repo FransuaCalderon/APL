@@ -3,12 +3,14 @@
 using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.IoC;
 using AppAPL.AccesoDatos.Repositorio;
+using AppAPL.Api.Filtros;
 using AppAPL.Api.Middlewares;
 using AppAPL.Api.Utilidades;
 using AppAPL.Negocio.Abstracciones;
 using AppAPL.Negocio.IoC;
 using AppAPL.Negocio.Servicios;
 using ExpertoAPI2.Filtros;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +22,16 @@ builder.Logging.AddLog4Net("log4net.config");
 
 // Swagger (Swashbuckle)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "API AppAPL",
+        Version = "v1"
+    });
+
+    c.OperationFilter<AddRequiredHeadersOperationFilter>();
+});
 
 // IoC propios
 builder.Services.AddDataAccess(builder.Configuration)
@@ -35,6 +46,7 @@ builder.Services.AddControllers(opciones =>
 }).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = new CustomSnakeCaseNamingPolicy();
+
 });
 
 
