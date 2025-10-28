@@ -16,6 +16,7 @@ namespace AppAPL.Dto.Log
         public string Nombre_Opcion { get; set; }
         public string Descripcion_Opcion { get; set; }
 
+        public int? IdControlInterfaz { get; set; }
         public int? IdEvento { get; set; }            // NUMBER(10,0)
 
         public string? Datos { get; set; }
@@ -26,6 +27,7 @@ namespace AppAPL.Dto.Log
         public string? IdUser { get; set; }
         public string? Nombre_Opcion { get; set; }
         public int? IdOpcion { get; set; }
+        public int? IdControlInterfaz { get; set; }
         public int? IdEvento { get; set; }
         public string? Datos { get; set; } // JSON
     }

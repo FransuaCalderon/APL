@@ -69,7 +69,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             {
                 P_IDUSER = log.IdUser,
                 P_NOMBRE_OPCION = log.Nombre_Opcion,
-                P_IDEVENTO = log.IdEvento,
+                P_IDEVENTO = log.IdEvento,  //falta agregar parametros para el campo de IDCONTROLINTERFAZ  
                 P_DATOS = log.Datos
             });
 
@@ -88,7 +88,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters(new
             {
                 P_IDUSER = log.IdUser,
-                P_IDOPCION = log.IdOpcion,
+                P_IDOPCION = log.IdOpcion,  //falta agregar parametros para el campo de IDCONTROLINTERFAZ  
                 P_IDEVENTO = log.IdEvento,
                 P_DATOS = log.Datos
             });

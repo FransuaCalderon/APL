@@ -112,6 +112,7 @@ namespace AppAPL.Api.Middlewares
                 {
                     IdUser = usuario,
                     IdOpcion = Convert.ToInt32(idopcionHeader),
+                    IdControlInterfaz = 0,
                     IdEvento = 0,
                     Datos = metodo is "POST" or "PUT" or "PATCH" ? requestBody : "{}"
                 };

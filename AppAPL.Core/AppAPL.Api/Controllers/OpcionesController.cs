@@ -81,6 +81,36 @@ namespace AppAPL.Api.Controllers
             listaConvertido.Add(opciones);
 
 
+            var acuerdo = new OpcionJoinDTO()
+            {
+                IdOpcion = 0,
+                Opcion_Nombre = "Acuerdo",
+                Opcion_Descripcion = "Acuerdo",
+                IdCatalogo = 21,
+                Vista = "acuerdo/crearacuerdo",
+                Catalogo_Nombre = "Configuracion",
+                Adicional = "fas fa-cog",
+                IdEstado = 12
+            };
+
+            listaConvertido.Add(acuerdo);
+
+
+            var fondo = new OpcionJoinDTO()
+            {
+                IdOpcion = 0,
+                Opcion_Nombre = "Fondo",
+                Opcion_Descripcion = "Fondo",
+                IdCatalogo = 21,
+                Vista = "fondo/crearfondo",
+                Catalogo_Nombre = "Configuracion",
+                Adicional = "fas fa-cog",
+                IdEstado = 12
+            };
+
+            listaConvertido.Add(fondo);
+
+
 
             //------------------------------------------
 

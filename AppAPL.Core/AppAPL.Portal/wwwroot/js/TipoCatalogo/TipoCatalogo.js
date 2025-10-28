@@ -55,24 +55,24 @@ $(document).ready(function () {
     $("#btnGuardarCambios").on("click", function (e) {
         e.preventDefault();
 
-        const id = $("#modal-idCatalogoTipo").val();
+        const id = $("#modal-idcatalogotipo").val();
         const isCrear = !id;
 
         const data = {
             nombre: $("#modal-nombre").val(),
             descripcion: $("#modal-descripcion").val(),
-            idUsuarioCreacion: 1,
-            fechaCreacion: new Date().toISOString(),
-            idUsuarioModificacion: 1,
-            fechaModificacion: new Date().toISOString(),
-            idEstado: $("#modal-activo").is(":checked") ? 1 : 0,
-            idMarcaAbreviaturaAutomatica: 1,
-            idEtiqueta: $("#modal-etiqueta").val()
+            idusuariocreacion: 1,
+            fechacreacion: new Date().toISOString(),
+            idusuariomodificacion: 1,
+            fechamodificacion: new Date().toISOString(),
+            idestado: $("#modal-activo").is(":checked") ? 1 : 0,
+            idmarcaabreviaturaautomatica: 1,
+            idetiqueta: $("#modal-etiqueta").val()
         };
 
         if (isCrear) {
-            data.idUsuarioCreacion = 1;
-            data.fechaCreacion = new Date().toISOString();
+            data.idusuariocreacion = 1;
+            data.fechacreacion = new Date().toISOString();
         }
 
         const url = id ? `${window.apiBaseUrl}/api/CatalogoTipo/actualizar/${id}`
@@ -175,7 +175,7 @@ function crearListado(data) {
     } else {
         for (var i = 0; i < data.length; i++) {
             var c = data[i];
-            var id = c.idCatalogoTipo;
+            var id = c.idcatalogotipo;
 
             var editButton = '<button type="button" class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(' + id + ')">' +
                 '<i class="fa-regular fa-pen-to-square"></i>' +
@@ -188,7 +188,7 @@ function crearListado(data) {
             var optionsHtml = '<div class="action-buttons">' + editButton + deleteButton + '</div>';
 
             html += "<tr>";
-            html += "  <td>" + (c.idCatalogoTipo ?? "") + "</td>";
+            html += "  <td>" + (c.idcatalogotipo ?? "") + "</td>";
             html += "  <td>" + (c.nombre ?? "") + "</td>";
             html += "  <td>" + (c.descripcion ?? "") + "</td>";
             html += "  <td>" + optionsHtml + "</td>";
@@ -260,7 +260,7 @@ function crearListado(data) {
 
 function abrirModalEditar(id) {
     $('#formEditar')[0].reset();
-    $('#modal-idCatalogoTipo').val(id);
+    $('#modal-idcatalogotipo').val(id);
     $('#editarModalLabel').text('Editar Tipo de Catálogo');
     $('#btnGuardarCambios')
         .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')
@@ -268,11 +268,11 @@ function abrirModalEditar(id) {
         .addClass('btn-primary');
 
     $.get(`${window.apiBaseUrl}/api/CatalogoTipo/obtener/${id}`, function (data) {
-        $("#modal-id").val(data.idCatalogoTipo);
+        $("#modal-id").val(data.idcatalogotipo);
         $("#modal-nombre").val(data.nombre);
         $("#modal-descripcion").val(data.descripcion);
-        $("#modal-activo").prop("checked", data.idEstado === 1);
-        $("#modal-etiqueta").val(data.idEtiqueta);
+        $("#modal-activo").prop("checked", data.idestado === 1);
+        $("#modal-etiqueta").val(data.idetiqueta);
 
         var editarModal = new bootstrap.Modal(document.getElementById('editarModal'));
         editarModal.show();
@@ -281,7 +281,7 @@ function abrirModalEditar(id) {
 
 function abrirModalCrear() {
     $('#formEditar')[0].reset();
-    $('#modal-idCatalogoTipo').val('');
+    $('#modal-idcatalogotipo').val('');
     $('#editarModalLabel').text('Crear Nuevo Tipo de Catálogo');
     $('#btnGuardarCambios')
         .html('<i class="fa-solid fa-plus me-2"></i> Crear')
