@@ -3,7 +3,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace AppAPL.Api.Filtros
 {
-    public class AddRequiredHeadersOperationFilter: IOperationFilter
+    public class AgregarHeadersAuditoriaOperationFilter: IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {

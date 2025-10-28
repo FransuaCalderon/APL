@@ -22,6 +22,12 @@ builder.Logging.AddLog4Net("log4net.config");
 
 // Swagger (Swashbuckle)
 builder.Services.AddEndpointsApiExplorer();
+
+
+// Leer el valor del appsettings.json
+bool enableHeaderFilter = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
+
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -30,7 +36,11 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 
-    c.OperationFilter<AddRequiredHeadersOperationFilter>();
+    // Solo agregar el filtro si está habilitado en appsettings
+    if (enableHeaderFilter)
+    {
+        c.OperationFilter<AgregarHeadersAuditoriaOperationFilter>();
+    }
 });
 
 // IoC propios
@@ -87,6 +97,7 @@ builder.Services.AddCors(options =>
 
 //habilitar middleware por archivo appsetting.sjon
 var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
+var EnableAprobacion = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAprobacion");
 
 
 
@@ -127,6 +138,11 @@ logger.LogInformation("------------------ INICIANDO API ----------------------")
 if (enableAuditoria)
 {
     app.UseMiddleware<AuditoriaMiddleware>();
+}
+
+if (EnableAprobacion)
+{
+    app.UseMiddleware<AprobacionMiddleware>();
 }
 
 app.MapControllers();

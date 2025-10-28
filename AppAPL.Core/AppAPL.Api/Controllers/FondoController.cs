@@ -1,5 +1,6 @@
 ﻿
 
+using AppAPL.Api.Attributes;
 using AppAPL.Dto.CatalogoTipo;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
@@ -9,6 +10,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    //[Aprobacion]
     public class FondoController(ILogger<FondoController> logger, IFondoServicio servicio) : ControllerBase
     {
         [HttpGet("listar")]
