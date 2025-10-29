@@ -19,7 +19,7 @@ namespace AppAPL_AccesoDatos.Repositorio
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
 
             var opciones = await connection.QueryAsync<OpcionJoinDTO>(
-                "sp_ListarOpciones", // Nombre completo del procedimiento
+                "APL_SP_ListarOpciones", // Nombre completo del procedimiento
                 parameters,
                 commandType: CommandType.StoredProcedure
             );

@@ -25,7 +25,6 @@ CREATE OR REPLACE PACKAGE APL_PKG_PARAMETRO AS
 
   PROCEDURE eliminar(
     p_idparametro IN NUMBER
-    p_idparametro IN NUMBER
   );
 
   PROCEDURE obtener_por_id(

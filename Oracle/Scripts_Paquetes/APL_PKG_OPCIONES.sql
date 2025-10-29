@@ -44,12 +44,12 @@ CREATE OR REPLACE PACKAGE APL_PKG_OPCIONES AS
     o_cur                   OUT t_cursor,
     o_total                 OUT PLS_INTEGER
   );
-END APL_OPCIONES_PKG;
+END APL_PKG_OPCIONES;
 /
 
 
 ================================Body================
-CREATE OR REPLACE PACKAGE BODY APL_OPCIONES_PKG AS
+CREATE OR REPLACE PACKAGE BODY APL_PKG_OPCIONES AS
 
   PROCEDURE crear(
     p_nombre                IN  VARCHAR2,
