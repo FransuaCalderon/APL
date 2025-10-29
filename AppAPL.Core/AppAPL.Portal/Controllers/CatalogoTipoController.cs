@@ -5,11 +5,11 @@ namespace AppAPL.Portal.Controllers
 {
     public class CatalogoTipoController : Controller
     {
-        private readonly CatalogoTipoApiCliente catalogoTipoApiCliente;
+        
 
-        public CatalogoTipoController(CatalogoTipoApiCliente catalogoTipoApiCliente)
+        public CatalogoTipoController()
         {
-            this.catalogoTipoApiCliente = catalogoTipoApiCliente;
+           
         }
 
 

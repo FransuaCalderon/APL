@@ -3,6 +3,7 @@ CREATE TABLE APL_TB_LOG (
   FECHAHORATRX  DATE,                 -- Datetime
   IDUSER        VARCHAR2(50 CHAR),    -- string(50)
   IDOPCION      NUMBER(10,0),         -- Int
+  IDCONTROLINTERFAZ  NUMBER(10,0),         -- Int
   IDEVENTO      NUMBER(10,0),         -- Int
   DATOS         CLOB,                 -- JSON
   CONSTRAINT PK_APL_TB_LOG PRIMARY KEY (IDLOG),

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace AppAPL.Dto.Opciones
 {
-    public class GrupoOpcionDTO
+    public class GrupoDistinctDTO
     {
-        public IEnumerable<GrupoDistinctDTO> Grupos { get; set; }
-        public IEnumerable<OpcionJoinDTO> Opciones { get; set; }
+        public int IdGrupo { get; set; }
+        public string Grupo { get; set; }
     }
 }

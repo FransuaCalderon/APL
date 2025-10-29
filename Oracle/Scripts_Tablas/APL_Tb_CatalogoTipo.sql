@@ -18,43 +18,37 @@ CREATE TABLE APL_Tb_CatalogoTipo(
 
 ====================INSERT=======================
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('TipoPersona', 'Define si es Natural o Persona Juridica', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), 1, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 12, 15, 'TIPOPERSONA');
+VALUES ('Estado', 'Estado de Regístros', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'ESTADOS');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('TipoIdentificacion', 'Tipo de Identificacion C/R/P', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'TIPOIDENTIFICACION');
+VALUES ('Grupo', 'Grupo de Opciones de Navegacion', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'GRUPOOPCION');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Sexo', 'Define Hombre o Mujer', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'SEXO');
+VALUES ('Tipo de Servicio', 'Tipo de Servicios o Modulos', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOSERVICIO');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('TituloProfesional', 'Titulo de Tercer Nivel', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'TITULOPROFESIONAL');
+VALUES ('Pais', 'Paises', 1, TO_DATE('2024-10-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'PAISES');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('TituloPostGrado', 'Titulo de Cuarto Nivel', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'TITULOPOSTGRADO');
+VALUES ('Moneda', 'Moneda', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'MONEDAS');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Estado', 'Estado de Registros', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'ESTADOS');
+VALUES ('Tipo de Autenticación', 'Tipo de Autenticación', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOAUTENTICACION');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Varios', 'Manejo de controles o Secuencias', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'VARIOS');
+VALUES ('Controles de Interfaz', 'Controles de Interfaz de Usuario', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'CONTROLUI');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('TipoDireccion', 'Direccion Principal/Oficina/etc', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'TIPODIRECCION');
+VALUES ('Tipo de Eventos', 'Tipo de Eventos', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'EVENTOS');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Grupo', 'Grupo de Opciones de Navegacion', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'GRUPOOPCION');
+VALUES ('Entidad', 'Entidad que identifica la informacion', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'ENTIDAD');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('PerfilUsuario', 'Perfile de Usuario (Permisos)', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'PERFILUSUARIO');
+VALUES ('Tipo de Fondo', 'Tipo de Fondo', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOFONDO');
 
-INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('TipoCliente', 'Tipo de Cliente', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'TIPOCLIENTE');
 
-INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('TipoFuncionario', 'Tipo de Funcionario', 1, TO_DATE('2022-08-09 15:50:04', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'TIPOFUNCIONARIO');
-
-INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Tipo de Empresa', 'Define el tipo de empresa', 1, TO_DATE('2022-10-21 15:09:04', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 15, 'TIPOEMPRESA');
- 
+ INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
+VALUES ('Indicador de Creacion', 'Indicador de Creacion', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'INCRE');
  
  

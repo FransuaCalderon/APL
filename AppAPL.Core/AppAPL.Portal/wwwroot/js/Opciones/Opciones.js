@@ -12,9 +12,20 @@ $(document).ready(function () {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
 
-        $.get(`${apiBaseUrl}/api/Opciones/listar`, function (data) {
-            console.log(data);
-            crearListado(data);
+        $.ajax({
+            url: `${apiBaseUrl}/api/Opciones/listar`,
+            method: "GET",
+            headers: {
+                "idopcion": "1",
+                "usuario": "admin"
+            },
+            success: function (data) {
+                console.log(data);
+                crearListado(data);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error al obtener config:", error);
+            }
         });
     });
 
@@ -55,7 +66,7 @@ $(document).ready(function () {
     $("#btnGuardarCambios").on("click", function (e) {
         e.preventDefault();
 
-        const id = $("#modal-idOpcion").val();
+        const id = $("#modal-idopcion").val();
         const isCrear = !id;
 
         const data = {
@@ -86,6 +97,10 @@ $(document).ready(function () {
             type: method,
             contentType: "application/json",
             data: JSON.stringify(data),
+            headers: {
+                "idopcion": "1",
+                "usuario": "admin"
+            },
             success: function (response) {
                 $("#editarModal").modal("hide");
 
@@ -100,7 +115,7 @@ $(document).ready(function () {
 
                 // Si es creación, necesitamos obtener el ID del nuevo registro
                 // Si tu API devuelve el ID en la respuesta, úsalo así:
-                // ultimaFilaModificada = response.idOpcion;
+                // ultimaFilaModificada = response.idopcion;
                 // Si no, mantén el ID actual para ediciones
                 if (!isCrear && id) {
                     ultimaFilaModificada = id;
@@ -202,7 +217,7 @@ function crearListado(data) {
     } else {
         for (var i = 0; i < data.length; i++) {
             var c = data[i];
-            var id = c.idOpcion;
+            var id = c.idopcion;
 
             var editButton = '<button type="button" class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(' + id + ')">' +
                 '<i class="fa-regular fa-pen-to-square"></i>' +
@@ -215,7 +230,7 @@ function crearListado(data) {
             var optionsHtml = '<div class="action-buttons">' + editButton + deleteButton + '</div>';
 
             html += "<tr>";
-            html += "  <td>" + (c.idOpcion ?? "") + "</td>";
+            html += "  <td>" + (c.idopcion ?? "") + "</td>";
             html += "  <td>" + (c.nombre ?? "") + "</td>";
             html += "  <td>" + (c.descripcion ?? "") + "</td>";
             html += "  <td>" + optionsHtml + "</td>";
@@ -285,7 +300,7 @@ function crearListado(data) {
 
 function abrirModalEditar(id) {
     $('#formEditar')[0].reset();
-    $('#modal-idOpcion').val(id);
+    $('#modal-idopcion').val(id);
 
     $('#editarModalLabel').text('Editar Opción');
     $('#btnGuardarCambios')
@@ -294,11 +309,11 @@ function abrirModalEditar(id) {
         .addClass('btn-primary');
 
     $.get(`${window.apiBaseUrl}/api/Opciones/obtener/${id}`, function (data) {
-        $("#modal-id").val(data.idOpcion);
+        $("#modal-id").val(data.idopcion);
         $("#modal-nombre").val(data.nombre);
         $("#modal-descripcion").val(data.descripcion);
-        $("#modal-activo").prop("checked", data.idEstado === 1);
-        $("#modal-etiqueta").val(data.idEtiqueta);
+        $("#modal-activo").prop("checked", data.idestado === 1);
+        $("#modal-etiqueta").val(data.idetiqueta);
 
         var editarModal = new bootstrap.Modal(document.getElementById('editarModal'));
         editarModal.show();
@@ -308,7 +323,7 @@ function abrirModalEditar(id) {
 
 function abrirModalCrear() {
     $('#formEditar')[0].reset();
-    $('#modal-idOpcion').val('');
+    $('#modal-idopcion').val('');
 
     $('#editarModalLabel').text('Crear Nueva Opción');
     $('#btnGuardarCambios')
@@ -336,6 +351,10 @@ function confirmDelete(id) {
             $.ajax({
                 url: `${window.apiBaseUrl}/api/Opciones/eliminar/${id}`,
                 type: "DELETE",
+                headers: {
+                    "idopcion": "1",
+                    "usuario": "admin"
+                },
                 success: function () {
                     // Mostrar alerta de éxito con SweetAlert2
                     Swal.fire({

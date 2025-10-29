@@ -4,7 +4,7 @@ namespace AppWebAPL.Controllers
 {
     public class FondoController : Controller
     {
-        public IActionResult CrearFondo()
+        public async Task<IActionResult> CrearFondo()
         {
             return View();
         }

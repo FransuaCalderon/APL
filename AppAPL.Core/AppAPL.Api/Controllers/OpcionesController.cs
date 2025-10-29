@@ -1,4 +1,5 @@
 ﻿using AppAPL.Dto.CatalogoTipo;
+using AppAPL.Dto.Grupo;
 using AppAPL.Dto.Opciones;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
@@ -24,65 +25,23 @@ namespace AppAPL.Api.Controllers
             return listaOpciones.ToList();
         }
 
-        [HttpGet("listarPorRol/{usuarioRol}")]
-        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(string usuarioRol)
+        [HttpGet("ListarOpcionesAutorizadasInternas/{idUsuario:int}")]
+        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(int idUsuario)
         {
-            var listaOpcionesPorRol = await servicio.ListarOpcionesPorRolAsync(usuarioRol);
+            var listaOpcionesPorRol = await servicio.ListarOpcionesAutorizadasInternas(idUsuario);
 
+            /*
             var grupos = (from filtrado in listaOpcionesPorRol
-                          select filtrado.IdCatalogo)
-             .Distinct();
+                          select filtrado.IdGrupo)
+             .Distinct();*/
 
+            var grupos = listaOpcionesPorRol
+                .Select(x => new GrupoDistinctDTO { IdGrupo = x.IdGrupo, Grupo = x.Grupo })
+                .DistinctBy(x => new { x.IdGrupo, x.Grupo }) // 👈 necesitas System.Linq (NET 6+)
+                .ToList();
 
-
-            // ----------------------- temporal 
             var listaConvertido = listaOpcionesPorRol.ToList();
 
-            var catalogotipo = new OpcionJoinDTO()
-            {
-                IdOpcion = 0,
-                Opcion_Nombre = "Catalogo Tipo",
-                Opcion_Descripcion = "Catalogo Tipo",
-                IdCatalogo = 21,
-                Vista = "CatalogoTipo",
-                Catalogo_Nombre = "Configuracion",
-                Adicional = "fas fa-cog",
-                IdEstado = 12
-            };
-
-            listaConvertido.Add(catalogotipo);
-
-            var catalogo = new OpcionJoinDTO()
-            {
-                IdOpcion = 0,
-                Opcion_Nombre = "Catalogo",
-                Opcion_Descripcion = "Catalogo",
-                IdCatalogo = 21,
-                Vista = "Catalogo",
-                Catalogo_Nombre = "Configuracion",
-                Adicional = "fas fa-cog",
-                IdEstado = 12
-            };
-
-            listaConvertido.Add(catalogo);
-
-            var opciones = new OpcionJoinDTO()
-            {
-                IdOpcion = 0,
-                Opcion_Nombre = "Opciones",
-                Opcion_Descripcion = "Opciones",
-                IdCatalogo = 21,
-                Vista = "Opciones",
-                Catalogo_Nombre = "Configuracion",
-                Adicional = "fas fa-cog",
-                IdEstado = 12
-            };
-
-            listaConvertido.Add(opciones);
-
-
-
-            //------------------------------------------
 
             var grupoOpciones = new GrupoOpcionDTO()
             {

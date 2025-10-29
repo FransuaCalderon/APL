@@ -1,8 +1,16 @@
 ﻿
 
+using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.IoC;
+using AppAPL.AccesoDatos.Repositorio;
+using AppAPL.Api.Filtros;
+using AppAPL.Api.Middlewares;
+using AppAPL.Api.Utilidades;
+using AppAPL.Negocio.Abstracciones;
 using AppAPL.Negocio.IoC;
+using AppAPL.Negocio.Servicios;
 using ExpertoAPI2.Filtros;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +22,26 @@ builder.Logging.AddLog4Net("log4net.config");
 
 // Swagger (Swashbuckle)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+
+// Leer el valor del appsettings.json
+bool enableHeaderFilter = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
+
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "API AppAPL",
+        Version = "v1"
+    });
+
+    // Solo agregar el filtro si está habilitado en appsettings
+    if (enableHeaderFilter)
+    {
+        c.OperationFilter<AgregarHeadersAuditoriaOperationFilter>();
+    }
+});
 
 // IoC propios
 builder.Services.AddDataAccess(builder.Configuration)
@@ -26,6 +53,10 @@ builder.Services.AddControllers(opciones =>
 {
     opciones.Filters.Add<FiltroDeExcepcion>();
     opciones.Filters.Add<FiltroAccion>();
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = new CustomSnakeCaseNamingPolicy();
+
 });
 
 
@@ -64,6 +95,14 @@ builder.Services.AddCors(options =>
 
 
 
+//habilitar middleware por archivo appsetting.sjon
+var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
+var EnableAprobacion = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAprobacion");
+
+
+
+//builder.Services.AddScoped<ILogServicio, LogServicio>();
+//builder.Services.AddScoped<ILogRepositorio, LogRepositorio>();
 
 var app = builder.Build();
 
@@ -96,7 +135,15 @@ lifetime.ApplicationStopping.Register(() =>
 logger.LogInformation("------------------ INICIANDO API ----------------------");
 
 
+if (enableAuditoria)
+{
+    app.UseMiddleware<AuditoriaMiddleware>();
+}
 
+if (EnableAprobacion)
+{
+    app.UseMiddleware<AprobacionMiddleware>();
+}
 
 app.MapControllers();
 

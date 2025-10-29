@@ -12,33 +12,71 @@ CREATE TABLE APL_Tb_Opciones  (
   IDUSUARIOMODIFICACION  NUMBER(10),
   FECHAMODIFICACION      TIMESTAMP(7),
   IDESTADO               NUMBER(10)          NOT NULL,
-  IDCATALOGOTIPOCLIENTE  NUMBER(10)          NOT NULL,
+  IDTIPOSERVICIO         NUMBER(10)          NOT NULL,
   CONSTRAINT PK_APL_TB_OPCION
     PRIMARY KEY (IDOPCION)
 );
 
 =================================INSERT====================================
-INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
-VALUES ('Config. Tipo Catalogo', '.', 21, '/Configuracion/TipoCatalogo', 1, TO_DATE('2022-08-08 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 28);
+--id ->18
 
-INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
-VALUES ('Config. Catalogo', '.', 21, '/Configuracion/Catalogos', 1, TO_DATE('2022-08-08 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 28);
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Tipo Catalogo', '.', 11, '/TipoCatalogo/Index', 1, SYSDATE, NULL, NULL, 1, 18);
 
-INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
-VALUES ('Config. Pais', '.', 21, '/Configuracion/Pais', 1, TO_DATE('2022-08-08 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 28);
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Catalogo', '.', 11, '/Catalogos/Index', 1, SYSDATE, NULL, NULL, 1, 18);
 
-INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
-VALUES ('Config. Estruct.Pais', '.', 21, '/Configuracion/EstructuraPais', 1, TO_DATE('2022-08-08 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 28);
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Opciones', '.', 11, '/Opciones/Index', 1, SYSDATE, NULL, NULL, 1, 18);
 
-INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
-VALUES ('Config. Div.Politica', '.', 21, '/Configuracion/DivisionPolitica', 1, TO_DATE('2022-08-08 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 28);
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Empresas', '.', 11, '/Empresa/Index', 1, SYSDATE, NULL, NULL, 1, 18);
 
-INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
-VALUES ('Config. Opciones', '.', 21, '/Configuracion/Opciones', 1, TO_DATE('2022-08-08 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 12, 28);
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Usuarios', '.', 11, '/Usuario/Index', 1, SYSDATE, NULL, NULL, 1, 18);
 
-INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
-VALUES ('Usuarios - Editar', 'Permite editar usuarios', 23, '/Seguridad/usuarios/editar', 1001, TO_DATE('2022-08-08 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 1, 10);
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Autorizaciones', '.', 11, '/Autorizacion/Index', 1, SYSDATE, NULL, NULL, 1, 18);
 
 
-INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdCatalogoTipoCliente) 
-VALUES ('Usuarios - Editar', 'Permite editar usuarios', 23, '/Seguridad/usuarios/editar', 1001, TO_DATE('2022-08-22 17:17:58', 'YYYY-MM-DD HH24:MI:SS'), NULL, NULL, 1, 10);
+--id ->19
+
+--Parametrizacion
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Tipo Parametros', '.', 12, '/ParametroTipo/Index', 1, SYSDATE, NULL, NULL, 1, 19);
+
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Parametros', '.', 12, '/Parametro/Index', 1, SYSDATE, NULL, NULL, 1, 19);
+
+--Fondo
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Creacion Fondo', '.', 13, '/Fondo/CrearFondo/', 1, SYSDATE, NULL, NULL, 1, 19);
+
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Aprobacion de Fondo', '.', 13, '/Fondo/AprobarFondo', 1, SYSDATE, NULL, NULL, 1, 19);
+
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Modificacion de Fondo', '.', 13, '/Fondo/ModificarFondo', 1, SYSDATE, NULL, NULL, 1, 19);
+
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Inactivacion de Fondo', '.', 13, '/Fondo/InactivarFondo', 1, SYSDATE, NULL, NULL, 1, 19);
+
+INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
+VALUES ('Consulta de Fondo ', '.', 13, '/Fondo/ConsultarFondo', 1, SYSDATE, NULL, NULL, 1, 19);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
