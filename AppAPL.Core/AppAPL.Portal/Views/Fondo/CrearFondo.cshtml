@@ -2,6 +2,12 @@
     ViewData["Title"] = "Home Page";
 }
 
+@section Scripts {
+	<script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+	<script src="~/js/Fondo/Fondo.js" asp-append-version="true"></script> @* 3. Cambiar la referencia al JS *@
+	<script src="~/js/datatables.min.js" asp-append-version="true"></script>
+}
+
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 	<h1 class="h4">Fondos - Creación</h1>
 	<!--<div class="btn-toolbar mb-2 mb-md-0">
@@ -48,19 +54,21 @@
 								<div class="col-md-2">
 									<label for="inputFecha1" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
 									<div class="input-group mb-3">
-										<input type="text" class="form-control form-control-sm" placeholder="aaaa-mm-dd hh:mm:ss" aria-label="Recipient’s username" aria-describedby="button-fecha1">
+										<input id="inputFecha1" type="date" class="form-control form-control-sm" placeholder="aaaa-mm-dd hh:mm:ss" aria-label="Recipient’s username" aria-describedby="button-fecha1">
+										<!--
 										<button class="btn btn-outline-secondary btn-sm" type="button" id="button-fecha1">
 											<img src="~/img/ico/calendar2-week.svg" alt="Bootstrap">
-										</button>
+										</button>-->
 									</div>
 								</div>
 								<div class="col-md-2">
 									<label for="inputFecha2" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
 									<div class="input-group mb-3">
-										<input type="text" class="form-control form-control-sm" placeholder="aaaa-mm-dd hh:mm:ss" aria-label="Recipient’s username" aria-describedby="button-fecha2">
+										<input id="inputFecha2" type="date" class="form-control form-control-sm" placeholder="aaaa-mm-dd hh:mm:ss" aria-label="Recipient’s username" aria-describedby="button-fecha2">
+										<!--
 										<button class="btn btn-outline-secondary btn-sm" type="button" id="button-fecha2">
 											<img src="~/img/ico/calendar2-week.svg" alt="Bootstrap">
-										</button>
+										</button>-->
 									</div>
 								</div>
 								<div class="col-md-1">
@@ -71,6 +79,7 @@
 										<option>Marca 2</option>
 										<option>Marca 3</option>
 									</select>
+
 								</div>
 								<div class="col-md-1">
 									<label for="inputGrupo" class="form-label fw-bold col-form-label-sm">Division</label>
@@ -188,7 +197,7 @@
 								</div>
 
 								<div class="col-12 mt-4">
-									<button type="submit" class="btn btn-primary">Procesar</button>
+									<button type="submit" class="btn btn-primary" id="btnGuardarFondos">Procesar</button>
 								</div>
 							</form>
 

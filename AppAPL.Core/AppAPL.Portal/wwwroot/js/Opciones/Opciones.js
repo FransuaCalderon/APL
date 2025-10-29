@@ -12,9 +12,20 @@ $(document).ready(function () {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
 
-        $.get(`${apiBaseUrl}/api/Opciones/listar`, function (data) {
-            console.log(data);
-            crearListado(data);
+        $.ajax({
+            url: `${apiBaseUrl}/api/Opciones/listar`,
+            method: "GET",
+            headers: {
+                "idopcion": "1",
+                "usuario": "admin"
+            },
+            success: function (data) {
+                console.log(data);
+                crearListado(data);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error al obtener config:", error);
+            }
         });
     });
 
@@ -86,6 +97,10 @@ $(document).ready(function () {
             type: method,
             contentType: "application/json",
             data: JSON.stringify(data),
+            headers: {
+                "idopcion": "1",
+                "usuario": "admin"
+            },
             success: function (response) {
                 $("#editarModal").modal("hide");
 
@@ -336,6 +351,10 @@ function confirmDelete(id) {
             $.ajax({
                 url: `${window.apiBaseUrl}/api/Opciones/eliminar/${id}`,
                 type: "DELETE",
+                headers: {
+                    "idopcion": "1",
+                    "usuario": "admin"
+                },
                 success: function () {
                     // Mostrar alerta de éxito con SweetAlert2
                     Swal.fire({

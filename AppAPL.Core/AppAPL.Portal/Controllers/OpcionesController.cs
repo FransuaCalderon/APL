@@ -5,12 +5,11 @@ namespace AppAPL.Portal.Controllers
 {
     public class OpcionesController : Controller
     {
-        private readonly OpcionesApiClient opcionesApiClient;
-        private readonly CatalogoApiClient catalogoApiClient;
+        
 
-        public OpcionesController(OpcionesApiClient opcionesApiClient)
+        public OpcionesController()
         {
-            this.opcionesApiClient = opcionesApiClient;
+            
         }
 
         //[HttpGet]

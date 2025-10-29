@@ -40,37 +40,44 @@ $(document).ready(function () {
 
         window.apiBaseUrl = apiBaseUrl;
 
-        // Llamar a la API correcta
-        $.get(`${apiBaseUrl}/api/Opciones/listarPorRol/${usuarioRol}`, function (data) {
-            console.log("data de opciones listar por rol",data);
+        $.ajax({
+            url: `${apiBaseUrl}/api/Opciones/listarPorRol/${usuarioRol}`,
+            method: "GET",
+            headers: {
+               
+                "idopcion": "1",
+                "usuario": "admin"
+            },
+            success: function (data) {
+                console.log("data de opciones listar por rol", data);
 
-            const $menu = $("#menu-dinamico");
-            $menu.empty(); // Limpiar menú existente
+                const $menu = $("#menu-dinamico");
+                $menu.empty(); // Limpiar menú existente
 
-            // Agrupar opciones por idcatalogo
-            const gruposAgrupados = {};
+                // Agrupar opciones por idcatalogo
+                const gruposAgrupados = {};
 
-            data.opciones.forEach(opcion => {
-                const idcatalogo = opcion.idcatalogo;
+                data.opciones.forEach(opcion => {
+                    const idcatalogo = opcion.idcatalogo;
 
-                if (!gruposAgrupados[idcatalogo]) {
-                    gruposAgrupados[idcatalogo] = {
-                        catalogo_nombre: opcion.catalogo_nombre,
-                        adicional: opcion.adicional, // Icono
-                        opciones: []
-                    };
-                }
+                    if (!gruposAgrupados[idcatalogo]) {
+                        gruposAgrupados[idcatalogo] = {
+                            catalogo_nombre: opcion.catalogo_nombre,
+                            adicional: opcion.adicional, // Icono
+                            opciones: []
+                        };
+                    }
 
-                gruposAgrupados[idcatalogo].opciones.push(opcion);
-            });
+                    gruposAgrupados[idcatalogo].opciones.push(opcion);
+                });
 
-            // Crear el menú por cada grupo
-            Object.keys(gruposAgrupados).forEach((idcatalogo, index) => {
-                const grupo = gruposAgrupados[idcatalogo];
-                const collapseId = `collapse-${idcatalogo}`;
-                //console.log("grupoo ", grupo);
-                // Crear el botón del catálogo con icono
-                const $button = $(`
+                // Crear el menú por cada grupo
+                Object.keys(gruposAgrupados).forEach((idcatalogo, index) => {
+                    const grupo = gruposAgrupados[idcatalogo];
+                    const collapseId = `collapse-${idcatalogo}`;
+                    //console.log("grupoo ", grupo);
+                    // Crear el botón del catálogo con icono
+                    const $button = $(`
                     <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
                             data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false">
                         <i class="${grupo.adicional} me-2"></i>
@@ -78,17 +85,17 @@ $(document).ready(function () {
                     </button>
                 `);
 
-                // Crear la lista de opciones (subopciones)
-                const $ulOpciones = $('<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"></ul>');
+                    // Crear la lista de opciones (subopciones)
+                    const $ulOpciones = $('<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"></ul>');
 
-                // Ordenar opciones por idopcion (opcional)
-                grupo.opciones.sort((a, b) => a.idopcion - b.idopcion);
+                    // Ordenar opciones por idopcion (opcional)
+                    grupo.opciones.sort((a, b) => a.idopcion - b.idopcion);
 
-                grupo.opciones.forEach(opcion => {
-                    // Convertir la ruta de la API a la ruta real del controlador
-                    const rutaReal = obtenerRutaReal(opcion.vista);
+                    grupo.opciones.forEach(opcion => {
+                        // Convertir la ruta de la API a la ruta real del controlador
+                        const rutaReal = obtenerRutaReal(opcion.vista);
 
-                    const $li = $(`
+                        const $li = $(`
                         <li>
                             <a href="${rutaReal}"
                                class="link-body-emphasis d-inline-flex text-decoration-none rounded"
@@ -98,33 +105,46 @@ $(document).ready(function () {
                             </a>
                         </li>
                     `);
-                    $ulOpciones.append($li);
-                });
+                        $ulOpciones.append($li);
+                    });
 
-                // Crear el contenedor colapsable
-                const $collapseDiv = $(`
+                    // Crear el contenedor colapsable
+                    const $collapseDiv = $(`
                     <div class="collapse" id="${collapseId}"></div>
                 `).append($ulOpciones);
 
-                // Agrupar todo dentro del <li>
-                const $liCatalogo = $('<li class="mb-1"></li>')
-                    .append($button)
-                    .append($collapseDiv);
+                    // Agrupar todo dentro del <li>
+                    const $liCatalogo = $('<li class="mb-1"></li>')
+                        .append($button)
+                        .append($collapseDiv);
 
-                // Agregarlo al menú principal
-                $menu.append($liCatalogo);
-            });
+                    // Agregarlo al menú principal
+                    $menu.append($liCatalogo);
+                });
 
-            // Resaltar la opción activa después de cargar el menú
-            resaltarOpcionActiva();
+                // Resaltar la opción activa después de cargar el menú
+                resaltarOpcionActiva();
 
-            console.log("Menú cargado exitosamente");
+                console.log("Menú cargado exitosamente");
+            },
+            error: function (xhr, status, error) {
+                console.error("Error al obtener el menú:", error);
+                console.error("Detalles:", xhr.responseText);
+                $("#menu-dinamico").html("<p class='text-danger'>Error al cargar el menú</p>");
+            }
+        });
+
+
+        /*
+        // Llamar a la API correcta
+        $.get(`${apiBaseUrl}/api/Opciones/listarPorRol/${usuarioRol}`, function (data) {
+            
         })
             .fail(function (xhr, status, error) {
                 console.error("Error al obtener el menú:", error);
                 console.error("Detalles:", xhr.responseText);
                 $("#menu-dinamico").html("<p class='text-danger'>Error al cargar el menú</p>");
-            });
+            });*/
     });
 });
 
