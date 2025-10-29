@@ -36,12 +36,12 @@ $(document).ready(function () {
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
-        const usuarioRol = "admin"; // O tómalo de la configuración según tu lógica
+        const idUsuario = 1; // O tómalo de la configuración según tu lógica
 
         window.apiBaseUrl = apiBaseUrl;
 
         $.ajax({
-            url: `${apiBaseUrl}/api/Opciones/listarPorRol/${usuarioRol}`,
+            url: `${apiBaseUrl}/api/Opciones/ListarOpcionesAutorizadasInternas/${idUsuario}`,
             method: "GET",
             headers: {
                

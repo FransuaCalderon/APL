@@ -10,16 +10,16 @@ namespace AppAPL_AccesoDatos.Repositorio
 {
     public sealed class OpcionRepositorio(OracleConnectionFactory factory) : IOpcionRepositorio
     {
-        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesPorRolAsync(string usuarioRol)
+        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario)
         {
             using var connection = factory.CreateOpenConnection();
 
             var parameters = new OracleDynamicParameters();
-            parameters.Add("p_usuarioRol", OracleDbType.Varchar2, ParameterDirection.InputOutput, usuarioRol);
-            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_idusuario", OracleDbType.Int32, ParameterDirection.InputOutput, idUsuario);
+            parameters.Add("p_opciones_out", OracleDbType.RefCursor, ParameterDirection.Output);
 
             var opciones = await connection.QueryAsync<OpcionJoinDTO>(
-                "APL_SP_ListarOpciones", // Nombre completo del procedimiento
+                "APL_PKG_OPCIONES.listarOpcionesAutorizadasInternas", // Nombre completo del procedimiento
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -38,20 +38,11 @@ namespace AppAPL_AccesoDatos.Repositorio
         {
             using var connection = factory.CreateOpenConnection();
 
-            var paramObject = new
-            {
-                p_nombre = nombre,
-                p_idgrupo = idGrupo,
-                p_idestado = idEstado,
-                p_creado_desde = creadoDesde,
-                p_creado_hasta = creadoHasta,
-                p_page_number = pageNumber,
-                p_page_size = pageSize
-            };
+            
 
-            var parameters = new OracleDynamicParameters(paramObject);
-            parameters.Add("o_cur", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("o_total", OracleDbType.Int32, ParameterDirection.Output);
+            var parameters = new OracleDynamicParameters();
+            parameters.Add("p_opciones_out", OracleDbType.RefCursor, ParameterDirection.Output);
+            
 
             var datos = await connection.QueryAsync<OpcionDTO>(
                 "APL_PKG_OPCIONES.listar",
@@ -59,7 +50,7 @@ namespace AppAPL_AccesoDatos.Repositorio
                 commandType: CommandType.StoredProcedure
             );
 
-            int total = parameters.Get<int>("o_total");
+            
 
             return datos;
         }

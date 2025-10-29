@@ -1,4 +1,5 @@
 ﻿using AppAPL.Dto.CatalogoTipo;
+using AppAPL.Dto.Grupo;
 using AppAPL.Dto.Opciones;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
@@ -24,52 +25,23 @@ namespace AppAPL.Api.Controllers
             return listaOpciones.ToList();
         }
 
-        [HttpGet("listarPorRol/{usuarioRol}")]
-        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(string usuarioRol)
+        [HttpGet("ListarOpcionesAutorizadasInternas/{idUsuario:int}")]
+        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(int idUsuario)
         {
-            var listaOpcionesPorRol = await servicio.ListarOpcionesPorRolAsync(usuarioRol);
+            var listaOpcionesPorRol = await servicio.ListarOpcionesAutorizadasInternas(idUsuario);
 
+            /*
             var grupos = (from filtrado in listaOpcionesPorRol
-                          select filtrado.IdCatalogo)
-             .Distinct();
+                          select filtrado.IdGrupo)
+             .Distinct();*/
 
+            var grupos = listaOpcionesPorRol
+                .Select(x => new GrupoDistinctDTO { IdGrupo = x.IdGrupo, Grupo = x.Grupo })
+                .DistinctBy(x => new { x.IdGrupo, x.Grupo }) // 👈 necesitas System.Linq (NET 6+)
+                .ToList();
 
-
-            // ----------------------- temporal 
             var listaConvertido = listaOpcionesPorRol.ToList();
 
-            var acuerdo = new OpcionJoinDTO()
-            {
-                IdOpcion = 0,
-                Opcion_Nombre = "Config.Acuerdo",
-                Opcion_Descripcion = "Acuerdo",
-                IdCatalogo = 21,
-                Vista = "/acuerdo/crearacuerdo",
-                Catalogo_Nombre = "Configuracion",
-                Adicional = "fas fa-cog",
-                IdEstado = 12
-            };
-
-            listaConvertido.Add(acuerdo);
-
-
-            var fondo = new OpcionJoinDTO()
-            {
-                IdOpcion = 0,
-                Opcion_Nombre = "Config.Fondo",
-                Opcion_Descripcion = "Fondo",
-                IdCatalogo = 21,
-                Vista = "/fondo/crearfondo",
-                Catalogo_Nombre = "Configuracion",
-                Adicional = "fas fa-cog",
-                IdEstado = 12
-            };
-
-            listaConvertido.Add(fondo);
-            
-
-
-            //------------------------------------------
 
             var grupoOpciones = new GrupoOpcionDTO()
             {
