@@ -55,7 +55,7 @@ INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdU
 VALUES ('Configuracion', 'fas fa-cog', '', 2, 1, TO_DATE('2022-08-08', 'YYYY-MM-DD'), NULL, NULL, 1, 'GRCONFIGURACION');
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
-VALUES ('Parametrización', 'fas fa-cog', '', 2, 1, TO_DATE('2022-08-08', 'YYYY-MM-DD'), NULL, NULL, 1, 'GRPARAMETRIZACION');
+VALUES ('Parametrizacion', 'fas fa-cog', '', 2, 1, TO_DATE('2022-08-08', 'YYYY-MM-DD'), NULL, NULL, 1, 'GRPARAMETRIZACION');
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Fondo', 'far fa-address-card', '', 2, 1, TO_DATE('2022-08-08', 'YYYY-MM-DD'), NULL, NULL, 1, 'GRFONDO');
@@ -64,7 +64,7 @@ INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdU
 VALUES ('Acuerdo', 'far fa-address-card', '', 2, 1, TO_DATE('2022-08-08', 'YYYY-MM-DD'), NULL, NULL, 1, 'GRACUERDO');
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
-VALUES ('Promoción', 'far fa-address-card', '', 2, 1, TO_DATE('2022-09-22', 'YYYY-MM-DD'), NULL, NULL, 1, 'GRPROMOCION');
+VALUES ('Promocion', 'far fa-address-card', '', 2, 1, TO_DATE('2022-09-22', 'YYYY-MM-DD'), NULL, NULL, 1, 'GRPROMOCION');
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Procesos', 'far fa-address-card', '', 2, 1, TO_DATE('2023-01-24', 'YYYY-MM-DD'), NULL, NULL, 1, 'GRPROCESOS');
@@ -89,10 +89,10 @@ VALUES ('Dólar', 'UDS$', 'DOL', 5, 1, TO_DATE('2023-02-23', 'YYYY-MM-DD'), NULL
 
 -- Tipo Login
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
-VALUES ('Autenticación Interna', '', '', 6, 1, TO_DATE('2023-01-25', 'YYYY-MM-DD'), NULL, NULL, 1, 'LOGININTERNO');
+VALUES ('Autenticacion Interna', '', '', 6, 1, TO_DATE('2023-01-25', 'YYYY-MM-DD'), NULL, NULL, 1, 'LOGININTERNO');
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
-VALUES ('Autenticación Corporativa', '', '', 6, 1, TO_DATE('2023-01-25', 'YYYY-MM-DD'), NULL, NULL, 1, 'LOGINCORPORATIVO');
+VALUES ('Autenticacion Corporativa', '', '', 6, 1, TO_DATE('2023-01-25', 'YYYY-MM-DD'), NULL, NULL, 1, 'LOGINCORPORATIVO');
 
 -- Botones
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
