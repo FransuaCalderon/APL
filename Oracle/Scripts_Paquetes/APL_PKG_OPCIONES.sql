@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE APL_PKG_OPCIONES AS
+create or replace PACKAGE APL_PKG_OPCIONES AS
   
   PROCEDURE crear(
     p_nombre                IN  VARCHAR2,
@@ -10,7 +10,7 @@ CREATE OR REPLACE PACKAGE APL_PKG_OPCIONES AS
     p_IdTipoServicio        IN  NUMBER,
     o_idopcion              OUT NUMBER
   );
-  
+
   PROCEDURE actualizar(
     p_idopcion              IN  NUMBER,
     p_nombre                IN  VARCHAR2,
@@ -21,32 +21,37 @@ CREATE OR REPLACE PACKAGE APL_PKG_OPCIONES AS
     p_IdTipoServicio        IN  NUMBER,
     p_idestado              IN  NUMBER
   );
-  
+
   PROCEDURE eliminar(
     p_idopcion IN NUMBER
   );
-  
+
   PROCEDURE listar(
     p_opciones_out OUT SYS_REFCURSOR
   );
   
+  PROCEDURE obtener_por_id(
+    p_idopcion IN NUMBER,
+    p_opciones_out OUT SYS_REFCURSOR
+  );
+
   PROCEDURE listarOpcionesAutorizadasInternas(
     p_idusuario    IN  NUMBER,
     p_opciones_out OUT SYS_REFCURSOR
   );
-  
+
   PROCEDURE listarOpcionesAutorizadasCorporativa(
     p_idusuario     IN  NUMBER,
     p_idopcionlista IN  CLOB,
     p_opciones_out  OUT SYS_REFCURSOR
   );
-  
+
 END APL_PKG_OPCIONES;
 
 
 ================================Body================
 
-CREATE OR REPLACE PACKAGE BODY APL_PKG_OPCIONES AS
+create or replace PACKAGE BODY APL_PKG_OPCIONES AS
 
   PROCEDURE crear(
     p_nombre                IN  VARCHAR2,
@@ -169,13 +174,24 @@ CREATE OR REPLACE PACKAGE BODY APL_PKG_OPCIONES AS
       INNER JOIN APL_TB_CATALOGO a ON o.idgrupo = a.idcatalogo
       INNER JOIN APL_TB_CATALOGO b ON o.idestado = b.idcatalogo
       INNER JOIN APL_TB_CATALOGO c ON o.idtiposervicio = c.idcatalogo
-      ORDER BY o.idgrupo, o.idopcion DESC;
-        
+      ORDER BY o.idgrupo, o.idopcion ASC;
+
   EXCEPTION
     WHEN OTHERS THEN
       RAISE;
   END listar;
-    
+  
+  PROCEDURE obtener_por_id (
+    p_idopcion IN NUMBER,
+    p_opciones_out OUT SYS_REFCURSOR
+  ) IS
+  BEGIN
+    OPEN p_opciones_out FOR
+      SELECT *
+        FROM APL_Tb_Opciones
+       WHERE idopcion = p_idopcion;
+  END obtener_por_id;
+
 
   PROCEDURE listarOpcionesAutorizadasInternas(
     p_idusuario    IN  NUMBER,
@@ -205,14 +221,14 @@ CREATE OR REPLACE PACKAGE BODY APL_PKG_OPCIONES AS
       INNER JOIN APL_TB_CATALOGO a ON o.idgrupo = a.idcatalogo
       INNER JOIN APL_TB_CATALOGO b ON o.idestado = b.idcatalogo
       INNER JOIN APL_TB_CATALOGO c ON o.idtiposervicio = c.idcatalogo
-      ORDER BY o.idgrupo, o.idopcion DESC;
+      ORDER BY o.idgrupo, o.idopcion ASC;
 
   EXCEPTION
     WHEN OTHERS THEN
       RAISE_APPLICATION_ERROR(-20207,
         'Error en listarOpcionesAutorizadasInternas: ' || SQLERRM);
   END listarOpcionesAutorizadasInternas;   
-  
+
 
   PROCEDURE listarOpcionesAutorizadasCorporativa(
     p_idusuario     IN  NUMBER,
@@ -220,6 +236,7 @@ CREATE OR REPLACE PACKAGE BODY APL_PKG_OPCIONES AS
     p_opciones_out  OUT SYS_REFCURSOR
   ) IS
   BEGIN
+     
     OPEN p_opciones_out FOR
       SELECT
         o.idopcion,
@@ -243,18 +260,19 @@ CREATE OR REPLACE PACKAGE BODY APL_PKG_OPCIONES AS
       INNER JOIN APL_TB_CATALOGO a ON o.idgrupo = a.idcatalogo
       INNER JOIN APL_TB_CATALOGO b ON o.idestado = b.idcatalogo
       INNER JOIN APL_TB_CATALOGO c ON o.idtiposervicio = c.idcatalogo
-      ORDER BY o.idgrupo, o.idopcion DESC;
+              JOIN (
+        SELECT jt.idopcion
+        FROM JSON_TABLE(
+               p_idopcionlista, '$[*]'
+               COLUMNS ( idopcion NUMBER PATH '$.idopcion' )
+             ) jt
+      ) d ON o.idopcion = d.idopcion
+      ORDER BY o.idgrupo, o.idopcion ASC;
 
   EXCEPTION
     WHEN OTHERS THEN
       RAISE_APPLICATION_ERROR(-20208,
         'Error en listarOpcionesAutorizadasCorporativa: ' || SQLERRM);
   END listarOpcionesAutorizadasCorporativa;
-  
+
 END APL_PKG_OPCIONES;
-
-
-===========================================================PRUEBAS
-VARIABLE rc REFCURSOR
-EXEC APL_PKG_OPCIONES.obtener_por_id(8, :rc);
-PRINT rc
