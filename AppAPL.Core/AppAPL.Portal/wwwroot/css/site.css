@@ -230,20 +230,19 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
 }
 
 /* Estilo para la opción activa del menú - SOLO NEGRITA */
+/* Estilo para la opción activa del menú - SOLO NEGRITA */
 #menu-dinamico a.active {
         background-color: transparent; /* Sin fondo */
-        font-weight: bold; /* Solo negrita */
+        font-weight: bold !important; /* <-- AÑADE ESTO */
         color: #212529 !important; /* Color normal del texto */
-       
-    /* padding: 0.25rem 0.5rem;  <-- ELIMINADA */
         border-radius: 0.25rem;
 }
 
 #menu-dinamico a:hover {
-        background-color: #f8f9fa;
+     background-color: #f8f9fa;
        
     /* padding: 0.25rem 0.5rem;  <-- ELIMINADA */
-        border-radius: 0.25rem;
+     border-radius: 0.25rem;
 }
 
 #menu-dinamico a {

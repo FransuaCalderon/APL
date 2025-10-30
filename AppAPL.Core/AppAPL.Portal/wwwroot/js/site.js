@@ -6,23 +6,35 @@ $(document).ready(function () {
     // function obtenerRutaReal(rutaApi) { ... }
     // Ya no son necesarios, usaremos la "vista" directamente.
 
-    // Función para resaltar la opción activa
+    // Función para resaltar la opción activa (CORREGIDA)
     function resaltarOpcionActiva() {
-        const rutaActual = window.location.pathname;
+        // Convertir la ruta actual a minúsculas para una comparación consistente
+        const rutaActual = window.location.pathname.toLowerCase();
 
         $('#menu-dinamico a').each(function () {
             const $link = $(this);
             const href = $link.attr('href');
 
-            // Comparar la ruta actual con el href del enlace
-            if (href && href !== '#' && (href === rutaActual || (href !== '/' && rutaActual.startsWith(href)))) {
-                $link.addClass('active');
-                // Expandir el grupo padre
-                $link.closest('.collapse').addClass('show');
-                $link.closest('.collapse').prev('button').attr('aria-expanded', 'true').removeClass('collapsed');
+            // Limpiar la clase 'active' de todos los enlaces primero
+            $link.removeClass('active');
+
+            if (href && href !== '#') {
+                // Convertir también el href a minúsculas
+                const hrefMinusculas = href.toLowerCase();
+
+                // Comparar la ruta actual con el href del enlace (ambos en minúsculas)
+                if (hrefMinusculas === rutaActual || (hrefMinusculas !== '/' && rutaActual.startsWith(hrefMinusculas))) {
+
+                    $link.addClass('active'); // <-- Aquí se aplica la clase
+
+                    // Expandir el grupo padre
+                    $link.closest('.collapse').addClass('show');
+                    $link.closest('.collapse').prev('button').attr('aria-expanded', 'true').removeClass('collapsed');
+                }
             }
         });
     }
+
 
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
