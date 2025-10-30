@@ -27,14 +27,7 @@ namespace AppAPL_AccesoDatos.Repositorio
             return opciones;
         }
 
-        public async Task<IEnumerable<OpcionDTO>> ListarAsync(
-            string? nombre = null,
-            int? idGrupo = null,
-            int? idEstado = null,
-            DateTime? creadoDesde = null,
-            DateTime? creadoHasta = null,
-            int pageNumber = 1,
-            int pageSize = 50)
+        public async Task<IEnumerable<OpcionDTO>> ListarAsync()
         {
             using var connection = factory.CreateOpenConnection();
 
@@ -112,7 +105,8 @@ namespace AppAPL_AccesoDatos.Repositorio
                 p_idgrupo = opcion.IdGrupo,
                 p_vista = opcion.Vista,
                 p_idusuariomodificacion = opcion.IdUsuarioModificacion,
-                p_idestado = opcion.IdEstado
+                p_idestado = opcion.IdEstado,
+                p_IdTipoServicio = opcion.IdTipoServicio
             };
 
             var parameters = new OracleDynamicParameters(paramObject);

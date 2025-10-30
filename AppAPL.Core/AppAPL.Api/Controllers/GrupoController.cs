@@ -33,7 +33,7 @@ namespace AppAPL.Api.Controllers
         {
 
             var listaCatalogo = await catalogoServicio.ListarAsync(nombre, idGrupo, idEstado, creadoDesde, creadoHasta, pageNumber, pageSize);
-            var listaOpciones = await opcionServicio.ListarAsync(nombre, idGrupo, idEstado, creadoDesde, creadoHasta, pageNumber, pageSize);
+            var listaOpciones = await opcionServicio.ListarAsync();
 
             var catalogoFiltrado = from filtrado in listaCatalogo
                         where filtrado.IdCatalogoTipo == IdCatalogoTipo

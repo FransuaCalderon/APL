@@ -14,10 +14,10 @@ namespace AppAPL.Dto.Opciones
         public int IdGrupo { get; set; }
         public string Vista { get; set; } = string.Empty;
         public int IdUsuarioCreacion { get; set; }
-        public int? IdUsuarioModificacion { get; set; }
-        public int IdEstado { get; set; }
         public DateTime FechaCreacion { get; set; }
+        public int? IdUsuarioModificacion { get; set; }
         public DateTime? FechaModificacion { get; set; }
+        public int IdEstado { get; set; }
         public int? IdTipoServicio { get; set; }
     }
 
@@ -29,10 +29,10 @@ namespace AppAPL.Dto.Opciones
         public int IdGrupo { get; set; }
         public string Vista { get; set; } = string.Empty;
         public int IdUsuarioCreacion { get; set; }
-        public int? IdUsuarioModificacion { get; set; }
-        public int IdEstado { get; set; }
         public DateTime FechaCreacion { get; set; }
+        public int? IdUsuarioModificacion { get; set; }
         public DateTime? FechaModificacion { get; set; }
+        public int IdEstado { get; set; }
         public int? IdTipoServicio { get; set; }
     }
 

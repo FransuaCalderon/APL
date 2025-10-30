@@ -11,16 +11,10 @@ namespace AppAPL.Api.Controllers
     public class OpcionesController(IOpcionServicio servicio, ILogger<OpcionesController> logger) : ControllerBase
     {
         [HttpGet("listar")]
-        public async Task<ActionResult<List<OpcionDTO>>> ObtenerTodos([FromQuery] string? nombre = null,
-         [FromQuery] int? idGrupo = null,
-          [FromQuery] int? idEstado = null,
-         [FromQuery] DateTime? creadoDesde = null,
-         [FromQuery] DateTime? creadoHasta = null,
-         [FromQuery] int pageNumber = 1,
-         [FromQuery] int pageSize = 50)
+        public async Task<ActionResult<List<OpcionDTO>>> ObtenerTodos()
         {
            
-            var listaOpciones = await servicio.ListarAsync(nombre, idGrupo, idEstado, creadoDesde, creadoHasta, pageNumber, pageSize);
+            var listaOpciones = await servicio.ListarAsync();
 
             return listaOpciones.ToList();
         }

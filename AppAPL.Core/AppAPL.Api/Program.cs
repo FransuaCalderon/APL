@@ -97,7 +97,8 @@ builder.Services.AddCors(options =>
 
 //habilitar middleware por archivo appsetting.sjon
 var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
-var EnableAprobacion = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAprobacion");
+var enableAprobacion = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAprobacion");
+var enableEmail = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableEmail");
 
 
 
@@ -140,9 +141,15 @@ if (enableAuditoria)
     app.UseMiddleware<AuditoriaMiddleware>();
 }
 
-if (EnableAprobacion)
+if (enableAprobacion)
 {
     app.UseMiddleware<AprobacionMiddleware>();
+}
+
+
+if (enableEmail)
+{
+    app.UseMiddleware<EmailMiddleware>();
 }
 
 app.MapControllers();

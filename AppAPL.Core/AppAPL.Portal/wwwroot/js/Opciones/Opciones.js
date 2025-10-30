@@ -66,20 +66,20 @@ $(document).ready(function () {
     $("#btnGuardarCambios").on("click", function (e) {
         e.preventDefault();
 
-        const id = $("#modal-idopcion").val();
+        const id = $("#modal-idOpcion").val();
         const isCrear = !id;
 
         const data = {
             nombre: $("#modal-nombre").val(),
             descripcion: $("#modal-descripcion").val(),
+            idgrupo: 11,
+            vista: "sin vista",
             idUsuarioCreacion: 1,
             fechaCreacion: new Date().toISOString(),
             idUsuarioModificacion: 1,
             fechaModificacion: new Date().toISOString(),
             idEstado: $("#modal-activo").is(":checked") ? 1 : 0,
-            idMarcaAbreviaturaAutomatica: 1,
-            idEtiqueta: $("#modal-etiqueta").val(),
-            idtiposervicio: 0
+            idtiposervicio: 18
         };
 
         if (isCrear) {
@@ -91,7 +91,7 @@ $(document).ready(function () {
             : `${window.apiBaseUrl}/api/Opciones/insertar`;
 
         const method = id ? "PUT" : "POST";
-
+        
         // ===== INICIO DE LA MODIFICACIÓN CON SWEETALERT2 =====
         $.ajax({
             url: url,
@@ -288,7 +288,7 @@ function crearListado(data) {
 
 function abrirModalEditar(id) {
     $('#formEditar')[0].reset();
-    $('#modal-idopcion').val(id); // Asegúrate que tu modal tenga un input oculto con id 'modal-idopcion'
+    $('#modal-idOpcion').val(id); // Asegúrate que tu modal tenga un input oculto con id 'modal-idOpcion'
 
     $('#editarModalLabel').text('Editar Opción');
     $('#btnGuardarCambios')
@@ -297,7 +297,7 @@ function abrirModalEditar(id) {
         .addClass('btn-primary');
 
     $.get(`${window.apiBaseUrl}/api/Opciones/obtener/${id}`, function (data) {
-        $("#modal-id").val(data.idopcion); // Esto parece repetido, 'modal-idopcion' ya se seteó
+        $("#modal-id").val(data.idopcion); // Esto parece repetido, 'modal-idOpcion' ya se seteó
         $("#modal-nombre").val(data.nombre);
         $("#modal-descripcion").val(data.descripcion);
         $("#modal-activo").prop("checked", data.idestado === 1);
@@ -313,7 +313,7 @@ function abrirModalEditar(id) {
 
 function abrirModalCrear() {
     $('#formEditar')[0].reset();
-    $('#modal-idopcion').val(''); // Limpia el ID para 'crear'
+    $('#modal-idOpcion').val(''); // Limpia el ID para 'crear'
 
     $('#editarModalLabel').text('Crear Nueva Opción');
     $('#btnGuardarCambios')
