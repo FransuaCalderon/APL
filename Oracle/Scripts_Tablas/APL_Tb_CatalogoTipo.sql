@@ -18,37 +18,38 @@ CREATE TABLE APL_Tb_CatalogoTipo(
 
 ====================INSERT=======================
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Estado', 'Estado de Regístros', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'ESTADOS');
+VALUES ('Estado', 'Estado de Regístros', 1, SYSDATE, NULL, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'ESTADOS');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Grupo', 'Grupo de Opciones de Navegacion', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'GRUPOOPCION');
+VALUES ('Grupo', 'Grupo de Opciones de Navegacion', 1, SYSDATE, NULL, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'GRUPOOPCION');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Tipo de Servicio', 'Tipo de Servicios o Modulos', 1, TO_DATE('2022-08-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOSERVICIO');
+VALUES ('Tipo de Servicio', 'Tipo de Servicios o Modulos', 1, SYSDATE, NULL, TO_DATE('2022-09-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOSERVICIO');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Pais', 'Paises', 1, TO_DATE('2024-10-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'PAISES');
+VALUES ('Pais', 'Paises', 1, SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'PAISES');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Moneda', 'Moneda', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'MONEDAS');
+VALUES ('Moneda', 'Moneda', 1, SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'MONEDAS');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Tipo de Autenticación', 'Tipo de Autenticación', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOAUTENTICACION');
+VALUES ('Tipo de Autenticación', 'Tipo de Autenticación', 1, SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOAUTENTICACION');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Controles de Interfaz', 'Controles de Interfaz de Usuario', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'CONTROLUI');
+VALUES ('Controles de Interfaz', 'Controles de Interfaz de Usuario', 1, SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'CONTROLUI');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Tipo de Eventos', 'Tipo de Eventos', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'EVENTOS');
+VALUES ('Tipo de Eventos', 'Tipo de Eventos', 1, SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'EVENTOS');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Entidad', 'Entidad que identifica la informacion', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'ENTIDAD');
+VALUES ('Entidad', 'Entidad que identifica la informacion', 1, SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'ENTIDAD');
 
 INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Tipo de Fondo', 'Tipo de Fondo', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOFONDO');
+VALUES ('Tipo de Fondo', 'Tipo de Fondo', 1, SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOFONDO');
 
 
  INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Indicador de Creacion', 'Indicador de Creacion', 1, TO_DATE('2023-02-08 10:51:49', 'YYYY-MM-DD HH24:MI:SS'), NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'INCRE');
+VALUES ('Indicador de Creacion', 'Indicador de Creacion', 1, SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'INCRE');
  
- 
+  INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
+VALUES ('Tipo de Proceso', 'Tipo de Proceso', 1,  SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOPROCESO');
