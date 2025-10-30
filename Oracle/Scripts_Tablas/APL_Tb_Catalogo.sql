@@ -85,7 +85,7 @@ VALUES ('Ecuador', 'EC', 'ECU', 4, 1, TO_DATE('2022-10-24', 'YYYY-MM-DD'), NULL,
 
 -- Moneda 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
-VALUES ('Dólar', 'UDS$', 'DOL', 5, 1, TO_DATE('2023-02-23', 'YYYY-MM-DD'), NULL, NULL, 1, 'DÓLAR');
+VALUES ('Dolar', 'UDS$', 'DOL', 5, 1, TO_DATE('2023-02-23', 'YYYY-MM-DD'), NULL, NULL, 1, 'DÓLAR');
 
 -- Tipo Login
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
