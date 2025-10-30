@@ -45,8 +45,8 @@ $(document).ready(function () {
 
             // 3. Limpiar también la fila marcada
             ultimaFilaModificada = null;
-            $('#tabla-curso tbody tr').removeClass('fila-seleccionada');
-            $('#tabla-curso tbody tr td').css('box-shadow', '');
+            // AHORA USA LA FUNCIÓN GLOBAL DE site.js
+            limpiarSeleccion('#tabla-curso');
         }
     });
     // ===== FIN DE LA IMPLEMENTACIÓN =====
@@ -114,10 +114,6 @@ $(document).ready(function () {
                     timer: 1500
                 });
 
-                // Si es creación, necesitamos obtener el ID del nuevo registro
-                // Si tu API devuelve el ID en la respuesta, úsalo así:
-                // ultimaFilaModificada = response.idopcion;
-                // Si no, mantén el ID actual para ediciones
                 if (!isCrear && id) {
                     ultimaFilaModificada = id;
                 }
@@ -141,36 +137,32 @@ $(document).ready(function () {
     });
 
     // ===================================================================
-    // ===== CÓDIGO PARA HOVER EN LA FILA =====
+    // ===== CÓDIGO PARA HOVER EN LA FILA (ELIMINADO) =====
+    // 'inicializarMarcadoFilas' de site.js se encarga de esto.
     // ===================================================================
-    // Cuando el mouse entra en el div de los botones...
-    $('#tabla').on('mouseenter', '.action-buttons', function () {
-        // ...busca la fila (tr) más cercana y agrégale nuestra clase.
-        $(this).closest('tr').addClass('fila-marcada');
-    });
-
-    // Cuando el mouse sale del div de los botones...
-    $('#tabla').on('mouseleave', '.action-buttons', function () {
-        // ...busca la fila (tr) y quítale la clase.
-        $(this).closest('tr').removeClass('fila-marcada');
-    });
 
     // ===================================================================
-    // ===== MARCAR FILA AL HACER CLIC EN EDITAR/ELIMINAR =====
+    // ===== MARCAR FILA AL HACER CLIC EN EDITAR/ELIMINAR (ACTUALIZADO) =====
     // ===================================================================
 
     // Cuando se hace clic en el botón de editar
-    $('#tabla').on('click', '.edit-btn', function () {
+    $('body').on('click', '.edit-btn', function (e) {
+        e.stopPropagation(); // Evita que se active el click de la fila
         const $fila = $(this).closest('tr');
         const id = $fila.find('td:first').text().trim();
-        marcarFilaPorId(id);
+        marcarFilaPorId('#tabla-curso', id); // Usa la función global
+        ultimaFilaModificada = id;
+        console.log('Botón editar clickeado, fila marcada:', id);
     });
 
     // Cuando se hace clic en el botón de eliminar
-    $('#tabla').on('click', '.delete-btn', function () {
+    $('body').on('click', '.delete-btn', function (e) {
+        e.stopPropagation(); // Evita que se active el click de la fila
         const $fila = $(this).closest('tr');
         const id = $fila.find('td:first').text().trim();
-        marcarFilaPorId(id);
+        marcarFilaPorId('#tabla-curso', id); // Usa la función global
+        ultimaFilaModificada = id;
+        console.log('Botón eliminar clickeado, fila marcada:', id);
     });
 
 }); // <-- FIN de $(document).ready
@@ -180,27 +172,10 @@ $(document).ready(function () {
 // ===== FUNCIONES GLOBALES =====
 // ===================================================================
 
-// Función para marcar una fila específica por ID
-function marcarFilaPorId(id) {
-    const colorSeleccionado = '255, 252, 127'; // Amarillo suave
-    const estiloSeleccionado = `inset 0 0 0 9999px rgba(${colorSeleccionado}, 0.4)`;
-
-    // Quita el marcado de todas las filas
-    $('#tabla-curso tbody tr').removeClass('fila-seleccionada');
-    $('#tabla-curso tbody tr td').css('box-shadow', '');
-
-    // Busca la fila con ese ID y márcala
-    $('#tabla-curso tbody tr').each(function () {
-        const filaId = $(this).find('td:first').text().trim();
-        if (filaId == id) {
-            $(this).addClass('fila-seleccionada');
-            $(this).children('td').css('box-shadow', estiloSeleccionado);
-
-            // Guarda el ID de la última fila modificada
-            ultimaFilaModificada = id;
-        }
-    });
-}
+// ===================================================================
+// ===== FUNCIÓN 'marcarFilaPorId' LOCAL (ELIMINADA) =====
+// Se usará la función global de 'site.js' en su lugar.
+// ===================================================================
 
 
 function crearListado(data) {
@@ -210,6 +185,7 @@ function crearListado(data) {
 
     var html = "";
     html += "<table id='tabla-curso' class='table table-striped display'>";
+    // NOTA: Ajusta tus <thead> si 'Tipo Servicio' debe ser visible en la tabla
     html += "  <thead><tr><th>ID</th><th>Nombre</th><th>Descripcion</th><th>Opciones</th></tr></thead>";
     html += "  <tbody>";
 
@@ -234,6 +210,8 @@ function crearListado(data) {
             html += "  <td>" + (c.idopcion ?? "") + "</td>";
             html += "  <td>" + (c.nombre ?? "") + "</td>";
             html += "  <td>" + (c.descripcion ?? "") + "</td>";
+            // Si agregas 'Tipo Servicio' a la tabla, iría aquí:
+            // html += "  <td>" + (c.tiposervicio ?? "") + "</td>";
             html += "  <td>" + optionsHtml + "</td>";
             html += "</tr>";
         }
@@ -252,6 +230,7 @@ function crearListado(data) {
             { targets: 0, width: "5%", className: "dt-left" },
             { targets: 3, width: "10%", className: "dt-center", orderable: false },
             { targets: 2, width: "60%" }
+            // Ajustar 'targets' si se agregan más columnas
         ],
         language: {
             decimal: "",
@@ -277,14 +256,22 @@ function crearListado(data) {
                 sortDescending: ": activar para ordenar la columna de manera descendente"
             }
         },
-        // ===== NUEVO: Callback cuando la tabla termina de dibujarse =====
+        // ===== ACTUALIZADO: Callback cuando la tabla termina de dibujarse =====
         drawCallback: function () {
             // Si hay una fila marcada anteriormente, volver a marcarla
             if (ultimaFilaModificada !== null) {
-                marcarFilaPorId(ultimaFilaModificada);
+                marcarFilaPorId('#tabla-curso', ultimaFilaModificada); // Usa la función global
             }
         }
     });
+
+    // ===================================================================
+    // ===== ¡AQUÍ ESTÁ LA LÓGICA QUE FALTABA PARA EL CLIC EN FILA! =====
+    // ===================================================================
+    console.log('Llamando a inicializarMarcadoFilas para Opciones');
+    inicializarMarcadoFilas('#tabla-curso');
+    // ===================================================================
+
 
     const addButtonHtml = `
         <button type="button" class="btn btn-primary ms-2" id="btnAgregarNuevo" title="Agregar Nuevo" style="height: 38px;">
@@ -301,7 +288,7 @@ function crearListado(data) {
 
 function abrirModalEditar(id) {
     $('#formEditar')[0].reset();
-    $('#modal-idopcion').val(id);
+    $('#modal-idopcion').val(id); // Asegúrate que tu modal tenga un input oculto con id 'modal-idopcion'
 
     $('#editarModalLabel').text('Editar Opción');
     $('#btnGuardarCambios')
@@ -310,11 +297,13 @@ function abrirModalEditar(id) {
         .addClass('btn-primary');
 
     $.get(`${window.apiBaseUrl}/api/Opciones/obtener/${id}`, function (data) {
-        $("#modal-id").val(data.idopcion);
+        $("#modal-id").val(data.idopcion); // Esto parece repetido, 'modal-idopcion' ya se seteó
         $("#modal-nombre").val(data.nombre);
         $("#modal-descripcion").val(data.descripcion);
         $("#modal-activo").prop("checked", data.idestado === 1);
         $("#modal-etiqueta").val(data.idetiqueta);
+        // Cargar el valor del combobox
+        $("#modal-tipo-servicio").val(data.idtiposervicio); // Asumiendo que el campo se llama 'idtiposervicio'
 
         var editarModal = new bootstrap.Modal(document.getElementById('editarModal'));
         editarModal.show();
@@ -324,13 +313,16 @@ function abrirModalEditar(id) {
 
 function abrirModalCrear() {
     $('#formEditar')[0].reset();
-    $('#modal-idopcion').val('');
+    $('#modal-idopcion').val(''); // Limpia el ID para 'crear'
 
     $('#editarModalLabel').text('Crear Nueva Opción');
     $('#btnGuardarCambios')
         .html('<i class="fa-solid fa-plus me-2"></i> Crear')
         .removeClass('btn-primary')
         .addClass('btn-success');
+
+    // Opcional: setear un valor default para el combobox
+    $("#modal-tipo-servicio").val("18"); // Por ejemplo, default a "Modulo Administrador"
 
     var crearModal = new bootstrap.Modal(document.getElementById('editarModal'));
     crearModal.show();
@@ -367,8 +359,9 @@ function confirmDelete(id) {
                     });
 
                     // Limpia la referencia de la última fila modificada
-                    // ya que esta fila ya no existe
                     ultimaFilaModificada = null;
+                    // Llama a la función global para limpiar visualmente
+                    limpiarSeleccion('#tabla-curso');
 
                     $.get(`${window.apiBaseUrl}/api/Opciones/listar`, function (data) {
                         crearListado(data);
