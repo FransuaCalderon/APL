@@ -37,9 +37,17 @@
                 <form id="formEditar">
                     <input type="hidden" id="modal-idOpcion" name="idOpcion">
 
-                    <div class="mb-3">
+                    @*<div class="mb-3">
                         <label for="modal-id" class="form-label fw-bold">ID</label>
                         <input type="text" class="form-control" id="modal-id" name="idCatalogo" disabled>
+                    </div>*@
+
+                    <div class="mb-3">
+                        <label for="modal-tipo-servicio" class="form-label fw-bold">Tipo Servicio <span class="text-danger">*</span></label>
+                        <select class="form-select" id="modal-tipo-servicio" name="idTipoServicio">
+                            <option value="18">Modulo Administrador del Sistemas</option>
+                            <option value="19">Modulo APL</option>
+                        </select>
                     </div>
 
                     <div class="mb-3">
