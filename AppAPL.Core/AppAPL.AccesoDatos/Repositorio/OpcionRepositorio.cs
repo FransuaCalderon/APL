@@ -84,7 +84,8 @@ namespace AppAPL_AccesoDatos.Repositorio
                 p_idgrupo = opcion.IdGrupo,
                 p_vista = opcion.Vista,
                 p_idusuariocreacion = opcion.IdUsuarioCreacion,
-                p_idestado = opcion.IdEstado
+                p_idestado = opcion.IdEstado,
+                p_IdTipoServicio = opcion.IdTipoServicio
             };
 
             var parameters = new OracleDynamicParameters(paramObject);

@@ -66,7 +66,7 @@ $(document).ready(function () {
     $("#btnGuardarCambios").on("click", function (e) {
         e.preventDefault();
 
-        const id = $("#modal-idcatalogo").val();
+        const id = $("#modal-idCatalogo").val();
         const isCrear = !id;
 
         const data = {
@@ -268,7 +268,7 @@ function crearListado(data) {
 
 function abrirModalEditar(id) {
     $('#formEditar')[0].reset();
-    $('#modal-id').val(id);
+    $('#modal-idCatalogo').val(id);
     $('#editarModalLabel').text('Editar Catálogo');
     $('#btnGuardarCambios')
         .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')

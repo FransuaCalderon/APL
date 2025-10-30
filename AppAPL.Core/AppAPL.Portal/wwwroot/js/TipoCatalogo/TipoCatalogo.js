@@ -67,7 +67,7 @@ $(document).ready(function () {
     $("#btnGuardarCambios").on("click", function (e) {
         e.preventDefault();
 
-        const id = $("#modal-idcatalogotipo").val();
+        const id = $("#modal-idCatalogoTipo").val();
         const isCrear = !id;
 
         const data = {
@@ -181,6 +181,7 @@ function crearListado(data) {
         tabla.destroy();
     }
 
+    console.log("data de tipo catalogo", data);
     var html = "";
     html += "<table id='tabla-curso' class='table table-striped display'>";
     html += "  <thead><tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Opciones</th></tr></thead>";
@@ -276,7 +277,7 @@ function crearListado(data) {
 
 function abrirModalEditar(id) {
     $('#formEditar')[0].reset();
-    $('#modal-idcatalogotipo').val(id);
+    $('#modal-idCatalogoTipo').val(id);
     $('#editarModalLabel').text('Editar Tipo de Catálogo');
     $('#btnGuardarCambios')
         .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')

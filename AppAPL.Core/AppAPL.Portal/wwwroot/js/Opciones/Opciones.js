@@ -78,7 +78,8 @@ $(document).ready(function () {
             fechaModificacion: new Date().toISOString(),
             idEstado: $("#modal-activo").is(":checked") ? 1 : 0,
             idMarcaAbreviaturaAutomatica: 1,
-            idEtiqueta: $("#modal-etiqueta").val()
+            idEtiqueta: $("#modal-etiqueta").val(),
+            idtiposervicio: 0
         };
 
         if (isCrear) {
