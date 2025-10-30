@@ -61,7 +61,7 @@ namespace AppAPL_AccesoDatos.Repositorio
 
             var paramObject = new { p_idopcion = idOpcion };
             var parameters = new OracleDynamicParameters(paramObject);
-            parameters.Add("o_cur", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_opciones_out", OracleDbType.RefCursor, ParameterDirection.Output);
 
             var datos = await connection.QueryAsync<OpcionDTO>(
                 "APL_PKG_OPCIONES.obtener_por_id",
