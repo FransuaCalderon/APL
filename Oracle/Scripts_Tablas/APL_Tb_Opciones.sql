@@ -21,10 +21,10 @@ CREATE TABLE APL_Tb_Opciones  (
 --id ->18
 
 INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
-VALUES ('Tipo Catalogo', '.', 11, '/TipoCatalogo/Index', 1, SYSDATE, NULL, NULL, 1, 18);
+VALUES ('Tipo Catalogo', '.', 11, '/CatalogoTipo/Index', 1, SYSDATE, NULL, NULL, 1, 18);
 
 INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
-VALUES ('Catalogo', '.', 11, '/Catalogos/Index', 1, SYSDATE, NULL, NULL, 1, 18);
+VALUES ('Catalogo', '.', 11, '/Catalogo/Index', 1, SYSDATE, NULL, NULL, 1, 18);
 
 INSERT INTO APL_TB_OPCIONES (Nombre, Descripcion, IdGrupo, Vista, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdTipoServicio) 
 VALUES ('Opciones', '.', 11, '/Opciones/Index', 1, SYSDATE, NULL, NULL, 1, 18);

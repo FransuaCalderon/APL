@@ -1,19 +1,10 @@
 ﻿// wwwroot/js/site.js
 $(document).ready(function () {
-    // Mapeo de rutas de la API a rutas reales de MVC
-    const rutasMapeo = {
-        '/Configuracion/TipoCatalogo': '/CatalogoTipo/Index',
-        '/Configuracion/Catalogos': '/Catalogo/Index',
-        '/Configuracion/Opciones': '/Opciones/Index',
-        '/Configuracion/Pais': '/Pais/Index',
-        '/Configuracion/EstructuraPais': '/EstructuraPais/Index',
-        '/Configuracion/DivisionPolitica': '/DivisionPolitica/Index'
-    };
 
-    // Función para convertir ruta de API a ruta real
-    function obtenerRutaReal(rutaApi) {
-        return rutasMapeo[rutaApi] || rutaApi || '#';
-    }
+    // ----- ELIMINADO -----
+    // const rutasMapeo = { ... };
+    // function obtenerRutaReal(rutaApi) { ... }
+    // Ya no son necesarios, usaremos la "vista" directamente.
 
     // Función para resaltar la opción activa
     function resaltarOpcionActiva() {
@@ -24,7 +15,7 @@ $(document).ready(function () {
             const href = $link.attr('href');
 
             // Comparar la ruta actual con el href del enlace
-            if (href && href !== '#' && (href === rutaActual || rutaActual.startsWith(href))) {
+            if (href && href !== '#' && (href === rutaActual || (href !== '/' && rutaActual.startsWith(href)))) {
                 $link.addClass('active');
                 // Expandir el grupo padre
                 $link.closest('.collapse').addClass('show');
@@ -44,7 +35,7 @@ $(document).ready(function () {
             url: `${apiBaseUrl}/api/Opciones/ListarOpcionesAutorizadasInternas/${idUsuario}`,
             method: "GET",
             headers: {
-               
+                // Tus headers
                 "idopcion": "1",
                 "usuario": "admin"
             },
@@ -54,78 +45,76 @@ $(document).ready(function () {
                 const $menu = $("#menu-dinamico");
                 $menu.empty(); // Limpiar menú existente
 
-                // Agrupar opciones por idcatalogo
-                const gruposAgrupados = {};
+                // ----- INICIO DE LÓGICA MODIFICADA -----
 
-                data.opciones.forEach(opcion => {
-                    const idcatalogo = opcion.idcatalogo;
+                // 1. Obtener las listas principales del JSON
+                const grupos = data.grupos;
+                const todasLasOpciones = data.opciones;
 
-                    if (!gruposAgrupados[idcatalogo]) {
-                        gruposAgrupados[idcatalogo] = {
-                            catalogo_nombre: opcion.catalogo_nombre,
-                            adicional: opcion.adicional, // Icono
-                            opciones: []
-                        };
-                    }
+                // 2. Iterar sobre la lista de GRUPOS para crear las secciones
+                grupos.forEach(grupo => {
+                    const idGrupo = grupo.idgrupo;
+                    const nombreGrupo = grupo.grupo;
+                    const collapseId = `collapse-${idGrupo}`;
 
-                    gruposAgrupados[idcatalogo].opciones.push(opcion);
-                });
-
-                // Crear el menú por cada grupo
-                Object.keys(gruposAgrupados).forEach((idcatalogo, index) => {
-                    const grupo = gruposAgrupados[idcatalogo];
-                    const collapseId = `collapse-${idcatalogo}`;
-                    //console.log("grupoo ", grupo);
-                    // Crear el botón del catálogo con icono
+                    // Crear el botón del grupo
+                    // NOTA: Tu nueva API no parece incluir un campo para ícono (como 'adicional' antes).
+                    // Si lo necesitas, debes agregarlo a la respuesta de 'grupos' en tu API.
+                    // Por ahora, lo creo sin ícono.
                     const $button = $(`
-                    <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                            data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false">
-                        <i class="${grupo.adicional} me-2"></i>
-                        ${grupo.catalogo_nombre}
-                    </button>
-                `);
+                        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+                                data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false">
+                            ${nombreGrupo}
+                        </button>
+                    `);
 
                     // Crear la lista de opciones (subopciones)
                     const $ulOpciones = $('<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"></ul>');
 
-                    // Ordenar opciones por idopcion (opcional)
-                    grupo.opciones.sort((a, b) => a.idopcion - b.idopcion);
+                    // 3. Filtrar las opciones que pertenecen a ESTE grupo
+                    const opcionesDelGrupo = todasLasOpciones.filter(opcion => opcion.idgrupo === idGrupo);
 
-                    grupo.opciones.forEach(opcion => {
-                        // Convertir la ruta de la API a la ruta real del controlador
-                        const rutaReal = obtenerRutaReal(opcion.vista);
+                    // 4. Ordenar y agregar cada opción a la lista
+                    opcionesDelGrupo.sort((a, b) => a.idopcion - b.idopcion); // Ordenar por idopcion
+
+                    opcionesDelGrupo.forEach(opcion => {
+                        // Usar la ruta 'vista' directamente
+                        const rutaReal = opcion.vista || '#';
+                        const nombreOpcion = opcion.nombre; // Campo 'nombre' de la nueva API
 
                         const $li = $(`
-                        <li>
-                            <a href="${rutaReal}"
-                               class="link-body-emphasis d-inline-flex text-decoration-none rounded"
-                               data-id-opcion="${opcion.idopcion}"
-                               data-ruta-original="${opcion.vista}">
-                               ${opcion.opcion_nombre}
-                            </a>
-                        </li>
-                    `);
+                            <li>
+                                <a href="${rutaReal}"
+                                   class="link-body-emphasis d-inline-flex text-decoration-none rounded"
+                                   data-id-opcion="${opcion.idopcion}"
+                                   data-ruta-original="${opcion.vista}">
+                                   ${nombreOpcion}
+                                </a>
+                            </li>
+                        `);
                         $ulOpciones.append($li);
                     });
 
-                    // Crear el contenedor colapsable
+                    // 5. Crear el contenedor colapsable
                     const $collapseDiv = $(`
-                    <div class="collapse" id="${collapseId}"></div>
-                `).append($ulOpciones);
+                        <div class="collapse" id="${collapseId}"></div>
+                    `).append($ulOpciones);
 
-                    // Agrupar todo dentro del <li>
-                    const $liCatalogo = $('<li class="mb-1"></li>')
+                    // 6. Agrupar todo dentro del <li> principal
+                    const $liGrupo = $('<li class="mb-1"></li>')
                         .append($button)
                         .append($collapseDiv);
 
-                    // Agregarlo al menú principal
-                    $menu.append($liCatalogo);
+                    // 7. Agregarlo al menú principal
+                    $menu.append($liGrupo);
                 });
+
+                // ----- FIN DE LÓGICA MODIFICADA -----
 
                 // Resaltar la opción activa después de cargar el menú
                 resaltarOpcionActiva();
 
-                console.log("Menú cargado exitosamente");
+                console.log("Menú cargado exitosamente con nueva estructura");
             },
             error: function (xhr, status, error) {
                 console.error("Error al obtener el menú:", error);
