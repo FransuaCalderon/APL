@@ -12,12 +12,12 @@ namespace AppAPL.Api.Controllers
         {
             var datos = new Dictionary<string, string>
                     {
-                    { "Nombre", "Manuel" },
+                    { "Nombre", "Jean" },
                     { "FechaRegistro", DateTime.Now.ToString("dd/MM/yyyy") }
                     };
 
             await servicio.SendEmailAsync(
-            to: "destinatario@correo.com",
+            to: "calderonfransua@gmail.com",
             subject: "Bienvenido a Mi Aplicación ",
             templateName: "CorreoBienvenida.html",
             placeholders: datos
