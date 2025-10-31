@@ -175,9 +175,16 @@ $(document).ready(function () {
 // ===================================================================
 // ===== NUEVA FUNCIÓN: Cargar Tipos de Servicio =====
 // ===================================================================
+// ===================================================================
+// ===== NUEVA FUNCIÓN: Cargar Tipos de Servicio =====
+// ===================================================================
 function cargarTiposServicio(callback) {
+    // Definimos la etiqueta que quieres enviar
+    const etiqueta = "TIPOSERVICIO";
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Opciones/ConsultarComboTipoServicio`,
+        // 1. URL actualizada para incluir la etiqueta en la ruta
+        url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`,
         method: "GET",
         headers: {
             "idopcion": "1",
@@ -194,8 +201,9 @@ function cargarTiposServicio(callback) {
                 data.forEach(function (item) {
                     $("#modal-tipo-servicio").append(
                         $('<option></option>')
-                            .val(item.id)
-                            .text(item.nombre)
+                            // 2. Nombres de propiedades actualizados según tu imagen
+                            .val(item.idcatalogo)
+                            .text(item.nombre_catalogo)
                     );
                 });
             }
