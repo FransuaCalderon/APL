@@ -10,7 +10,7 @@ namespace AppAPL.Api.Controllers
         [HttpGet("/enviar-correo")]
         public async Task<ActionResult> Enviar()
         {
-            var destinatarios = new List<string> { "juanzoller95@gmail.com", "cliente2@gmail.com" };
+            var destinatarios = new List<string> { "cliente1@gmail.com", "cliente2@gmail.com" };
             var copias = new List<string> { "jefe@miempresa.com" };
             var copiasOcultas = new List<string> { "auditoria@miempresa.com" };
 

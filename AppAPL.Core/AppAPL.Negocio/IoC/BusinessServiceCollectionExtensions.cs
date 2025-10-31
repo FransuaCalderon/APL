@@ -16,6 +16,7 @@ namespace AppAPL.Negocio.IoC
             services.AddScoped<IFondoServicio, FondoServicio>();
             services.AddScoped<ILogServicio, LogServicio>();
             services.AddScoped<IEmailServicio, EmailServicio>();
+            services.AddScoped<IProveedorServicio, ProveedorServicio>();
             return services;
         }
     }
