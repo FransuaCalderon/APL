@@ -79,7 +79,7 @@ $(document).ready(function () {
             idUsuarioModificacion: 1,
             fechaModificacion: new Date().toISOString(),
             idEstado: $("#modal-activo").is(":checked") ? 1 : 0,
-            idtiposervicio: 18
+            idtiposervicio: parseInt($("#modal-tipo-servicio").val()) // Obtener el valor seleccionado
         };
 
         if (isCrear) {
@@ -91,7 +91,7 @@ $(document).ready(function () {
             : `${window.apiBaseUrl}/api/Opciones/insertar`;
 
         const method = id ? "PUT" : "POST";
-        
+
         // ===== INICIO DE LA MODIFICACIÓN CON SWEETALERT2 =====
         $.ajax({
             url: url,
@@ -173,9 +173,48 @@ $(document).ready(function () {
 // ===================================================================
 
 // ===================================================================
-// ===== FUNCIÓN 'marcarFilaPorId' LOCAL (ELIMINADA) =====
-// Se usará la función global de 'site.js' en su lugar.
+// ===== NUEVA FUNCIÓN: Cargar Tipos de Servicio =====
 // ===================================================================
+function cargarTiposServicio(callback) {
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Catalogo/ConsultarComboTipoServicio`,
+        method: "GET",
+        headers: {
+            "idopcion": "1",
+            "usuario": "admin"
+        },
+        success: function (data) {
+            console.log("Tipos de servicio cargados:", data);
+
+            // Limpiar el select
+            $("#modal-tipo-servicio").empty();
+
+            // Agregar las opciones dinámicamente
+            if (data && data.length > 0) {
+                data.forEach(function (item) {
+                    $("#modal-tipo-servicio").append(
+                        $('<option></option>')
+                            .val(item.id)
+                            .text(item.nombre)
+                    );
+                });
+            }
+
+            // Ejecutar callback si existe
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al cargar tipos de servicio:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar los tipos de servicio'
+            });
+        }
+    });
+}
 
 
 function crearListado(data) {
@@ -288,7 +327,7 @@ function crearListado(data) {
 
 function abrirModalEditar(id) {
     $('#formEditar')[0].reset();
-    $('#modal-idOpcion').val(id); // Asegúrate que tu modal tenga un input oculto con id 'modal-idOpcion'
+    $('#modal-idOpcion').val(id);
 
     $('#editarModalLabel').text('Editar Opción');
     $('#btnGuardarCambios')
@@ -296,17 +335,21 @@ function abrirModalEditar(id) {
         .removeClass('btn-success')
         .addClass('btn-primary');
 
-    $.get(`${window.apiBaseUrl}/api/Opciones/obtener/${id}`, function (data) {
-        $("#modal-id").val(data.idopcion); // Esto parece repetido, 'modal-idOpcion' ya se seteó
-        $("#modal-nombre").val(data.nombre);
-        $("#modal-descripcion").val(data.descripcion);
-        $("#modal-activo").prop("checked", data.idestado === 1);
-        $("#modal-etiqueta").val(data.idetiqueta);
-        // Cargar el valor del combobox
-        $("#modal-tipo-servicio").val(data.idtiposervicio); // Asumiendo que el campo se llama 'idtiposervicio'
+    // Primero cargar los tipos de servicio, luego obtener los datos de la opción
+    cargarTiposServicio(function () {
+        $.get(`${window.apiBaseUrl}/api/Opciones/obtener/${id}`, function (data) {
+            $("#modal-id").val(data.idopcion);
+            $("#modal-nombre").val(data.nombre);
+            $("#modal-descripcion").val(data.descripcion);
+            $("#modal-activo").prop("checked", data.idestado === 1);
+            $("#modal-etiqueta").val(data.idetiqueta);
 
-        var editarModal = new bootstrap.Modal(document.getElementById('editarModal'));
-        editarModal.show();
+            // Seleccionar el tipo de servicio correspondiente
+            $("#modal-tipo-servicio").val(data.idtiposervicio);
+
+            var editarModal = new bootstrap.Modal(document.getElementById('editarModal'));
+            editarModal.show();
+        });
     });
 }
 
@@ -321,11 +364,14 @@ function abrirModalCrear() {
         .removeClass('btn-primary')
         .addClass('btn-success');
 
-    // Opcional: setear un valor default para el combobox
-    $("#modal-tipo-servicio").val("18"); // Por ejemplo, default a "Modulo Administrador"
+    // Cargar los tipos de servicio y luego mostrar el modal
+    cargarTiposServicio(function () {
+        // Opcional: setear un valor default después de cargar
+        // $("#modal-tipo-servicio").val($("#modal-tipo-servicio option:first").val());
 
-    var crearModal = new bootstrap.Modal(document.getElementById('editarModal'));
-    crearModal.show();
+        var crearModal = new bootstrap.Modal(document.getElementById('editarModal'));
+        crearModal.show();
+    });
 }
 
 
