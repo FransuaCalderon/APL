@@ -36,5 +36,10 @@ namespace AppAPL.Dto.Opciones
         public int? IdTipoServicio { get; set; }
     }
 
-    
+    public class ComboTipoServicioDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
 }

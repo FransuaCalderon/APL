@@ -46,6 +46,13 @@ namespace AppAPL.Api.Controllers
             return grupoOpciones;
         }
 
+        [HttpGet("ConsultarComboTipoServicio")]
+        public async Task<ActionResult<List<ComboTipoServicioDTO>>> ConsultarComboTipoServicio()
+        {
+            var listaCombo = await servicio.ConsultarComboTipoServicio();
+            return listaCombo.ToList();
+        }
+
         [HttpGet("obtener/{id:int}")]
         public async Task<ActionResult<OpcionDTO>> ObtenerPorId(int id)
         {

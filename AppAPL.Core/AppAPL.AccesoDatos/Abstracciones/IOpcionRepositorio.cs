@@ -1,4 +1,5 @@
-﻿using AppAPL.Dto.Opciones;
+﻿using AppAPL.Dto.Catalogo;
+using AppAPL.Dto.Opciones;
 
 namespace AppAPL.AccesoDatos.Abstracciones
 {
@@ -10,5 +11,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<OpcionDTO>> ListarAsync();
         Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario);
         Task<OpcionDTO?> ObtenerPorIdAsync(int idOpcion);
+        Task<IEnumerable<ComboTipoServicioDTO>> ConsultarComboTipoServicio();
     }
 }

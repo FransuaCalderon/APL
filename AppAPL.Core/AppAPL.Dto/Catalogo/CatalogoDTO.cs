@@ -36,9 +36,5 @@ namespace AppAPL.Dto.Catalogo
         public string? IdEtiqueta { get; set; }
     }
 
-    public class CatalogoComboDTO
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; }
-    }
+    
 }

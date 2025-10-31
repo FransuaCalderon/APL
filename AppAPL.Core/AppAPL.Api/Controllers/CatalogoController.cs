@@ -33,12 +33,7 @@ namespace AppAPL.Api.Controllers
             return item;
         }
 
-        [HttpGet("ConsultarComboTipoServicio")]
-        public async Task<ActionResult<List<CatalogoComboDTO>>> ConsultarComboTipoServicio()
-        {
-            var listaCombo = await servicio.ConsultarComboTipoServicio();
-            return listaCombo.ToList();
-        }
+        
 
         [HttpPost("insertar")]
         public async Task<ActionResult> Insertar(CrearActualizarCatalogoRequest catalogoDTO)

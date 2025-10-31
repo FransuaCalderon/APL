@@ -24,6 +24,7 @@ namespace AppAPL.AccesoDatos.IoC
             
             services.AddScoped<IFondoRepositorio, FondoRepositorio>();
             services.AddScoped<ILogRepositorio, LogRepositorio>();
+            services.AddScoped<IEmailRepositorio, EmailRepositorio>();
             return services;
         }
     }

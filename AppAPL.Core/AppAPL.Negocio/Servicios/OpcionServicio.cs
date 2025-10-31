@@ -23,5 +23,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario)
             => repo.ListarOpcionesAutorizadasInternas(idUsuario);
+
+        public Task<IEnumerable<ComboTipoServicioDTO>> ConsultarComboTipoServicio()
+            => repo.ConsultarComboTipoServicio();
     }
 }

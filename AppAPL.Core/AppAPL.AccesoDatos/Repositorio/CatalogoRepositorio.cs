@@ -52,24 +52,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
-        public async Task<IEnumerable<CatalogoComboDTO>> ConsultarComboTipoServicio()
-        {
-            using var connection = factory.CreateOpenConnection();
-
-
-            var parameters = new OracleDynamicParameters();
-            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
-           
-
-            var datos = await connection.QueryAsync<CatalogoComboDTO>(
-                "Apl_Sp_ComboTipoServicio",
-                parameters,
-                commandType: CommandType.StoredProcedure
-            );
-
-
-            return datos;
-        }
+        
 
         public async Task<CatalogoDTO?> ObtenerPorIdAsync(int idCatalogo)
         {

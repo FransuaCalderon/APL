@@ -1,10 +1,11 @@
 ﻿
+using System.Data;
 using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto.Catalogo;
 using AppAPL.Dto.Opciones;
 using Dapper;
 using Oracle.ManagedDataAccess.Client;
-using System.Data;
 
 namespace AppAPL_AccesoDatos.Repositorio
 {
@@ -25,6 +26,25 @@ namespace AppAPL_AccesoDatos.Repositorio
             );
 
             return opciones;
+        }
+
+        public async Task<IEnumerable<ComboTipoServicioDTO>> ConsultarComboTipoServicio()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            var parameters = new OracleDynamicParameters();
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
+            var datos = await connection.QueryAsync<ComboTipoServicioDTO>(
+                "Apl_Sp_ComboTipoServicio",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+
+            return datos;
         }
 
         public async Task<IEnumerable<OpcionDTO>> ListarAsync()
