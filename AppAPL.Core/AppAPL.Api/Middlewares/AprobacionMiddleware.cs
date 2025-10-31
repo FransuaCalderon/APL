@@ -1,5 +1,7 @@
-﻿using AppAPL.Api.Attributes;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.IO;
+using AppAPL.Api.Attributes;
+using AppAPL.Negocio.Abstracciones;
 
 namespace AppAPL.Api.Middlewares
 {
@@ -7,39 +9,93 @@ namespace AppAPL.Api.Middlewares
     {
         public async Task InvokeAsync(HttpContext context)
         {
-            
+            var metodo = context.Request.Method;
+            var path = context.Request.Path;
+            var processId = Thread.CurrentThread.ManagedThreadId;
+
+
             // Obtenemos el endpoint actual (la acción del controlador)
             var endpoint = context.GetEndpoint();
 
             // Buscamos el atributo personalizado
             var tieneAtributo = endpoint?.Metadata.GetMetadata<AprobacionAttribute>() != null;
 
-            if (tieneAtributo)
-            {
-                // 👇 Aquí pones la lógica que debe ejecutarse solo en controladores con el atributo
-                logger.LogInformation("🟢 Ejecutando auditoría en endpoint: {Ruta}", context.Request.Path);
+            // validamos si el endpoint tiene el atributo de aprobacion, si no tiene el atributo, salimos del middleware y no ejecutamos aprobacion ni envio de mail
 
-                // Aquí puedes hacer algo antes del siguiente middleware
-                // (por ejemplo: validar headers, guardar logs, etc.)
-            }
-            else
+            if (!tieneAtributo)
             {
                 await next(context);
                 return;
             }
 
-                var processId = Thread.CurrentThread.ManagedThreadId;
+            logger.LogInformation("🟢 Ejecutando auditoría en endpoint: {Ruta}", context.Request.Path);
+
+            
             logger.LogInformation($"------------------INICIANDO MIDDLEWARE DE APROBACION [{processId}]----------------");
 
             await next(context);
 
-            if (tieneAtributo && context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
+            int status = context.Response.StatusCode;
+
+            bool esExitoso = status >= 200 && status < 300;
+
+
+            logger.LogInformation($"Codigo de estado HTTP: {status}");
+            logger.LogInformation("Request => {Metodo} {Path}", metodo, path);
+
+
+
+            if (esExitoso)
             {
-                // Aquí puedes ejecutar algo después del pipeline, si lo deseas
-                logger.LogInformation("🔵 Finalizó auditoría en: {Ruta}", context.Request.Path);
+                //aqui aplicar la logica si la respuesta fuera todo ok en rango de 200
+                logger.LogInformation($"Request exitoso: {status}");
+
+
+                //agregar aqui servicio y la logica para grabar en la tabla de aprobador y aprobaciones
+
+
+
+                //logica para enviar correo electronico
+                await this.EnviarCorreo();
+            }
+            else
+            {
+                logger.LogError($"Request con error: {status}");
             }
 
+            logger.LogInformation("🔵 Finalizó auditoría en: {Ruta}", context.Request.Path);
             logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE APROBACION [{processId}] ------------------");
+        }
+
+
+        private async Task EnviarCorreo()
+        {
+            var destinatarios = new List<string> { "pruebasdanny95@gmail.com", "cliente2@gmail.com" };
+            var copias = new List<string> { "jefe@miempresa.com" };
+            var copiasOcultas = new List<string> { "auditoria@miempresa.com" };
+
+
+            var datos = new Dictionary<string, string>
+                    {
+                    { "Nombre", "Aprobacion Middleware" },
+                    { "FechaRegistro", DateTime.Now.ToString("dd/MM/yyyy") }
+                    };
+
+
+            using var scope = serviceProvider.CreateScope();
+            var emailServicio = scope.ServiceProvider.GetRequiredService<IEmailServicio>();
+
+
+            await emailServicio.SendEmailAsync(
+            toList: destinatarios,
+            subject: "Bienvenido a Mi Aplicación ",
+            templateName: "CorreoBienvenida.html",
+            placeholders: datos,
+            ccList: copias,
+            bccList: copiasOcultas
+            );
+
+            logger.LogInformation("Correo de Aprobacion enviado correctamente");
         }
     }
 }

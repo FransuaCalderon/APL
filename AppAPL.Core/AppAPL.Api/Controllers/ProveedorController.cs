@@ -1,4 +1,5 @@
-﻿using AppAPL.Dto.Proveedor;
+﻿using AppAPL.Api.Attributes;
+using AppAPL.Dto.Proveedor;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace AppAPL.Api.Controllers
     public class ProveedorController(IProveedorServicio servicio, ILogger<ProveedorController> logger) : ControllerBase
     {
         [HttpGet("listar")]
+        
         public async Task<ActionResult<List<ProveedorDTO>>> listar()
         {
             var listaProveedores = await servicio.ListarAsync();

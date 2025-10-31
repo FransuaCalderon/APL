@@ -7,21 +7,28 @@ namespace AppAPL.Api.Middlewares
     {
         public async Task InvokeAsync(HttpContext context)
         {
-            var idopcionHeader = context.Request.Headers["idopcion"].FirstOrDefault();
-            var usuario = context.Request.Headers["usuario"].FirstOrDefault();
+            //var idopcionHeader = context.Request.Headers["idopcion"].FirstOrDefault();
+            //var usuario = context.Request.Headers["usuario"].FirstOrDefault();
+
+            var idopcionHeader = context.Request.Headers.TryGetValue("idopcion", out var h1) ? h1.ToString() : "0";
+            var usuario = context.Request.Headers.TryGetValue("usuario", out var h2) ? h2.ToString() : "anonimo";
+
             var processId = Thread.CurrentThread.ManagedThreadId;
             var metodo = context.Request.Method;
             var path = context.Request.Path;
 
             logger.LogInformation($"------------------INICIANDO MIDDLEWARE DE AUDITORIA [{processId}]----------------");
 
+
+
+            /*
             if (string.IsNullOrWhiteSpace(usuario) || string.IsNullOrWhiteSpace(idopcionHeader))
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 logger.LogError("Faltan headers requeridos: usuario, idopcion");
                 await context.Response.WriteAsync("Faltan headers requeridos: usuario, idopcion");
                 return;
-            }
+            }*/
 
             //  Validar que idopcion sea entero
             if (!int.TryParse(idopcionHeader, out int idopcion) || idopcion <= 0)

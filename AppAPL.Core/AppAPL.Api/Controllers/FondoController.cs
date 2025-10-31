@@ -23,7 +23,7 @@ namespace AppAPL.Api.Controllers
 
         [HttpPost("insertar")]
         [Aprobacion]
-        [Email]
+        //[Email]
         public async Task<ActionResult> Insertar(CrearActualizarFondoRequest fondo)
         {
             int idNuevo = await servicio.CrearAsync(fondo);
@@ -38,7 +38,7 @@ namespace AppAPL.Api.Controllers
         // 🔹 PUT: Actualizar
         [HttpPut("actualizar/{idFondo:int}")]
         [Aprobacion]
-        [Email]
+        //[Email]
         public async Task<ActionResult> Actualizar(CrearActualizarFondoRequest fondo, int idFondo)
         {
             await servicio.ActualizarAsync(fondo, idFondo);
@@ -49,7 +49,7 @@ namespace AppAPL.Api.Controllers
         // 🔹 DELETE: Eliminar
         [HttpDelete("eliminar/{id}")]
         [Aprobacion]
-        [Email]
+        //[Email]
         public async Task<ActionResult> Eliminar(int id)
         {
             await servicio.EliminarAsync(id);
