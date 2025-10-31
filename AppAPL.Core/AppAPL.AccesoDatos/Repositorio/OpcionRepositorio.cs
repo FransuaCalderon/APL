@@ -28,17 +28,21 @@ namespace AppAPL_AccesoDatos.Repositorio
             return opciones;
         }
 
-        public async Task<IEnumerable<ComboTipoServicioDTO>> ConsultarComboTipoServicio()
+        public async Task<IEnumerable<ComboDTO>> ConsultarCombos(string etiqueta)
         {
             using var connection = factory.CreateOpenConnection();
 
+            var parametros = new
+            {
+                p_etiqueta = etiqueta
+            };
 
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters(parametros);
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
 
 
-            var datos = await connection.QueryAsync<ComboTipoServicioDTO>(
-                "Apl_Sp_ComboTipoServicio",
+            var datos = await connection.QueryAsync<ComboDTO>(
+                "APL_SP_COMBOS",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );

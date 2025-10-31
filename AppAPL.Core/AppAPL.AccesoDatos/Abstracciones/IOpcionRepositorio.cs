@@ -11,6 +11,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<OpcionDTO>> ListarAsync();
         Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario);
         Task<OpcionDTO?> ObtenerPorIdAsync(int idOpcion);
-        Task<IEnumerable<ComboTipoServicioDTO>> ConsultarComboTipoServicio();
+        Task<IEnumerable<ComboDTO>> ConsultarCombos(string etiqueta);
     }
 }

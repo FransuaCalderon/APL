@@ -46,10 +46,10 @@ namespace AppAPL.Api.Controllers
             return grupoOpciones;
         }
 
-        [HttpGet("ConsultarComboTipoServicio")]
-        public async Task<ActionResult<List<ComboTipoServicioDTO>>> ConsultarComboTipoServicio()
+        [HttpGet("ConsultarCombos/{etiqueta}")]
+        public async Task<ActionResult<List<ComboDTO>>> ConsultarCombos(string etiqueta)
         {
-            var listaCombo = await servicio.ConsultarComboTipoServicio();
+            var listaCombo = await servicio.ConsultarCombos(etiqueta.ToUpper());
             return listaCombo.ToList();
         }
 
