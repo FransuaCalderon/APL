@@ -177,7 +177,7 @@ $(document).ready(function () {
 // ===================================================================
 function cargarTiposServicio(callback) {
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Catalogo/ConsultarComboTipoServicio`,
+        url: `${window.apiBaseUrl}/api/Opciones/ConsultarComboTipoServicio`,
         method: "GET",
         headers: {
             "idopcion": "1",
