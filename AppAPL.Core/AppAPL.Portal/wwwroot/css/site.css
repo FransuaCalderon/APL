@@ -239,7 +239,7 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
 }
 
 #menu-dinamico a:hover {
-     background-color: #f8f9fa;
+        background-color: #f8f9fa;
        
     /* padding: 0.25rem 0.5rem;  <-- ELIMINADA */
      border-radius: 0.25rem;
