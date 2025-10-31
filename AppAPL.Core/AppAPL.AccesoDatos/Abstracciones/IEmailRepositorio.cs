@@ -8,6 +8,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
 {
     public interface IEmailRepositorio
     {
-        Task SendEmailAsync(string to, string subject, string templateName, Dictionary<string, string> placeholders);
+        Task SendEmailAsync(List<string> toList, string subject, string templateName, Dictionary<string, string> placeholders, List<string>? ccList = null, List<string>? bccList = null);
     }
 }

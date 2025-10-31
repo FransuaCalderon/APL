@@ -10,20 +10,30 @@ namespace AppAPL.Api.Controllers
         [HttpGet("/enviar-correo")]
         public async Task<ActionResult> Enviar()
         {
+            var destinatarios = new List<string> { "juanzoller95@gmail.com", "cliente2@gmail.com" };
+            var copias = new List<string> { "jefe@miempresa.com" };
+            var copiasOcultas = new List<string> { "auditoria@miempresa.com" };
+
+
             var datos = new Dictionary<string, string>
                     {
-                    { "Nombre", "Jean" },
+                    { "Nombre", "Daniel" },
                     { "FechaRegistro", DateTime.Now.ToString("dd/MM/yyyy") }
                     };
 
             await servicio.SendEmailAsync(
-            to: "calderonfransua@gmail.com",
+            toList: destinatarios,
             subject: "Bienvenido a Mi Aplicación ",
             templateName: "CorreoBienvenida.html",
-            placeholders: datos
+            placeholders: datos,
+            ccList: copias,
+            bccList: copiasOcultas
             );
 
-            return Ok("Correo enviado exitosamente");
+            return Ok("Correo enviado con CC y BCC ✅");
         }
+
+
+        
     }
 }

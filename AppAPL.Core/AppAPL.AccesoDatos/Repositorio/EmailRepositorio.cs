@@ -14,7 +14,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 {
     public class EmailRepositorio (IConfiguration config, IWebHostEnvironment env) : IEmailRepositorio
     {
-        public async Task SendEmailAsync(string to, string subject, string templateName, Dictionary<string, string> placeholders)
+        public async Task SendEmailAsync(List<string> toList, string subject, string templateName, Dictionary<string, string> placeholders, List<string>? ccList = null, List<string>? bccList = null)
         {
             //Cargar la plantilla HTML
             var templatePath = Path.Combine(env.ContentRootPath, "EmailTemplates", templateName);
@@ -32,7 +32,30 @@ namespace AppAPL.AccesoDatos.Repositorio
             config["EmailSettings:FromName"],
             config["EmailSettings:FromEmail"]
             ));
-            email.To.Add(MailboxAddress.Parse(to));
+
+
+
+            //  Agregar múltiples destinatarios
+            foreach (var to in toList)
+            {
+                email.To.Add(MailboxAddress.Parse(to));
+            }
+
+            // CC (opcional)
+            if (ccList != null)
+            {
+                foreach (var cc in ccList)
+                    email.Cc.Add(MailboxAddress.Parse(cc));
+            }
+
+            // BCC (opcional)
+            if (bccList != null)
+            {
+                foreach (var bcc in bccList)
+                    email.Bcc.Add(MailboxAddress.Parse(bcc));
+            }
+
+
             email.Subject = subject;
             email.Body = new TextPart(TextFormat.Html) { Text = htmlBody };
 
