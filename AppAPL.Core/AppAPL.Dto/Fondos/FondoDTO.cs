@@ -9,31 +9,39 @@ namespace AppAPL.Dto.Fondos
     public class FondoDTO
     {
         public long IdFondo { get; set; }                    // NUMBER(18,0) Identity
-        public string? Descripcion_Fondo { get; set; }        // VARCHAR2(100)
+        public string? Descripcion { get; set; }        // VARCHAR2(100)
         public decimal? IdProveedor { get; set; }            // NUMBER(18,2)
-        public decimal? Tipo_Fondo { get; set; }              // NUMBER(18,2)
-        public decimal? Valor_Fondo { get; set; }             // NUMBER(18,2)
-        public DateTime? Fecha_Inicio_Vigencia { get; set; }   // DATE
-        public DateTime? Fecha_Fin_Vigencia { get; set; }      // DATE
-        public decimal? Valor_Disponible { get; set; }        // NUMBER(18,2)
-        public decimal? Valor_Comprometido { get; set; }      // NUMBER(18,2)
-        public decimal? Valor_Liquidado { get; set; }        // NUMBER(18,2)
-        public decimal? Estado_Registro { get; set; }         // NUMBER(18,2)
-        public decimal? Indicador_Creacion { get; set; }      // NUMBER(18,2)
+        public decimal? IdTipoFondo { get; set; }              // NUMBER(18,2)
+        public decimal? ValorFondo { get; set; }             // NUMBER(18,2)
+        public DateTime? FechaInicioVigencia { get; set; }   // DATE
+        public DateTime? FechaFinVigencia { get; set; }      // DATE
+        public decimal? ValorDisponible { get; set; }        // NUMBER(18,2)
+        public decimal? ValorComprometido { get; set; }      // NUMBER(18,2)
+        public decimal? ValorLiquidado { get; set; }        // NUMBER(18,2)
+        public int? IdUsuarioIngreso { get; set; }
+        public DateTime? FechaIngreso { get; set; }
+        public int? IdUsuarioModifica { get; set; }
+        public DateTime? FechaModifica { get; set; }
+        public decimal? EstadoRegistro { get; set; }         // NUMBER(18,2)
+        public decimal? IndicadorCreacion { get; set; }      // NUMBER(18,2)
     }
 
     public class CrearActualizarFondoRequest
     {
-        public string? Descripcion_Fondo { get; set; }        // VARCHAR2(100)
+        public string? Descripcion { get; set; }        // VARCHAR2(100)
         public decimal? IdProveedor { get; set; }            // NUMBER(18,2)
-        public decimal? Tipo_Fondo { get; set; }              // NUMBER(18,2)
-        public decimal? Valor_Fondo { get; set; }             // NUMBER(18,2)
-        public DateTime? Fecha_Inicio_Vigencia { get; set; }   // DATE
-        public DateTime? Fecha_Fin_Vigencia { get; set; }      // DATE
-        public decimal? Valor_Disponible { get; set; }        // NUMBER(18,2)
-        public decimal? Valor_Comprometido { get; set; }      // NUMBER(18,2)
-        public decimal? Valor_Liquidado { get; set; }        // NUMBER(18,2)
-        public decimal? Estado_Registro { get; set; }         // NUMBER(18,2)
-        public decimal? Indicador_Creacion { get; set; }      // NUMBER(18,2)
+        public decimal? IdTipoFondo { get; set; }              // NUMBER(18,2)
+        public decimal? ValorFondo { get; set; }             // NUMBER(18,2)
+        public DateTime? FechaInicioVigencia { get; set; }   // DATE
+        public DateTime? FechaFinVigencia { get; set; }      // DATE
+        public decimal? ValorDisponible { get; set; }        // NUMBER(18,2)
+        public decimal? ValorComprometido { get; set; }      // NUMBER(18,2)
+        public decimal? ValorLiquidado { get; set; }        // NUMBER(18,2)
+        public int? IdUsuarioIngreso { get; set; }
+        public DateTime? FechaIngreso { get; set; }
+        public int? IdUsuarioModifica { get; set; }
+        public DateTime? FechaModifica { get; set; }
+        public decimal? EstadoRegistro { get; set; }         // NUMBER(18,2)
+        public decimal? IndicadorCreacion { get; set; }      // NUMBER(18,2)
     }
 }

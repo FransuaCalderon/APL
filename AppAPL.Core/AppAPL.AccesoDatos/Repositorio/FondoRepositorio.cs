@@ -42,17 +42,17 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var paramObject = new
             {
-                p_descripcion_fondo = fondo.Descripcion_Fondo,
+                p_descripcion_fondo = fondo.Descripcion,
                 p_idproveedor = fondo.IdProveedor,
-                p_tipo_fondo = fondo.Tipo_Fondo,
-                p_valor_fondo = fondo.Valor_Fondo,
-                p_fecha_inicio_vigencia = fondo.Fecha_Inicio_Vigencia,
-                p_fecha_fin_vigencia = fondo.Fecha_Fin_Vigencia,
-                p_valor_disponible = fondo.Valor_Disponible,
-                p_valor_comprometido = fondo.Valor_Comprometido,
-                p_valor_liquidado = fondo.Valor_Liquidado,
-                p_estado_registro = fondo.Estado_Registro,
-                p_indicador_creacion = fondo.Indicador_Creacion
+                p_tipo_fondo = fondo.IdTipoFondo,
+                p_valor_fondo = fondo.ValorFondo,
+                p_fecha_inicio_vigencia = fondo.FechaInicioVigencia,
+                p_fecha_fin_vigencia = fondo.FechaFinVigencia,
+                p_valor_disponible = fondo.ValorDisponible,
+                p_valor_comprometido = fondo.ValorComprometido,
+                p_valor_liquidado = fondo.ValorLiquidado,
+                p_estado_registro = fondo.EstadoRegistro,
+                p_indicador_creacion = fondo.IndicadorCreacion
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
@@ -74,17 +74,17 @@ namespace AppAPL.AccesoDatos.Repositorio
             var paramObject = new
             {
                 p_idfondo = idFondo,
-                p_descripcion_fondo = fondo.Descripcion_Fondo,
+                p_descripcion_fondo = fondo.Descripcion,
                 p_idproveedor = fondo.IdProveedor,
-                p_tipo_fondo = fondo.Tipo_Fondo,
-                p_valor_fondo = fondo.Valor_Fondo,
-                p_fecha_inicio_vigencia = fondo.Fecha_Inicio_Vigencia,
-                p_fecha_fin_vigencia = fondo.Fecha_Fin_Vigencia,
-                p_valor_disponible = fondo.Valor_Disponible,
-                p_valor_comprometido = fondo.Valor_Comprometido,
-                p_valor_liquidado = fondo.Valor_Liquidado,
-                p_estado_registro = fondo.Estado_Registro,
-                p_indicador_creacion = fondo.Indicador_Creacion
+                p_tipo_fondo = fondo.IdTipoFondo,
+                p_valor_fondo = fondo.ValorFondo,
+                p_fecha_inicio_vigencia = fondo.FechaInicioVigencia,
+                p_fecha_fin_vigencia = fondo.FechaFinVigencia,
+                p_valor_disponible = fondo.ValorDisponible,
+                p_valor_comprometido = fondo.ValorComprometido,
+                p_valor_liquidado = fondo.ValorLiquidado,
+                p_estado_registro = fondo.EstadoRegistro,
+                p_indicador_creacion = fondo.IndicadorCreacion
             };
 
             var parameters = new OracleDynamicParameters(paramObject);

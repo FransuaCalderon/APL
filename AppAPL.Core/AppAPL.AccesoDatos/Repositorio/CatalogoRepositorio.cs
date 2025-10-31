@@ -1,14 +1,15 @@
-﻿using AppAPL.AccesoDatos.Abstracciones;
-using AppAPL.AccesoDatos.Oracle;
-using AppAPL.Dto.Catalogo;
-using Dapper;
-using Oracle.ManagedDataAccess.Client;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AppAPL.AccesoDatos.Abstracciones;
+using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto.Catalogo;
+using Dapper;
+using Oracle.ManagedDataAccess.Client;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
@@ -47,6 +48,25 @@ namespace AppAPL.AccesoDatos.Repositorio
             );
 
             int total = parameters.Get<int>("o_total");
+
+            return datos;
+        }
+
+        public async Task<IEnumerable<CatalogoComboDTO>> ConsultarComboTipoServicio()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            var parameters = new OracleDynamicParameters();
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+           
+
+            var datos = await connection.QueryAsync<CatalogoComboDTO>(
+                "Apl_Sp_ComboTipoServicio",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
 
             return datos;
         }
