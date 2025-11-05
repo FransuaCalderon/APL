@@ -51,7 +51,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_valor_disponible = fondo.ValorDisponible,
                 p_valor_comprometido = fondo.ValorComprometido,
                 p_valor_liquidado = fondo.ValorLiquidado,
-                p_estado_registro = fondo.EstadoRegistro,
+                p_estado_registro = fondo.IdEstadoRegistro,
                 p_indicador_creacion = fondo.IndicadorCreacion
             };
 
@@ -83,7 +83,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_valor_disponible = fondo.ValorDisponible,
                 p_valor_comprometido = fondo.ValorComprometido,
                 p_valor_liquidado = fondo.ValorLiquidado,
-                p_estado_registro = fondo.EstadoRegistro,
+                p_estado_registro = fondo.IdEstadoRegistro,
                 p_indicador_creacion = fondo.IndicadorCreacion
             };
 

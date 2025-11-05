@@ -12,23 +12,24 @@ namespace AppAPL.Dto.Log
         public DateTime? FechaHoraTrx { get; set; }   // DATE (nullable por si DB permite null)
         public string? IdUser { get; set; }           // VARCHAR2(50)
         public int? IdOpcion { get; set; }            // NUMBER(10,0)
-
-        public string Nombre_Opcion { get; set; }
-        public string Descripcion_Opcion { get; set; }
-
         public int? IdControlInterfaz { get; set; }
         public int? IdEvento { get; set; }            // NUMBER(10,0)
-
+        public int? Entidad { get; set; }
+        public int? IdEntidad { get; set; }
+        public int? IdTipoProceso { get; set; }
         public string? Datos { get; set; }
     }
 
     public class CrearActualizarLogRequest
     {
-        public string? IdUser { get; set; }
-        public string? Nombre_Opcion { get; set; }
-        public int? IdOpcion { get; set; }
+        public DateTime? FechaHoraTrx { get; set; }   // DATE (nullable por si DB permite null)
+        public string? IdUser { get; set; }           // VARCHAR2(50)
+        public int? IdOpcion { get; set; }            // NUMBER(10,0)
         public int? IdControlInterfaz { get; set; }
-        public int? IdEvento { get; set; }
-        public string? Datos { get; set; } // JSON
+        public int? IdEvento { get; set; }            // NUMBER(10,0)
+        public int? Entidad { get; set; }
+        public int? IdEntidad { get; set; }
+        public int? IdTipoProceso { get; set; }
+        public string? Datos { get; set; }
     }
 }

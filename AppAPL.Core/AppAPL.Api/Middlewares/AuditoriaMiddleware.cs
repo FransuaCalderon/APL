@@ -10,7 +10,7 @@ namespace AppAPL.Api.Middlewares
             //var idopcionHeader = context.Request.Headers["idopcion"].FirstOrDefault();
             //var usuario = context.Request.Headers["usuario"].FirstOrDefault();
 
-            var idopcionHeader = context.Request.Headers.TryGetValue("idopcion", out var h1) ? h1.ToString() : "0";
+            var idopcion = context.Request.Headers.TryGetValue("idopcion", out var h1) ? h1.ToString() : "0";
             var usuario = context.Request.Headers.TryGetValue("usuario", out var h2) ? h2.ToString() : "anonimo";
 
             var processId = Thread.CurrentThread.ManagedThreadId;
@@ -30,6 +30,7 @@ namespace AppAPL.Api.Middlewares
                 return;
             }*/
 
+            /*
             //  Validar que idopcion sea entero
             if (!int.TryParse(idopcionHeader, out int idopcion) || idopcion <= 0)
             {
@@ -37,7 +38,7 @@ namespace AppAPL.Api.Middlewares
                 logger.LogError("El header 'idopcion' no es un número válido");
                 await context.Response.WriteAsync("El header 'idopcion' debe ser un número entero");
                 return;
-            }
+            }*/
 
 
 
@@ -105,7 +106,7 @@ namespace AppAPL.Api.Middlewares
             logger.LogInformation($"Codigo de estado HTTP: {status}");
             logger.LogInformation("Request => {Metodo} {Path}", metodo, path);
 
-            logger.LogInformation($"idopcion:{idopcionHeader}, usuario: {usuario}");
+            logger.LogInformation($"idopcion:{idopcion}, usuario: {usuario}");
 
             if (esExitoso)
             {
@@ -118,9 +119,12 @@ namespace AppAPL.Api.Middlewares
                 var log = new CrearActualizarLogRequest()
                 {
                     IdUser = usuario,
-                    IdOpcion = Convert.ToInt32(idopcionHeader),
+                    IdOpcion = Convert.ToInt32(idopcion),
                     IdControlInterfaz = 0,
                     IdEvento = 0,
+                    Entidad = 0,  // todos los campos que viene 
+                    IdEntidad = 0,
+                    IdTipoProceso = 0,
                     Datos = metodo is "POST" or "PUT" or "PATCH" ? requestBody : "{}"
                 };
                 

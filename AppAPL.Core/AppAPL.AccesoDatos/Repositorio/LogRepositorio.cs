@@ -2,6 +2,7 @@
 using AppAPL.AccesoDatos.Oracle;
 using AppAPL.Dto.Log;
 using Dapper;
+using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
-    public class LogRepositorio(OracleConnectionFactory factory) : ILogRepositorio
+    public class LogRepositorio(OracleConnectionFactory factory, ILogger<LogRepositorio> logger) : ILogRepositorio
     {
         public async Task<IEnumerable<LogDTO>> ObtenerLogsPorUsuarioAsync(
         int idUser,
@@ -59,7 +60,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 commandType: CommandType.StoredProcedure
             );
         }
-
+        /*
         // ✅ Registrar Log GENERAL
         public async Task RegistrarLogNombreAsync(CrearActualizarLogRequest log)
         {
@@ -78,26 +79,68 @@ namespace AppAPL.AccesoDatos.Repositorio
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
-        }
+        }*/
 
         // ✅ Registrar Log POR OPCIÓN
         public async Task RegistrarLogOpcionAsync(CrearActualizarLogRequest log)
         {
             using var connection = factory.CreateOpenConnection();
-
-            var parameters = new OracleDynamicParameters(new
+            /*
+            var parametros = new
             {
                 P_IDUSER = log.IdUser,
                 P_IDOPCION = log.IdOpcion,  //falta agregar parametros para el campo de IDCONTROLINTERFAZ  
                 P_IDEVENTO = log.IdEvento,
                 P_DATOS = log.Datos
-            });
+            };
+
+            logger.LogInformation($"parametros : {parametros.ToString()}");
+
+            var parameters = new OracleDynamicParameters(parametros);
 
             await connection.ExecuteAsync(
-                "APL_PKG_LOGS_SISTEMA.PR_REGISTRAR_LOG",
+                @"BEGIN 
+                    APL_PKG_LOGS_SISTEMA.PR_REGISTRAR_LOG(:P_IDUSER, :P_IDOPCION, :P_IDEVENTO, :P_DATOS); 
+                  END;",
                 parameters,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.Text
+            );*/
+
+            string sql = @"
+                INSERT INTO APL_TB_LOG (
+                    IDUSER,
+                    IDOPCION,
+                    IDCONTROLINTERFAZ,
+                    IDEVENTO,
+                    ENTIDAD,
+                    IDENTIDAD,
+                    IDTIPOPROCESO,
+                    DATOS
+                )
+                VALUES (
+                    :P_IDUSER,
+                    :P_IDOPCION,
+                    :P_IDCONTROLINTERFAZ,
+                    :P_IDEVENTO,
+                    :P_ENTIDAD,
+                    :P_IDENTIDAD,
+                    :P_IDTIPOPROCESO,
+                    :P_DATOS
+                )";
+
+            var parameters = new
+            {
+                P_IDUSER = log.IdUser,
+                P_IDOPCION = log.IdOpcion,
+                P_IDCONTROLINTERFAZ = log.IdControlInterfaz,
+                P_IDEVENTO = log.IdEvento,
+                P_ENTIDAD = log.Entidad,
+                P_IDENTIDAD = log.IdEntidad,
+                P_IDTIPOPROCESO = log.IdTipoProceso,
+                P_DATOS = log.Datos // debe ser un JSON string válido
+            };
+
+            await connection.ExecuteAsync(sql, parameters);
         }
     }
 }

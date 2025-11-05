@@ -17,9 +17,9 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<LogDTO>> ObtenerLogsPorUsuarioAsync(int idUser, DateTime? fechaInicio = null, DateTime? fechaFin = null)
             => repo.ObtenerLogsPorUsuarioAsync(idUser);
-
+        /*
         public Task RegistrarLogNombreAsync(CrearActualizarLogRequest log)
-            => repo.RegistrarLogNombreAsync(log);
+            => repo.RegistrarLogNombreAsync(log);*/
 
         public Task RegistrarLogOpcionAsync(CrearActualizarLogRequest log)
             => repo.RegistrarLogOpcionAsync(log);

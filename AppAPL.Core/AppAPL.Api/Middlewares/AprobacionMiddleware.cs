@@ -45,23 +45,25 @@ namespace AppAPL.Api.Middlewares
 
 
 
-            if (esExitoso)
+            if (!esExitoso)
             {
-                //aqui aplicar la logica si la respuesta fuera todo ok en rango de 200
-                logger.LogInformation($"Request exitoso: {status}");
-
-
-                //agregar aqui servicio y la logica para grabar en la tabla de aprobador y aprobaciones
-
-
-
-                //logica para enviar correo electronico
-                await this.EnviarCorreo();
+                logger.LogWarning("❌ [AprobacionMiddleware] Request fallido con código {StatusCode} en {Path}", status, path);
+                return;
             }
-            else
-            {
-                logger.LogError($"Request con error: {status}");
-            }
+
+
+            //aqui aplicar la logica si la respuesta fuera todo ok en rango de 200
+            logger.LogInformation($"Request exitoso: {status}");
+
+
+            //agregar aqui servicio y la logica para grabar en la tabla de aprobador y aprobaciones
+
+
+
+
+            //enviar correo
+            this.EnviarCorreo();
+
 
             logger.LogInformation("🔵 Finalizó auditoría en: {Ruta}", context.Request.Path);
             logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE APROBACION [{processId}] ------------------");
@@ -70,18 +72,19 @@ namespace AppAPL.Api.Middlewares
 
         private async Task EnviarCorreo()
         {
+            //logica para el envio de email
             var destinatarios = new List<string> { "cliente1@gmail.com", "cliente2@gmail.com" };
             var copias = new List<string> { "jefe@miempresa.com" };
             var copiasOcultas = new List<string> { "auditoria@miempresa.com" };
 
-
+            //parametros debe correo debe ser traidos de la base de datos
             var datos = new Dictionary<string, string>
                     {
                     { "Nombre", "Aprobacion Middleware" },
                     { "FechaRegistro", DateTime.Now.ToString("dd/MM/yyyy") }
                     };
 
-
+            //logica para enviar correo electronico
             using var scope = serviceProvider.CreateScope();
             var emailServicio = scope.ServiceProvider.GetRequiredService<IEmailServicio>();
 
@@ -97,5 +100,6 @@ namespace AppAPL.Api.Middlewares
 
             logger.LogInformation("Correo de Aprobacion enviado correctamente");
         }
+
     }
 }

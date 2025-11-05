@@ -22,7 +22,7 @@ namespace AppAPL.Dto.Fondos
         public DateTime? FechaIngreso { get; set; }
         public int? IdUsuarioModifica { get; set; }
         public DateTime? FechaModifica { get; set; }
-        public decimal? EstadoRegistro { get; set; }         // NUMBER(18,2)
+        public int? IdEstadoRegistro { get; set; }         // NUMBER(18,2)
         public decimal? IndicadorCreacion { get; set; }      // NUMBER(18,2)
     }
 
@@ -41,7 +41,7 @@ namespace AppAPL.Dto.Fondos
         public DateTime? FechaIngreso { get; set; }
         public int? IdUsuarioModifica { get; set; }
         public DateTime? FechaModifica { get; set; }
-        public decimal? EstadoRegistro { get; set; }         // NUMBER(18,2)
+        public int? IdEstadoRegistro { get; set; }         // NUMBER(18,2)
         public decimal? IndicadorCreacion { get; set; }      // NUMBER(18,2)
     }
 }
