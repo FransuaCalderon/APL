@@ -10,7 +10,7 @@ namespace AppAPL.Api.Controllers
     public class ProveedorController(IProveedorServicio servicio, ILogger<ProveedorController> logger) : ControllerBase
     {
         [HttpGet("listar")]
-        [Aprobacion]
+        //[Aprobacion]
         public async Task<ActionResult<List<ProveedorDTO>>> listar()
         {
             var listaProveedores = await servicio.ListarAsync();

@@ -14,7 +14,7 @@ CREATE OR REPLACE PACKAGE APL_PKG_LOGS_SISTEMA AS
     p_entidad             IN NUMBER DEFAULT NULL,
     p_identidad           IN NUMBER DEFAULT NULL,
     p_idtipoproceso       IN NUMBER DEFAULT NULL,
-    p_datos               IN JSON DEFAULT NULL
+    p_datos               IN CLOB DEFAULT NULL
   );
   
 END APL_PKG_LOGS_SISTEMA;
@@ -30,7 +30,7 @@ CREATE OR REPLACE PACKAGE BODY APL_PKG_LOGS_SISTEMA AS
     p_entidad             IN NUMBER DEFAULT NULL,
     p_identidad           IN NUMBER DEFAULT NULL,
     p_idtipoproceso       IN NUMBER DEFAULT NULL,
-    p_datos               IN JSON DEFAULT NULL
+    p_datos               IN CLOB DEFAULT NULL
   ) AS
   BEGIN
     

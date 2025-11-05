@@ -19,10 +19,10 @@ namespace AppAPL.Negocio.Servicios
             throw new NotImplementedException();
         }
 
-        public async Task<int> CrearAsync(CrearActualizarFondoRequest fondo)
+        public async Task CrearAsync(CrearFondoRequest fondo)
             => await repo.CrearAsync(fondo);
 
-        public async Task ActualizarAsync(CrearActualizarFondoRequest fondo, int idFondo)
+        public async Task ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)
             => await repo.ActualizarAsync(fondo, idFondo);
 
         public async Task EliminarAsync(int idFondo)

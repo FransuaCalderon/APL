@@ -36,27 +36,24 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
-        public async Task<int> CrearAsync(CrearActualizarFondoRequest fondo)
+        public async Task CrearAsync(CrearFondoRequest fondo)
         {
             using var connection = factory.CreateOpenConnection();
 
             var paramObject = new
             {
-                p_descripcion_fondo = fondo.Descripcion,
+                p_descripcion = fondo.Descripcion,
                 p_idproveedor = fondo.IdProveedor,
-                p_tipo_fondo = fondo.IdTipoFondo,
-                p_valor_fondo = fondo.ValorFondo,
-                p_fecha_inicio_vigencia = fondo.FechaInicioVigencia,
-                p_fecha_fin_vigencia = fondo.FechaFinVigencia,
-                p_valor_disponible = fondo.ValorDisponible,
-                p_valor_comprometido = fondo.ValorComprometido,
-                p_valor_liquidado = fondo.ValorLiquidado,
-                p_estado_registro = fondo.IdEstadoRegistro,
-                p_indicador_creacion = fondo.IndicadorCreacion
+                p_idtipofondo = fondo.IdTipoFondo,
+                p_valorfondo = fondo.ValorFondo,
+                p_fechainiciovigencia = fondo.FechaInicioVigencia,
+                p_fechafinvigencia = fondo.FechaFinVigencia,
+                p_idusuarioingreso = fondo.IdUsuarioIngreso,
+                p_nombreusuarioingreso = fondo.NombreUsuarioIngreso
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
-            parameters.Add("p_idfondo_out", OracleDbType.Int32, ParameterDirection.Output);
+            //parameters.Add("p_idfondo_out", OracleDbType.Int32, ParameterDirection.Output);
 
             await connection.ExecuteAsync(
                 "APL_PKG_FONDOS.crear_fondo",
@@ -64,10 +61,10 @@ namespace AppAPL.AccesoDatos.Repositorio
                 commandType: CommandType.StoredProcedure
             );
 
-            return parameters.Get<int>("p_idfondo_out");
+            //return parameters.Get<int>("p_idfondo_out");
         }
 
-        public async Task ActualizarAsync(CrearActualizarFondoRequest fondo, int idFondo)
+        public async Task ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)
         {
             using var connection = factory.CreateOpenConnection();
 

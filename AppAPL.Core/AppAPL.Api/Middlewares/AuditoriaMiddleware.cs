@@ -12,6 +12,11 @@ namespace AppAPL.Api.Middlewares
 
             var idopcion = context.Request.Headers.TryGetValue("idopcion", out var h1) ? h1.ToString() : "0";
             var usuario = context.Request.Headers.TryGetValue("usuario", out var h2) ? h2.ToString() : "anonimo";
+            var idcontrolinterfaz = context.Request.Headers.TryGetValue("idcontrolinterfaz", out var h3) ? h3.ToString() : "0";
+            var idevento = context.Request.Headers.TryGetValue("idevento", out var h4) ? h4.ToString() : "0";
+            var entidad = context.Request.Headers.TryGetValue("entidad", out var h5) ? h5.ToString() : "0";
+            var identidad = context.Request.Headers.TryGetValue("identidad", out var h6) ? h6.ToString() : "0";
+            var idtipoproceso = context.Request.Headers.TryGetValue("idtipoproceso", out var h7) ? h7.ToString() : "0";
 
             var processId = Thread.CurrentThread.ManagedThreadId;
             var metodo = context.Request.Method;
@@ -120,11 +125,11 @@ namespace AppAPL.Api.Middlewares
                 {
                     IdUser = usuario,
                     IdOpcion = Convert.ToInt32(idopcion),
-                    IdControlInterfaz = 0,
-                    IdEvento = 0,
-                    Entidad = 0,  // todos los campos que viene 
-                    IdEntidad = 0,
-                    IdTipoProceso = 0,
+                    IdControlInterfaz = Convert.ToInt32(idcontrolinterfaz),
+                    IdEvento = Convert.ToInt32(idevento),
+                    Entidad = Convert.ToInt32(entidad), // todos los campos que viene del front por headers
+                    IdEntidad = Convert.ToInt32(identidad),
+                    IdTipoProceso = Convert.ToInt32(idtipoproceso),
                     Datos = metodo is "POST" or "PUT" or "PATCH" ? requestBody : "{}"
                 };
                 

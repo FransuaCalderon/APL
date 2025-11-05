@@ -11,8 +11,8 @@ namespace AppAPL.AccesoDatos.Abstracciones
 {
     public interface IFondoRepositorio
     {
-        Task ActualizarAsync(CrearActualizarFondoRequest fondo, int idFondo);
-        Task<int> CrearAsync(CrearActualizarFondoRequest fondo);
+        Task ActualizarAsync(ActualizarFondoRequest fondo, int idFondo);
+        Task CrearAsync(CrearFondoRequest fondo);
         Task EliminarAsync(int idFondo);
         Task<IEnumerable<FondoDTO>> ObtenerFondosAsync();
 

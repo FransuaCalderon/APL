@@ -24,14 +24,13 @@ namespace AppAPL.Api.Controllers
         [HttpPost("insertar")]
         [Aprobacion]
         //[Email]
-        public async Task<ActionResult> Insertar(CrearActualizarFondoRequest fondo)
+        public async Task<ActionResult> Insertar(CrearFondoRequest fondo)
         {
-            int idNuevo = await servicio.CrearAsync(fondo);
+            await servicio.CrearAsync(fondo);
 
             return Ok(new
             {
-                mensaje = "Registro insertado correctamente",
-                idGenerado = idNuevo
+                mensaje = "Registro insertado correctamente"
             });
         }
 
@@ -39,7 +38,7 @@ namespace AppAPL.Api.Controllers
         [HttpPut("actualizar/{idFondo:int}")]
         [Aprobacion]
         //[Email]
-        public async Task<ActionResult> Actualizar(CrearActualizarFondoRequest fondo, int idFondo)
+        public async Task<ActionResult> Actualizar(ActualizarFondoRequest fondo, int idFondo)
         {
             await servicio.ActualizarAsync(fondo, idFondo);
             return Ok(new { mensaje = "Actualizado correctamente" });
