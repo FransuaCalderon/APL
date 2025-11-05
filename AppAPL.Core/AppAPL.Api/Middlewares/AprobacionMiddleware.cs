@@ -62,7 +62,7 @@ namespace AppAPL.Api.Middlewares
 
 
             //enviar correo
-            this.EnviarCorreo();
+            await this.EnviarCorreo();
 
 
             logger.LogInformation("🔵 Finalizó auditoría en: {Ruta}", context.Request.Path);
