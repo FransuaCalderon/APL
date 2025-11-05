@@ -58,9 +58,102 @@ function cargarTipoFondo(callback) {
     });
 }
 
+/**
+ * ¡NUEVA FUNCIÓN!
+ * Carga la tabla de proveedores desde la API en el modal.
+ * @param {string} usuario - El usuario que realiza la solicitud.
+ * @param {string} idopcion - El ID de la opción.
+ */
+/**
+ * ¡NUEVA FUNCIÓN! (Modificada)
+ * Carga la tabla de proveedores desde la API en el modal.
+ * Los valores de usuario e idopcion están fijos en "1".
+ */
+/**
+ * Carga la tabla de proveedores desde la API en el modal.
+ * Esta versión tiene verificación de selector y mapeo de campos.
+ */
+function consultarProveedor() {
+    // Valores fijos
+    const usuario = "1";
+    const idopcion = "1";
+
+    // Selector del cuerpo de la tabla
+    const $tbody = $("#tablaProveedores tbody");
+
+    // --- ¡VERIFICACIÓN IMPORTANTE! ---
+    // Si no encuentra la tabla, lo dirá en la consola.
+    if ($tbody.length === 0) {
+        console.error("¡ERROR DE JAVASCRIPT!");
+        console.error("No se pudo encontrar el elemento '#tablaProveedores tbody'.");
+        console.error("Asegúrate de que tu <table> tenga el ID 'tablaProveedores' y que tenga una etiqueta <tbody>.");
+        return; // Detiene la función
+    }
+    // --- FIN DE LA VERIFICACIÓN ---
+
+    // Muestra "Cargando..."
+    $tbody.empty().append('<tr><td colspan="7" class="text-center">Cargando proveedores...</td></tr>');
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
+        method: "GET",
+        headers: {
+            "idopcion": idopcion,
+            "usuario": usuario
+        },
+        success: function (data) {
+            // Esto ya te funciona
+            console.log("Proveedores cargados:", data);
+
+            // Limpia el "Cargando..."
+            $tbody.empty();
+
+            if (data && data.length > 0) {
+
+                data.forEach(function (proveedor) {
+
+                    // Mapeo de campos (buscando el primer valor no-nulo)
+                    const codigo = proveedor.codigo ?? '';
+                    const ruc = proveedor.identificacion ?? '';
+                    const nombre = proveedor.nombre ?? '';
+                    const contacto = proveedor.nombreContacto1 ?? proveedor.nombreContacto2 ?? proveedor.nombreContacto3 ?? proveedor.nombreContacto4 ?? '';
+                    const mail = proveedor.mailContacto1 ?? proveedor.mailContacto2 ?? proveedor.mailContacto3 ?? proveedor.mailContacto4 ?? '';
+                    const telefono = proveedor.telefonoContacto1 ?? proveedor.telefonoContacto2 ?? proveedor.telefonoContacto3 ?? proveedor.telefonoContacto4 ?? '';
+
+                    const fila = `
+                        <tr>
+                            <td class="align-middle text-center">
+                                <input class="form-check-input" type="radio" name="selectProveedor" 
+                                       data-id="${codigo}" 
+                                       data-nombre="${nombre}"
+                                       data-ruc="${ruc}">
+                            </td>
+                            <td class="align-middle">${codigo}</td>
+                            <td class="align-middle">${ruc}</td>
+                            <td class="align-middle">${nombre}</td>
+                            <td class="align-middle">${contacto}</td>
+                            <td class="align-middle">${mail}</td>
+                            <td class="align-middle">${telefono}</td>
+                        </tr>
+                    `;
+
+                    // Agrega la fila al tbody
+                    $tbody.append(fila);
+                });
+
+            } else {
+                $tbody.append('<tr><td colspan="7" class="text-center">No se encontraron proveedores.</td></tr>');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error en la llamada AJAX a /api/Proveedor/Listar:", error);
+            $tbody.empty().append(`<tr><td colspan="7" class="text-center text-danger">Error al cargar datos.</td></tr>`);
+        }
+    });
+}
 
 $(document).ready(function () {
-    console.log("cargnado fondos");
+    console.log("cargando fondos");
 
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
@@ -71,6 +164,50 @@ $(document).ready(function () {
         cargarTipoFondo();
 
         //console.log("apiBaseUrl ",apiBaseUrl);
+    });
+
+    // *** ¡NUEVO! ***
+    // Disparador para cargar los proveedores cuando se abre el modal.
+    $('#modalConsultaProveedor').on('show.bs.modal', function (event) {
+        // Usamos los valores de tu imagen de Swagger
+        const usuario = "1";
+        const idopcion = "1";
+
+        consultarProveedor(usuario, idopcion);
+    });
+
+    // *** ¡NUEVO! ***
+    // Lógica para el botón 'Aceptar' del modal de proveedores
+    $("#btnAceptarProveedor").on("click", function () {
+        // 1. Encontrar el radio button que está seleccionado
+        const $selected = $("#tablaProveedores tbody input[name='selectProveedor']:checked");
+
+        if ($selected.length > 0) {
+            // 2. Obtener los datos guardados en los data-attributes
+            const proveedorId = $selected.data("id");
+            const proveedorNombre = $selected.data("nombre");
+            const proveedorRuc = $selected.data("ruc");
+
+            console.log("Proveedor seleccionado:", { id: proveedorId, nombre: proveedorNombre, ruc: proveedorRuc });
+
+            // 3. ¡ACCIÓN CLAVE! 
+            // Poner los datos en tu formulario principal (el de "Fondos").
+            // *** ¡DEBES TENER ESTOS INPUTS EN TU FORMULARIO PRINCIPAL! ***
+
+            // Asumo que tienes un input para el ID (puede ser 'hidden')
+            $("#fondoProveedorId").val(proveedorId); // Ej: <input type="hidden" id="fondoProveedorId">
+
+            // Asumo que tienes un input para el nombre (visible y 'readonly')
+            $("#fondoProveedorNombre").val(`${proveedorRuc} - ${proveedorNombre}`); // Ej: <input type="text" id="fondoProveedorNombre" readonly>
+
+
+            // 4. Cierro el modal
+            $('#modalConsultaProveedor').modal('hide');
+
+        } else {
+            // Si no seleccionó nada
+            Swal.fire('Atención', 'Por favor, seleccione un proveedor de la lista.', 'info');
+        }
     });
 
     // *** MODIFICADO ***
@@ -95,7 +232,11 @@ $(document).ready(function () {
                 // Leemos los valores de los campos del nuevo formulario
                 const data = {
                     descripcion_fondo: $("#fondoDescripcion").val(),
-                    idproveedor: 0, // Debes implementar la búsqueda de proveedor
+
+                    // ¡AQUÍ ESTÁ EL CAMBIO! 
+                    // Leemos el ID del proveedor desde el campo que llenamos con el modal
+                    idproveedor: $("#fondoProveedorId").val(), // Asegúrate de tener <input id="fondoProveedorId">
+
                     tipo_fondo: $("#fondoTipo").val(),
                     valor_fondo: $("#fondoValorTotal").val(),
                     fecha_inicio_vigencia: $("#fondoFechaInicio").val(),

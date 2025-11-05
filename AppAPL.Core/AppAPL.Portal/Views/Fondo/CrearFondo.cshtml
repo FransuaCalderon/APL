@@ -99,7 +99,7 @@
     <div class="col-md-3">
         <label for="fondoProveedor" class="form-label fw-bold col-form-label-sm">Proveedor</label>
         <div class="input-group input-group-sm">
-            <input type="text" class="form-control" id="fondoProveedor" value="Industrias MABE S.A" readonly>
+            <input type="text" class="form-control" id="fondoProveedor" value="Seleccione..." readonly>
             <!-- *** ¡MODIFICADO! *** Se agregaron data-bs-toggle y data-bs-target -->
             <button class="btn btn-outline-secondary" type="button" id="btnBuscarProveedorModal" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
                 <img src="~/img/ico/search.svg" alt="Buscar">
@@ -163,157 +163,70 @@
 <!-- INICIO: MODAL CONSULTA DE PROVEEDORES -->
 <!-- =================================================================== -->
 <div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalConsultaProveedorLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered modal-xxl">
+        <div class="modal-content" style="height: 90vh; max-height: 90vh;">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="modalConsultaProveedorLabel">Consulta de Proveedores</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="row mb-1">
-                    <div class="d-flex align-items-cente mt-2">
-                        <div class="p-0">
-                            <!-- Texto "Seleccione un Proveedor" como en la imagen -->
-                            <label class="form-control text-dark border-0 bg-transparent p-0">Seleccione un Proveedor</label>
-                        </div>
-                        <div class="p-0 flex-grow-1 text-center"></div>
-                        <div class="p-0">
-                            <input type="text" class="form-control form-control-sm" placeholder="Buscar...">
-                        </div>
-                    </div>
+
+            <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
+                <!-- Búsqueda -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">Seleccione un Proveedor</span>
+                    <input type="text" class="form-control form-control-sm" placeholder="Buscar..." style="width: 250px;">
                 </div>
 
-                <div class="row mb-1">
-                    <div class="col">
-                        <div class="table-responsive small border" style="height: 300px">
-                            <!-- Asegúrate de que este ID 'tablaProveedores' exista para el JS -->
-                            <table id="tablaProveedores" class="table table-hover table-bordered table-sm w-100">
-                                <thead class="sticky-top table-success text-white text-nowrap">
-                                    <tr>
-                                        <!-- *** ¡MODIFICADO! *** Se agregó la columna 'Seleccionar' -->
-                                        <th scope="col" class="table-sticky-col text-center">Seleccionar</th>
-                                        <th scope="col">Codigo</th>
-                                        <th scope="col">Ruc</th>
-                                        <th scope="col">Nombre Proveedor</th>
-                                        <th scope="col">Contacto</th>
-                                        <th scope="col">Mail</th>
-                                        <th scope="col">Teléfono</th>
-                                    </tr>
-                                </thead>
-                                <!-- *** ¡MODIFICADO! *** Se agregaron los datos quemados de la imagen -->
-                                <tbody class="text-nowrap">
-                                    <tr>
-                                        <td class="align-middle text-center"><img src="~/img/ico/check-lg.svg" alt="Seleccionado" fill="text-success"></td>
-                                        <td class="align-middle">102030</td>
-                                        <td class="align-middle">0992864435001</td>
-                                        <td class="align-middle">Industrias MABE S.A</td>
-                                        <td class="align-middle">Ali Macias</td>
-                                        <td class="align-middle">amacias@mabe.com.ec</td>
-                                        <td class="align-middle">(593) 04218478</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="align-middle text-center"></td>
-                                        <td class="align-middle">102030</td>
-                                        <td class="align-middle">0999999999001</td>
-                                        <td class="align-middle">Proveedor XXXXXXXXXX</td>
-                                        <td class="align-middle">Contacto XXXXXX</td>
-                                        <td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-                                        <td class="align-middle">(593) 04299999</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="align-middle text-center"></td>
-                                        <td class="align-middle">102030</td>
-                                        <td class="align-middle">0999999999001</td>
-                                        <td class="align-middle">Proveedor XXXXXXXXXX</td>
-                                        <td class="align-middle">Contacto XXXXXX</td>
-                                        <td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-                                        <td class="align-middle">(593) 04299999</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="align-middle text-center"></td>
-                                        <td class="align-middle">102030</td>
-                                        <td class="align-middle">0999999999001</td>
-                                        <td class="align-middle">Proveedor XXXXXXXXXX</td>
-                                        <td class="align-middle">Contacto XXXXXX</td>
-                                        <td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-                                        <td class="align-middle">(593) 04299999</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="align-middle text-center"></td>
-                                        <td class="align-middle">102030</td>
-                                        <td class="align-middle">0999999999001</td>
-                                        <td class="align-middle">Proveedor XXXXXXXXXX</td>
-                                        <td class="align-middle">Contacto XXXXXX</td>
-                                        <td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-                                        <td class="align-middle">(593) 04299999</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="align-middle text-center"></td>
-                                        <td class="align-middle">102030</td>
-                                        <td class="align-middle">0999999999001</td>
-                                        <td class="align-middle">Proveedor XXXXXXXXXX</td>
-                                        <td class="align-middle">Contacto XXXXXX</td>
-                                        <td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-                                        <td class="align-middle">(593) 04299999</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="align-middle text-center"></td>
-                                        <td class="align-middle">102030</td>
-                                        <td class="align-middle">0999999999001</td>
-                                        <td class="align-middle">Proveedor XXXXXXXXXX</td>
-                                        <td class="align-middle">Contacto XXXXXX</td>
-                                        <td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-                                        <td class="align-middle">(593) 04299999</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="align-middle text-center"></td>
-                                        <td class="align-middle">102030</td>
-                                        <td class="align-middle">0999999999001</td>
-                                        <td class="align-middle">Proveedor XXXXXXXXXX</td>
-                                        <td class="align-middle">Contacto XXXXXX</td>
-                                        <td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-                                        <td class="align-middle">(593) 04299999</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="align-middle text-center"></td>
-                                        <td class="align-middle">102030</td>
-                                        <td class="align-middle">0999999999001</td>
-                                        <td class="align-middle">Proveedor XXXXXXXXXX</td>
-                                        <td class="align-middle">Contacto XXXXXX</td>
-                                        <td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-                                        <td class="align-middle">(593) 04299999</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <!-- Tabla -->
+                <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
+                    <table id="tablaProveedores" class="table table-hover table-sm table-bordered mb-0">
+                        <thead class="table-success sticky-top">
+                            <tr class="text-nowrap">
+                                <th scope="col" class="text-center align-middle" style="min-width: 110px;">Seleccionar</th>
+                                <th scope="col" class="align-middle" style="min-width: 80px;">Código</th>
+                                <th scope="col" class="align-middle" style="min-width: 130px;">RUC</th>
+                                <th scope="col" class="align-middle" style="min-width: 200px;">Nombre Proveedor</th>
+                                <th scope="col" class="align-middle" style="min-width: 150px;">Contacto</th>
+                                <th scope="col" class="align-middle" style="min-width: 200px;">Mail</th>
+                                <th scope="col" class="align-middle" style="min-width: 130px;">Teléfono</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Los datos se cargan dinámicamente -->
+                        </tbody>
+                    </table>
                 </div>
 
-                <div class="row mb-2">
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+                <!-- Paginador -->
+                <nav aria-label="Navegación de páginas" class="mt-2">
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true" aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item active" aria-current="page">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Siguiente">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button typeT="button" class="btn btn-primary" id="btnAceptarProveedor">Aceptar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarProveedor">Aceptar</button>
             </div>
         </div>
     </div>
 </div>
+
+
+
 <!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->

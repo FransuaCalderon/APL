@@ -334,3 +334,40 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
 #tabla-curso tbody tr:hover {
     cursor: pointer;
 }
+/* Estilos específicos del modal de proveedores */
+#modalConsultaProveedor .modal-dialog {
+    max-width: 95% !important;
+    width: 1600px !important; /* más ancho */
+}
+
+#modalConsultaProveedor .table-responsive {
+    -webkit-overflow-scrolling: touch;
+}
+
+#modalConsultaProveedor thead th {
+    background-color: rgb(209, 231, 221) !important;
+    color: black !important;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-color: #146c43 !important;
+}
+
+#modalConsultaProveedor tbody td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+#modalConsultaProveedor .table {
+    margin-bottom: 0 !important;
+}
+
+#modalConsultaProveedor .pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+#modalConsultaProveedor .pagination .page-link {
+    color: #0d6efd;
+}
