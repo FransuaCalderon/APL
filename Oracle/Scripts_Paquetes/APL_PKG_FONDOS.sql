@@ -1,188 +1,177 @@
-CREATE OR REPLACE PACKAGE APL_PKG_FONDOS IS
-  /* Lista todos los fondos */
-  PROCEDURE listar_fondos(p_cur OUT SYS_REFCURSOR);
-
-  /* Crea un fondo y devuelve el ID autogenerado */
-  PROCEDURE crear_fondo(
-    p_descripcion_fondo      IN APL_TB_FONDOS.DESCRIPCION_FONDO%TYPE,
-    p_idproveedor            IN APL_TB_FONDOS.IDPROVEEDOR%TYPE,
-    p_tipo_fondo             IN APL_TB_FONDOS.TIPO_FONDO%TYPE,
-    p_valor_fondo            IN APL_TB_FONDOS.VALOR_FONDO%TYPE,
-    p_fecha_inicio_vigencia  IN APL_TB_FONDOS.FECHA_INICIO_VIGENCIA%TYPE,
-    p_fecha_fin_vigencia     IN APL_TB_FONDOS.FECHA_FIN_VIGENCIA%TYPE,
-    p_valor_disponible       IN APL_TB_FONDOS.VALOR_DISPONIBLE%TYPE,
-    p_valor_comprometido     IN APL_TB_FONDOS.VALOR_COMPROMETIDO%TYPE,
-    p_valor_liquidado        IN APL_TB_FONDOS.VALOR_LIQUIDADO%TYPE,
-    p_estado_registro        IN APL_TB_FONDOS.ESTADO_REGISTRO%TYPE,
-    p_indicador_creacion     IN APL_TB_FONDOS.INDICADOR_CREACION%TYPE,
-    p_idfondo_out           OUT APL_TB_FONDOS.IDFONDO%TYPE
-  );
-
-  /* Actualiza un fondo por ID */
-  PROCEDURE actualizar_fondo(
-    p_idfondo                IN APL_TB_FONDOS.IDFONDO%TYPE,
-    p_descripcion_fondo      IN APL_TB_FONDOS.DESCRIPCION_FONDO%TYPE,
-    p_idproveedor            IN APL_TB_FONDOS.IDPROVEEDOR%TYPE,
-    p_tipo_fondo             IN APL_TB_FONDOS.TIPO_FONDO%TYPE,
-    p_valor_fondo            IN APL_TB_FONDOS.VALOR_FONDO%TYPE,
-    p_fecha_inicio_vigencia  IN APL_TB_FONDOS.FECHA_INICIO_VIGENCIA%TYPE,
-    p_fecha_fin_vigencia     IN APL_TB_FONDOS.FECHA_FIN_VIGENCIA%TYPE,
-    p_valor_disponible       IN APL_TB_FONDOS.VALOR_DISPONIBLE%TYPE,
-    p_valor_comprometido     IN APL_TB_FONDOS.VALOR_COMPROMETIDO%TYPE,
-    p_valor_liquidado        IN APL_TB_FONDOS.VALOR_LIQUIDADO%TYPE,
-    p_estado_registro        IN APL_TB_FONDOS.ESTADO_REGISTRO%TYPE,
-    p_indicador_creacion     IN APL_TB_FONDOS.INDICADOR_CREACION%TYPE
-  );
-
-  /* Elimina un fondo por ID */
-  PROCEDURE eliminar_fondo(p_idfondo IN APL_TB_FONDOS.IDFONDO%TYPE);
+create or replace PACKAGE APL_PKG_FONDOS AS
+    -- Procedimiento para insertar fondo
+    PROCEDURE crear_fondo (
+        p_descripcion          IN VARCHAR2,
+        p_idproveedor          IN VARCHAR2,
+        p_idtipofondo          IN NUMBER,
+        p_valorfondo           IN NUMBER,
+        p_fechainiciovigencia  IN TIMESTAMP,
+        p_fechafinvigencia     IN TIMESTAMP,
+        p_idusuarioingreso     IN VARCHAR2,
+        p_nombreusuarioingreso IN VARCHAR2
+    );
 END APL_PKG_FONDOS;
 
 ==========================================================================================================BODY===========================
 
-CREATE OR REPLACE PACKAGE BODY APL_PKG_FONDOS IS
+create or replace PACKAGE BODY APL_PKG_FONDOS AS
 
-  PROCEDURE validar_fechas(
-    p_ini IN APL_TB_FONDOS.FECHA_INICIO_VIGENCIA%TYPE,
-    p_fin IN APL_TB_FONDOS.FECHA_FIN_VIGENCIA%TYPE
-  ) IS
+  PROCEDURE crear_fondo (
+      p_descripcion             IN VARCHAR2,
+      p_idproveedor             IN VARCHAR2,
+      p_idtipofondo             IN NUMBER,
+      p_valorfondo              IN NUMBER,
+      p_fechainiciovigencia     IN TIMESTAMP,
+      p_fechafinvigencia        IN TIMESTAMP,
+      p_idusuarioingreso        IN VARCHAR2,
+      p_nombreusuarioingreso    IN VARCHAR2
+  ) AS
+      -- Catálogos
+      w_creacion_manual   NUMBER;
+      w_entidad_fondo     NUMBER;
+      w_tipo_creacion     NUMBER;
+      w_estado_activo     NUMBER;
+      w_estado_nuevo      NUMBER;
+      w_estado_aprobado   NUMBER;
+
+      -- Trabajo
+      w_idfondo           NUMBER;
+      w_estado_registro   NUMBER;
+      v_tiene_aprobadores NUMBER;
   BEGIN
-    IF p_fin IS NOT NULL AND p_ini IS NOT NULL AND p_fin < p_ini THEN
-      RAISE_APPLICATION_ERROR(-20001, 'FECHA_FIN_VIGENCIA no puede ser menor que FECHA_INICIO_VIGENCIA');
-    END IF;
-  END validar_fechas;
+      -- 1) Resolver catálogos
+      SELECT idcatalogo INTO w_estado_nuevo    FROM APL_TB_CATALOGO WHERE idetiqueta = 'ESTADONUEVO';
+      SELECT idcatalogo INTO w_creacion_manual FROM APL_TB_CATALOGO WHERE idetiqueta = 'INDCREMANUAL';
+      SELECT idcatalogo INTO w_entidad_fondo   FROM APL_TB_CATALOGO WHERE idetiqueta = 'ENTFONDO';
+      SELECT idcatalogo INTO w_tipo_creacion   FROM APL_TB_CATALOGO WHERE idetiqueta = 'TPCREACION';
+      SELECT idcatalogo INTO w_estado_activo   FROM APL_TB_CATALOGO WHERE idetiqueta = 'ESTADOACTIVO';
+      SELECT idcatalogo INTO w_estado_aprobado FROM APL_TB_CATALOGO WHERE idetiqueta = 'ESTADOAPROBADO';
 
-  PROCEDURE listar_fondos(p_cur OUT SYS_REFCURSOR) IS
-  BEGIN
-    OPEN p_cur FOR
-      SELECT
-        IDFONDO,
-        DESCRIPCION_FONDO,
-        IDPROVEEDOR,
-        TIPO_FONDO,
-        VALOR_FONDO,
-        FECHA_INICIO_VIGENCIA,
-        FECHA_FIN_VIGENCIA,
-        VALOR_DISPONIBLE,
-        VALOR_COMPROMETIDO,
-        VALOR_LIQUIDADO,
-        ESTADO_REGISTRO,
-        INDICADOR_CREACION
-      FROM APL_TB_FONDOS
-      ORDER BY IDFONDO;
-  END listar_fondos;
+      -- 2) ¿Hay aprobadores configurados para ENTFONDO + TPCREACION + ACTIVO?
+      SELECT COUNT(*)
+        INTO v_tiene_aprobadores
+        FROM APL_TB_APROBADOR
+       WHERE entidad          = w_entidad_fondo
+         AND idtipoproceso    = w_tipo_creacion
+         AND idestadoregistro = w_estado_activo;
 
-  PROCEDURE crear_fondo(
-    p_descripcion_fondo      IN APL_TB_FONDOS.DESCRIPCION_FONDO%TYPE,
-    p_idproveedor            IN APL_TB_FONDOS.IDPROVEEDOR%TYPE,
-    p_tipo_fondo             IN APL_TB_FONDOS.TIPO_FONDO%TYPE,
-    p_valor_fondo            IN APL_TB_FONDOS.VALOR_FONDO%TYPE,
-    p_fecha_inicio_vigencia  IN APL_TB_FONDOS.FECHA_INICIO_VIGENCIA%TYPE,
-    p_fecha_fin_vigencia     IN APL_TB_FONDOS.FECHA_FIN_VIGENCIA%TYPE,
-    p_valor_disponible       IN APL_TB_FONDOS.VALOR_DISPONIBLE%TYPE,
-    p_valor_comprometido     IN APL_TB_FONDOS.VALOR_COMPROMETIDO%TYPE,
-    p_valor_liquidado        IN APL_TB_FONDOS.VALOR_LIQUIDADO%TYPE,
-    p_estado_registro        IN APL_TB_FONDOS.ESTADO_REGISTRO%TYPE,
-    p_indicador_creacion     IN APL_TB_FONDOS.INDICADOR_CREACION%TYPE,
-    p_idfondo_out           OUT APL_TB_FONDOS.IDFONDO%TYPE
-  ) IS
-    v_valor_disponible APL_TB_FONDOS.VALOR_DISPONIBLE%TYPE;
-  BEGIN
-    validar_fechas(p_fecha_inicio_vigencia, p_fecha_fin_vigencia);
+      IF v_tiene_aprobadores > 0 THEN
+        w_estado_registro := w_estado_nuevo;     -- queda pendiente
+      ELSE
+        w_estado_registro := w_estado_aprobado;  -- pasa directo
+      END IF;
 
-    /* Si no te envían disponible, lo calculamos simple: fondo - comprometido - liquidado */
-    v_valor_disponible :=
-      NVL(p_valor_disponible,
-          NVL(p_valor_fondo,0) - NVL(p_valor_comprometido,0) - NVL(p_valor_liquidado,0));
+      -- 3) Insertar FONDO
+      INSERT INTO APL_TB_FONDO (
+          descripcion,
+          idproveedor,
+          idtipofondo,
+          valorfondo,
+          fechainiciovigencia,
+          fechafinvigencia,
+          valordisponible,
+          valorcomprometido,
+          valorliquidado,
+          idusuarioingreso,
+          fechaingreso,
+          idusuariomodifica,
+          fechamodifica,
+          idestadoregistro,
+          indicadorcreacion
+      ) VALUES (
+          p_descripcion,
+          p_idproveedor,
+          p_idtipofondo,
+          p_valorfondo,
+          p_fechainiciovigencia,
+          p_fechafinvigencia,
+          p_valorfondo,   -- disponible = total al crear
+          0,
+          0,
+          p_idusuarioingreso,
+          SYSTIMESTAMP,   -- columna TIMESTAMP
+          NULL,
+          NULL,
+          w_estado_registro,
+          w_creacion_manual
+      )
+      RETURNING idfondo INTO w_idfondo;
 
-    INSERT INTO APL_TB_FONDOS (
-      DESCRIPCION_FONDO,
-      IDPROVEEDOR,
-      TIPO_FONDO,
-      VALOR_FONDO,
-      FECHA_INICIO_VIGENCIA,
-      FECHA_FIN_VIGENCIA,
-      VALOR_DISPONIBLE,
-      VALOR_COMPROMETIDO,
-      VALOR_LIQUIDADO,
-      ESTADO_REGISTRO,
-      INDICADOR_CREACION
-    ) VALUES (
-      p_descripcion_fondo,
-      p_idproveedor,
-      p_tipo_fondo,
-      p_valor_fondo,
-      p_fecha_inicio_vigencia,
-      p_fecha_fin_vigencia,
-      v_valor_disponible,
-      p_valor_comprometido,
-      p_valor_liquidado,
-      p_estado_registro,
-      p_indicador_creacion
-    )
-    RETURNING IDFONDO INTO p_idfondo_out; -- IDENTITY GENERATED ALWAYS
+      -- 4) Si hay aprobadores, generar filas en APL_TB_APROBACION (una por aprobador activo)
+      IF v_tiene_aprobadores > 0 THEN
+        INSERT INTO APL_TB_APROBACION (
+            entidad,
+            identidad,
+            idtipoproceso,
+            idusersolicitud,
+            nombreusersolicitud,
+            fechasolicitud,
+            iduseraprobador,
+            fechaaprobacion,
+            comentario,
+            nivelaprobacion,
+            idestadoregistro
+        )
+        SELECT
+            w_entidad_fondo              AS entidad,         -- SIEMPRE el catálogo ENTFONDO
+            w_idfondo                    AS identidad,       -- el IdFondo recién creado
+            w_tipo_creacion              AS idtipoproceso,   -- TPCREACION
+            p_idusuarioingreso           AS idusersolicitud,
+            p_nombreusuarioingreso       AS nombreusersolicitud,
+            SYSTIMESTAMP                 AS fechasolicitud,
+            a.iduseraprobador            AS iduseraprobador,
+            NULL                         AS fechaaprobacion,
+            NULL                         AS comentario,
+            a.nivelaprobacion            AS nivelaprobacion,
+            w_estado_nuevo               AS idestadoregistro
+        FROM APL_TB_APROBADOR a
+        WHERE a.entidad          = w_entidad_fondo
+          AND a.idtipoproceso    = w_tipo_creacion
+          AND a.idestadoregistro = w_estado_activo;
+      END IF;
+
+      -- 5) (Opcional) Registrar LOG aquí si lo necesitas
+      INSERT INTO APL_TB_LOG (
+          -- FechaHoraTrx usa DEFAULT SYSTIMESTAMP si tu tabla lo tiene
+          idUser, IdOpcion, IdControlInterfaz, IdEvento,
+          Entidad, IdEntidad, IdTipoProceso, Datos
+        )
+        SELECT
+          p_idusuarioingreso               AS dUser,
+          NULL                             AS IdOpcion,          -- ajusta si tienes opción/ pantalla
+          NULL                             AS IdControlInterfaz, -- ajusta si aplica
+          NULL                             AS IdEvento,          -- ajusta si aplica
+          w_entidad_fondo                  AS Entidad,           -- ENTFONDO
+          w_idfondo                        AS IdEntidad,         -- Id del fondo creado
+          w_tipo_creacion                  AS IdTipoProceso,     -- TPCREACION
+          JSON_OBJECT(
+              'IdFondo'            VALUE f.IdFondo,
+              'Descripcion'        VALUE f.Descripcion,
+              'IdProveedor'        VALUE f.IdProveedor,
+              'IdTipoFondo'        VALUE f.IdTipoFondo,
+              'ValorFondo'         VALUE f.ValorFondo,
+              'FechaInicioVigencia' VALUE TO_CHAR(f.FechaInicioVigencia,'YYYY-MM-DD"T"HH24:MI:SS.FF3'),
+              'FechaFinVigencia'    VALUE TO_CHAR(f.FechaFinVigencia,'YYYY-MM-DD"T"HH24:MI:SS.FF3'),
+              'ValorDisponible'    VALUE f.ValorDisponible,
+              'ValorComprometido'  VALUE f.ValorComprometido,
+              'ValorLiquidado'     VALUE f.ValorLiquidado,
+              'IdUsuarioIngreso'   VALUE f.IdUsuarioIngreso,
+              'FechaIngreso'       VALUE TO_CHAR(f.FechaIngreso,'YYYY-MM-DD"T"HH24:MI:SS.FF3'),
+              'IdUsuarioModifica'  VALUE f.IdUsuarioModifica,
+              'FechaModifica'      VALUE TO_CHAR(f.FechaModifica,'YYYY-MM-DD"T"HH24:MI:SS.FF3'),
+              'IdEstadoRegistro'   VALUE f.IdEstadoRegistro,
+              'IndicadorCreacion'  VALUE f.IndicadorCreacion
+          RETURNING CLOB)                                       -- devuelve CLOB JSON
+        FROM APL_TB_FONDO f
+        WHERE f.IdFondo = w_idfondo;
+
+      -- Recomendación: dejar el COMMIT al llamador
+      -- COMMIT;
 
   EXCEPTION
-    WHEN OTHERS THEN
-      RAISE; -- deja el control de transacción al llamador
+    WHEN NO_DATA_FOUND THEN
+      -- Alguna etiqueta de catálogo no existe
+      RAISE_APPLICATION_ERROR(-20050, 'Falta configurar etiquetas en APL_TB_CATALOGO (ENTFONDO/TPCREACION/ESTADO*).');
   END crear_fondo;
-
-  PROCEDURE actualizar_fondo(
-    p_idfondo                IN APL_TB_FONDOS.IDFONDO%TYPE,
-    p_descripcion_fondo      IN APL_TB_FONDOS.DESCRIPCION_FONDO%TYPE,
-    p_idproveedor            IN APL_TB_FONDOS.IDPROVEEDOR%TYPE,
-    p_tipo_fondo             IN APL_TB_FONDOS.TIPO_FONDO%TYPE,
-    p_valor_fondo            IN APL_TB_FONDOS.VALOR_FONDO%TYPE,
-    p_fecha_inicio_vigencia  IN APL_TB_FONDOS.FECHA_INICIO_VIGENCIA%TYPE,
-    p_fecha_fin_vigencia     IN APL_TB_FONDOS.FECHA_FIN_VIGENCIA%TYPE,
-    p_valor_disponible       IN APL_TB_FONDOS.VALOR_DISPONIBLE%TYPE,
-    p_valor_comprometido     IN APL_TB_FONDOS.VALOR_COMPROMETIDO%TYPE,
-    p_valor_liquidado        IN APL_TB_FONDOS.VALOR_LIQUIDADO%TYPE,
-    p_estado_registro        IN APL_TB_FONDOS.ESTADO_REGISTRO%TYPE,
-    p_indicador_creacion     IN APL_TB_FONDOS.INDICADOR_CREACION%TYPE
-  ) IS
-    v_valor_disponible APL_TB_FONDOS.VALOR_DISPONIBLE%TYPE;
-  BEGIN
-    validar_fechas(p_fecha_inicio_vigencia, p_fecha_fin_vigencia);
-
-    v_valor_disponible :=
-      NVL(p_valor_disponible,
-          NVL(p_valor_fondo,0) - NVL(p_valor_comprometido,0) - NVL(p_valor_liquidado,0));
-
-    UPDATE APL_TB_FONDOS
-       SET DESCRIPCION_FONDO     = p_descripcion_fondo,
-           IDPROVEEDOR           = p_idproveedor,
-           TIPO_FONDO            = p_tipo_fondo,
-           VALOR_FONDO           = p_valor_fondo,
-           FECHA_INICIO_VIGENCIA = p_fecha_inicio_vigencia,
-           FECHA_FIN_VIGENCIA    = p_fecha_fin_vigencia,
-           VALOR_DISPONIBLE      = v_valor_disponible,
-           VALOR_COMPROMETIDO    = p_valor_comprometido,
-           VALOR_LIQUIDADO       = p_valor_liquidado,
-           ESTADO_REGISTRO       = p_estado_registro,
-           INDICADOR_CREACION    = p_indicador_creacion
-     WHERE IDFONDO = p_idfondo;
-
-    IF SQL%ROWCOUNT = 0 THEN
-      RAISE_APPLICATION_ERROR(-20002, 'No existe APL_TB_FONDOS.IDFONDO='||p_idfondo);
-    END IF;
-
-  EXCEPTION
-    WHEN OTHERS THEN
-      RAISE;
-  END actualizar_fondo;
-
-  PROCEDURE eliminar_fondo(p_idfondo IN APL_TB_FONDOS.IDFONDO%TYPE) IS
-  BEGIN
-    DELETE FROM APL_TB_FONDOS WHERE IDFONDO = p_idfondo;
-
-    IF SQL%ROWCOUNT = 0 THEN
-      RAISE_APPLICATION_ERROR(-20003, 'No existe APL_TB_FONDOS.IDFONDO='||p_idfondo);
-    END IF;
-
-  EXCEPTION
-    WHEN OTHERS THEN
-      RAISE;
-  END eliminar_fondo;
 
 END APL_PKG_FONDOS;
