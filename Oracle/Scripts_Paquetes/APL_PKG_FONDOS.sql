@@ -129,7 +129,7 @@ create or replace PACKAGE BODY APL_PKG_FONDOS AS
           AND a.idtipoproceso    = w_tipo_creacion
           AND a.idestadoregistro = w_estado_activo;
       END IF;
-
+    /*
       -- 5) (Opcional) Registrar LOG aquí si lo necesitas
       INSERT INTO APL_TB_LOG (
           -- FechaHoraTrx usa DEFAULT SYSTIMESTAMP si tu tabla lo tiene
@@ -164,7 +164,7 @@ create or replace PACKAGE BODY APL_PKG_FONDOS AS
           RETURNING CLOB)                                       -- devuelve CLOB JSON
         FROM APL_TB_FONDO f
         WHERE f.IdFondo = w_idfondo;
-
+*/
       -- Recomendación: dejar el COMMIT al llamador
       -- COMMIT;
 
