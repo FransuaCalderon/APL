@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace ExpertoAPI2.Filtros
+namespace AppAPL.Api.Filtros
 {
     public class FiltroAccion : IAsyncActionFilter
     {
@@ -48,4 +48,3 @@ namespace ExpertoAPI2.Filtros
 
     }
 }
-//Autor: Juan Daniel Zoller L. | Empresa: BMTECSA | Fecha: 1 de Julio de 2025 - 30 de Septiembre del 2025 | Proyecto: Migración EXPERTO

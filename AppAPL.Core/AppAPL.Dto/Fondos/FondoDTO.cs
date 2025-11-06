@@ -46,14 +46,7 @@ namespace AppAPL.Dto.Fondos
         public decimal? ValorFondo { get; set; }
         public DateTime? FechaInicioVigencia { get; set; }
         public DateTime? FechaFinVigencia { get; set; }
-        public decimal? ValorDisponible { get; set; }
-        public decimal? ValorComprometido { get; set; }
-        public decimal? ValorLiquidado { get; set; }
-        public string? IdUsuarioIngreso { get; set; }
-        public DateTime? FechaIngreso { get; set; }
         public string? IdUsuarioModifica { get; set; }
-        public DateTime? FechaModifica { get; set; }
-        public int? IdEstadoRegistro { get; set; }
-        public int? IndicadorCreacion { get; set; }
+        public string? NombreUsuarioModifica { get; set; }
     }
 }

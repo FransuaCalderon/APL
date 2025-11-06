@@ -9,7 +9,6 @@ using AppAPL.Api.Utilidades;
 using AppAPL.Negocio.Abstracciones;
 using AppAPL.Negocio.IoC;
 using AppAPL.Negocio.Servicios;
-using ExpertoAPI2.Filtros;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);

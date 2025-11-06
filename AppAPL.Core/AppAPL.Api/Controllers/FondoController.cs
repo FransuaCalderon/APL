@@ -13,16 +13,17 @@ namespace AppAPL.Api.Controllers
     //[Aprobacion]
     public class FondoController(ILogger<FondoController> logger, IFondoServicio servicio) : ControllerBase
     {
+        /*
         [HttpGet("listar")]
         public async Task<ActionResult<List<FondoDTO>>> ObtenerTodos()
         {
             var listaFondos = await servicio.ListarAsync();
 
             return listaFondos.ToList();
-        }
+        }*/
 
         [HttpPost("insertar")]
-        [Aprobacion]
+        //[Aprobacion]
         //[Email]
         public async Task<ActionResult> Insertar(CrearFondoRequest fondo)
         {
@@ -36,7 +37,7 @@ namespace AppAPL.Api.Controllers
                //ghjghj
         // 🔹 PUT: Actualizar
         [HttpPut("actualizar/{idFondo:int}")]
-        [Aprobacion]
+        //[Aprobacion]
         //[Email]
         public async Task<ActionResult> Actualizar(ActualizarFondoRequest fondo, int idFondo)
         {
@@ -45,14 +46,15 @@ namespace AppAPL.Api.Controllers
         }
 
 
+        /*
         // 🔹 DELETE: Eliminar
         [HttpDelete("eliminar/{id}")]
-        [Aprobacion]
+        //[Aprobacion]
         //[Email]
         public async Task<ActionResult> Eliminar(int id)
         {
             await servicio.EliminarAsync(id);
             return Ok(new { mensaje = "Eliminado correctamente" });
-        }
+        }*/
     }
 }

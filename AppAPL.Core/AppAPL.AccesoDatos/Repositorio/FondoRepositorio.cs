@@ -3,6 +3,7 @@ using AppAPL.AccesoDatos.Oracle;
 using AppAPL.Dto.CatalogoTipo;
 using AppAPL.Dto.Fondos;
 using Dapper;
+using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
-    public class FondoRepositorio(OracleConnectionFactory factory) : IFondoRepositorio
+    public class FondoRepositorio(OracleConnectionFactory factory, ILogger<FondoRepositorio> logger) : IFondoRepositorio
     {
         public async Task<IEnumerable<FondoDTO>> ObtenerFondosAsync()
         {
@@ -71,24 +72,25 @@ namespace AppAPL.AccesoDatos.Repositorio
             var paramObject = new
             {
                 p_idfondo = idFondo,
-                p_descripcion_fondo = fondo.Descripcion,
+                p_descripcion = fondo.Descripcion,
                 p_idproveedor = fondo.IdProveedor,
-                p_tipo_fondo = fondo.IdTipoFondo,
-                p_valor_fondo = fondo.ValorFondo,
-                p_fecha_inicio_vigencia = fondo.FechaInicioVigencia,
-                p_fecha_fin_vigencia = fondo.FechaFinVigencia,
-                p_valor_disponible = fondo.ValorDisponible,
-                p_valor_comprometido = fondo.ValorComprometido,
-                p_valor_liquidado = fondo.ValorLiquidado,
-                p_estado_registro = fondo.IdEstadoRegistro,
-                p_indicador_creacion = fondo.IndicadorCreacion
+                p_idtipofondo = fondo.IdTipoFondo,
+                p_valorfondo = fondo.ValorFondo,
+                p_fechainiciovigencia = fondo.FechaInicioVigencia,
+                p_fechafinvigencia = fondo.FechaFinVigencia,
+                p_idusuariomodifica = fondo.IdUsuarioModifica,
+                p_nombreusuariomodifica = fondo.NombreUsuarioModifica
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
-            
+
+            string sp = "APL_PKG_FONDOS.actualizar_fondo";
+
+            logger.LogInformation($"parametros antes de actualizar fondos: {paramObject.ToString()}");
+            logger.LogInformation($"sp a ejecutar: {sp}");
 
             await connection.ExecuteAsync(
-                "APL_PKG_FONDOS.actualizar_fondo",
+                sp,
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
