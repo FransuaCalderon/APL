@@ -33,7 +33,7 @@ namespace AppAPL.Api.Controllers
                 mensaje = "Registro insertado correctamente"
             });
         }
-
+               //ghjghj
         // 🔹 PUT: Actualizar
         [HttpPut("actualizar/{idFondo:int}")]
         [Aprobacion]
