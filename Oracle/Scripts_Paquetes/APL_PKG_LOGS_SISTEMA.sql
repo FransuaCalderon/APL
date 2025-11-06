@@ -14,7 +14,11 @@ CREATE OR REPLACE PACKAGE APL_PKG_LOGS_SISTEMA AS
     p_entidad             IN NUMBER DEFAULT NULL,
     p_identidad           IN NUMBER DEFAULT NULL,
     p_idtipoproceso       IN NUMBER DEFAULT NULL,
+<<<<<<< Updated upstream
     p_datos               IN CLOB DEFAULT NULL
+=======
+	p_datos 			  IN CLOB DEFAULT NULL
+>>>>>>> Stashed changes
   );
   
 END APL_PKG_LOGS_SISTEMA;
@@ -30,7 +34,11 @@ CREATE OR REPLACE PACKAGE BODY APL_PKG_LOGS_SISTEMA AS
     p_entidad             IN NUMBER DEFAULT NULL,
     p_identidad           IN NUMBER DEFAULT NULL,
     p_idtipoproceso       IN NUMBER DEFAULT NULL,
+<<<<<<< Updated upstream
     p_datos               IN CLOB DEFAULT NULL
+=======
+    p_datos 			  IN CLOB DEFAULT NULL
+>>>>>>> Stashed changes
   ) AS
   BEGIN
     
