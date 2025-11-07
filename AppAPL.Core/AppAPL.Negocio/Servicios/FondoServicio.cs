@@ -15,10 +15,8 @@ namespace AppAPL.Negocio.Servicios
         public async Task<IEnumerable<FondoDTO>> ListarAsync()
             => await repo.ObtenerFondosAsync();
 
-        public Task<FondoDTO?> ObtenerPorIdAsync(int idFondo)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<FondoDTO?> ObtenerPorIdAsync(int idFondo)
+            => await repo.ObtenerPorIdAsync(idFondo);
 
         public async Task CrearAsync(CrearFondoRequest fondo)
             => await repo.CrearAsync(fondo);
@@ -28,6 +26,8 @@ namespace AppAPL.Negocio.Servicios
 
         public async Task EliminarAsync(int idFondo)
             => await repo.EliminarAsync(idFondo);
+
+            
 
     }
 }

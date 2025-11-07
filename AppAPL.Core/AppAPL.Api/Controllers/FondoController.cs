@@ -14,17 +14,27 @@ namespace AppAPL.Api.Controllers
     //[Aprobacion]
     public class FondoController(ILogger<FondoController> logger, IFondoServicio servicio) : ControllerBase
     {
-        /*
+        
         [HttpGet("listar")]
         public async Task<ActionResult<List<FondoDTO>>> ObtenerTodos()
         {
             var listaFondos = await servicio.ListarAsync();
 
             return listaFondos.ToList();
-        }*/
+        }
+
+        // 🔹 GET: Obtener por ID
+        [HttpGet("obtener/{id:int}")]
+        public async Task<ActionResult<FondoDTO>> ObtenerPorId(int id)
+        {
+            var item = await servicio.ObtenerPorIdAsync(id);
+            if (item == null)
+                return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
+            return item;
+        }
 
         [HttpPost("insertar")]
-        //[Aprobacion]
+        [Aprobacion]
         //[Email]
         public async Task<ActionResult> Insertar(CrearFondoRequest fondo)
         {
@@ -35,10 +45,10 @@ namespace AppAPL.Api.Controllers
                 mensaje = "Registro insertado correctamente"
             });
         }
-               //ghjghj
+              
         // 🔹 PUT: Actualizar
         [HttpPut("actualizar/{idFondo:int}")]
-        //[Aprobacion]
+        [Aprobacion]
         //[Email]
         public async Task<ActionResult<ControlErroresDTO>> Actualizar(ActualizarFondoRequest fondo, int idFondo)
         {

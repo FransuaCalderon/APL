@@ -10,6 +10,7 @@ namespace AppAPL.Api.Filtros
     {
         private readonly ILogger<FiltroDeExcepcion> logger;
         private const string NAMESPACE_PROYECTO = "AppAPL";
+        private readonly int processId = Thread.CurrentThread.ManagedThreadId;
         public FiltroDeExcepcion(ILogger<FiltroDeExcepcion> logger)
         {
             this.logger = logger;
@@ -18,11 +19,11 @@ namespace AppAPL.Api.Filtros
 
         public override void OnException(ExceptionContext context)
         {
-            logger.LogError("------------------------------ OCURRIÓ UNA EXCEPCIÓN ----------------------------------");
-            logger.LogError($"ERROR EN LA ACCIÓN: {context.ActionDescriptor.DisplayName}");
+            logger.LogError($"------------------------------ OCURRIÓ UNA EXCEPCIÓN [hilo: {this.processId}]----------------------------------");
+            logger.LogError($"[hilo: {this.processId}] ERROR EN LA ACCIÓN: {context.ActionDescriptor.DisplayName}");
 
             var ex = context.Exception;
-            logger.LogError($"Tipo de excepción: {ex.GetType().Name} | Mensaje: {ex.Message}");
+            logger.LogError($"[hilo: {this.processId}] Tipo de excepción: {ex.GetType().Name} | Mensaje: {ex.Message}");
 
             // Solo loguear el stack trace del código del proyecto
             LogStackTraceProyecto(ex);
@@ -60,7 +61,7 @@ namespace AppAPL.Api.Filtros
 
             return new ObjectResult(new
             {
-                codigo = codigoError,
+                codigoRetorno = codigoError,
                 mensaje = mensajeError
             })
             {
@@ -71,7 +72,7 @@ namespace AppAPL.Api.Filtros
         private ObjectResult CrearResultado(int statusCode, string mensaje, string detalle)
         {
             // Solo devuelve al cliente un mensaje genérico, pero loguea el detalle internamente
-            return new ObjectResult(new { error = mensaje })
+            return new ObjectResult(new { error = $"[hilo: {this.processId}] " +mensaje })
             {
                 StatusCode = statusCode
             };
@@ -98,13 +99,13 @@ namespace AppAPL.Api.Filtros
                     var fileName = frame.GetFileName();
                     var lineNumber = frame.GetFileLineNumber();
 
-                    logger.LogError($"➡️ Clase: {className}, Método: {method.Name}, Archivo: {fileName ?? "N/A"}, Línea: {lineNumber}");
+                    logger.LogError($"[hilo: {this.processId}] Clase: {className}, Método: {method.Name}, Archivo: {fileName ?? "N/A"}, Línea: {lineNumber}");
                 }
             }
 
             // Si ningún frame pertenece al proyecto, igual dejamos un rastro mínimo
             if (!logueoAlgo)
-                logger.LogWarning("⚠️ No se encontraron llamadas dentro del namespace del proyecto en el stack trace.");
+                logger.LogWarning($"[hilo: {this.processId}] No se encontraron llamadas dentro del namespace del proyecto en el stack trace.");
         }
 
     }

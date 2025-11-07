@@ -16,6 +16,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task CrearAsync(CrearFondoRequest fondo);
         Task EliminarAsync(int idFondo);
         Task<IEnumerable<FondoDTO>> ObtenerFondosAsync();
-
+        Task<FondoDTO?> ObtenerPorIdAsync(int idFondo);
     }
 }

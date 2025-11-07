@@ -28,7 +28,7 @@ namespace AppAPL.Api.Middlewares
             }
 
             var processId = Thread.CurrentThread.ManagedThreadId;
-            logger.LogInformation($"------------------INICIANDO MIDDLEWARE DE EMAIL [{processId}]----------------");
+            logger.LogInformation($"------------------INICIANDO MIDDLEWARE DE EMAIL [hilo: {processId}]----------------");
 
             await next(context);
 
@@ -38,7 +38,7 @@ namespace AppAPL.Api.Middlewares
                 logger.LogInformation("🔵 Finalizó envio de email en: {Ruta}", context.Request.Path);
             }
 
-            logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE EMAIL [{processId}] ------------------");
+            logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE EMAIL [hilo: {processId}] ------------------");
         }
     }
 }

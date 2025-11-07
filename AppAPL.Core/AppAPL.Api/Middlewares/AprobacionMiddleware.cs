@@ -31,7 +31,7 @@ namespace AppAPL.Api.Middlewares
             logger.LogInformation("🟢 Ejecutando auditoría en endpoint: {Ruta}", context.Request.Path);
 
             
-            logger.LogInformation($"------------------INICIANDO MIDDLEWARE DE APROBACION [{processId}]----------------");
+            logger.LogInformation($"------------------INICIANDO MIDDLEWARE DE APROBACION [hilo: {processId}]----------------");
 
             await next(context);
 
@@ -62,11 +62,11 @@ namespace AppAPL.Api.Middlewares
 
 
             //enviar correo
-            await this.EnviarCorreo();
+            //await this.EnviarCorreo();
 
 
             logger.LogInformation("🔵 Finalizó auditoría en: {Ruta}", context.Request.Path);
-            logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE APROBACION [{processId}] ------------------");
+            logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE APROBACION [hilo: {processId}] ------------------");
         }
 
 

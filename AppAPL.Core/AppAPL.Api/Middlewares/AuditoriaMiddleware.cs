@@ -22,7 +22,7 @@ namespace AppAPL.Api.Middlewares
             var metodo = context.Request.Method;
             var path = context.Request.Path;
 
-            logger.LogInformation($"------------------INICIANDO MIDDLEWARE DE AUDITORIA [{processId}]----------------");
+            logger.LogInformation($"------------------INICIANDO MIDDLEWARE DE AUDITORIA [hilo: {processId}]----------------");
 
 
 
@@ -142,7 +142,7 @@ namespace AppAPL.Api.Middlewares
             }
 
 
-            logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE AUDITORIA [{processId}] ------------------");
+            logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE AUDITORIA [hilo: {processId}] ------------------");
         }
     }
 }

@@ -26,16 +26,49 @@ namespace AppAPL.AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters();
 
             // 🔹 Agregar los parámetros de salida
-            parameters.Add("p_cur", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<FondoDTO>(
-                "APL_PKG_FONDOS.listar_fondos",
+                "APL_PKG_FONDOS.sp_listar_fondos",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
 
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
             return datos;
+        }
+
+        public async Task<FondoDTO?> ObtenerPorIdAsync(int idFondo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new { p_idfondo = idFondo };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            var datos = await connection.QueryAsync<FondoDTO>(
+                "APL_PKG_FONDOS.sp_obtener_fondo_por_id",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos.FirstOrDefault();
         }
 
         public async Task CrearAsync(CrearFondoRequest fondo)
@@ -93,6 +126,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             logger.LogInformation($"parametros antes de actualizar fondos: {paramObject.ToString()}");
             logger.LogInformation($"sp a ejecutar: {sp}");
 
+
             await connection.ExecuteAsync(
                 sp,
                 parameters,
@@ -101,6 +135,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            
 
             var retorno = new ControlErroresDTO()
             {

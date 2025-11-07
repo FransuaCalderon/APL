@@ -28,9 +28,9 @@ namespace AppAPL.Api.Filtros
             var stopwatch = Stopwatch.StartNew();
 
             // Loguear información antes de la acción
-            logger.LogInformation($"------------------INICIANDO LA ACCION DEL ENDPOINT [{processId}]----------------");
-            logger.LogInformation($"[{processId}] INICIANDO PROCESO ");
-            logger.LogInformation($"[{processId}] Iniciando {method} en {controllerName}/{actionName}");
+            logger.LogInformation($"------------------INICIANDO LA ACCION DEL ENDPOINT [hilo: {processId}]----------------");
+            logger.LogInformation($"[hilo: {processId}] INICIANDO PROCESO ");
+            logger.LogInformation($"[hilo: {processId}] Iniciando {method} en {controllerName}/{actionName}");
 
             // Ejecutar la acción
             //var resultContext = await next();
@@ -41,9 +41,9 @@ namespace AppAPL.Api.Filtros
 
             // Loguear información después de la acción
            
-            logger.LogInformation($"[{processId}] Finalizado {method} en {controllerName}/{actionName}. Tiempo: {stopwatch.ElapsedMilliseconds} ms");
-            logger.LogInformation($"------------------TERMINANDO LA ACCION DEL ENDPOINT [{processId}] ------------------");
-            logger.LogInformation($"[{processId}] FINALIZANDO PROCESO ");
+            logger.LogInformation($"[hilo: {processId}] Finalizado {method} en {controllerName}/{actionName}. Tiempo: {stopwatch.ElapsedMilliseconds} ms");
+            logger.LogInformation($"------------------TERMINANDO LA ACCION DEL ENDPOINT [hilo: {processId}] ------------------");
+            logger.LogInformation($"[hilo: {processId}] FINALIZANDO PROCESO ");
         }
 
     }
