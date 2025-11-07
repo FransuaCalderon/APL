@@ -3,19 +3,20 @@
 }
 
 @section Scripts {
-    <!-- jQuery (ya lo tenías) -->
+    <!-- jQuery -->
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
 
     <!-- jQuery UI (para el Datepicker) -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
 
-    <!-- *** ¡NUEVO! *** Script de localización para español -->
+    <!-- Script de localización para español -->
     <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
-
-    <!-- Tus otros scripts -->
-    <script src="~/js/Fondo/Fondo.js" asp-append-version="true"></script>
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+
+    <!-- *** ¡MODIFICADO! *** -->
+    <!-- 2. Carga el archivo de la VISTA después (apuntando a CraerFondo.js) -->
+    <script src="~/js/Fondo/CrearFondo.js" asp-append-version="true"></script>
 
     <!-- Estilo simple para que el datepicker se parezca a Bootstrap -->
     <style>
@@ -228,7 +229,4 @@
         </div>
     </div>
 </div>
-
-
-
 <!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->

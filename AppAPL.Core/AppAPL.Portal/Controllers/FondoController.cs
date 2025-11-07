@@ -8,5 +8,14 @@ namespace AppWebAPL.Controllers
         {
             return View();
         }
+
+        public async Task<IActionResult> AprobarFondo()
+        {
+            return View();
+        }
+        public async Task<IActionResult> ModificarFondo()
+        {
+            return View();
+        }
     }
 }

@@ -1,6 +1,121 @@
-﻿namespace AppAPL.Portal.Views.Fondo
-{
-    public class AprobacionFondo
-    {
-    }
+﻿@{
+    ViewData["Title"] = "Aprobación de Fondos";
 }
+
+@section Scripts {
+    <!-- jQuery -->
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+
+    <!-- jQuery UI (para el Datepicker) -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
+    <!-- Script de localización para español -->
+    <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+
+    <!-- *** ¡MODIFICADO! *** -->
+    <!-- 2. Carga el archivo de la VISTA después (apuntando a CraerFondo.js) -->
+    <script src="~/js/Fondo/AprobarFondo.js" asp-append-version="true"></script>
+
+    <!-- Estilo simple para que el datepicker se parezca a Bootstrap -->
+    <style>
+        .ui-datepicker {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 0.9rem; /* Tamaño de letra más acorde */
+            z-index: 1056 !important; /* Asegura que se muestre sobre otros elementos (como modales si los usaras) */
+        }
+        /* Para que el check de la tabla se vea bien */
+        #tablaProveedores img {
+            height: 1.2em;
+        }
+    </style>
+
+    <!-- *** ¡MODIFICADO! *** Script para inicializar el Datepicker en Español y con botones -->
+    <script>
+        $(document).ready(function () {
+
+            // 1. Cargar la configuración regional en español
+            $.datepicker.setDefaults($.datepicker.regional['es']);
+
+            // 2. Inicializa los datepickers
+            $("#fondoFechaInicio, #fondoFechaFin").datepicker({
+                dateFormat: "dd/mm/yy", // Formato que coincide con tu placeholder
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true, // Muestra el panel de botones
+                // 'beforeShow' se usa para modificar los botones antes de que se muestren
+                beforeShow: function(input, inst) {
+                    // Retrasar la modificación para asegurar que el panel de botones exista
+                    setTimeout(function() {
+                        let buttonPane = $(inst.dpDiv).find(".ui-datepicker-buttonpane");
+
+                        // 1. Cambiar el texto del botón "Done" (Cerrar) a "Borrar"
+                        let doneButton = buttonPane.find(".ui-datepicker-close");
+                        doneButton.text("Borrar");
+
+                        // 2. Reasignar el evento 'click' del botón "Borrar" para que limpie el campo
+                        doneButton.off("click").on("click", function () {
+                            // Limpiar el valor del input
+                            $(input).val("");
+                            // Esconder el datepicker
+                            $.datepicker._hideDatepicker();
+                        });
+
+                        // 3. (Opcional) Asegurarse que el botón "Hoy" esté correcto
+                        let todayButton = buttonPane.find(".ui-datepicker-current");
+                        todayButton.text("Hoy");
+
+                    }, 1);
+                }
+            });
+
+            // 3. Asigna el clic del *botón* para que abra el datepicker del *input*
+            $("#btnFechaInicio").on("click", function () {
+                $("#fondoFechaInicio").datepicker("show");
+            });
+
+            $("#btnFechaFin").on("click", function () {
+                $("#fondoFechaFin").datepicker("show");
+            });
+        });
+    </script>
+}
+
+<!-- Encabezado compacto -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-1 mb-2 border-bottom">
+    <h1 class="h4">Fondos - Aprobación</h1>
+</div>
+
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header text-white" style="background-color: #C00000;">
+            <h3 class="card-title mb-0 text-center">BANDEJA DE APROBACION DE FONDOS</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead style="background-color: #f8f9fa;">
+                        <tr>
+                            <th>Acción</th>
+                            <th>Solicitud</th>
+                            <th>idFondo</th>
+                            <th>Descripcion</th>
+                            <th>Proveedor</th>
+                            <th>Tipo de Fondo</th>
+                            <th>Valor Fondo</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Valor Disponible</th>
+                            <th>Valor Comprometido</th>
+                            <th>Valor Liquidado</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-fondos">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
