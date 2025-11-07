@@ -25,10 +25,26 @@ CREATE OR REPLACE PACKAGE apl_pkg_fondos AS
         p_codigo_salida         OUT NUMBER,
         p_mensaje_salida        OUT VARCHAR2
     );
+        
+    --Procedimiento para listar fondo
+    PROCEDURE sp_listar_fondos (
+        p_cursor         OUT SYS_REFCURSOR,
+        p_codigo_salida  OUT NUMBER,
+        p_mensaje_salida OUT VARCHAR2
+    );
+    
+    -- Procedimiento para obtener un fondo por ID
+    PROCEDURE sp_obtener_fondo_por_id (
+        p_idfondo IN NUMBER,
+        p_cursor  OUT SYS_REFCURSOR,
+        p_codigo_salida  OUT NUMBER,
+        p_mensaje_salida OUT VARCHAR2
+    );
 
 END apl_pkg_fondos;
 ==========================================================================================================BODY===========================
-create or replace PACKAGE BODY apl_pkg_fondos AS
+
+CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
 
     PROCEDURE crear_fondo (
         p_descripcion          IN VARCHAR2,
@@ -204,19 +220,19 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         p_idusuariomodifica     IN VARCHAR2,
         p_nombreusuariomodifica IN VARCHAR2,
         p_codigo_salida         OUT NUMBER,
-        P_mensaje_salida        OUT VARCHAR2
+        p_mensaje_salida        OUT VARCHAR2
     ) AS
       -- Catálogos
-        v_entidad_fondo      NUMBER; 
-        v_tipo_modificacion  NUMBER; 
-        v_estado_activo      NUMBER; 
-        v_estado_nuevo       NUMBER; 
-        v_estado_modificado  NUMBER; 
-        v_estado_negado      NUMBER; 
+        v_entidad_fondo      NUMBER;
+        v_tipo_modificacion  NUMBER;
+        v_estado_activo      NUMBER;
+        v_estado_nuevo       NUMBER;
+        v_estado_modificado  NUMBER;
+        v_estado_negado      NUMBER;
         v_estado_aprobado    NUMBER; 
 
       -- Trabajo
-        v_estado_actual      NUMBER; 
+        v_estado_actual      NUMBER;
         v_tiene_aprobadores  NUMBER;
         v_nuevo_estado       NUMBER;
         v_descripcion_actual VARCHAR2(500);
@@ -328,8 +344,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
       -- 3) VALIDACIÓN: Si el fondo está APROBADO, no se puede modificar
       -- ============================================================================
         IF v_estado_actual = v_estado_aprobado THEN
-            p_codigo_salida  :=  -20002;
-            p_mensaje_salida :=  'Fondo fue aprobado en este momento y no se puede Modificar';
+            p_codigo_salida := -20002;
+            p_mensaje_salida := 'Fondo fue aprobado en este momento y no se puede Modificar';
             RETURN;
         END IF;
 
@@ -484,13 +500,84 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
 
     EXCEPTION
         WHEN no_data_found THEN
-            p_codigo_salida  := -20050;
+            p_codigo_salida := -20050;
             p_mensaje_salida := 'Falta configurar etiquetas en APL_TB_CATALOGO (ENTFONDO/TPMODIFICACION/ESTADO*).';
             RETURN;
         WHEN OTHERS THEN
-            p_codigo_salida  := -20099;
+            p_codigo_salida := -20099;
             p_mensaje_salida := 'Error al actualizar fondo: ' || sqlerrm;
             RETURN;
     END actualizar_fondo;
+
+    PROCEDURE sp_listar_fondos (
+        p_cursor         OUT SYS_REFCURSOR,
+        p_codigo_salida  OUT NUMBER,
+        p_mensaje_salida OUT VARCHAR2
+    ) AS
+    BEGIN
+        OPEN p_cursor FOR SELECT
+                              idfondo,
+                              descripcion,
+                              idproveedor,
+                              idtipofondo,
+                              valorfondo,
+                              fechainiciovigencia,
+                              fechafinvigencia,
+                              valordisponible,
+                              valorcomprometido,
+                              valorliquidado,
+                              idusuarioingreso,
+                              fechaingreso,
+                              idusuariomodifica,
+                              fechamodifica,
+                              idestadoregistro,
+                              indicadorcreacion
+                          FROM
+                              apl_tb_fondo
+                          ORDER BY
+                              fechaingreso DESC;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            p_codigo_salida := -20001;
+            p_mensaje_salida := 'Error al listar fondos: ' || sqlerrm;
+            RETURN;
+    END sp_listar_fondos;
+
+    PROCEDURE sp_obtener_fondo_por_id (
+        p_idfondo        IN NUMBER,
+        p_cursor         OUT SYS_REFCURSOR,
+        p_codigo_salida  OUT NUMBER,
+        p_mensaje_salida OUT VARCHAR2
+    ) AS
+    BEGIN
+        OPEN p_cursor FOR SELECT
+                              idfondo,
+                              descripcion,
+                              idproveedor,
+                              idtipofondo,
+                              valorfondo,
+                              fechainiciovigencia,
+                              fechafinvigencia,
+                              valordisponible,
+                              valorcomprometido,
+                              valorliquidado,
+                              idusuarioingreso,
+                              fechaingreso,
+                              idusuariomodifica,
+                              fechamodifica,
+                              idestadoregistro,
+                              indicadorcreacion
+                          FROM
+                              apl_tb_fondo
+                          WHERE
+                              idfondo = p_idfondo;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            p_codigo_salida := -20002;
+            p_mensaje_salida := 'Error al obtener fondo por ID: ' || sqlerrm;
+            RETURN;
+    END sp_obtener_fondo_por_id;
 
 END apl_pkg_fondos;
