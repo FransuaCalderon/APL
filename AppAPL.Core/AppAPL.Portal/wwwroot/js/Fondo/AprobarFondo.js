@@ -13,113 +13,130 @@ function cargarBandejaAprobacion() {
 
     // DEBUGGING: Muestra qué URL y parámetros se están enviando
     console.log('=== INICIANDO PETICIÓN ===');
-    console.log('URL:', '/Api/Fondo/Listar');
+    console.log('URL:', '/Api/Fondo/listar');
     console.log('Parámetros:', {
         usuario: '1',
         idopcion: 9
     });
 
-    $.ajax({
-        // URL del endpoint de tu API
-        url: '/Api/Fondo/Listar',
-        type: 'GET',
-        // CRÍTICO: Envía las cookies de autenticación
-        xhrFields: {
-            withCredentials: true
-        },
-        // Headers adicionales (incluye el token anti-falsificación si existe)
-        headers: window.antiForgeryToken ? {
-            'RequestVerificationToken': window.antiForgeryToken
-        } : {},
-        // Asegura que se envíen las cookies de sesión
-        crossDomain: false,
-        // Parámetros requeridos por tu API
-        data: {
-            usuario: 'admin',
-            idopcion: 9
-        },
-        success: function (response) {
-            // DEBUGGING: Muestra la respuesta completa
-            console.log('=== RESPUESTA EXITOSA ===');
-            console.log('Response completo:', response);
-            console.log('Tipo de response:', typeof response);
-            console.log('Es array?:', Array.isArray(response));
+    // Configuración inicial y carga de datos
+    $.get("/config", function (config) {
+        const apiBaseUrl = config.apiBaseUrl;
+        window.apiBaseUrl = apiBaseUrl;
 
-            tbody.empty();
+        const headers = {
+            "idopcion": "1",
+            "usuario": "admin"
+        };
 
-            // Verifica si la respuesta tiene datos
-            var data = response;
-
-            // Si la respuesta viene envuelta en un objeto con propiedad 'data'
-            if (response.data) {
-                data = response.data;
-            }
-
-            console.log('Data procesada:', data);
-            console.log('Cantidad de registros:', data ? data.length : 0);
-
-            if (!data || data.length === 0) {
-                tbody.html('<tr><td colspan="13" class="text-center">No se encontraron registros.</td></tr>');
-                return;
-            }
-
-            // Iteramos sobre cada registro
-            $.each(data, function (index, fondo) {
-                var botonAccion = '<button class="btn btn-primary btn-sm" onclick="gestionarFondo(' + fondo.IdFondo + ')">Gestionar</button>';
-
-                // Construimos la fila con las propiedades en PascalCase
-                var fila = '<tr>' +
-                    '<td>' + botonAccion + '</td>' +
-                    '<td>' + (fondo.Solicitud || '') + '</td>' +
-                    '<td>' + (fondo.IdFondo || '') + '</td>' +
-                    '<td>' + (fondo.Descripcion || '') + '</td>' +
-                    '<td>' + (fondo.Proveedor || '') + '</td>' +
-                    '<td>' + (fondo.TipoFondo || '') + '</td>' +
-                    '<td>' + formatearMoneda(fondo.ValorFondo) + '</td>' +
-                    '<td>' + formatearFecha(fondo.FechaInicio) + '</td>' +
-                    '<td>' + formatearFecha(fondo.FechaFin) + '</td>' +
-                    '<td>' + formatearMoneda(fondo.ValorDisponible) + '</td>' +
-                    '<td>' + formatearMoneda(fondo.ValorComprometido) + '</td>' +
-                    '<td>' + formatearMoneda(fondo.ValorLiquidado) + '</td>' +
-                    '<td><span class="badge bg-' + obtenerColorEstado(fondo.Estado) + '">' + (fondo.Estado || '') + '</span></td>' +
-                    '</tr>';
-
-                tbody.append(fila);
-            });
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            // DEBUGGING: Muestra información detallada del error
-            console.error('=== ERROR EN LA PETICIÓN ===');
-            console.error('Status:', jqXHR.status);
-            console.error('Status Text:', jqXHR.statusText);
-            console.error('Response Text:', jqXHR.responseText);
-            console.error('Text Status:', textStatus);
-            console.error('Error Thrown:', errorThrown);
-
-            // Intenta parsear la respuesta de error
-            try {
-                var errorResponse = JSON.parse(jqXHR.responseText);
-                console.error('Error Response JSON:', errorResponse);
-            } catch (e) {
-                console.error('No se pudo parsear la respuesta de error como JSON');
-            }
-
-            var mensajeError = 'Error al cargar los datos.';
-
-            // Intenta obtener un mensaje de error más específico
-            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                mensajeError += ' ' + jqXHR.responseJSON.message;
-            } else if (jqXHR.status === 404) {
-                mensajeError = 'Endpoint no encontrado (404). Verifica la URL de la API.';
-            } else if (jqXHR.status === 500) {
-                mensajeError = 'Error interno del servidor (500). Revisa la consola para más detalles.';
-            } else if (jqXHR.status === 0) {
-                mensajeError = 'No se pudo conectar con el servidor. Verifica que la API esté en ejecución.';
-            }
-
-            tbody.html('<tr><td colspan="13" class="text-center text-danger">' + mensajeError + '<br><small>Revisa la consola del navegador (F12) para más información.</small></td></tr>');
+        if (window.antiForgeryToken) {
+            headers["RequestVerificationToken"] = window.antiForgeryToken;
         }
+
+        $.ajax({
+            // URL del endpoint de tu API
+            url: `${apiBaseUrl}/Api/fondo/listar`,
+            method: 'GET',
+
+            // CRÍTICO: Envía las cookies de autenticación
+            xhrFields: {
+                withCredentials: false
+            },
+            // Headers adicionales (incluye el token anti-falsificación si existe)
+            headers: headers,
+            // Asegura que se envíen las cookies de sesión
+            crossDomain: false,
+            // Parámetros requeridos por tu API
+            /*
+            data: {
+                usuario: 'admin',
+                idopcion: 9
+            },*/
+            success: function (response) {
+                // DEBUGGING: Muestra la respuesta completa
+                console.log('=== RESPUESTA EXITOSA ===');
+                console.log('Response completo:', response);
+                console.log('Tipo de response:', typeof response);
+                console.log('Es array?:', Array.isArray(response));
+
+                tbody.empty();
+
+                // Verifica si la respuesta tiene datos
+                var data = response;
+
+                // Si la respuesta viene envuelta en un objeto con propiedad 'data'
+                if (response.data) {
+                    data = response.data;
+                }
+
+                console.log('Data procesada:', data);
+                console.log('Cantidad de registros:', data ? data.length : 0);
+
+                if (!data || data.length === 0) {
+                    tbody.html('<tr><td colspan="13" class="text-center">No se encontraron registros.</td></tr>');
+                    return;
+                }
+
+                // Iteramos sobre cada registro
+                $.each(data, function (index, fondo) {
+                    var botonAccion = '<button class="btn btn-primary btn-sm" onclick="gestionarFondo(' + fondo.IdFondo + ')">Gestionar</button>';
+
+                    // Construimos la fila con las propiedades en PascalCase
+                    var fila = '<tr>' +
+                        '<td>' + botonAccion + '</td>' +
+                        '<td>' + (fondo.solicitud || '') + '</td>' +
+                        '<td>' + (fondo.idfondo || '') + '</td>' +
+                        '<td>' + (fondo.descripcion || '') + '</td>' +
+                        '<td>' + (fondo.idproveedor || '') + '</td>' +
+                        '<td>' + (fondo.idtipofondo || '') + '</td>' +
+                        '<td>' + formatearMoneda(fondo.valorfondo) + '</td>' +
+                        '<td>' + formatearFecha(fondo.fechainiciovigencia) + '</td>' +
+                        '<td>' + formatearFecha(fondo.fechafinvigencia) + '</td>' +
+                        '<td>' + formatearMoneda(fondo.valordisponible) + '</td>' +
+                        '<td>' + formatearMoneda(fondo.valorcomprometido) + '</td>' +
+                        '<td>' + formatearMoneda(fondo.valorliquidado) + '</td>' +
+                        '<td><span class="badge bg-' + obtenerColorEstado(fondo.estado) + '">' + (fondo.estado || '') + '</span></td>' +
+                        '</tr>';
+
+                    tbody.append(fila);
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                // DEBUGGING: Muestra información detallada del error
+                console.error('=== ERROR EN LA PETICIÓN ===');
+                console.error('Status:', jqXHR.status);
+                console.error('Status Text:', jqXHR.statusText);
+                console.error('Response Text:', jqXHR.responseText);
+                console.error('Text Status:', textStatus);
+                console.error('Error Thrown:', errorThrown);
+
+                // Intenta parsear la respuesta de error
+                try {
+                    var errorResponse = JSON.parse(jqXHR.responseText);
+                    console.error('Error Response JSON:', errorResponse);
+                } catch (e) {
+                    console.error('No se pudo parsear la respuesta de error como JSON');
+                }
+
+                var mensajeError = 'Error al cargar los datos.';
+
+                // Intenta obtener un mensaje de error más específico
+                if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                    mensajeError += ' ' + jqXHR.responseJSON.message;
+                } else if (jqXHR.status === 404) {
+                    mensajeError = 'Endpoint no encontrado (404). Verifica la URL de la API.';
+                } else if (jqXHR.status === 500) {
+                    mensajeError = 'Error interno del servidor (500). Revisa la consola para más detalles.';
+                } else if (jqXHR.status === 0) {
+                    mensajeError = 'No se pudo conectar con el servidor. Verifica que la API esté en ejecución.';
+                }
+
+                tbody.html('<tr><td colspan="13" class="text-center text-danger">' + mensajeError + '<br><small>Revisa la consola del navegador (F12) para más información.</small></td></tr>');
+            }
+        });
     });
+
+    
 }
 
 /**
