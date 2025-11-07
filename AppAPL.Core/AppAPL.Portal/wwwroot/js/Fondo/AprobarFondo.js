@@ -84,7 +84,7 @@ function cargarBandejaAprobacion() {
                     // Construimos la fila con las propiedades en PascalCase
                     var fila = '<tr>' +
                         '<td>' + botonAccion + '</td>' +
-                        '<td>' + (fondo.solicitud || '') + '</td>' +
+                        //'<td>' + (fondo.solicitud || '') + '</td>' +
                         '<td>' + (fondo.idfondo || '') + '</td>' +
                         '<td>' + (fondo.descripcion || '') + '</td>' +
                         '<td>' + (fondo.idproveedor || '') + '</td>' +
