@@ -100,11 +100,13 @@
         <label for="fondoProveedor" class="form-label fw-bold col-form-label-sm">Proveedor</label>
         <div class="input-group input-group-sm">
             <input type="text" class="form-control" id="fondoProveedor" value="Seleccione..." readonly>
-            <!-- *** ¡MODIFICADO! *** Se agregaron data-bs-toggle y data-bs-target -->
             <button class="btn btn-outline-secondary" type="button" id="btnBuscarProveedorModal" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
                 <img src="~/img/ico/search.svg" alt="Buscar">
             </button>
         </div>
+
+        <input type="hidden" id="fondoProveedorId">
+
     </div>
     <div class="col-md-3">
         <label for="fondoDescripcion" class="form-label fw-bold col-form-label-sm">Descripción</label>
@@ -134,19 +136,19 @@
     <!-- Fila 2 -->
     <div class="col-md-3">
         <label for="fondoValorTotal" class="form-label fw-bold col-form-label-sm">$ Valor Total</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotal" value="9,999,999.99">
+        <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotal" placeholder="$ 0,00">
     </div>
     <div class="col-md-3">
         <label for="fondoDisponible" class="form-label fw-bold col-form-label-sm">$ Disponible</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoDisponible" value="9,999,999.99">
+        <input type="text" class="form-control form-control-sm text-end" id="fondoDisponible" placeholder="$ 0,00" disabled>
     </div>
     <div class="col-md-3">
         <label for="fondoComprometido" class="form-label fw-bold col-form-label-sm">$ Comprometido</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoComprometido" value="$ 0.00" readonly>
+        <input type="text" class="form-control form-control-sm text-end" id="fondoComprometido" value="$ 0.00" disabled>
     </div>
     <div class="col-md-3">
         <label for="fondoLiquidado" class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoLiquidado" value="$ 0.00" readonly>
+        <input type="text" class="form-control form-control-sm text-end" id="fondoLiquidado" value="$ 0.00" disabled>
     </div>
 
     <hr>
