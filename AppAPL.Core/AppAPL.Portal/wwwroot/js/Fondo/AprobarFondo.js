@@ -1,94 +1,178 @@
 ﻿// Espera a que el documento esté listo
 $(document).ready(function () {
-
     // Llama a la función para cargar la bandeja en cuanto la página esté lista
     cargarBandejaAprobacion();
-
 });
 
 /**
  * Función principal para cargar los datos de la bandeja mediante Ajax
  */
 function cargarBandejaAprobacion() {
-
-    // Mostramos un spinner o texto de "cargando" (opcional pero recomendado)
     var tbody = $("#tbody-fondos");
     tbody.html('<tr><td colspan="13" class="text-center">Cargando datos...</td></tr>');
 
+    // DEBUGGING: Muestra qué URL y parámetros se están enviando
+    console.log('=== INICIANDO PETICIÓN ===');
+    console.log('URL:', '/Api/Fondo/Listar');
+    console.log('Parámetros:', {
+        usuario: '1',
+        idopcion: 9
+    });
+
     $.ajax({
-        // IMPORTANTE: Reemplaza esto con la URL correcta a tu controlador y método
-        url: '/AprobarFondo/ObtenerDatosBandeja',
+        // URL del endpoint de tu API
+        url: '/Api/Fondo/Listar',
         type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            // Limpiamos el tbody
+        // CRÍTICO: Envía las cookies de autenticación
+        xhrFields: {
+            withCredentials: true
+        },
+        // Headers adicionales (incluye el token anti-falsificación si existe)
+        headers: window.antiForgeryToken ? {
+            'RequestVerificationToken': window.antiForgeryToken
+        } : {},
+        // Asegura que se envíen las cookies de sesión
+        crossDomain: false,
+        // Parámetros requeridos por tu API
+        data: {
+            usuario: 'admin',
+            idopcion: 9
+        },
+        success: function (response) {
+            // DEBUGGING: Muestra la respuesta completa
+            console.log('=== RESPUESTA EXITOSA ===');
+            console.log('Response completo:', response);
+            console.log('Tipo de response:', typeof response);
+            console.log('Es array?:', Array.isArray(response));
+
             tbody.empty();
 
-            // Verificamos si la data vino vacía
-            if (data.length === 0) {
+            // Verifica si la respuesta tiene datos
+            var data = response;
+
+            // Si la respuesta viene envuelta en un objeto con propiedad 'data'
+            if (response.data) {
+                data = response.data;
+            }
+
+            console.log('Data procesada:', data);
+            console.log('Cantidad de registros:', data ? data.length : 0);
+
+            if (!data || data.length === 0) {
                 tbody.html('<tr><td colspan="13" class="text-center">No se encontraron registros.</td></tr>');
                 return;
             }
 
-            // Iteramos sobre cada registro (fondo) que retornó el servidor
+            // Iteramos sobre cada registro
             $.each(data, function (index, fondo) {
+                var botonAccion = '<button class="btn btn-primary btn-sm" onclick="gestionarFondo(' + fondo.IdFondo + ')">Gestionar</button>';
 
-                // Creamos el botón de Acción. 
-                // Asumimos que quieres llamar a una función JS "aprobar" o "ver"
-                var botonAccion = '<button class="btn btn-primary btn-sm" onclick="gestionarFondo(' + fondo.idFondo + ')">Gestionar</button>';
-
-                // Construimos la fila (tr)
+                // Construimos la fila con las propiedades en PascalCase
                 var fila = '<tr>' +
                     '<td>' + botonAccion + '</td>' +
-                    '<td>' + fondo.solicitud + '</td>' +
-                    '<td>' + fondo.idFondo + '</td>' +
-                    '<td>' + fondo.descripcion + '</td>' +
-                    '<td>' + fondo.proveedor + '</td>' +
-                    '<td>' + fondo.tipoDeFondo + '</td>' +
-                    '<td>' + formatearMoneda(fondo.valorFondo) + '</td>' +
-                    '<td>' + formatearFecha(fondo.fechaInicio) + '</td>' +
-                    '<td>' + formatearFecha(fondo.fechaFin) + '</td>' +
-                    '<td>' + formatearMoneda(fondo.valorDisponible) + '</td>' +
-                    '<td>' + formatearMoneda(fondo.valorComprometido) + '</td>' +
-                    '<td>' + formatearMoneda(fondo.valorLiquidado) + '</td>' +
-                    '<td>' + fondo.estado + '</td>' +
+                    '<td>' + (fondo.Solicitud || '') + '</td>' +
+                    '<td>' + (fondo.IdFondo || '') + '</td>' +
+                    '<td>' + (fondo.Descripcion || '') + '</td>' +
+                    '<td>' + (fondo.Proveedor || '') + '</td>' +
+                    '<td>' + (fondo.TipoFondo || '') + '</td>' +
+                    '<td>' + formatearMoneda(fondo.ValorFondo) + '</td>' +
+                    '<td>' + formatearFecha(fondo.FechaInicio) + '</td>' +
+                    '<td>' + formatearFecha(fondo.FechaFin) + '</td>' +
+                    '<td>' + formatearMoneda(fondo.ValorDisponible) + '</td>' +
+                    '<td>' + formatearMoneda(fondo.ValorComprometido) + '</td>' +
+                    '<td>' + formatearMoneda(fondo.ValorLiquidado) + '</td>' +
+                    '<td><span class="badge bg-' + obtenerColorEstado(fondo.Estado) + '">' + (fondo.Estado || '') + '</span></td>' +
                     '</tr>';
 
-                // Añadimos la fila al cuerpo de la tabla
                 tbody.append(fila);
             });
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            // Manejo de errores
-            console.error("Error al cargar datos: ", textStatus, errorThrown);
-            tbody.html('<tr><td colspan="13" class="text-center text-danger">Error al cargar los datos. Intente más tarde.</td></tr>');
+            // DEBUGGING: Muestra información detallada del error
+            console.error('=== ERROR EN LA PETICIÓN ===');
+            console.error('Status:', jqXHR.status);
+            console.error('Status Text:', jqXHR.statusText);
+            console.error('Response Text:', jqXHR.responseText);
+            console.error('Text Status:', textStatus);
+            console.error('Error Thrown:', errorThrown);
+
+            // Intenta parsear la respuesta de error
+            try {
+                var errorResponse = JSON.parse(jqXHR.responseText);
+                console.error('Error Response JSON:', errorResponse);
+            } catch (e) {
+                console.error('No se pudo parsear la respuesta de error como JSON');
+            }
+
+            var mensajeError = 'Error al cargar los datos.';
+
+            // Intenta obtener un mensaje de error más específico
+            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                mensajeError += ' ' + jqXHR.responseJSON.message;
+            } else if (jqXHR.status === 404) {
+                mensajeError = 'Endpoint no encontrado (404). Verifica la URL de la API.';
+            } else if (jqXHR.status === 500) {
+                mensajeError = 'Error interno del servidor (500). Revisa la consola para más detalles.';
+            } else if (jqXHR.status === 0) {
+                mensajeError = 'No se pudo conectar con el servidor. Verifica que la API esté en ejecución.';
+            }
+
+            tbody.html('<tr><td colspan="13" class="text-center text-danger">' + mensajeError + '<br><small>Revisa la consola del navegador (F12) para más información.</small></td></tr>');
         }
     });
 }
 
 /**
- * Función de ejemplo que se llamaría al presionar el botón de "Gestionar"
+ * Función que se llama al presionar el botón de "Gestionar"
  */
 function gestionarFondo(idFondo) {
+    // Aquí puedes abrir un modal o redirigir a una página de detalles
+    console.log('Gestionando fondo ID:', idFondo);
+
+    // Opción 1: Redirigir a una página de detalles
+    // window.location.href = '/Fondo/Detalle?id=' + idFondo;
+
+    // Opción 2: Abrir un modal (requiere implementar el modal)
+    // abrirModalGestion(idFondo);
+
+    // Temporal: mostrar alert
     alert('Se gestionará el fondo con ID: ' + idFondo);
-    // Aquí puedes redirigir a otra página, abrir un modal, etc.
-    // window.location.href = '/AprobarFondo/Detalle?id=' + idFondo;
 }
 
-
-// --- Funciones Utilitarias (Opcionales) ---
-
 /**
- * Formatea un número como moneda (ej: 20000 -> 20,000.00)
+ * Obtiene el color del badge según el estado
  */
-function formatearMoneda(valor) {
-    // Aseguramos que el valor sea un número
-    var numero = parseFloat(valor);
-    if (isNaN(numero)) {
-        return valor; // Retorna el original si no es un número
+function obtenerColorEstado(estado) {
+    if (!estado) return 'secondary';
+
+    estado = estado.toLowerCase();
+
+    if (estado.includes('pendiente') || estado.includes('solicitado')) {
+        return 'warning';
+    } else if (estado.includes('aprobado') || estado.includes('activo')) {
+        return 'success';
+    } else if (estado.includes('rechazado') || estado.includes('cancelado')) {
+        return 'danger';
+    } else if (estado.includes('liquidado') || estado.includes('cerrado')) {
+        return 'info';
     }
 
-    // Formatea a 2 decimales, con separador de miles
+    return 'secondary';
+}
+
+/**
+ * Formatea un número como moneda
+ */
+function formatearMoneda(valor) {
+    if (valor === null || valor === undefined || valor === '') {
+        return '0.00';
+    }
+
+    var numero = parseFloat(valor);
+    if (isNaN(numero)) {
+        return '0.00';
+    }
+
     return numero.toLocaleString('es-EC', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
@@ -96,29 +180,30 @@ function formatearMoneda(valor) {
 }
 
 /**
- * Formatea la fecha. Asume que la fecha viene en formato ISO (del servidor)
- * ej: "2025-11-01T00:00:00" -> "01-Nov-2025"
+ * Formatea la fecha en formato Nov-01-2025
  */
 function formatearFecha(fechaString) {
+    if (!fechaString) return "";
+
     try {
         var fecha = new Date(fechaString);
 
-        // Opciones para formatear como en tu imagen (ej: Nov-01-2025)
-        var opciones = { year: 'numeric', month: 'short', day: '2-digit' };
+        // Verificar si la fecha es válida
+        if (isNaN(fecha.getTime())) {
+            return fechaString;
+        }
 
-        var fechaFormateada = fecha.toLocaleDateString('es-EC', opciones); // ej: "01 nov. 2025"
+        var meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
-        // Ajustamos para que coincida exactamente con tu imagen "Nov-01-2026"
-        var partes = fechaFormateada.replace('.', '').split(' ');
+        var dia = fecha.getDate().toString().padStart(2, '0');
+        var mes = meses[fecha.getMonth()];
+        var anio = fecha.getFullYear();
 
-        // 'partes' sería algo como ["01", "nov", "2025"]
-        // Capitalizamos el mes
-        var mes = partes[1].charAt(0).toUpperCase() + partes[1].slice(1);
-
-        return mes + '-' + partes[0] + '-' + partes[2]; // ej: Nov-01-2025
+        return mes + '-' + dia + '-' + anio;
 
     } catch (e) {
         console.warn("Error formateando fecha: ", fechaString);
-        return fechaString; // Retorna el original si hay error
+        return fechaString;
     }
 }
