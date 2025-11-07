@@ -1,32 +1,34 @@
-create or replace PACKAGE APL_PKG_FONDOS AS
+CREATE OR REPLACE PACKAGE apl_pkg_fondos AS
     -- Procedimiento para insertar fondo
     PROCEDURE crear_fondo (
-        p_descripcion         IN VARCHAR2,
-        p_idproveedor         IN VARCHAR2,
-        p_idtipofondo         IN NUMBER,
-        p_valorfondo          IN NUMBER,
-        p_fechainiciovigencia IN TIMESTAMP,
-        p_fechafinvigencia    IN TIMESTAMP,
-        p_idusuarioingreso    IN VARCHAR2,
-        p_nombreusuarioingreso IN VARCHAR2
-    );
-
-    --Procedimineto para actualizar fondo
-    PROCEDURE actualizar_fondo (
-        p_idfondo              IN NUMBER,
         p_descripcion          IN VARCHAR2,
         p_idproveedor          IN VARCHAR2,
         p_idtipofondo          IN NUMBER,
         p_valorfondo           IN NUMBER,
         p_fechainiciovigencia  IN TIMESTAMP,
         p_fechafinvigencia     IN TIMESTAMP,
-        p_idusuariomodifica    IN VARCHAR2,
-        p_nombreusuariomodifica IN VARCHAR2
+        p_idusuarioingreso     IN VARCHAR2,
+        p_nombreusuarioingreso IN VARCHAR2
     );
 
-END APL_PKG_FONDOS;
+    --Procedimineto para actualizar fondo
+    PROCEDURE actualizar_fondo (
+        p_idfondo               IN NUMBER,
+        p_descripcion           IN VARCHAR2,
+        p_idproveedor           IN VARCHAR2,
+        p_idtipofondo           IN NUMBER,
+        p_valorfondo            IN NUMBER,
+        p_fechainiciovigencia   IN TIMESTAMP,
+        p_fechafinvigencia      IN TIMESTAMP,
+        p_idusuariomodifica     IN VARCHAR2,
+        p_nombreusuariomodifica IN VARCHAR2,
+        p_codigo_salida         OUT NUMBER,
+        p_mensaje_salida        OUT VARCHAR2
+    );
+
+END apl_pkg_fondos;
 ==========================================================================================================BODY===========================
-CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
+create or replace PACKAGE BODY apl_pkg_fondos AS
 
     PROCEDURE crear_fondo (
         p_descripcion          IN VARCHAR2,
@@ -200,7 +202,9 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
         p_fechainiciovigencia   IN TIMESTAMP,
         p_fechafinvigencia      IN TIMESTAMP,
         p_idusuariomodifica     IN VARCHAR2,
-        p_nombreusuariomodifica IN VARCHAR2
+        p_nombreusuariomodifica IN VARCHAR2,
+        p_codigo_salida         OUT NUMBER,
+        P_mensaje_salida        OUT VARCHAR2
     ) AS
       -- Catálogos
         v_entidad_fondo      NUMBER; 
@@ -324,7 +328,9 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
       -- 3) VALIDACIÓN: Si el fondo está APROBADO, no se puede modificar
       -- ============================================================================
         IF v_estado_actual = v_estado_aprobado THEN
-            raise_application_error(-20002, 'Fondo fue aprobado en este momento y no se puede Modificar');
+            p_codigo_salida  :=  -20002;
+            p_mensaje_salida :=  'Fondo fue aprobado en este momento y no se puede Modificar';
+            RETURN;
         END IF;
 
       -- ============================================================================
@@ -478,9 +484,13 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
 
     EXCEPTION
         WHEN no_data_found THEN
-            raise_application_error(-20050, 'Falta configurar etiquetas en APL_TB_CATALOGO (ENTFONDO/TPMODIFICACION/ESTADO*).');
+            p_codigo_salida  := -20050;
+            p_mensaje_salida := 'Falta configurar etiquetas en APL_TB_CATALOGO (ENTFONDO/TPMODIFICACION/ESTADO*).';
+            RETURN;
         WHEN OTHERS THEN
-            raise_application_error(-20099, 'Error al actualizar fondo: ' || sqlerrm);
+            p_codigo_salida  := -20099;
+            p_mensaje_salida := 'Error al actualizar fondo: ' || sqlerrm;
+            RETURN;
     END actualizar_fondo;
 
 END apl_pkg_fondos;
