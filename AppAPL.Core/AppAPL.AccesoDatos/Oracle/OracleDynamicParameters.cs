@@ -80,23 +80,25 @@ namespace AppAPL.AccesoDatos.Oracle
             if (param == null)
                 throw new KeyNotFoundException($"No se encontró el parámetro '{name}'.");
 
+            // Si es DBNull o null
             if (param.Value == DBNull.Value || param.Value == null)
                 return default;
 
-            // ⚡ Soporte para OracleDecimal, OracleString, etc.
-            if (param.Value is OracleDecimal od)
-            {
-                return (T)Convert.ChangeType(od.ToInt32(), typeof(T));
-            }
-            if (param.Value is OracleString os)
-            {
-                return (T)Convert.ChangeType(os.Value, typeof(T));
-            }
-            if (param.Value is OracleDate odate)
-            {
-                return (T)Convert.ChangeType(odate.Value, typeof(T));
-            }
+            // Si es un tipo Oracle nulo
+            if (param.Value is INullable nullable && nullable.IsNull)
+                return default;
 
+            // Soporte específico para tipos Oracle
+            if (param.Value is OracleDecimal od)
+                return (T)Convert.ChangeType(od.ToInt32(), typeof(T));
+
+            if (param.Value is OracleString os)
+                return (T)Convert.ChangeType(os.Value, typeof(T));
+
+            if (param.Value is OracleDate odate)
+                return (T)Convert.ChangeType(odate.Value, typeof(T));
+
+            // Valor normal
             return (T)Convert.ChangeType(param.Value, typeof(T));
         }
 

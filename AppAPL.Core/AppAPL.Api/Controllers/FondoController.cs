@@ -1,6 +1,7 @@
 ﻿
 
 using AppAPL.Api.Attributes;
+using AppAPL.Dto;
 using AppAPL.Dto.CatalogoTipo;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
@@ -39,10 +40,21 @@ namespace AppAPL.Api.Controllers
         [HttpPut("actualizar/{idFondo:int}")]
         //[Aprobacion]
         //[Email]
-        public async Task<ActionResult> Actualizar(ActualizarFondoRequest fondo, int idFondo)
+        public async Task<ActionResult<ControlErroresDTO>> Actualizar(ActualizarFondoRequest fondo, int idFondo)
         {
-            await servicio.ActualizarAsync(fondo, idFondo);
-            return Ok(new { mensaje = "Actualizado correctamente" });
+            var retorno = await servicio.ActualizarAsync(fondo, idFondo);
+
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
         }
 
 

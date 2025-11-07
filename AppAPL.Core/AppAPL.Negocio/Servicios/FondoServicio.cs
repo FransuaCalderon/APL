@@ -1,4 +1,5 @@
 ﻿using AppAPL.AccesoDatos.Abstracciones;
+using AppAPL.Dto;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
 using System;
@@ -22,7 +23,7 @@ namespace AppAPL.Negocio.Servicios
         public async Task CrearAsync(CrearFondoRequest fondo)
             => await repo.CrearAsync(fondo);
 
-        public async Task ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)
+        public async Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)
             => await repo.ActualizarAsync(fondo, idFondo);
 
         public async Task EliminarAsync(int idFondo)

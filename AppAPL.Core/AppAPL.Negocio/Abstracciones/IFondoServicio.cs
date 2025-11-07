@@ -1,4 +1,5 @@
 ﻿
+using AppAPL.Dto;
 using AppAPL.Dto.Fondos;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace AppAPL.Negocio.Abstracciones
 {
     public interface IFondoServicio
     {
-        Task ActualizarAsync(ActualizarFondoRequest fondo, int idFondo);
+        Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo);
         Task CrearAsync(CrearFondoRequest fondo);
         Task EliminarAsync(int idFondo);
         Task<IEnumerable<FondoDTO>> ListarAsync();

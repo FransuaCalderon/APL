@@ -1,5 +1,6 @@
 ﻿using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto;
 using AppAPL.Dto.CatalogoTipo;
 using AppAPL.Dto.Fondos;
 using Dapper;
@@ -65,7 +66,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             //return parameters.Get<int>("p_idfondo_out");
         }
 
-        public async Task ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)
+        public async Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)
         {
             using var connection = factory.CreateOpenConnection();
 
@@ -84,6 +85,9 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var parameters = new OracleDynamicParameters(paramObject);
 
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
             string sp = "APL_PKG_FONDOS.actualizar_fondo";
 
             logger.LogInformation($"parametros antes de actualizar fondos: {paramObject.ToString()}");
@@ -94,6 +98,17 @@ namespace AppAPL.AccesoDatos.Repositorio
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            var retorno = new ControlErroresDTO()
+            {
+                codigoRetorno = codigoSalida,
+                mensaje = mensajeSalida
+            };
+
+            return retorno;
         }
 
         

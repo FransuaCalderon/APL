@@ -1,5 +1,6 @@
 ﻿
 
+using AppAPL.Dto;
 using AppAPL.Dto.Fondos;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
 {
     public interface IFondoRepositorio
     {
-        Task ActualizarAsync(ActualizarFondoRequest fondo, int idFondo);
+        Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo);
         Task CrearAsync(CrearFondoRequest fondo);
         Task EliminarAsync(int idFondo);
         Task<IEnumerable<FondoDTO>> ObtenerFondosAsync();

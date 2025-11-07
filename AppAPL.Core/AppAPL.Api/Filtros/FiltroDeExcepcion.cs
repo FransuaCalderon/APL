@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Data.SqlClient;
+using Oracle.ManagedDataAccess.Client;
 using System.Diagnostics;
 
 namespace AppAPL.Api.Filtros
@@ -29,6 +30,8 @@ namespace AppAPL.Api.Filtros
             // Manejo según tipo de excepción
             context.Result = ex switch
             {
+                // 🔹 Error de Oracle
+                OracleException oracleEx => CrearResultadoOracle(oracleEx),
                 SqlException sqlEx => CrearResultado(500, "Error en la base de datos.", sqlEx.Message),
                 TaskCanceledException timeoutEx => CrearResultado(408, "La solicitud superó el tiempo de espera.", timeoutEx.Message),
                 NullReferenceException nullEx => CrearResultado(500, "Referencia nula en el servidor.", nullEx.Message),
@@ -39,6 +42,30 @@ namespace AppAPL.Api.Filtros
             logger.LogError("------------------------------------- FIN DE EXCEPCIÓN ----------------------------------------\n");
 
             base.OnException(context);
+        }
+
+        private ObjectResult CrearResultadoOracle(OracleException ex)
+        {
+            int codigoError = ex.Number;
+            string mensajeError = ex.Message;
+
+            // Limpia el prefijo "ORA-20050:" si existe
+            if (mensajeError.Contains(":"))
+                mensajeError = mensajeError.Substring(mensajeError.IndexOf(':') + 1).Trim();
+
+            // Puedes decidir cómo mapear el código Oracle a un status HTTP
+            //int statusCode = (codigoError >= -20999 && codigoError <= -20000) ? 400 : 500;
+
+            logger.LogError($"⚠️ Error Oracle {codigoError}: {mensajeError}");
+
+            return new ObjectResult(new
+            {
+                codigo = codigoError,
+                mensaje = mensajeError
+            })
+            {
+                StatusCode = 400
+            };
         }
 
         private ObjectResult CrearResultado(int statusCode, string mensaje, string detalle)
