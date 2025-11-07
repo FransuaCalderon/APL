@@ -26,7 +26,7 @@ create or replace PACKAGE APL_PKG_FONDOS AS
 
 END APL_PKG_FONDOS;
 ==========================================================================================================BODY===========================
-create or replace PACKAGE BODY apl_pkg_fondos AS
+CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
 
     PROCEDURE crear_fondo (
         p_descripcion          IN VARCHAR2,
@@ -203,16 +203,16 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         p_nombreusuariomodifica IN VARCHAR2
     ) AS
       -- Catálogos
-        v_entidad_fondo      NUMBER;
-        v_tipo_modificacion  NUMBER;
-        v_estado_activo      NUMBER;
-        v_estado_nuevo       NUMBER;
-        v_estado_modificado  NUMBER;
-        v_estado_negado      NUMBER;
-        v_estado_aprobado    NUMBER;
+        v_entidad_fondo      NUMBER; 
+        v_tipo_modificacion  NUMBER; 
+        v_estado_activo      NUMBER; 
+        v_estado_nuevo       NUMBER; 
+        v_estado_modificado  NUMBER; 
+        v_estado_negado      NUMBER; 
+        v_estado_aprobado    NUMBER; 
 
       -- Trabajo
-        v_estado_actual      NUMBER;
+        v_estado_actual      NUMBER; 
         v_tiene_aprobadores  NUMBER;
         v_nuevo_estado       NUMBER;
         v_descripcion_actual VARCHAR2(500);
@@ -229,11 +229,35 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
       -- ============================================================================
         SELECT
             idcatalogo
+        INTO v_entidad_fondo
+        FROM
+            apl_tb_catalogo
+        WHERE
+            idetiqueta = 'ENTFONDO';
+
+        SELECT
+            idcatalogo
+        INTO v_tipo_modificacion
+        FROM
+            apl_tb_catalogo
+        WHERE
+            idetiqueta = 'TPMODIFICACION';
+
+        SELECT
+            idcatalogo
+        INTO v_estado_aprobado
+        FROM
+            apl_tb_catalogo
+        WHERE
+            idetiqueta = 'ESTADOAPROBADO';
+
+        SELECT
+            idcatalogo
         INTO v_estado_nuevo
         FROM
             apl_tb_catalogo
         WHERE
-            idetiqueta = 'ESTADONUEVO';           --2
+            idetiqueta = 'ESTADONUEVO';
 
         SELECT
             idcatalogo
@@ -241,7 +265,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         FROM
             apl_tb_catalogo
         WHERE
-            idetiqueta = 'ESTADOMODIFICADO';      --3
+            idetiqueta = 'ESTADOMODIFICADO';
 
         SELECT
             idcatalogo
@@ -249,7 +273,15 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         FROM
             apl_tb_catalogo
         WHERE
-            idetiqueta = 'ESTADONEGADO';          --5
+            idetiqueta = 'ESTADONEGADO';
+
+        SELECT
+            idcatalogo
+        INTO v_estado_activo
+        FROM
+            apl_tb_catalogo
+        WHERE
+            idetiqueta = 'ESTADOACTIVO';
 
 
       -- ============================================================================
