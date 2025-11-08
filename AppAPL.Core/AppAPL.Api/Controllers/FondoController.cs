@@ -3,9 +3,11 @@
 using AppAPL.Api.Attributes;
 using AppAPL.Dto;
 using AppAPL.Dto.CatalogoTipo;
+using AppAPL.Dto.Email;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
+using static AppAPL.Api.Attributes.EmailAttribute;
 
 namespace AppAPL.Api.Controllers
 {
@@ -34,8 +36,8 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("insertar")]
-        [Aprobacion]
-        //[Email]
+        [Email(TipoAccionEmail.Creacion)]
+       
         public async Task<ActionResult> Insertar(CrearFondoRequest fondo)
         {
             await servicio.CrearAsync(fondo);
@@ -48,8 +50,8 @@ namespace AppAPL.Api.Controllers
               
         // 🔹 PUT: Actualizar
         [HttpPut("actualizar/{idFondo:int}")]
-        [Aprobacion]
-        //[Email]
+        [Email(TipoAccionEmail.Aprobacion)]
+       
         public async Task<ActionResult<ControlErroresDTO>> Actualizar(ActualizarFondoRequest fondo, int idFondo)
         {
             var retorno = await servicio.ActualizarAsync(fondo, idFondo);
@@ -71,7 +73,6 @@ namespace AppAPL.Api.Controllers
         /*
         // 🔹 DELETE: Eliminar
         [HttpDelete("eliminar/{id}")]
-        //[Aprobacion]
         //[Email]
         public async Task<ActionResult> Eliminar(int id)
         {

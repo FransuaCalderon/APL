@@ -1,19 +1,29 @@
-﻿namespace AppAPL.Api.Attributes
+﻿using AppAPL.Dto.Email;
+
+namespace AppAPL.Api.Attributes
 {
-    public class EmailAttribute : Attribute
+    public class EmailAttribute: Attribute
     {
-        private readonly string tipo;
-        private readonly bool logDetallado;
+        public TipoAccionEmail TipoAccion { get; }
 
         public EmailAttribute()
         {
             
         }
 
-        public EmailAttribute(string tipo, bool logDetallado = false)
+        public EmailAttribute(TipoAccionEmail tipo)
         {
-            this.tipo = tipo;
-            this.logDetallado = logDetallado;
+            TipoAccion = tipo;
         }
+
+        public enum TipoAccionEmail
+        {
+            Creacion,
+            Aprobacion,
+            Inactivacion
+        }
+
     }
+
+    
 }

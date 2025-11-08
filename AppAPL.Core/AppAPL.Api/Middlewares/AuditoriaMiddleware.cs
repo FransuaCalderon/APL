@@ -59,7 +59,7 @@ namespace AppAPL.Api.Middlewares
                 requestBody = await reader.ReadToEndAsync();
                 context.Request.Body.Position = 0;
 
-                logger.LogInformation("Request body en JSON: {Body}", requestBody);
+                logger.LogInformation("Request body en JSON auditoriamiddleware: {Body}", requestBody);
             }
             //-----------------------------------------------------------------------------
 
