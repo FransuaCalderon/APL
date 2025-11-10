@@ -35,10 +35,29 @@ CREATE OR REPLACE PACKAGE apl_pkg_fondos AS
     
     -- Procedimiento para obtener un fondo por ID
     PROCEDURE sp_obtener_fondo_por_id (
-        p_idfondo IN NUMBER,
-        p_cursor  OUT SYS_REFCURSOR,
+        p_idfondo        IN NUMBER,
+        p_cursor         OUT SYS_REFCURSOR,
         p_codigo_salida  OUT NUMBER,
         p_mensaje_salida OUT VARCHAR2
+    );
+    
+ 
+    --Procedimiento para mostrar la bandeja de Modificacion
+    PROCEDURE sp_bandeja_modificacion (
+        p_cursor OUT SYS_REFCURSOR
+    );
+
+    --Procedimiento para mostrar la bandeja de Modificacion Por Id
+    PROCEDURE sp_bandeja_modificacion_por_id (
+        p_idfondo        IN NUMBER,
+        p_cursor         OUT SYS_REFCURSOR,
+        p_codigo_salida  OUT NUMBER,
+        p_mensaje_salida OUT VARCHAR2
+    );
+    
+    --Procedimiento para mostrar la bandeja de Inactivacion
+    PROCEDURE sp_bandeja_inactivacion (
+        p_cursor OUT SYS_REFCURSOR
     );
 
 END apl_pkg_fondos;
@@ -579,5 +598,92 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
             p_mensaje_salida := 'Error al obtener fondo por ID: ' || sqlerrm;
             RETURN;
     END sp_obtener_fondo_por_id;
+
+    PROCEDURE sp_bandeja_modificacion (
+        p_cursor OUT SYS_REFCURSOR
+    ) AS
+    BEGIN
+        OPEN p_cursor FOR SELECT
+                              f.idfondo,
+                              f.descripcion,
+                              f.idproveedor                                 AS proveedor,
+                              ct.nombre                                     AS tipo_fondo,
+                              f.valorfondo                                  AS valor_fondo,
+                              to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
+                              to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
+                              f.valordisponible                             AS valor_disponible,
+                              f.valorcomprometido                           AS valor_comprometido,
+                              f.valorliquidado                              AS valor_liquidado,
+                              ce.nombre                                     AS estado
+                          FROM
+                              apl_tb_fondo    f
+                              LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
+                              LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+                          ORDER BY
+                              f.idfondo;
+
+    END sp_bandeja_modificacion;
+
+    PROCEDURE sp_bandeja_modificacion_por_id (
+        p_idfondo IN NUMBER,
+        p_cursor  OUT SYS_REFCURSOR,
+        p_codigo_salida  OUT NUMBER,
+        p_mensaje_salida OUT VARCHAR2
+    ) AS
+    BEGIN
+        OPEN p_cursor FOR SELECT
+            f.idfondo,
+            f.descripcion,
+            f.idproveedor                                 AS proveedor,
+            ct.nombre                                     AS tipo_fondo,
+            f.valorfondo                                  AS valor_fondo,
+            to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
+            to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
+            f.valordisponible                             AS valor_disponible,
+            f.valorcomprometido                           AS valor_comprometido,
+            f.valorliquidado                              AS valor_liquidado,
+            ce.nombre                                     AS estado
+            FROM
+                apl_tb_fondo    f
+                LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
+                LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+            WHERE
+                f.idfondo = p_idfondo
+            ORDER BY
+                f.idfondo;
+
+    EXCEPTION
+        WHEN no_data_found THEN
+            p_codigo_salida := -2000;
+            p_mensaje_salida := 'No se encontró el fondo con ID: ' || p_idfondo;
+        WHEN OTHERS THEN
+            p_codigo_salida := -20002;
+            p_mensaje_salida := 'Error al consultar bandeja: ' || sqlerrm;
+    END sp_bandeja_modificacion_por_id;
+
+    PROCEDURE sp_bandeja_inactivacion (
+        p_cursor OUT SYS_REFCURSOR
+    ) AS
+    BEGIN
+        OPEN p_cursor FOR SELECT
+                              f.idfondo,
+                              f.descripcion,
+                              f.idproveedor                                 AS proveedor,
+                              ct.nombre                                     AS tipo_fondo,
+                              f.valorfondo                                  AS valor_fondo,
+                              to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
+                              to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
+                              f.valordisponible                             AS valor_disponible,
+                              f.valorcomprometido                           AS valor_comprometido,
+                              f.valorliquidado                              AS valor_liquidado,
+                              ce.nombre                                     AS estado
+                          FROM
+                              apl_tb_fondo    f
+                              LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
+                              LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+                          ORDER BY
+                              f.idfondo;
+
+    END sp_bandeja_inactivacion;
 
 END apl_pkg_fondos;
