@@ -26,6 +26,22 @@ namespace AppAPL.Dto.Fondos
         public int? IndicadorCreacion { get; set; }
     }
 
+    public class BandejaFondoDTO
+    {
+        public int IdFondo { get; set; }
+        public string Descripcion { get; set; }
+        public string Proveedor { get; set; }
+        public string Tipo_Fondo { get; set; }
+        public decimal Valor_Fondo { get; set; }
+        public DateTime Fecha_Inicio { get; set; }
+        public DateTime Fecha_Fin { get; set; }
+        public decimal Valor_Disponible { get; set; }
+        public decimal Valor_Comprometido { get; set; }
+        public decimal Valor_Liquidado { get; set; }
+        public string Estado { get; set; }
+
+    }
+
     public class CrearFondoRequest
     {
         public string? Descripcion { get; set; }

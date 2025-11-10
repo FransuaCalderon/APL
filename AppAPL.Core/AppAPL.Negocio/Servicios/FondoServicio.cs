@@ -27,7 +27,13 @@ namespace AppAPL.Negocio.Servicios
         public async Task EliminarAsync(int idFondo)
             => await repo.EliminarAsync(idFondo);
 
-            
+        public async Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaModificacion()
+            => await repo.ObtenerBandejaModificacion();
 
+        public async Task<BandejaFondoDTO?> ObtenerBandejaModificacionPorId(int idFondo)
+            => await repo.ObtenerBandejaModificacionPorId(idFondo);
+
+        public async Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaInactivacion()
+            => await repo.ObtenerBandejaInactivacion();
     }
 }

@@ -45,6 +45,53 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaModificacion()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<BandejaFondoDTO>(
+                "APL_PKG_FONDOS.sp_bandeja_modificacion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            
+
+            return datos;
+        }
+
+
+        public async Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaInactivacion()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<BandejaFondoDTO>(
+                "APL_PKG_FONDOS.sp_bandeja_inactivacion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return datos;
+        }
+
         public async Task<FondoDTO?> ObtenerPorIdAsync(int idFondo)
         {
             using var connection = factory.CreateOpenConnection();
@@ -59,6 +106,32 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var datos = await connection.QueryAsync<FondoDTO>(
                 "APL_PKG_FONDOS.sp_obtener_fondo_por_id",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos.FirstOrDefault();
+        }
+
+        public async Task<BandejaFondoDTO?> ObtenerBandejaModificacionPorId(int idFondo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new { p_idfondo = idFondo };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            var datos = await connection.QueryAsync<BandejaFondoDTO>(
+                "APL_PKG_FONDOS.sp_bandeja_modificacion_por_id",
                 parameters,
                 commandType: CommandType.StoredProcedure
                 );

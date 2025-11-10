@@ -25,11 +25,37 @@ namespace AppAPL.Api.Controllers
             return listaFondos.ToList();
         }
 
+        [HttpGet("bandeja-modificacion")]
+        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaModificacion()
+        {
+            var listaFondos = await servicio.ObtenerBandejaModificacion();
+
+            return listaFondos.ToList();
+        }
+
+        [HttpGet("bandeja-inactivacion")]
+        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaInactivacion()
+        {
+            var listaFondos = await servicio.ObtenerBandejaInactivacion();
+
+            return listaFondos.ToList();
+        }
+
         // 🔹 GET: Obtener por ID
         [HttpGet("obtener/{id:int}")]
         public async Task<ActionResult<FondoDTO>> ObtenerPorId(int id)
         {
             var item = await servicio.ObtenerPorIdAsync(id);
+            if (item == null)
+                return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
+            return item;
+        }
+
+        // 🔹 GET: Obtener por ID
+        [HttpGet("bandeja-modificacion-id/{id:int}")]
+        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaModificacionPorId(int id)
+        {
+            var item = await servicio.ObtenerBandejaModificacionPorId(id);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
             return item;
