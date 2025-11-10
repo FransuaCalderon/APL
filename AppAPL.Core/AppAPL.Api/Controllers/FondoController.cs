@@ -62,7 +62,7 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("insertar")]
-        [Email(TipoAccionEmail.Creacion)]
+        //[Email(TipoAccionEmail.Creacion)]
        
         public async Task<ActionResult> Insertar(CrearFondoRequest fondo)
         {
@@ -76,7 +76,7 @@ namespace AppAPL.Api.Controllers
               
         // 🔹 PUT: Actualizar
         [HttpPut("actualizar/{idFondo:int}")]
-        [Email(TipoAccionEmail.Aprobacion)]
+        //[Email(TipoAccionEmail.Aprobacion)]
        
         public async Task<ActionResult<ControlErroresDTO>> Actualizar(ActualizarFondoRequest fondo, int idFondo)
         {

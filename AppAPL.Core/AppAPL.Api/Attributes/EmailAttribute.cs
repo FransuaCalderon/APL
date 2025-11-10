@@ -16,14 +16,16 @@ namespace AppAPL.Api.Attributes
             TipoAccion = tipo;
         }
 
-        public enum TipoAccionEmail
-        {
-            Creacion,
-            Aprobacion,
-            Inactivacion
-        }
+        
 
     }
 
-    
+    public enum TipoAccionEmail
+    {
+        Creacion,
+        Aprobacion,
+        Inactivacion
+    }
+
+
 }

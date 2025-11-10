@@ -27,18 +27,18 @@
                 <h5 class="modal-title" id="modalEditarFondoLabel">Editar Fondo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body pb-2">
                 <form id="formEditarFondo">
 
-                    <div class="row">
+                    <div class="row mb-2">
                         <div class="col-md-3">
-                            <div class="mb-2">
+                            <div class="">
                                 <label for="modal-fondo-id" class="form-label fw-bold">ID Fondo</label>
                                 <input type="text" class="form-control" id="modal-fondo-id" name="idfondo" disabled>
                             </div>
                         </div>
                         <div class="col-md-9">
-                            <div class="mb-2">
+                            <div class="">
                                 <label for="modal-fondo-descripcion" class="form-label fw-bold">Descripción <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="modal-fondo-descripcion" name="descripcion">
                             </div>
@@ -48,16 +48,21 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-2">
-                                <label for="modal-fondo-proveedor" class="form-label fw-bold">Proveedor <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="modal-fondo-proveedor" name="proveedor">
-                                @* TODO: Reemplazar con un select/buscador si es necesario *@
+                                <label for="modal-fondo-proveedor" class="form-label fw-bold col-form-label-sm">Proveedor</label>
+                                <!-- Este select se rellenará dinámicamente por Fondo.js -->
+                                <select id="modal-fondo-proveedor" class="form-select">
+                                    <option selected>Cargando...</option>
+                                </select>
+                               
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-2">
-                                <label for="modal-fondo-tipofondo" class="form-label fw-bold">Tipo de Fondo <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="modal-fondo-tipofondo" name="tipo_fondo">
-                                @* TODO: Reemplazar con un select si es necesario *@
+                                <label for="modal-fondo-tipofondo" class="form-label fw-bold col-form-label-sm">Tipo Fondo</label>
+                                <!-- Este select se rellenará dinámicamente por Fondo.js -->
+                                <select id="modal-fondo-tipofondo" class="form-select">
+                                    <option selected>Cargando...</option>
+                                </select>
                             </div>
                         </div>
                     </div>

@@ -12,6 +12,9 @@ $(document).ready(function () {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
 
+        cargarTipoFondo();
+        consultarProveedor();
+
         $.ajax({
             url: `${apiBaseUrl}/api/Fondo/bandeja-modificacion`,
             method: "GET",
@@ -38,6 +41,115 @@ $(document).ready(function () {
             }
         });
     });
+
+
+    function cargarTipoFondo() {
+        // Definimos la etiqueta que quieres enviar
+        const etiqueta = "TIPOFONDO";
+
+        $.ajax({
+            // 1. URL actualizada para incluir la etiqueta en la ruta
+            url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`,
+            method: "GET",
+            headers: {
+                "idopcion": "1",
+                "usuario": "admin"
+            },
+            success: function (data) {
+                console.log("Tipos de fondo cargados:", data);
+
+                // Seleccionamos el <select> por su ID
+                const $selectFondoTipo = $("#modal-fondo-tipofondo");
+
+                // Limpiar el select
+                $selectFondoTipo.empty();
+
+                // Agregar una opción por defecto
+                $selectFondoTipo.append(
+                    $('<option></option>')
+                        .val("") // Valor vacío para la opción por defecto
+                        .text("Seleccione...")
+                );
+
+                // Agregar las opciones dinámicamente desde la API
+                if (data && data.length > 0) {
+                    data.forEach(function (item) {
+                        $selectFondoTipo.append(
+                            $('<option></option>')
+                                // 2. Nombres de propiedades (idcatalogo, nombre_catalogo)
+                                .val(item.nombre_catalogo)
+                                .text(item.nombre_catalogo)
+                        );
+                    });
+                }
+
+                
+            },
+            error: function (xhr, status, error) {
+                console.error("Error al cargar tipos de fondo:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudieron cargar los tipos de fondo'
+                });
+            }
+        });
+    }
+
+    function consultarProveedor() {
+        // Definimos la etiqueta que quieres enviar
+        // Valores fijos
+        const usuario = "1";
+        const idopcion = "9";
+
+        $.ajax({
+            // 1. URL actualizada para incluir la etiqueta en la ruta
+            url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
+            method: "GET",
+            headers: {
+                "idopcion": idopcion,
+                "usuario": usuario
+            },
+            success: function (data) {
+                console.log("proveedores cargado:", data);
+
+                // Seleccionamos el <select> por su ID
+                const $selectFondoTipo = $("#modal-fondo-proveedor");
+
+                // Limpiar el select
+                $selectFondoTipo.empty();
+
+                // Agregar una opción por defecto
+                $selectFondoTipo.append(
+                    $('<option></option>')
+                        .val("") // Valor vacío para la opción por defecto
+                        .text("Seleccione...")
+                );
+
+                // Agregar las opciones dinámicamente desde la API
+                if (data && data.length > 0) {
+                    data.forEach(function (item) {
+                        $selectFondoTipo.append(
+                            $('<option></option>')
+                                // 2. Nombres de propiedades (idcatalogo, nombre_catalogo)
+                                .val(item.codigo)
+                                .text(item.nombre)
+                        );
+                    });
+                }
+
+
+            },
+            error: function (xhr, status, error) {
+                console.error("Error al cargar proveedor:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudieron cargar los proveedores'
+                });
+            }
+        });
+    }
 
     // ===== BOTÓN LIMPIAR =====
     $('body').on('click', '#btnLimpiar', function () {
@@ -229,6 +341,8 @@ function abrirModalEditar(id) {
         .removeClass('btn-success')
         .addClass('btn-primary');
 
+    
+
     // 3. Llama a la API para obtener los datos del fondo por ID
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-modificacion-id/${id}`,
@@ -243,6 +357,8 @@ function abrirModalEditar(id) {
             "idtipoproceso": "0"
         },
         success: function (data) {
+
+            
             // 4. Rellena el formulario con los datos (¡usa snake_case!)
             $("#modal-fondo-id").val(data.idfondo);
             $("#modal-fondo-descripcion").val(data.descripcion);
