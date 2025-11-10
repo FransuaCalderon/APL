@@ -23,4 +23,15 @@
 .dropdown-toggle:not(:focus) {
     outline: 0;
 }
+
+/* 1. TÍTULO ROJO Y CENTRADO */
+.tabla-titulo-rojo th {
+    background-color: #CC0000 !important; /* Rojo (forzado) */
+    color: white !important;
+    font-weight: bold;
+    text-align: center !important; /* Centrado (forzado) */
+    padding: 8px !important;
+    font-size: 1rem !important;
+    border: none !important;
+}
 /* Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL */

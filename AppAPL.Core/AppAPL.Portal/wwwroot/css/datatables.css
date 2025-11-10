@@ -879,3 +879,14 @@ html.dark .dt-container .dt-paging .dt-paging-button:active {
 table.dataTable > tbody > tr.fila-marcada > * {
     box-shadow: inset 0 0 0 9999px rgba(var(--dt-row-hover), var(--dt-row-hover-alpha));
 }
+
+/* 1. TÍTULO ROJO Y CENTRADO */
+.tabla-titulo-rojo th {
+    background-color: #CC0000 !important; /* Rojo (forzado) */
+    color: white !important;
+    font-weight: bold;
+    text-align: center !important; /* Centrado (forzado) */
+    padding: 8px !important;
+    font-size: 1rem !important;
+    border: none !important;
+}

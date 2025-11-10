@@ -17,5 +17,10 @@ namespace AppWebAPL.Controllers
         {
             return View();
         }
+
+        public async Task<IActionResult> InactivarFondo()
+        {
+            return View();
+        }
     }
 }

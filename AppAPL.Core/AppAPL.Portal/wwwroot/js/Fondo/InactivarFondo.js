@@ -1,4 +1,4 @@
-﻿// ~/js/Fondo/ModificarFondo.js
+﻿// ~/js/Fondo/InactivarFondo.js
 
 // Variables globales
 let tabla; // GLOBAL
@@ -13,7 +13,9 @@ $(document).ready(function () {
         window.apiBaseUrl = apiBaseUrl;
 
         $.ajax({
-            url: `${apiBaseUrl}/api/Fondo/bandeja-modificacion`,
+            // ===== ¡ÚNICO CAMBIO AQUÍ! =====
+            url: `${apiBaseUrl}/api/Fondo/bandeja-inactivacion`,
+            // ================================
             method: "GET",
             headers: {
                 "idopcion": "1",
@@ -82,7 +84,7 @@ $(document).ready(function () {
         modal.hide();
 
         // 5. Opcional: Recargar la tabla (descomentar cuando el guardado funcione)
-        // $.get(`${window.apiBaseUrl}/api/Fondo/bandeja-modificacion`, function (data) {
+        // $.get(`${window.apiBaseUrl}/api/Fondo/bandeja-inactivacion`, function (data) {
         //     crearListado(data);
         // });
     });
@@ -217,13 +219,15 @@ function crearListado(data) {
 
 /**
  * Abre el modal de edición y carga los datos del fondo.
+ * (Esta función sigue apuntando al endpoint de "modificacion-idr"
+ * ya que no me diste uno nuevo para "inactivacion-idr")
  */
 function abrirModalEditar(id) {
     // 1. Reinicia el formulario
     $('#formEditarFondo')[0].reset();
 
     // 2. Configura el título y el botón del modal
-    $('#modalEditarFondoLabel').text('Editar Fondo');
+    $('#modalEditarFondoLabel').text('Gestionar Fondo'); // Título cambiado
     $('#btnGuardarCambiosFondo')
         .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')
         .removeClass('btn-success')
@@ -231,6 +235,7 @@ function abrirModalEditar(id) {
 
     // 3. Llama a la API para obtener los datos del fondo por ID
     $.ajax({
+        // (Este endpoint es el de la página anterior, cámbialo si tienes uno nuevo)
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-modificacion-id/${id}`,
         method: "GET",
         headers: {

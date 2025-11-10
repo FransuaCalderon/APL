@@ -104,3 +104,14 @@ table.dataTable thead .dt-ordering-asc .dt-column-order::before,
 table.dataTable thead .dt-ordering-desc .dt-column-order::after {
     opacity: 1;
 }
+
+/* 1. TÍTULO ROJO Y CENTRADO */
+.tabla-titulo-rojo th {
+    background-color: #CC0000 !important; /* Rojo (forzado) */
+    color: white !important;
+    font-weight: bold;
+    text-align: center !important; /* Centrado (forzado) */
+    padding: 8px !important;
+    font-size: 1rem !important;
+    border: none !important;
+}

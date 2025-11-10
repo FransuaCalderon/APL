@@ -371,3 +371,23 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
 #modalConsultaProveedor .pagination .page-link {
     color: #0d6efd;
 }
+
+/* 1. TÍTULO ROJO Y CENTRADO */
+.tabla-titulo th {
+    background-color: #ff0000 !important; /* Rojo (forzado) */
+    color: white !important;
+    font-weight: bold;
+    text-align: center !important; /* Centrado (forzado) */
+    padding: 8px !important;
+    font-size: 1rem !important;
+    border: none !important;
+}
+
+/* 2. CABECERAS DE COLUMNA MÁS PEQUEÑAS */
+#tabla-fondos thead tr:not(.tabla-titulo-rojo) th {
+    background-color: red; /* Azul oscuro */
+    color: white;
+    font-size: 0.60rem; /* <-- LETRA MÁS PEQUEÑA */
+    padding: 0.4rem; /* <-- MENOS RELLENO */
+    white-space: nowrap;
+}

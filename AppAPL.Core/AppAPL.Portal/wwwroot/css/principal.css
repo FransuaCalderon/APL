@@ -84,3 +84,14 @@
 	.svg-color-blanco {
     filter: invert(100%) sepia(100%) saturate(100%) brightness(100%) contrast(100%);
 }
+
+/* 1. TÍTULO ROJO Y CENTRADO */
+.tabla-titulo-rojo th {
+	background-color: #CC0000 !important; /* Rojo (forzado) */
+	color: white !important;
+	font-weight: bold;
+	text-align: center !important; /* Centrado (forzado) */
+	padding: 8px !important;
+	font-size: 1rem !important;
+	border: none !important;
+}
