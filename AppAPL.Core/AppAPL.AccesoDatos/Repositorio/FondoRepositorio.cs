@@ -238,7 +238,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_comentario = fondo.Comentario,
                 p_idetiquetaestado = fondo.idEtiquetaEstado,
                 p_idaprobacion = fondo.IdAprobacion,
-                p_usuarioaprobador = fondo.IdAprobacion
+                p_usuarioaprobador = fondo.UsuarioAprobador
             };
 
             var parameters = new OracleDynamicParameters(paramObject);

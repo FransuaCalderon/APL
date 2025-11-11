@@ -26,6 +26,7 @@ namespace AppAPL.AccesoDatos.IoC
             services.AddScoped<ILogRepositorio, LogRepositorio>();
             services.AddScoped<IEmailRepositorio, EmailRepositorio>();
             services.AddScoped<IProveedorRepositorio, ProveedorRepositorio>();
+            services.AddScoped<IAprobacionRepositorio, AprobacionRepositorio>();
             return services;
         }
     }

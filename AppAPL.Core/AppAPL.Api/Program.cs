@@ -35,11 +35,15 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 
+
+    //c.OperationFilter<OptionalRouteParamFilter>();
     // Solo agregar el filtro si está habilitado en appsettings
     if (enableHeaderFilter)
     {
         c.OperationFilter<AgregarHeadersAuditoriaOperationFilter>();
     }
+
+    c.EnableAnnotations();
 });
 
 // IoC propios
