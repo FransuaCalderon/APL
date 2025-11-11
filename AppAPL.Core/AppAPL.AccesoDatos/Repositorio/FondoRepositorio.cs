@@ -1,4 +1,10 @@
-﻿using AppAPL.AccesoDatos.Abstracciones;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
 using AppAPL.Dto;
 using AppAPL.Dto.CatalogoTipo;
@@ -6,12 +12,7 @@ using AppAPL.Dto.Fondos;
 using Dapper;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
@@ -65,6 +66,31 @@ namespace AppAPL.AccesoDatos.Repositorio
             );
 
             
+
+            return datos;
+        }
+
+        public async Task<IEnumerable<BandejaAprobacionDTO>> ObtenerBandejaAprobacion(string usuarioAprobador)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new { p_usuarioaprobador = usuarioAprobador };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<BandejaAprobacionDTO>(
+                "APL_PKG_FONDOS.sp_bandeja_consulta_aprobacion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+
 
             return datos;
         }
@@ -144,6 +170,33 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos.FirstOrDefault();
         }
 
+        public async Task<BandejaAprobacionDTO?> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new 
+            { 
+                p_idfondo = idFondo,
+                p_idaprobacion = idAprobacion
+            };
+
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            
+
+            var datos = await connection.QueryAsync<BandejaAprobacionDTO>(
+                "APL_PKG_FONDOS.sp_bandeja_consulta_aprobacion_por_id",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+
+            return datos.FirstOrDefault();
+        }
+
         public async Task CrearAsync(CrearFondoRequest fondo)
         {
             using var connection = factory.CreateOpenConnection();
@@ -170,6 +223,44 @@ namespace AppAPL.AccesoDatos.Repositorio
             );
 
             //return parameters.Get<int>("p_idfondo_out");
+        }
+
+        public async Task<ControlErroresDTO> AprobarFondo(AprobarFondoRequest fondo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_entidad = fondo.Entidad,
+                p_identidad = fondo.Identidad,
+                p_idtipoproceso = fondo.idTipoProceso,
+                p_idetiquetatipoproceso = fondo.idEtiquetaTipoProceso,
+                p_comentario = fondo.Comentario,
+                p_idetiquetaestado = fondo.idEtiquetaEstado,
+                p_idaprobacion = fondo.IdAprobacion,
+                p_usuarioaprobador = fondo.IdAprobacion
+            };
+
+            var parameters = new OracleDynamicParameters(paramObject);
+            parameters.Add("p_resultado", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            await connection.ExecuteAsync(
+                "APL_PKG_FONDOS.sp_proceso_aprobacion_fondo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            string? mensajeSalida = parameters.Get<string>("p_resultado");
+
+            logger.LogInformation($"mensajeSalida: {mensajeSalida}");
+
+
+            var retorno = new ControlErroresDTO()
+            {
+                mensaje = mensajeSalida
+            };
+
+            return retorno;
         }
 
         public async Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)

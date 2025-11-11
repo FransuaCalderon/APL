@@ -35,5 +35,14 @@ namespace AppAPL.Negocio.Servicios
 
         public async Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaInactivacion()
             => await repo.ObtenerBandejaInactivacion();
+
+        public async Task<IEnumerable<BandejaAprobacionDTO>> ObtenerBandejaAprobacion(string usuarioAprobador)
+            => await repo.ObtenerBandejaAprobacion(usuarioAprobador);
+
+        public async Task<BandejaAprobacionDTO?> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion)
+            => await repo.ObtenerBandejaAprobacionPorId(idFondo, idAprobacion);
+
+        public async Task<ControlErroresDTO> AprobarFondo(AprobarFondoRequest fondo)
+            => await repo.AprobarFondo(fondo);
     }
 }

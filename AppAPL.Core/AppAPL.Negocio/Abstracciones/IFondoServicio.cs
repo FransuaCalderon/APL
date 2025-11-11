@@ -19,5 +19,8 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaModificacion();
         Task<BandejaFondoDTO?> ObtenerBandejaModificacionPorId(int idFondo);
         Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaInactivacion();
+        Task<IEnumerable<BandejaAprobacionDTO>> ObtenerBandejaAprobacion(string usuarioAprobador);
+        Task<BandejaAprobacionDTO?> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion);
+        Task<ControlErroresDTO> AprobarFondo(AprobarFondoRequest fondo);
     }
 }

@@ -33,6 +33,23 @@ namespace AppAPL.Api.Controllers
             return listaFondos.ToList();
         }
 
+        [HttpGet("bandeja-aprobacion/{usuarioAprobador}")]
+        public async Task<ActionResult<List<BandejaAprobacionDTO>>> ObtenerBandejaAprobacion(string usuarioAprobador)
+        {
+            var listaFondos = await servicio.ObtenerBandejaAprobacion(usuarioAprobador);
+
+            return listaFondos.ToList();
+        }
+
+        [HttpGet("bandeja-aprobacion-id/{idFondo:int}/{idAprobacion:int}")]
+        public async Task<ActionResult<BandejaAprobacionDTO>> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion)
+        {
+            var item = await servicio.ObtenerBandejaAprobacionPorId(idFondo, idAprobacion);
+            if (item == null)
+                return NotFound(new { mensaje = $"No se encontró el fondo con ese idFondo: {idFondo}, idAprobacion: {idAprobacion}" });
+            return item;
+        }
+
         [HttpGet("bandeja-inactivacion")]
         public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaInactivacion()
         {
@@ -61,9 +78,9 @@ namespace AppAPL.Api.Controllers
             return item;
         }
 
+        
+
         [HttpPost("insertar")]
-        //[Email(TipoAccionEmail.Creacion)]
-       
         public async Task<ActionResult> Insertar(CrearFondoRequest fondo)
         {
             await servicio.CrearAsync(fondo);
@@ -73,7 +90,18 @@ namespace AppAPL.Api.Controllers
                 mensaje = "Registro insertado correctamente"
             });
         }
-              
+
+        [HttpPost("aprobar-fondo")]
+        public async Task<ActionResult> AprobarFondo(AprobarFondoRequest fondo)
+        {
+            var retorno = await servicio.AprobarFondo(fondo);
+
+            return Ok(new
+            {
+                mensaje = retorno.mensaje
+            });
+        }
+
         // 🔹 PUT: Actualizar
         [HttpPut("actualizar/{idFondo:int}")]
         //[Email(TipoAccionEmail.Aprobacion)]
