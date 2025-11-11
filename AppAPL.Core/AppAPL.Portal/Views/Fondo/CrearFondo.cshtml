@@ -88,7 +88,8 @@
 </div>
 
 <!-- Formulario compacto (g-2 y márgenes reducidos) -->
-<form class="row g-2 mb-3 pb-2">
+<form class="row g-1 mb-1 pb-1">
+
     <!-- Fila 1 -->
     <div class="col-md-2">
         <label for="fondoTipo" class="form-label fw-bold col-form-label-sm">Tipo Fondo</label>
@@ -135,27 +136,26 @@
     </div>
 
     <!-- Fila 2 -->
-    <div class="col-md-3">
+    <div class="col-md-3 mt-0">
         <label for="fondoValorTotal" class="form-label fw-bold col-form-label-sm">$ Valor Total</label>
         <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotal" placeholder="$ 0,00">
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3 mt-0">
         <label for="fondoDisponible" class="form-label fw-bold col-form-label-sm">$ Disponible</label>
         <input type="text" class="form-control form-control-sm text-end" id="fondoDisponible" placeholder="$ 0,00" disabled>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3 mt-0">
         <label for="fondoComprometido" class="form-label fw-bold col-form-label-sm">$ Comprometido</label>
         <input type="text" class="form-control form-control-sm text-end" id="fondoComprometido" value="$ 0.00" disabled>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3 mt-0">
         <label for="fondoLiquidado" class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
         <input type="text" class="form-control form-control-sm text-end" id="fondoLiquidado" value="$ 0.00" disabled>
     </div>
 
-    <hr>
-
+    <hr class="mt-1 mb-1">
     <!-- Fila 3 - Botón (se quitó mt-2 para reducir espacio) -->
-    <div class="col-12">
+    <div class="col-20">
         <!-- *** ¡NUEVO! *** Se agregó el ID -->
         <button type="button" class="btn btn-primary" id="btnGuardarFondos">Grabar</button>
     </div>

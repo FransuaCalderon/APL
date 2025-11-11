@@ -7,7 +7,7 @@
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
-<div class="table-responsive">
+<div class="table-responsive" class="text-center">
     <div id="tabla">
     </div>
 </div>
@@ -85,7 +85,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalEditarFondoLabel">Gestionar Fondo</h5>
+                <h5 class="modal-title" id="modalEditarFondoLabel">Visualizar Datos de Fondo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -104,41 +104,41 @@
                     </div>
                     <div class="col-md-12">
                         <label for="modal-fondo-descripcion" class="form-label fw-bold">Descripción <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="modal-fondo-descripcion" name="descripcion">
+                        <input type="text" class="form-control" id="modal-fondo-descripcion" name="descripcion" disabled>
                     </div>
 
                     
                     <div class="col-md-12">
                         <label for="modal-fondo-proveedor" class="form-label fw-bold">Proveedor <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="modal-fondo-proveedor" name="proveedor">
+                        <input type="text" class="form-control" id="modal-fondo-proveedor" name="proveedor" disabled>
                     </div>
                     <div class="col-md-12">
                         <label for="modal-fondo-tipofondo" class="form-label fw-bold">Tipo de Fondo <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="modal-fondo-tipofondo" name="tipo_fondo">
+                        <input type="text" class="form-control" id="modal-fondo-tipofondo" name="tipo_fondo" disabled>
                     </div>                   
 
                     @* Se mantiene el div comentado, pero lo ideal es revisar que los campos (como Grupo) sean relevantes para Opciones *@                    
                     <div class="col-md-12">
                         <label for="modal-fondo-proveedor" class="form-label fw-bold">Proveedor <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="modal-fondo-proveedor" name="proveedor">
+                        <input type="text" class="form-control" id="modal-fondo-proveedor" name="proveedor" disabled>
                     </div>
                     <div class="col-md-12">
                         <label for="modal-fondo-tipofondo" class="form-label fw-bold">Tipo de Fondo <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="modal-fondo-tipofondo" name="tipo_fondo">
+                        <input type="text" class="form-control" id="modal-fondo-tipofondo" name="tipo_fondo" disabled>
                     </div>                  
                    
                     <div class="col-md-12">
                         <label for="modal-fondo-fechainicio" class="form-label fw-bold">Fecha Inicio <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="modal-fondo-fechainicio" name="fecha_inicio">
+                        <input type="date" class="form-control" id="modal-fondo-fechainicio" name="fecha_inicio"disabled>
                     </div>
                     <div class="col-md-12">
                         <label for="modal-fondo-fechafin" class="form-label fw-bold">Fecha Fin <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="modal-fondo-fechafin" name="fecha_fin">
+                        <input type="date" class="form-control" id="modal-fondo-fechafin" name="fecha_fin" disabled>
                     </div>                    
                    
                     <div class="col-md-12">
                         <label for="modal-fondo-valor" class="form-label fw-bold">Valor Fondo <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" id="modal-fondo-valor" name="valor_fondo" step="0.01">
+                        <input type="number" class="form-control" id="modal-fondo-valor" name="valor_fondo" step="0.01" disabled>
                     </div>
                     <div class="col-md-12">
                         <label for="modal-fondo-estado" class="form-label fw-bold">Estado</label>
@@ -147,10 +147,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btnGuardarCambios">
-                    <i class="fa-solid fa-pen-to-square me-2"></i> Modificar
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>                
             </div>
         </div>
     </div>

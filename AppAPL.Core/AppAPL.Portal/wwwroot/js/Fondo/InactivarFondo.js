@@ -117,19 +117,18 @@ function crearListado(data) {
     // Fila de las Cabeceras (esto tomará tu CSS)
     html += "    <tr>";
     html += "      <th>Acción</th>";
-    html += "      <th>idFondo</th>";
+    html += "      <th>IDFondo</th>";
     html += "      <th>Descripción</th>";
     html += "      <th>Proveedor</th>";
-    html += "      <th>Tipo de Fondo</th>";
-    html += "      <th>Valor Fondo</th>";
+    html += "      <th>Tipo Fondo</th>";
+    html += "      <th>$ Fondo</th>";
     html += "      <th>Fecha Inicio</th>";
     html += "      <th>Fecha Fin</th>";
-    html += "      <th>Valor Disponible</th>";
-    html += "      <th>Valor Comprometido</th>";
-    html += "      <th>Valor Liquidado</th>";
+    html += "      <th>$ Disponible</th>";
+    html += "      <th>$ Comprometido</th>";
+    html += "      <th>$ Liquidado</th>";
     html += "      <th>Estado</th>";
     html += "    </tr>";
-
     html += "  </thead>";
     html += "  <tbody>";
 
@@ -140,14 +139,14 @@ function crearListado(data) {
             var fondo = data[i];
             var id = fondo.idfondo;
 
-            // 3. Tu botón de editar
-            var editButton = '<button type="button" class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(' + id + ')">' +
-                '<i class="fa-regular fa-pen-to-square"></i>' +
+            // 3. Tu botón de visualizar
+            var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar" onclick="abrirModalEditar(' + id + ')">' +
+                '<i class="fa-regular fa-eye"></i>' +
                 '</button>';
 
             html += "<tr>";
             // 4. Tu celda con el botón de editar
-            html += "  <td class='text-center'>" + editButton + "</td>";
+            html += "  <td class='text-center'>" + viewButton + "</td>";
             html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
             html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
             html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
@@ -253,7 +252,7 @@ function abrirModalEditar(id) {
             $("#modal-fondo-descripcion").val(data.descripcion);
             $("#modal-fondo-proveedor").val(data.proveedor);
             $("#modal-fondo-tipofondo").val(data.tipo_fondo);
-            $("#modal-fondo-valor").val(data.valor_fondo);
+            $("#modal-fondo-valor").val(formatearMoneda(data.valor_fondo));
             $("#modal-fondo-estado").val(data.estado);
 
             // 5. Formatea las fechas para los inputs <input type="date">
@@ -300,11 +299,12 @@ function formatearMoneda(valor) {
         return valor;
     }
 
-    return numero.toLocaleString('es-EC', {
+    return '$ ' + numero.toLocaleString('es-EC', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
 }
+
 
 /**
  * Formatea la fecha al formato Nov-01-2025
@@ -312,14 +312,17 @@ function formatearMoneda(valor) {
 function formatearFecha(fechaString) {
     try {
         if (!fechaString) return '';
+
         var fecha = new Date(fechaString);
-        var opciones = { year: 'numeric', month: 'short', day: '2-digit' };
-        var fechaFormateada = fecha.toLocaleDateString('es-EC', opciones);
-        var partes = fechaFormateada.replace('.', '').split(' ');
-        var mes = partes[1].charAt(0).toUpperCase() + partes[1].slice(1);
-        return mes + '-' + partes[0] + '-' + partes[2];
+        if (isNaN(fecha)) return fechaString;
+
+        var dia = String(fecha.getDate()).padStart(2, '0');
+        var mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        var anio = fecha.getFullYear();
+
+        return `${dia}/${mes}/${anio}`;
     } catch (e) {
-        console.warn("Error formateando fecha: ", fechaString);
+        console.warn("Error formateando fecha:", fechaString);
         return fechaString;
     }
 }

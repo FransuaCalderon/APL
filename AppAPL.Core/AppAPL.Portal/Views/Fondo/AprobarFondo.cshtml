@@ -2,113 +2,78 @@
     ViewData["Title"] = "Aprobación de Fondos";
 }
 
-<!-- IMPORTANTE: Agregar el token anti-falsificación -->
-@Html.AntiForgeryToken()
+<h2>Aprobación - Fondo</h2>
+<hr>
 
-@section Scripts {
-    <!-- jQuery -->
-    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+<link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
-    <!-- jQuery UI (para el Datepicker) -->
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
-
-    <!-- Script de localización para español -->
-    <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
-    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-
-    <!-- Carga el archivo de la VISTA -->
-    <script src="~/js/Fondo/AprobarFondo.js" asp-append-version="true"></script>
-
-    <!-- Estilo simple para que el datepicker se parezca a Bootstrap -->
-    <style>
-        .ui-datepicker {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            font-size: 0.9rem;
-            z-index: 1056 !important;
-        }
-
-        #tablaProveedores img {
-            height: 1.2em;
-        }
-    </style>
-
-    <!-- Script para pasar el token anti-falsificación a JavaScript -->
-    <script>
-        // Hacer el token disponible globalmente para AJAX
-        window.antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
-    </script>
-
-    <!-- Script para inicializar el Datepicker en Español -->
-    <script>
-        $(document).ready(function () {
-            $.datepicker.setDefaults($.datepicker.regional['es']);
-
-            $("#fondoFechaInicio, #fondoFechaFin").datepicker({
-                dateFormat: "dd/mm/yy",
-                changeMonth: true,
-                changeYear: true,
-                showButtonPanel: true,
-                beforeShow: function(input, inst) {
-                    setTimeout(function() {
-                        let buttonPane = $(inst.dpDiv).find(".ui-datepicker-buttonpane");
-                        let doneButton = buttonPane.find(".ui-datepicker-close");
-                        doneButton.text("Borrar");
-                        doneButton.off("click").on("click", function () {
-                            $(input).val("");
-                            $.datepicker._hideDatepicker();
-                        });
-                        let todayButton = buttonPane.find(".ui-datepicker-current");
-                        todayButton.text("Hoy");
-                    }, 1);
-                }
-            });
-
-            $("#btnFechaInicio").on("click", function () {
-                $("#fondoFechaInicio").datepicker("show");
-            });
-
-            $("#btnFechaFin").on("click", function () {
-                $("#fondoFechaFin").datepicker("show");
-            });
-        });
-    </script>
-}
-
-<!-- Encabezado compacto -->
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-1 mb-2 border-bottom">
-    <h1 class="h4">Fondos - Aprobación</h1>
+<div class="table-responsive" class="text-center">
+    <div id="tabla">
+    </div>
 </div>
 
-<div class="container-fluid mt-4">
-    <div class="card">
-        <div class="card-header text-white" style="background-color: #C00000;">
-            <h3 class="card-title mb-0 text-center">BANDEJA DE APROBACION DE FONDOS</h3>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead style="background-color: #f8f9fa;">
-                        <tr>
-                            <th>Acción</th>
-                            <!--<th>Solicitud</th>-->
-                            
-                            <th>idFondo</th>
-                            <th>Descripcion</th>
-                            <th>Proveedor</th>
-                            <th>Tipo de Fondo</th>
-                            <th>Valor Fondo</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
-                            <th>Valor Disponible</th>
-                            <th>Valor Comprometido</th>
-                            <th>Valor Liquidado</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-fondos">
-                    </tbody>
-                </table>
+@section Scripts {
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <script src="~/js/Fondo/AprobarFondo.js" asp-append-version="true"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+}
+
+<!-- Modal para Visualizar Fondo -->
+<div class="modal fade" id="modalEditarFondo" tabindex="-1" aria-labelledby="modalEditarFondoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="width: 90vw; max-width: 90vw;">
+        <div class="modal-content d-flex flex-column" style="height: 90vh; max-height: 90vh;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarFondoLabel">Visualizar Datos de Fondo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" style="overflow-y: auto;">
+
+                <form id="formEditarFondo" class="row gx-1 gy-0">
+
+                    <div class="col-md-2 mb-0">
+                        <label for="modal-fondo-tipofondo" class="form-label fw-bold col-form-label-sm">Tipo Fondo</label>
+                        <input type="text" class="form-control form-control-sm" id="modal-fondo-tipofondo" name="tipo_fondo" disabled>
+                    </div>
+                    <div class="col-md-3 mb-0">
+                        <label for="modal-fondo-proveedor" class="form-label fw-bold col-form-label-sm">Proveedor</label>
+                        <input type="text" class="form-control form-control-sm" id="modal-fondo-proveedor" name="proveedor" disabled>
+                    </div>
+                    <div class="col-md-3 mb-0">
+                        <label for="modal-fondo-descripcion" class="form-label fw-bold col-form-label-sm">Descripción</label>
+                        <input type="text" class="form-control form-control-sm" id="modal-fondo-descripcion" name="descripcion" disabled>
+                    </div>
+                    <div class="col-md-2 mb-0">
+                        <label for="modal-fondo-fechainicio" class="form-label fw-bold col-form-label-sm">Fecha Inicio</label>
+                        <input type="text" class="form-control form-control-sm" id="modal-fondo-fechainicio" name="fecha_inicio" disabled>
+                    </div>
+                    <div class="col-md-2 mb-0">
+                        <label for="modal-fondo-fechafin" class="form-label fw-bold col-form-label-sm">Fecha Fin</label>
+                        <input type="text" class="form-control form-control-sm" id="modal-fondo-fechafin" name="fecha_fin" disabled>
+                    </div>
+
+                    <div class="col-md-3 mt-0">
+                        <label for="modal-fondo-valor" class="form-label fw-bold col-form-label-sm">$ Valor Total</label>
+                        <input type="text" class="form-control form-control-sm text-end" id="modal-fondo-valor" name="valor_fondo" disabled>
+                    </div>
+                    <div class="col-md-3 mt-0">
+                        <label for="modal-fondo-disponible" class="form-label fw-bold col-form-label-sm">$ Disponible</label>
+                        <input type="text" class="form-control form-control-sm text-end" id="modal-fondo-disponible" value="$ 0,00" disabled>
+                    </div>
+                    <div class="col-md-3 mt-0">
+                        <label for="modal-fondo-comprometido" class="form-label fw-bold col-form-label-sm">$ Comprometido</label>
+                        <input type="text" class="form-control form-control-sm text-end" id="modal-fondo-comprometido" value="$ 0.00" disabled>
+                    </div>
+                    <div class="col-md-3 mt-0">
+                        <label for="modal-fondo-liquidado" class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
+                        <input type="text" class="form-control form-control-sm text-end" id="modal-fondo-liquidado" value="$ 0.00" disabled>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

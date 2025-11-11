@@ -388,47 +388,12 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
     background-color: red; /* Azul oscuro */
     color: white;
     font-size: 0.60rem; /* <-- LETRA MÁS PEQUEÑA */
-    padding: 0.4rem; /* <-- MENOS RELLENO */
+    padding: 0.60rem; /* <-- MENOS RELLENO */
     white-space: nowrap;
 }
 
-/* ======= MODAL COMPACTO ======= */
-.modal-compacto {
-    padding-top: 0.25rem !important;
-    padding-bottom: 0.25rem !important;
-}
-
-/* Filas muy compactas dentro del modal */
-.modal-compacto .row {
-    margin-top: 0 !important;
-    margin-bottom: 0.2rem !important;
-}
-
-/* Elimina márgenes extra en las columnas */
-.modal-compacto [class*="col-"] {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-}
-
-/* Etiquetas más juntas con los inputs */
-.modal-compacto .form-label {
-    margin-bottom: 0.15rem !important;
-    font-size: 0.9rem;
-    line-height: 1;
-}
-
-/* Inputs más pequeños y pegados */
-.modal-compacto .form-control {
-    padding: 0.25rem 0.5rem !important;
-    font-size: 0.9rem;
-    height: calc(1.6em + 0.5rem + 2px) !important;
-    line-height: 1.2;
-}
-
-/* Alinea las columnas sin dejar espacios grandes */
-.modal-compacto .col-md-4,
-.modal-compacto .col-md-6,
-.modal-compacto .col-md-8 {
-    padding-left: 0.4rem !important;
-    padding-right: 0.4rem !important;
+#tabla-fondos tbody td {
+    font-size: 0.60rem; /* Mismo tamaño que los headers */
+    padding: 0.60rem; /* Mismo relleno que los headers */
+    white-space: nowrap;
 }
