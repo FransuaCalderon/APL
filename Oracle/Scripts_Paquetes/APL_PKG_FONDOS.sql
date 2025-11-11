@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE apl_pkg_fondos AS
+create or replace PACKAGE apl_pkg_fondos AS
     -- Procedimiento para insertar fondo
     PROCEDURE crear_fondo (
         p_descripcion          IN VARCHAR2,
@@ -59,12 +59,38 @@ CREATE OR REPLACE PACKAGE apl_pkg_fondos AS
     PROCEDURE sp_bandeja_inactivacion (
         p_cursor OUT SYS_REFCURSOR
     );
-
+    
+    
+    --Procedimiento para mostrar la bandeja de Aprobacion
+    PROCEDURE sp_bandeja_consulta_aprobacion (
+        p_usuarioaprobador IN VARCHAR2,                   -- Usuario aprobador (OBLIGATORIO)
+        p_cursor           OUT SYS_REFCURSOR
+    );
+    
+    --Procedimiento para mostrar la bandeja de Aprobacion Por Id
+    PROCEDURE sp_bandeja_consulta_aprobacion_por_id (
+        p_idfondo      IN NUMBER,
+        p_idaprobacion IN NUMBER,
+        p_cursor       OUT SYS_REFCURSOR
+    );
+    
+    PROCEDURE sp_proceso_aprobacion_fondo (       
+        p_entidad                   IN NUMBER,
+        p_identidad                 IN NUMBER,
+        p_idtipoproceso             IN NUMBER,
+        p_idetiquetatipoproceso     IN VARCHAR2,
+        p_comentario                IN VARCHAR2,
+        p_idetiquetaestado          IN VARCHAR2,
+        p_idaprobacion              IN NUMBER,
+        p_usuarioaprobador          IN VARCHAR2,
+        p_resultado                 OUT VARCHAR2   
+    );
+    
+    
 END apl_pkg_fondos;
 ==========================================================================================================BODY===========================
 
 CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
-
     PROCEDURE crear_fondo (
         p_descripcion          IN VARCHAR2,
         p_idproveedor          IN VARCHAR2,
@@ -535,26 +561,26 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
     ) AS
     BEGIN
         OPEN p_cursor FOR SELECT
-                              idfondo,
-                              descripcion,
-                              idproveedor,
-                              idtipofondo,
-                              valorfondo,
-                              fechainiciovigencia,
-                              fechafinvigencia,
-                              valordisponible,
-                              valorcomprometido,
-                              valorliquidado,
-                              idusuarioingreso,
-                              fechaingreso,
-                              idusuariomodifica,
-                              fechamodifica,
-                              idestadoregistro,
-                              indicadorcreacion
-                          FROM
-                              apl_tb_fondo
-                          ORDER BY
-                              fechaingreso DESC;
+                idfondo,
+                descripcion,
+                idproveedor,
+                idtipofondo,
+                valorfondo,
+                fechainiciovigencia,
+                fechafinvigencia,
+                valordisponible,
+                valorcomprometido,
+                valorliquidado,
+                idusuarioingreso,
+                fechaingreso,
+                idusuariomodifica,
+                fechamodifica,
+                idestadoregistro,
+                indicadorcreacion
+        FROM
+                apl_tb_fondo
+                ORDER BY
+                fechaingreso DESC;
 
     EXCEPTION
         WHEN OTHERS THEN
@@ -571,26 +597,26 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
     ) AS
     BEGIN
         OPEN p_cursor FOR SELECT
-                              idfondo,
-                              descripcion,
-                              idproveedor,
-                              idtipofondo,
-                              valorfondo,
-                              fechainiciovigencia,
-                              fechafinvigencia,
-                              valordisponible,
-                              valorcomprometido,
-                              valorliquidado,
-                              idusuarioingreso,
-                              fechaingreso,
-                              idusuariomodifica,
-                              fechamodifica,
-                              idestadoregistro,
-                              indicadorcreacion
-                          FROM
-                              apl_tb_fondo
-                          WHERE
-                              idfondo = p_idfondo;
+                    idfondo,
+                    descripcion,
+                    idproveedor,
+                    idtipofondo,
+                    valorfondo,
+                    fechainiciovigencia,
+                    fechafinvigencia,
+                    valordisponible,
+                    valorcomprometido,
+                    valorliquidado,
+                    idusuarioingreso,
+                    fechaingreso,
+                    idusuariomodifica,
+                    fechamodifica,
+                    idestadoregistro,
+                    indicadorcreacion
+         FROM
+                 apl_tb_fondo
+        WHERE
+                idfondo = p_idfondo;
 
     EXCEPTION
         WHEN OTHERS THEN
@@ -604,52 +630,52 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
     ) AS
     BEGIN
         OPEN p_cursor FOR SELECT
-                              f.idfondo,
-                              f.descripcion,
-                              f.idproveedor                                 AS proveedor,
-                              ct.nombre                                     AS tipo_fondo,
-                              f.valorfondo                                  AS valor_fondo,
-                              to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
-                              to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
-                              f.valordisponible                             AS valor_disponible,
-                              f.valorcomprometido                           AS valor_comprometido,
-                              f.valorliquidado                              AS valor_liquidado,
-                              ce.nombre                                     AS estado
-                          FROM
-                              apl_tb_fondo    f
-                              LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
-                              LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
-                          ORDER BY
-                              f.idfondo;
+                f.idfondo,
+                f.descripcion,
+                f.idproveedor                                 AS proveedor,
+                ct.nombre                                     AS tipo_fondo,
+                f.valorfondo                                  AS valor_fondo,
+                to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
+                to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
+                f.valordisponible                             AS valor_disponible,
+                f.valorcomprometido                           AS valor_comprometido,
+                f.valorliquidado                              AS valor_liquidado,
+                ce.nombre                                     AS estado
+        FROM
+                apl_tb_fondo  f
+                LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
+                LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+        ORDER BY
+                f.idfondo;
 
     END sp_bandeja_modificacion;
 
     PROCEDURE sp_bandeja_modificacion_por_id (
-        p_idfondo IN NUMBER,
-        p_cursor  OUT SYS_REFCURSOR,
+        p_idfondo        IN NUMBER,
+        p_cursor         OUT SYS_REFCURSOR,
         p_codigo_salida  OUT NUMBER,
         p_mensaje_salida OUT VARCHAR2
     ) AS
     BEGIN
         OPEN p_cursor FOR SELECT
-            f.idfondo,
-            f.descripcion,
-            f.idproveedor                                 AS proveedor,
-            ct.nombre                                     AS tipo_fondo,
-            f.valorfondo                                  AS valor_fondo,
-            to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
-            to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
-            f.valordisponible                             AS valor_disponible,
-            f.valorcomprometido                           AS valor_comprometido,
-            f.valorliquidado                              AS valor_liquidado,
-            ce.nombre                                     AS estado
-            FROM
+                f.idfondo,
+                f.descripcion,
+                f.idproveedor                                 AS proveedor,
+                ct.nombre                                     AS tipo_fondo,
+                f.valorfondo                                  AS valor_fondo,
+                to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
+                to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
+                f.valordisponible                             AS valor_disponible,
+                f.valorcomprometido                           AS valor_comprometido,
+                f.valorliquidado                              AS valor_liquidado,
+                ce.nombre                                     AS estado
+        FROM
                 apl_tb_fondo    f
                 LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
                 LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
-            WHERE
+        WHERE
                 f.idfondo = p_idfondo
-            ORDER BY
+        ORDER BY
                 f.idfondo;
 
     EXCEPTION
@@ -666,24 +692,345 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
     ) AS
     BEGIN
         OPEN p_cursor FOR SELECT
-                              f.idfondo,
-                              f.descripcion,
-                              f.idproveedor                                 AS proveedor,
-                              ct.nombre                                     AS tipo_fondo,
-                              f.valorfondo                                  AS valor_fondo,
-                              to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
-                              to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
-                              f.valordisponible                             AS valor_disponible,
-                              f.valorcomprometido                           AS valor_comprometido,
-                              f.valorliquidado                              AS valor_liquidado,
-                              ce.nombre                                     AS estado
-                          FROM
-                              apl_tb_fondo    f
-                              LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
-                              LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
-                          ORDER BY
-                              f.idfondo;
+                f.idfondo,
+                f.descripcion,
+                f.idproveedor                                 AS proveedor,
+                ct.nombre                                     AS tipo_fondo,
+                f.valorfondo                                  AS valor_fondo,
+                to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
+                to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
+                f.valordisponible                             AS valor_disponible,
+                f.valorcomprometido                           AS valor_comprometido,
+                f.valorliquidado                              AS valor_liquidado,
+                ce.nombre                                     AS estado
+        FROM
+                apl_tb_fondo    f
+                LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
+                LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+        ORDER BY
+                f.idfondo;
 
     END sp_bandeja_inactivacion;
 
-END apl_pkg_fondos;
+    PROCEDURE sp_bandeja_consulta_aprobacion (
+        p_usuarioaprobador IN VARCHAR2,     -- Usuario aprobador (OBLIGATORIO)
+        p_cursor           OUT SYS_REFCURSOR -- Cursor de salida
+    ) AS
+    BEGIN
+        OPEN p_cursor FOR SELECT
+                              x.*
+                          FROM
+                              (
+                                  SELECT
+                                      solicitud,
+                                      idetiquetatipoproceso,
+                                      idtipoproceso,
+                                      idfondo,
+                                      descripcion,
+                                      proveedor,
+                                      tipo_fondo,
+                                      valor_fondo,
+                                      fecha_inicio,
+                                      fecha_fin,
+                                      valor_disponible,
+                                      valor_comprometido,
+                                      valor_liquidado,
+                                      idestados_fondo,
+                                      nombre_estado_fondo,
+                                      id_etiqueta_estado_fondo,
+                                      nivelaprobacion,
+                                      aprobador,
+                                      idaprobacion,
+                                      entidad_etiqueta,
+                                      tipo_proceso_etiqueta,
+                                      estado_aprob_etiqueta
+                                  FROM
+                                      (
+                                          SELECT
+                                              cp.nombre                                     AS solicitud,
+                                              cp.idetiqueta                                 AS idetiquetatipoproceso,
+                                              a.idtipoproceso,
+                                              f.idfondo,
+                                              f.descripcion,
+                                              f.idproveedor                                 AS proveedor,
+                                              ct.nombre                                     AS tipo_fondo,
+                                              f.valorfondo                                  AS valor_fondo,
+                                              to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
+                                              to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
+                                              f.valordisponible                             AS valor_disponible,
+                                              f.valorcomprometido                           AS valor_comprometido,
+                                              f.valorliquidado                              AS valor_liquidado,
+                                              f.idestadoregistro                            AS idestados_fondo,
+                                              ce.nombre                                     AS nombre_estado_fondo,
+                                              ce.idetiqueta                                 AS id_etiqueta_estado_fondo,
+                                              a.nivelaprobacion,
+                                              a.iduseraprobador                             AS aprobador,
+                                              a.idaprobacion,
+                                              en.idetiqueta                                 AS entidad_etiqueta,
+                                              cp.idetiqueta                                 AS tipo_proceso_etiqueta,
+                                              ea.idetiqueta                                 AS estado_aprob_etiqueta,
+                                              ROW_NUMBER()
+                                              OVER(PARTITION BY a.entidad, a.identidad, a.idtipoproceso
+                                                   ORDER BY
+                                                       a.entidad, a.identidad, a.idtipoproceso,
+                                                       a.nivelaprobacion ASC
+                                              )                                             AS rn
+                                          FROM
+                                                   apl_tb_fondo f
+                                              INNER JOIN apl_tb_aprobacion a ON a.identidad = f.idfondo
+                                              LEFT JOIN apl_tb_catalogo   cp ON a.idtipoproceso = cp.idcatalogo
+                                              LEFT JOIN apl_tb_catalogo   ct ON f.idtipofondo = ct.idcatalogo
+                                              LEFT JOIN apl_tb_catalogo   ce ON f.idestadoregistro = ce.idcatalogo
+                                              LEFT JOIN apl_tb_catalogo   en ON a.entidad = en.idcatalogo
+                                              LEFT JOIN apl_tb_catalogo   ea ON a.idestadoregistro = ea.idcatalogo
+                                          WHERE
+                                              ce.idetiqueta IN ( 'ESTADONUEVO', 'ESTADOMODIFICADO', 'ESTADOAPROBADO', 'ESTADOVIGENTE' )
+                                              AND en.idetiqueta = 'ENTFONDO'
+                                              AND cp.idetiqueta IN ( 'TPCREACION', 'TPINACTIVACION' )
+                                              AND ea.idetiqueta = 'ESTADONUEVO'
+                                      )
+                                  WHERE
+                                      rn = 1
+                              ) x
+                          WHERE
+                              x.aprobador = p_usuarioaprobador
+                          ORDER BY
+                              x.idfondo;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise_application_error(-20005, 'Error en bandeja de aprobación: ' || sqlerrm);
+    END sp_bandeja_consulta_aprobacion;
+    
+    PROCEDURE sp_bandeja_consulta_aprobacion_por_id (
+        p_idfondo       IN NUMBER,
+        p_idaprobacion  IN NUMBER,
+        p_cursor        OUT SYS_REFCURSOR
+    ) AS
+    BEGIN
+        OPEN p_cursor FOR 
+                        
+                          
+                SELECT
+                    cp.nombre                                     AS solicitud,
+                    cp.idetiqueta                                 AS idEtiquetaTipoProceso,
+                    a.idtipoproceso,
+                    f.idfondo,
+                    f.descripcion,
+                    f.idproveedor                                 AS proveedor,
+                    ct.nombre                                     AS tipo_fondo,
+                    f.valorfondo                                  AS valor_fondo,
+                    to_char(f.fechainiciovigencia, 'YYYY-Mon-DD') AS fecha_inicio,
+                    to_char(f.fechafinvigencia, 'YYYY-Mon-DD')    AS fecha_fin,
+                    f.valordisponible                             AS valor_disponible,
+                    f.valorcomprometido                           AS valor_comprometido,
+                    f.valorliquidado                              AS valor_liquidado,
+                    f.idestadoregistro                            AS idEstados_fondo,
+                    ce.nombre                                     AS nombre_estado_fondo,
+                    ce.idetiqueta                                 AS id_etiqueta_estado_fondo,
+                    a.nivelaprobacion,
+                    a.iduseraprobador                             AS aprobador,
+                    a.idaprobacion,
+                    en.idetiqueta                                 AS entidad_etiqueta,
+                    cp.idetiqueta                                 AS tipo_proceso_etiqueta,
+                    ea.idetiqueta                                 AS estado_aprob_etiqueta
+                                             
+                                                                                        
+                    FROM
+                            apl_tb_fondo f
+                            INNER JOIN apl_tb_aprobacion a ON a.identidad = p_idfondo--
+                            LEFT JOIN apl_tb_catalogo   cp ON a.idtipoproceso = cp.idcatalogo
+                            LEFT JOIN apl_tb_catalogo   ct ON f.idtipofondo = ct.idcatalogo
+                            LEFT JOIN apl_tb_catalogo   ce ON f.idestadoregistro = ce.idcatalogo
+                            LEFT JOIN apl_tb_catalogo   en ON a.entidad = en.idcatalogo
+                            LEFT JOIN apl_tb_catalogo   ea ON a.idestadoregistro = ea.idcatalogo
+                     WHERE
+                            f.idfondo = p_idfondo and a.idaprobacion = p_idaprobacion;
+                                                    
+                            
+                    EXCEPTION
+                        WHEN OTHERS
+                    then raise_application_error(-20005, 'Error en bandeja de aprobación: ' || sqlerrm);
+    end sp_bandeja_consulta_aprobacion_por_id;
+    
+    PROCEDURE sp_proceso_aprobacion_fondo (
+        p_entidad                   IN NUMBER,
+        p_identidad                 IN NUMBER,
+        p_idtipoproceso             IN NUMBER,
+        p_idetiquetatipoproceso     IN VARCHAR2,
+        p_comentario                IN VARCHAR2,
+        p_idetiquetaestado          IN VARCHAR2,
+        p_idaprobacion              IN NUMBER,
+        p_usuarioaprobador          IN VARCHAR2,
+        p_resultado                 OUT VARCHAR2
+    ) AS
+        -- Variables para IDs de catálogo
+        v_idestado             NUMBER;
+        v_estadonuevo          NUMBER;
+        v_idestadoinactivo     NUMBER;
+        
+        -- Contador de registros pendientes
+        v_registros_pendientes_aprobacion NUMBER := 0;
+        
+        -- Fecha del sistema
+        v_fechasistema            TIMESTAMP := SYSTIMESTAMP;
+        
+        -- Variables para validación
+        v_existe_aprobacion  NUMBER := 0;
+        v_existe_fondo       NUMBER := 0;
+    
+    BEGIN
+        -- ===== VALIDACIONES INICIALES =====
+        
+        -- Validar que existe la aprobación
+        SELECT COUNT(*) 
+        INTO v_existe_aprobacion
+        FROM apl_tb_aprobacion 
+        WHERE idaprobacion = p_idaprobacion;
+        
+        IF v_existe_aprobacion = 0 THEN
+            p_resultado := 'ERROR: No existe la aprobación con ID ' || p_idaprobacion;
+            RETURN;
+        END IF;
+        
+        -- Validar que existe el fondo
+        SELECT COUNT(*) 
+        INTO v_existe_fondo
+        FROM apl_tb_fondo 
+        WHERE idfondo = p_identidad;
+        
+        IF v_existe_fondo = 0 THEN
+            p_resultado := 'ERROR: No existe el fondo con ID ' || p_identidad;
+            RETURN;
+        END IF;
+        
+        -- ===== OBTENER IDS DE CATÁLOGO =====
+        
+        BEGIN
+            -- ID del estado destino según etiqueta
+            SELECT idcatalogo 
+            INTO v_idestado 
+            FROM apl_tb_catalogo 
+            WHERE idetiqueta = p_idetiquetaestado
+            AND ROWNUM = 1;
+            
+            -- ID del estado NUEVO
+            SELECT idcatalogo 
+            INTO v_estadonuevo
+            FROM apl_tb_catalogo 
+            WHERE idetiqueta = 'ESTADONUEVO'
+            AND ROWNUM = 1;
+            
+            -- ID del estado INACTIVO
+            SELECT idcatalogo 
+            INTO v_idestadoinactivo
+            FROM apl_tb_catalogo 
+            WHERE idetiqueta = 'ESTADOINACTIVO'
+            AND ROWNUM = 1;
+            
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                p_resultado := 'ERROR: No se encontraron las etiquetas de catálogo necesarias';
+                RETURN;
+        END;
+        
+        -- ===== PASO 1: ACTUALIZAR APROBACIÓN =====
+        
+        UPDATE apl_tb_aprobacion 
+        SET 
+            fechaaprobacion = v_fechasistema,
+            comentario = p_comentario,
+            idestadoregistro = v_idestado
+        WHERE 
+            idaprobacion = p_idaprobacion;
+        
+        IF SQL%ROWCOUNT = 0 THEN
+            p_resultado := 'ERROR: No se pudo actualizar la aprobación';
+            ROLLBACK;
+            RETURN;
+        END IF;
+        
+        -- ===== PASO 2: VERIFICAR APROBACIONES PENDIENTES =====
+        
+        SELECT COUNT(*) 
+        INTO v_registros_pendientes_aprobacion
+        FROM apl_tb_aprobacion 
+        WHERE 
+            entidad = p_entidad
+            AND identidad = p_identidad
+            AND idtipoproceso = p_idtipoproceso
+            AND idestadoregistro = v_estadonuevo;
+        
+        -- ===== PASO 3: ACTUALIZAR FONDO SI NO HAY PENDIENTES =====
+        
+        IF v_registros_pendientes_aprobacion = 0 THEN
+            
+            -- Caso 1: CREACIÓN
+            IF UPPER(p_idetiquetatipoproceso) = 'TPCREACION' THEN
+                
+                UPDATE apl_tb_fondo 
+                SET 
+                    idusuariomodifica = p_usuarioaprobador,
+                    fechamodifica = v_fechasistema,
+                    idestadoregistro = v_idestado
+                WHERE 
+                    idfondo = p_identidad;
+                    
+                IF SQL%ROWCOUNT = 0 THEN
+                    p_resultado := 'ERROR: No se pudo actualizar el fondo';
+                    ROLLBACK;
+                    RETURN;
+                END IF;
+                
+                p_resultado := 'OK: Fondo creado y aprobado exitosamente';
+            
+            -- Caso 2: INACTIVACIÓN
+            ELSIF UPPER(p_idetiquetatipoproceso) = 'TPINACTIVACION' THEN
+                
+                -- Solo inactivar si el estado es APROBADO
+                IF UPPER(p_idetiquetaestado) = 'ESTADOAPROBADO' THEN
+                    
+                    UPDATE apl_tb_fondo 
+                    SET 
+                        idusuariomodifica = p_usuarioaprobador,
+                        fechamodifica = v_fechasistema,
+                        idestadoregistro = v_idestadoinactivo,
+                        valordisponible = 0
+                    WHERE 
+                        idfondo = p_identidad;
+                        
+                    IF SQL%ROWCOUNT = 0 THEN
+                        p_resultado := 'ERROR: No se pudo inactivar el fondo';
+                        ROLLBACK;
+                        RETURN;
+                    END IF;
+                    
+                    p_resultado := 'OK: Fondo inactivado exitosamente';
+                    
+                ELSE
+                    p_resultado := 'OK: Aprobación rechazada, fondo no inactivado';
+                END IF;
+                
+            ELSE
+                p_resultado := 'ERROR: Tipo de proceso no reconocido: ' || p_idetiquetatipoproceso;
+                ROLLBACK;
+                RETURN;
+            END IF;
+            
+        ELSE
+            p_resultado := 'OK: Aprobación registrada. Quedan ' || v_registros_pendientes_aprobacion || ' aprobaciones pendientes';
+        END IF;
+        
+        -- Confirmar transacción
+        COMMIT;
+        
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            p_resultado := 'ERROR: ' || SQLERRM;
+            RAISE_APPLICATION_ERROR(-20006, 'Error en proceso de aprobación: ' || SQLERRM);
+            
+    END sp_proceso_aprobacion_fondo;
+
+    
+end apl_pkg_fondos;
