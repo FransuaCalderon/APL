@@ -83,7 +83,8 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_idetiquetaestado          IN VARCHAR2,
         p_idaprobacion              IN NUMBER,
         p_usuarioaprobador          IN VARCHAR2,
-        p_resultado                 OUT VARCHAR2   
+        p_codigo_salida             OUT NUMBER,
+        p_mensaje_salida            OUT VARCHAR2   
     );
     
     
@@ -862,7 +863,8 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
         p_idetiquetaestado          IN VARCHAR2,
         p_idaprobacion              IN NUMBER,
         p_usuarioaprobador          IN VARCHAR2,
-        p_resultado                 OUT VARCHAR2
+        p_codigo_salida             OUT NUMBER,
+        p_mensaje_salida            OUT VARCHAR2
     ) AS
         -- Variables para IDs de catálogo
         v_idestado             NUMBER;
@@ -889,7 +891,7 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
         WHERE idaprobacion = p_idaprobacion;
         
         IF v_existe_aprobacion = 0 THEN
-            p_resultado := 'ERROR: No existe la aprobación con ID ' || p_idaprobacion;
+            p_mensaje_salida := 'ERROR: No existe la aprobación con ID ' || p_idaprobacion;
             RETURN;
         END IF;
         
@@ -900,7 +902,7 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
         WHERE idfondo = p_identidad;
         
         IF v_existe_fondo = 0 THEN
-            p_resultado := 'ERROR: No existe el fondo con ID ' || p_identidad;
+            p_mensaje_salida := 'ERROR: No existe el fondo con ID ' || p_identidad;
             RETURN;
         END IF;
         
@@ -930,7 +932,7 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
             
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                p_resultado := 'ERROR: No se encontraron las etiquetas de catálogo necesarias';
+                p_mensaje_salida := 'ERROR: No se encontraron las etiquetas de catálogo necesarias';
                 RETURN;
         END;
         
@@ -945,7 +947,7 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
             idaprobacion = p_idaprobacion;
         
         IF SQL%ROWCOUNT = 0 THEN
-            p_resultado := 'ERROR: No se pudo actualizar la aprobación';
+            p_mensaje_salida := 'ERROR: No se pudo actualizar la aprobación';
             ROLLBACK;
             RETURN;
         END IF;
@@ -956,10 +958,10 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
         INTO v_registros_pendientes_aprobacion
         FROM apl_tb_aprobacion 
         WHERE 
-            entidad = p_entidad
-            AND identidad = p_identidad
-            AND idtipoproceso = p_idtipoproceso
-            AND idestadoregistro = v_estadonuevo;
+            entidad = p_entidad                  --32
+            AND identidad = p_identidad          --1
+            AND idtipoproceso = p_idtipoproceso  --42
+            AND idestadoregistro = v_estadonuevo; --4
         
         -- ===== PASO 3: ACTUALIZAR FONDO SI NO HAY PENDIENTES =====
         
@@ -977,12 +979,12 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
                     idfondo = p_identidad;
                     
                 IF SQL%ROWCOUNT = 0 THEN
-                    p_resultado := 'ERROR: No se pudo actualizar el fondo';
+                    p_mensaje_salida := 'ERROR: No se pudo actualizar el fondo';
                     ROLLBACK;
                     RETURN;
                 END IF;
                 
-                p_resultado := 'OK: Fondo creado y aprobado exitosamente';
+                p_mensaje_salida := 'OK: Fondo creado y aprobado exitosamente';
             
             -- Caso 2: INACTIVACIÓN
             ELSIF UPPER(p_idetiquetatipoproceso) = 'TPINACTIVACION' THEN
@@ -1000,25 +1002,25 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
                         idfondo = p_identidad;
                         
                     IF SQL%ROWCOUNT = 0 THEN
-                        p_resultado := 'ERROR: No se pudo inactivar el fondo';
+                        p_mensaje_salida := 'ERROR: No se pudo inactivar el fondo';
                         ROLLBACK;
                         RETURN;
                     END IF;
                     
-                    p_resultado := 'OK: Fondo inactivado exitosamente';
+                    p_mensaje_salida := 'OK: Fondo inactivado exitosamente';
                     
                 ELSE
-                    p_resultado := 'OK: Aprobación rechazada, fondo no inactivado';
+                    p_mensaje_salida := 'OK: Aprobación rechazada, fondo no inactivado';
                 END IF;
                 
             ELSE
-                p_resultado := 'ERROR: Tipo de proceso no reconocido: ' || p_idetiquetatipoproceso;
+                p_mensaje_salida:= 'ERROR: Tipo de proceso no reconocido: ' || p_idetiquetatipoproceso;
                 ROLLBACK;
                 RETURN;
             END IF;
             
         ELSE
-            p_resultado := 'OK: Aprobación registrada. Quedan ' || v_registros_pendientes_aprobacion || ' aprobaciones pendientes';
+            p_mensaje_salida := 'OK: Aprobación registrada. Quedan ' || v_registros_pendientes_aprobacion || ' aprobaciones pendientes';
         END IF;
         
         -- Confirmar transacción
@@ -1027,8 +1029,9 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
-            p_resultado := 'ERROR: ' || SQLERRM;
-            RAISE_APPLICATION_ERROR(-20006, 'Error en proceso de aprobación: ' || SQLERRM);
+            p_codigo_salida := -20006;
+            p_mensaje_salida := 'Error en proceso de aprobación: ' || SQLERRM;
+            
             
     END sp_proceso_aprobacion_fondo;
 
