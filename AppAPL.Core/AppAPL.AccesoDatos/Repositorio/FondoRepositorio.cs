@@ -244,7 +244,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters(paramObject);
             parameters.Add("p_resultado", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
-            await connection.ExecuteAsync(
+            int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_FONDOS.sp_proceso_aprobacion_fondo",
                 parameters,
                 commandType: CommandType.StoredProcedure
@@ -257,7 +257,9 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var retorno = new ControlErroresDTO()
             {
-                mensaje = mensajeSalida
+               
+                mensaje = mensajeSalida,
+                filasAfectadas = filasAfectadas
             };
 
             return retorno;

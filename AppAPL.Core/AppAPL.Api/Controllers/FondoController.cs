@@ -92,14 +92,11 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("aprobar-fondo")]
-        public async Task<ActionResult> AprobarFondo(AprobarFondoRequest fondo)
+        public async Task<ActionResult<ControlErroresDTO>> AprobarFondo(AprobarFondoRequest fondo)
         {
             var retorno = await servicio.AprobarFondo(fondo);
 
-            return Ok(new
-            {
-                mensaje = retorno.mensaje
-            });
+            return retorno;
         }
 
         // 🔹 PUT: Actualizar

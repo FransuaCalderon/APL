@@ -30,7 +30,7 @@ namespace AppAPL.Dto.Fondos
     public class BandejaAprobacionDTO
     {
         public string Solicitud { get; set; }
-        public int idetiquetatipoproceso { get; set; }
+        public string idetiquetatipoproceso { get; set; }
         public int idtipoproceso { get; set; }
         public int idfondo { get; set; }
         public string descripcion { get; set; }
@@ -44,9 +44,9 @@ namespace AppAPL.Dto.Fondos
         public decimal valor_liquidado { get; set; }
         public int idestados_fondo { get; set; }
         public string nombre_estado_fondo { get; set; }
-        public int id_etiqueta_estado_fondo { get; set; }
+        public string id_etiqueta_estado_fondo { get; set; }
         public int nivelaprobacion { get; set; }
-        public int aprobador { get; set; }
+        public string aprobador { get; set; }
         public int idaprobacion { get; set; }
         public string entidad_etiqueta { get; set; }
         public string tipo_proceso_etiqueta { get; set; }
