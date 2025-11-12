@@ -11,7 +11,10 @@ namespace AppAPL.Negocio.Servicios
 {
     public class AprobacionServicio (IAprobacionRepositorio repo) : IAprobacionServicio
     {
-        public Task<IEnumerable<AprobacionDTO>> ObtenerAprobacionesAsync(string entidad, int identidad, string? idTipoProceso = null)
-            => repo.ObtenerAprobacionesAsync(entidad, identidad, idTipoProceso);
+        public Task<IEnumerable<AprobacionGeneralDTO>> ObtenerAprobacionesGenerales(string entidad, int identidad, string? idTipoProceso = null)
+            => repo.ObtenerAprobacionesGenerales(entidad, identidad, idTipoProceso);
+
+        public Task<IEnumerable<AprobacionDTO>> ObtenerAprobaciones(string entidad, int identidad, string idTipoProceso)
+            => repo.ObtenerAprobaciones(entidad,identidad, idTipoProceso);
     }
 }

@@ -9,6 +9,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
 {
     public interface IAprobacionRepositorio
     {
-        Task<IEnumerable<AprobacionDTO>> ObtenerAprobacionesAsync(string entidad, int identidad, string? idTipoProceso = null);
+        Task<IEnumerable<AprobacionDTO>> ObtenerAprobaciones(string entidad, int identidad, string idTipoProceso);
+        Task<IEnumerable<AprobacionGeneralDTO>> ObtenerAprobacionesGenerales(string entidad, int identidad, string? idTipoProceso = null);
     }
 }
