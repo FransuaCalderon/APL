@@ -160,3 +160,12 @@ VALUES ('Aprobacion', '', '', 12, 1, SYSDATE, NULL, NULL, 1, 'TPAPROBACION');
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Inactivacion', '', '', 12, 1, SYSDATE, NULL, NULL, 1, 'TPINACTIVACION');
+
+
+--Tipo de Acuerdo
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Acuerdo General', '', '', 13, 1, SYSDATE, NULL, NULL, 1, 'ACGENERAL');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Acuerdo Por Articulo', '', '', 13, 1, SYSDATE, NULL, NULL, 1, 'ACARTICULO');

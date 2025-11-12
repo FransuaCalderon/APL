@@ -16,3 +16,10 @@ CREATE TABLE APL_Tb_Parametro (
     FOREIGN KEY (IDPARAMETROTIPO)
     REFERENCES APL_TB_PARAMETROTIPO (IDPARAMETROTIPO)
 );
+
+--Paramtros Acuerdo
+INSERT INTO APL_Tb_Parametro (Nombre, Adicional, Abreviatura, IdParametroTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Exceso Inventario', '', '', 1, 1, SYSDATE, NULL, NULL, 1, 'EXINVENTARIO');
+
+INSERT INTO APL_Tb_Parametro (Nombre, Adicional, Abreviatura, IdParametroTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Caducidad', '', '', 1, 1, SYSDATE, NULL, NULL, 1, 'CADUCIDAD');

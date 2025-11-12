@@ -15,3 +15,7 @@ CREATE TABLE APL_Tb_ParametroTipo(
   CONSTRAINT PK_APL_TB_PARAMETROTIPO
     PRIMARY KEY (IDPARAMETROTIPO)
 );
+
+--TIPO PARAMTERO
+INSERT INTO apl_tb_parametrotipo (nombre, descripcion, idusuariocreacion, fechacreacion, idusuariomodificacion, fechamodificacion, idestado, idmarcaabreviaturaautomatica,idetiqueta) 
+	VALUES ('Motivo Creacion Acuerdo', 'Motivo Creacion Acuerdo', 1, SYSDATE, NULL, NULL, 1, 0, 'MOTIVOAC');
