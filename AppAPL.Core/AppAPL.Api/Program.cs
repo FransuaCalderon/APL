@@ -3,6 +3,7 @@
 using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.IoC;
 using AppAPL.AccesoDatos.Repositorio;
+using AppAPL.Api.Extension;
 using AppAPL.Api.Filtros;
 using AppAPL.Api.Middlewares;
 using AppAPL.Api.Utilidades;
@@ -50,12 +51,16 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDataAccess(builder.Configuration)
                 .AddBusiness(); // <-- corrige AddBusinessLogic() por AddBusiness()
 
+//agregamos contenedor de inyeccion de dependencias
+builder.Services.AddInforcloudScopedDependencies();
+
 
 // MVC
 builder.Services.AddControllers(opciones =>
 {
     opciones.Filters.Add<FiltroDeExcepcion>();
     opciones.Filters.Add<FiltroAccion>();
+    opciones.Filters.Add<EmailActionFilter>();
 }).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = new CustomSnakeCaseNamingPolicy();
@@ -99,7 +104,7 @@ builder.Services.AddCors(options =>
 
 
 //habilitar middleware por archivo appsetting.sjon
-var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
+//var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
 var enableEmail = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableEmail");
 
 
@@ -137,22 +142,17 @@ lifetime.ApplicationStopping.Register(() =>
 
 logger.LogInformation("------------------ INICIANDO API ----------------------");
 
-
+/*
 if (enableAuditoria)
 {
     app.UseMiddleware<AuditoriaMiddleware>();
-}
-
-if (enableEmail)
-{
-    app.UseMiddleware<EmailMiddleware>();
-}
-
-/*
-if (enableEmail)
-{
-    app.UseMiddleware<EmailMiddleware>();
 }*/
+
+if (enableEmail)
+{
+    app.UseMiddleware<EmailMiddleware>();
+}
+
 
 app.MapControllers();
 

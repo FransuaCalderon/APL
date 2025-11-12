@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Bienvenido</title>
+</head>
+
+<style>
+table, th, td {
+  border:1px solid black;
+}
+</style>
+
+<body style="font-family: Arial, sans-serif; color: #333;">
+
+<p style="font-size:12px; font-weight: bold; font-family: Arial;">Estimado {{Nombre}} </p>
+<br>
+
+<p style="font-size:12px; font-weight: normal; font-family: Arial;">
+    Le comunicamos a usted que conforme a lo acordado hemos MODIFICADO el FONDO {{IdFondo}} con el propósito de gestionar adecuadamente los valores que utilizaremos para
+	los Acuerdos Comerciales que convengamos.
+</p>
+
+
+
+<br><br>
+
+<table style="font-size:12px; font-weight: normal; font-family: Arial; width:100%">
+  <tr>
+    <th>Actual</th>
+    <th>Dato</th>
+    <th>Nuevo</th>
+    <th>Dato</th>
+  </tr>
+  <tr>
+    <td>&emsp;Proveedor&emsp;&emsp;&emsp;:</td>
+    <td>{{NombreProveedor}}</td>
+    <td>&emsp;Proveedor&emsp;&emsp;&emsp;:</td>
+    <td>{{NuevoNombreProveedor}}</td>
+  </tr>
+  <tr>
+    <td>&emsp;Valor del Fondo&emsp;&emsp;&emsp;: </td>
+    <td>{{ValorFondo}} {{ValorFondoLetras}}</td>
+    <td>&emsp;Valor del Fondo&emsp;&emsp;&emsp;: </td>
+    <td>{{NuevoValorFondo}} {{ValorFondoLetras}}</td>
+  </tr>
+    <tr>
+      <td>&emsp;Vigencia - Inicio&emsp;&emsp;&emsp;: </td>
+      <td>{{FechaInicio}}</td>
+       <td>&emsp;Vigencia - Inicio&emsp;&emsp;&emsp;: </td>
+      <td>{{NuevaFechaInicio}}</td>
+    </tr>
+  <tr>
+    <td>&emsp;Vigencia - Fin&emsp;&emsp;&emsp;: </td>
+    <td>{{FechaFin}}</td>
+    <td>&emsp;Vigencia - Fin&emsp;&emsp;&emsp;: </td>
+    <td>{{NuevaFechaFin}}</td>
+  </tr>
+  <tr>
+    <td>&emsp;Valor Disponible&emsp;&emsp;&emsp;: </td>
+    <td>{{ValorDisponible}} </td>
+    <td>&emsp;Valor Disponible&emsp;&emsp;&emsp;: </td>
+    <td>{{NuevoValorDisponible}} </td>
+  </tr>
+  <tr>
+    <td>&emsp;Valor Comprometido&emsp;&emsp;&emsp;: </td>
+    <td>{{ValorComprometido}} </td>
+    <td>&emsp;Valor Comprometido&emsp;&emsp;&emsp;: </td>
+    <td>{{NuevoValorComprometido}} </td>
+  </tr>
+   <tr>
+      <td>&emsp;Valor Liquidado&emsp;&emsp;&emsp;:  </td>
+      <td>{{ValorLiquidado}}</td>
+      <td>&emsp;Valor Liquidado&emsp;&emsp;&emsp;:  </td>
+      <td>{{NuevoValorLiquidado}}</td>
+  </tr>
+
+</table>
+
+<br><br>
+
+
+En caso de alguna inquietud, favor comunicarse con nosotros. Agradecemos la confianza depositada en nosotros. <br>
+
+saludos <br>
+
+</p>
+
+{{Firma}}
+
+</body>
+</html>
+
+
+
+
+
+
+
