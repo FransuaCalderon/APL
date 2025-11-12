@@ -17,5 +17,8 @@ namespace AppAPL.Negocio.Servicios
         public Task SendEmailAsync(List<string> toList, string subject, string templateName, Dictionary<string, string> placeholders, List<string>? ccList = null, List<string>? bccList = null)
             => repo.SendEmailAsync(toList,subject, templateName, placeholders, ccList, bccList);
 
+        public Task<IEnumerable<DatosCorreoDTO>> ObtenerDatosCorreo(ConsultarDatosCorreoRequest request)
+            => repo.ObtenerDatosCorreo(request);
+
     }
 }

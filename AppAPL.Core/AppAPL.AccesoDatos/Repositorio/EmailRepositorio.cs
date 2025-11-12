@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AppAPL.AccesoDatos.Abstracciones;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Hosting;
+using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto.Email;
+using Dapper;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 using MimeKit.Text;
+using Oracle.ManagedDataAccess.Client;
 namespace AppAPL.AccesoDatos.Repositorio
 {
-    public class EmailRepositorio (IConfiguration config, IWebHostEnvironment env) : IEmailRepositorio
+    public class EmailRepositorio (IConfiguration config, IWebHostEnvironment env, OracleConnectionFactory factory, ILogger<EmailRepositorio> logger) : IEmailRepositorio
     {
         public async Task SendEmailAsync(List<string> toList, string subject, string templateName, Dictionary<string, string> placeholders, List<string>? ccList = null, List<string>? bccList = null)
         {
@@ -72,6 +78,42 @@ namespace AppAPL.AccesoDatos.Repositorio
             );
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
+        }
+
+
+        public async Task<IEnumerable<DatosCorreoDTO>> ObtenerDatosCorreo(ConsultarDatosCorreoRequest request)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new 
+            {
+                p_entidad = request.Entidad,
+                p_tproceso = request.TipoProceso,
+                p_iddocumento = request.IdDocumento
+            };
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<DatosCorreoDTO>(
+                "apl_sp_datos_correo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
         }
     }
 }

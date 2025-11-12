@@ -24,6 +24,9 @@ namespace AppAPL.Dto.Fondos
         public DateTime? FechaModifica { get; set; }
         public int? IdEstadoRegistro { get; set; }
         public int? IndicadorCreacion { get; set; }
+        public int? estado_id { get; set; }
+        public string? estado_nombre { get; set; }
+        public string? estado_etiqueta { get; set; }
     }
 
 

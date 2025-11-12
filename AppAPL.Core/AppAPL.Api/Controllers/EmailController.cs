@@ -1,4 +1,5 @@
-﻿using AppAPL.Negocio.Abstracciones;
+﻿using AppAPL.Dto.Email;
+using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppAPL.Api.Controllers
@@ -33,7 +34,15 @@ namespace AppAPL.Api.Controllers
             return Ok("Correo enviado con CC y BCC ✅");
         }
 
+        [HttpPost("consultar-datos_correo")]
+        public async Task<ActionResult<List<DatosCorreoDTO>>> ObtenerDatosCorreo(ConsultarDatosCorreoRequest request)
+        {
+            var listaDatos = await servicio.ObtenerDatosCorreo(request);
 
-        
+            return listaDatos.ToList();
+        }
+
+
+
     }
 }
