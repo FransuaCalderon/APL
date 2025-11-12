@@ -555,31 +555,36 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
             RETURN;
     END actualizar_fondo;
 
-    PROCEDURE sp_listar_fondos (
+	PROCEDURE sp_listar_fondos (
         p_cursor         OUT SYS_REFCURSOR,
         p_codigo_salida  OUT NUMBER,
         p_mensaje_salida OUT VARCHAR2
     ) AS
     BEGIN
         OPEN p_cursor FOR SELECT
-                idfondo,
-                descripcion,
-                idproveedor,
-                idtipofondo,
-                valorfondo,
-                fechainiciovigencia,
-                fechafinvigencia,
-                valordisponible,
-                valorcomprometido,
-                valorliquidado,
-                idusuarioingreso,
-                fechaingreso,
-                idusuariomodifica,
-                fechamodifica,
-                idestadoregistro,
-                indicadorcreacion
+                f.idfondo,
+                f.descripcion,
+                f.idproveedor,
+                f.idtipofondo,
+                f.valorfondo,
+                f.fechainiciovigencia,
+                f.fechafinvigencia,
+                f.valordisponible,
+                f.valorcomprometido,
+                f.valorliquidado,
+                f.idusuarioingreso,
+                f.fechaingreso,
+                f.idusuariomodifica,
+                f.fechamodifica,
+                f.idestadoregistro,
+                f.indicadorcreacion,
+                --
+                c.idcatalogo    AS estado_id,
+                c.nombre        AS estado_nombre,
+                c.idetiqueta    AS estado_etiqueta
         FROM
-                apl_tb_fondo
+                apl_tb_fondo f
+                LEFT JOIN apl_tb_catalogo c ON c.idcatalogo = f.idestadoregistro
                 ORDER BY
                 fechaingreso DESC;
 
