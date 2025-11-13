@@ -60,7 +60,7 @@ builder.Services.AddControllers(opciones =>
 {
     opciones.Filters.Add<FiltroDeExcepcion>();
     opciones.Filters.Add<FiltroAccion>();
-    opciones.Filters.Add<EmailActionFilter>();
+    //opciones.Filters.Add<EmailActionFilter>();
 }).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = new CustomSnakeCaseNamingPolicy();

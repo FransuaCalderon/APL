@@ -81,7 +81,7 @@ namespace AppAPL.Api.Controllers
         
 
         [HttpPost("insertar")]
-        [Email("ENTFONDO", "TPCREACION", BodyField = "idproveedor")]
+        [Email("ENTFONDO", TipoProceso.Creacion)]
         public async Task<ActionResult> Insertar(CrearFondoRequest fondo)
         {
             //await servicio.CrearAsync(fondo);

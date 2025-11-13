@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AppAPL.Api.Filtros
 {
+    /*
     public class EmailActionFilter (ILogger<EmailActionFilter> logger) : IAsyncActionFilter
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -47,7 +48,7 @@ namespace AppAPL.Api.Filtros
             context.HttpContext.Items["EmailIdDocumento"] = idDocumento;
 
             // Ejecutar el controlador
-            var resultContext = await next();
+            var resultContext = await next(); 
 
             // Si la acción terminó correctamente, podemos aquí invocar el handler o middleware de correo
             if (resultContext.Exception == null && resultContext.Result is ObjectResult)
@@ -58,5 +59,5 @@ namespace AppAPL.Api.Filtros
                 // await emailHandler.HandleAsync(emailAttribute.Entidad, emailAttribute.TipoProceso, idDocumento);
             }
         }
-    }
+    }*/
 }

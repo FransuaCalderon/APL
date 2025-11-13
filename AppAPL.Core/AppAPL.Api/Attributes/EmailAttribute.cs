@@ -2,17 +2,24 @@
 
 namespace AppAPL.Api.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    
     public class EmailAttribute: Attribute
     {
         public string Entidad { get; }
-        public string TipoProceso { get; }
-        public string? BodyField { get; set; }
+        public TipoProceso TipoProceso { get; }
 
-        public EmailAttribute(string entidad, string tipoProceso)
+        public EmailAttribute(string entidad, TipoProceso tipoProceso)
         {
             Entidad = entidad;
             TipoProceso = tipoProceso;
         }
+    }
+
+    public enum TipoProceso
+    {
+        Creacion,
+        Modificacion,
+        Aprobacion,
+        Inactivacion
     }
 }
