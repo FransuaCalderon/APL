@@ -84,7 +84,7 @@ namespace AppAPL.Api.Controllers
         [Email("ENTFONDO", TipoProceso.Creacion)]
         public async Task<ActionResult> Insertar(CrearFondoRequest fondo)
         {
-            //await servicio.CrearAsync(fondo);
+            await servicio.CrearAsync(fondo);
 
             return Ok(new
             {
@@ -102,10 +102,11 @@ namespace AppAPL.Api.Controllers
 
         // 🔹 PUT: Actualizar
         [HttpPut("actualizar/{idFondo:int}")]
-        //[Email(TipoAccionEmail.Aprobacion)]
-       
+        [Email("ENTFONDO", TipoProceso.Modificacion)]
+
         public async Task<ActionResult<ControlErroresDTO>> Actualizar(ActualizarFondoRequest fondo, int idFondo)
         {
+            /*
             var retorno = await servicio.ActualizarAsync(fondo, idFondo);
 
             if (retorno.codigoRetorno == 0)
@@ -118,7 +119,9 @@ namespace AppAPL.Api.Controllers
 
                 logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
-            }
+            }*/
+
+            return Ok();
         }
 
 

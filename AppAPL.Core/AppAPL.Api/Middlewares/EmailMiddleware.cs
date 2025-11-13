@@ -8,6 +8,8 @@ using AppAPL.Api.Handlers;
 using AppAPL.Api.Handlers.Interfaces;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using static AppAPL.Api.Attributes.EmailAttribute;
 
@@ -20,6 +22,19 @@ namespace AppAPL.Api.Middlewares
             var metodo = context.Request.Method;
             var path = context.Request.Path;
             var processId = Thread.CurrentThread.ManagedThreadId;
+            // Esta es la línea clave: parametros de ruta
+            var routeValues = context.Request.RouteValues;
+            // 🔹 Obtener el atributo [Email] del endpoint
+            var endpoint = context.GetEndpoint();
+            var emailAttr = endpoint?.Metadata.GetMetadata<EmailAttribute>();
+            if (emailAttr == null)
+                return;
+
+            // 🔹 Obtener el nombre del controlador
+            var descriptor = endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
+            var controllerName = descriptor?.ControllerName?.ToLower() ?? string.Empty;
+
+
 
             logger.LogInformation("🟢 Ejecutando auditoría en endpoint: {Ruta}", context.Request.Path);
             logger.LogInformation($"------------------INICIANDO MIDDLEWARE DE EMAIL [hilo: {processId}]----------------");
@@ -35,26 +50,44 @@ namespace AppAPL.Api.Middlewares
                 context.Request.Body.Position = 0;
             }
 
+            FondoDTO fondoAntiguo = null;
+            
+            
+            //logica para sacar el fondo antiguo antes de modificar
+            if (emailAttr.TipoProceso == TipoProceso.Modificacion)
+            {
+                if (routeValues.TryGetValue("idFondo", out object idValue))
+                {
+                    string idComoString = idValue?.ToString();
+
+                    if (!string.IsNullOrEmpty(idComoString))
+                    {
+                        logger.LogInformation($"[MiMiddleware] Se encontró el parámetro 'idFondo': {idComoString}");
+
+                        var servicioFondo = serviceProvider.GetService<IFondoServicio>();
+                        fondoAntiguo = await servicioFondo.ObtenerPorIdAsync(Convert.ToInt32(idComoString));
+                    }
+                }
+                else
+                {
+                    logger.LogInformation($"No se encontro parametro de ruta 'idFondo'");
+                }
+            }
+
             // 🔹 Continuar la ejecución normal del pipeline
             await next(context);
 
-            // 🔹 Obtener el atributo [Email] del endpoint
-            var endpoint = context.GetEndpoint();
-            var emailAttr = endpoint?.Metadata.GetMetadata<EmailAttribute>();
-            if (emailAttr == null)
-                return;
-
-            // 🔹 Obtener el nombre del controlador
-            var descriptor = endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
-            var controllerName = descriptor?.ControllerName?.ToLower() ?? string.Empty;
+            
 
             logger.LogInformation($"📧 [Middleware] Procesando correo para controlador={controllerName}, Entidad={emailAttr.Entidad}, TipoProceso={emailAttr.TipoProceso}");
+
+            
 
             // 🔹 Resolver handler según el controlador
             object? handler = controllerName switch
             {
                 "fondo" => serviceProvider.GetService<IFondosEmailHandler>(),
-                "acuerdos" => serviceProvider.GetService<IAcuerdosEmailHandler>(),
+                "acuerdo" => serviceProvider.GetService<IAcuerdosEmailHandler>(),
                 //"promocion" => serviceProvider.GetService<IPromocionEmailHandler>(),
                 _ => null
             };
@@ -71,7 +104,7 @@ namespace AppAPL.Api.Middlewares
             switch (handler)
             {
                 case IFondosEmailHandler fondosHandler:
-                    await fondosHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, bodyString);
+                    await fondosHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, bodyString, fondoAntiguo);
                     break;
                 /*
                 case IAcuerdosEmailHandler acuerdosHandler:

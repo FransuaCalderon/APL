@@ -76,20 +76,23 @@ namespace AppAPL.Dto.Fondos
     {
         public string? Descripcion { get; set; }
         public string? IdProveedor { get; set; }
-        public decimal? IdTipoFondo { get; set; }
-        public decimal? ValorFondo { get; set; }
+        public int? IdTipoFondo { get; set; }
+        public decimal ValorFondo { get; set; }
         public DateTime? FechaInicioVigencia { get; set; }
         public DateTime? FechaFinVigencia { get; set; }
         public string? IdUsuarioIngreso { get; set; }
         public string? NombreUsuarioIngreso { get; set; }
+        public int IdOpcion { get; set; }
+        public int IdControlInterfaz { get; set; }
+        public int IdEvento { get; set; }
     }
 
     public class ActualizarFondoRequest
     {
         public string? Descripcion { get; set; }
         public string? IdProveedor { get; set; }
-        public decimal? IdTipoFondo { get; set; }
-        public decimal? ValorFondo { get; set; }
+        public int? IdTipoFondo { get; set; }
+        public decimal ValorFondo { get; set; }
         public DateTime? FechaInicioVigencia { get; set; }
         public DateTime? FechaFinVigencia { get; set; }
         public string? IdUsuarioModifica { get; set; }
