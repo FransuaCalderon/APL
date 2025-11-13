@@ -469,3 +469,265 @@ body .modal-dialog .modal-content .modal-body .col-md-12 {
     padding-right: 0.5rem !important;
     margin-bottom: 0 !important;
 }
+
+/* ========== MODAL PERSONALIZADO - ESTILO MEJORADO ========== */
+.custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+    .custom-modal.active {
+        display: block;
+    }
+
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.custom-modal-container {
+    position: relative;
+    background-color: #ffffff;
+    margin: 2% auto;
+    padding: 0;
+    width: 90%;
+    max-width: 1200px;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* HEADER */
+.custom-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #ffffff;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.custom-modal-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333333;
+}
+
+.custom-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    line-height: 1;
+    color: #666666;
+    opacity: 0.7;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    transition: opacity 0.2s;
+}
+
+    .custom-modal-close:hover {
+        opacity: 1;
+        color: #000000;
+    }
+
+/* BODY */
+.custom-modal-body {
+    padding: 1.5rem;
+    background-color: #ffffff;
+}
+
+/* FILAS Y COLUMNAS COMPACTAS */
+.custom-form-row {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.custom-form-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* LABELS E INPUTS */
+.custom-label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #333333;
+    font-size: 0.875rem;
+}
+
+.custom-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    background-color: #f3f4f6;
+    color: #1f2937;
+    transition: border-color 0.15s ease-in-out;
+}
+
+    .custom-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background-color: #ffffff;
+    }
+
+    .custom-input:disabled {
+        cursor: not-allowed;
+        opacity: 1;
+    }
+
+/* DIVIDER */
+.custom-divider {
+    margin: 1.5rem 0 1rem 0;
+    border: 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* SECCIÓN TABLA */
+.custom-section-title {
+    color: #1e40af;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+    .custom-section-title i {
+        margin-right: 0.5rem;
+    }
+
+.custom-table-container {
+    overflow-x: auto;
+}
+
+/* FOOTER CON BOTONES ESTILIZADOS */
+.custom-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e0e0e0;
+    background-color: #fafafa;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+/* BOTÓN CERRAR - GRIS */
+.custom-btn-secondary {
+    padding: 0.5rem 1.5rem;
+    background-color: #6b7280;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .custom-btn-secondary:hover {
+        background-color: #4b5563;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+/* BOTÓN RECHAZAR - ROJO */
+.custom-btn-danger {
+    padding: 0.5rem 1.5rem;
+    background-color: #dc2626;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .custom-btn-danger:hover {
+        background-color: #b91c1c;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+    }
+
+/* BOTÓN APROBAR - AZUL */
+.custom-btn-primary {
+    padding: 0.5rem 1.5rem;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .custom-btn-primary:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+    }
+
+/* Iconos dentro de los botones */
+.custom-btn-icon {
+    font-size: 1rem;
+}
+
+/* TEXT DANGER para asteriscos */
+.text-danger {
+    color: #dc2626;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .custom-form-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .custom-modal-container {
+        width: 95%;
+        margin: 5% auto;
+    }
+
+    .custom-modal-footer {
+        flex-wrap: wrap;
+    }
+}

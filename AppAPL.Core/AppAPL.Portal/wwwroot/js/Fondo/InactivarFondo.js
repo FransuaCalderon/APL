@@ -13,9 +13,7 @@ $(document).ready(function () {
         window.apiBaseUrl = apiBaseUrl;
 
         $.ajax({
-            // ===== ¡ÚNICO CAMBIO AQUÍ! =====
             url: `${apiBaseUrl}/api/Fondo/bandeja-inactivacion`,
-            // ================================
             method: "GET",
             headers: {
                 "idopcion": "1",
@@ -51,44 +49,6 @@ $(document).ready(function () {
         }
     });
 
-    // ===== MANEJADOR DEL BOTÓN GUARDAR DEL MODAL DE EDICIÓN =====
-    $("#btnGuardarCambiosFondo").on("click", function (e) {
-        e.preventDefault();
-
-        // 1. Obtener datos del formulario
-        const id = $("#modal-fondo-id").val();
-        const dataParaGuardar = {
-            idfondo: id,
-            descripcion: $("#modal-fondo-descripcion").val(),
-            proveedor: $("#modal-fondo-proveedor").val(),
-            tipo_fondo: $("#modal-fondo-tipofondo").val(),
-            valor_fondo: parseFloat($("#modal-fondo-valor").val()),
-            fecha_inicio: $("#modal-fondo-fechainicio").val(),
-            fecha_fin: $("#modal-fondo-fechafin").val()
-            //... y cualquier otro campo que tu API de "Actualizar" necesite
-        };
-
-        console.log("Datos a guardar:", dataParaGuardar);
-
-        // 2. Aquí harías tu $.ajax({ type: "PUT", url: `.../api/Fondo/actualizar/${id}` ... })
-
-        // 3. Por ahora, solo simulamos éxito
-        Swal.fire({
-            icon: 'info',
-            title: 'En desarrollo',
-            text: 'La lógica para guardar aún no está implementada.'
-        });
-
-        // 4. Cierra el modal
-        var modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarFondo'));
-        modal.hide();
-
-        // 5. Opcional: Recargar la tabla (descomentar cuando el guardado funcione)
-        // $.get(`${window.apiBaseUrl}/api/Fondo/bandeja-inactivacion`, function (data) {
-        //     crearListado(data);
-        // });
-    });
-
 }); // <-- FIN de $(document).ready
 
 
@@ -102,19 +62,18 @@ function crearListado(data) {
     }
 
     var html = "";
-    // 1. Añadimos el id="tabla-fondos" para que tu CSS funcione
     html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
 
     html += "  <thead>";
 
-    // 1. Fila del Título ROJO (con estilo en línea para máxima prioridad)
+    // Fila del Título ROJO
     html += "    <tr>";
     html += "      <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
     html += "          BANDEJA DE FONDOS";
     html += "      </th>";
     html += "    </tr>";
 
-    // Fila de las Cabeceras (esto tomará tu CSS)
+    // Fila de las Cabeceras
     html += "    <tr>";
     html += "      <th>Acción</th>";
     html += "      <th>IDFondo</th>";
@@ -139,13 +98,12 @@ function crearListado(data) {
             var fondo = data[i];
             var id = fondo.idfondo;
 
-            // 3. Tu botón de visualizar
+            // Botón de visualizar
             var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar" onclick="abrirModalEditar(' + id + ')">' +
                 '<i class="fa-regular fa-eye"></i>' +
                 '</button>';
 
             html += "<tr>";
-            // 4. Tu celda con el botón de editar
             html += "  <td class='text-center'>" + viewButton + "</td>";
             html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
             html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
@@ -168,7 +126,7 @@ function crearListado(data) {
     // Inserta la tabla en el div
     $('#tabla').html(html);
 
-    // Inicializa DataTable (sin cambios)
+    // Inicializa DataTable
     tabla = $('#tabla-fondos').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
@@ -181,7 +139,6 @@ function crearListado(data) {
         ],
         order: [[1, 'desc']],
         language: {
-            // (Tu configuración de idioma está bien)
             decimal: "",
             emptyTable: "No hay datos disponibles en la tabla",
             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
@@ -213,32 +170,18 @@ function crearListado(data) {
 }
 
 // ===================================================================
-// ===== FUNCIONES PARA EL MODAL DE EDICIÓN =====
+// ===== FUNCIONES PARA EL MODAL PERSONALIZADO =====
 // ===================================================================
 
 /**
- * Abre el modal de edición y carga los datos del fondo.
- * (Esta función sigue apuntando al endpoint de "modificacion-idr"
- * ya que no me diste uno nuevo para "inactivacion-idr")
+ * Abre el modal personalizado y carga los datos del fondo.
  */
-// ... (código existente) ...
-
 function abrirModalEditar(id) {
-    // 1. Reinicia el formulario
-    $('#formEditarFondo')[0].reset();
-
-    // 2. Configura el título y el botón del modal
-    $('#modalEditarFondoLabel').text('Visualizar Fondo'); // Título más apropiado
-    // Eliminamos la lógica de botón de "Guardar" o la cambiamos a "Inactivar" si fuera el caso
-    // Como es solo visualizar, nos aseguramos de que no haya botón de guardar visible en el footer.
-
-    // 📌 NUEVO: Cargar la tabla de acuerdos antes de abrir el modal.
+    // 1. Cargar la tabla de acuerdos
     cargarAcuerdoFondo(id);
 
-
-    // 3. Llama a la API para obtener los datos del fondo por ID
+    // 2. Llama a la API para obtener los datos del fondo por ID
     $.ajax({
-        // (Este endpoint es el de la página anterior, cámbialo si tienes uno nuevo)
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-modificacion-id/${id}`,
         method: "GET",
         headers: {
@@ -251,21 +194,20 @@ function abrirModalEditar(id) {
             "idtipoproceso": "0"
         },
         success: function (data) {
-            // 4. Rellena el formulario con los datos (¡usa snake_case!)
-            $("#modal-fondo-id").val(data.idfondo);
-            $("#modal-fondo-descripcion").val(data.descripcion);
-            $("#modal-fondo-proveedor").val(data.proveedor);
-            $("#modal-fondo-tipofondo").val(data.tipo_fondo);
-            $("#modal-fondo-valor").val(formatearMoneda(data.valor_fondo).replace('$ ', '').replace(',', '')); // Quita formato para input type="number"
-            $("#modal-fondo-estado").val(data.estado);
+            // 3. Preparar los datos para el modal
+            const datosModal = {
+                idfondo: data.idfondo,
+                descripcion: data.descripcion,
+                proveedor: data.proveedor,
+                tipo_fondo: data.tipo_fondo,
+                valor_fondo: formatearMoneda(data.valor_fondo).replace('$ ', '').replace(',', ''),
+                fecha_inicio: formatDateForInput(data.fecha_inicio),
+                fecha_fin: formatDateForInput(data.fecha_fin),
+                estado: data.estado
+            };
 
-            // 5. Formatea las fechas para los inputs <input type="date">
-            $("#modal-fondo-fechainicio").val(formatDateForInput(data.fecha_inicio));
-            $("#modal-fondo-fechafin").val(formatDateForInput(data.fecha_fin));
-
-            // 6. Muestra el modal
-            var editarModal = new bootstrap.Modal(document.getElementById('modalEditarFondo'));
-            editarModal.show();
+            // 4. Abrir el modal personalizado
+            abrirModalFondo(datosModal);
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del fondo:", error);
@@ -278,7 +220,41 @@ function abrirModalEditar(id) {
     });
 }
 
-// ... (El resto de tus funciones utilitarias se mantienen sin cambios) ...
+/**
+ * Función para abrir el modal personalizado
+ */
+function abrirModalFondo(datos) {
+    const modal = document.getElementById('modalVisualizarFondo');
+
+    // Llenar los datos
+    document.getElementById('modal-fondo-id').value = datos.idfondo || '';
+    document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
+    document.getElementById('modal-fondo-proveedor').value = datos.proveedor || '';
+    document.getElementById('modal-fondo-tipofondo').value = datos.tipo_fondo || '';
+    document.getElementById('modal-fondo-fechainicio').value = datos.fecha_inicio || '';
+    document.getElementById('modal-fondo-fechafin').value = datos.fecha_fin || '';
+    document.getElementById('modal-fondo-valor').value = datos.valor_fondo || '';
+    document.getElementById('modal-fondo-estado').value = datos.estado || '';
+
+    // Mostrar modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Función para cerrar el modal personalizado
+ */
+function cerrarModalFondo() {
+    const modal = document.getElementById('modalVisualizarFondo');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+
+    // Limpiar la tabla de acuerdos
+    if ($.fn.DataTable.isDataTable('#tabla-acuerdo')) {
+        $('#tabla-acuerdo').DataTable().destroy();
+    }
+    $('#tabla-acuerdo-fondo').html('');
+}
 
 /**
  * Convierte una fecha/hora (ej: "2025-11-03T00:00:00")
@@ -288,12 +264,11 @@ function formatDateForInput(fechaString) {
     if (!fechaString) {
         return "";
     }
-    // Simplemente partimos la cadena en la 'T' y tomamos la primera parte (la fecha)
     return fechaString.split('T')[0];
 }
 
 // ===================================================================
-// ===== FUNCIONES UTILITARIAS (de tu código) =====
+// ===== FUNCIONES UTILITARIAS =====
 // ===================================================================
 
 /**
@@ -311,9 +286,8 @@ function formatearMoneda(valor) {
     });
 }
 
-
 /**
- * Formatea la fecha al formato Nov-01-2025
+ * Formatea la fecha al formato DD/MM/YYYY
  */
 function formatearFecha(fechaString) {
     try {
@@ -352,12 +326,12 @@ function cargarAcuerdoFondo(idFondo) {
         </div>
     `);
 
-    // 2. Llamada al nuevo endpoint para el acuerdo
+    // 2. Llamada al endpoint para el acuerdo
     $.ajax({
         url: `${window.apiBaseUrl}/consultar-acuerdo-fondo/${idFondo}`,
         method: "GET",
         headers: {
-            "idopcion": "1", // Usar los headers definidos en el código original
+            "idopcion": "1",
             "usuario": "admin",
             "idcontrolinterfaz": "0",
             "idevento": "0",
@@ -368,8 +342,8 @@ function cargarAcuerdoFondo(idFondo) {
         success: function (data) {
             console.log("Datos del Acuerdo:", data);
 
-            // 3. Crear la estructura de la tabla (usando el DataTables que ya tienes)
-            let acuerdos = Array.isArray(data) ? data : [data]; // Aseguramos que sea un array
+            // 3. Crear la estructura de la tabla
+            let acuerdos = Array.isArray(data) ? data : [data];
             if (acuerdos.length === 0 || acuerdos[0].idacuerdofondo === 0) {
                 $('#tabla-acuerdo-fondo').html('<p class="alert alert-warning">No se encontraron datos de acuerdo para este fondo.</p>');
                 return;
@@ -429,7 +403,10 @@ function cargarAcuerdoFondo(idFondo) {
                     search: "Buscar:",
                     zeroRecords: "No se encontraron acuerdos coincidentes",
                     paginate: {
-                        first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior"
+                        first: "Primero",
+                        last: "Último",
+                        next: "Siguiente",
+                        previous: "Anterior"
                     }
                 }
             });
@@ -441,3 +418,19 @@ function cargarAcuerdoFondo(idFondo) {
         }
     });
 }
+
+// ===================================================================
+// ===== EVENT LISTENERS PARA EL MODAL =====
+// ===================================================================
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('modalVisualizarFondo');
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarModalFondo();
+            }
+        });
+    }
+});
