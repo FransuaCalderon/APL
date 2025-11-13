@@ -1,6 +1,6 @@
 create or replace PACKAGE apl_pkg_fondos AS
     -- Procedimiento para insertar fondo
-    PROCEDURE crear_fondo (
+        PROCEDURE crear_fondo (
         p_descripcion          IN VARCHAR2,
         p_idproveedor          IN VARCHAR2,
         p_idtipofondo          IN NUMBER,
@@ -8,7 +8,11 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_fechainiciovigencia  IN TIMESTAMP,
         p_fechafinvigencia     IN TIMESTAMP,
         p_idusuarioingreso     IN VARCHAR2,
-        p_nombreusuarioingreso IN VARCHAR2
+        p_nombreusuarioingreso IN VARCHAR2,
+        --log
+        p_idopcion             IN NUMBER,
+        p_idcontrolinterfaz    IN NUMBER,
+        p_idevento             IN NUMBER
     );
 
     --Procedimineto para actualizar fondo
@@ -100,7 +104,11 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
         p_fechainiciovigencia  IN TIMESTAMP,
         p_fechafinvigencia     IN TIMESTAMP,
         p_idusuarioingreso     IN VARCHAR2,
-        p_nombreusuarioingreso IN VARCHAR2
+        p_nombreusuarioingreso IN VARCHAR2,
+        --parametros para el log
+        p_idopcion             IN NUMBER,
+        p_idcontrolinterfaz    IN NUMBER,
+        p_idevento             IN NUMBER
     ) AS
       -- Catálogos
         v_creacion_manual   NUMBER;
@@ -114,6 +122,11 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
         v_idfondo           NUMBER;
         v_estado_registro   NUMBER;
         v_tiene_aprobadores NUMBER;
+        
+      -- Variables para LOG
+        v_json_datos        JSON_OBJECT_T;
+        v_datos_json        VARCHAR2(4000);
+        
     BEGIN
       -- 1) Resolver catálogos
         SELECT
@@ -171,9 +184,9 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
             AND idestadoregistro = v_estado_activo;
 
         IF v_tiene_aprobadores > 0 THEN
-            v_estado_registro := v_estado_nuevo;     -- queda pendiente
+            v_estado_registro := v_estado_nuevo;     -- NUEVO
         ELSE
-            v_estado_registro := v_estado_aprobado;  -- pasa directo
+            v_estado_registro := v_estado_aprobado;  -- APROBADO
         END IF;
 
       -- 3) Insertar FONDO
@@ -238,6 +251,7 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
                     NULL                   AS comentario,
                     a.nivelaprobacion      AS nivelaprobacion,
                     v_estado_nuevo         AS idestadoregistro
+                    
                 FROM
                     apl_tb_aprobador a
                 WHERE
@@ -248,7 +262,51 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
         END IF;
 
       -- 5) (Opcional) Registrar LOG aquí si lo necesitas
+       v_datos_json := JSON_OBJECT(
+            'idfondo' VALUE v_idfondo,
+            'descripcion' VALUE p_descripcion,
+            'idproveedor' VALUE p_idproveedor,
+            'idtipofondo' VALUE p_idtipofondo,
+            'valorfondo' VALUE p_valorfondo,
+            'fechainiciovigencia' VALUE TO_CHAR(p_fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
+            'fechafinvigencia' VALUE TO_CHAR(p_fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
+            'valordisponible' VALUE p_valorfondo,
+            'valorcomprometido' VALUE 0,
+            'valorliquidado' VALUE 0,
+            'idusuarioingreso' VALUE p_idusuarioingreso,
+            'fechaingreso' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
+            'idestadoregistro' VALUE v_estado_registro,
+            'indicadorcreacion' VALUE v_creacion_manual
+        );
+        
+        -- Insertar en la tabla de LOG
+        INSERT INTO apl_tb_log (
+            fechahoratrx,
+            iduser,
+            idopcion,
+            idcontrolinterfaz,
+            idevento,
+            entidad,
+            identidad,
+            idtipoproceso,
+            datos
+        ) VALUES (
+            SYSTIMESTAMP,
+            p_idusuarioingreso,
+            p_idopcion, -- Ajusta según corresponda (catálogo de opciones)
+            p_idcontrolinterfaz,  -- Ajusta según corresponda
+            p_idevento,  -- Ajusta según corresponda (catálogo de eventos: ej. "CREACION_FONDO")
+            v_entidad_fondo,
+            v_idfondo,
+            v_tipo_creacion,
+            v_datos_json
+        );
+         
 
+        -- Confirmar la transacción si es necesario
+        COMMIT;
+        
+        
     EXCEPTION
         WHEN no_data_found THEN
       -- Alguna etiqueta de catálogo no existe
