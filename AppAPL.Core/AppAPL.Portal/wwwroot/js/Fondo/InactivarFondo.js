@@ -221,16 +221,20 @@ function crearListado(data) {
  * (Esta función sigue apuntando al endpoint de "modificacion-idr"
  * ya que no me diste uno nuevo para "inactivacion-idr")
  */
+// ... (código existente) ...
+
 function abrirModalEditar(id) {
     // 1. Reinicia el formulario
     $('#formEditarFondo')[0].reset();
 
     // 2. Configura el título y el botón del modal
-    $('#modalEditarFondoLabel').text('Gestionar Fondo'); // Título cambiado
-    $('#btnGuardarCambiosFondo')
-        .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')
-        .removeClass('btn-success')
-        .addClass('btn-primary');
+    $('#modalEditarFondoLabel').text('Visualizar Fondo'); // Título más apropiado
+    // Eliminamos la lógica de botón de "Guardar" o la cambiamos a "Inactivar" si fuera el caso
+    // Como es solo visualizar, nos aseguramos de que no haya botón de guardar visible en el footer.
+
+    // 📌 NUEVO: Cargar la tabla de acuerdos antes de abrir el modal.
+    cargarAcuerdoFondo(id);
+
 
     // 3. Llama a la API para obtener los datos del fondo por ID
     $.ajax({
@@ -252,7 +256,7 @@ function abrirModalEditar(id) {
             $("#modal-fondo-descripcion").val(data.descripcion);
             $("#modal-fondo-proveedor").val(data.proveedor);
             $("#modal-fondo-tipofondo").val(data.tipo_fondo);
-            $("#modal-fondo-valor").val(formatearMoneda(data.valor_fondo));
+            $("#modal-fondo-valor").val(formatearMoneda(data.valor_fondo).replace('$ ', '').replace(',', '')); // Quita formato para input type="number"
             $("#modal-fondo-estado").val(data.estado);
 
             // 5. Formatea las fechas para los inputs <input type="date">
@@ -273,6 +277,8 @@ function abrirModalEditar(id) {
         }
     });
 }
+
+// ... (El resto de tus funciones utilitarias se mantienen sin cambios) ...
 
 /**
  * Convierte una fecha/hora (ej: "2025-11-03T00:00:00")
@@ -325,4 +331,113 @@ function formatearFecha(fechaString) {
         console.warn("Error formateando fecha:", fechaString);
         return fechaString;
     }
+}
+
+/**
+ * Llama a la API para obtener el acuerdo por ID de Fondo y crea la tabla.
+ */
+function cargarAcuerdoFondo(idFondo) {
+    // 1. Destruir tabla anterior si existe
+    if ($.fn.DataTable.isDataTable('#tabla-acuerdo')) {
+        $('#tabla-acuerdo').DataTable().destroy();
+    }
+
+    // Limpiar el contenedor antes de cargar
+    $('#tabla-acuerdo-fondo').html(`
+        <div class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando datos del acuerdo...</p>
+        </div>
+    `);
+
+    // 2. Llamada al nuevo endpoint para el acuerdo
+    $.ajax({
+        url: `${window.apiBaseUrl}/consultar-acuerdo-fondo/${idFondo}`,
+        method: "GET",
+        headers: {
+            "idopcion": "1", // Usar los headers definidos en el código original
+            "usuario": "admin",
+            "idcontrolinterfaz": "0",
+            "idevento": "0",
+            "entidad": "0",
+            "identidad": "0",
+            "idtipoproceso": "0"
+        },
+        success: function (data) {
+            console.log("Datos del Acuerdo:", data);
+
+            // 3. Crear la estructura de la tabla (usando el DataTables que ya tienes)
+            let acuerdos = Array.isArray(data) ? data : [data]; // Aseguramos que sea un array
+            if (acuerdos.length === 0 || acuerdos[0].idacuerdofondo === 0) {
+                $('#tabla-acuerdo-fondo').html('<p class="alert alert-warning">No se encontraron datos de acuerdo para este fondo.</p>');
+                return;
+            }
+
+            var html = "";
+            html += "<table id='tabla-acuerdo' class='table table-bordered table-striped table-hover w-100'>";
+            html += "  <thead>";
+            html += "    <tr>";
+            html += "      <th>ID Acuerdo</th>";
+            html += "      <th>Estado</th>";
+            html += "      <th>Descripción</th>";
+            html += "      <th>Valor</th>";
+            html += "      <th>Valor Disponible</th>";
+            html += "      <th>Valor Comprometido</th>";
+            html += "      <th>Valor Liquidado</th>";
+            html += "    </tr>";
+            html += "  </thead>";
+            html += "  <tbody>";
+
+            acuerdos.forEach(acuerdo => {
+                html += "<tr>";
+                html += "  <td>" + (acuerdo.idacuerdofondo ?? "") + "</td>";
+                html += "  <td>" + (acuerdo.acuerdofondo_estado_nombre ?? "") + "</td>";
+                html += "  <td>" + (acuerdo.acuerdofondo_descripcion ?? "") + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_valor) + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_valor_disponible) + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_comprometido) + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_liquidado) + "</td>";
+                html += "</tr>";
+            });
+
+            html += "  </tbody>";
+            html += "</table>";
+
+            $('#tabla-acuerdo-fondo').html(html);
+
+            // 4. Inicializar DataTable
+            $('#tabla-acuerdo').DataTable({
+                pageLength: 5,
+                lengthMenu: [5, 10, 25],
+                pagingType: 'simple_numbers',
+                searching: false,
+                columnDefs: [
+                    { targets: [3, 4, 5, 6], className: "dt-right" }
+                ],
+                order: [[0, 'desc']],
+                language: {
+                    decimal: "",
+                    emptyTable: "No hay acuerdos disponibles",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ acuerdos",
+                    infoEmpty: "Mostrando 0 a 0 de 0 acuerdos",
+                    infoFiltered: "(filtrado de _MAX_ acuerdos totales)",
+                    lengthMenu: "Mostrar _MENU_ acuerdos",
+                    loadingRecords: "Cargando...",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    zeroRecords: "No se encontraron acuerdos coincidentes",
+                    paginate: {
+                        first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior"
+                    }
+                }
+            });
+
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al obtener datos del acuerdo:", error);
+            $('#tabla-acuerdo-fondo').html('<p class="alert alert-danger">Error al cargar el acuerdo.</p>');
+        }
+    });
 }

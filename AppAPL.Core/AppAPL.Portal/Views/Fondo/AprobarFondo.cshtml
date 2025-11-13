@@ -70,10 +70,26 @@
                     </div>
 
                 </form>
+
+                <!-- 📌 NUEVO: Sección de Historial de Aprobaciones -->
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3" style="color: #CC0000;">Historial de Aprobaciones</h6>
+                    <div id="tabla-aprobaciones-fondo">
+                        <!-- Aquí se cargará dinámicamente la tabla de aprobaciones -->
+                    </div>
+                </div>
+
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-danger" id="btnRechazarFondo">
+                    <i class="fa-solid fa-times-circle"></i> Rechazar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnAprobarFondo">
+                    <i class="fa-solid fa-check-circle"></i> Aprobar
+                </button>
+
             </div>
         </div>
     </div>
