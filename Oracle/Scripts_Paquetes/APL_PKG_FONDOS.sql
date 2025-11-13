@@ -95,7 +95,7 @@ create or replace PACKAGE apl_pkg_fondos AS
 END apl_pkg_fondos;
 ==========================================================================================================BODY===========================
 
-CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
+create or replace PACKAGE BODY apl_pkg_fondos AS
     PROCEDURE crear_fondo (
         p_descripcion          IN VARCHAR2,
         p_idproveedor          IN VARCHAR2,
@@ -108,7 +108,7 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
         --parametros para el log
         p_idopcion             IN NUMBER,
         p_idcontrolinterfaz    IN NUMBER,
-        p_idevento             IN NUMBER
+        p_idevento             IN NUMBER DEFAULT 29 
     ) AS
       -- Catálogos
         v_creacion_manual   NUMBER;
@@ -613,7 +613,7 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
             RETURN;
     END actualizar_fondo;
 
-	PROCEDURE sp_listar_fondos (
+    PROCEDURE sp_listar_fondos (
         p_cursor         OUT SYS_REFCURSOR,
         p_codigo_salida  OUT NUMBER,
         p_mensaje_salida OUT VARCHAR2
@@ -895,6 +895,7 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
                     a.nivelaprobacion,
                     a.iduseraprobador                             AS aprobador,
                     a.idaprobacion,
+                    a.entidad,
                     en.idetiqueta                                 AS entidad_etiqueta,
                     cp.idetiqueta                                 AS tipo_proceso_etiqueta,
                     ea.idetiqueta                                 AS estado_aprob_etiqueta
@@ -902,7 +903,7 @@ CREATE OR REPLACE PACKAGE BODY apl_pkg_fondos AS
                                                                                         
                     FROM
                             apl_tb_fondo f
-                            INNER JOIN apl_tb_aprobacion a ON a.identidad = p_idfondo--
+                            INNER JOIN apl_tb_aprobacion a ON a.identidad = p_idfondo
                             LEFT JOIN apl_tb_catalogo   cp ON a.idtipoproceso = cp.idcatalogo
                             LEFT JOIN apl_tb_catalogo   ct ON f.idtipofondo = ct.idcatalogo
                             LEFT JOIN apl_tb_catalogo   ce ON f.idestadoregistro = ce.idcatalogo
