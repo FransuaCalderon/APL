@@ -10,5 +10,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
     public interface IProveedorRepositorio
     {
         Task<IEnumerable<ProveedorDTO>> ListarAsync();
+        Task<ProveedorDTO?> ObtenerPorIdAsync(string identificacion);
     }
 }

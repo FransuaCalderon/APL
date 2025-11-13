@@ -17,5 +17,15 @@ namespace AppAPL.Api.Controllers
 
             return listaProveedores.ToList();
         }
+
+        [HttpGet("obtener/{identificacion}")]
+        //[Aprobacion]
+        public async Task<ActionResult<ProveedorDTO>> ObtenerPorIdAsync(string identificacion)
+        {
+            var item = await servicio.ObtenerPorIdAsync(identificacion);
+            if (item == null)
+                return NotFound(new { mensaje = $"No se encontro proveedor con el id: {identificacion}" });
+            return item;
+        }
     }
 }

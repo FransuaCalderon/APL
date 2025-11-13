@@ -106,22 +106,20 @@ namespace AppAPL.Api.Controllers
 
         public async Task<ActionResult<ControlErroresDTO>> Actualizar(ActualizarFondoRequest fondo, int idFondo)
         {
-            /*
+            
             var retorno = await servicio.ActualizarAsync(fondo, idFondo);
 
             if (retorno.codigoRetorno == 0)
             {
-                logger.LogInformation(retorno.mensaje);
+                //logger.LogInformation(retorno.mensaje);
                 return retorno;
             }
             else
             {
 
-                logger.LogError(retorno.mensaje);
+                //logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
-            }*/
-
-            return Ok();
+            }
         }
 
 

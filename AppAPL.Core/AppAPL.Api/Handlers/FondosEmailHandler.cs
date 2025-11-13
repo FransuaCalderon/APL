@@ -37,7 +37,7 @@ namespace AppAPL.Api.Handlers
             // y construye los campos de plantilla específicos para ese DTO.
 
 
-            var proveedorLista = await proveedorRepo.ListarAsync();
+            //var proveedorLista = await proveedorRepo.ListarAsync();
             
 
             switch (tipoProceso)
@@ -51,7 +51,14 @@ namespace AppAPL.Api.Handlers
                     }
 
                     IdProveedor = reqCreacion.IdProveedor;
-                    var proveedor = proveedorLista.FirstOrDefault(d => d.Identificacion == IdProveedor);
+                    var proveedor = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
+
+                    if (proveedor == null)
+                    {
+                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
+                        return;
+                    }
+
                     camposPlantilla = new Dictionary<string, string>
                     {
                         { "Nombre", reqCreacion.NombreUsuarioIngreso },
@@ -82,8 +89,16 @@ namespace AppAPL.Api.Handlers
                     }
 
                     IdProveedor = reqModif.IdProveedor;
-                    var proveedorAntiguo = proveedorLista.FirstOrDefault(d => d.Identificacion == fondoAntiguo.IdProveedor);
-                    var proveedorNuevo = proveedorLista.FirstOrDefault(d => d.Identificacion == reqModif.IdProveedor);
+                    
+                    var proveedorAntiguo = await proveedorRepo.ObtenerPorIdAsync(fondoAntiguo.IdProveedor);
+                    var proveedorNuevo = await proveedorRepo.ObtenerPorIdAsync(reqModif.IdProveedor);
+
+                    if (proveedorAntiguo == null || proveedorNuevo == null)
+                    {
+                        logger.LogWarning($"no se encontro proveedores {fondoAntiguo.IdProveedor}  {reqModif.IdProveedor}");
+                        return;
+                    }
+
                     camposPlantilla = new Dictionary<string, string>
                     {
                         { "Nombre", reqModif.NombreUsuarioModifica },

@@ -15,7 +15,7 @@ $(document).ready(function () {
 
         $.ajax({
             // ===== ENDPOINT PARA APROBACIÓN =====
-            url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JGONZALEZ`,
+            url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JZoller`,
             // ====================================
             method: "GET",
             // Parámetro obligatorio usuarioAprobador
@@ -705,4 +705,6 @@ function ejecutarAprobacionFondo(accion, nuevoEstado) {
             });
         }
     });
+
+
 }

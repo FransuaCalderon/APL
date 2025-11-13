@@ -13,5 +13,8 @@ namespace AppAPL.Negocio.Servicios
     {
         public Task<IEnumerable<ProveedorDTO>> ListarAsync()
             => repo.ListarAsync();
+
+        public Task<ProveedorDTO?> ObtenerPorIdAsync(string identificacion)
+            => repo.ObtenerPorIdAsync(identificacion);
     }
 }
