@@ -23,12 +23,16 @@ namespace AppAPL.Api.Middlewares
             var path = context.Request.Path;
             var processId = Thread.CurrentThread.ManagedThreadId;
             // Esta es la línea clave: parametros de ruta
-            var routeValues = context.Request.RouteValues;
+            
             // 🔹 Obtener el atributo [Email] del endpoint
             var endpoint = context.GetEndpoint();
             var emailAttr = endpoint?.Metadata.GetMetadata<EmailAttribute>();
             if (emailAttr == null)
+            {
+                await next(context);
                 return;
+            }
+                
 
             // 🔹 Obtener el nombre del controlador
             var descriptor = endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
@@ -54,8 +58,9 @@ namespace AppAPL.Api.Middlewares
             
             
             //logica para sacar el fondo antiguo antes de modificar
-            if (emailAttr.TipoProceso == TipoProceso.Modificacion)
+            if (emailAttr.Entidad == "ENTFONDO" && emailAttr.TipoProceso == TipoProceso.Modificacion)
             {
+                var routeValues = context.Request.RouteValues;
                 if (routeValues.TryGetValue("idFondo", out object idValue))
                 {
                     string idComoString = idValue?.ToString();

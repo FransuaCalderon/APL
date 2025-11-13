@@ -66,7 +66,7 @@ namespace AppAPL.Api.Handlers
                     };
                     break;
 
-                case TipoProceso.Modificacion:
+                case TipoProceso.Modificacion: 
                     // Asumo que tienes un DTO 'ModificarFondoRequest'
                     var reqModif = JsonSerializer.Deserialize<ActualizarFondoRequest>(bodyJson, jsonOptions);
                     if (reqModif == null || string.IsNullOrEmpty(reqModif.IdProveedor))
@@ -100,10 +100,10 @@ namespace AppAPL.Api.Handlers
                         { "NuevaFechaFin", reqModif.FechaInicioVigencia.ToString() },
                         { "ValorDisponible", fondoAntiguo.ValorDisponible?.ToString("N2") },
                         { "NuevoValorDisponible", reqModif.ValorFondo.ToString("N2") },
-                        { "ValorComprometido", reqModif.ValorFondo.ToString("N2") },
-                        { "NuevoValorComprometido", reqModif.ValorFondo.ToString("N2") },
-                        { "ValorLiquidado", reqModif.ValorFondo.ToString("N2") },
-                        { "NuevoValorLiquidado", reqModif.ValorFondo.ToString("N2") },
+                        { "ValorComprometido", fondoAntiguo.ValorComprometido?.ToString("N2") },
+                        { "NuevoValorComprometido", "0" },
+                        { "ValorLiquidado", fondoAntiguo.ValorLiquidado?.ToString("N2") },
+                        { "NuevoValorLiquidado", "0" },
                         { "Firma", reqModif.NombreUsuarioModifica },
                     };
                     break;
