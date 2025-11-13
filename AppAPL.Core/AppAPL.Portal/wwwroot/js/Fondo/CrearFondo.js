@@ -270,32 +270,23 @@ $(document).ready(function () {
     // *** ¡NUEVO! ***
     // Lógica para el botón 'Aceptar' del modal de proveedores
     $("#btnAceptarProveedor").on("click", function () {
-        // 1. Encontrar el radio button que está seleccionado
         const $selected = $("#tablaProveedores tbody input[name='selectProveedor']:checked");
 
         if ($selected.length > 0) {
-            // 2. Obtener los datos guardados en los data-attributes
             const proveedorId = $selected.data("id");
             const proveedorNombre = $selected.data("nombre");
             const proveedorRuc = $selected.data("ruc");
 
             console.log("Proveedor seleccionado:", { id: proveedorId, nombre: proveedorNombre, ruc: proveedorRuc });
 
-            // 3. ¡ACCIÓN CLAVE! 
-            // Poner los datos en tu formulario principal (el de "Fondos").
-            // *** ¡DEBES TENER ESTOS INPUTS EN TU FORMULARIO PRINCIPAL! ***
-            $("#fondoProveedorId").val(proveedorId); // Ej: <input type="hidden" id="fondoProveedorId">
+            // 3. ¡ACCIÓN CLAVE! - CORREGIDO
+            // Guardamos el RUC en lugar del código
+            $("#fondoProveedorId").val(proveedorRuc); // ✅ CAMBIO: Ahora guarda el RUC
+            $("#fondoProveedor").val(proveedorNombre);
 
-            // *** ¡CORRECCIÓN! ***
-            // El ID de tu input visible es 'fondoProveedor'
-            $("#fondoProveedor").val(proveedorNombre); // Ej: <input type="text" id="fondoProveedor" readonly>
-
-
-            // 4. Cierro el modal
             $('#modalConsultaProveedor').modal('hide');
 
         } else {
-            // Si no seleccionó nada
             Swal.fire('Atención', 'Por favor, seleccione un proveedor de la lista.', 'info');
         }
     });
