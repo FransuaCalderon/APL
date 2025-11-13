@@ -397,3 +397,75 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
     padding: 0.60rem; /* Mismo relleno que los headers */
     white-space: nowrap;
 }
+
+/* Modal Compacto - Máxima prioridad */
+body .modal-dialog .modal-content .modal-body .row {
+    margin-bottom: 0.3rem !important;
+    margin-top: 0 !important;
+}
+
+body .modal-dialog .modal-content .modal-body .form-label {
+    margin-bottom: 0.15rem !important;
+    padding-bottom: 0 !important;
+    font-size: 0.9rem;
+}
+
+body .modal-dialog .modal-content .modal-body .form-control,
+body .modal-dialog .modal-content .modal-body .form-select {
+    padding: 0.35rem 0.5rem !important;
+    height: auto !important;
+    font-size: 0.9rem !important;
+    line-height: 1.3 !important;
+}
+
+body .modal-dialog .modal-content .modal-body {
+    padding: 0.75rem 1rem !important;
+}
+
+body .modal-dialog .modal-content .modal-body .col-md-12 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    margin-bottom: 0 !important;
+}
+
+/* ============================================================
+ESTILOS PARA HACER EL MODAL MÁS COMPACTO
+============================================================ */
+
+/* 1. Reduce el margen inferior de todas las filas dentro del modal body */
+body .modal-dialog .modal-content .modal-body .row {
+    /* Valor muy pequeño o cero para juntar las filas */
+    margin-bottom: 0.1rem !important;
+    margin-top: 0 !important;
+}
+
+/* 2. Reduce el margen inferior de las etiquetas (labels) */
+body .modal-dialog .modal-content .modal-body .form-label {
+    /* Valor muy pequeño para acercar la etiqueta al input */
+    margin-bottom: 0.1rem !important;
+    padding-bottom: 0 !important;
+    font-size: 0.85rem; /* Letra un poco más pequeña */
+}
+
+/* 3. Reduce el padding y la altura de los inputs y selects */
+body .modal-dialog .modal-content .modal-body .form-control,
+body .modal-dialog .modal-content .modal-body .form-select {
+    /* Padding vertical y horizontal reducido */
+    padding: 0.25rem 0.5rem !important;
+    height: auto !important;
+    font-size: 0.9rem !important;
+    line-height: 1.3 !important;
+}
+
+/* 4. Reduce el padding del cuerpo del modal */
+body .modal-dialog .modal-content .modal-body {
+    /* Padding general del cuerpo del modal */
+    padding: 0.5rem 1rem !important;
+}
+
+/* 5. Asegura que los contenedores de columna no tengan padding adicional */
+body .modal-dialog .modal-content .modal-body .col-md-12 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    margin-bottom: 0 !important;
+}

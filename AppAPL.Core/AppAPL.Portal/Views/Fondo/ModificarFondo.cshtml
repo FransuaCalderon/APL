@@ -19,76 +19,66 @@
 }
 
 @* ... (Tu código existente, como el <h2> y <div id="tabla">) ... *@
-<div class="modal fade" id="modalEditarFondo" tabindex="-1" aria-labelledby="modalEditarFondoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalEditarFondoLabel">Visualizar Datos de Fondo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+<<div class="modal-body pb-1 px-2">
+    <form id="formEditarFondo">
 
-            <div class="modal-body pb-2">
-                <form id="formEditarFondo" class="mb-0">                    
-                    <div class="col-md-12">                    
-                        <label for="modal-fondo-id" class="form-label fw-bold">ID Fondo</label>
-                        <input type="text" class="form-control" id="modal-fondo-id" name="idfondo" disabled>                   
-                    </div>
-                    <div class="col-md-12">                   
-                        <label for="modal-fondo-descripcion" class="form-label fw-bold">
-                            Descripción <span class="text-danger">*</span>
-                        </label>
-                        <input type="text" class="form-control" id="modal-fondo-descripcion" name="descripcion">                 
-                    </div>
-                    
-                    <div class="col-md-12">                    
-                        <label for="modal-fondo-proveedor" class="form-label fw-bold col-form-label-sm">Proveedor</label>
-                        <select id="modal-fondo-proveedor" class="form-select">
-                            <option selected>Cargando...</option>
-                        </select>                   
-                    </div>
-                    <div class="col-md-12">                    
-                        <label for="modal-fondo-tipofondo" class="form-label fw-bold col-form-label-sm">Tipo Fondo</label>
-                        <select id="modal-fondo-tipofondo" class="form-select">
-                            <option selected>Cargando...</option>
-                        </select>                    
-                    </div>                    
-
-                    <div class="col-md-12">                    
-                        <label for="modal-fondo-fechainicio" class="form-label fw-bold">
-                            Fecha Inicio <span class="text-danger">*</span>
-                        </label>
-                        <input type="date" class="form-control" id="modal-fondo-fechainicio" name="fecha_inicio">                   
-                    </div>
-
-                    <div class="col-md-12">                   
-                        <label for="modal-fondo-fechafin" class="form-label fw-bold">
-                            Fecha Fin <span class="text-danger">*</span>
-                        </label>
-                        <input type="date" class="form-control" id="modal-fondo-fechafin" name="fecha_fin">                   
-                    </div>                
-                   
-                    <div class="col-md-12">                    
-                        <label for="modal-fondo-valor" class="form-label fw-bold">
-                            Valor Fondo <span class="text-danger">*</span>
-                        </label>
-                        <input type="number" class="form-control" id="modal-fondo-valor" name="valor_fondo" step="0.01">                    
-                    </div>
-                    <div class="col-md-12">                   
-                            <label for="modal-fondo-estado" class="form-label fw-bold">Estado</label>
-                            <input type="text" class="form-control" id="modal-fondo-estado" name="estado" disabled>
-                    
-                    </div>                   
-                </form>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btnGuardarCambiosFondo">
-                    <i class="fa-solid fa-pen-to-square me-2"></i> Modificar
-                </button>
+        <div class="row mb-1 gx-2">
+            <div class="col-md-12">
+                <label class="form-label fw-bold mb-0 small">ID Fondo</label>
+                <input type="text" class="form-control form-control-sm py-1" id="modal-fondo-id" disabled>
             </div>
         </div>
-    </div>
+
+        <div class="row mb-1 gx-2">
+            <div class="col-md-12">
+                <label class="form-label fw-bold mb-0 small">Descripción <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm py-1" id="modal-fondo-descripcion" name="descripcion">
+            </div>
+        </div>
+
+        <div class="row mb-1 gx-2">
+            <div class="col-md-12">
+                <label class="form-label fw-bold mb-0 small">Proveedor</label>
+                <select id="modal-fondo-proveedor" class="form-select form-select-sm py-1"></select>
+            </div>
+        </div>
+
+        <div class="row mb-1 gx-2">
+            <div class="col-md-12">
+                <label class="form-label fw-bold mb-0 small">Tipo Fondo</label>
+                <select id="modal-fondo-tipofondo" class="form-select form-select-sm py-1"></select>
+            </div>
+        </div>
+
+        <div class="row mb-1 gx-2">
+            <div class="col-md-12">
+                <label class="form-label fw-bold mb-0 small">Fecha Inicio</label>
+                <input type="date" class="form-control form-control-sm py-1" id="modal-fondo-fechainicio" name="fecha_inicio">
+            </div>
+        </div>
+
+        <div class="row mb-1 gx-2">
+            <div class="col-md-12">
+                <label class="form-label fw-bold mb-0 small">Fecha Fin</label>
+                <input type="date" class="form-control form-control-sm py-1" id="modal-fondo-fechafin" name="fecha_fin">
+            </div>
+        </div>
+
+        <div class="row mb-1 gx-2">
+            <div class="col-md-12">
+                <label class="form-label fw-bold mb-0 small">Valor Fondo</label>
+                <input type="number" class="form-control form-control-sm py-1" id="modal-fondo-valor" name="valor_fondo" step="0.01">
+            </div>
+        </div>
+
+        <div class="row mb-1 gx-2">
+            <div class="col-md-12">
+                <label class="form-label fw-bold mb-0 small">Estado</label>
+                <input type="text" class="form-control form-control-sm py-1" id="modal-fondo-estado" disabled>
+            </div>
+        </div>
+
+    </form>
 </div>
 
 
