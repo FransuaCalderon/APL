@@ -56,7 +56,7 @@ namespace AppAPL.Api.Handlers
                     {
                         { "Nombre", reqCreacion.NombreUsuarioIngreso },
                         { "IdFondo", reqCreacion.IdProveedor },
-                        { "NombreProveedor", proveedor.Nombre }, //consultar de tabla proveedores
+                        { "NombreProveedor", proveedor.Nombre }, 
                         { "ValorFondo", reqCreacion.ValorFondo.ToString("N2") },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras(reqCreacion.ValorFondo) },
                         { "FechaInicio", reqCreacion.FechaInicioVigencia.ToString() },
@@ -75,13 +75,36 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
+                    if(fondoAntiguo == null)
+                    {
+                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener fondo antiguo");
+                        return;
+                    }
+
                     IdProveedor = reqModif.IdProveedor;
+                    var proveedorAntiguo = proveedorLista.FirstOrDefault(d => d.Identificacion == fondoAntiguo.IdProveedor);
+                    var proveedorNuevo = proveedorLista.FirstOrDefault(d => d.Identificacion == reqModif.IdProveedor);
                     camposPlantilla = new Dictionary<string, string>
                     {
-                        { "Operacion", tipoProcEtiqueta },
-                        { "Proveedor", reqModif.IdProveedor },
-                        { "UsuarioModifica", reqModif.IdUsuarioModifica }, // Ejemplo
-                        { "Fecha", DateTime.Now.ToString("dd/MM/yyyy HH:mm") }
+                        { "Nombre", reqModif.NombreUsuarioModifica },
+                        { "IdFondo", fondoAntiguo.IdFondo.ToString() },
+                        { "NombreProveedor", proveedorAntiguo.Nombre },
+                        { "NuevoNombreProveedor", proveedorNuevo.Nombre },
+                        { "ValorFondo", fondoAntiguo.ValorFondo?.ToString("N2") },
+                        { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondoAntiguo.ValorFondo) },
+                        { "NuevoValorFondo", reqModif.ValorFondo.ToString("N2") },
+                        { "NuevoValorFondoLetras", this.ConvertirDecimalAPalabras(reqModif.ValorFondo) },
+                        { "FechaInicio", fondoAntiguo.FechaInicioVigencia.ToString() },
+                        { "NuevaFechaInicio", reqModif.FechaInicioVigencia.ToString() },
+                        { "FechaFin", fondoAntiguo.FechaInicioVigencia.ToString() },
+                        { "NuevaFechaFin", reqModif.FechaInicioVigencia.ToString() },
+                        { "ValorDisponible", fondoAntiguo.ValorDisponible?.ToString("N2") },
+                        { "NuevoValorDisponible", reqModif.ValorFondo.ToString("N2") },
+                        { "ValorComprometido", reqModif.ValorFondo.ToString("N2") },
+                        { "NuevoValorComprometido", reqModif.ValorFondo.ToString("N2") },
+                        { "ValorLiquidado", reqModif.ValorFondo.ToString("N2") },
+                        { "NuevoValorLiquidado", reqModif.ValorFondo.ToString("N2") },
+                        { "Firma", reqModif.NombreUsuarioModifica },
                     };
                     break;
 

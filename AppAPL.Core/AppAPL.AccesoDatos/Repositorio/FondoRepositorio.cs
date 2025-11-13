@@ -246,7 +246,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
-            parameters.Add("p_resultado", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_FONDOS.sp_proceso_aprobacion_fondo",
@@ -254,14 +255,15 @@ namespace AppAPL.AccesoDatos.Repositorio
                 commandType: CommandType.StoredProcedure
             );
 
-            string? mensajeSalida = parameters.Get<string>("p_resultado");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
 
-            logger.LogInformation($"mensajeSalida: {mensajeSalida}");
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
 
             var retorno = new ControlErroresDTO()
             {
-               
+               codigoRetorno = codigoSalida,
                 mensaje = mensajeSalida,
                 filasAfectadas = filasAfectadas
             };
