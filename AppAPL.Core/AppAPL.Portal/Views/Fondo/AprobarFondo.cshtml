@@ -19,78 +19,87 @@
 }
 
 <!-- Modal para Visualizar Fondo -->
-<div class="modal fade" id="modalEditarFondo" tabindex="-1" aria-labelledby="modalEditarFondoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="width: 90vw; max-width: 90vw;">
-        <div class="modal-content d-flex flex-column" style="height: 90vh; max-height: 90vh;">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalEditarFondoLabel">Visualizar Datos de Fondo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+<div id="modalEditarFondo" class="custom-modal">
+    <div class="custom-modal-overlay"></div>
+    <div class="custom-modal-container">
+        <div class="custom-modal-header">
+            <h5 class="custom-modal-title">Visualizar Datos de Fondo</h5>
+            <button type="button" class="custom-modal-close" onclick="cerrarModalFondo()">&times;</button>
+        </div>
 
-            <div class="modal-body" style="overflow-y: auto;">
+        <div class="custom-modal-body">
+            <form id="formEditarFondo">
+                <input type="hidden" id="modal-idOpcion" name="idOpcion">
 
-                <form id="formEditarFondo" class="row gx-1 gy-0">
-
-                    <div class="col-md-2 mb-0">
+                <!-- PRIMERA FILA -->
+                <div class="custom-form-row">
+                    <div class="custom-form-col">
                         <label for="modal-fondo-tipofondo" class="form-label fw-bold col-form-label-sm">Tipo Fondo</label>
-                        <input type="text" class="form-control form-control-sm" id="modal-fondo-tipofondo" name="tipo_fondo" disabled>
+                        <input type="text" class="custom-input" id="modal-fondo-tipofondo" name="idfondo" disabled>
                     </div>
-                    <div class="col-md-3 mb-0">
+                    <div class="custom-form-col">
                         <label for="modal-fondo-proveedor" class="form-label fw-bold col-form-label-sm">Proveedor</label>
-                        <input type="text" class="form-control form-control-sm" id="modal-fondo-proveedor" name="proveedor" disabled>
+                        <input type="text" class="custom-input" id="modal-fondo-proveedor" name="descripcion" disabled>
                     </div>
-                    <div class="col-md-3 mb-0">
+                    <div class="custom-form-col">
                         <label for="modal-fondo-descripcion" class="form-label fw-bold col-form-label-sm">Descripción</label>
-                        <input type="text" class="form-control form-control-sm" id="modal-fondo-descripcion" name="descripcion" disabled>
+                        <input type="text" class="custom-input" id="modal-fondo-descripcion" name="proveedor" disabled>
                     </div>
-                    <div class="col-md-2 mb-0">
+                    <div class="custom-form-col">
                         <label for="modal-fondo-fechainicio" class="form-label fw-bold col-form-label-sm">Fecha Inicio</label>
-                        <input type="text" class="form-control form-control-sm" id="modal-fondo-fechainicio" name="fecha_inicio" disabled>
+                        <input type="text" class="custom-input" id="modal-fondo-fechainicio" name="tipo_fondo" disabled>
                     </div>
-                    <div class="col-md-2 mb-0">
+                    <div class="custom-form-col">
                         <label for="modal-fondo-fechafin" class="form-label fw-bold col-form-label-sm">Fecha Fin</label>
-                        <input type="text" class="form-control form-control-sm" id="modal-fondo-fechafin" name="fecha_fin" disabled>
-                    </div>
-
-                    <div class="col-md-3 mt-0">
-                        <label for="modal-fondo-valor" class="form-label fw-bold col-form-label-sm">$ Valor Total</label>
-                        <input type="text" class="form-control form-control-sm text-end" id="modal-fondo-valor" name="valor_fondo" disabled>
-                    </div>
-                    <div class="col-md-3 mt-0">
-                        <label for="modal-fondo-disponible" class="form-label fw-bold col-form-label-sm">$ Disponible</label>
-                        <input type="text" class="form-control form-control-sm text-end" id="modal-fondo-disponible" value="$ 0,00" disabled>
-                    </div>
-                    <div class="col-md-3 mt-0">
-                        <label for="modal-fondo-comprometido" class="form-label fw-bold col-form-label-sm">$ Comprometido</label>
-                        <input type="text" class="form-control form-control-sm text-end" id="modal-fondo-comprometido" value="$ 0.00" disabled>
-                    </div>
-                    <div class="col-md-3 mt-0">
-                        <label for="modal-fondo-liquidado" class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
-                        <input type="text" class="form-control form-control-sm text-end" id="modal-fondo-liquidado" value="$ 0.00" disabled>
-                    </div>
-
-                </form>
-
-                <!-- 📌 NUEVO: Sección de Historial de Aprobaciones -->
-                <div class="mt-4">
-                    <h6 class="fw-bold mb-3" style="color: #CC0000;">Historial de Aprobaciones</h6>
-                    <div id="tabla-aprobaciones-fondo">
-                        <!-- Aquí se cargará dinámicamente la tabla de aprobaciones -->
+                        <input type="text" class="custom-input" id="modal-fondo-fechafin" name="tipo_fondo" disabled>
                     </div>
                 </div>
 
-            </div>
+                <!-- SEGUNDA FILA -->
+                <div class="custom-form-row">
+                    <div class="custom-form-col">
+                        <label for="modal-fondo-valor" class="form-label fw-bold col-form-label-sm">$ Valor Total</label>
+                        <input type="text" class="custom-input" id="modal-fondo-valor" name="fecha_inicio" disabled>
+                    </div>
+                    <div class="custom-form-col">
+                        <label for="modal-fondo-disponible" class="form-label fw-bold col-form-label-sm">$ Disponible</label>
+                        <input type="text" class="custom-input" id="modal-fondo-disponible" name="fecha_fin" disabled>
+                    </div>
+                    <div class="custom-form-col">
+                        <label for="modal-fondo-comprometido" class="form-label fw-bold col-form-label-sm">$ Comprometido</label>
+                        <input type="text" class="custom-input" id="modal-fondo-comprometido" name="valor_fondo" step="0.01" disabled>
+                    </div>
+                    <div class="custom-form-col">
+                        <label for="modal-fondo-liquidado" class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
+                        <input type="text" class="custom-input" id="modal-fondo-liquidado" name="estado" disabled>
+                    </div>
+                </div>
+            </form>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-danger" id="btnRechazarFondo">
-                    <i class="fa-solid fa-times-circle"></i> Rechazar
-                </button>
-                <button type="button" class="btn btn-primary" id="btnAprobarFondo">
-                    <i class="fa-solid fa-check-circle"></i> Aprobar
-                </button>
+            <hr class="custom-divider">
 
+            <!-- SECCIÓN TABLA -->
+            <h5 class="custom-section-title">
+                <i class="fa-solid fa-file-contract"></i> Datos del Acuerdo Asociado
+            </h5>
+            <div class="custom-table-container">
+                <div id="tabla-aprobaciones-fondo"></div>
             </div>
+        </div>
+
+        <div class="custom-modal-footer">
+            <button type="button" class="custom-btn-secondary" onclick="cerrarModalFondo()">
+                Cerrar
+            </button>
+            <!-- Estos botones son opcionales, actívalos si los necesitas -->
+            <button type="button" class="custom-btn-danger" onclick="rechazarFondo()" id="btnRechazarFondo">
+                <i class="fa-solid fa-circle-xmark custom-btn-icon"></i>
+                Inactivar
+            </button>
+            <button type="button" class="custom-btn-primary" onclick="aprobarFondo()" id="btnAprobarFondo">
+                <i class="fa-solid fa-circle-check custom-btn-icon"></i>
+                Aprobar
+            </button>
         </div>
     </div>
 </div>

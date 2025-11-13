@@ -111,10 +111,39 @@ $(document).ready(function () {
 
 }); // <-- FIN de $(document).ready
 
+// ===================================================================
+// ===== EVENT LISTENERS PARA EL MODAL =====
+// ===================================================================
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('modalVisualizarFondo');
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarModalFondo();
+            }
+        });
+    }
+});
+
 
 // ===================================================================
 // ===== FUNCIONES GLOBALES =====
 // ===================================================================
+
+
+function cerrarModalFondo() {
+    const modal = document.getElementById('modalEditarFondo');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+
+    // Limpiar la tabla de acuerdos
+    if ($.fn.DataTable.isDataTable('#tabla-aprobaciones-fondo')) {
+        $('#tabla-aprobaciones-fondo').DataTable().destroy();
+    }
+    $('#tabla-aprobaciones-fondo').html('');
+}
 
 function crearListado(data) {
     if (tabla) {
