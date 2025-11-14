@@ -832,11 +832,14 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 f.valordisponible                             AS valor_disponible,
                 f.valorcomprometido                           AS valor_comprometido,
                 f.valorliquidado                              AS valor_liquidado,
-                ce.nombre                                     AS estado
+                ce.nombre                                     AS estado,
+                ce.idetiqueta                                 AS estado_etiqeuta
         FROM
                 apl_tb_fondo  f
                 LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
                 LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+        WHERE 
+                ce.idetiqueta != 'ESTADOAPROBADO'
         ORDER BY
                 f.idfondo;
 

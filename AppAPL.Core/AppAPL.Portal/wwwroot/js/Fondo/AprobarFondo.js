@@ -13,7 +13,35 @@ $(document).ready(function () {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
 
+<<<<<<< Updated upstream
         cargarBandeja();
+=======
+        $.ajax({
+            url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JZoller`,
+            method: "GET",
+            headers: {
+                "idopcion": "1",
+                "usuario": "admin",
+                "idcontrolinterfaz": "0",
+                "idevento": "0",
+                "entidad": "0",
+                "identidad": "0",
+                "idtipoproceso": "0"
+            },
+            success: function (data) {
+                console.log("Datos recibidos de bandeja-aprobacion:", data);
+                crearListado(data);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error al obtener datos de fondos:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudieron cargar los fondos para aprobación'
+                });
+            }
+        });
+>>>>>>> Stashed changes
     });
 
     // ===== BOTÓN LIMPIAR =====
