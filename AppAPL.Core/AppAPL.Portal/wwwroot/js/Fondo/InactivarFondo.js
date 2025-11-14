@@ -4,6 +4,22 @@
 let tabla; // GLOBAL
 let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
 
+// Configuración global de SweetAlert2 para z-index
+const SwalConfig = {
+    customClass: {
+        container: 'swal2-container-high-z'
+    }
+};
+
+// CSS dinámico para SweetAlert2
+const style = document.createElement('style');
+style.textContent = `
+    .swal2-container-high-z {
+        z-index: 99999 !important;
+    }
+`;
+document.head.appendChild(style);
+
 // Se ejecuta cuando el DOM está listo
 $(document).ready(function () {
 
@@ -439,3 +455,136 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+/**
+ * Función para inactivar/rechazar un fondo
+ */
+function rechazarFondo() {
+    const idFondo = document.getElementById('modal-fondo-id').value;
+
+    if (!idFondo) {
+        Swal.fire({
+            ...SwalConfig,  // Añadir configuración
+            icon: 'warning',
+            title: 'Advertencia',
+            text: 'No se pudo obtener el ID del fondo'
+        });
+        return;
+    }
+
+    Swal.fire({
+        ...SwalConfig,  // Añadir configuración
+        title: '¿Está seguro?',
+        text: `¿Desea inactivar el fondo ${idFondo}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, inactivar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            ejecutarInactivacion(idFondo);
+        }
+    });
+}
+
+function ejecutarInactivacion(idFondo) {
+    const requestBody = {
+        entidad: parseInt(idFondo),
+        identidad: 0,
+        idtipoproceso: 0,
+        idetiquetatipoproceso: "INACTIVACION",
+        comentario: "Fondo inactivado desde bandeja de inactivación",
+        idetiquetaestado: "INACTIVO",
+        idaprobacion: 0,
+        usuarioaprobador: "admin",
+        idopcion: 43,
+        idcontrolinterfaz: 28,
+        idevento: 29
+    };
+
+    Swal.fire({
+        ...SwalConfig,  // Añadir configuración
+        title: 'Procesando...',
+        text: 'Inactivando el fondo',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Fondo/aprobar-fondo`,
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(requestBody),
+        success: function (response) {
+            console.log("Respuesta de inactivación:", response);
+
+            Swal.fire({
+                ...SwalConfig,  // Añadir configuración
+                icon: 'success',
+                title: 'Éxito',
+                text: 'El fondo ha sido inactivado correctamente',
+                confirmButtonText: 'Aceptar'
+            }).then(() => {
+                cerrarModalFondo();
+                recargarTablaFondos();
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al inactivar el fondo:", error);
+            console.error("Respuesta del servidor:", xhr.responseText);
+
+            let mensajeError = 'No se pudo inactivar el fondo';
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                mensajeError = xhr.responseJSON.message;
+            } else if (xhr.responseText) {
+                try {
+                    const errorObj = JSON.parse(xhr.responseText);
+                    mensajeError = errorObj.message || mensajeError;
+                } catch (e) {
+                    // Si no se puede parsear, usar mensaje por defecto
+                }
+            }
+
+            Swal.fire({
+                ...SwalConfig,  // Añadir configuración
+                icon: 'error',
+                title: 'Error',
+                text: mensajeError,
+                confirmButtonText: 'Aceptar'
+            });
+        }
+    });
+}
+function recargarTablaFondos() {
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Fondo/bandeja-inactivacion`,
+        method: "GET",
+        headers: {
+            "idopcion": "1",
+            "usuario": "admin",
+            "idcontrolinterfaz": "0",
+            "idevento": "0",
+            "entidad": "0",
+            "identidad": "0",
+            "idtipoproceso": "0"
+        },
+        success: function (data) {
+            console.log("Tabla recargada:", data);
+            crearListado(data);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al recargar la tabla:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo recargar la tabla de fondos'
+            });
+        }
+    });
+}
