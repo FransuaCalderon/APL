@@ -13,31 +13,7 @@ $(document).ready(function () {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
 
-        $.ajax({
-            url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JZoller`,
-            method: "GET",
-            headers: {
-                "idopcion": "1",
-                "usuario": "admin",
-                "idcontrolinterfaz": "0",
-                "idevento": "0",
-                "entidad": "0",
-                "identidad": "0",
-                "idtipoproceso": "0"
-            },
-            success: function (data) {
-                console.log("Datos recibidos de bandeja-aprobacion:", data);
-                crearListado(data);
-            },
-            error: function (xhr, status, error) {
-                console.error("Error al obtener datos de fondos:", error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar los fondos para aprobación'
-                });
-            }
-        });
+        cargarBandeja();
     });
 
     // ===== BOTÓN LIMPIAR =====
@@ -68,6 +44,36 @@ $(document).ready(function () {
 // ===================================================================
 // ===== FUNCIONES GLOBALES =====
 // ===================================================================
+
+function cargarBandeja() {
+    const apiBaseUrl = window.apiBaseUrl
+   
+    $.ajax({
+        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JZoller`,
+        method: "GET",
+        headers: {
+            "idopcion": "1",
+            "usuario": "admin",
+            "idcontrolinterfaz": "0",
+            "idevento": "0",
+            "entidad": "0",
+            "identidad": "0",
+            "idtipoproceso": "0"
+        },
+        success: function (data) {
+            console.log("Datos recibidos de bandeja-aprobacion:", data);
+            crearListado(data);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al obtener datos de fondos:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar los fondos para aprobación'
+            });
+        }
+    });
+}
 
 function crearListado(data) {
     if (tabla) {
@@ -215,7 +221,7 @@ function abrirModalEditar(idFondo, idAprobacion) {
             datosAprobacionActual = {
                 entidad: data.entidad_id || 0,
                 identidad: data.idfondo || 0,
-                idtipoproceso: data.tipoproceso_etiqueta || "",
+                idtipoproceso: data.idtipoproceso || "",
                 idetiquetatipoproceso: data.idetiquetatipoproceso || "",
                 idaprobacion: idAprobacion,
                 entidad_etiqueta: data.entidad_etiqueta,
@@ -493,6 +499,7 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
  * Procesa la aprobación o rechazo de un fondo
  */
 function procesarAprobacionFondo(accion) {
+    cerrarModalFondo();
     if (!datosAprobacionActual) {
         Swal.fire({
             icon: 'error',
@@ -538,8 +545,10 @@ function procesarAprobacionFondo(accion) {
 function ejecutarAprobacionFondo(accion, nuevoEstado) {
     const usuarioActual = "JGONZALEZ"; // TODO: Obtener del usuario logueado
 
+    console.log("datosAprobacionActual: ", datosAprobacionActual);
+
     const datosPost = {
-        entidad: datosAprobacionActual.entidad,
+        entidad: 32,
         identidad: datosAprobacionActual.identidad,
         idtipoproceso: datosAprobacionActual.idtipoproceso,
         idetiquetatipoproceso: datosAprobacionActual.idetiquetatipoproceso,
@@ -583,34 +592,22 @@ function ejecutarAprobacionFondo(accion, nuevoEstado) {
                 text: response.respuesta || `Fondo ${accion === "APROBAR" ? "aprobado" : "rechazado"} correctamente`,
                 confirmButtonText: 'Aceptar'
             }).then(() => {
-                cerrarModalFondo();
+                //cerrarModalFondo();
 
-                // Recargar la tabla de fondos
-                $.ajax({
-                    url: `${window.apiBaseUrl}/api/Fondo/bandeja-aprobacion/JGONZALEZ`,
-                    method: "GET",
-                    headers: {
-                        "idopcion": "1",
-                        "usuario": "admin",
-                        "idcontrolinterfaz": "0",
-                        "idevento": "0",
-                        "entidad": "0",
-                        "identidad": "0",
-                        "idtipoproceso": "0"
-                    },
-                    success: function (data) {
-                        crearListado(data);
-                    }
-                });
+                cargarBandeja();
             });
         },
         error: function (xhr, status, error) {
-            console.error("Error al procesar aprobación:", error);
+            //cerrarModalFondo();
+
+            console.error("Error al procesar aprobación:", xhr.responseJSON);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo procesar la aprobación/rechazo: ' + error
+                text: 'No se pudo procesar la aprobación/rechazo: '
             });
+
+
         }
     });
 }
