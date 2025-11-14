@@ -49,7 +49,7 @@ function cargarBandeja() {
     const apiBaseUrl = window.apiBaseUrl
    
     $.ajax({
-        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JZoller`,
+        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JGonzalez`,
         method: "GET",
         headers: {
             "idopcion": "1",
