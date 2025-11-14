@@ -18,73 +18,75 @@
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 }
 
-<div class="modal fade" id="modalEditarFondo" tabindex="-1" aria-labelledby="modalEditarFondoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalEditarFondoLabel">Visualizar Datos de Fondo</h5> @* Cambiado de "Consultar Datos..." a "Visualizar Datos..." para mayor claridad *@@* Se mantiene el ID del modal para reutilizar el JS *@
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Modal Personalizado -->
+<div id="modalVisualizarFondo" class="custom-modal">
+    <div class="custom-modal-overlay"></div>
+    <div class="custom-modal-container">
+        <div class="custom-modal-header">
+            <h5 class="custom-modal-title">Visualizar Datos de Fondo</h5>
+            <button type="button" class="custom-modal-close" onclick="cerrarModalFondo()">&times;</button>
+        </div>
+
+        <div class="custom-modal-body">
+            <form id="formEditarFondo">
+                <input type="hidden" id="modal-idOpcion" name="idOpcion">
+
+                <!-- PRIMERA FILA -->
+                <div class="custom-form-row">
+                    <div class="custom-form-col">
+                        <label class="custom-label">ID Fondo</label>
+                        <input type="text" class="custom-input" id="modal-fondo-id" name="idfondo" disabled>
+                    </div>
+                    <div class="custom-form-col">
+                        <label class="custom-label">Descripción <span class="text-danger">*</span></label>
+                        <input type="text" class="custom-input" id="modal-fondo-descripcion" name="descripcion" disabled>
+                    </div>
+                    <div class="custom-form-col">
+                        <label class="custom-label">Proveedor <span class="text-danger">*</span></label>
+                        <input type="text" class="custom-input" id="modal-fondo-proveedor" name="proveedor" disabled>
+                    </div>
+                    <div class="custom-form-col">
+                        <label class="custom-label">Tipo de Fondo <span class="text-danger">*</span></label>
+                        <input type="text" class="custom-input" id="modal-fondo-tipofondo" name="tipo_fondo" disabled>
+                    </div>
+                </div>
+
+                <!-- SEGUNDA FILA -->
+                <div class="custom-form-row">
+                    <div class="custom-form-col">
+                        <label class="custom-label">Fecha Inicio <span class="text-danger">*</span></label>
+                        <input type="date" class="custom-input" id="modal-fondo-fechainicio" name="fecha_inicio" disabled>
+                    </div>
+                    <div class="custom-form-col">
+                        <label class="custom-label">Fecha Fin <span class="text-danger">*</span></label>
+                        <input type="date" class="custom-input" id="modal-fondo-fechafin" name="fecha_fin" disabled>
+                    </div>
+                    <div class="custom-form-col">
+                        <label class="custom-label">Valor Fondo <span class="text-danger">*</span></label>
+                        <input type="number" class="custom-input" id="modal-fondo-valor" name="valor_fondo" step="0.01" disabled>
+                    </div>
+                    <div class="custom-form-col">
+                        <label class="custom-label">Estado</label>
+                        <input type="text" class="custom-input" id="modal-fondo-estado" name="estado" disabled>
+                    </div>
+                </div>
+            </form>
+
+            <hr class="custom-divider">
+
+            <!-- SECCIÓN TABLA -->
+            <h5 class="custom-section-title">
+                <i class="fa-solid fa-file-contract"></i> Datos del Acuerdo Asociado
+            </h5>
+            <div class="custom-table-container">
+                <div id="tabla-acuerdo-fondo"></div>
             </div>
+        </div>
 
-            <div class="modal-body pb-2">
-                <form id="formEditarFondo" class="mb-0">
-                    <div class="col-md-12">
-                        <label for="modal-fondo-id" class="form-label fw-bold">ID Fondo</label>
-                        <input type="text" class="form-control" id="modal-fondo-id" name="idfondo" disabled>
-                    </div>
-                    <div class="col-md-12">
-                        <label for="modal-fondo-descripcion" class="form-label fw-bold">
-                            Descripción
-                        </label>
-                        <input type="text" class="form-control" id="modal-fondo-descripcion" name="descripcion" disabled> @* <--- DESHABILITADO *@@* Se elimina el span de error, ya que no se modifica *@
-                    </div>
-
-                    <div class="col-md-12">
-                        <label for="modal-fondo-proveedor" class="form-label fw-bold col-form-label-sm">Proveedor</label>
-                        <select id="modal-fondo-proveedor" class="form-select" disabled>
-                            @* <--- DESHABILITADO *@
-                            <option selected>Cargando...</option>
-                        </select>
-                    </div>
-                    <div class="col-md-12">
-                        <label for="modal-fondo-tipofondo" class="form-label fw-bold col-form-label-sm">Tipo Fondo</label>
-                        <select id="modal-fondo-tipofondo" class="form-select" disabled>
-                            @* <--- DESHABILITADO *@
-                            <option selected>Cargando...</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-12">
-                        <label for="modal-fondo-fechainicio" class="form-label fw-bold">
-                            Fecha Inicio
-                        </label>
-                        <input type="date" class="form-control" id="modal-fondo-fechainicio" name="fecha_inicio" disabled> @* <--- DESHABILITADO *@@* Se elimina el span de error, ya que no se modifica *@
-                    </div>
-
-                    <div class="col-md-12">
-                        <label for="modal-fondo-fechafin" class="form-label fw-bold">
-                            Fecha Fin
-                        </label>
-                        <input type="date" class="form-control" id="modal-fondo-fechafin" name="fecha_fin" disabled> @* <--- DESHABILITADO *@@* Se elimina el span de error, ya que no se modifica *@
-                    </div>
-
-                    <div class="col-md-12">
-                        <label for="modal-fondo-valor" class="form-label fw-bold">
-                            Valor Fondo
-                        </label>
-                        <input type="number" class="form-control" id="modal-fondo-valor" name="valor_fondo" step="0.01" disabled> @* <--- DESHABILITADO *@@* Se elimina el span de error, ya que no se modifica *@
-                    </div>
-                    <div class="col-md-12">
-                        <label for="modal-fondo-estado" class="form-label fw-bold">Estado</label>
-                        <input type="text" class="form-control" id="modal-fondo-estado" name="estado" disabled>
-
-                    </div>
-                </form>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button> @* Cambiado de "Cancelar" a "Cerrar" *@@* Se elimina el botón de Modificar *@
-            </div>
+        <div class="custom-modal-footer">
+            <button type="button" class="custom-btn-secondary" onclick="cerrarModalFondo()">
+                Cerrar
+            </button>
         </div>
     </div>
 </div>

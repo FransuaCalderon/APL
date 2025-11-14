@@ -276,8 +276,8 @@ function formatDateForInput(fechaString) {
  */
 function formatearMoneda(valor) {
     var numero = parseFloat(valor);
-    if (isNaN(numero)) {
-        return valor;
+    if (isNaN(numero) || valor === null || valor === undefined) {
+        return "$ 0.00"; // Retorna un valor por defecto en lugar de undefined
     }
 
     return '$ ' + numero.toLocaleString('es-EC', {
@@ -285,6 +285,7 @@ function formatearMoneda(valor) {
         maximumFractionDigits: 2
     });
 }
+
 
 /**
  * Formatea la fecha al formato DD/MM/YYYY
@@ -365,12 +366,16 @@ function cargarAcuerdoFondo(idFondo) {
             html += "  <tbody>";
 
             acuerdos.forEach(acuerdo => {
+                // LOG PARA DEBUGGING - Ver qué campos existen
+                console.log("Campo valorFondo:", acuerdo.valorFondo);
+                console.log("Acuerdo completo:", acuerdo);
+
                 html += "<tr>";
                 html += "  <td>" + (acuerdo.idacuerdofondo ?? "") + "</td>";
                 html += "  <td>" + (acuerdo.acuerdofondo_estado_nombre ?? "") + "</td>";
-                html += "  <td>" + (acuerdo.acuerdofondo_descripcion ?? "") + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_valor) + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_valor_disponible) + "</td>";
+                html += "  <td>" + (acuerdo.acuerdo_descripcion ?? "") + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valorFondo) + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_disponible) + "</td>";
                 html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_comprometido) + "</td>";
                 html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_liquidado) + "</td>";
                 html += "</tr>";
