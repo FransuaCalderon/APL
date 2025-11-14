@@ -12,7 +12,7 @@ namespace AppAPL.Negocio.Abstracciones
     public interface IFondoServicio
     {
         Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo);
-        Task CrearAsync(CrearFondoRequest fondo);
+        Task<ControlErroresDTO> CrearAsync(CrearFondoRequest fondo);
         Task EliminarAsync(int idFondo);
         Task<IEnumerable<FondoDTO>> ListarAsync();
         Task<FondoDTO?> ObtenerPorIdAsync(int idFondo);

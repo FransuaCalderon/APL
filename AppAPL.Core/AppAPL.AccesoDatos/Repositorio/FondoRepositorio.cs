@@ -197,7 +197,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos.FirstOrDefault();
         }
 
-        public async Task CrearAsync(CrearFondoRequest fondo)
+        public async Task<ControlErroresDTO> CrearAsync(CrearFondoRequest fondo)
         {
             using var connection = factory.CreateOpenConnection();
 
@@ -220,13 +220,25 @@ namespace AppAPL.AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters(paramObject);
             //parameters.Add("p_idfondo_out", OracleDbType.Int32, ParameterDirection.Output);
 
-            await connection.ExecuteAsync(
+            int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_FONDOS.crear_fondo",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
 
+            //query temporal hasta modificar sp
+            var sqlCurrVal = "SELECT \"HR\".\"ISEQ$$_76054\".CURRVAL FROM DUAL";
+            var idGenerado = await connection.QueryFirstOrDefaultAsync<int>(sqlCurrVal);
+
             //return parameters.Get<int>("p_idfondo_out");
+            var retorno = new ControlErroresDTO()
+            {
+                Id = idGenerado,
+                filasAfectadas = filasAfectadas,
+                mensaje = "",
+                codigoRetorno = 0
+            };
+            return retorno;
         }
 
         public async Task<ControlErroresDTO> AprobarFondo(AprobarFondoRequest fondo)

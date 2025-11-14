@@ -42,13 +42,10 @@ $(document).ready(function () {
         });
     });
 
-
     function cargarTipoFondo() {
-        // Definimos la etiqueta que quieres enviar
         const etiqueta = "TIPOFONDO";
 
         $.ajax({
-            // 1. URL actualizada para incluir la etiqueta en la ruta
             url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`,
             method: "GET",
             headers: {
@@ -58,52 +55,31 @@ $(document).ready(function () {
             success: function (data) {
                 console.log("Tipos de fondo cargados:", data);
 
-                // Seleccionamos el <select> por su ID
                 const $selectFondoTipo = $("#modal-fondo-tipofondo");
-
-                // Limpiar el select
                 $selectFondoTipo.empty();
+                $selectFondoTipo.append($('<option></option>').val("").text("Seleccione..."));
 
-                // Agregar una opción por defecto
-                $selectFondoTipo.append(
-                    $('<option></option>')
-                        .val("") // Valor vacío para la opción por defecto
-                        .text("Seleccione...")
-                );
-
-                // Agregar las opciones dinámicamente desde la API
                 if (data && data.length > 0) {
                     data.forEach(function (item) {
                         $selectFondoTipo.append(
                             $('<option></option>')
-                                // 2. Nombres de propiedades (idcatalogo, nombre_catalogo)
                                 .val(item.nombre_catalogo)
                                 .text(item.nombre_catalogo)
                         );
                     });
                 }
-
-                
             },
             error: function (xhr, status, error) {
                 console.error("Error al cargar tipos de fondo:", error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar los tipos de fondo'
-                });
             }
         });
     }
 
     function consultarProveedor() {
-        // Definimos la etiqueta que quieres enviar
-        // Valores fijos
         const usuario = "1";
         const idopcion = "9";
 
         $.ajax({
-            // 1. URL actualizada para incluir la etiqueta en la ruta
             url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
             method: "GET",
             headers: {
@@ -113,40 +89,22 @@ $(document).ready(function () {
             success: function (data) {
                 console.log("proveedores cargado:", data);
 
-                // Seleccionamos el <select> por su ID
                 const $selectFondoTipo = $("#modal-fondo-proveedor");
-
-                // Limpiar el select
                 $selectFondoTipo.empty();
+                $selectFondoTipo.append($('<option></option>').val("").text("Seleccione..."));
 
-                // Agregar una opción por defecto
-                $selectFondoTipo.append(
-                    $('<option></option>')
-                        .val("") // Valor vacío para la opción por defecto
-                        .text("Seleccione...")
-                );
-
-                // Agregar las opciones dinámicamente desde la API
                 if (data && data.length > 0) {
                     data.forEach(function (item) {
                         $selectFondoTipo.append(
                             $('<option></option>')
-                                // 2. Nombres de propiedades (idcatalogo, nombre_catalogo)
                                 .val(item.codigo)
                                 .text(item.nombre)
                         );
                     });
                 }
-
-
             },
             error: function (xhr, status, error) {
                 console.error("Error al cargar proveedor:", error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar los proveedores'
-                });
             }
         });
     }
@@ -157,46 +115,10 @@ $(document).ready(function () {
             tabla.search('').draw();
             tabla.page(0).draw('page');
             ultimaFilaModificada = null;
-            limpiarSeleccion('#tabla-fondos');
+            if (typeof limpiarSeleccion === 'function') {
+                limpiarSeleccion('#tabla-fondos');
+            }
         }
-    });
-
-    // ===== MANEJADOR DEL BOTÓN GUARDAR DEL MODAL DE EDICIÓN =====
-    $("#btnGuardarCambiosFondo").on("click", function (e) {
-        e.preventDefault();
-
-        // 1. Obtener datos del formulario
-        const id = $("#modal-fondo-id").val();
-        const dataParaGuardar = {
-            idfondo: id,
-            descripcion: $("#modal-fondo-descripcion").val(),
-            proveedor: $("#modal-fondo-proveedor").val(),
-            tipo_fondo: $("#modal-fondo-tipofondo").val(),
-            valor_fondo: parseFloat($("#modal-fondo-valor").val()),
-            fecha_inicio: $("#modal-fondo-fechainicio").val(),
-            fecha_fin: $("#modal-fondo-fechafin").val()
-            //... y cualquier otro campo que tu API de "Actualizar" necesite
-        };
-
-        console.log("Datos a guardar:", dataParaGuardar);
-
-        // 2. Aquí harías tu $.ajax({ type: "PUT", url: `.../api/Fondo/actualizar/${id}` ... })
-
-        // 3. Por ahora, solo simulamos éxito
-        Swal.fire({
-            icon: 'info',
-            title: 'En desarrollo',
-            text: 'La lógica para guardar aún no está implementada.'
-        });
-
-        // 4. Cierra el modal
-        var modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarFondo'));
-        modal.hide();
-
-        // 5. Opcional: Recargar la tabla (descomentar cuando el guardado funcione)
-        // $.get(`${window.apiBaseUrl}/api/Fondo/bandeja-modificacion`, function (data) {
-        //     crearListado(data);
-        // });
     });
 
 }); // <-- FIN de $(document).ready
@@ -212,19 +134,18 @@ function crearListado(data) {
     }
 
     var html = "";
-    // 1. Añadimos el id="tabla-fondos" para que tu CSS funcione
     html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
 
     html += "  <thead>";
 
-    // 1. Fila del Título ROJO (con estilo en línea para máxima prioridad)
+    // Fila del Título ROJO
     html += "    <tr>";
     html += "      <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
     html += "          BANDEJA DE FONDOS";
     html += "      </th>";
     html += "    </tr>";
 
-    // Fila de las Cabeceras (esto tomará tu CSS)
+    // Fila de las Cabeceras
     html += "    <tr>";
     html += "      <th>Acción</th>";
     html += "      <th>IDFondo</th>";
@@ -249,13 +170,12 @@ function crearListado(data) {
             var fondo = data[i];
             var id = fondo.idfondo;
 
-            // 3. Tu botón de editar
+            // Botón de editar
             var editButton = '<button type="button" class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(' + id + ')">' +
                 '<i class="fa-regular fa-pen-to-square"></i>' +
                 '</button>';
 
             html += "<tr>";
-            // 4. Tu celda con el botón de editar
             html += "  <td class='text-center'>" + editButton + "</td>";
             html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
             html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
@@ -278,7 +198,7 @@ function crearListado(data) {
     // Inserta la tabla en el div
     $('#tabla').html(html);
 
-    // Inicializa DataTable (sin cambios)
+    // Inicializa DataTable
     tabla = $('#tabla-fondos').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
@@ -291,7 +211,6 @@ function crearListado(data) {
         ],
         order: [[1, 'desc']],
         language: {
-            // (Tu configuración de idioma está bien)
             decimal: "",
             emptyTable: "No hay datos disponibles en la tabla",
             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
@@ -313,36 +232,28 @@ function crearListado(data) {
         },
         drawCallback: function () {
             if (ultimaFilaModificada !== null) {
-                marcarFilaPorId('#tabla-fondos', ultimaFilaModificada);
+                if (typeof marcarFilaPorId === 'function') {
+                    marcarFilaPorId('#tabla-fondos', ultimaFilaModificada);
+                }
             }
         }
     });
 
     console.log('Llamando a inicializarMarcadoFilas para Fondos');
-    inicializarMarcadoFilas('#tabla-fondos');
+    if (typeof inicializarMarcadoFilas === 'function') {
+        inicializarMarcadoFilas('#tabla-fondos');
+    }
 }
 
 // ===================================================================
-// ===== FUNCIONES PARA EL MODAL DE EDICIÓN =====
+// ===== FUNCIONES PARA EL MODAL PERSONALIZADO =====
 // ===================================================================
 
 /**
- * Abre el modal de edición y carga los datos del fondo.
+ * Abre el modal personalizado y carga los datos del fondo para editar.
  */
 function abrirModalEditar(id) {
-    // 1. Reinicia el formulario
-    $('#formEditarFondo')[0].reset();
-
-    // 2. Configura el título y el botón del modal
-    $('#modalEditarFondoLabel').text('Editar Fondo');
-    $('#btnGuardarCambiosFondo')
-        .html('<i class="fa-solid fa-pen-to-square me-2"></i> Modificar')
-        .removeClass('btn-success')
-        .addClass('btn-primary');
-
-    
-
-    // 3. Llama a la API para obtener los datos del fondo por ID
+    // Llama a la API para obtener los datos del fondo por ID
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-modificacion-id/${id}`,
         method: "GET",
@@ -356,23 +267,20 @@ function abrirModalEditar(id) {
             "idtipoproceso": "0"
         },
         success: function (data) {
+            // Preparar los datos para el modal
+            const datosModal = {
+                idfondo: data.idfondo,
+                descripcion: data.descripcion,
+                proveedor: data.proveedor,
+                tipo_fondo: data.tipo_fondo,
+                valor_fondo: data.valor_fondo,
+                fecha_inicio: formatDateForInput(data.fecha_inicio),
+                fecha_fin: formatDateForInput(data.fecha_fin),
+                estado: data.estado
+            };
 
-            
-            // 4. Rellena el formulario con los datos (¡usa snake_case!)
-            $("#modal-fondo-id").val(data.idfondo);
-            $("#modal-fondo-descripcion").val(data.descripcion);
-            $("#modal-fondo-proveedor").val(data.proveedor);
-            $("#modal-fondo-tipofondo").val(data.tipo_fondo);
-            $("#modal-fondo-valor").val(formatearMoneda(data.valor_fondo));
-            $("#modal-fondo-estado").val(data.estado);
-
-            // 5. Formatea las fechas para los inputs <input type="date">
-            $("#modal-fondo-fechainicio").val(formatDateForInput(data.fecha_inicio));
-            $("#modal-fondo-fechafin").val(formatDateForInput(data.fecha_fin));
-
-            // 6. Muestra el modal
-            var editarModal = new bootstrap.Modal(document.getElementById('modalEditarFondo'));
-            editarModal.show();
+            // Abrir el modal personalizado
+            abrirModalFondo(datosModal);
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del fondo:", error);
@@ -386,6 +294,92 @@ function abrirModalEditar(id) {
 }
 
 /**
+ * Función para abrir el modal personalizado
+ */
+function abrirModalFondo(datos) {
+    const modal = document.getElementById('modalEditarFondo');
+
+    // Llenar los datos
+    document.getElementById('modal-fondo-id').value = datos.idfondo || '';
+    document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
+    document.getElementById('modal-fondo-proveedor').value = datos.proveedor || '';
+    document.getElementById('modal-fondo-tipofondo').value = datos.tipo_fondo || '';
+    document.getElementById('modal-fondo-fechainicio').value = datos.fecha_inicio || '';
+    document.getElementById('modal-fondo-fechafin').value = datos.fecha_fin || '';
+    document.getElementById('modal-fondo-valor').value = datos.valor_fondo || '';
+    document.getElementById('modal-fondo-estado').value = datos.estado || '';
+
+    // Mostrar modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Función para cerrar el modal personalizado
+ */
+function cerrarModalFondo() {
+    const modal = document.getElementById('modalEditarFondo');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+
+    // Limpiar el formulario
+    document.getElementById('formEditarFondo').reset();
+}
+
+/**
+ * Función para guardar los cambios del fondo
+ */
+function guardarCambiosFondo() {
+    // Obtener datos del formulario
+    const id = $("#modal-fondo-id").val();
+    const dataParaGuardar = {
+        idfondo: id,
+        descripcion: $("#modal-fondo-descripcion").val(),
+        proveedor: $("#modal-fondo-proveedor").val(),
+        tipo_fondo: $("#modal-fondo-tipofondo").val(),
+        valor_fondo: parseFloat($("#modal-fondo-valor").val()),
+        fecha_inicio: $("#modal-fondo-fechainicio").val(),
+        fecha_fin: $("#modal-fondo-fechafin").val()
+    };
+
+    console.log("Datos a guardar:", dataParaGuardar);
+
+    // TODO: Implementar la llamada AJAX para actualizar
+    // $.ajax({
+    //     url: `${window.apiBaseUrl}/api/Fondo/actualizar/${id}`,
+    //     method: "PUT",
+    //     headers: {...},
+    //     data: JSON.stringify(dataParaGuardar),
+    //     contentType: "application/json",
+    //     success: function(response) {
+    //         Swal.fire({
+    //             icon: 'success',
+    //             title: 'Éxito',
+    //             text: 'Fondo actualizado correctamente'
+    //         });
+    //         cerrarModalFondo();
+    //         // Recargar tabla
+    //     },
+    //     error: function(xhr, status, error) {
+    //         Swal.fire({
+    //             icon: 'error',
+    //             title: 'Error',
+    //             text: 'No se pudo actualizar el fondo'
+    //         });
+    //     }
+    // });
+
+    // Por ahora, solo simulamos éxito
+    Swal.fire({
+        icon: 'info',
+        title: 'En desarrollo',
+        text: 'La lógica para guardar aún no está implementada.'
+    });
+
+    cerrarModalFondo();
+}
+
+/**
  * Convierte una fecha/hora (ej: "2025-11-03T00:00:00")
  * al formato "YYYY-MM-DD" que necesita <input type="date">.
  */
@@ -393,12 +387,11 @@ function formatDateForInput(fechaString) {
     if (!fechaString) {
         return "";
     }
-    // Simplemente partimos la cadena en la 'T' y tomamos la primera parte (la fecha)
     return fechaString.split('T')[0];
 }
 
 // ===================================================================
-// ===== FUNCIONES UTILITARIAS (de tu código) =====
+// ===== FUNCIONES UTILITARIAS =====
 // ===================================================================
 
 /**
@@ -406,53 +399,18 @@ function formatDateForInput(fechaString) {
  */
 function formatearMoneda(valor) {
     var numero = parseFloat(valor);
-    if (isNaN(numero)) {
-        return valor;
+    if (isNaN(numero) || valor === null || valor === undefined) {
+        return "$ 0.00";
     }
+
     return '$ ' + numero.toLocaleString('es-EC', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    const inputValor = document.getElementById('modal-fondo-valor');
-
-    // 👉 Formatear mientras se escribe
-    inputValor.addEventListener('input', function (e) {
-        let valorLimpio = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-        if (valorLimpio === '') {
-            e.target.value = '';
-            return;
-        }
-        let numero = parseFloat(valorLimpio);
-        if (!isNaN(numero)) {
-            e.target.value = formatearMoneda(numero);
-        }
-    });
-
-    // 👉 Formatear al salir del campo
-    inputValor.addEventListener('blur', function (e) {
-        let valorLimpio = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-        let numero = parseFloat(valorLimpio);
-        if (!isNaN(numero)) {
-            e.target.value = formatearMoneda(numero);
-        } else {
-            e.target.value = '';
-        }
-    });
-});
-
-// 👉 NUEVA FUNCIÓN: Usar cuando cargues datos en el input
-function cargarValorEnInput(valor) {
-    const inputValor = document.getElementById('modal-fondo-valor');
-    if (inputValor && valor) {
-        inputValor.value = formatearMoneda(valor);
-    }
-}
-
 /**
- * Formatea la fecha al formato Nov-01-2025
+ * Formatea la fecha al formato DD/MM/YYYY
  */
 function formatearFecha(fechaString) {
     try {
@@ -471,3 +429,19 @@ function formatearFecha(fechaString) {
         return fechaString;
     }
 }
+
+// ===================================================================
+// ===== EVENT LISTENERS PARA EL MODAL =====
+// ===================================================================
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('modalEditarFondo');
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarModalFondo();
+            }
+        });
+    }
+});

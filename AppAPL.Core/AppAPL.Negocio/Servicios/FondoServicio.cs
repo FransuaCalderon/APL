@@ -18,7 +18,7 @@ namespace AppAPL.Negocio.Servicios
         public async Task<FondoDTO?> ObtenerPorIdAsync(int idFondo)
             => await repo.ObtenerPorIdAsync(idFondo);
 
-        public async Task CrearAsync(CrearFondoRequest fondo)
+        public async Task<ControlErroresDTO> CrearAsync(CrearFondoRequest fondo)
             => await repo.CrearAsync(fondo);
 
         public async Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)

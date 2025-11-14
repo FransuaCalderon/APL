@@ -3,6 +3,7 @@ using System.Text.Json;
 using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.Api.Attributes;
 using AppAPL.Api.Handlers.Interfaces;
+using AppAPL.Dto;
 using AppAPL.Dto.Email;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
@@ -11,9 +12,10 @@ using Humanizer;
 
 namespace AppAPL.Api.Handlers
 {
-    public class FondosEmailHandler (IEmailRepositorio emailRepo, ILogger<FondosEmailHandler> logger, IProveedorRepositorio proveedorRepo) : IFondosEmailHandler
+    public class FondosEmailHandler (IEmailRepositorio emailRepo, ILogger<FondosEmailHandler> logger, 
+        IProveedorRepositorio proveedorRepo, IFondoRepositorio fondoRepo) : IFondosEmailHandler
     {
-        public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string bodyJson, FondoDTO? fondoAntiguo = null)
+        public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, FondoDTO? fondoAntiguo = null, string? responseBody = null)
         {
             logger.LogInformation($"📨 [FondosHandler] Procesando correo. Entidad={entidad}, TipoProceso={tipoProceso}");
             var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -30,7 +32,7 @@ namespace AppAPL.Api.Handlers
 
             // 1. Declaramos las variables que llenará el switch
             string IdProveedor;
-            Dictionary<string, string> camposPlantilla;
+            Dictionary<string, string> camposPlantilla = null;
 
             // 2. Aplicamos el "Strategy Pattern". 
             // Cada 'case' es una estrategia completa: deserializa el DTO correcto
@@ -43,10 +45,17 @@ namespace AppAPL.Api.Handlers
             switch (tipoProceso)
             {
                 case TipoProceso.Creacion:
-                    var reqCreacion = JsonSerializer.Deserialize<CrearFondoRequest>(bodyJson, jsonOptions);
+                    var reqCreacion = JsonSerializer.Deserialize<CrearFondoRequest>(requestBody, jsonOptions);
                     if (reqCreacion == null || string.IsNullOrEmpty(reqCreacion.IdProveedor))
                     {
                         logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener IdProveedor de CrearFondoRequest.");
+                        return;
+                    }
+
+                    var retorno = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
+                    if (retorno == null)
+                    {
+                        logger.LogWarning("No existe Response body");
                         return;
                     }
 
@@ -62,12 +71,13 @@ namespace AppAPL.Api.Handlers
                     camposPlantilla = new Dictionary<string, string>
                     {
                         { "Nombre", reqCreacion.NombreUsuarioIngreso },
-                        { "IdFondo", reqCreacion.IdProveedor },
+                        { "IdFondo", retorno.Id.ToString() },
+                        { "IdProveedor", proveedor.Identificacion },
                         { "NombreProveedor", proveedor.Nombre }, 
                         { "ValorFondo", reqCreacion.ValorFondo.ToString("N2") },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras(reqCreacion.ValorFondo) },
                         { "FechaInicio", reqCreacion.FechaInicioVigencia.ToString() },
-                        { "FechaFin", reqCreacion.FechaInicioVigencia.ToString() },
+                        { "FechaFin", reqCreacion.FechaFinVigencia.ToString() },
                         { "Firma", reqCreacion.NombreUsuarioIngreso },
                         // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                     };
@@ -75,7 +85,7 @@ namespace AppAPL.Api.Handlers
 
                 case TipoProceso.Modificacion: 
                     // Asumo que tienes un DTO 'ModificarFondoRequest'
-                    var reqModif = JsonSerializer.Deserialize<ActualizarFondoRequest>(bodyJson, jsonOptions);
+                    var reqModif = JsonSerializer.Deserialize<ActualizarFondoRequest>(requestBody, jsonOptions);
                     if (reqModif == null || string.IsNullOrEmpty(reqModif.IdProveedor))
                     {
                         logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener IdProveedor de ModificarFondoRequest.");
@@ -95,7 +105,7 @@ namespace AppAPL.Api.Handlers
 
                     if (proveedorAntiguo == null || proveedorNuevo == null)
                     {
-                        logger.LogWarning($"no se encontro proveedores {fondoAntiguo.IdProveedor}  {reqModif.IdProveedor}");
+                        logger.LogWarning($"no se encontro proveedores, proveedorAntiguo: {fondoAntiguo.IdProveedor}, proveedorNuevo:  {reqModif.IdProveedor}");
                         return;
                     }
 
@@ -104,7 +114,9 @@ namespace AppAPL.Api.Handlers
                         { "Nombre", reqModif.NombreUsuarioModifica },
                         { "IdFondo", fondoAntiguo.IdFondo.ToString() },
                         { "NombreProveedor", proveedorAntiguo.Nombre },
+                        { "IdProveedor", proveedorAntiguo.Identificacion },
                         { "NuevoNombreProveedor", proveedorNuevo.Nombre },
+                        { "NuevoIdProveedor", proveedorNuevo.Identificacion },
                         { "ValorFondo", fondoAntiguo.ValorFondo?.ToString("N2") },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondoAntiguo.ValorFondo) },
                         { "NuevoValorFondo", reqModif.ValorFondo.ToString("N2") },
@@ -123,10 +135,81 @@ namespace AppAPL.Api.Handlers
                     };
                     break;
 
-                // Aquí agregarías los otros casos (Aprobacion, Inactivacion)
-                // case TipoProceso.Aprobacion:
-                //    ...
-                //    break;
+
+                case TipoProceso.Aprobacion:
+                    var reqAprobacion = JsonSerializer.Deserialize<AprobarFondoRequest>(requestBody, jsonOptions);
+                    if (reqAprobacion == null || reqAprobacion.Identidad ==null)
+                    {
+                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        return;
+                    }
+
+                    tipoProceso = reqAprobacion.idEtiquetaEstado switch
+                    {
+                        "ESTADOAPROBADO" => TipoProceso.Aprobacion,
+                        "ESTADOINACTIVO" => TipoProceso.Inactivacion
+                    };
+
+
+                    tipoProcEtiqueta = reqAprobacion.idEtiquetaEstado switch
+                    {
+                        "ESTADOAPROBADO" => "TPAPROBACION",
+                        "ESTADOINACTIVO" => "TPINACTIVACION"
+                    };
+
+                    var fondo = await fondoRepo.ObtenerPorIdAsync((int)reqAprobacion.Identidad);
+
+                    if (fondo == null)
+                    {
+                        logger.LogWarning($"no se encontro el fondo con el id: {reqAprobacion.Identidad}");
+                    }
+
+                    IdProveedor = fondo.IdProveedor;
+                    var proveedor3 = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
+
+                    if (proveedor3 == null)
+                    {
+                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
+                        return;
+                    }
+
+                    if (reqAprobacion.idEtiquetaEstado == "ESTADOAPROBADO")
+                    {
+                        camposPlantilla = new Dictionary<string, string>
+                        {
+                            { "Nombre", fondo.IdUsuarioIngreso },
+                            { "IdFondo", fondo.IdFondo.ToString() },
+                            { "NombreProveedor", proveedor3.Nombre },
+                            { "IdProveedor", proveedor3.Identificacion },
+                            { "ValorFondo", fondo.ValorFondo?.ToString("N2") },
+                            { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo.ValorFondo) },
+                            { "FechaInicio", fondo.FechaInicioVigencia.ToString() },
+                            { "FechaFin", fondo.FechaFinVigencia.ToString() },
+                            { "Firma", reqAprobacion.UsuarioAprobador },
+                            // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
+                        };
+                    }
+
+                    if (reqAprobacion.idEtiquetaEstado == "ESTADOINACTIVO")
+                    {
+                        camposPlantilla = new Dictionary<string, string>
+                        {
+                            { "Nombre", fondo.IdUsuarioIngreso },
+                            { "IdFondo", fondo.IdProveedor },
+                            { "NombreProveedor", proveedor3.Nombre },
+                            { "IdProveedor", proveedor3.Identificacion },
+                            { "ValorFondo", fondo.ValorFondo?.ToString("N2") },
+                            { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo.ValorFondo) },
+                            { "FechaInicio", fondo.FechaInicioVigencia.ToString() },
+                            { "FechaFin", fondo.FechaFinVigencia.ToString() },
+                            { "ValorDisponible", fondo.ValorDisponible?.ToString("N2") },
+                            { "ValorComprometido", fondo.ValorComprometido?.ToString("N2") },
+                            { "ValorLiquidado", fondo.ValorLiquidado?.ToString("N2") },
+                            { "Firma", reqAprobacion.UsuarioAprobador },
+                            // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
+                        };
+                    }
+                    break;
 
                 default:
                     logger.LogWarning($"⚠️ [FondosHandler] TipoProceso no reconocido o sin estrategia definida: {tipoProceso}.");
@@ -181,7 +264,7 @@ namespace AppAPL.Api.Handlers
 
             await emailRepo.SendEmailAsync(
                 toList,
-                $"Notificación: {tipoProcEtiqueta}",
+                $"Notificación: {tipoProceso}",
                 plantilla.nombrearchivo,
                 camposPlantilla, // Usamos el diccionario llenado en el switch
                 ccList
@@ -211,7 +294,7 @@ namespace AppAPL.Api.Handlers
             {
                 // Convertimos la parte decimal (esto es 'int' y funciona)
                 string palabrasDecimales = parteDecimal.ToWords(new CultureInfo("es"));
-                return $"{palabrasEnteras} con {palabrasDecimales}".ToUpper();
+                return $"{palabrasEnteras} DOLARES con {palabrasDecimales} centavos".ToUpper();
             }
             else
             {

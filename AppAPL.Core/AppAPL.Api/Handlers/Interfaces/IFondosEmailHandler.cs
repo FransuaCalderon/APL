@@ -5,6 +5,6 @@ namespace AppAPL.Api.Handlers.Interfaces
 {
     public interface IFondosEmailHandler
     {
-        Task HandleAsync(string entidad, TipoProceso tipoProceso, string bodyJson, FondoDTO? fondoAntiguo = null);
+        Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, FondoDTO? fondoAntiguo = null, string? responseBody = null);
     }
 }

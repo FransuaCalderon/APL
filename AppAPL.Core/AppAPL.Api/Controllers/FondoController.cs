@@ -82,22 +82,31 @@ namespace AppAPL.Api.Controllers
 
         [HttpPost("insertar")]
         [Email("ENTFONDO", TipoProceso.Creacion)]
-        public async Task<ActionResult> Insertar(CrearFondoRequest fondo)
+        public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearFondoRequest fondo)
         {
-            await servicio.CrearAsync(fondo);
+            var retorno = await servicio.CrearAsync(fondo);
 
-            return Ok(new
-            {
-                mensaje = "Registro insertado correctamente"
-            });
+            return retorno;
         }
 
         [HttpPost("aprobar-fondo")]
+        [Email("ENTFONDO", TipoProceso.Aprobacion)]
         public async Task<ActionResult<ControlErroresDTO>> AprobarFondo(AprobarFondoRequest fondo)
         {
+            
             var retorno = await servicio.AprobarFondo(fondo);
 
-            return retorno;
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
         }
 
         // 🔹 PUT: Actualizar

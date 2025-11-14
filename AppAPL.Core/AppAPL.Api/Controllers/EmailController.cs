@@ -8,7 +8,7 @@ namespace AppAPL.Api.Controllers
     [Route("api/[controller]")]
     public class EmailController(IEmailServicio servicio, ILogger<EmailController> logger) : ControllerBase
     {
-        [HttpGet("/enviar-correo")]
+        [HttpGet("enviar-correo")]
         public async Task<ActionResult> Enviar()
         {
             var destinatarios = new List<string> { "cliente1@gmail.com", "cliente2@gmail.com" };

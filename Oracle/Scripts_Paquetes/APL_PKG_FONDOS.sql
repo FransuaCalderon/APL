@@ -1,6 +1,6 @@
 create or replace PACKAGE apl_pkg_fondos AS
     -- Procedimiento para insertar fondo
-        PROCEDURE crear_fondo (
+    PROCEDURE crear_fondo (
         p_descripcion          IN VARCHAR2,
         p_idproveedor          IN VARCHAR2,
         p_idtipofondo          IN NUMBER,
@@ -12,7 +12,10 @@ create or replace PACKAGE apl_pkg_fondos AS
         --log
         p_idopcion             IN NUMBER,
         p_idcontrolinterfaz    IN NUMBER,
-        p_idevento             IN NUMBER
+        p_idevento             IN NUMBER DEFAULT 29,
+        p_idfondo              OUT NUMBER,
+        p_codigo_salida        OUT NUMBER,
+        p_mensaje_salida       OUT VARCHAR2
     );
 
     --Procedimineto para actualizar fondo
@@ -26,6 +29,10 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_fechafinvigencia      IN TIMESTAMP,
         p_idusuariomodifica     IN VARCHAR2,
         p_nombreusuariomodifica IN VARCHAR2,
+        --parametros para el log
+        p_idopcion             IN NUMBER,
+        p_idcontrolinterfaz    IN NUMBER,
+        p_idevento             IN NUMBER DEFAULT 29,
         p_codigo_salida         OUT NUMBER,
         p_mensaje_salida        OUT VARCHAR2
     );
@@ -87,6 +94,10 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_idetiquetaestado          IN VARCHAR2,
         p_idaprobacion              IN NUMBER,
         p_usuarioaprobador          IN VARCHAR2,
+        --parametros para el log
+        p_idopcion                  IN NUMBER,
+        p_idcontrolinterfaz         IN NUMBER,
+        p_idevento                  IN NUMBER DEFAULT 29,
         p_codigo_salida             OUT NUMBER,
         p_mensaje_salida            OUT VARCHAR2   
     );
@@ -108,7 +119,10 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         --parametros para el log
         p_idopcion             IN NUMBER,
         p_idcontrolinterfaz    IN NUMBER,
-        p_idevento             IN NUMBER DEFAULT 29 
+        p_idevento             IN NUMBER DEFAULT 29,
+        p_idfondo              OUT NUMBER,
+        p_codigo_salida        OUT NUMBER,
+        p_mensaje_salida       OUT VARCHAR2
     ) AS
       -- Catálogos
         v_creacion_manual   NUMBER;
@@ -126,6 +140,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
       -- Variables para LOG
         v_json_datos        JSON_OBJECT_T;
         v_datos_json        VARCHAR2(4000);
+        
         
     BEGIN
       -- 1) Resolver catálogos
@@ -223,6 +238,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             v_estado_registro,
             v_creacion_manual
         ) RETURNING idfondo INTO v_idfondo;
+        
+        p_idfondo := v_idfondo;
 
       -- 4) Si hay aprobadores, generar filas en APL_TB_APROBACION (una por aprobador activo)
         IF v_tiene_aprobadores > 0 THEN
@@ -310,7 +327,9 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
     EXCEPTION
         WHEN no_data_found THEN
       -- Alguna etiqueta de catálogo no existe
-            raise_application_error(-20050, 'Falta configurar etiquetas en APL_TB_CATALOGO (ENTFONDO/TPCREACION/ESTADO*).');
+            p_codigo_salida    := -20050;
+            p_mensaje_salida       := 'Falta configurar etiquetas en APL_TB_CATALOGO (ENTFONDO/TPCREACION/ESTADO*).';
+            
     END crear_fondo;
 
     PROCEDURE actualizar_fondo (
@@ -323,8 +342,13 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         p_fechafinvigencia      IN TIMESTAMP,
         p_idusuariomodifica     IN VARCHAR2,
         p_nombreusuariomodifica IN VARCHAR2,
+         --parametros para el log
+        p_idopcion              IN NUMBER,
+        p_idcontrolinterfaz     IN NUMBER,
+        p_idevento              IN NUMBER DEFAULT 29,
         p_codigo_salida         OUT NUMBER,
         p_mensaje_salida        OUT VARCHAR2
+       
     ) AS
       -- Catálogos
         v_entidad_fondo      NUMBER;
@@ -347,6 +371,12 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         v_fechafin_actual    TIMESTAMP;
         v_valorcomprometido  NUMBER;
         v_valorliquidado     NUMBER;
+        v_valordisponible    NUMBER; --
+        v_filas_afectadas    NUMBER;
+        
+      -- Variables para LOG
+        v_datos_json         VARCHAR2(4000);
+        
     BEGIN
       -- ============================================================================
       -- 1) RESOLVER CATÁLOGOS
@@ -457,8 +487,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
       -- 4) VALIDACIÓN: Si el fondo está NEGADO
       -- ============================================================================
         IF v_estado_actual = v_estado_negado THEN
-            -- Modificar con los nuevos datos y aplicar validaciones de creación
-
+            
             -- Verificar si hay aprobadores configurados
             SELECT
                 COUNT(*)
@@ -492,6 +521,47 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 idestadoregistro = v_nuevo_estado
             WHERE
                 idfondo = p_idfondo;
+                
+            -- Construir JSON con los datos actualizados
+            v_datos_json := JSON_OBJECT(
+                'idfondo' VALUE p_idfondo,
+                'descripcion' VALUE p_descripcion,
+                'idproveedor' VALUE p_idproveedor,
+                'idtipofondo' VALUE p_idtipofondo,
+                'valorfondo' VALUE p_valorfondo,
+                'fechainiciovigencia' VALUE TO_CHAR(p_fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
+                'fechafinvigencia' VALUE TO_CHAR(p_fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
+                'valorcomprometido' VALUE v_valorcomprometido,
+                'valorliquidado' VALUE v_valorliquidado,
+                'idusuariomodifica' VALUE p_idusuariomodifica,
+                'fechamodifica' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
+                'idestadoregistro' VALUE v_nuevo_estado,
+                'estado_anterior' VALUE v_estado_actual,
+                'accion' VALUE 'Modificación desde estado NEGADO'
+            );
+            
+            -- Insertar en LOG
+            INSERT INTO apl_tb_log (
+                fechahoratrx,
+                iduser,
+                idopcion,
+                idcontrolinterfaz,
+                idevento,
+                entidad,
+                identidad,
+                idtipoproceso,
+                datos
+            ) VALUES (
+                SYSTIMESTAMP,
+                p_idusuariomodifica,
+                p_idopcion,
+                p_idcontrolinterfaz,
+                p_idevento,
+                v_entidad_fondo,
+                p_idfondo,
+                v_tipo_modificacion,
+                v_datos_json
+            );
 
             -- Si hay aprobadores, generar aprobaciones
             IF v_tiene_aprobadores > 0 THEN
@@ -528,6 +598,10 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                         AND a.idestadoregistro = v_estado_activo;
 
             END IF;
+            
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'Fondo actualizado correctamente desde estado NEGADO. Log ID: ';
+            COMMIT;
 
             RETURN; -- Salir del procedimiento
         END IF;
@@ -570,6 +644,50 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 idestadoregistro = v_nuevo_estado
             WHERE
                 idfondo = p_idfondo;
+                
+            -- Construir JSON con los datos actualizados
+            v_datos_json := JSON_OBJECT(
+                'idfondo' VALUE p_idfondo,
+                'descripcion' VALUE p_descripcion,
+                'idproveedor' VALUE p_idproveedor,
+                'idtipofondo' VALUE p_idtipofondo,
+                'valorfondo' VALUE p_valorfondo,
+                'fechainiciovigencia' VALUE TO_CHAR(p_fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
+                'fechafinvigencia' VALUE TO_CHAR(p_fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
+                'valorcomprometido' VALUE v_valorcomprometido,
+                'valorliquidado' VALUE v_valorliquidado,
+                'idusuariomodifica' VALUE p_idusuariomodifica,
+                'fechamodifica' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
+                'idestadoregistro' VALUE v_nuevo_estado,
+                'estado_anterior' VALUE v_estado_actual,
+                'accion' VALUE CASE 
+                    WHEN v_estado_actual = v_estado_nuevo THEN 'Modificación desde estado NUEVO'
+                    ELSE 'Modificación desde estado MODIFICADO'
+                END
+            );
+            
+             -- Insertar en LOG
+            INSERT INTO apl_tb_log (
+                fechahoratrx,
+                iduser,
+                idopcion,
+                idcontrolinterfaz,
+                idevento,
+                entidad,
+                identidad,
+                idtipoproceso,
+                datos
+            ) VALUES (
+                SYSTIMESTAMP,
+                p_idusuariomodifica,
+                p_idopcion,
+                p_idcontrolinterfaz,
+                p_idevento,
+                v_entidad_fondo,
+                p_idfondo,
+                v_tipo_modificacion,
+                v_datos_json
+            );
 
             -- Si hay aprobadores Y el estado era NUEVO, generar aprobaciones
             -- Si el estado era MODIFICADO, actualizar las aprobaciones existentes
@@ -599,8 +717,18 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
 
                 END IF;
             END IF;
+            
+            --nuevo
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'Fondo actualizado correctamente. Log ID: ';
+            COMMIT;
+            RETURN;
 
         END IF;
+        
+        -- Si no cumple ninguna condición
+        p_codigo_salida := -20003;
+        p_mensaje_salida := 'Estado del fondo no válido para modificación';
 
     EXCEPTION
         WHEN no_data_found THEN
@@ -927,6 +1055,10 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         p_idetiquetaestado          IN VARCHAR2,
         p_idaprobacion              IN NUMBER,
         p_usuarioaprobador          IN VARCHAR2,
+        --parametros para el log
+        p_idopcion                  IN NUMBER,
+        p_idcontrolinterfaz         IN NUMBER,
+        p_idevento                  IN NUMBER DEFAULT 29,
         p_codigo_salida             OUT NUMBER,
         p_mensaje_salida            OUT VARCHAR2
     ) AS
@@ -944,6 +1076,9 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         -- Variables para validación
         v_existe_aprobacion  NUMBER := 0;
         v_existe_fondo       NUMBER := 0;
+        
+        -- Variables para LOG
+        v_datos_json         VARCHAR2(4000);
     
     BEGIN
         -- ===== VALIDACIONES INICIALES =====
@@ -1016,6 +1151,39 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             RETURN;
         END IF;
         
+        -- Construir JSON con los datos actualizados
+            v_datos_json := JSON_OBJECT(
+                'fechaaprobacion' VALUE TO_CHAR(v_fechasistema, 'YYYY-MM-DD HH24:MI:SS'),
+                'comentario' VALUE p_comentario,
+                'idestadoregistro' VALUE p_idaprobacion,
+                'idaprobacion' VALUE p_idaprobacion,
+                'tipo_registro' VALUE 'ACTUALIZACION_APROBACION'
+            );
+            
+            -- Insertar en LOG
+            INSERT INTO apl_tb_log (
+                fechahoratrx,
+                iduser,
+                idopcion,
+                idcontrolinterfaz,
+                idevento,
+                entidad,
+                identidad,
+                idtipoproceso,
+                datos
+            ) VALUES (
+                SYSTIMESTAMP,
+                p_usuarioaprobador,
+                p_idopcion,
+                p_idcontrolinterfaz,
+                p_idevento,
+                p_identidad,
+                p_entidad,
+                p_idtipoproceso, 
+                v_datos_json
+            );
+
+        
         -- ===== PASO 2: VERIFICAR APROBACIONES PENDIENTES =====
         
         SELECT COUNT(*) 
@@ -1049,6 +1217,40 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 END IF;
                 
                 p_mensaje_salida := 'OK: Fondo creado y aprobado exitosamente';
+                
+                -- Construir JSON con los datos actualizados
+                v_datos_json := JSON_OBJECT(
+                    'idusuariomodifica' VALUE p_usuarioaprobador,
+                    'fechamodifica' VALUE TO_CHAR(v_fechasistema, 'YYYY-MM-DD HH24:MI:SS'),
+                    'idestadoregistro' VALUE v_idestado,
+                    'tipo_proceso' VALUE 'TPCREACION',
+                    'tipo_registro' VALUE 'APROBACION_FONDO_CREACION',
+                    'aprobaciones_pendientes' VALUE v_registros_pendientes_aprobacion
+                );
+            
+                -- Insertar en LOG
+                INSERT INTO apl_tb_log (
+                    fechahoratrx,
+                    iduser,
+                    idopcion,
+                    idcontrolinterfaz,
+                    idevento,
+                    entidad,
+                    identidad,
+                    idtipoproceso,
+                    datos
+                ) VALUES (
+                    SYSTIMESTAMP,
+                    p_usuarioaprobador,
+                    p_idopcion,
+                    p_idcontrolinterfaz,
+                    p_idevento, 
+                    p_entidad,
+                    p_identidad,
+                    p_idtipoproceso,
+                    v_datos_json
+                );
+
             
             -- Caso 2: INACTIVACIÓN
             ELSIF UPPER(p_idetiquetatipoproceso) = 'TPINACTIVACION' THEN
@@ -1073,9 +1275,52 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     
                     p_mensaje_salida := 'OK: Fondo inactivado exitosamente';
                     
+                    -- Construir JSON con los datos actualizados
+                    v_datos_json := JSON_OBJECT(
+                        'idusuariomodifica' VALUE p_usuarioaprobador,
+                        'fechamodifica' VALUE TO_CHAR(v_fechasistema, 'YYYY-MM-DD HH24:MI:SS'),
+                        'idestadoregistro' VALUE v_idestado,
+                        'tipo_proceso' VALUE 'TPMODIFICACION',
+                        'tipo_registro' VALUE 'APROBACION_FONDO_MODIFICACION',
+                        'aprobaciones_pendientes' VALUE v_registros_pendientes_aprobacion
+                    );
+                    
                 ELSE
                     p_mensaje_salida := 'OK: Aprobación rechazada, fondo no inactivado';
+                    
+                    -- Construir JSON para rechazo de inactivación
+                    v_datos_json := JSON_OBJECT(
+                        'tipo_proceso' VALUE 'TPINACTIVACION',
+                        'tipo_registro' VALUE 'RECHAZO_INACTIVACION',  -- ⭐ AGREGADO
+                        'razon' VALUE 'Estado de aprobación no es APROBADO',
+                        'estado_recibido' VALUE p_idetiquetaestado
+                    );
                 END IF;
+                
+
+            
+                -- Insertar en LOG
+                INSERT INTO apl_tb_log (
+                    fechahoratrx,
+                    iduser,
+                    idopcion,
+                    idcontrolinterfaz,
+                    idevento,
+                    entidad,
+                    identidad,
+                    idtipoproceso,
+                    datos
+                ) VALUES (
+                    SYSTIMESTAMP,
+                    p_usuarioaprobador,
+                    p_idopcion,
+                    p_idcontrolinterfaz,
+                    p_idevento,
+                    p_entidad,
+                    p_identidad,
+                    p_idtipoproceso,
+                    v_datos_json
+                );
                 
             ELSE
                 p_mensaje_salida:= 'ERROR: Tipo de proceso no reconocido: ' || p_idetiquetatipoproceso;

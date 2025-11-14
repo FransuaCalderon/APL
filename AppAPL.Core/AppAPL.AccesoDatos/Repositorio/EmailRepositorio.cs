@@ -24,6 +24,17 @@ namespace AppAPL.AccesoDatos.Repositorio
         {
             //Cargar la plantilla HTML
             var templatePath = Path.Combine(env.ContentRootPath, "EmailTemplates", templateName);
+
+            // --- MANEJO SIN TRY-CATCH ---
+            // Verificar si el archivo existe ANTES de leerlo.
+            if (!File.Exists(templatePath))
+            {
+                
+                logger.LogWarning($"No se pudo encontrar la plantilla de email: {templateName} en la ruta {templatePath}");
+
+                return; // Termina la ejecución del método aquí.
+            }
+
             var htmlBody = await File.ReadAllTextAsync(templatePath);
 
             //Reemplazar los placeholders {{Nombre}}  valores
