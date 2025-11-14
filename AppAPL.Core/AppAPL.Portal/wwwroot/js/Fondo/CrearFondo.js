@@ -361,27 +361,31 @@ $(document).ready(function () {
 
                 // *** ¡OBJETO DATA MODIFICADO! ***
                 // Leemos los valores y los adaptamos al nuevo endpoint
+                // *** ¡OBJETO DATA MODIFICADO! ***
                 const data = {
                     // --- Campos que coinciden ---
                     descripcion: $("#fondoDescripcion").val(),
                     idproveedor: $("#fondoProveedorId").val(),
 
                     // --- Campos con nombre y tipo corregidos ---
-                    idtipofondo: parseInt($("#fondoTipo").val(), 10) || 0, // Convertido a NÚMERO
-                    valorfondo: convertirMonedaANumero($("#fondoValorTotal").val()), // Convertido a NÚMERO
+                    idtipofondo: parseInt($("#fondoTipo").val(), 10) || 0,
+                    valorfondo: convertirMonedaANumero($("#fondoValorTotal").val()),
 
                     // --- Fechas convertidas a formato ISO ---
                     fechainiciovigencia: convertirFechaAISO($("#fondoFechaInicio").val()),
                     fechafinvigencia: convertirFechaAISO($("#fondoFechaFin").val()),
 
-                    // --- Nuevos campos (valores fijos según tu header/lógica) ---
-                    idusuarioingreso: "admin", // Asumiendo "admin" como en tus headers
-                    nombreusuarioingreso: "admin" // Asumiendo "admin"
+                    // --- Usuario ingreso ---
+                    idusuarioingreso: "admin",
+                    nombreusuarioingreso: "admin",
 
-                    // --- Campos eliminados ---
-                    // valor_disponible, valor_comprometido, valor_liquidado,
-                    // estado_registro, indicador_creacion (ya no se envían)
+                    // --- 🔴 CAMPOS NUEVOS QUE PEDISTE ---
+                    idopcion: 40,
+                    idcontrolinterfaz: 24
+                    // si tu DTO tiene idevento también:
+                    // idevento: 0
                 };
+
 
                 // --- FIN DE CAMBIOS ---
 
