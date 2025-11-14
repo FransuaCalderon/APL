@@ -381,9 +381,8 @@ $(document).ready(function () {
 
                     // --- 🔴 CAMPOS NUEVOS QUE PEDISTE ---
                     idopcion: 40,
-                    idcontrolinterfaz: 24
-                    // si tu DTO tiene idevento también:
-                    // idevento: 0
+                    idcontrolinterfaz: 24,
+                    idevento: 29
                 };
 
 
