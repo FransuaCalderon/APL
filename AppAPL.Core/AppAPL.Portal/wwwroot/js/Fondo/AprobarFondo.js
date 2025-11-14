@@ -545,7 +545,10 @@ function ejecutarAprobacionFondo(accion, nuevoEstado) {
         idetiquetatipoproceso: datosAprobacionActual.idetiquetatipoproceso,
         idetiquetatestado: nuevoEstado,
         idaprobacion: datosAprobacionActual.idaprobacion,
-        usuarioaprobador: usuarioActual
+        usuarioaprobador: usuarioActual,
+        idopcion: 32,
+        idcontrolinterfaz: 26,
+        idevento: 9
     };
 
     console.log("Enviando aprobación/rechazo:", datosPost);
