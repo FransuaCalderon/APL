@@ -15,6 +15,13 @@ $(document).ready(function () {
         cargarTipoFondo();
         consultarProveedor();
 
+        cargarBandeja();
+    });
+
+
+    function cargarBandeja() {
+        const apiBaseUrl = window.apiBaseUrl;
+
         $.ajax({
             url: `${apiBaseUrl}/api/Fondo/bandeja-modificacion`,
             method: "GET",
@@ -40,7 +47,7 @@ $(document).ready(function () {
                 });
             }
         });
-    });
+    }
 
     function cargarTipoFondo() {
         const etiqueta = "TIPOFONDO";
@@ -63,7 +70,7 @@ $(document).ready(function () {
                     data.forEach(function (item) {
                         $selectFondoTipo.append(
                             $('<option></option>')
-                                .val(item.nombre_catalogo)
+                                .val(item.idcatalogo)
                                 .text(item.nombre_catalogo)
                         );
                     });
@@ -97,7 +104,7 @@ $(document).ready(function () {
                     data.forEach(function (item) {
                         $selectFondoTipo.append(
                             $('<option></option>')
-                                .val(item.codigo)
+                                .val(item.identificacion)
                                 .text(item.nombre)
                         );
                     });
@@ -267,6 +274,7 @@ function abrirModalEditar(id) {
             "idtipoproceso": "0"
         },
         success: function (data) {
+            
             // Preparar los datos para el modal
             const datosModal = {
                 idfondo: data.idfondo,
@@ -278,7 +286,7 @@ function abrirModalEditar(id) {
                 fecha_fin: formatDateForInput(data.fecha_fin),
                 estado: data.estado
             };
-
+            console.log("datosModal: ", datosModal);
             // Abrir el modal personalizado
             abrirModalFondo(datosModal);
         },
@@ -333,42 +341,45 @@ function guardarCambiosFondo() {
     // Obtener datos del formulario
     const id = $("#modal-fondo-id").val();
     const dataParaGuardar = {
-        idfondo: id,
         descripcion: $("#modal-fondo-descripcion").val(),
-        proveedor: $("#modal-fondo-proveedor").val(),
-        tipo_fondo: $("#modal-fondo-tipofondo").val(),
-        valor_fondo: parseFloat($("#modal-fondo-valor").val()),
-        fecha_inicio: $("#modal-fondo-fechainicio").val(),
-        fecha_fin: $("#modal-fondo-fechafin").val()
+        idproveedor: $("#modal-fondo-proveedor").val(),
+        idtipofondo: $("#modal-fondo-tipofondo").val(),
+        valorfondo: parseFloat($("#modal-fondo-valor").val()),
+        fechainiciovigencia: $("#modal-fondo-fechainicio").val(),
+        fechafinvigencia: $("#modal-fondo-fechafin").val(),
+        idusuariomodifica: "admin",  // el usuario debe escoger de la sesion logeada
+        nombreusuariomodifica: "admin"
     };
 
-    console.log("Datos a guardar:", dataParaGuardar);
+    console.log("datos a guardar:", dataParaGuardar);
 
-    // TODO: Implementar la llamada AJAX para actualizar
-    // $.ajax({
-    //     url: `${window.apiBaseUrl}/api/Fondo/actualizar/${id}`,
-    //     method: "PUT",
-    //     headers: {...},
-    //     data: JSON.stringify(dataParaGuardar),
-    //     contentType: "application/json",
-    //     success: function(response) {
-    //         Swal.fire({
-    //             icon: 'success',
-    //             title: 'Éxito',
-    //             text: 'Fondo actualizado correctamente'
-    //         });
-    //         cerrarModalFondo();
-    //         // Recargar tabla
-    //     },
-    //     error: function(xhr, status, error) {
-    //         Swal.fire({
-    //             icon: 'error',
-    //             title: 'Error',
-    //             text: 'No se pudo actualizar el fondo'
-    //         });
-    //     }
-    // });
+     //TODO: Implementar la llamada AJAX para actualizar
+     $.ajax({
+         url: `${window.apiBaseUrl}/api/Fondo/actualizar/${id}`,
+         method: "PUT",
+         headers: {},
+         data: JSON.stringify(dataParaGuardar),
+         contentType: "application/json",
+         success: function(response) {
+             Swal.fire({
+                 icon: 'success',
+                 title: 'Éxito',
+                 text: 'Fondo actualizado correctamente'
+             });
+             cerrarModalFondo();
+             // Recargar tabla
+             cargarBandeja();
+         },
+         error: function(xhr, status, error) {
+             Swal.fire({
+                 icon: 'error',
+                 title: 'Error',
+                 text: 'No se pudo actualizar el fondo'
+             });
+         }
+     });
 
+     /*
     // Por ahora, solo simulamos éxito
     Swal.fire({
         icon: 'info',
@@ -376,7 +387,7 @@ function guardarCambiosFondo() {
         text: 'La lógica para guardar aún no está implementada.'
     });
 
-    cerrarModalFondo();
+    cerrarModalFondo();*/
 }
 
 /**

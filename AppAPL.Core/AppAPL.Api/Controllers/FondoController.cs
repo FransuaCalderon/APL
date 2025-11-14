@@ -86,7 +86,17 @@ namespace AppAPL.Api.Controllers
         {
             var retorno = await servicio.CrearAsync(fondo);
 
-            return retorno;
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
         }
 
         [HttpPost("aprobar-fondo")]

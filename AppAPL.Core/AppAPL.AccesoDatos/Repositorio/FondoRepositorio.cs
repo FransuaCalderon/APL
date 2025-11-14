@@ -218,7 +218,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
-            //parameters.Add("p_idfondo_out", OracleDbType.Int32, ParameterDirection.Output);
+            parameters.Add("p_idfondo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_FONDOS.crear_fondo",
@@ -226,17 +228,19 @@ namespace AppAPL.AccesoDatos.Repositorio
                 commandType: CommandType.StoredProcedure
             );
 
-            //query temporal hasta modificar sp
-            var sqlCurrVal = "SELECT \"HR\".\"ISEQ$$_76054\".CURRVAL FROM DUAL";
-            var idGenerado = await connection.QueryFirstOrDefaultAsync<int>(sqlCurrVal);
+            int? idFondo = parameters.Get<int>("p_idfondo");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
             //return parameters.Get<int>("p_idfondo_out");
             var retorno = new ControlErroresDTO()
             {
-                Id = idGenerado,
+                Id = idFondo,
                 filasAfectadas = filasAfectadas,
-                mensaje = "",
-                codigoRetorno = 0
+                mensaje = mensajeSalida,
+                codigoRetorno = codigoSalida
             };
             return retorno;
         }
@@ -254,7 +258,11 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_comentario = fondo.Comentario,
                 p_idetiquetaestado = fondo.idEtiquetaEstado,
                 p_idaprobacion = fondo.IdAprobacion,
-                p_usuarioaprobador = fondo.UsuarioAprobador
+                p_usuarioaprobador = fondo.UsuarioAprobador,
+
+                p_idopcion = fondo.IdOpcion,
+                p_idcontrolinterfaz = fondo.IdControlInterfaz,
+                p_idevento = fondo.IdEvento
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
@@ -297,7 +305,11 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_fechainiciovigencia = fondo.FechaInicioVigencia,
                 p_fechafinvigencia = fondo.FechaFinVigencia,
                 p_idusuariomodifica = fondo.IdUsuarioModifica,
-                p_nombreusuariomodifica = fondo.NombreUsuarioModifica
+                p_nombreusuariomodifica = fondo.NombreUsuarioModifica,
+
+                p_idopcion = fondo.IdOpcion,
+                p_idcontrolinterfaz = fondo.IdControlInterfaz,
+                p_idevento = fondo.IdEvento
             };
 
             var parameters = new OracleDynamicParameters(paramObject);

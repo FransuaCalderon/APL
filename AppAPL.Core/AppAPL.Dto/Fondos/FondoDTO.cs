@@ -82,9 +82,9 @@ namespace AppAPL.Dto.Fondos
         public DateTime? FechaFinVigencia { get; set; }
         public string? IdUsuarioIngreso { get; set; }
         public string? NombreUsuarioIngreso { get; set; }
-        public int IdOpcion { get; set; }
-        public int IdControlInterfaz { get; set; }
-        public int IdEvento { get; set; }
+        public int? IdOpcion { get; set; }
+        public int? IdControlInterfaz { get; set; }
+        public int? IdEvento { get; set; }
     }
 
     public class ActualizarFondoRequest
@@ -97,6 +97,9 @@ namespace AppAPL.Dto.Fondos
         public DateTime? FechaFinVigencia { get; set; }
         public string? IdUsuarioModifica { get; set; }
         public string? NombreUsuarioModifica { get; set; }
+        public int? IdOpcion { get; set; }
+        public int? IdControlInterfaz { get; set; }
+        public int? IdEvento { get; set; }
     }
 
     public class AprobarFondoRequest
@@ -109,6 +112,10 @@ namespace AppAPL.Dto.Fondos
         public string? idEtiquetaEstado { get; set; }
         public int? IdAprobacion { get; set; }
         public string? UsuarioAprobador { get; set; }
+
+        public int? IdOpcion { get; set; }
+        public int? IdControlInterfaz { get; set; }
+        public int? IdEvento { get; set; }
 
     }
 
