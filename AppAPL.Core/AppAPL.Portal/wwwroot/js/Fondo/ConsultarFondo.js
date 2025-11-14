@@ -14,7 +14,7 @@ $(document).ready(function () {
 
         // Endpoint de listado/consulta general
         $.ajax({
-            url: `${apiBaseUrl}/api/Fondo/bandeja-modificacion`,
+            url: `${apiBaseUrl}/api/Fondo/listar`,
             method: "GET",
             headers: {
                 "idopcion": "1",
