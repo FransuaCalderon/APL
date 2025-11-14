@@ -14,7 +14,7 @@ $(document).ready(function () {
         window.apiBaseUrl = apiBaseUrl;
 
         $.ajax({
-            url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JGONZALEZ`,
+            url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JZoller`,
             method: "GET",
             headers: {
                 "idopcion": "1",

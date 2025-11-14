@@ -311,7 +311,29 @@ function abrirModalFondo(datos) {
     document.getElementById('modal-fondo-id').value = datos.idfondo || '';
     document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
     document.getElementById('modal-fondo-proveedor').value = datos.proveedor || '';
-    document.getElementById('modal-fondo-tipofondo').value = datos.tipo_fondo || '';
+    //document.getElementById('modal-fondo-tipofondo').value = datos.tipo_fondo || '';
+
+
+    // --- LÓGICA DE BÚSQUEDA POR TEXTO PARA 'TIPO FONDO' ---
+    const selectTipoFondo = document.getElementById('modal-fondo-tipofondo');
+    const textoTipoFondoBuscado = datos.tipo_fondo || ''; // El texto que quieres encontrar
+
+    // 1. Convertimos las opciones a un Array
+    const opcionesArray = Array.from(selectTipoFondo.options);
+
+    // 2. Buscamos la opción por su 'texto'
+    const opcionEncontrada = opcionesArray.find(option => option.text === textoTipoFondoBuscado);
+
+    // 3. Si se encuentra, asignamos su 'value' al select
+    if (opcionEncontrada) {
+        selectTipoFondo.value = opcionEncontrada.value;
+    } else {
+        // Si no, lo dejamos vacío o con la opción por defecto
+        selectTipoFondo.value = '';
+    }
+    // --- FIN DE LA MODIFICACIÓN ---
+
+
     document.getElementById('modal-fondo-fechainicio').value = datos.fecha_inicio || '';
     document.getElementById('modal-fondo-fechafin').value = datos.fecha_fin || '';
     document.getElementById('modal-fondo-valor').value = datos.valor_fondo || '';
@@ -348,7 +370,10 @@ function guardarCambiosFondo() {
         fechainiciovigencia: $("#modal-fondo-fechainicio").val(),
         fechafinvigencia: $("#modal-fondo-fechafin").val(),
         idusuariomodifica: "admin",  // el usuario debe escoger de la sesion logeada
-        nombreusuariomodifica: "admin"
+        nombreusuariomodifica: "admin",
+        idopcion: 0,
+        idcontrolinterfaz: 0,
+        idevento: 29
     };
 
     console.log("datos a guardar:", dataParaGuardar);
@@ -374,8 +399,11 @@ function guardarCambiosFondo() {
              Swal.fire({
                  icon: 'error',
                  title: 'Error',
-                 text: 'No se pudo actualizar el fondo'
+                 text: xhr.responseJSON.mensaje
              });
+
+             console.log("error al guardar", xhr.responseJSON.mensaje);
+             cerrarModalFondo();
          }
      });
 

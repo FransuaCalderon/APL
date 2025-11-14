@@ -383,7 +383,7 @@ $(document).ready(function () {
                     idopcion: 40,
                     idcontrolinterfaz: 24
                     // si tu DTO tiene idevento también:
-                    // idevento: 0
+                     //idevento: 29
                 };
 
 
