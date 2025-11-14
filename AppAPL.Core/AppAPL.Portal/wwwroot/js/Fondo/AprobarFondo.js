@@ -231,7 +231,7 @@ function abrirModalEditar(idFondo, idAprobacion) {
                 valor_fondo: formatearMoneda(data.valor_fondo),
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
                 fecha_fin: formatDateForInput(data.fecha_fin),
-                estado: data.estado,
+                estado: data.nombre_estado_fondo,
                 valor_disponible: formatearMoneda(data.valor_disponible),
                 valor_comprometido: formatearMoneda(data.valor_comprometido),
                 valor_liquidado: formatearMoneda(data.valor_liquidado)
@@ -434,7 +434,7 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
                 html += "  <td class='text-center'>" + (aprobacion.idaprobacion ?? "") + "</td>";
                 html += "  <td>" + (aprobacion.idusersolicitud ?? "") + "</td>";
                 html += "  <td>" + (aprobacion.iduseraprobador ?? "") + "</td>";
-                html += "  <td><span class='" + estadoClass + "'>" + (aprobacion.estado_nombre ?? "") + "</span></td>";
+                html += "  <td>" + (aprobacion.estado_nombre ?? "") + "</td>";
                 html += "  <td class='text-center'>" + formatearFecha(aprobacion.fechasolicitud) + "</td>";
                 html += "  <td class='text-center'>" + (aprobacion.nivelaprobacion ?? "") + "</td>";
                 html += "  <td>" + (aprobacion.tipoproceso_nombre ?? "") + "</td>";
@@ -545,7 +545,10 @@ function ejecutarAprobacionFondo(accion, nuevoEstado) {
         idetiquetatipoproceso: datosAprobacionActual.idetiquetatipoproceso,
         idetiquetatestado: nuevoEstado,
         idaprobacion: datosAprobacionActual.idaprobacion,
-        usuarioaprobador: usuarioActual
+        usuarioaprobador: usuarioActual,
+        idopcion: 32,
+        idcontrolinterfaz: 26,
+        idevento: 9
     };
 
     console.log("Enviando aprobación/rechazo:", datosPost);
