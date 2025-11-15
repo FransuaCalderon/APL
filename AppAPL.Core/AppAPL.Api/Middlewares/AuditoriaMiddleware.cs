@@ -9,7 +9,7 @@ namespace AppAPL.Api.Middlewares
         {
             //var idopcionHeader = context.Request.Headers["idopcion"].FirstOrDefault();
             //var usuario = context.Request.Headers["usuario"].FirstOrDefault();
-
+            /*
             var idopcion = context.Request.Headers.TryGetValue("idopcion", out var h1) ? h1.ToString() : "0";
             var usuario = context.Request.Headers.TryGetValue("usuario", out var h2) ? h2.ToString() : "anonimo";
             var idcontrolinterfaz = context.Request.Headers.TryGetValue("idcontrolinterfaz", out var h3) ? h3.ToString() : "0";
@@ -17,7 +17,7 @@ namespace AppAPL.Api.Middlewares
             var entidad = context.Request.Headers.TryGetValue("entidad", out var h5) ? h5.ToString() : "0";
             var identidad = context.Request.Headers.TryGetValue("identidad", out var h6) ? h6.ToString() : "0";
             var idtipoproceso = context.Request.Headers.TryGetValue("idtipoproceso", out var h7) ? h7.ToString() : "0";
-
+            */
             var processId = Thread.CurrentThread.ManagedThreadId;
             var metodo = context.Request.Method;
             var path = context.Request.Path;
@@ -105,14 +105,14 @@ namespace AppAPL.Api.Middlewares
             //si es exitoso podemos llamar un servicio inyectado en el constructor para mandar a grabar datos a la tabla de log
             int status = context.Response.StatusCode;
 
-            bool esExitoso = status >= 200 && status < 300;
+            //bool esExitoso = status >= 200 && status < 300;
 
 
             logger.LogInformation($"Codigo de estado HTTP: {status}");
             logger.LogInformation("Request => {Metodo} {Path}", metodo, path);
-
+            /*
             logger.LogInformation($"idopcion:{idopcion}, usuario: {usuario}");
-
+            
             if (esExitoso)
             {
                 //aqui aplicar la logica si la respuesta fuera todo ok en rango de 200
@@ -140,7 +140,7 @@ namespace AppAPL.Api.Middlewares
             {
                 logger.LogError($"Request con error: {status}");
             }
-
+            */
 
             logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE AUDITORIA [hilo: {processId}] ------------------");
         }

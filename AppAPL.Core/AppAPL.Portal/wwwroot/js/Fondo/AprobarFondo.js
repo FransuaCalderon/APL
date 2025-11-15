@@ -13,35 +13,8 @@ $(document).ready(function () {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
 
-<<<<<<< Updated upstream
         cargarBandeja();
-=======
-        $.ajax({
-            url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JZoller`,
-            method: "GET",
-            headers: {
-                "idopcion": "1",
-                "usuario": "admin",
-                "idcontrolinterfaz": "0",
-                "idevento": "0",
-                "entidad": "0",
-                "identidad": "0",
-                "idtipoproceso": "0"
-            },
-            success: function (data) {
-                console.log("Datos recibidos de bandeja-aprobacion:", data);
-                crearListado(data);
-            },
-            error: function (xhr, status, error) {
-                console.error("Error al obtener datos de fondos:", error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar los fondos para aprobación'
-                });
-            }
-        });
->>>>>>> Stashed changes
+        
     });
 
     // ===== BOTÓN LIMPIAR =====
@@ -58,12 +31,16 @@ $(document).ready(function () {
 
     // ===== BOTÓN APROBAR =====
     $('body').on('click', '#btnAprobarFondo', function () {
-        procesarAprobacionFondo("APROBAR");
+        let comentario = $("#modal-fondo-comentario").val();
+        console.log('comentario: ', comentario);
+        procesarAprobacionFondo("APROBAR", comentario);
     });
 
     // ===== BOTÓN RECHAZAR =====
     $('body').on('click', '#btnRechazarFondo', function () {
-        procesarAprobacionFondo("RECHAZAR");
+        let comentario = $("#modal-fondo-comentario").val();
+        console.log('comentario: ', comentario);
+        procesarAprobacionFondo("RECHAZAR", comentario);
     });
 
 }); // <-- FIN de $(document).ready
@@ -247,13 +224,14 @@ function abrirModalEditar(idFondo, idAprobacion) {
 
             // Guardar datos para los botones de aprobación/rechazo
             datosAprobacionActual = {
-                entidad: data.entidad_id || 0,
+                entidad: data.entidad || 0,
                 identidad: data.idfondo || 0,
                 idtipoproceso: data.idtipoproceso || "",
                 idetiquetatipoproceso: data.idetiquetatipoproceso || "",
                 idaprobacion: idAprobacion,
                 entidad_etiqueta: data.entidad_etiqueta,
-                idetiquetatestado: data.estado_etiqueta || ""
+                idetiquetatestado: data.estado_etiqueta || "",
+                comentario: ""
             };
 
             // Preparar los datos para el modal
@@ -458,7 +436,7 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
                     estadoClass = 'badge bg-primary';
                 } else if (estadoEtiqueta === 'ESTADOAPROBADO') {
                     estadoClass = 'badge bg-success';
-                } else if (estadoEtiqueta === 'ESTADORECHAZADO') {
+                } else if (estadoEtiqueta === 'ESTADOINACTIVO') {
                     estadoClass = 'badge bg-danger';
                 } else {
                     estadoClass = 'badge bg-secondary';
@@ -526,7 +504,7 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
 /**
  * Procesa la aprobación o rechazo de un fondo
  */
-function procesarAprobacionFondo(accion) {
+function procesarAprobacionFondo(accion, comentario) {
     cerrarModalFondo();
     if (!datosAprobacionActual) {
         Swal.fire({
@@ -546,7 +524,7 @@ function procesarAprobacionFondo(accion) {
         tituloAccion = "Aprobar Fondo";
         mensajeAccion = "¿Está seguro que desea aprobar este fondo?";
     } else if (accion === "RECHAZAR") {
-        nuevoEstado = "ESTADORECHAZADO";
+        nuevoEstado = "ESTADOINACTIVO";
         tituloAccion = "Rechazar Fondo";
         mensajeAccion = "¿Está seguro que desea rechazar este fondo?";
     }
@@ -562,7 +540,7 @@ function procesarAprobacionFondo(accion) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            ejecutarAprobacionFondo(accion, nuevoEstado);
+            ejecutarAprobacionFondo(accion, nuevoEstado, comentario);
         }
     });
 }
@@ -570,22 +548,23 @@ function procesarAprobacionFondo(accion) {
 /**
  * Ejecuta el POST al API para aprobar o rechazar
  */
-function ejecutarAprobacionFondo(accion, nuevoEstado) {
-    const usuarioActual = "JGONZALEZ"; // TODO: Obtener del usuario logueado
+function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
+    const usuarioActual = "JGonzalez"; // TODO: Obtener del usuario logueado
 
     console.log("datosAprobacionActual: ", datosAprobacionActual);
 
     const datosPost = {
-        entidad: 32,
+        entidad: datosAprobacionActual.entidad,
         identidad: datosAprobacionActual.identidad,
         idtipoproceso: datosAprobacionActual.idtipoproceso,
         idetiquetatipoproceso: datosAprobacionActual.idetiquetatipoproceso,
-        idetiquetatestado: nuevoEstado,
+        comentario: comentario,
+        idetiquetaestado: nuevoEstado,
         idaprobacion: datosAprobacionActual.idaprobacion,
         usuarioaprobador: usuarioActual,
         idopcion: 32,
         idcontrolinterfaz: 26,
-        idevento: 9
+        idevento: 29
     };
 
     console.log("Enviando aprobación/rechazo:", datosPost);
@@ -598,7 +577,8 @@ function ejecutarAprobacionFondo(accion, nuevoEstado) {
             Swal.showLoading();
         }
     });
-
+    cerrarModalFondo();
+    
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/aprobar-fondo`,
         method: "POST",
@@ -628,11 +608,11 @@ function ejecutarAprobacionFondo(accion, nuevoEstado) {
         error: function (xhr, status, error) {
             //cerrarModalFondo();
 
-            console.error("Error al procesar aprobación:", xhr.responseJSON);
+            console.error("Error al procesar aprobación:", xhr.responseJSON.mensaje);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo procesar la aprobación/rechazo: '
+                text: 'No se pudo procesar la aprobación/rechazo: ' + xhr.responseJSON.mensaje
             });
 
 

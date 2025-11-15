@@ -51,6 +51,7 @@ namespace AppAPL.Dto.Fondos
         public int nivelaprobacion { get; set; }
         public string aprobador { get; set; }
         public int idaprobacion { get; set; }
+        public int entidad { get; set; }
         public string entidad_etiqueta { get; set; }
         public string tipo_proceso_etiqueta { get; set; }
         public string estado_aprob_etiqueta { get; set; }

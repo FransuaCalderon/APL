@@ -265,6 +265,8 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_idevento = fondo.IdEvento
             };
 
+            logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
+
             var parameters = new OracleDynamicParameters(paramObject);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
