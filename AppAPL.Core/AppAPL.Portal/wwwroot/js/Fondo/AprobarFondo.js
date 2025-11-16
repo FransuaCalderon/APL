@@ -139,7 +139,7 @@ function crearListado(data) {
         html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
-        html += "  <td>" + (fondo.estado ?? "") + "</td>";
+        html += "  <td>" + (fondo.nombre_estado_fondo ?? "") + "</td>";
         html += "</tr>";
     }
 
