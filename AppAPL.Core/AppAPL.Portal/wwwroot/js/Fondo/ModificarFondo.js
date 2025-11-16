@@ -365,7 +365,7 @@ function guardarCambiosFondo() {
     const dataParaGuardar = {
         descripcion: $("#modal-fondo-descripcion").val(),
         idproveedor: $("#modal-fondo-proveedor").val(),
-        idtipofondo: $("#modal-fondo-tipofondo").val(),
+        idtipofondo: parseInt($("#modal-fondo-tipofondo").val()) ,
         valorfondo: parseFloat($("#modal-fondo-valor").val()),
         fechainiciovigencia: $("#modal-fondo-fechainicio").val(),
         fechafinvigencia: $("#modal-fondo-fechafin").val(),
