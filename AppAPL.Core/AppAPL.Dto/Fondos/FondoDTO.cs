@@ -70,6 +70,7 @@ namespace AppAPL.Dto.Fondos
         public decimal? Valor_Comprometido { get; set; }
         public decimal? Valor_Liquidado { get; set; }
         public string? Estado { get; set; }
+        public string? Estado_Etiqeuta { get; set; }
 
     }
 

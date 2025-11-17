@@ -7,6 +7,7 @@ using AppAPL.Dto.Email;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.InteropServices;
 using static AppAPL.Api.Attributes.EmailAttribute;
 
 namespace AppAPL.Api.Controllers
@@ -56,6 +57,20 @@ namespace AppAPL.Api.Controllers
             var listaFondos = await servicio.ObtenerBandejaInactivacion();
 
             return listaFondos.ToList();
+        }
+
+        [HttpGet("bandeja-inactivacion-id/{idFondo:int}")]
+        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaInactivacionPorId(int idFondo)
+        {
+            var listaFondos = await servicio.ObtenerBandejaInactivacion();
+
+            var query = from filtrado in listaFondos
+                        where filtrado.IdFondo == idFondo
+                        select filtrado;
+
+            var fondo = query.FirstOrDefault();
+
+            return fondo;
         }
 
         // 🔹 GET: Obtener por ID

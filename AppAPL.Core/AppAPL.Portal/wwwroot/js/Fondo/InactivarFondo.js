@@ -3,7 +3,7 @@
 // Variables globales
 let tabla; // GLOBAL
 let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
-
+let datosModal = null;
 // Configuración global de SweetAlert2 para z-index
 const SwalConfig = {
     customClass: {
@@ -198,7 +198,7 @@ function abrirModalEditar(id) {
 
     // 2. Llama a la API para obtener los datos del fondo por ID
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Fondo/bandeja-modificacion-id/${id}`,
+        url: `${window.apiBaseUrl}/api/Fondo/bandeja-inactivacion-id/${id}`,
         method: "GET",
         headers: {
             "idopcion": "1",
@@ -210,8 +210,9 @@ function abrirModalEditar(id) {
             "idtipoproceso": "0"
         },
         success: function (data) {
+            console.log("bandeja modificacion id: ", data);
             // 3. Preparar los datos para el modal
-            const datosModal = {
+            datosModal = {
                 idfondo: data.idfondo,
                 descripcion: data.descripcion,
                 proveedor: data.proveedor,
@@ -219,9 +220,10 @@ function abrirModalEditar(id) {
                 valor_fondo: formatearMoneda(data.valor_fondo).replace('$ ', '').replace(',', ''),
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
                 fecha_fin: formatDateForInput(data.fecha_fin),
-                estado: data.estado
+                estado: data.estado,
+                estado_etiqueta: data.estado_etiqeuta
             };
-
+            console.log("datosModal: ", datosModal);
             // 4. Abrir el modal personalizado
             abrirModalFondo(datosModal);
         },
@@ -459,6 +461,8 @@ document.addEventListener('DOMContentLoaded', function () {
 /**
  * Función para inactivar/rechazar un fondo
  */
+
+
 function rechazarFondo() {
     const idFondo = document.getElementById('modal-fondo-id').value;
 
@@ -491,13 +495,13 @@ function rechazarFondo() {
 
 function ejecutarInactivacion(idFondo) {
     const requestBody = {
-        entidad: parseInt(idFondo),
-        identidad: 0,
-        idtipoproceso: 0,
-        idetiquetatipoproceso: "INACTIVACION",
+        entidad: 0, //debe venir de la base
+        identidad: parseInt(idFondo),
+        idtipoproceso: 0, // debe venir de la base
+        idetiquetatipoproceso: "TPINACTIVACION",
         comentario: "Fondo inactivado desde bandeja de inactivación",
-        idetiquetaestado: "INACTIVO",
-        idaprobacion: 0,
+        idetiquetaestado: datosModal.estado_etiqueta,
+        idaprobacion: 0, // debe venir de la base
         usuarioaprobador: "admin",
         idopcion: 43,
         idcontrolinterfaz: 28,
