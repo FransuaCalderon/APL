@@ -13,12 +13,14 @@ $(document).ready(function () {
         window.apiBaseUrl = apiBaseUrl;
 
         cargarTipoFondo();
-        consultarProveedor();
+        // REMOVIDO: Ya no se llama a consultarProveedor() aquí para llenar un SELECT
 
         cargarBandeja();
     });
 
-
+    /**
+     * Carga la bandeja principal de fondos.
+     */
     function cargarBandeja() {
         const apiBaseUrl = window.apiBaseUrl;
 
@@ -49,6 +51,9 @@ $(document).ready(function () {
         });
     }
 
+    /**
+     * Carga el select de Tipos de Fondo.
+     */
     function cargarTipoFondo() {
         const etiqueta = "TIPOFONDO";
 
@@ -82,41 +87,7 @@ $(document).ready(function () {
         });
     }
 
-    function consultarProveedor() {
-        const usuario = "1";
-        const idopcion = "9";
-
-        $.ajax({
-            url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
-            method: "GET",
-            headers: {
-                "idopcion": idopcion,
-                "usuario": usuario
-            },
-            success: function (data) {
-                console.log("proveedores cargado:", data);
-
-                const $selectFondoTipo = $("#modal-fondo-proveedor");
-                $selectFondoTipo.empty();
-                $selectFondoTipo.append($('<option></option>').val("").text("Seleccione..."));
-
-                if (data && data.length > 0) {
-                    data.forEach(function (item) {
-                        $selectFondoTipo.append(
-                            $('<option></option>')
-                                .val(item.identificacion)
-                                .text(item.nombre)
-                        );
-                    });
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error("Error al cargar proveedor:", error);
-            }
-        });
-    }
-
-    // ===== BOTÓN LIMPIAR =====
+    // ===== BOTÓN LIMPIAR (sigue igual) =====
     $('body').on('click', '#btnLimpiar', function () {
         if (tabla) {
             tabla.search('').draw();
@@ -128,11 +99,43 @@ $(document).ready(function () {
         }
     });
 
+    // ✨ NUEVO: Disparador para cargar los proveedores cuando se abre el modal
+    $('#modalConsultaProveedor').on('show.bs.modal', function (event) {
+        consultarProveedor(); // Llama a la función para cargar la tabla
+    });
+
+    // ✨ NUEVO: Lógica para el botón 'Aceptar' del modal de proveedores (Modificación)
+    $("#btnAceptarProveedorModificar").on("click", function () {
+        const $selected = $("#tablaProveedores tbody input[name='selectProveedor']:checked");
+
+        if ($selected.length > 0) {
+            const proveedorNombre = $selected.data("nombre");
+            const proveedorRuc = $selected.data("ruc");
+
+            // ✨ CONCATENACIÓN: Formatear RUC y Nombre
+            const textoVisible = `${proveedorRuc} - ${proveedorNombre}`;
+
+            console.log("Proveedor seleccionado para modificar:", { nombre: proveedorNombre, ruc: proveedorRuc });
+
+            // 1. Llenamos el campo de texto visible (RUC - Nombre)
+            $("#modal-fondo-proveedor").val(textoVisible);
+            // 2. Llenamos el campo oculto (ID/RUC) que se usará al guardar
+            $("#modal-fondo-idproveedor-hidden").val(proveedorRuc);
+
+            // 3. Ocultar el modal
+            $('#modalConsultaProveedor').modal('hide');
+
+        } else {
+            Swal.fire('Atención', 'Por favor, seleccione un proveedor de la lista.', 'info');
+        }
+    });
+
+
 }); // <-- FIN de $(document).ready
 
 
 // ===================================================================
-// ===== FUNCIONES GLOBALES =====
+// ===== FUNCIONES GLOBALES (Datatables, Abrir/Cerrar Modal) =====
 // ===================================================================
 
 function crearListado(data) {
@@ -143,32 +146,33 @@ function crearListado(data) {
     var html = "";
     html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
 
-    html += "  <thead>";
+    html += "  <thead>";
 
     // Fila del Título ROJO
-    html += "    <tr>";
-    html += "      <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE FONDOS";
-    html += "      </th>";
-    html += "    </tr>";
+    html += "    <tr>";
+    html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
+    html += "          BANDEJA DE FONDOS";
+    html += "      </th>";
+    html += "    </tr>";
 
     // Fila de las Cabeceras
-    html += "    <tr>";
-    html += "      <th>Acción</th>";
-    html += "      <th>IDFondo</th>";
-    html += "      <th>Descripción</th>";
-    html += "      <th>Proveedor</th>";
-    html += "      <th>Tipo Fondo</th>";
-    html += "      <th>$ Fondo</th>";
-    html += "      <th>Fecha Inicio</th>";
-    html += "      <th>Fecha Fin</th>";
-    html += "      <th>$ Disponible</th>";
-    html += "      <th>$ Comprometido</th>";
-    html += "      <th>$ Liquidado</th>";
-    html += "      <th>Estado</th>";
-    html += "    </tr>";
-    html += "  </thead>";
-    html += "  <tbody>";
+    html += "    <tr>";
+    html += "      <th>Acción</th>";
+    html += "      <th>IDFondo</th>";
+    html += "      <th>Descripción</th>";
+    html += "      <th>RUC</th>"; // Columna RUC
+    html += "      <th>Proveedor</th>"; // Columna Proveedor
+    html += "      <th>Tipo Fondo</th>";
+    html += "      <th>$ Fondo</th>";
+    html += "      <th>Fecha Inicio</th>";
+    html += "      <th>Fecha Fin</th>";
+    html += "      <th>$ Disponible</th>";
+    html += "      <th>$ Comprometido</th>";
+    html += "      <th>$ Liquidado</th>";
+    html += "      <th>Estado</th>";
+    html += "    </tr>";
+    html += "  </thead>";
+    html += "  <tbody>";
 
     if (!data || data.length === 0) {
         html += "<tr><td colspan='12' class='text-center'>Sin datos</td></tr>";
@@ -183,23 +187,24 @@ function crearListado(data) {
                 '</button>';
 
             html += "<tr>";
-            html += "  <td class='text-center'>" + editButton + "</td>";
-            html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
-            html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
-            html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
-            html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_fondo) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_liquidado) + "</td>";
-            html += "  <td>" + (fondo.estado ?? "") + "</td>";
+            html += "  <td class='text-center'>" + editButton + "</td>";
+            html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
+            html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
+            html += "  <td>" + (fondo.proveedor ?? "") + "</td>"; // RUC/ID
+            html += "  <td>" + (fondo.nombre ?? "") + "</td>"; // Nombre (asumiendo que viene en campo 'nombre')
+            html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_fondo) + "</td>";
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_liquidado) + "</td>";
+            html += "  <td>" + (fondo.estado ?? "") + "</td>";
             html += "</tr>";
         }
     }
 
-    html += "  </tbody>";
+    html += "  </tbody>";
     html += "</table>";
 
     // Inserta la tabla en el div
@@ -215,6 +220,7 @@ function crearListado(data) {
             { targets: 1, width: "6%", className: "dt-center" },
             { targets: [5, 8, 9, 10], className: "dt-right" },
             { targets: [6, 7], className: "dt-center" },
+            // Ajustar el número de columnas si el HTML de la tabla cambia
         ],
         order: [[1, 'desc']],
         language: {
@@ -252,10 +258,6 @@ function crearListado(data) {
     }
 }
 
-// ===================================================================
-// ===== FUNCIONES PARA EL MODAL PERSONALIZADO =====
-// ===================================================================
-
 /**
  * Abre el modal personalizado y carga los datos del fondo para editar.
  */
@@ -274,12 +276,23 @@ function abrirModalEditar(id) {
             "idtipoproceso": "0"
         },
         success: function (data) {
-            
+
+            // ✨ CAMBIO CLAVE: Concatenación RUC/ID y Nombre
+            const idProveedor = data.proveedor || '';
+            const nombreProveedor = data.nombre || ''; // Asumimos que la API devuelve el nombre en 'data.nombre'
+
+            // Formato deseado: RUC/ID - Nombre
+            const proveedorCompleto = (idProveedor && nombreProveedor)
+                ? `${idProveedor} - ${nombreProveedor}`
+                : idProveedor || nombreProveedor || '';
+            // FIN CAMBIO CLAVE
+
             // Preparar los datos para el modal
             const datosModal = {
                 idfondo: data.idfondo,
                 descripcion: data.descripcion,
-                proveedor: data.proveedor,
+                proveedor: proveedorCompleto, // <-- Usamos el valor concatenado para el campo visible
+                idproveedor: idProveedor, // ID/RUC real (para el hidden input)
                 tipo_fondo: data.tipo_fondo,
                 valor_fondo: data.valor_fondo,
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
@@ -310,29 +323,23 @@ function abrirModalFondo(datos) {
     // Llenar los datos
     document.getElementById('modal-fondo-id').value = datos.idfondo || '';
     document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
-    document.getElementById('modal-fondo-proveedor').value = datos.proveedor || '';
-    //document.getElementById('modal-fondo-tipofondo').value = datos.tipo_fondo || '';
 
+    // ✨ CAMBIO: Asignar el valor ya concatenado (RUC - Nombre) al campo visible
+    document.getElementById('modal-fondo-proveedor').value = datos.proveedor || 'Seleccione...';
+    // Asignar el ID/RUC puro al hidden input
+    document.getElementById('modal-fondo-idproveedor-hidden').value = datos.idproveedor || '';
 
-    // --- LÓGICA DE BÚSQUEDA POR TEXTO PARA 'TIPO FONDO' ---
+    // --- LÓGICA DE BÚSQUEDA POR TEXTO PARA 'TIPO FONDO' (sigue igual) ---
     const selectTipoFondo = document.getElementById('modal-fondo-tipofondo');
-    const textoTipoFondoBuscado = datos.tipo_fondo || ''; // El texto que quieres encontrar
-
-    // 1. Convertimos las opciones a un Array
+    const textoTipoFondoBuscado = datos.tipo_fondo || '';
     const opcionesArray = Array.from(selectTipoFondo.options);
-
-    // 2. Buscamos la opción por su 'texto'
     const opcionEncontrada = opcionesArray.find(option => option.text === textoTipoFondoBuscado);
-
-    // 3. Si se encuentra, asignamos su 'value' al select
     if (opcionEncontrada) {
         selectTipoFondo.value = opcionEncontrada.value;
     } else {
-        // Si no, lo dejamos vacío o con la opción por defecto
         selectTipoFondo.value = '';
     }
     // --- FIN DE LA MODIFICACIÓN ---
-
 
     document.getElementById('modal-fondo-fechainicio').value = datos.fecha_inicio || '';
     document.getElementById('modal-fondo-fechafin').value = datos.fecha_fin || '';
@@ -364,58 +371,49 @@ function guardarCambiosFondo() {
     const id = $("#modal-fondo-id").val();
     const dataParaGuardar = {
         descripcion: $("#modal-fondo-descripcion").val(),
-        idproveedor: $("#modal-fondo-proveedor").val(),
-        idtipofondo: parseInt($("#modal-fondo-tipofondo").val()) ,
+        // Obtener el ID/RUC del campo oculto
+        idproveedor: $("#modal-fondo-idproveedor-hidden").val(),
+        idtipofondo: parseInt($("#modal-fondo-tipofondo").val()),
         valorfondo: parseFloat($("#modal-fondo-valor").val()),
         fechainiciovigencia: $("#modal-fondo-fechainicio").val(),
         fechafinvigencia: $("#modal-fondo-fechafin").val(),
         idusuariomodifica: "admin",  // el usuario debe escoger de la sesion logeada
         nombreusuariomodifica: "admin",
-        idopcion: 0,
+        idopcion: 11,
         idcontrolinterfaz: 0,
         idevento: 29
     };
 
     console.log("datos a guardar:", dataParaGuardar);
 
-     //TODO: Implementar la llamada AJAX para actualizar
-     $.ajax({
-         url: `${window.apiBaseUrl}/api/Fondo/actualizar/${id}`,
-         method: "PUT",
-         headers: {},
-         data: JSON.stringify(dataParaGuardar),
-         contentType: "application/json",
-         success: function(response) {
-             Swal.fire({
-                 icon: 'success',
-                 title: 'Éxito',
-                 text: 'Fondo actualizado correctamente'
-             });
-             cerrarModalFondo();
-             // Recargar tabla
-             cargarBandeja();
-         },
-         error: function(xhr, status, error) {
-             Swal.fire({
-                 icon: 'error',
-                 title: 'Error',
-                 text: xhr.responseJSON.mensaje
-             });
+    //TODO: Implementar la llamada AJAX para actualizar
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Fondo/actualizar/${id}`,
+        method: "PUT",
+        headers: {},
+        data: JSON.stringify(dataParaGuardar),
+        contentType: "application/json",
+        success: function (response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Fondo actualizado correctamente'
+            });
+            cerrarModalFondo();
+            // Recargar tabla
+            cargarBandeja();
+        },
+        error: function (xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: xhr.responseJSON.mensaje
+            });
 
-             console.log("error al guardar", xhr.responseJSON.mensaje);
-             cerrarModalFondo();
-         }
-     });
-
-     /*
-    // Por ahora, solo simulamos éxito
-    Swal.fire({
-        icon: 'info',
-        title: 'En desarrollo',
-        text: 'La lógica para guardar aún no está implementada.'
+            console.log("error al guardar", xhr.responseJSON.mensaje);
+            cerrarModalFondo();
+        }
     });
-
-    cerrarModalFondo();*/
 }
 
 /**
@@ -430,7 +428,7 @@ function formatDateForInput(fechaString) {
 }
 
 // ===================================================================
-// ===== FUNCIONES UTILITARIAS =====
+// ===== FUNCIONES UTILITARIAS (Formato) =====
 // ===================================================================
 
 /**
@@ -470,7 +468,7 @@ function formatearFecha(fechaString) {
 }
 
 // ===================================================================
-// ===== EVENT LISTENERS PARA EL MODAL =====
+// ===== EVENT LISTENERS PARA EL MODAL (Cerrar) =====
 // ===================================================================
 
 // Cerrar modal al hacer clic fuera
@@ -484,3 +482,99 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// ===================================================================
+// ===== FUNCIONES AUXILIARES PARA DATOS Y LÓGICA DEL MODAL PROVEEDOR (Copiado de CrearFondo.js) =====
+// ===================================================================
+
+/**
+ * Función auxiliar para obtener el primer valor no vacío (copiada de CrearFondo.js)
+ */
+function obtenerPrimerValorValido(...valores) {
+    for (let valor of valores) {
+        if (valor != null && String(valor).trim() !== '') {
+            return String(valor).trim();
+        }
+    }
+    return ''; // Retorna cadena vacía si todos están vacíos
+}
+
+/**
+ * Carga la tabla de proveedores desde la API en el modal. (Copiada de CrearFondo.js)
+ */
+function consultarProveedor() {
+    // Valores fijos
+    const usuario = "1";
+    const idopcion = "9";
+
+    // Selector del cuerpo de la tabla
+    const $tbody = $("#tablaProveedores tbody");
+
+    // Verificación del selector
+    if ($tbody.length === 0) {
+        console.error("¡ERROR DE JAVASCRIPT! No se encontró '#tablaProveedores tbody'.");
+        return;
+    }
+
+    // Muestra "Cargando..."
+    $tbody.empty().append('<tr><td colspan="7" class="text-center">Cargando proveedores...</td></tr>');
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
+        method: "GET",
+        headers: {
+            "idopcion": idopcion,
+            "usuario": usuario
+        },
+        success: function (data) {
+            console.log("Proveedores cargados:", data);
+
+            // Limpia el "Cargando..."
+            $tbody.empty();
+
+            if (data && data.length > 0) {
+
+                data.forEach(function (proveedor) {
+
+                    const codigo = proveedor.codigo ?? '';
+                    const ruc = proveedor.identificacion ?? '';
+                    const nombre = proveedor.nombre ?? '';
+
+                    const contacto = obtenerPrimerValorValido(
+                        proveedor.nombrecontacto1, proveedor.nombrecontacto2, proveedor.nombrecontacto3, proveedor.nombrecontacto4
+                    );
+                    const mail = obtenerPrimerValorValido(
+                        proveedor.mailcontacto1, proveedor.mailcontacto2, proveedor.mailcontacto3, proveedor.mailcontacto4
+                    );
+                    const telefono = ''; // No existe en el API
+
+                    const fila = `
+                        <tr>
+                            <td class="align-middle text-center">
+                                <input class="form-check-input" type="radio" name="selectProveedor" 
+                                        data-id="${codigo}" 
+                                        data-nombre="${nombre}"
+                                        data-ruc="${ruc}">
+                            </td>
+                            <td class="align-middle">${codigo}</td>
+                            <td class="align-middle">${ruc}</td>
+                            <td class="align-middle">${nombre}</td>
+                            <td class="align-middle">${contacto}</td>
+                            <td class="align-middle">${mail}</td>
+                            <td class="align-middle">${telefono}</td>
+                        </tr>
+                    `;
+
+                    $tbody.append(fila);
+                });
+
+            } else {
+                $tbody.append('<tr><td colspan="7" class="text-center">No se encontraron proveedores.</td></tr>');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error en la llamada AJAX a /api/Proveedor/Listar:", error);
+            $tbody.empty().append(`<tr><td colspan="7" class="text-center text-danger">Error al cargar datos.</td></tr>`);
+        }
+    });
+}

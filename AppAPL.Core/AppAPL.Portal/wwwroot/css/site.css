@@ -753,3 +753,22 @@ body .modal-dialog .modal-content .modal-body .col-md-12 {
 .swal2-popup {
     z-index: 2001 !important;
 }
+
+/* Quitar espacio entre título y tabla */
+.titulo-fondos {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.separador-fondos {
+    margin-top: 2px !important;
+    margin-bottom: 4px !important; /* pon 0 si la quieres pegada */
+}
+
+#tabla,
+#tabla-fondos,
+#tabla-fondos_wrapper {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+

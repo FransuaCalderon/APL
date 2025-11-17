@@ -3,7 +3,7 @@
 // Variables globales
 let tabla; // GLOBAL
 let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
-let datosModal = null;
+let datosModal = null; // Variable global para almacenar los datos del modal
 // Configuración global de SweetAlert2 para z-index
 const SwalConfig = {
     customClass: {
@@ -47,6 +47,7 @@ $(document).ready(function () {
             error: function (xhr, status, error) {
                 console.error("Error al obtener datos de fondos:", error);
                 Swal.fire({
+                    ...SwalConfig,
                     icon: 'error',
                     title: 'Error',
                     text: 'No se pudieron cargar los fondos'
@@ -80,63 +81,65 @@ function crearListado(data) {
     var html = "";
     html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
 
-    html += "  <thead>";
+    html += "  <thead>";
 
     // Fila del Título ROJO
-    html += "    <tr>";
-    html += "      <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE FONDOS";
-    html += "      </th>";
-    html += "    </tr>";
+    html += "    <tr>";
+    html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
+    html += "          BANDEJA DE FONDOS";
+    html += "      </th>";
+    html += "    </tr>";
 
     // Fila de las Cabeceras
-    html += "    <tr>";
-    html += "      <th>Acción</th>";
-    html += "      <th>IDFondo</th>";
-    html += "      <th>Descripción</th>";
-    html += "      <th>Proveedor</th>";
-    html += "      <th>Tipo Fondo</th>";
-    html += "      <th>$ Fondo</th>";
-    html += "      <th>Fecha Inicio</th>";
-    html += "      <th>Fecha Fin</th>";
-    html += "      <th>$ Disponible</th>";
-    html += "      <th>$ Comprometido</th>";
-    html += "      <th>$ Liquidado</th>";
-    html += "      <th>Estado</th>";
-    html += "    </tr>";
-    html += "  </thead>";
-    html += "  <tbody>";
+    html += "    <tr>";
+    html += "      <th>Acción</th>";
+    html += "      <th>IDFondo</th>";
+    html += "      <th>Descripción</th>";
+    html += "      <th>RUC</th>";
+    html += "      <th>Proveedor</th>";
+    html += "      <th>Tipo Fondo</th>";
+    html += "      <th>$ Fondo</th>";
+    html += "      <th>Fecha Inicio</th>";
+    html += "      <th>Fecha Fin</th>";
+    html += "      <th>$ Disponible</th>";
+    html += "      <th>$ Comprometido</th>";
+    html += "      <th>$ Liquidado</th>";
+    html += "      <th>Estado</th>";
+    html += "    </tr>";
+    html += "  </thead>";
+    html += "    <tbody>";
 
     if (!data || data.length === 0) {
-        html += "<tr><td colspan='12' class='text-center'>Sin datos</td></tr>";
+        html += "<tr><td colspan='13' class='text-center'>Sin datos</td></tr>";
     } else {
         for (var i = 0; i < data.length; i++) {
             var fondo = data[i];
             var id = fondo.idfondo;
 
             // Botón de visualizar
-            var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar" onclick="abrirModalEditar(' + id + ')">' +
-                '<i class="fa-regular fa-eye"></i>' +
+            var viewButton = '<button type="button" class="btn-action edit-btn" title="Visualizar" onclick="abrirModalEditar(' + id + ')">' +
+                '<i class="fa-regular fa-pen-to-square"></i>' +
                 '</button>';
 
             html += "<tr>";
-            html += "  <td class='text-center'>" + viewButton + "</td>";
-            html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
-            html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
-            html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
-            html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_fondo) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_liquidado) + "</td>";
-            html += "  <td>" + (fondo.estado ?? "") + "</td>";
+            html += "  <td class='text-center'>" + viewButton + "</td>";
+            html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
+            html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
+            html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
+            html += "  <td>" + (fondo.nombre ?? "") + "</td>";
+            html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_fondo) + "</td>";
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_liquidado) + "</td>";
+            html += "  <td>" + (fondo.estado ?? "") + "</td>";
             html += "</tr>";
         }
     }
 
-    html += "  </tbody>";
+    html += "  </tbody>";
     html += "</table>";
 
     // Inserta la tabla en el div
@@ -194,7 +197,9 @@ function crearListado(data) {
  */
 function abrirModalEditar(id) {
     // 1. Cargar la tabla de acuerdos
-    cargarAcuerdoFondo(id);
+    if (typeof cargarAcuerdoFondo === 'function') {
+        cargarAcuerdoFondo(id);
+    }
 
     // 2. Llama a la API para obtener los datos del fondo por ID
     $.ajax({
@@ -210,26 +215,39 @@ function abrirModalEditar(id) {
             "idtipoproceso": "0"
         },
         success: function (data) {
-            console.log("bandeja modificacion id: ", data);
+            console.log("bandeja inactivacion id: ", data);
+
+            // ** ✨ CAMBIO CLAVE: CONCATENACIÓN RUC/ID y NOMBRE ✨ **
+            const idProveedor = data.proveedor || '';
+            const nombreProveedor = data.nombre || ''; // Asumimos que la API devuelve el nombre en 'data.nombre'
+
+            // Formato deseado: RUC/ID - Nombre
+            const proveedorCompleto = (idProveedor && nombreProveedor)
+                ? `${idProveedor} - ${nombreProveedor}`
+                : idProveedor || nombreProveedor || '';
+            // FIN CAMBIO CLAVE
+
             // 3. Preparar los datos para el modal
             datosModal = {
                 idfondo: data.idfondo,
                 descripcion: data.descripcion,
-                proveedor: data.proveedor,
+                proveedor: proveedorCompleto, // <-- Se usa el valor concatenado
                 tipo_fondo: data.tipo_fondo,
-                valor_fondo: formatearMoneda(data.valor_fondo).replace('$ ', '').replace(',', ''),
+                valor_fondo: parseFloat(data.valor_fondo) || 0, // Usamos el valor numérico
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
                 fecha_fin: formatDateForInput(data.fecha_fin),
                 estado: data.estado,
                 estado_etiqueta: data.estado_etiqeuta
             };
             console.log("datosModal: ", datosModal);
+
             // 4. Abrir el modal personalizado
             abrirModalFondo(datosModal);
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del fondo:", error);
             Swal.fire({
+                ...SwalConfig,
                 icon: 'error',
                 title: 'Error',
                 text: 'No se pudieron cargar los datos del fondo.'
@@ -247,6 +265,7 @@ function abrirModalFondo(datos) {
     // Llenar los datos
     document.getElementById('modal-fondo-id').value = datos.idfondo || '';
     document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
+    // Asignar el valor ya concatenado
     document.getElementById('modal-fondo-proveedor').value = datos.proveedor || '';
     document.getElementById('modal-fondo-tipofondo').value = datos.tipo_fondo || '';
     document.getElementById('modal-fondo-fechainicio').value = datos.fecha_inicio || '';
@@ -370,18 +389,18 @@ function cargarAcuerdoFondo(idFondo) {
 
             var html = "";
             html += "<table id='tabla-acuerdo' class='table table-bordered table-striped table-hover w-100'>";
-            html += "  <thead>";
-            html += "    <tr>";
-            html += "      <th>ID Acuerdo</th>";
-            html += "      <th>Estado</th>";
-            html += "      <th>Descripción</th>";
-            html += "      <th>Valor</th>";
-            html += "      <th>Valor Disponible</th>";
-            html += "      <th>Valor Comprometido</th>";
-            html += "      <th>Valor Liquidado</th>";
-            html += "    </tr>";
-            html += "  </thead>";
-            html += "  <tbody>";
+            html += "  <thead>";
+            html += "    <tr>";
+            html += "      <th>ID Acuerdo</th>";
+            html += "      <th>Estado</th>";
+            html += "      <th>Descripción</th>";
+            html += "      <th>Valor</th>";
+            html += "      <th>Valor Disponible</th>";
+            html += "      <th>Valor Comprometido</th>";
+            html += "      <th>Valor Liquidado</th>";
+            html += "    </tr>";
+            html += "  </thead>";
+            html += "  <tbody>";
 
             acuerdos.forEach(acuerdo => {
                 // LOG PARA DEBUGGING - Ver qué campos existen
@@ -389,17 +408,17 @@ function cargarAcuerdoFondo(idFondo) {
                 console.log("Acuerdo completo:", acuerdo);
 
                 html += "<tr>";
-                html += "  <td>" + (acuerdo.idacuerdofondo ?? "") + "</td>";
-                html += "  <td>" + (acuerdo.acuerdofondo_estado_nombre ?? "") + "</td>";
-                html += "  <td>" + (acuerdo.acuerdo_descripcion ?? "") + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valorFondo) + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_disponible) + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_comprometido) + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_liquidado) + "</td>";
+                html += "  <td>" + (acuerdo.idacuerdofondo ?? "") + "</td>";
+                html += "  <td>" + (acuerdo.acuerdofondo_estado_nombre ?? "") + "</td>";
+                html += "  <td>" + (acuerdo.acuerdo_descripcion ?? "") + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valorFondo) + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_disponible) + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_comprometido) + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_liquidado) + "</td>";
                 html += "</tr>";
             });
 
-            html += "  </tbody>";
+            html += "  </tbody>";
             html += "</table>";
 
             $('#tabla-acuerdo-fondo').html(html);
@@ -443,7 +462,7 @@ function cargarAcuerdoFondo(idFondo) {
 }
 
 // ===================================================================
-// ===== EVENT LISTENERS PARA EL MODAL =====
+// ===== EVENT LISTENERS PARA EL MODAL (y funciones de proceso) =====
 // ===================================================================
 
 // Cerrar modal al hacer clic fuera
@@ -461,14 +480,12 @@ document.addEventListener('DOMContentLoaded', function () {
 /**
  * Función para inactivar/rechazar un fondo
  */
-
-
 function rechazarFondo() {
     const idFondo = document.getElementById('modal-fondo-id').value;
 
     if (!idFondo) {
         Swal.fire({
-            ...SwalConfig,  // Añadir configuración
+            ...SwalConfig,
             icon: 'warning',
             title: 'Advertencia',
             text: 'No se pudo obtener el ID del fondo'
@@ -477,7 +494,7 @@ function rechazarFondo() {
     }
 
     Swal.fire({
-        ...SwalConfig,  // Añadir configuración
+        ...SwalConfig,
         title: '¿Está seguro?',
         text: `¿Desea inactivar el fondo ${idFondo}?`,
         icon: 'warning',
@@ -503,13 +520,13 @@ function ejecutarInactivacion(idFondo) {
         idetiquetaestado: datosModal.estado_etiqueta,
         idaprobacion: 0, // debe venir de la base
         usuarioaprobador: "admin",
-        idopcion: 43,
+        idopcion: 12,
         idcontrolinterfaz: 28,
         idevento: 29
     };
 
     Swal.fire({
-        ...SwalConfig,  // Añadir configuración
+        ...SwalConfig,
         title: 'Procesando...',
         text: 'Inactivando el fondo',
         allowOutsideClick: false,
@@ -528,7 +545,7 @@ function ejecutarInactivacion(idFondo) {
             console.log("Respuesta de inactivación:", response);
 
             Swal.fire({
-                ...SwalConfig,  // Añadir configuración
+                ...SwalConfig,
                 icon: 'success',
                 title: 'Éxito',
                 text: 'El fondo ha sido inactivado correctamente',
@@ -556,7 +573,7 @@ function ejecutarInactivacion(idFondo) {
             }
 
             Swal.fire({
-                ...SwalConfig,  // Añadir configuración
+                ...SwalConfig,
                 icon: 'error',
                 title: 'Error',
                 text: mensajeError,
@@ -565,6 +582,7 @@ function ejecutarInactivacion(idFondo) {
         }
     });
 }
+
 function recargarTablaFondos() {
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-inactivacion`,
@@ -585,6 +603,7 @@ function recargarTablaFondos() {
         error: function (xhr, status, error) {
             console.error("Error al recargar la tabla:", error);
             Swal.fire({
+                ...SwalConfig,
                 icon: 'error',
                 title: 'Error',
                 text: 'No se pudo recargar la tabla de fondos'

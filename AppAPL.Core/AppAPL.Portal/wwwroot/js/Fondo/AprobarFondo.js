@@ -14,7 +14,7 @@ $(document).ready(function () {
         window.apiBaseUrl = apiBaseUrl;
 
         cargarBandeja();
-        
+
     });
 
     // ===== BOTÓN LIMPIAR =====
@@ -52,9 +52,9 @@ $(document).ready(function () {
 
 function cargarBandeja() {
     const apiBaseUrl = window.apiBaseUrl
-   
+
     $.ajax({
-        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JZoller`,
+        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JGONZALEZ`,
         method: "GET",
         headers: {
             "idopcion": "1",
@@ -96,30 +96,31 @@ function crearListado(data) {
     var html = "";
     html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
 
-    html += "  <thead>";
+    html += "  <thead>";
 
     // Fila del Título ROJO
-    html += "    <tr>";
-    html += "      <th colspan='10' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE APROBACIÓN - FONDOS";
-    html += "      </th>";
-    html += "    </tr>";
+    html += "    <tr>";
+    html += "      <th colspan='11' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
+    html += "          BANDEJA DE APROBACIÓN - FONDOS";
+    html += "      </th>";
+    html += "    </tr>";
 
     // Fila de las Cabeceras
-    html += "    <tr>";
-    html += "      <th>Acción</th>";
-    html += "      <th>IDFondo</th>";
-    html += "      <th>Descripción</th>";
-    html += "      <th>Proveedor</th>";
-    html += "      <th>Tipo Fondo</th>";
-    html += "      <th>Fecha Inicio</th>";
-    html += "      <th>Fecha Fin</th>";
-    html += "      <th>$ Disponible</th>";
-    html += "      <th>$ Comprometido</th>";
-    html += "      <th>Estado</th>";
-    html += "    </tr>";
-    html += "  </thead>";
-    html += "  <tbody>";
+    html += "    <tr>";
+    html += "      <th>Acción</th>";
+    html += "      <th>IDFondo</th>";
+    html += "      <th>Descripción</th>";
+    html += "      <th>RUC</th>";
+    html += "      <th>Proveedor</th>";
+    html += "      <th>Tipo Fondo</th>";
+    html += "      <th>Fecha Inicio</th>";
+    html += "      <th>Fecha Fin</th>";
+    html += "      <th>$ Disponible</th>";
+    html += "      <th>$ Comprometido</th>";
+    html += "      <th>Estado</th>";
+    html += "    </tr>";
+    html += "  </thead>";
+    html += "  <tbody>";
 
     for (var i = 0; i < data.length; i++) {
         var fondo = data[i];
@@ -130,20 +131,21 @@ function crearListado(data) {
             '</button>';
 
         html += "<tr>";
-        html += "  <td class='text-center'>" + viewButton + "</td>";
-        html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
-        html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
-        html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
-        html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
-        html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
-        html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
-        html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
-        html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
-        html += "  <td>" + (fondo.nombre_estado_fondo ?? "") + "</td>";
+        html += "  <td class='text-center'>" + viewButton + "</td>";
+        html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
+        html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
+        html += "  <td>" + (fondo.proveedor ?? "") + "</td>"; // RUC/ID
+        html += "  <td>" + (fondo.nombre ?? "") + "</td>"; // Nombre (asumiendo que viene en campo 'nombre')
+        html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
+        html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
+        html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
+        html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
+        html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
+        html += "  <td>" + (fondo.nombre_estado_fondo ?? "") + "</td>";
         html += "</tr>";
     }
 
-    html += "  </tbody>";
+    html += "  </tbody>";
     html += "</table>";
 
     $('#tabla').html(html);
@@ -222,6 +224,16 @@ function abrirModalEditar(idFondo, idAprobacion) {
         success: function (data) {
             console.log(`Datos del fondo (${idFondo}, ${idAprobacion}):`, data);
 
+            // ** ✨ CAMBIO CLAVE: CONCATENACIÓN RUC/ID y NOMBRE ✨ **
+            const idProveedor = data.proveedor || '';
+            const nombreProveedor = data.nombre || ''; // Asumimos que la API devuelve el nombre en 'data.nombre'
+
+            // Formato deseado: RUC/ID - Nombre
+            const proveedorCompleto = (idProveedor && nombreProveedor)
+                ? `${idProveedor} - ${nombreProveedor}`
+                : idProveedor || nombreProveedor || '';
+            // FIN CAMBIO CLAVE
+
             // Guardar datos para los botones de aprobación/rechazo
             datosAprobacionActual = {
                 entidad: data.entidad || 0,
@@ -238,7 +250,7 @@ function abrirModalEditar(idFondo, idAprobacion) {
             const datosModal = {
                 idfondo: data.idfondo,
                 descripcion: data.descripcion,
-                proveedor: data.proveedor,
+                proveedor: proveedorCompleto, // <-- Se usa el valor concatenado
                 tipo_fondo: data.tipo_fondo,
                 valor_fondo: formatearMoneda(data.valor_fondo),
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
@@ -280,12 +292,12 @@ function abrirModalEditar(idFondo, idAprobacion) {
  * Función para abrir el modal personalizado
  */
 function abrirModalFondo(datos) {
-    const modal = document.getElementById('modalEditarFondo');
+    const modal = document.getElementById('modalEditarFondo'); // Asumimos que este es el ID del modal de aprobación
 
     // Llenar los datos
     document.getElementById('modal-fondo-id').value = datos.idfondo || '';
     document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
-    document.getElementById('modal-fondo-proveedor').value = datos.proveedor || '';
+    document.getElementById('modal-fondo-proveedor').value = datos.proveedor || ''; // <-- El valor ya viene concatenado
     document.getElementById('modal-fondo-tipofondo').value = datos.tipo_fondo || '';
     document.getElementById('modal-fondo-fechainicio').value = datos.fecha_inicio || '';
     document.getElementById('modal-fondo-fechafin').value = datos.fecha_fin || '';
@@ -415,18 +427,18 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
 
             var html = "";
             html += "<table id='tabla-aprobaciones' class='table table-bordered table-striped table-hover w-100'>";
-            html += "  <thead>";
-            html += "    <tr>";
-            html += "      <th>ID Aprobación</th>";
-            html += "      <th>Usuario Solicitante</th>";
-            html += "      <th>Usuario Aprobador</th>";
-            html += "      <th>Estado</th>";
-            html += "      <th>Fecha Solicitud</th>";
-            html += "      <th>Nivel Aprobación</th>";
-            html += "      <th>Tipo Proceso</th>";
-            html += "    </tr>";
-            html += "  </thead>";
-            html += "  <tbody>";
+            html += "  <thead>";
+            html += "    <tr>";
+            html += "      <th>ID Aprobación</th>";
+            html += "      <th>Usuario Solicitante</th>";
+            html += "      <th>Usuario Aprobador</th>";
+            html += "      <th>Estado</th>";
+            html += "      <th>Fecha Solicitud</th>";
+            html += "      <th>Nivel Aprobación</th>";
+            html += "      <th>Tipo Proceso</th>";
+            html += "    </tr>";
+            html += "  </thead>";
+            html += "  <tbody>";
 
             aprobaciones.forEach((aprobacion) => {
                 let estadoClass = '';
@@ -443,17 +455,17 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
                 }
 
                 html += "<tr>";
-                html += "  <td class='text-center'>" + (aprobacion.idaprobacion ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.idusersolicitud ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.iduseraprobador ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.estado_nombre ?? "") + "</td>";
-                html += "  <td class='text-center'>" + formatearFecha(aprobacion.fechasolicitud) + "</td>";
-                html += "  <td class='text-center'>" + (aprobacion.nivelaprobacion ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.tipoproceso_nombre ?? "") + "</td>";
+                html += "  <td class='text-center'>" + (aprobacion.idaprobacion ?? "") + "</td>";
+                html += "  <td>" + (aprobacion.idusersolicitud ?? "") + "</td>";
+                html += "  <td>" + (aprobacion.iduseraprobador ?? "") + "</td>";
+                html += "  <td>" + (aprobacion.estado_nombre ?? "") + "</td>";
+                html += "  <td class='text-center'>" + formatearFecha(aprobacion.fechasolicitud) + "</td>";
+                html += "  <td class='text-center'>" + (aprobacion.nivelaprobacion ?? "") + "</td>";
+                html += "  <td>" + (aprobacion.tipoproceso_nombre ?? "") + "</td>";
                 html += "</tr>";
             });
 
-            html += "  </tbody>";
+            html += "  </tbody>";
             html += "</table>";
 
             $('#tabla-aprobaciones-fondo').html(html);
@@ -578,7 +590,7 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
         }
     });
     cerrarModalFondo();
-    
+
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/aprobar-fondo`,
         method: "POST",
@@ -621,7 +633,7 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
 }
 
 // ===================================================================
-// ===== EVENT LISTENERS PARA EL MODAL =====
+// ===== EVENT LISTENERS PARA EL MODAL (Cerrar) =====
 // ===================================================================
 
 // Cerrar modal al hacer clic fuera

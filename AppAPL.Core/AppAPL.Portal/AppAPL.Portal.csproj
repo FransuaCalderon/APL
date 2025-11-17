@@ -16,7 +16,6 @@
 
     <Folder Include="wwwroot\img\" />
     <Folder Include="Pages\Opciones\" />
-    <Folder Include="wwwroot\js\Acuerdo\" />
   </ItemGroup>
 
   <ItemGroup>

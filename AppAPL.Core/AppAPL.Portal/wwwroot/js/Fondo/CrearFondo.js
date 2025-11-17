@@ -380,7 +380,7 @@ $(document).ready(function () {
                     nombreusuarioingreso: "admin",
 
                     // --- 🔴 CAMPOS NUEVOS QUE PEDISTE ---
-                    idopcion: 40,
+                    idopcion: 9,
                     idcontrolinterfaz: 24,
                     idevento: 29
                 };
