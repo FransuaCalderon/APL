@@ -33,14 +33,14 @@ $(document).ready(function () {
     $('body').on('click', '#btnAprobarFondo', function () {
         let comentario = $("#modal-fondo-comentario").val();
         console.log('comentario: ', comentario);
-        procesarAprobacionFondo("APROBAR", comentario);
+        procesarAprobacionFondo("ESTADOAPROBADO", comentario);
     });
 
     // ===== BOTÓN RECHAZAR =====
     $('body').on('click', '#btnRechazarFondo', function () {
         let comentario = $("#modal-fondo-comentario").val();
         console.log('comentario: ', comentario);
-        procesarAprobacionFondo("RECHAZAR", comentario);
+        procesarAprobacionFondo("ESTADONEGADO", comentario);
     });
 
 }); // <-- FIN de $(document).ready
