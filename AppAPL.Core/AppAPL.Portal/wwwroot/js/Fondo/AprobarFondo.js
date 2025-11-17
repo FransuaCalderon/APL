@@ -52,16 +52,21 @@ $(document).ready(function () {
 
 function cargarBandeja() {
     const apiBaseUrl = window.apiBaseUrl;
-    const usuario = window.usuarioActual;
+    const usuario = window.usuarioActual || ''; // ← viene del servidor
 
-    console.log('Cargando bandeja para usuario:', usuario); // Ver qué usuario se está usando
+    if (!usuario) {
+        console.error('No hay usuario en sesión, no se puede cargar la bandeja.');
+        return;
+    }
+
+    console.log('Cargando bandeja para usuario:', usuario);
 
     $.ajax({
-        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/${usuario}`, // ✅ DINÁMICO
+        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/${usuario}`, // dinámico
         method: "GET",
         headers: {
             "idopcion": "1",
-            "usuario": usuario, // ✅ También dinámico en headers
+            "usuario": usuario, // también dinámico en headers
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -82,6 +87,7 @@ function cargarBandeja() {
         }
     });
 }
+
 
 function crearListado(data) {
     if (tabla) {
