@@ -51,14 +51,17 @@ $(document).ready(function () {
 // ===================================================================
 
 function cargarBandeja() {
-    const apiBaseUrl = window.apiBaseUrl
+    const apiBaseUrl = window.apiBaseUrl;
+    const usuario = window.usuarioActual || 'admin'; // ✅ Obtiene el usuario del login
+
+    console.log('Cargando bandeja para usuario:', usuario); // Ver qué usuario se está usando
 
     $.ajax({
-        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JGONZALEZ`,
+        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/${usuario}`, // ✅ DINÁMICO
         method: "GET",
         headers: {
             "idopcion": "1",
-            "usuario": "admin",
+            "usuario": usuario, // ✅ También dinámico en headers
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
