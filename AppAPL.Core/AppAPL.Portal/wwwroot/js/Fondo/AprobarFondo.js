@@ -52,7 +52,7 @@ $(document).ready(function () {
 
 function cargarBandeja() {
     const apiBaseUrl = window.apiBaseUrl;
-    const usuario = window.usuarioActual || 'admin'; // ✅ Obtiene el usuario del login
+    const usuario = window.usuarioActual;
 
     console.log('Cargando bandeja para usuario:', usuario); // Ver qué usuario se está usando
 
