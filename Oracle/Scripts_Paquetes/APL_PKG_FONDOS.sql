@@ -518,7 +518,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 valordisponible = p_valorfondo - v_valorcomprometido - v_valorliquidado,
                 idusuariomodifica = p_idusuariomodifica,
                 fechamodifica = sysdate,
-                idestadoregistro = v_nuevo_estado
+                idestadoregistro = v_estado_modificado
             WHERE
                 idfondo = p_idfondo;
                 
@@ -641,7 +641,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 valordisponible = p_valorfondo - v_valorcomprometido - v_valorliquidado,
                 idusuariomodifica = p_idusuariomodifica,
                 fechamodifica = sysdate,
-                idestadoregistro = v_nuevo_estado
+                idestadoregistro = v_estado_modificado
             WHERE
                 idfondo = p_idfondo;
                 
@@ -751,6 +751,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 f.idfondo,
                 f.descripcion,
                 f.idproveedor,
+                arp.nombre,
                 f.idtipofondo,
                 f.valorfondo,
                 f.fechainiciovigencia,
@@ -771,6 +772,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         FROM
                 apl_tb_fondo f
                 LEFT JOIN apl_tb_catalogo c ON c.idcatalogo = f.idestadoregistro
+                INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
                 ORDER BY
                 fechaingreso DESC;
 
@@ -789,24 +791,26 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
     ) AS
     BEGIN
         OPEN p_cursor FOR SELECT
-                    idfondo,
-                    descripcion,
-                    idproveedor,
-                    idtipofondo,
-                    valorfondo,
-                    fechainiciovigencia,
-                    fechafinvigencia,
-                    valordisponible,
-                    valorcomprometido,
-                    valorliquidado,
-                    idusuarioingreso,
-                    fechaingreso,
-                    idusuariomodifica,
-                    fechamodifica,
-                    idestadoregistro,
-                    indicadorcreacion
+                    f.idfondo,
+                    f.descripcion,
+                    f.idproveedor,
+                    arp.nombre,
+                    f.idtipofondo,
+                    f.valorfondo,
+                    f.fechainiciovigencia,
+                    f.fechafinvigencia,
+                    f.valordisponible,
+                    f.valorcomprometido,
+                    f.valorliquidado,
+                    f.idusuarioingreso,
+                    f.fechaingreso,
+                    f.idusuariomodifica,
+                    f.fechamodifica,
+                    f.idestadoregistro,
+                    f.indicadorcreacion
          FROM
-                 apl_tb_fondo
+                 apl_tb_fondo f
+                 INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
         WHERE
                 idfondo = p_idfondo;
 
@@ -825,6 +829,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 f.idfondo,
                 f.descripcion,
                 f.idproveedor                                 AS proveedor,
+                arp.nombre,
                 ct.nombre                                     AS tipo_fondo,
                 f.valorfondo                                  AS valor_fondo,
                 to_char(f.fechainiciovigencia, 'YYYY-MM-DD') AS fecha_inicio,
@@ -838,6 +843,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 apl_tb_fondo  f
                 LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
                 LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+                INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
         WHERE 
                 ce.idetiqueta != 'ESTADOAPROBADO'
         ORDER BY
@@ -856,6 +862,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 f.idfondo,
                 f.descripcion,
                 f.idproveedor                                 AS proveedor,
+                arp.nombre,
                 ct.nombre                                     AS tipo_fondo,
                 f.valorfondo                                  AS valor_fondo,
                 to_char(f.fechainiciovigencia, 'YYYY-MM-DD') AS fecha_inicio,
@@ -868,6 +875,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 apl_tb_fondo    f
                 LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
                 LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+                INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
         WHERE
                 f.idfondo = p_idfondo
         ORDER BY
@@ -890,6 +898,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 f.idfondo,
                 f.descripcion,
                 f.idproveedor                                 AS proveedor,
+                arp.nombre,
                 ct.nombre                                     AS tipo_fondo,
                 f.valorfondo                                  AS valor_fondo,
                 to_char(f.fechainiciovigencia, 'YYYY-MM-DD') AS fecha_inicio,
@@ -903,6 +912,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 apl_tb_fondo    f
                 LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
                 LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+                INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
         WHERE 
                 ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE')
         ORDER BY
@@ -926,6 +936,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                                       idfondo,
                                       descripcion,
                                       proveedor,
+                                      nombre,
                                       tipo_fondo,
                                       valor_fondo,
                                       fecha_inicio,
@@ -951,6 +962,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                                               f.idfondo,
                                               f.descripcion,
                                               f.idproveedor                                 AS proveedor,
+                                              arp.nombre,
                                               ct.nombre                                     AS tipo_fondo,
                                               f.valorfondo                                  AS valor_fondo,
                                               to_char(f.fechainiciovigencia, 'YYYY-MM-DD') AS fecha_inicio,
@@ -981,10 +993,18 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                                               LEFT JOIN apl_tb_catalogo   ce ON f.idestadoregistro = ce.idcatalogo
                                               LEFT JOIN apl_tb_catalogo   en ON a.entidad = en.idcatalogo
                                               LEFT JOIN apl_tb_catalogo   ea ON a.idestadoregistro = ea.idcatalogo
-                                          WHERE
-                                              ce.idetiqueta IN ( 'ESTADONUEVO', 'ESTADOMODIFICADO', 'ESTADOAPROBADO', 'ESTADOVIGENTE' )
+                                              INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                                          WHERE 
+                                              (ce.idetiqueta IN ( 'ESTADONUEVO', 'ESTADOMODIFICADO')
                                               AND en.idetiqueta = 'ENTFONDO'
-                                              AND cp.idetiqueta IN ( 'TPCREACION', 'TPINACTIVACION' )
+                                              AND cp.idetiqueta IN ( 'TPCREACION')) OR
+                                              
+                                              --modicacion
+                                             ( ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE' )
+                                              AND en.idetiqueta = 'ENTFONDO'
+                                              AND cp.idetiqueta IN ('TPINACTIVACION' ))
+                                              
+                                              
                                               AND ea.idetiqueta = 'ESTADONUEVO'
                                       )
                                   WHERE
@@ -1016,6 +1036,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     f.idfondo,
                     f.descripcion,
                     f.idproveedor                                 AS proveedor,
+                    arp.nombre,
                     ct.nombre                                     AS tipo_fondo,
                     f.valorfondo                                  AS valor_fondo,
                     to_char(f.fechainiciovigencia, 'YYYY-MM-DD') AS fecha_inicio,
@@ -1043,6 +1064,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                             LEFT JOIN apl_tb_catalogo   ce ON f.idestadoregistro = ce.idcatalogo
                             LEFT JOIN apl_tb_catalogo   en ON a.entidad = en.idcatalogo
                             LEFT JOIN apl_tb_catalogo   ea ON a.idestadoregistro = ea.idcatalogo
+                            INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
                      WHERE
                             f.idfondo = p_idfondo and a.idaprobacion = p_idaprobacion;
                                                     
