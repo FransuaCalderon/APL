@@ -107,31 +107,32 @@ function crearListado(data) {
     var html = "";
     html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
 
-    html += "  <thead>";
+    html += "  <thead>";
 
-    // Fila del Título ROJO
-    html += "    <tr>";
-    html += "      <th colspan='11' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE APROBACIÓN - FONDOS";
-    html += "      </th>";
-    html += "    </tr>";
+    // Fila del Título ROJO - Actualizado colspan a 12
+    html += "    <tr>";
+    html += "      <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
+    html += "          BANDEJA DE APROBACIÓN - FONDOS";
+    html += "      </th>";
+    html += "    </tr>";
 
-    // Fila de las Cabeceras
-    html += "    <tr>";
-    html += "      <th>Acción</th>";
-    html += "      <th>IDFondo</th>";
-    html += "      <th>Descripción</th>";
-    html += "      <th>RUC</th>";
-    html += "      <th>Proveedor</th>";
-    html += "      <th>Tipo Fondo</th>";
-    html += "      <th>Fecha Inicio</th>";
-    html += "      <th>Fecha Fin</th>";
-    html += "      <th>$ Disponible</th>";
-    html += "      <th>$ Comprometido</th>";
-    html += "      <th>Estado</th>";
-    html += "    </tr>";
-    html += "  </thead>";
-    html += "  <tbody>";
+    // Fila de las Cabeceras - Agregada columna Solicitud
+    html += "    <tr>";
+    html += "      <th>Acción</th>";
+    html += "      <th>Solicitud</th>"; // NUEVA COLUMNA
+    html += "      <th>IDFondo</th>";
+    html += "      <th>Descripción</th>";
+    html += "      <th>RUC</th>";
+    html += "      <th>Proveedor</th>";
+    html += "      <th>Tipo Fondo</th>";
+    html += "      <th>Fecha Inicio</th>";
+    html += "      <th>Fecha Fin</th>";
+    html += "      <th>$ Disponible</th>";
+    html += "      <th>$ Comprometido</th>";
+    html += "      <th>Estado</th>";
+    html += "    </tr>";
+    html += "  </thead>";
+    html += "  <tbody>";
 
     for (var i = 0; i < data.length; i++) {
         var fondo = data[i];
@@ -142,37 +143,39 @@ function crearListado(data) {
             '</button>';
 
         html += "<tr>";
-        html += "  <td class='text-center'>" + viewButton + "</td>";
-        html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
-        html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
-        html += "  <td>" + (fondo.proveedor ?? "") + "</td>"; // RUC/ID
-        html += "  <td>" + (fondo.nombre ?? "") + "</td>"; // Nombre (asumiendo que viene en campo 'nombre')
-        html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
-        html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
-        html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
-        html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
-        html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
-        html += "  <td>" + (fondo.nombre_estado_fondo ?? "") + "</td>";
+        html += "  <td class='text-center'>" + viewButton + "</td>";
+        html += "  <td>" + (fondo.solicitud ?? "") + "</td>"; // NUEVA COLUMNA - Ajusta el nombre del campo según tu objeto
+        html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
+        html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
+        html += "  <td>" + (fondo.proveedor ?? "") + "</td>"; // RUC/ID
+        html += "  <td>" + (fondo.nombre ?? "") + "</td>"; // Nombre (asumiendo que viene en campo 'nombre')
+        html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
+        html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
+        html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
+        html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
+        html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
+        html += "  <td>" + (fondo.nombre_estado_fondo ?? "") + "</td>";
         html += "</tr>";
     }
 
-    html += "  </tbody>";
+    html += "  </tbody>";
     html += "</table>";
 
     $('#tabla').html(html);
 
-    // Inicializa DataTable
+    // Inicializa DataTable - Actualizada configuración de columnas
     tabla = $('#tabla-fondos').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
         pagingType: 'full_numbers',
         columnDefs: [
             { targets: 0, width: "8%", className: "dt-center", orderable: false },
-            { targets: 1, width: "6%", className: "dt-center" },
-            { targets: [7, 8], className: "dt-right" },
-            { targets: [5, 6], className: "dt-center" },
+            { targets: 1, width: "8%", className: "dt-center" }, // Nueva columna Solicitud
+            { targets: 2, width: "6%", className: "dt-center" }, // IDFondo ahora es columna 2
+            { targets: [8, 9], className: "dt-right" }, // Ajustadas posiciones de Fecha Inicio y Fin
+            { targets: [6, 7], className: "dt-center" }, // Ajustadas posiciones
         ],
-        order: [[1, 'desc']],
+        order: [[2, 'desc']], // Orden por IDFondo que ahora es columna 2
         language: {
             decimal: "",
             emptyTable: "No hay datos disponibles en la tabla",
@@ -600,7 +603,6 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
             Swal.showLoading();
         }
     });
-    cerrarModalFondo();
 
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/aprobar-fondo`,
@@ -617,28 +619,35 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
             "idtipoproceso": "0"
         },
         success: function (response) {
+            cerrarModalFondo(); // Cerrar el modal primero
+
             Swal.fire({
                 icon: 'success',
                 title: '¡Éxito!',
                 text: response.respuesta || `Fondo ${accion === "APROBAR" ? "aprobado" : "rechazado"} correctamente`,
-                confirmButtonText: 'Aceptar'
+                confirmButtonText: 'Aceptar',
+                timer: 2000,
+                timerProgressBar: true
             }).then(() => {
-                //cerrarModalFondo();
+                // Limpiar datos de la aprobación actual
+                datosAprobacionActual = null;
+                ultimaFilaModificada = null;
 
+                // Recargar la bandeja para reflejar los cambios
                 cargarBandeja();
             });
         },
         error: function (xhr, status, error) {
-            //cerrarModalFondo();
+            cerrarModalFondo(); // Cerrar el modal también en caso de error
 
-            console.error("Error al procesar aprobación:", xhr.responseJSON.mensaje);
+            const mensajeError = xhr.responseJSON?.mensaje || error || 'Error desconocido';
+            console.error("Error al procesar aprobación:", mensajeError);
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo procesar la aprobación/rechazo: ' + xhr.responseJSON.mensaje
+                text: 'No se pudo procesar la aprobación/rechazo: ' + mensajeError
             });
-
-
         }
     });
 }

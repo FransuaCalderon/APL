@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    // Leemos el usuario desde la sesión
+    var usuarioActual = Context.Session.GetString("Usuario") ?? "Usuario";
+}
+
+<!DOCTYPE html>
 
 <html lang="en">
 
@@ -72,7 +79,12 @@
 
                             <ul class="dropdown-menu dropdown-menu-end">
 
-                                <li><a class="dropdown-item text-dark text-center bg-warning" href="#">Ali Macias</a></li>
+                                <li>
+                                    <a class="dropdown-item text-dark text-center bg-warning" href="#">
+                                        @usuarioActual
+                                    </a>
+                                </li>
+
 
                                 <li><hr class="dropdown-divider"></li>
 
@@ -82,7 +94,12 @@
 
                                 <li><hr class="dropdown-divider"></li>
 
-                                <li><a class="dropdown-item" href="#">Cerrar Sesión</a></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Login" asp-action="Logout">
+                                        Cerrar Sesión
+                                    </a>
+                                </li>
+
 
                             </ul>
 
