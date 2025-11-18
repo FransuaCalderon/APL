@@ -33,14 +33,16 @@ $(document).ready(function () {
     $('body').on('click', '#btnAprobarFondo', function () {
         let comentario = $("#modal-fondo-comentario").val();
         console.log('comentario: ', comentario);
-        procesarAprobacionFondo("ESTADOAPROBADO", comentario);
+        console.log('boton de aprobar fondo');
+        procesarAprobacionFondo("APROBAR", comentario);
     });
 
     // ===== BOTÓN RECHAZAR =====
     $('body').on('click', '#btnRechazarFondo', function () {
         let comentario = $("#modal-fondo-comentario").val();
         console.log('comentario: ', comentario);
-        procesarAprobacionFondo("ESTADONEGADO", comentario);
+        console.log('boton de rechazar fondo');
+        procesarAprobacionFondo("RECHAZAR", comentario);
     });
 
 }); // <-- FIN de $(document).ready
@@ -545,7 +547,7 @@ function procesarAprobacionFondo(accion, comentario) {
         tituloAccion = "Aprobar Fondo";
         mensajeAccion = "¿Está seguro que desea aprobar este fondo?";
     } else if (accion === "RECHAZAR") {
-        nuevoEstado = "ESTADOINACTIVO";
+        nuevoEstado = "ESTADONEGADO";
         tituloAccion = "Rechazar Fondo";
         mensajeAccion = "¿Está seguro que desea rechazar este fondo?";
     }
@@ -555,9 +557,9 @@ function procesarAprobacionFondo(accion, comentario) {
         text: mensajeAccion,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: accion === "APROBAR" ? '#28a745' : '#dc3545',
+        confirmButtonColor: accion == "APROBAR" ? '#28a745' : '#dc3545',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: accion === "APROBAR" ? 'Sí, aprobar' : 'Sí, rechazar',
+        confirmButtonText: accion == "APROBAR" ? 'Sí, aprobar' : 'Sí, rechazar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {

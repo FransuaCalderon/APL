@@ -191,7 +191,7 @@ namespace AppAPL.Api.Handlers
                         };
                     }
 
-                    if (reqAprobacion.idEtiquetaEstado == "ESTADOINACTIVO")
+                    if (reqAprobacion.idEtiquetaEstado == "ESTADONEGADO")
                     {
                         camposPlantilla = new Dictionary<string, string>
                         {
