@@ -144,18 +144,19 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
+                    /*
                     tipoProceso = reqAprobacion.idEtiquetaEstado switch
                     {
                         "ESTADOAPROBADO" => TipoProceso.Aprobacion,
                         "ESTADOINACTIVO" => TipoProceso.Inactivacion
-                    };
+                    };*/
 
-
+                    /*
                     tipoProcEtiqueta = reqAprobacion.idEtiquetaEstado switch
                     {
                         "ESTADOAPROBADO" => "TPAPROBACION",
                         "ESTADOINACTIVO" => "TPINACTIVACION"
-                    };
+                    };*/
 
                     var fondo = await fondoRepo.ObtenerPorIdAsync((int)reqAprobacion.Identidad);
 
