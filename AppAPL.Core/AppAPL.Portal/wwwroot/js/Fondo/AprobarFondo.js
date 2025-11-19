@@ -54,7 +54,7 @@ $(document).ready(function () {
 
 function cargarBandeja() {
     const apiBaseUrl = window.apiBaseUrl;
-    const usuario =  // ← viene del servidor
+    const usuario = window.usuarioActual || '';// ← viene del servidor
 
     if (!usuario) {
         console.error('No hay usuario en sesión, no se puede cargar la bandeja.');
@@ -575,7 +575,7 @@ function procesarAprobacionFondo(accion, comentario) {
  * Ejecuta el POST al API para aprobar o rechazar
  */
 function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
-    const usuarioActual = window.usuarioActual || '';
+    const usuarioActual = "JGonzalez"; // TODO: Obtener del usuario logueado
 
     console.log("datosAprobacionActual: ", datosAprobacionActual);
 
