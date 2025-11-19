@@ -178,9 +178,7 @@ function crearListado(data) {
     html += "  </thead>";
     html += "  <tbody>";
 
-    if (!data || data.length === 0) {
-        html += "<tr><td colspan='13' class='text-center'>Sin datos</td></tr>";
-    } else {
+    if (data && data.length > 0) {
         for (var i = 0; i < data.length; i++) {
             var fondo = data[i];
             var id = fondo.idfondo;
@@ -227,6 +225,7 @@ function crearListado(data) {
         ],
         order: [[1, 'desc']],
         language: {
+            emptyTable: "Sin datos",
             decimal: "",
             emptyTable: "No hay datos disponibles en la tabla",
             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
