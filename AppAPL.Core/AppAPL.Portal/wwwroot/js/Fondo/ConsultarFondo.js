@@ -136,6 +136,8 @@ $(document).ready(function () {
 // ===== FUNCIONES GLOBALES (Datatables, Abrir/Cerrar Modal) =====
 // ===================================================================
 
+// ... CÓDIGO ANTERIOR ... (hasta la función crearListado)
+
 function crearListado(data) {
     if (tabla) {
         tabla.destroy();
@@ -148,7 +150,7 @@ function crearListado(data) {
 
     // Fila del Título ROJO
     html += "    <tr>";
-    html += "      <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
+    html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
     html += "          BANDEJA DE FONDOS";
     html += "      </th>";
     html += "    </tr>";
@@ -158,6 +160,7 @@ function crearListado(data) {
     html += "      <th>Acción</th>";
     html += "      <th>IDFondo</th>";
     html += "      <th>Descripción</th>";
+    html += "      <th>RUC</th>"; // Nuevo campo para RUC/ID
     html += "      <th>Proveedor</th>";
     html += "      <th>Tipo Fondo</th>";
     html += "      <th>$ Fondo</th>";
@@ -176,25 +179,36 @@ function crearListado(data) {
             var fondo = data[i];
             var id = fondo.idfondo;
 
-            // Botón de editar
-            // Se asume que este botón abrirá el modal de visualización (lectura) en este flujo
-            var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Editar" onclick="abrirModalEditar(' + id + ')">' +
-                '<i class="fa-regular fa-eye" ></i>' +
+            var viewButton = '<button type="button" class="btn-action edit-btn" title="Visualizar" onclick="abrirModalEditar(' + id + ')">' +
+                '<i class="fa-regular fa-pen-to-square"></i>' +
                 '</button>';
 
             html += "<tr>";
             html += "  <td class='text-center'>" + viewButton + "</td>";
+            // 1. IDFondo (idfondo)
             html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
+            // 2. Descripción (descripcion)
             html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
-            html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
-            html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_fondo) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_liquidado) + "</td>";
-            html += "  <td>" + (fondo.estado ?? "") + "</td>";
+            // 3. RUC (idproveedor)
+            html += "  <td>" + (fondo.idproveedor ?? "") + "</td>";
+            // 4. Proveedor (nombre)
+            html += "  <td>" + (fondo.nombre ?? "") + "</td>";
+            // 5. Tipo Fondo (idtipofondo - usaremos el ID, ya que el nombre no está en el JSON de ejemplo)
+            html += "  <td>" + (fondo.idtipofondo ?? "") + "</td>";
+            // 6. $ Fondo (valorfondo)
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valorfondo) + "</td>";
+            // 7. Fecha Inicio (fechainiciovigencia)
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fechainiciovigencia) + "</td>";
+            // 8. Fecha Fin (fechafinvigencia)
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fechafinvigencia) + "</td>";
+            // 9. $ Disponible (valordisponible)
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valordisponible) + "</td>";
+            // 10. $ Comprometido (valorcomprometido)
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valorcomprometido) + "</td>";
+            // 11. $ Liquidado (valorliquidado)
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valorliquidado) + "</td>";
+            // 12. Estado (estado_nombre)
+            html += "  <td>" + (fondo.estado_nombre ?? "") + "</td>";
             html += "</tr>";
         }
     }
@@ -213,8 +227,9 @@ function crearListado(data) {
         columnDefs: [
             { targets: 0, width: "8%", className: "dt-center", orderable: false },
             { targets: 1, width: "6%", className: "dt-center" },
-            { targets: [5, 8, 9, 10], className: "dt-right" },
-            { targets: [6, 7], className: "dt-center" },
+            // Ajuste en targets de alineación, asumiendo que RUC (3) y Proveedor (4) son left/center
+            { targets: [6, 9, 10, 11], className: "dt-right" }, // $ Fondo, $ Disponble, $ Comprometido, $ Liquidado
+            { targets: [7, 8], className: "dt-center" }, // Fechas
         ],
         order: [[1, 'desc']],
         language: {
@@ -252,6 +267,8 @@ function crearListado(data) {
         inicializarMarcadoFilas('#tabla-fondos');
     }
 }
+
+// ... RESTO DEL CÓDIGO ...
 
 /**
  * Abre el modal de VISUALIZACIÓN o EDICIÓN (depende del ID del modal usado) 

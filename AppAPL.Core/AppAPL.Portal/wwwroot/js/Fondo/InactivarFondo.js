@@ -90,37 +90,6 @@ function crearListado(data) {
     html += "  </thead>";
     html += "  <tbody>";
 
-    /*
-    if (!data || data.length === 0) {
-        html += "<tr><td colspan='13' class='text-center'>Sin datos</td></tr>";
-    } else {
-        for (var i = 0; i < data.length; i++) {
-            var fondo = data[i];
-            var id = fondo.idfondo;
-
-            // Botón de visualizar
-            var viewButton = '<button type="button" class="btn-action edit-btn" title="Visualizar" onclick="abrirModalEditar(' + id + ')">' +
-                '<i class="fa-regular fa-pen-to-square"></i>' +
-                '</button>';
-
-            html += "<tr>";
-            html += "  <td class='text-center'>" + viewButton + "</td>";
-            html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
-            html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
-            html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
-            html += "  <td>" + (fondo.nombre ?? "") + "</td>";
-            html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_fondo) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_liquidado) + "</td>";
-            html += "  <td>" + (fondo.estado ?? "") + "</td>";
-            html += "</tr>";
-        }
-    }*/
-
     if (data && data.length > 0) {
         for (var i = 0; i < data.length; i++) {
             var fondo = data[i];
@@ -138,12 +107,12 @@ function crearListado(data) {
             html += "  <td>" + (fondo.nombre ?? "") + "</td>";
             html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
             html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_fondo) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fechainiciovigencia) + "</td>";
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fechafinvigencia) + "</td>";
             html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
             html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
             html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_liquidado) + "</td>";
-            html += "  <td>" + (fondo.estado ?? "") + "</td>";
+            html += "  <td>" + (fondo.estado_nombre ?? "") + "</td>";
             html += "</tr>";
         }
     }
