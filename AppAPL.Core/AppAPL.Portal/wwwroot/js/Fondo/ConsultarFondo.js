@@ -23,7 +23,7 @@ $(document).ready(function () {
         const apiBaseUrl = window.apiBaseUrl;
 
         $.ajax({
-            url: `${apiBaseUrl}/api/Fondo/bandeja-modificacion`,
+            url: `${apiBaseUrl}/api/Fondo/listar`,
             method: "GET",
             headers: {
                 "idopcion": "1",
