@@ -491,9 +491,10 @@ function rechazarFondo() {
 }
 
 function ejecutarInactivacion(idFondo) {
+    const usuario = window.usuarioActual || '';
     const requestBody = {
         idfondo: parseInt(idFondo),
-        nombreusuarioingreso: "admin",
+        nombreusuarioingreso: usuario,
         idopcion: 12,
         idcontrolinterfaz: 28,
         idevento: 29
