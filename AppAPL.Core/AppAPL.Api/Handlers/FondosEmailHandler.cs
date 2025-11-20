@@ -144,19 +144,11 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    /*
-                    tipoProceso = reqAprobacion.idEtiquetaEstado switch
+                    string estadoCorreo = reqAprobacion.idEtiquetaEstado switch
                     {
-                        "ESTADOAPROBADO" => TipoProceso.Aprobacion,
-                        "ESTADOINACTIVO" => TipoProceso.Inactivacion
-                    };*/
-
-                    /*
-                    tipoProcEtiqueta = reqAprobacion.idEtiquetaEstado switch
-                    {
-                        "ESTADOAPROBADO" => "TPAPROBACION",
-                        "ESTADOINACTIVO" => "TPINACTIVACION"
-                    };*/
+                        "ESTADOAPROBADO" => "APROBADO",
+                        "ESTADONEGADO" => "NEGADO"
+                    };
 
                     var fondo = await fondoRepo.ObtenerPorIdAsync((int)reqAprobacion.Identidad);
 
@@ -174,8 +166,6 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    if (reqAprobacion.idEtiquetaEstado == "ESTADOAPROBADO")
-                    {
                         camposPlantilla = new Dictionary<string, string>
                         {
                             { "Nombre", fondo.IdUsuarioIngreso },
@@ -187,33 +177,56 @@ namespace AppAPL.Api.Handlers
                             { "FechaInicio", fondo.FechaInicioVigencia.ToString() },
                             { "FechaFin", fondo.FechaFinVigencia.ToString() },
                             { "Firma", reqAprobacion.UsuarioAprobador },
-                            // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
+                            { "Estado", estadoCorreo },
                         };
+                    break;
+
+                case TipoProceso.Inactivacion:
+                    var reqInactivacion = JsonSerializer.Deserialize<InactivarFondoRequest>(requestBody, jsonOptions);
+                    if (reqInactivacion == null || reqInactivacion.Identidad == null)
+                    {
+                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        return;
                     }
 
-                    if (reqAprobacion.idEtiquetaEstado == "ESTADONEGADO")
+                    
+                    var fondo2 = await fondoRepo.ObtenerPorIdAsync((int)reqInactivacion.Identidad);
+
+                    if (fondo2 == null)
                     {
-                        camposPlantilla = new Dictionary<string, string>
+                        logger.LogWarning($"no se encontro el fondo con el id: {reqInactivacion.Identidad}");
+                    }
+
+                    IdProveedor = fondo2.IdProveedor;
+                    var proveedor4 = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
+
+                    if (proveedor4 == null)
+                    {
+                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
+                        return;
+                    }
+
+                    camposPlantilla = new Dictionary<string, string>
                         {
-                            { "Nombre", fondo.IdUsuarioIngreso },
-                            { "IdFondo", fondo.IdProveedor },
-                            { "NombreProveedor", proveedor3.Nombre },
-                            { "IdProveedor", proveedor3.Identificacion },
-                            { "ValorFondo", fondo.ValorFondo?.ToString("N2") },
-                            { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo.ValorFondo) },
-                            { "FechaInicio", fondo.FechaInicioVigencia.ToString() },
-                            { "FechaFin", fondo.FechaFinVigencia.ToString() },
-                            { "ValorDisponible", fondo.ValorDisponible?.ToString("N2") },
-                            { "ValorComprometido", fondo.ValorComprometido?.ToString("N2") },
-                            { "ValorLiquidado", fondo.ValorLiquidado?.ToString("N2") },
-                            { "Firma", reqAprobacion.UsuarioAprobador },
+                            { "Nombre", fondo2.IdUsuarioIngreso },
+                            { "IdFondo", fondo2.IdProveedor },
+                            { "NombreProveedor", proveedor4.Nombre },
+                            { "IdProveedor", proveedor4.Identificacion },
+                            { "ValorFondo", fondo2.ValorFondo?.ToString("N2") },
+                            { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo2.ValorFondo) },
+                            { "FechaInicio", fondo2.FechaInicioVigencia.ToString() },
+                            { "FechaFin", fondo2.FechaFinVigencia.ToString() },
+                            { "ValorDisponible", fondo2.ValorDisponible?.ToString("N2") },
+                            { "ValorComprometido", fondo2.ValorComprometido?.ToString("N2") },
+                            { "ValorLiquidado", fondo2.ValorLiquidado?.ToString("N2") },
+                            { "Firma", reqInactivacion.UsuarioAprobador },
                             // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                         };
-                    }
+                    
                     break;
 
                 default:
-                    logger.LogWarning($"⚠️ [FondosHandler] TipoProceso no reconocido o sin estrategia definida: {tipoProceso}.");
+                    logger.LogWarning($"[FondosHandler] TipoProceso no reconocido o sin estrategia definida: {tipoProceso}.");
                     return;
             }
 

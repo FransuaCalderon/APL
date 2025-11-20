@@ -124,5 +124,20 @@ namespace AppAPL.Dto.Fondos
 
     }
 
+    public class InactivarFondoRequest
+    {
+        public int? Entidad { get; set; }
+        public int? Identidad { get; set; }
+        public int? idTipoProceso { get; set; }
+        public string? idEtiquetaTipoProceso { get; set; }
+        public string? Comentario { get; set; }
+        public string? idEtiquetaEstado { get; set; }
+        public int? IdAprobacion { get; set; }
+        public string? UsuarioAprobador { get; set; }
 
+        public int? IdOpcion { get; set; }
+        public int? IdControlInterfaz { get; set; }
+        public int? IdEvento { get; set; }
+
+    }
 }   

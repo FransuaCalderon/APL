@@ -118,8 +118,29 @@ namespace AppAPL.Api.Controllers
         [Email("ENTFONDO", TipoProceso.Aprobacion)]
         public async Task<ActionResult<ControlErroresDTO>> AprobarFondo(AprobarFondoRequest fondo)
         {
-            
+            /*
             var retorno = await servicio.AprobarFondo(fondo);
+
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }*/
+            return Ok();
+        }
+
+        [HttpPost("inactivar-fondo")]
+        //[Email("ENTFONDO", TipoProceso.Inactivacion)]
+        public async Task<ActionResult<ControlErroresDTO>> InactivarFondo(InactivarFondoRequest fondo)
+        {
+
+            var retorno = await servicio.InactivarFondo(fondo);
 
             if (retorno.codigoRetorno == 0)
             {

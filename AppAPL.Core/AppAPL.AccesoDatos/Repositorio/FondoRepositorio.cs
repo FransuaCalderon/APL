@@ -293,6 +293,57 @@ namespace AppAPL.AccesoDatos.Repositorio
             return retorno;
         }
 
+
+        public async Task<ControlErroresDTO> InactivarFondo(InactivarFondoRequest fondo)
+        {
+            /*
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_entidad = fondo.Entidad,
+                p_identidad = fondo.Identidad,
+                p_idtipoproceso = fondo.idTipoProceso,
+                p_idetiquetatipoproceso = fondo.idEtiquetaTipoProceso,
+                p_comentario = fondo.Comentario,
+                p_idetiquetaestado = fondo.idEtiquetaEstado,
+                p_idaprobacion = fondo.IdAprobacion,
+                p_usuarioaprobador = fondo.UsuarioAprobador,
+
+                p_idopcion = fondo.IdOpcion,
+                p_idcontrolinterfaz = fondo.IdControlInterfaz,
+                p_idevento = fondo.IdEvento
+            };
+
+            logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "APL_PKG_FONDOS.sp_proceso_aprobacion_fondo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+            */
+            string mensajeSalida = $"Inactivando fondo, aun falta sp por terminar";
+            logger.LogInformation(mensajeSalida);
+            var retorno = new ControlErroresDTO()
+            {
+                codigoRetorno = 0,
+                mensaje = mensajeSalida
+            };
+           
+
+            return retorno;
+        }
+
         public async Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)
         {
             using var connection = factory.CreateOpenConnection();

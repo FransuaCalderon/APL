@@ -44,5 +44,8 @@ namespace AppAPL.Negocio.Servicios
 
         public async Task<ControlErroresDTO> AprobarFondo(AprobarFondoRequest fondo)
             => await repo.AprobarFondo(fondo);
+
+        public async Task<ControlErroresDTO> InactivarFondo(InactivarFondoRequest fondo)
+            => await repo.InactivarFondo(fondo);
     }
 }
