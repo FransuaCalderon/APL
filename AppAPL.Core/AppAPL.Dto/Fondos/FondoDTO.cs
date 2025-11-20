@@ -127,7 +127,7 @@ namespace AppAPL.Dto.Fondos
     public class InactivarFondoRequest
     {
         public int IdFondo { get; set; }
-        public string NombreUsuarioIngreso { get; set; }
+        public string? NombreUsuarioIngreso { get; set; }
 
         public int? IdOpcion { get; set; }
         public int? IdControlInterfaz { get; set; }
