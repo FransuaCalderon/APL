@@ -149,7 +149,8 @@ namespace AppAPL.Api.Handlers
                     {
                         "ESTADOAPROBADO" => TipoProceso.Aprobacion,
                         "ESTADOINACTIVO" => TipoProceso.Inactivacion
-                    };*/
+                    };
+                    */
 
                     /*
                     tipoProcEtiqueta = reqAprobacion.idEtiquetaEstado switch
