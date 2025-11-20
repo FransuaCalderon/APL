@@ -492,14 +492,8 @@ function rechazarFondo() {
 
 function ejecutarInactivacion(idFondo) {
     const requestBody = {
-        entidad: 0,
-        identidad: parseInt(idFondo),
-        idtipoproceso: 0,
-        idetiquetatipoproceso: "TPINACTIVACION",
-        comentario: "Fondo inactivado desde bandeja de inactivación",
-        idetiquetaestado: datosModal.estado_etiqueta,
-        idaprobacion: 0,
-        usuarioaprobador: "admin",
+        idfondo: parseInt(idFondo),
+        nombreusuarioingreso: "admin",
         idopcion: 12,
         idcontrolinterfaz: 28,
         idevento: 29
@@ -517,13 +511,12 @@ function ejecutarInactivacion(idFondo) {
     });
 
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Fondo/aprobar-fondo`,
+        url: `${window.apiBaseUrl}/api/Fondo/inactivar-fondo`,
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify(requestBody),
-        success: function (response) {
-            console.log("Respuesta de inactivación:", response);
 
+        success: function (response) {
             Swal.fire({
                 ...SwalConfig,
                 icon: 'success',
@@ -531,35 +524,46 @@ function ejecutarInactivacion(idFondo) {
                 text: 'El fondo ha sido inactivado correctamente',
                 confirmButtonText: 'Aceptar'
             }).then(() => {
-                // recordar la última fila modificada (por si quieres marcarla)
-                ultimaFilaModificada = idFondo;
                 cerrarModalFondo();
-                // 🔄 Refrescar bandeja después de inactivar
                 recargarTablaFondos();
             });
         },
-        error: function (xhr, status, error) {
-            console.error("Error al inactivar el fondo:", error);
-            console.error("Respuesta del servidor:", xhr.responseText);
 
-            let mensajeError = 'No se pudo inactivar el fondo';
+        error: function (xhr) {
+            console.log("Respuesta del servidor:", xhr.responseText);
 
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                mensajeError = xhr.responseJSON.message;
-            } else if (xhr.responseText) {
-                try {
-                    const errorObj = JSON.parse(xhr.responseText);
-                    mensajeError = errorObj.message || mensajeError;
-                } catch (e) {
-                    // ignorar parseo fallido
-                }
+            let mensaje = "";
+
+            try {
+                const json = JSON.parse(xhr.responseText);
+                mensaje = json.mensaje || json.message || "";
+            } catch (e) {
+                mensaje = "";
             }
 
+            // ============================
+            // ✔ CASO ESPECIAL: PENDIENTE
+            // ============================
+            if (mensaje.toLowerCase().includes("pendiente de aprobación")) {
+
+                Swal.fire({
+                    ...SwalConfig,
+                    icon: 'info',
+                    title: 'Solicitud generada',
+                    text: mensaje,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    cerrarModalFondo();
+                    recargarTablaFondos();
+                });
+
+                return; // detener aquí
+            }
             Swal.fire({
                 ...SwalConfig,
                 icon: 'error',
                 title: 'Error',
-                text: mensajeError,
+                text: 'No se pudo inactivar el fondo',
                 confirmButtonText: 'Aceptar'
             });
         }
