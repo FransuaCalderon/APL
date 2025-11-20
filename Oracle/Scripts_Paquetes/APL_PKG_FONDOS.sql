@@ -56,6 +56,11 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_mensaje               OUT VARCHAR2
     );
     
+    --Procedimiento para mostrar la bandeja de Inactivacion
+    PROCEDURE sp_bandeja_inactivacion (
+        p_cursor OUT SYS_REFCURSOR
+    );
+    
     -- Procedimiento para obtener un fondo por ID
     PROCEDURE sp_obtener_fondo_por_id (
         p_idfondo        IN NUMBER,
@@ -829,6 +834,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             RETURN;
     END actualizar_fondo;
 
+
     PROCEDURE sp_listar_fondos (
         p_cursor         OUT SYS_REFCURSOR,
         p_codigo_salida  OUT NUMBER,
@@ -870,6 +876,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             p_mensaje_salida := 'Error al listar fondos: ' || sqlerrm;
             RETURN;
     END sp_listar_fondos;
+
 
     PROCEDURE sp_inactivacion_fondo (
         p_idfondo               IN NUMBER,
@@ -1098,6 +1105,38 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             
     END sp_inactivacion_fondo;
 
+
+    PROCEDURE sp_bandeja_inactivacion (
+        p_cursor OUT SYS_REFCURSOR
+    ) AS
+    BEGIN
+        OPEN p_cursor FOR SELECT
+                f.idfondo,
+                f.descripcion,
+                f.idproveedor                                 AS proveedor,
+                arp.nombre,
+                ct.nombre                                     AS tipo_fondo,
+                f.valorfondo                                  AS valor_fondo,
+                to_char(f.fechainiciovigencia, 'YYYY-MM-DD') AS fecha_inicio,
+                to_char(f.fechafinvigencia, 'YYYY-MM-DD')    AS fecha_fin,
+                f.valordisponible                             AS valor_disponible,
+                f.valorcomprometido                           AS valor_comprometido,
+                f.valorliquidado                              AS valor_liquidado,
+                ce.nombre                                     AS estado,
+                ce.idetiqueta                                 AS estado_etiqeuta
+        FROM
+                apl_tb_fondo    f
+                LEFT JOIN apl_tb_catalogo ct ON f.idtipofondo = ct.idcatalogo
+                LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
+                INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+        WHERE 
+                ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE')
+        ORDER BY
+                f.idfondo;
+
+    END sp_bandeja_inactivacion;
+
+
     PROCEDURE sp_obtener_fondo_por_id (
         p_idfondo        IN NUMBER,
         p_cursor         OUT SYS_REFCURSOR,
@@ -1135,6 +1174,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             p_mensaje_salida := 'Error al obtener fondo por ID: ' || sqlerrm;
             RETURN;
     END sp_obtener_fondo_por_id;
+
 
     PROCEDURE sp_bandeja_modificacion (
         p_cursor OUT SYS_REFCURSOR
@@ -1200,6 +1240,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
 
     END sp_bandeja_modificacion;
 
+
     PROCEDURE sp_bandeja_modificacion_por_id (
         p_idfondo        IN NUMBER,
         p_cursor         OUT SYS_REFCURSOR,
@@ -1238,6 +1279,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             p_codigo_salida := -20002;
             p_mensaje_salida := 'Error al consultar bandeja: ' || sqlerrm;
     END sp_bandeja_modificacion_por_id;
+
 
     PROCEDURE sp_bandeja_consulta_aprobacion (
         p_usuarioaprobador IN VARCHAR2,     -- Usuario aprobador (OBLIGATORIO)
@@ -1348,6 +1390,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             raise_application_error(-20005, 'Error en bandeja de aprobación: ' || sqlerrm);
     END sp_bandeja_consulta_aprobacion;
     
+    
     PROCEDURE sp_bandeja_consulta_aprobacion_por_id (
         p_idfondo       IN NUMBER,
         p_idaprobacion  IN NUMBER,
@@ -1401,6 +1444,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                         WHEN OTHERS
                     then raise_application_error(-20005, 'Error en bandeja de aprobación: ' || sqlerrm);
     end sp_bandeja_consulta_aprobacion_por_id;
+    
     
     PROCEDURE sp_proceso_aprobacion_fondo (
         p_entidad                   IN NUMBER,
