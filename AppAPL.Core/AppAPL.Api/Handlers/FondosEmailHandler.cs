@@ -181,20 +181,21 @@ namespace AppAPL.Api.Handlers
                         };
                     break;
 
+                    
                 case TipoProceso.Inactivacion:
                     var reqInactivacion = JsonSerializer.Deserialize<InactivarFondoRequest>(requestBody, jsonOptions);
-                    if (reqInactivacion == null || reqInactivacion.Identidad == null)
+                    if (reqInactivacion == null || reqInactivacion.IdFondo == null)
                     {
                         logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
                         return;
                     }
 
                     
-                    var fondo2 = await fondoRepo.ObtenerPorIdAsync((int)reqInactivacion.Identidad);
+                    var fondo2 = await fondoRepo.ObtenerPorIdAsync((int)reqInactivacion.IdFondo);
 
                     if (fondo2 == null)
                     {
-                        logger.LogWarning($"no se encontro el fondo con el id: {reqInactivacion.Identidad}");
+                        logger.LogWarning($"no se encontro el fondo con el id: {reqInactivacion.IdFondo}");
                     }
 
                     IdProveedor = fondo2.IdProveedor;
@@ -219,7 +220,7 @@ namespace AppAPL.Api.Handlers
                             { "ValorDisponible", fondo2.ValorDisponible?.ToString("N2") },
                             { "ValorComprometido", fondo2.ValorComprometido?.ToString("N2") },
                             { "ValorLiquidado", fondo2.ValorLiquidado?.ToString("N2") },
-                            { "Firma", reqInactivacion.UsuarioAprobador },
+                            { "Firma", reqInactivacion.NombreUsuarioIngreso },
                             // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                         };
                     
