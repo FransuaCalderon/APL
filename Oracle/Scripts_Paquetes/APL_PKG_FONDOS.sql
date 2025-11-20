@@ -45,6 +45,7 @@ create or replace PACKAGE apl_pkg_fondos AS
     );
     
     --Procedimiento Inactivo
+    
     PROCEDURE sp_inactivacion_fondo (
         p_idfondo               IN NUMBER,
         p_nombreusuarioingreso  IN VARCHAR2,
@@ -890,19 +891,19 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
     ) AS
         -- Variables catalogo
         v_count_aprobadores     NUMBER;
-        v_idestado_inactivo     NUMBER;
         v_estado_actual         NUMBER;
         v_row_exists            NUMBER;
         
         --variables
         v_entidad_fondo           NUMBER;
         v_tipo_proceso_inactivar  NUMBER;
+        v_tipo_proceso_aprobador  NUMBER;
         v_estado_activo           NUMBER;
         v_estado_inactivo         NUMBER;
         v_estado_vigente          NUMBER;
         v_estado_aprobado         NUMBER;
-        v_estado_solicitud        NUMBER;
-        v_tiene_aprobadores       NUMBER;
+        
+        
         
         --variable log
         v_datos_json             VARCHAR2(4000);
@@ -914,6 +915,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         SELECT idcatalogo INTO v_entidad_fondo FROM apl_tb_catalogo WHERE idetiqueta = 'ENTFONDO';       
             
         SELECT idcatalogo INTO v_tipo_proceso_inactivar FROM apl_tb_catalogo WHERE idetiqueta = 'TPINACTIVACION';
+        
+        SELECT idcatalogo INTO v_tipo_proceso_aprobador FROM apl_tb_catalogo WHERE idetiqueta = 'TPCREACION';
             
         SELECT idcatalogo INTO v_estado_activo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOACTIVO';   
             
@@ -923,9 +926,9 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         
         SELECT idcatalogo INTO v_estado_aprobado  FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOAPROBADO'; 
         
-      
+        
         -- Validar que el fondo existe
-        SELECT
+         SELECT
             CASE
                 WHEN EXISTS (SELECT 1 FROM apl_tb_fondo WHERE idfondo = p_idfondo
                 ) THEN
@@ -943,14 +946,13 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 p_mensaje := 'El fondo con ID ' || p_idfondo || ' no existe';
                 RETURN;
            
-        END IF;
+            END IF;
         
         -- Obtener estado actual del fondo    
         SELECT IDESTADOREGISTRO INTO v_estado_actual FROM apl_tb_fondo WHERE IDFONDO = p_idfondo;
-
         
         -- Validar que el fondo no esté ya inactivo
-        IF v_estado_actual = v_idestado_inactivo THEN
+        IF v_estado_actual = v_estado_inactivo THEN
             p_codigo_salida := -2;
             p_mensaje := 'El fondo ya se encuentra inactivo';
             RETURN;
@@ -972,15 +974,15 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             apl_tb_aprobador
         WHERE
                 entidad = v_entidad_fondo
-            AND idtipoproceso = v_tipo_proceso_inactivar
+            AND idtipoproceso = v_tipo_proceso_aprobador
             AND idestadoregistro = v_estado_activo;
-            
+                       
         
         -- CASO A: NO HAY APROBADORES - Actualizar directamente
-        IF v_tiene_aprobadores = 0 THEN
+        IF v_count_aprobadores = 0 THEN
             UPDATE apl_tb_fondo
             SET 
-                IDESTADOREGISTRO = v_idestado_inactivo,
+                IDESTADOREGISTRO = v_estado_inactivo,
                 VALORDISPONIBLE = 0.00,
                 FECHAMODIFICA = SYSTIMESTAMP,
                 IDUSUARIOMODIFICA = p_nombreusuarioingreso
@@ -990,6 +992,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         
         --CASO B: Si hay aprobadores, generar filas en APL_TB_APROBACION (una por aprobador activo)
         ELSE
+        DBMS_OUTPUT.PUT_LINE('DEBUG - Entrando a CASO B: Con ' || v_count_aprobadores || ' aprobadores');
             --Insertar solicitudes de aprobación
             INSERT INTO apl_tb_aprobacion (
                 entidad,
@@ -1015,53 +1018,36 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     NULL                            AS fechaaprobacion,
                     NULL                            AS comentario,
                     a.nivelaprobacion               AS nivelaprobacion,
-                    v_estado_actual                 AS idestadoregistro
+                    v_estado_inactivo               AS idestadoregistro --cambio ahora
                     
                 FROM
                     apl_tb_aprobador a
                 WHERE
                         a.entidad = v_entidad_fondo
-                    AND a.idtipoproceso = v_tipo_proceso_inactivar
+                    AND a.idtipoproceso = v_tipo_proceso_aprobador
                     AND a.idestadoregistro = v_estado_activo;
-
         END IF;
         
          -- Registrar LOG aquí si lo necesitas
-        IF v_tiene_aprobadores = 0 THEN
+        IF v_count_aprobadores = 0 THEN
 		   v_datos_json := JSON_OBJECT(
 				'idfondo' VALUE p_idfondo,
-				--'descripcion' VALUE p_descripcion,
-				--'idproveedor' VALUE p_idproveedor,
-				--'idtipofondo' VALUE p_idtipofondo,
-				--'valorfondo' VALUE p_valorfondo,
-				--'fechainiciovigencia' VALUE TO_CHAR(p_fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
-				--'fechafinvigencia' VALUE TO_CHAR(p_fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
-				--'valordisponible' VALUE p_valorfondo,
 				'valorcomprometido' VALUE 0,
 				'valorliquidado' VALUE 0,
 				'idusuarioingreso' VALUE p_nombreusuarioingreso,
 				'fechaingreso' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
-				'idestadoregistro' VALUE v_estado_actual,
-				--'indicadorcreacion' VALUE v_creacion_manual,
+				'idestadoregistro' VALUE v_tipo_proceso_inactivar,
 				'comentario' VALUE 'Inactivacion Directa sin aprobadores'
 			);
 		
 		 ELSE
 			 v_datos_json := JSON_OBJECT(
 				'idfondo' VALUE p_idfondo,
-				--'descripcion' VALUE p_descripcion,
-				--'idproveedor' VALUE p_idproveedor,
-				--'idtipofondo' VALUE p_idtipofondo,
-				--'valorfondo' VALUE p_valorfondo,
-				--'fechainiciovigencia' VALUE TO_CHAR(p_fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
-				--'fechafinvigencia' VALUE TO_CHAR(p_fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
-				--'valordisponible' VALUE p_valorfondo,
 				'valorcomprometido' VALUE 0,
 				'valorliquidado' VALUE 0,
 				'idusuarioingreso' VALUE p_nombreusuarioingreso,
 				'fechaingreso' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
-				'idestadoregistro' VALUE v_estado_actual,
-				--'indicadorcreacion' VALUE v_creacion_manual,
+				'idestadoregistro' VALUE v_tipo_proceso_inactivar,
 				'comentario' VALUE 'Solicitud de inactivacion que requiere aprobacion'
 			);
 		 END IF;
@@ -1085,7 +1071,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             p_idevento,  -- Ajusta según corresponda (catálogo de eventos: ej. "CREACION_FONDO")
             v_entidad_fondo,
             p_idfondo,
-            v_estado_actual,
+            v_tipo_proceso_inactivar,
             v_datos_json
         );
             
