@@ -64,7 +64,7 @@ function cargarBandeja() {
     console.log('Cargando bandeja para usuario:', usuario);
 
     $.ajax({
-        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/${usuario}`, // dinámico
+        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/${usuario}`, // ✅ DINÁMICO
         method: "GET",
         headers: {
             "idopcion": "1",
