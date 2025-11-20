@@ -45,10 +45,9 @@ create or replace PACKAGE apl_pkg_fondos AS
     );
     
     --Procedimiento Inactivo
-    
     PROCEDURE sp_inactivacion_fondo (
         p_idfondo               IN NUMBER,
-        p_nombreusuarioingreso  IN VARCHAR2,
+        p_nombreusuarioingreso  IN VARCHAR2 DEFAULT NULL,
          --parametros para el log
         p_idopcion              IN NUMBER,
         p_idcontrolinterfaz     IN NUMBER,
@@ -881,7 +880,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
 
     PROCEDURE sp_inactivacion_fondo (
         p_idfondo               IN NUMBER,
-        p_nombreusuarioingreso  IN VARCHAR2,
+        p_nombreusuarioingreso  IN VARCHAR2  DEFAULT NULL,
         --variables log
         p_idopcion              IN NUMBER,
         p_idcontrolinterfaz     IN NUMBER,
@@ -949,7 +948,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             END IF;
         
         -- Obtener estado actual del fondo    
-        SELECT IDESTADOREGISTRO INTO v_estado_actual FROM apl_tb_fondo WHERE IDFONDO = p_idfondo;
+        SELECT IDESTADOREGISTRO INTO v_estado_actual FROM apl_tb_fondo WHERE IDFONDO = p_idfondo; 
         
         -- Validar que el fondo no esté ya inactivo
         IF v_estado_actual = v_estado_inactivo THEN
@@ -987,7 +986,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 FECHAMODIFICA = SYSTIMESTAMP,
                 IDUSUARIOMODIFICA = p_nombreusuarioingreso
             WHERE IDFONDO = p_idfondo;
-        
+            
+            p_codigo_salida := 0;
             p_mensaje := 'Fondo inactivado directamente (sin aprobadores).';
         
         --CASO B: Si hay aprobadores, generar filas en APL_TB_APROBACION (una por aprobador activo)
@@ -1026,6 +1026,9 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                         a.entidad = v_entidad_fondo
                     AND a.idtipoproceso = v_tipo_proceso_aprobador
                     AND a.idestadoregistro = v_estado_activo;
+                    
+              p_codigo_salida := 0;
+              p_mensaje := 'Solicitud de inactivación generada. Pendiente de aprobación (' || v_count_aprobadores || ' aprobador(es))';
         END IF;
         
          -- Registrar LOG aquí si lo necesitas
@@ -1077,8 +1080,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             
         COMMIT;
             
-        p_codigo_salida := 1;
-        p_mensaje := 'Solicitud de inactivación generada. Pendiente de aprobación (' || v_count_aprobadores || ' aprobador(es))';
+      
             
         --END IF;
         
