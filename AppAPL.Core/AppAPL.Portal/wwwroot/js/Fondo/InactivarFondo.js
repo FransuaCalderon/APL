@@ -30,7 +30,7 @@ $(document).ready(function () {
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
-
+        const usuario = window.usuarioActual || '';// ← viene del servidor
         // ✅ Cargar la bandeja con la misma función que se usa para refrescar
         recargarTablaFondos();
     });
@@ -61,7 +61,6 @@ function crearListado(data) {
 
     var html = "";
     html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
-
     html += "  <thead>";
 
     // Fila del Título ROJO
@@ -181,14 +180,14 @@ function abrirModalEditar(id) {
     if (typeof cargarAcuerdoFondo === 'function') {
         cargarAcuerdoFondo(id);
     }
-
+    const usuario = window.usuarioActual || '';// ← viene del servidor
     // 2. Llama a la API para obtener los datos del fondo por ID
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-inactivacion-id/${id}`,
         method: "GET",
         headers: {
             "idopcion": "1",
-            "usuario": "admin",
+            "usuario": usuario,
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -461,6 +460,8 @@ document.addEventListener('DOMContentLoaded', function () {
  * Función para inactivar/rechazar un fondo
  */
 function rechazarFondo() {
+    const apiBaseUrl = window.apiBaseUrl;
+    const usuario = window.usuarioActual || '';// ← viene del servidor
     const idFondo = document.getElementById('modal-fondo-id').value;
 
     if (!idFondo) {
@@ -491,14 +492,21 @@ function rechazarFondo() {
 }
 
 function ejecutarInactivacion(idFondo) {
+    const apiBaseUrl = window.apiBaseUrl;
     const usuario = window.usuarioActual || '';
+    // Este es el console.log que agregamos
+    console.log("Usuario capturado (window.usuarioActual):", usuario);
+
     const requestBody = {
         idfondo: parseInt(idFondo),
-        nombreusuarioingreso: usuario,
+        nombreusuarioingreso: usuario, // ¡Ahora tendrá el valor!
         idopcion: 12,
         idcontrolinterfaz: 28,
         idevento: 29
     };
+
+    // También es útil loguear el cuerpo completo que se envía a la API
+    console.log("Cuerpo de la solicitud (requestBody) para inactivar:", requestBody);
 
     Swal.fire({
         ...SwalConfig,
