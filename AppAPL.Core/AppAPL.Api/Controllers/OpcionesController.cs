@@ -10,19 +10,19 @@ namespace AppAPL.Api.Controllers
     [Route("api/[controller]")]
     public class OpcionesController(IOpcionServicio servicio, ILogger<OpcionesController> logger) : ControllerBase
     {
-        [HttpGet("listar")]
-        public async Task<ActionResult<List<OpcionDTO>>> ObtenerTodos()
+        [HttpGet("listar/{NombreUsuario}")]
+        public async Task<ActionResult<List<OpcionDTO>>> ObtenerTodos(string NombreUsuario)
         {
            
-            var listaOpciones = await servicio.ListarAsync();
+            var listaOpciones = await servicio.ListarAsync(NombreUsuario);
 
             return listaOpciones.ToList();
         }
 
-        [HttpGet("ListarOpcionesAutorizadasInternas/{idUsuario:int}")]
-        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(int idUsuario)
+        [HttpGet("ListarOpcionesAutorizadasInternas/{NombreUsuario}")]
+        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(string NombreUsuario)
         {
-            var listaOpcionesPorRol = await servicio.ListarOpcionesAutorizadasInternas(idUsuario);
+            var listaOpcionesPorRol = await servicio.ListarOpcionesAutorizadasInternas(NombreUsuario);
 
             /*
             var grupos = (from filtrado in listaOpcionesPorRol

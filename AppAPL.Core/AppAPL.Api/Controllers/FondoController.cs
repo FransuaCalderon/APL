@@ -19,7 +19,7 @@ namespace AppAPL.Api.Controllers
     {
         
         [HttpGet("listar")]
-        public async Task<ActionResult<List<FondoDTO>>> ObtenerTodos([FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
+        public async Task<ActionResult<List<FondoDTO>>> ObtenerTodos([FromHeader] string? NombreUsuario, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
             [FromHeader] string? IdEvento)
         {
             logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
@@ -144,7 +144,7 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("inactivar-fondo")]
-        //[Email("ENTFONDO", TipoProceso.Inactivacion)]
+        [Email("ENTFONDO", TipoProceso.Inactivacion)]
         public async Task<ActionResult<ControlErroresDTO>> InactivarFondo(InactivarFondoRequest fondo)
         {
 

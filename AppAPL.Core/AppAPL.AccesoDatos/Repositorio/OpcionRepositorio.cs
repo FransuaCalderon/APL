@@ -11,12 +11,18 @@ namespace AppAPL_AccesoDatos.Repositorio
 {
     public sealed class OpcionRepositorio(OracleConnectionFactory factory) : IOpcionRepositorio
     {
-        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario)
+        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(string NombreUsuario)
         {
             using var connection = factory.CreateOpenConnection();
 
-            var parameters = new OracleDynamicParameters();
-            parameters.Add("p_idusuario", OracleDbType.Int32, ParameterDirection.InputOutput, idUsuario);
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new 
+            { 
+                p_idusuario = NombreUsuario
+            };
+
+            var parameters = new OracleDynamicParameters(paramObject);
+           
             parameters.Add("p_opciones_out", OracleDbType.RefCursor, ParameterDirection.Output);
 
             var opciones = await connection.QueryAsync<OpcionJoinDTO>(
@@ -51,13 +57,17 @@ namespace AppAPL_AccesoDatos.Repositorio
             return datos;
         }
 
-        public async Task<IEnumerable<OpcionDTO>> ListarAsync()
+        public async Task<IEnumerable<OpcionDTO>> ListarAsync(string NombreUsuario)
         {
             using var connection = factory.CreateOpenConnection();
 
-            
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new
+            {
+                p_nombreusuario = NombreUsuario
+            };
 
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters(paramObject);
             parameters.Add("p_opciones_out", OracleDbType.RefCursor, ParameterDirection.Output);
             
 

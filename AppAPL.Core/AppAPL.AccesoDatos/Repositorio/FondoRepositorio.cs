@@ -209,12 +209,12 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_valorfondo = fondo.ValorFondo,
                 p_fechainiciovigencia = fondo.FechaInicioVigencia,
                 p_fechafinvigencia = fondo.FechaFinVigencia,
-                p_idusuarioingreso = fondo.IdUsuarioIngreso,
+                //p_idusuarioingreso = fondo.IdUsuarioIngreso,
                 p_nombreusuarioingreso = fondo.NombreUsuarioIngreso,
 
                 p_idopcion = fondo.IdOpcion,
-                p_idcontrolinterfaz = fondo.IdControlInterfaz,
-                p_idevento = fondo.IdEvento
+                p_idcontrolinterfaz = 1,
+                p_idevento = 1
             };
 
             var parameters = new OracleDynamicParameters(paramObject);

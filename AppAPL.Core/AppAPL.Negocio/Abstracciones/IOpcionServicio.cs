@@ -7,9 +7,9 @@ namespace AppAPL.Negocio.Abstracciones
         Task ActualizarAsync(CrearActualizarOpcionRequest opcion, int IdOpcion);
         Task<int> CrearAsync(CrearActualizarOpcionRequest opcion);
         Task EliminarAsync(int idOpcion);
-        Task<IEnumerable<OpcionDTO>> ListarAsync();
+        Task<IEnumerable<OpcionDTO>> ListarAsync(string NombreUsuario);
         Task<OpcionDTO?> ObtenerPorIdAsync(int idOpcion);
-        Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario);
+        Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(string NombreUsuario);
         Task<IEnumerable<ComboDTO>> ConsultarCombos(string etiqueta);
     }
 }

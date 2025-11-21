@@ -85,7 +85,7 @@ namespace AppAPL.Dto.Fondos
         public decimal ValorFondo { get; set; }
         public DateTime? FechaInicioVigencia { get; set; }
         public DateTime? FechaFinVigencia { get; set; }
-        public string? IdUsuarioIngreso { get; set; }
+        //public string? IdUsuarioIngreso { get; set; }
         public string? NombreUsuarioIngreso { get; set; }
         public int? IdOpcion { get; set; }
         public string? IdControlInterfaz { get; set; }
