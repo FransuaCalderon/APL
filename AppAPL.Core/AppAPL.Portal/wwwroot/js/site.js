@@ -126,6 +126,26 @@ $(document).ready(function () {
                 // Resaltar la opción activa después de cargar el menú
                 resaltarOpcionActiva();
 
+                // ✅ ===== CÓDIGO NUEVO: CAPTURAR IDOPCION AL HACER CLIC ===== ✅
+                // Capturar clicks en opciones del menú para guardar el idopcion en sessionStorage
+                $(document).on('click', '#menu-dinamico a[data-id-opcion]', function (e) {
+                    const idOpcion = $(this).data('id-opcion');
+                    const rutaOriginal = $(this).data('ruta-original');
+                    const nombreOpcion = $(this).text().trim();
+
+                    // Guardar en sessionStorage para uso en otras páginas
+                    sessionStorage.setItem('idOpcionActual', idOpcion);
+                    sessionStorage.setItem('rutaOpcionActual', rutaOriginal);
+                    sessionStorage.setItem('nombreOpcionActual', nombreOpcion);
+
+                    console.log('Opción del menú seleccionada:', {
+                        id: idOpcion,
+                        nombre: nombreOpcion,
+                        ruta: rutaOriginal
+                    });
+                });
+                // ✅ ===== FIN CÓDIGO NUEVO ===== ✅
+
                 console.log("Menú cargado exitosamente con nueva estructura");
             },
             error: function (xhr, status, error) {
@@ -148,6 +168,27 @@ $(document).ready(function () {
             });*/
     });
 });
+
+// ✅ ===== FUNCIÓN HELPER GLOBAL ===== ✅
+// Función global para obtener el idOpcion actual desde sessionStorage
+window.obtenerIdOpcionActual = function () {
+    const idOpcion = parseInt(sessionStorage.getItem('idOpcionActual'), 10);
+    if (!idOpcion) {
+        console.warn('No se encontró idOpcionActual en sessionStorage');
+        return null;
+    }
+    return idOpcion;
+};
+
+// Función global para obtener toda la información de la opción actual
+window.obtenerInfoOpcionActual = function () {
+    return {
+        idOpcion: parseInt(sessionStorage.getItem('idOpcionActual'), 10) || null,
+        ruta: sessionStorage.getItem('rutaOpcionActual') || null,
+        nombre: sessionStorage.getItem('nombreOpcionActual') || null
+    };
+};
+// ✅ ===== FIN FUNCIÓN HELPER GLOBAL ===== ✅
 
 
 // Función para inicializar el marcado de filas en cualquier DataTable

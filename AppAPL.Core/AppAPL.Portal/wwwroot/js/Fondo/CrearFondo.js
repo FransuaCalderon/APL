@@ -3,6 +3,24 @@
 * @param {function} [callback] - Una función opcional a ejecutar cuando la carga sea exitosa.
 */
 function cargarTipoFondo(callback) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    // Validar que exista el idOpcion
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    console.log('Cargando tipos de fondo con idOpcion:', idOpcionActual);
+
+    // ✅ OBTENER EL USUARIO DINÁMICAMENTE
+    const usuario = window.usuarioActual || "admin";
+
     // Definimos la etiqueta que quieres enviar
     const etiqueta = "TIPOFONDO";
 
@@ -11,8 +29,8 @@ function cargarTipoFondo(callback) {
         url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin"
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario,
         },
         success: function (data) {
             console.log("Tipos de fondo cargados:", data);
@@ -49,6 +67,7 @@ function cargarTipoFondo(callback) {
         },
         error: function (xhr, status, error) {
             console.error("Error al cargar tipos de fondo:", error);
+            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -60,12 +79,26 @@ function cargarTipoFondo(callback) {
 
 /**
  * Carga la tabla de proveedores desde la API en el modal.
- * VERSIÓN CORREGIDA - Maneja tanto valores null como cadenas vacías
+ * VERSIÓN CORREGIDA - Captura idopcion dinámicamente y maneja valores null/vacíos
  */
 function consultarProveedor() {
-    // Valores fijos
-    const usuario = "1";
-    const idopcion = "9";
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    // Validar que exista el idOpcion
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    console.log('Consultando proveedores con idOpcion:', idOpcionActual);
+
+    // Usuario actual (dinámico)
+    const usuario = window.usuarioActual || "admin";
 
     // Selector del cuerpo de la tabla
     const $tbody = $("#tablaProveedores tbody");
@@ -78,6 +111,18 @@ function consultarProveedor() {
         return;
     }
 
+    // *** FUNCIÓN AUXILIAR PARA OBTENER EL PRIMER VALOR NO VACÍO ***
+    // (Movida aquí para estar disponible en todo el scope de la función)
+    function obtenerPrimerValorValido(...valores) {
+        for (let valor of valores) {
+            // Verifica que no sea null, undefined, y que después de trim no esté vacío
+            if (valor != null && String(valor).trim() !== '') {
+                return String(valor).trim();
+            }
+        }
+        return ''; // Retorna cadena vacía si todos están vacíos
+    }
+
     // Muestra "Cargando..."
     $tbody.empty().append('<tr><td colspan="7" class="text-center">Cargando proveedores...</td></tr>');
 
@@ -85,8 +130,8 @@ function consultarProveedor() {
         url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
         method: "GET",
         headers: {
-            "idopcion": idopcion,
-            "usuario": usuario
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario,
         },
         success: function (data) {
             console.log("Proveedores cargados:", data);
@@ -97,17 +142,6 @@ function consultarProveedor() {
             if (data && data.length > 0) {
 
                 data.forEach(function (proveedor) {
-                    // *** FUNCIÓN AUXILIAR PARA OBTENER EL PRIMER VALOR NO VACÍO ***
-                    function obtenerPrimerValorValido(...valores) {
-                        for (let valor of valores) {
-                            // Verifica que no sea null, undefined, y que después de trim no esté vacío
-                            if (valor != null && String(valor).trim() !== '') {
-                                return String(valor).trim();
-                            }
-                        }
-                        return ''; // Retorna cadena vacía si todos están vacíos
-                    }
-
                     // Mapeo de campos básicos
                     const codigo = proveedor.codigo ?? '';
                     const ruc = proveedor.identificacion ?? '';
@@ -184,12 +218,36 @@ function consultarProveedor() {
 }
 
 $(document).ready(function () {
-    console.log("cargando fondos");
+    console.log("=== INICIO DE CARGA DE PÁGINA - CrearFondo ===");
 
-    console.log("usuario actual: ", window.usuarioActual);
+    // ✅ LOGS DE VERIFICACIÓN AL INICIAR LA PÁGINA
+    console.log("Usuario actual capturado:", window.usuarioActual);
+
+    // Obtener información completa de la opción actual
+    const infoOpcion = window.obtenerInfoOpcionActual();
+    console.log("Información de la opción actual:", {
+        idOpcion: infoOpcion.idOpcion,
+        nombre: infoOpcion.nombre,
+        ruta: infoOpcion.ruta
+    });
+
+    // Verificación adicional
+    if (!infoOpcion.idOpcion) {
+        console.warn("⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
+        console.warn("Esto es normal si accediste directamente a la URL sin pasar por el menú.");
+        console.warn("Para que funcione correctamente, accede a esta página desde el menú.");
+    } else {
+        console.log("✅ idOpcion capturado correctamente:", infoOpcion.idOpcion);
+    }
+
+    console.log("=== FIN DE VERIFICACIÓN INICIAL ===");
+    console.log("");
+
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
+
+        console.log("API Base URL configurada:", apiBaseUrl);
 
         // *** ¡NUEVO! ***
         // Llamamos a la función para cargar los tipos de fondo
@@ -201,11 +259,7 @@ $(document).ready(function () {
     // *** ¡NUEVO! ***
     // Disparador para cargar los proveedores cuando se abre el modal.
     $('#modalConsultaProveedor').on('show.bs.modal', function (event) {
-        // Usamos los valores de tu imagen de Swagger
-        const usuario = "1";
-        const idopcion = "1";
-
-        consultarProveedor(usuario, idopcion);
+        consultarProveedor(); // ✅ Sin parámetros, se obtienen dinámicamente
     });
 
     // --- INICIO: CÓDIGO NUEVO PARA FORMATEAR MONEDA ---
@@ -292,19 +346,14 @@ $(document).ready(function () {
         }
     });
 
-    // *** MODIFICADO ***
-    // Se actualizó el listener para usar el ID 'btnGuardarFondos'
-    // y leer los IDs del nuevo formulario
-    // *** MODIFICADO ***
-    // Se actualizó el listener para usar el ID 'btnGuardarFondos'
-    // y leer los IDs del nuevo formulario
+    // ✅ ===== MODIFICADO: CAPTURA DINÁMICA DEL IDOPCION ===== ✅
     $("#btnGuardarFondos").on("click", function (e) {
         e.preventDefault();
         console.log("Guardando fondos");
 
         Swal.fire({
             title: 'Confirmar Guardado de fondos',
-            text: "¿Estás seguro de que deseas guardar el fondo?", // Texto corregido
+            text: "¿Estás seguro de que deseas guardar el fondo?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#009845',
@@ -313,6 +362,21 @@ $(document).ready(function () {
             cancelButtonText: 'Cancelar',
         }).then((result) => {
             if (result.isConfirmed) {
+
+                // ✅ OBTENER EL IDOPCION DINÁMICAMENTE DESDE SESSIONSTORAGE
+                const idOpcionActual = window.obtenerIdOpcionActual();
+
+                // Validar que exista el idOpcion
+                if (!idOpcionActual) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+                    });
+                    return;
+                }
+
+                console.log('ID Opción capturado dinámicamente:', idOpcionActual);
 
                 // --- INICIO DE CAMBIOS ---
 
@@ -360,9 +424,7 @@ $(document).ready(function () {
                 }
                 // --- FIN: FUNCIÓN MODIFICADA ---
 
-                // *** ¡OBJETO DATA MODIFICADO! ***
-                // Leemos los valores y los adaptamos al nuevo endpoint
-                // *** ¡OBJETO DATA MODIFICADO! ***
+                // ✅ OBJETO DATA CON IDOPCION DINÁMICO
                 const data = {
                     // --- Campos que coinciden ---
                     descripcion: $("#fondoDescripcion").val(),
@@ -380,12 +442,11 @@ $(document).ready(function () {
                     idusuarioingreso: window.usuarioActual,
                     nombreusuarioingreso: window.usuarioActual,
 
-                    // --- 🔴 CAMPOS NUEVOS QUE PEDISTE ---
-                    idopcion: 9,
-                    idcontrolinterfaz: 24,
-                    idevento: 29
+                    // --- ✅ IDOPCION DINÁMICO EN LUGAR DE HARDCODED ---
+                    idopcion: idOpcionActual,
+                    idcontrolinterfaz: "BTNGRABAR",
+                    idevento: "EVCLICK",
                 };
-
 
                 // --- FIN DE CAMBIOS ---
 
@@ -408,7 +469,7 @@ $(document).ready(function () {
                     contentType: "application/json",
                     data: JSON.stringify(data),
                     headers: {
-                        "idopcion": "1",
+                        "idopcion": String(idOpcionActual), // ✅ También usar dinámicamente en el header
                         "usuario": window.usuarioActual
                     },
                     success: function (response) {
@@ -431,16 +492,19 @@ $(document).ready(function () {
                         $("#fondoDisponible").val("");
                         // --- FIN: CÓDIGO NUEVO PARA LIMPIAR EL FORMULARIO ---
                     },
-                    error: function () {
+                    error: function (xhr, status, error) {
                         const mensaje = "guardar";
+                        console.error("Error en el guardado:", xhr.responseText);
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
-                            text: `¡Algo salió mal al ${mensaje} el registro!`
+                            text: `¡Algo salió mal al ${mensaje} el registro!`,
+                            footer: xhr.responseText ? `Detalle: ${xhr.responseText}` : ''
                         });
                     }
                 });
             }
         });
     });
+    // ✅ ===== FIN MODIFICACIÓN ===== ✅
 });
