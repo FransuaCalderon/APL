@@ -1,9 +1,26 @@
 ﻿// ~/js/Fondo/InactivarFondo.js
 
+// ===============================================================
 // Variables globales
+// ===============================================================
 let tabla; // GLOBAL
 let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
 let datosModal = null; // Variable global para almacenar los datos del modal
+
+// ===============================================================
+// FUNCIÓN HELPER PARA OBTENER USUARIO (Busca en múltiples lugares)
+// ===============================================================
+function obtenerUsuarioActual() {
+    // Buscar en múltiples ubicaciones posibles
+    const usuario = window.usuarioActual
+        || sessionStorage.getItem('usuarioActual')
+        || sessionStorage.getItem('usuario')
+        || localStorage.getItem('usuarioActual')
+        || localStorage.getItem('usuario')
+        || "admin"; // Fallback final
+
+    return usuario;
+}
 
 // Configuración global de SweetAlert2 para z-index
 const SwalConfig = {
@@ -26,11 +43,51 @@ document.head.appendChild(style);
 // ===================================================================
 $(document).ready(function () {
 
+    console.log("=== INICIO DE CARGA DE PÁGINA - InactivarFondo ===");
+    console.log("");
+
+    // 🔍 ===== DIAGNÓSTICO COMPLETO DEL USUARIO ===== 🔍
+    console.log("🔍 DIAGNÓSTICO DE USUARIO:");
+    console.log("  window.usuarioActual:", window.usuarioActual);
+    console.log("  Tipo:", typeof window.usuarioActual);
+    console.log("  sessionStorage.usuarioActual:", sessionStorage.getItem('usuarioActual'));
+    console.log("  sessionStorage.usuario:", sessionStorage.getItem('usuario'));
+    console.log("  localStorage.usuarioActual:", localStorage.getItem('usuarioActual'));
+    console.log("  localStorage.usuario:", localStorage.getItem('usuario'));
+
+    const usuarioFinal = obtenerUsuarioActual();
+    console.log("  ✅ Usuario final obtenido:", usuarioFinal);
+    console.log("");
+
+    // ✅ LOGS DE VERIFICACIÓN DE IDOPCION
+    console.log("🔍 DIAGNÓSTICO DE IDOPCION:");
+    const infoOpcion = window.obtenerInfoOpcionActual();
+    console.log("  Información de la opción actual:", {
+        idOpcion: infoOpcion.idOpcion,
+        nombre: infoOpcion.nombre,
+        ruta: infoOpcion.ruta
+    });
+
+    // Verificación adicional
+    if (!infoOpcion.idOpcion) {
+        console.warn("  ⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
+        console.warn("  Esto es normal si accediste directamente a la URL sin pasar por el menú.");
+        console.warn("  Para que funcione correctamente, accede a esta página desde el menú.");
+    } else {
+        console.log("  ✅ idOpcion capturado correctamente:", infoOpcion.idOpcion);
+    }
+
+    console.log("");
+    console.log("=== FIN DE VERIFICACIÓN INICIAL ===");
+    console.log("");
+
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
-        const usuario = window.usuarioActual || '';// ← viene del servidor
+
+        console.log("API Base URL configurada:", apiBaseUrl);
+
         // ✅ Cargar la bandeja con la misma función que se usa para refrescar
         recargarTablaFondos();
     });
@@ -47,7 +104,7 @@ $(document).ready(function () {
         }
     });
 
-}); // <-- FIN de $(document).ready
+}); // FIN document.ready
 
 
 // ===================================================================
@@ -176,18 +233,35 @@ function crearListado(data) {
  * Abre el modal personalizado y carga los datos del fondo.
  */
 function abrirModalEditar(id) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            ...SwalConfig,
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+
+    console.log('Abriendo modal para visualizar fondo ID:', id, 'con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
     // 1. Cargar la tabla de acuerdos
     if (typeof cargarAcuerdoFondo === 'function') {
         cargarAcuerdoFondo(id);
     }
-    const usuario = window.usuarioActual || '';// ← viene del servidor
+
     // 2. Llama a la API para obtener los datos del fondo por ID
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-inactivacion-id/${id}`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": usuario,
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -222,6 +296,7 @@ function abrirModalEditar(id) {
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del fondo:", error);
+            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 ...SwalConfig,
                 icon: 'error',
@@ -267,8 +342,7 @@ function cerrarModalFondo() {
 }
 
 /**
- * Convierte una fecha/hora (ej: "2025-11-03T00:00:00")
- * al formato "YYYY-MM-DD" que necesita <input type="date">.
+ * Convierte una fecha/hora al formato "YYYY-MM-DD"
  */
 function formatDateForInput(fechaString) {
     if (!fechaString) {
@@ -282,7 +356,7 @@ function formatDateForInput(fechaString) {
 // ===================================================================
 
 /**
- * Formatea un número como moneda (ej: 20000 -> 20,000.00)
+ * Formatea un número como moneda
  */
 function formatearMoneda(valor) {
     var numero = parseFloat(valor);
@@ -321,6 +395,18 @@ function formatearFecha(fechaString) {
 // ===== ACUERDOS POR FONDO ==========================================
 // ===================================================================
 function cargarAcuerdoFondo(idFondo) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        console.error("No se pudo obtener el idOpcion para cargar acuerdos");
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+
+    console.log('Cargando acuerdos para fondo ID:', idFondo, 'con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
     if ($.fn.DataTable.isDataTable('#tabla-acuerdo')) {
         $('#tabla-acuerdo').DataTable().destroy();
     }
@@ -335,12 +421,12 @@ function cargarAcuerdoFondo(idFondo) {
     `);
 
     $.ajax({
-        url: `${window.apiBaseUrl}/consultar-acuerdo-fondo/${idFondo}`, // ✅ CORREGIDO: Agregado /api/Fondo/
+        url: `${window.apiBaseUrl}/consultar-acuerdo-fondo/${idFondo}`,
         method: "GET",
         dataType: "json",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -435,6 +521,7 @@ function cargarAcuerdoFondo(idFondo) {
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del acuerdo:", error);
+            console.error("Detalles del error:", xhr.responseText);
             $('#tabla-acuerdo-fondo').html('<p class="alert alert-danger text-center">Error al cargar el acuerdo.</p>');
         }
     });
@@ -460,8 +547,6 @@ document.addEventListener('DOMContentLoaded', function () {
  * Función para inactivar/rechazar un fondo
  */
 function rechazarFondo() {
-    const apiBaseUrl = window.apiBaseUrl;
-    const usuario = window.usuarioActual || '';// ← viene del servidor
     const idFondo = document.getElementById('modal-fondo-id').value;
 
     if (!idFondo) {
@@ -492,20 +577,32 @@ function rechazarFondo() {
 }
 
 function ejecutarInactivacion(idFondo) {
-    const apiBaseUrl = window.apiBaseUrl;
-    const usuario = window.usuarioActual || '';
-    // Este es el console.log que agregamos
-    console.log("Usuario capturado (window.usuarioActual):", usuario);
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            ...SwalConfig,
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    // ✅ OBTENER EL USUARIO DINÁMICAMENTE
+    const usuario = obtenerUsuarioActual();
+
+    console.log('Ejecutando inactivación con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
     const requestBody = {
         idfondo: parseInt(idFondo),
-        nombreusuarioingreso: usuario, // ¡Ahora tendrá el valor!
-        idopcion: 12,
+        nombreusuarioingreso: usuario,     // ✅ DINÁMICO
+        idopcion: idOpcionActual,          // ✅ DINÁMICO
         idcontrolinterfaz: 28,
         idevento: 29
     };
 
-    // También es útil loguear el cuerpo completo que se envía a la API
     console.log("Cuerpo de la solicitud (requestBody) para inactivar:", requestBody);
 
     Swal.fire({
@@ -523,6 +620,10 @@ function ejecutarInactivacion(idFondo) {
         url: `${window.apiBaseUrl}/api/Fondo/inactivar-fondo`,
         method: "POST",
         contentType: "application/json",
+        headers: {
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO en headers también
+            "usuario": usuario                   // ✅ DINÁMICO en headers también
+        },
         data: JSON.stringify(requestBody),
 
         success: function (response) {
@@ -550,11 +651,8 @@ function ejecutarInactivacion(idFondo) {
                 mensaje = "";
             }
 
-            // ============================
-            // ✔ CASO ESPECIAL: PENDIENTE
-            // ============================
+            // CASO ESPECIAL: PENDIENTE
             if (mensaje.toLowerCase().includes("pendiente de aprobación")) {
-
                 Swal.fire({
                     ...SwalConfig,
                     icon: 'info',
@@ -565,14 +663,14 @@ function ejecutarInactivacion(idFondo) {
                     cerrarModalFondo();
                     recargarTablaFondos();
                 });
-
-                return; // detener aquí
+                return;
             }
+
             Swal.fire({
                 ...SwalConfig,
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo inactivar el fondo',
+                text: mensaje || 'No se pudo inactivar el fondo',
                 confirmButtonText: 'Aceptar'
             });
         }
@@ -583,12 +681,24 @@ function ejecutarInactivacion(idFondo) {
  * Carga / recarga la bandeja de fondos para inactivación
  */
 function recargarTablaFondos() {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        console.error("No se pudo obtener el idOpcion para recargar la tabla");
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+
+    console.log('Recargando tabla de fondos con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-inactivacion`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -601,6 +711,7 @@ function recargarTablaFondos() {
         },
         error: function (xhr, status, error) {
             console.error("Error al recargar la tabla:", error);
+            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 ...SwalConfig,
                 icon: 'error',

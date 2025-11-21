@@ -1,20 +1,78 @@
 ﻿// ~/js/Fondo/AprobarFondo.js
 
+// ===============================================================
 // Variables globales
+// ===============================================================
 let tabla; // GLOBAL
 let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
 let datosAprobacionActual = null; // Para almacenar los datos de la aprobación actual
 
-// Se ejecuta cuando el DOM está listo
+// ===============================================================
+// FUNCIÓN HELPER PARA OBTENER USUARIO (Busca en múltiples lugares)
+// ===============================================================
+function obtenerUsuarioActual() {
+    // Buscar en múltiples ubicaciones posibles
+    const usuario = window.usuarioActual
+        || sessionStorage.getItem('usuarioActual')
+        || sessionStorage.getItem('usuario')
+        || localStorage.getItem('usuarioActual')
+        || localStorage.getItem('usuario')
+        || "admin"; // Fallback final
+
+    return usuario;
+}
+
+// ===============================================================
+// DOCUMENT READY
+// ===============================================================
 $(document).ready(function () {
+
+    console.log("=== INICIO DE CARGA DE PÁGINA - AprobarFondo ===");
+    console.log("");
+
+    // 🔍 ===== DIAGNÓSTICO COMPLETO DEL USUARIO ===== 🔍
+    console.log("🔍 DIAGNÓSTICO DE USUARIO:");
+    console.log("  window.usuarioActual:", window.usuarioActual);
+    console.log("  Tipo:", typeof window.usuarioActual);
+    console.log("  sessionStorage.usuarioActual:", sessionStorage.getItem('usuarioActual'));
+    console.log("  sessionStorage.usuario:", sessionStorage.getItem('usuario'));
+    console.log("  localStorage.usuarioActual:", localStorage.getItem('usuarioActual'));
+    console.log("  localStorage.usuario:", localStorage.getItem('usuario'));
+
+    const usuarioFinal = obtenerUsuarioActual();
+    console.log("  ✅ Usuario final obtenido:", usuarioFinal);
+    console.log("");
+
+    // ✅ LOGS DE VERIFICACIÓN DE IDOPCION
+    console.log("🔍 DIAGNÓSTICO DE IDOPCION:");
+    const infoOpcion = window.obtenerInfoOpcionActual();
+    console.log("  Información de la opción actual:", {
+        idOpcion: infoOpcion.idOpcion,
+        nombre: infoOpcion.nombre,
+        ruta: infoOpcion.ruta
+    });
+
+    // Verificación adicional
+    if (!infoOpcion.idOpcion) {
+        console.warn("  ⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
+        console.warn("  Esto es normal si accediste directamente a la URL sin pasar por el menú.");
+        console.warn("  Para que funcione correctamente, accede a esta página desde el menú.");
+    } else {
+        console.log("  ✅ idOpcion capturado correctamente:", infoOpcion.idOpcion);
+    }
+
+    console.log("");
+    console.log("=== FIN DE VERIFICACIÓN INICIAL ===");
+    console.log("");
 
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
 
-        cargarBandeja();
+        console.log("API Base URL configurada:", apiBaseUrl);
 
+        cargarBandeja();
     });
 
     // ===== BOTÓN LIMPIAR =====
@@ -45,7 +103,7 @@ $(document).ready(function () {
         procesarAprobacionFondo("RECHAZAR", comentario);
     });
 
-}); // <-- FIN de $(document).ready
+}); // FIN document.ready
 
 
 // ===================================================================
@@ -53,22 +111,30 @@ $(document).ready(function () {
 // ===================================================================
 
 function cargarBandeja() {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        console.error("No se pudo obtener el idOpcion para cargar la bandeja");
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
     const apiBaseUrl = window.apiBaseUrl;
-    const usuario = window.usuarioActual || '';// ← viene del servidor
 
     if (!usuario) {
         console.error('No hay usuario en sesión, no se puede cargar la bandeja.');
         return;
     }
 
-    console.log('Cargando bandeja para usuario:', usuario);
+    console.log('Cargando bandeja para usuario:', usuario, 'con idOpcion:', idOpcionActual);
 
     $.ajax({
-        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/${usuario}`, // ✅ DINÁMICO
+        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/${usuario}`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": usuario, // también dinámico en headers
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -81,6 +147,7 @@ function cargarBandeja() {
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos de fondos:", error);
+            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -119,7 +186,7 @@ function crearListado(data) {
     // Fila de las Cabeceras - Agregada columna Solicitud
     html += "    <tr>";
     html += "      <th>Acción</th>";
-    html += "      <th>Solicitud</th>"; // NUEVA COLUMNA
+    html += "      <th>Solicitud</th>";
     html += "      <th>IDFondo</th>";
     html += "      <th>Descripción</th>";
     html += "      <th>RUC</th>";
@@ -144,11 +211,11 @@ function crearListado(data) {
 
         html += "<tr>";
         html += "  <td class='text-center'>" + viewButton + "</td>";
-        html += "  <td>" + (fondo.solicitud ?? "") + "</td>"; // NUEVA COLUMNA - Ajusta el nombre del campo según tu objeto
+        html += "  <td>" + (fondo.solicitud ?? "") + "</td>";
         html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
         html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
-        html += "  <td>" + (fondo.proveedor ?? "") + "</td>"; // RUC/ID
-        html += "  <td>" + (fondo.nombre ?? "") + "</td>"; // Nombre (asumiendo que viene en campo 'nombre')
+        html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
+        html += "  <td>" + (fondo.nombre ?? "") + "</td>";
         html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
@@ -163,19 +230,19 @@ function crearListado(data) {
 
     $('#tabla').html(html);
 
-    // Inicializa DataTable - Actualizada configuración de columnas
+    // Inicializa DataTable
     tabla = $('#tabla-fondos').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
         pagingType: 'full_numbers',
         columnDefs: [
             { targets: 0, width: "8%", className: "dt-center", orderable: false },
-            { targets: 1, width: "8%", className: "dt-center" }, // Nueva columna Solicitud
-            { targets: 2, width: "6%", className: "dt-center" }, // IDFondo ahora es columna 2
-            { targets: [8, 9], className: "dt-right" }, // Ajustadas posiciones de Fecha Inicio y Fin
-            { targets: [6, 7], className: "dt-center" }, // Ajustadas posiciones
+            { targets: 1, width: "8%", className: "dt-center" },
+            { targets: 2, width: "6%", className: "dt-center" },
+            { targets: [8, 9], className: "dt-right" },
+            { targets: [6, 7], className: "dt-center" },
         ],
-        order: [[2, 'desc']], // Orden por IDFondo que ahora es columna 2
+        order: [[2, 'desc']],
         language: {
             decimal: "",
             emptyTable: "No hay datos disponibles en la tabla",
@@ -219,6 +286,22 @@ function crearListado(data) {
  * Abre el modal personalizado y carga los datos del fondo para aprobar.
  */
 function abrirModalEditar(idFondo, idAprobacion) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+
+    console.log('Abriendo modal para aprobar fondo ID:', idFondo, 'idAprobacion:', idAprobacion, 'con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
     // Limpiar datos previos
     datosAprobacionActual = null;
 
@@ -227,8 +310,8 @@ function abrirModalEditar(idFondo, idAprobacion) {
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-aprobacion-id/${idFondo}/${idAprobacion}`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -238,15 +321,13 @@ function abrirModalEditar(idFondo, idAprobacion) {
         success: function (data) {
             console.log(`Datos del fondo (${idFondo}, ${idAprobacion}):`, data);
 
-            // ** ✨ CAMBIO CLAVE: CONCATENACIÓN RUC/ID y NOMBRE ✨ **
+            // CONCATENACIÓN RUC/ID y NOMBRE
             const idProveedor = data.proveedor || '';
-            const nombreProveedor = data.nombre || ''; // Asumimos que la API devuelve el nombre en 'data.nombre'
+            const nombreProveedor = data.nombre || '';
 
-            // Formato deseado: RUC/ID - Nombre
             const proveedorCompleto = (idProveedor && nombreProveedor)
                 ? `${idProveedor} - ${nombreProveedor}`
                 : idProveedor || nombreProveedor || '';
-            // FIN CAMBIO CLAVE
 
             // Guardar datos para los botones de aprobación/rechazo
             datosAprobacionActual = {
@@ -264,7 +345,7 @@ function abrirModalEditar(idFondo, idAprobacion) {
             const datosModal = {
                 idfondo: data.idfondo,
                 descripcion: data.descripcion,
-                proveedor: proveedorCompleto, // <-- Se usa el valor concatenado
+                proveedor: proveedorCompleto,
                 tipo_fondo: data.tipo_fondo,
                 valor_fondo: formatearMoneda(data.valor_fondo),
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
@@ -293,6 +374,7 @@ function abrirModalEditar(idFondo, idAprobacion) {
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del fondo:", error);
+            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -306,12 +388,11 @@ function abrirModalEditar(idFondo, idAprobacion) {
  * Función para abrir el modal personalizado
  */
 function abrirModalFondo(datos) {
-    const modal = document.getElementById('modalEditarFondo'); // Asumimos que este es el ID del modal de aprobación
+    const modal = document.getElementById('modalEditarFondo');
 
-    // Llenar los datos
     document.getElementById('modal-fondo-id').value = datos.idfondo || '';
     document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
-    document.getElementById('modal-fondo-proveedor').value = datos.proveedor || ''; // <-- El valor ya viene concatenado
+    document.getElementById('modal-fondo-proveedor').value = datos.proveedor || '';
     document.getElementById('modal-fondo-tipofondo').value = datos.tipo_fondo || '';
     document.getElementById('modal-fondo-fechainicio').value = datos.fecha_inicio || '';
     document.getElementById('modal-fondo-fechafin').value = datos.fecha_fin || '';
@@ -321,7 +402,6 @@ function abrirModalFondo(datos) {
     document.getElementById('modal-fondo-comprometido').value = datos.valor_comprometido || '';
     document.getElementById('modal-fondo-liquidado').value = datos.valor_liquidado || '';
 
-    // Mostrar modal
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -342,8 +422,7 @@ function cerrarModalFondo() {
 }
 
 /**
- * Convierte una fecha/hora (ej: "2025-11-03T00:00:00")
- * al formato "YYYY-MM-DD" que necesita <input type="date">.
+ * Convierte una fecha/hora al formato "YYYY-MM-DD"
  */
 function formatDateForInput(fechaString) {
     if (!fechaString) {
@@ -357,7 +436,7 @@ function formatDateForInput(fechaString) {
 // ===================================================================
 
 /**
- * Formatea un número como moneda (ej: 20000 -> 20,000.00)
+ * Formatea un número como moneda
  */
 function formatearMoneda(valor) {
     var numero = parseFloat(valor);
@@ -396,7 +475,18 @@ function formatearFecha(fechaString) {
  * Llama a la API para obtener las aprobaciones y crea la tabla.
  */
 function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        console.error("No se pudo obtener el idOpcion para cargar aprobaciones");
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+
     console.log("=== CARGANDO APROBACIONES ===");
+    console.log('Con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
     // Destruir tabla anterior si existe
     if ($.fn.DataTable.isDataTable('#tabla-aprobaciones')) {
@@ -419,8 +509,8 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
         url: urlCompleta,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -441,18 +531,18 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
 
             var html = "";
             html += "<table id='tabla-aprobaciones' class='table table-bordered table-striped table-hover w-100'>";
-            html += "  <thead>";
-            html += "    <tr>";
-            html += "      <th>ID Aprobación</th>";
-            html += "      <th>Usuario Solicitante</th>";
-            html += "      <th>Usuario Aprobador</th>";
-            html += "      <th>Estado</th>";
-            html += "      <th>Fecha Solicitud</th>";
-            html += "      <th>Nivel Aprobación</th>";
-            html += "      <th>Tipo Proceso</th>";
-            html += "    </tr>";
-            html += "  </thead>";
-            html += "  <tbody>";
+            html += "  <thead>";
+            html += "    <tr>";
+            html += "      <th>ID Aprobación</th>";
+            html += "      <th>Usuario Solicitante</th>";
+            html += "      <th>Usuario Aprobador</th>";
+            html += "      <th>Estado</th>";
+            html += "      <th>Fecha Solicitud</th>";
+            html += "      <th>Nivel Aprobación</th>";
+            html += "      <th>Tipo Proceso</th>";
+            html += "    </tr>";
+            html += "  </thead>";
+            html += "  <tbody>";
 
             aprobaciones.forEach((aprobacion) => {
                 let estadoClass = '';
@@ -469,17 +559,17 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
                 }
 
                 html += "<tr>";
-                html += "  <td class='text-center'>" + (aprobacion.idaprobacion ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.idusersolicitud ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.iduseraprobador ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.estado_nombre ?? "") + "</td>";
-                html += "  <td class='text-center'>" + formatearFecha(aprobacion.fechasolicitud) + "</td>";
-                html += "  <td class='text-center'>" + (aprobacion.nivelaprobacion ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.tipoproceso_nombre ?? "") + "</td>";
+                html += "  <td class='text-center'>" + (aprobacion.idaprobacion ?? "") + "</td>";
+                html += "  <td>" + (aprobacion.idusersolicitud ?? "") + "</td>";
+                html += "  <td>" + (aprobacion.iduseraprobador ?? "") + "</td>";
+                html += "  <td>" + (aprobacion.estado_nombre ?? "") + "</td>";
+                html += "  <td class='text-center'>" + formatearFecha(aprobacion.fechasolicitud) + "</td>";
+                html += "  <td class='text-center'>" + (aprobacion.nivelaprobacion ?? "") + "</td>";
+                html += "  <td>" + (aprobacion.tipoproceso_nombre ?? "") + "</td>";
                 html += "</tr>";
             });
 
-            html += "  </tbody>";
+            html += "  </tbody>";
             html += "</table>";
 
             $('#tabla-aprobaciones-fondo').html(html);
@@ -516,6 +606,7 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
         },
         error: function (xhr, status, error) {
             console.error("Error al cargar aprobaciones:", error);
+            console.error("Detalles del error:", xhr.responseText);
             $('#tabla-aprobaciones-fondo').html(
                 '<p class="alert alert-danger">Error al cargar las aprobaciones: ' + error + '</p>'
             );
@@ -575,9 +666,23 @@ function procesarAprobacionFondo(accion, comentario) {
  * Ejecuta el POST al API para aprobar o rechazar
  */
 function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
-    const usuarioActual = window.usuarioActual || ''; 
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    // ✅ OBTENER EL USUARIO DINÁMICAMENTE
+    const usuarioActual = obtenerUsuarioActual();
 
     console.log("datosAprobacionActual: ", datosAprobacionActual);
+    console.log('Ejecutando aprobación/rechazo con idOpcion:', idOpcionActual, 'y usuario:', usuarioActual);
 
     const datosPost = {
         entidad: datosAprobacionActual.entidad,
@@ -587,8 +692,8 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
         comentario: comentario,
         idetiquetaestado: nuevoEstado,
         idaprobacion: datosAprobacionActual.idaprobacion,
-        usuarioaprobador: usuarioActual,
-        idopcion: 32,
+        usuarioaprobador: usuarioActual,       // ✅ DINÁMICO
+        idopcion: idOpcionActual,              // ✅ DINÁMICO
         idcontrolinterfaz: 26,
         idevento: 29
     };
@@ -610,8 +715,8 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
         contentType: "application/json",
         data: JSON.stringify(datosPost),
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO en headers también
+            "usuario": usuarioActual,            // ✅ DINÁMICO en headers también
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -619,7 +724,7 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
             "idtipoproceso": "0"
         },
         success: function (response) {
-            cerrarModalFondo(); // Cerrar el modal primero
+            cerrarModalFondo();
 
             Swal.fire({
                 icon: 'success',
@@ -638,10 +743,11 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
             });
         },
         error: function (xhr, status, error) {
-            cerrarModalFondo(); // Cerrar el modal también en caso de error
+            cerrarModalFondo();
 
             const mensajeError = xhr.responseJSON?.mensaje || error || 'Error desconocido';
             console.error("Error al procesar aprobación:", mensajeError);
+            console.error("Detalles del error:", xhr.responseText);
 
             Swal.fire({
                 icon: 'error',
