@@ -1,16 +1,75 @@
-﻿// ~/js/Fondo/ModificarFondo.js
+﻿// ~/js/Fondo/ConsultarFondo.js
 
+// ===============================================================
 // Variables globales
+// ===============================================================
 let tabla; // GLOBAL
 let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
 
-// Se ejecuta cuando el DOM está listo
+// ===============================================================
+// FUNCIÓN HELPER PARA OBTENER USUARIO (Busca en múltiples lugares)
+// ===============================================================
+function obtenerUsuarioActual() {
+    // Buscar en múltiples ubicaciones posibles
+    const usuario = window.usuarioActual
+        || sessionStorage.getItem('usuarioActual')
+        || sessionStorage.getItem('usuario')
+        || localStorage.getItem('usuarioActual')
+        || localStorage.getItem('usuario')
+        || "admin"; // Fallback final
+
+    return usuario;
+}
+
+// ===============================================================
+// DOCUMENT READY
+// ===============================================================
 $(document).ready(function () {
+
+    console.log("=== INICIO DE CARGA DE PÁGINA - ConsultarFondo ===");
+    console.log("");
+
+    // 🔍 ===== DIAGNÓSTICO COMPLETO DEL USUARIO ===== 🔍
+    console.log("🔍 DIAGNÓSTICO DE USUARIO:");
+    console.log("  window.usuarioActual:", window.usuarioActual);
+    console.log("  Tipo:", typeof window.usuarioActual);
+    console.log("  sessionStorage.usuarioActual:", sessionStorage.getItem('usuarioActual'));
+    console.log("  sessionStorage.usuario:", sessionStorage.getItem('usuario'));
+    console.log("  localStorage.usuarioActual:", localStorage.getItem('usuarioActual'));
+    console.log("  localStorage.usuario:", localStorage.getItem('usuario'));
+
+    const usuarioFinal = obtenerUsuarioActual();
+    console.log("  ✅ Usuario final obtenido:", usuarioFinal);
+    console.log("");
+
+    // ✅ LOGS DE VERIFICACIÓN DE IDOPCION
+    console.log("🔍 DIAGNÓSTICO DE IDOPCION:");
+    const infoOpcion = window.obtenerInfoOpcionActual();
+    console.log("  Información de la opción actual:", {
+        idOpcion: infoOpcion.idOpcion,
+        nombre: infoOpcion.nombre,
+        ruta: infoOpcion.ruta
+    });
+
+    // Verificación adicional
+    if (!infoOpcion.idOpcion) {
+        console.warn("  ⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
+        console.warn("  Esto es normal si accediste directamente a la URL sin pasar por el menú.");
+        console.warn("  Para que funcione correctamente, accede a esta página desde el menú.");
+    } else {
+        console.log("  ✅ idOpcion capturado correctamente:", infoOpcion.idOpcion);
+    }
+
+    console.log("");
+    console.log("=== FIN DE VERIFICACIÓN INICIAL ===");
+    console.log("");
 
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
+
+        console.log("API Base URL configurada:", apiBaseUrl);
 
         cargarTipoFondo();
         cargarBandeja();
@@ -20,22 +79,33 @@ $(document).ready(function () {
      * Carga la bandeja principal de fondos.
      */
     function cargarBandeja() {
+        // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+        const idOpcionActual = window.obtenerIdOpcionActual();
+
+        if (!idOpcionActual) {
+            console.error("No se pudo obtener el idOpcion para cargar la bandeja");
+            return;
+        }
+
+        const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
         const apiBaseUrl = window.apiBaseUrl;
+
+        console.log('Cargando bandeja con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
         $.ajax({
             url: `${apiBaseUrl}/api/Fondo/listar`,
             method: "GET",
             headers: {
-                "idopcion": "1",
-                "usuario": "admin",
-                "idcontrolinterfaz": "0",
-                "idevento": "0",
+                "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+                "usuario": usuario,                  // ✅ DINÁMICO
+                "idcontrolinterfaz": "BTNCONSULTAR",
+                "idevento": "EVCLICK",
                 "entidad": "0",
                 "identidad": "0",
                 "idtipoproceso": "0"
             },
             success: function (data) {
-                console.log(data);
+                console.log("Bandeja cargada:", data);
                 crearListado(data);
             },
             error: function (xhr, status, error) {
@@ -53,14 +123,25 @@ $(document).ready(function () {
      * Carga el select de Tipos de Fondo.
      */
     function cargarTipoFondo() {
+        // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+        const idOpcionActual = window.obtenerIdOpcionActual();
+
+        if (!idOpcionActual) {
+            console.error("No se pudo obtener el idOpcion para cargar tipos de fondo");
+            return;
+        }
+
+        const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
         const etiqueta = "TIPOFONDO";
+
+        console.log('Cargando tipos de fondo con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
         $.ajax({
             url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`,
             method: "GET",
             headers: {
-                "idopcion": "1",
-                "usuario": "admin"
+                "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+                "usuario": usuario                   // ✅ DINÁMICO
             },
             success: function (data) {
                 console.log("Tipos de fondo cargados:", data);
@@ -81,11 +162,12 @@ $(document).ready(function () {
             },
             error: function (xhr, status, error) {
                 console.error("Error al cargar tipos de fondo:", error);
+                console.error("Detalles del error:", xhr.responseText);
             }
         });
     }
 
-    // ===== BOTÓN LIMPIAR (sigue igual) =====
+    // ===== BOTÓN LIMPIAR =====
     $('body').on('click', '#btnLimpiar', function () {
         if (tabla) {
             tabla.search('').draw();
@@ -99,7 +181,7 @@ $(document).ready(function () {
 
     // Disparador para cargar los proveedores cuando se abre el modal
     $('#modalConsultaProveedor').on('show.bs.modal', function (event) {
-        consultarProveedor(); // Llama a la función para cargar la tabla
+        consultarProveedor();
     });
 
     // Lógica para el botón 'Aceptar' del modal de proveedores (Modificación)
@@ -128,15 +210,11 @@ $(document).ready(function () {
         }
     });
 
-
-}); // <-- FIN de $(document).ready
-
+}); // FIN document.ready
 
 // ===================================================================
 // ===== FUNCIONES GLOBALES (Datatables, Abrir/Cerrar Modal) =====
 // ===================================================================
-
-// ... CÓDIGO ANTERIOR ... (hasta la función crearListado)
 
 function crearListado(data) {
     if (tabla) {
@@ -146,33 +224,33 @@ function crearListado(data) {
     var html = "";
     html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
 
-    html += "  <thead>";
+    html += "  <thead>";
 
     // Fila del Título ROJO
-    html += "    <tr>";
-    html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE FONDOS";
-    html += "      </th>";
-    html += "    </tr>";
+    html += "    <tr>";
+    html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
+    html += "          BANDEJA DE FONDOS";
+    html += "      </th>";
+    html += "    </tr>";
 
     // Fila de las Cabeceras
-    html += "    <tr>";
-    html += "      <th>Acción</th>";
-    html += "      <th>IDFondo</th>";
-    html += "      <th>Descripción</th>";
-    html += "      <th>RUC</th>"; // Nuevo campo para RUC/ID
-    html += "      <th>Proveedor</th>";
-    html += "      <th>Tipo Fondo</th>";
-    html += "      <th>$ Fondo</th>";
-    html += "      <th>Fecha Inicio</th>";
-    html += "      <th>Fecha Fin</th>";
-    html += "      <th>$ Disponible</th>";
-    html += "      <th>$ Comprometido</th>";
-    html += "      <th>$ Liquidado</th>";
-    html += "      <th>Estado</th>";
-    html += "    </tr>";
-    html += "  </thead>";
-    html += "  <tbody>";
+    html += "    <tr>";
+    html += "      <th>Acción</th>";
+    html += "      <th>IDFondo</th>";
+    html += "      <th>Descripción</th>";
+    html += "      <th>RUC</th>";
+    html += "      <th>Proveedor</th>";
+    html += "      <th>Tipo Fondo</th>";
+    html += "      <th>$ Fondo</th>";
+    html += "      <th>Fecha Inicio</th>";
+    html += "      <th>Fecha Fin</th>";
+    html += "      <th>$ Disponible</th>";
+    html += "      <th>$ Comprometido</th>";
+    html += "      <th>$ Liquidado</th>";
+    html += "      <th>Estado</th>";
+    html += "    </tr>";
+    html += "  </thead>";
+    html += "  <tbody>";
 
     if (data && data.length > 0) {
         for (var i = 0; i < data.length; i++) {
@@ -184,36 +262,24 @@ function crearListado(data) {
                 '</button>';
 
             html += "<tr>";
-            html += "  <td class='text-center'>" + viewButton + "</td>";
-            // 1. IDFondo (idfondo)
-            html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
-            // 2. Descripción (descripcion)
-            html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
-            // 3. RUC (idproveedor)
-            html += "  <td>" + (fondo.idproveedor ?? "") + "</td>";
-            // 4. Proveedor (nombre)
-            html += "  <td>" + (fondo.nombre ?? "") + "</td>";
-            // 5. Tipo Fondo (idtipofondo - usaremos el ID, ya que el nombre no está en el JSON de ejemplo)
-            html += "  <td>" + (fondo.idtipofondo ?? "") + "</td>";
-            // 6. $ Fondo (valorfondo)
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valorfondo) + "</td>";
-            // 7. Fecha Inicio (fechainiciovigencia)
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fechainiciovigencia) + "</td>";
-            // 8. Fecha Fin (fechafinvigencia)
-            html += "  <td class='text-center'>" + formatearFecha(fondo.fechafinvigencia) + "</td>";
-            // 9. $ Disponible (valordisponible)
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valordisponible) + "</td>";
-            // 10. $ Comprometido (valorcomprometido)
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valorcomprometido) + "</td>";
-            // 11. $ Liquidado (valorliquidado)
-            html += "  <td class='text-end'>" + formatearMoneda(fondo.valorliquidado) + "</td>";
-            // 12. Estado (estado_nombre)
-            html += "  <td>" + (fondo.estado_nombre ?? "") + "</td>";
+            html += "  <td class='text-center'>" + viewButton + "</td>";
+            html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
+            html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
+            html += "  <td>" + (fondo.idproveedor ?? "") + "</td>";
+            html += "  <td>" + (fondo.nombre ?? "") + "</td>";
+            html += "  <td>" + (fondo.idtipofondo ?? "") + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valorfondo) + "</td>";
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fechainiciovigencia) + "</td>";
+            html += "  <td class='text-center'>" + formatearFecha(fondo.fechafinvigencia) + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valordisponible) + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valorcomprometido) + "</td>";
+            html += "  <td class='text-end'>" + formatearMoneda(fondo.valorliquidado) + "</td>";
+            html += "  <td>" + (fondo.estado_nombre ?? "") + "</td>";
             html += "</tr>";
         }
     }
 
-    html += "  </tbody>";
+    html += "  </tbody>";
     html += "</table>";
 
     // Inserta la tabla en el div
@@ -227,9 +293,8 @@ function crearListado(data) {
         columnDefs: [
             { targets: 0, width: "8%", className: "dt-center", orderable: false },
             { targets: 1, width: "6%", className: "dt-center" },
-            // Ajuste en targets de alineación, asumiendo que RUC (3) y Proveedor (4) son left/center
-            { targets: [6, 9, 10, 11], className: "dt-right" }, // $ Fondo, $ Disponble, $ Comprometido, $ Liquidado
-            { targets: [7, 8], className: "dt-center" }, // Fechas
+            { targets: [6, 9, 10, 11], className: "dt-right" },
+            { targets: [7, 8], className: "dt-center" },
         ],
         order: [[1, 'desc']],
         language: {
@@ -268,14 +333,27 @@ function crearListado(data) {
     }
 }
 
-// ... RESTO DEL CÓDIGO ...
-
 /**
- * Abre el modal de VISUALIZACIÓN o EDICIÓN (depende del ID del modal usado) 
- * y carga los datos del fondo para editar.
+ * Abre el modal de VISUALIZACIÓN o EDICIÓN y carga los datos del fondo para editar.
  */
 function abrirModalEditar(id) {
-    // 1. Cargar la tabla de acuerdos (asumiendo que existe esta función)
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+
+    console.log('Abriendo modal para visualizar fondo ID:', id, 'con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
+    // 1. Cargar la tabla de acuerdos
     if (typeof cargarAcuerdoFondo === 'function') {
         cargarAcuerdoFondo(id);
     }
@@ -285,8 +363,8 @@ function abrirModalEditar(id) {
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-modificacion-id/${id}`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -295,13 +373,10 @@ function abrirModalEditar(id) {
         },
         success: function (data) {
 
-            // ** ✨ CAMBIO CLAVE: CONCATENACIÓN RUC/ID y NOMBRE ✨ **
-            // data.proveedor contiene el RUC/ID (ej: "1790012345001")
-            // data.nombre debe contener el nombre completo (ej: "PRUEBA JOSE LUIS")
+            // Concatenación RUC/ID y NOMBRE
             const idProveedor = data.proveedor || '';
-            const nombreProveedor = data.nombre || ''; // Asumimos que la API devuelve el nombre en 'data.nombre'
+            const nombreProveedor = data.nombre || '';
 
-            // Formato deseado: RUC/ID - Nombre
             const proveedorCompleto = (idProveedor && nombreProveedor)
                 ? `${idProveedor} - ${nombreProveedor}`
                 : idProveedor || nombreProveedor || '';
@@ -310,9 +385,9 @@ function abrirModalEditar(id) {
             const datosModal = {
                 idfondo: data.idfondo,
                 descripcion: data.descripcion,
-                proveedor: proveedorCompleto, // <-- Se usa el valor concatenado para VISUALIZACIÓN
-                idproveedor: idProveedor, // Se mantiene el ID/RUC puro para la edición si se requiere
-                nombre_proveedor: nombreProveedor, // Se mantiene el nombre puro para la edición
+                proveedor: proveedorCompleto,
+                idproveedor: idProveedor,
+                nombre_proveedor: nombreProveedor,
                 tipo_fondo: data.tipo_fondo,
                 valor_fondo: parseFloat(data.valor_fondo) || 0,
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
@@ -320,11 +395,12 @@ function abrirModalEditar(id) {
                 estado: data.estado
             };
 
-            // 4. Abrir el modal personalizado (Asumiendo que esta es la función para el modalVisualizarFondo)
+            console.log("datosModal:", datosModal);
             abrirModalFondo(datosModal);
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del fondo:", error);
+            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -334,33 +410,21 @@ function abrirModalEditar(id) {
     });
 }
 
-
 /**
  * Función para abrir el modal personalizado (modalVisualizarFondo)
- * NOTA: Esta función está diseñada para llenar el modal de VISUALIZACIÓN
  */
 function abrirModalFondo(datos) {
     const modal = document.getElementById('modalVisualizarFondo');
 
-    // Llenar los datos
     document.getElementById('modal-fondo-id').value = datos.idfondo || '';
     document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
-
-    // El campo de proveedor ya trae el RUC/ID - Nombre desde abrirModalEditar
     document.getElementById('modal-fondo-proveedor').value = datos.proveedor || '';
-
-    // La versión de visualización usa un input type="text"
     document.getElementById('modal-fondo-tipofondo').value = datos.tipo_fondo || '';
-
     document.getElementById('modal-fondo-fechainicio').value = datos.fecha_inicio || '';
     document.getElementById('modal-fondo-fechafin').value = datos.fecha_fin || '';
-
-    // Asignar el valor para el input tipo 'number'
     document.getElementById('modal-fondo-valor').value = datos.valor_fondo || '';
-
     document.getElementById('modal-fondo-estado').value = datos.estado || '';
 
-    // Mostrar modal
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -374,7 +438,6 @@ function cerrarModalFondo() {
         modalVisualizar.classList.remove('active');
     }
 
-    // Si tuvieras un modal de edición:
     const modalEditar = document.getElementById('modalEditarFondo');
     if (modalEditar) {
         modalEditar.classList.remove('active');
@@ -386,33 +449,49 @@ function cerrarModalFondo() {
 
 /**
  * Función para guardar los cambios del fondo
- * NOTA: Esta función DEBE ser llamada desde el modal de EDICIÓN (modalEditarFondo).
  */
 function guardarCambiosFondo() {
-    // Obtener datos del formulario
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    // ✅ OBTENER EL USUARIO DINÁMICAMENTE
+    const usuario = obtenerUsuarioActual();
+
+    console.log('Guardando cambios con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
     const id = $("#modal-fondo-id").val();
     const dataParaGuardar = {
         descripcion: $("#modal-fondo-descripcion").val(),
-        // Obtener el ID/RUC del campo oculto del modal de EDICIÓN
         idproveedor: $("#modal-fondo-idproveedor-hidden").val(),
         idtipofondo: parseInt($("#modal-fondo-tipofondo").val()),
         valorfondo: parseFloat($("#modal-fondo-valor").val()),
         fechainiciovigencia: $("#modal-fondo-fechainicio").val(),
         fechafinvigencia: $("#modal-fondo-fechafin").val(),
-        idusuariomodifica: "admin",  // el usuario debe escoger de la sesion logeada
-        nombreusuariomodifica: "admin",
-        idopcion: 13,
+        idusuariomodifica: usuario,           // ✅ DINÁMICO
+        nombreusuariomodifica: usuario,       // ✅ DINÁMICO
+        idopcion: idOpcionActual,             // ✅ DINÁMICO
         idcontrolinterfaz: 0,
         idevento: 29
     };
 
     console.log("datos a guardar:", dataParaGuardar);
 
-    //TODO: Implementar la llamada AJAX para actualizar
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/actualizar/${id}`,
         method: "PUT",
-        headers: {},
+        headers: {
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario                   // ✅ DINÁMICO
+        },
         data: JSON.stringify(dataParaGuardar),
         contentType: "application/json",
         success: function (response) {
@@ -422,30 +501,31 @@ function guardarCambiosFondo() {
                 text: 'Fondo actualizado correctamente'
             });
             cerrarModalFondo();
-            // Recargar tabla
-            cargarBandeja();
+
+            // Recargar tabla - necesitamos llamar a la función dentro del ready
+            // Como cargarBandeja está dentro del ready, recargamos la página o la exponemos
+            if (window.location) {
+                window.location.reload();
+            }
         },
         error: function (xhr, status, error) {
+            console.error("Error al guardar:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: xhr.responseJSON.mensaje
+                text: xhr.responseJSON?.mensaje || 'Error al guardar'
             });
-
-            console.log("error al guardar", xhr.responseJSON.mensaje);
             cerrarModalFondo();
         }
     });
 }
-
 
 // ===================================================================
 // ===== FUNCIONES UTILITARIAS (Formato) =====
 // ===================================================================
 
 /**
- * Convierte una fecha/hora (ej: "2025-11-03T00:00:00")
- * al formato "YYYY-MM-DD" que necesita <input type="date">.
+ * Convierte una fecha/hora al formato "YYYY-MM-DD"
  */
 function formatDateForInput(fechaString) {
     if (!fechaString) {
@@ -455,7 +535,7 @@ function formatDateForInput(fechaString) {
 }
 
 /**
- * Formatea un número como moneda (ej: 20000 -> 20,000.00)
+ * Formatea un número como moneda
  */
 function formatearMoneda(valor) {
     var numero = parseFloat(valor);
@@ -494,7 +574,6 @@ function formatearFecha(fechaString) {
 // ===== EVENT LISTENERS PARA EL MODAL (Cerrar) =====
 // ===================================================================
 
-// Cerrar modal al hacer clic fuera
 document.addEventListener('DOMContentLoaded', function () {
     const modalVisualizar = document.getElementById('modalVisualizarFondo');
     if (modalVisualizar) {
@@ -505,7 +584,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Si tuvieras un modal de edición:
     const modalEditar = document.getElementById('modalEditarFondo');
     if (modalEditar) {
         modalEditar.addEventListener('click', function (e) {
@@ -517,11 +595,11 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // ===================================================================
-// ===== FUNCIONES AUXILIARES PARA DATOS Y LÓGICA DEL MODAL PROVEEDOR =====
+// ===== FUNCIONES AUXILIARES PARA PROVEEDOR =====
 // ===================================================================
 
 /**
- * Función auxiliar para obtener el primer valor no vacío (copiada de CrearFondo.js)
+ * Obtiene el primer valor no vacío
  */
 function obtenerPrimerValorValido(...valores) {
     for (let valor of valores) {
@@ -529,40 +607,47 @@ function obtenerPrimerValorValido(...valores) {
             return String(valor).trim();
         }
     }
-    return ''; // Retorna cadena vacía si todos están vacíos
+    return '';
 }
 
 /**
- * Carga la tabla de proveedores desde la API en el modal. (Copiada de CrearFondo.js)
+ * Carga la tabla de proveedores desde la API en el modal.
  */
 function consultarProveedor() {
-    // Valores fijos
-    const usuario = "1";
-    const idopcion = "9";
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
 
-    // Selector del cuerpo de la tabla
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
     const $tbody = $("#tablaProveedores tbody");
 
-    // Verificación del selector
+    console.log('Consultando proveedores con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
     if ($tbody.length === 0) {
         console.error("¡ERROR DE JAVASCRIPT! No se encontró '#tablaProveedores tbody'.");
         return;
     }
 
-    // Muestra "Cargando..."
     $tbody.empty().append('<tr><td colspan="7" class="text-center">Cargando proveedores...</td></tr>');
 
     $.ajax({
         url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
         method: "GET",
         headers: {
-            "idopcion": idopcion,
-            "usuario": usuario
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario                   // ✅ DINÁMICO
         },
         success: function (data) {
             console.log("Proveedores cargados:", data);
 
-            // Limpia el "Cargando..."
             $tbody.empty();
 
             if (data && data.length > 0) {
@@ -579,7 +664,7 @@ function consultarProveedor() {
                     const mail = obtenerPrimerValorValido(
                         proveedor.mailcontacto1, proveedor.mailcontacto2, proveedor.mailcontacto3, proveedor.mailcontacto4
                     );
-                    const telefono = ''; // No existe en el API
+                    const telefono = '';
 
                     const fila = `
                         <tr>
@@ -607,6 +692,7 @@ function consultarProveedor() {
         },
         error: function (xhr, status, error) {
             console.error("Error en la llamada AJAX a /api/Proveedor/Listar:", error);
+            console.error("Detalles del error:", xhr.responseText);
             $tbody.empty().append(`<tr><td colspan="7" class="text-center text-danger">Error al cargar datos.</td></tr>`);
         }
     });
@@ -616,6 +702,18 @@ function consultarProveedor() {
 // ===== ACUERDOS POR FONDO ==========================================
 // ===================================================================
 function cargarAcuerdoFondo(idFondo) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        console.error("No se pudo obtener el idOpcion para cargar acuerdos");
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+
+    console.log('Cargando acuerdos para fondo ID:', idFondo, 'con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
     if ($.fn.DataTable.isDataTable('#tabla-acuerdo')) {
         $('#tabla-acuerdo').DataTable().destroy();
     }
@@ -630,12 +728,12 @@ function cargarAcuerdoFondo(idFondo) {
     `);
 
     $.ajax({
-        url: `${window.apiBaseUrl}/consultar-acuerdo-fondo/${idFondo}`, // ✅ CORREGIDO: Agregado /api/Fondo/
+        url: `${window.apiBaseUrl}/consultar-acuerdo-fondo/${idFondo}`,
         method: "GET",
         dataType: "json",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -730,6 +828,7 @@ function cargarAcuerdoFondo(idFondo) {
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del acuerdo:", error);
+            console.error("Detalles del error:", xhr.responseText);
             $('#tabla-acuerdo-fondo').html('<p class="alert alert-danger text-center">Error al cargar el acuerdo.</p>');
         }
     });
