@@ -43,10 +43,10 @@ create or replace PACKAGE apl_pkg_fondos AS
     PROCEDURE sp_listar_fondos (
         p_cursor         OUT SYS_REFCURSOR,
          --parametros para el log
-        p_nombreusuario        IN VARCHAR2, 
-        p_idopcion             IN NUMBER, 
-        p_idcontrolinterfaz    IN VARCHAR2,
-        p_idevento_etiqueta    IN VARCHAR2,  
+        --p_nombreusuario        IN VARCHAR2, 
+        --p_idopcion             IN NUMBER, 
+        --p_idcontrolinterfaz    IN VARCHAR2,
+        --p_idevento_etiqueta    IN VARCHAR2,  
         p_codigo_salida        OUT NUMBER,
         p_mensaje_salida       OUT VARCHAR2
     );
@@ -127,6 +127,7 @@ create or replace PACKAGE apl_pkg_fondos AS
     
 END apl_pkg_fondos;
 ==========================================================================================================BODY===========================
+
 
 create or replace PACKAGE BODY apl_pkg_fondos AS
     
@@ -863,20 +864,20 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
 
     PROCEDURE sp_listar_fondos (
         p_cursor               OUT SYS_REFCURSOR,
-        p_nombreusuario        IN VARCHAR2, 
-        p_idopcion             IN NUMBER, 
-        p_idcontrolinterfaz    IN VARCHAR2,
-        p_idevento_etiqueta    IN VARCHAR2,
+        --p_nombreusuario        IN VARCHAR2, 
+        --p_idopcion             IN NUMBER, 
+        --p_idcontrolinterfaz    IN VARCHAR2,
+        --p_idevento_etiqueta    IN VARCHAR2,
         p_codigo_salida        OUT NUMBER,
         p_mensaje_salida       OUT VARCHAR2
         ) AS
-        v_id_control_interfaz    NUMBER;
-        v_idevento               NUMBER;
+        --v_id_control_interfaz    NUMBER;
+        --v_idevento               NUMBER;
         BEGIN
         
             -- Obtener IDs de catálogo
-            SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
-            SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
+            --SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+            --SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
             
             OPEN p_cursor FOR SELECT
                     f.idfondo,
