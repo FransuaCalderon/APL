@@ -2,7 +2,16 @@
     ViewData["Title"] = "Creación de Fondos";
 }
 
+@{
+    // Viene del ViewBag que llenamos en el controlador
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+
 @section Scripts {
+    <script>
+        // Variable global con el usuario logueado
+        window.usuarioActual = '@usuarioActual';
+    </script>
     <!-- jQuery -->
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
 

@@ -186,6 +186,7 @@ function consultarProveedor() {
 $(document).ready(function () {
     console.log("cargando fondos");
 
+    console.log("usuario actual: ", window.usuarioActual);
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
@@ -376,8 +377,8 @@ $(document).ready(function () {
                     fechafinvigencia: convertirFechaAISO($("#fondoFechaFin").val()),
 
                     // --- Usuario ingreso ---
-                    idusuarioingreso: "admin",
-                    nombreusuarioingreso: "admin",
+                    idusuarioingreso: window.usuarioActual,
+                    nombreusuarioingreso: window.usuarioActual,
 
                     // --- 🔴 CAMPOS NUEVOS QUE PEDISTE ---
                     idopcion: 9,
@@ -408,7 +409,7 @@ $(document).ready(function () {
                     data: JSON.stringify(data),
                     headers: {
                         "idopcion": "1",
-                        "usuario": "admin"
+                        "usuario": window.usuarioActual
                     },
                     success: function (response) {
                         Swal.fire({
