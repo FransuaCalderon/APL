@@ -942,6 +942,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         v_estado_inactivo         NUMBER;
         v_estado_vigente          NUMBER;
         v_estado_aprobado         NUMBER;
+        v_estado_nuevo            NUMBER;
         
         
         --variable log
@@ -969,6 +970,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         SELECT idcatalogo INTO v_estado_vigente  FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOVIGENTE'; 
         
         SELECT idcatalogo INTO v_estado_aprobado  FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOAPROBADO'; 
+        
+        SELECT idcatalogo INTO v_estado_nuevo  FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO'; 
         
         
         -- Validar que el fondo existe
@@ -1064,7 +1067,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     NULL                            AS fechaaprobacion,
                     NULL                            AS comentario,
                     a.nivelaprobacion               AS nivelaprobacion,
-                    v_estado_inactivo               AS idestadoregistro --cambio ahora
+                    v_estado_nuevo                  AS idestadoregistro 
                     
                 FROM
                     apl_tb_aprobador a
@@ -1143,7 +1146,21 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
     PROCEDURE sp_bandeja_inactivacion (
         p_cursor OUT SYS_REFCURSOR
     ) AS
+    --VARIABLES
+    v_entidad_fondo          NUMBER;
+    v_estado_nuevo           NUMBER;
+    v_tipo_proceso_inactivar NUMBER;
+    
     BEGIN
+    
+        --CATALOGOS
+        SELECT idcatalogo INTO v_entidad_fondo FROM apl_tb_catalogo WHERE idetiqueta = 'ENTFONDO';       
+			
+        SELECT idcatalogo INTO v_estado_nuevo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';    
+			
+        SELECT idcatalogo INTO v_tipo_proceso_inactivar FROM apl_tb_catalogo WHERE idetiqueta = 'TPINACTIVACION';
+        
+        
         OPEN p_cursor FOR SELECT
                 f.idfondo,
                 f.descripcion,
@@ -1151,8 +1168,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 arp.nombre,
                 ct.nombre                                     AS tipo_fondo,
                 f.valorfondo                                  AS valor_fondo,
-                to_char(f.fechainiciovigencia, 'YYYY-MM-DD') AS fecha_inicio,
-                to_char(f.fechafinvigencia, 'YYYY-MM-DD')    AS fecha_fin,
+                to_char(f.fechainiciovigencia, 'YYYY-MM-DD')  AS fecha_inicio,
+                to_char(f.fechafinvigencia, 'YYYY-MM-DD')     AS fecha_fin,
                 f.valordisponible                             AS valor_disponible,
                 f.valorcomprometido                           AS valor_comprometido,
                 f.valorliquidado                              AS valor_liquidado,
@@ -1164,7 +1181,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
                 INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
         WHERE 
-                ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE')
+                ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE') AND 
+                (SELECT COUNT(*) FROM apl_tb_aprobacion WHERE entidad = v_entidad_fondo AND identidad = f.idfondo AND idtipoproceso = v_tipo_proceso_inactivar AND idestadoregistro = v_estado_nuevo) = 0
         ORDER BY
                 f.idfondo;
 
