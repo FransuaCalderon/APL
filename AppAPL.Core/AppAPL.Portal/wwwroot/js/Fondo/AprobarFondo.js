@@ -681,6 +681,7 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
     // ✅ OBTENER EL USUARIO DINÁMICAMENTE
     const usuarioActual = obtenerUsuarioActual();
 
+    console.log("accion: ", accion);
     console.log("datosAprobacionActual: ", datosAprobacionActual);
     console.log('Ejecutando aprobación/rechazo con idOpcion:', idOpcionActual, 'y usuario:', usuarioActual);
 
@@ -694,7 +695,7 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
         idaprobacion: datosAprobacionActual.idaprobacion,
         usuarioaprobador: usuarioActual,       // ✅ DINÁMICO
         idopcion: idOpcionActual,              // ✅ DINÁMICO
-        idcontrolinterfaz: "BTNAPROBAR",
+        idcontrolinterfaz: accion == "APROBAR" ? "BTNAPROBAR" : "BTNNEGAR", 
         idevento: "EVCLICK",
         nombreusuario: usuarioActual
     };
