@@ -14,14 +14,25 @@ let ultimaFilaModificada = null; // Para recordar la última fila editada/elimin
  * Carga la bandeja principal de fondos.
  */
 function cargarBandeja() {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        console.error("No se pudo obtener el idOpcion para cargar la bandeja");
+        return;
+    }
+
+    const usuario = window.usuarioActual || "admin";
     const apiBaseUrl = window.apiBaseUrl;
+
+    console.log('Cargando bandeja con idOpcion:', idOpcionActual);
 
     $.ajax({
         url: `${apiBaseUrl}/api/Fondo/bandeja-modificacion`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -29,7 +40,7 @@ function cargarBandeja() {
             "idtipoproceso": "0"
         },
         success: function (data) {
-            console.log(data);
+            console.log("Bandeja cargada:", data);
             crearListado(data);
         },
         error: function (xhr, status, error) {
@@ -47,14 +58,25 @@ function cargarBandeja() {
  * Carga el select de Tipos de Fondo.
  */
 function cargarTipoFondo() {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        console.error("No se pudo obtener el idOpcion para cargar tipos de fondo");
+        return;
+    }
+
+    const usuario = window.usuarioActual || "admin";
     const etiqueta = "TIPOFONDO";
+
+    console.log('Cargando tipos de fondo con idOpcion:', idOpcionActual);
 
     $.ajax({
         url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin"
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario                   // ✅ DINÁMICO
         },
         success: function (data) {
             console.log("Tipos de fondo cargados:", data);
@@ -75,6 +97,7 @@ function cargarTipoFondo() {
         },
         error: function (xhr, status, error) {
             console.error("Error al cargar tipos de fondo:", error);
+            console.error("Detalles del error:", xhr.responseText);
         }
     });
 }
@@ -84,10 +107,37 @@ function cargarTipoFondo() {
 // ===============================================================
 $(document).ready(function () {
 
+    console.log("=== INICIO DE CARGA DE PÁGINA - ModificarFondo ===");
+
+    // ✅ LOGS DE VERIFICACIÓN AL INICIAR LA PÁGINA
+    console.log("Usuario actual capturado:", window.usuarioActual);
+
+    // Obtener información completa de la opción actual
+    const infoOpcion = window.obtenerInfoOpcionActual();
+    console.log("Información de la opción actual:", {
+        idOpcion: infoOpcion.idOpcion,
+        nombre: infoOpcion.nombre,
+        ruta: infoOpcion.ruta
+    });
+
+    // Verificación adicional
+    if (!infoOpcion.idOpcion) {
+        console.warn("⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
+        console.warn("Esto es normal si accediste directamente a la URL sin pasar por el menú.");
+        console.warn("Para que funcione correctamente, accede a esta página desde el menú.");
+    } else {
+        console.log("✅ idOpcion capturado correctamente:", infoOpcion.idOpcion);
+    }
+
+    console.log("=== FIN DE VERIFICACIÓN INICIAL ===");
+    console.log("");
+
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
+
+        console.log("API Base URL configurada:", apiBaseUrl);
 
         cargarTipoFondo();
         cargarBandeja();
@@ -107,7 +157,7 @@ $(document).ready(function () {
 
     // Cargar proveedores cuando se abre el modal
     $('#modalConsultaProveedor').on('show.bs.modal', function (event) {
-        consultarProveedor();
+        consultarProveedor(); // ✅ Sin parámetros, se obtienen dinámicamente
     });
 
     // Botón "Aceptar" del modal de proveedores (Modificación)
@@ -264,12 +314,28 @@ function crearListado(data) {
  * Abre el modal y carga los datos del fondo para editar.
  */
 function abrirModalEditar(id) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    const usuario = window.usuarioActual || "admin";
+
+    console.log('Abriendo modal para editar fondo ID:', id, 'con idOpcion:', idOpcionActual);
+
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-modificacion-id/${id}`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -302,6 +368,7 @@ function abrirModalEditar(id) {
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del fondo:", error);
+            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -357,6 +424,23 @@ function cerrarModalFondo() {
  * Función para guardar los cambios del fondo
  */
 function guardarCambiosFondo() {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    // ✅ OBTENER EL USUARIO DINÁMICAMENTE
+    const usuario = window.usuarioActual || "admin";
+
+    console.log('Guardando cambios con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
     const id = $("#modal-fondo-id").val();
     const dataParaGuardar = {
         descripcion: $("#modal-fondo-descripcion").val(),
@@ -365,9 +449,9 @@ function guardarCambiosFondo() {
         valorfondo: parseFloat($("#modal-fondo-valor").val()),
         fechainiciovigencia: $("#modal-fondo-fechainicio").val(),
         fechafinvigencia: $("#modal-fondo-fechafin").val(),
-        idusuariomodifica: "admin",
-        nombreusuariomodifica: "admin",
-        idopcion: 11,
+        idusuariomodifica: usuario,           // ✅ DINÁMICO
+        nombreusuariomodifica: usuario,       // ✅ DINÁMICO
+        idopcion: idOpcionActual,             // ✅ DINÁMICO (antes era 11 hardcoded)
         idcontrolinterfaz: 0,
         idevento: 29
     };
@@ -377,7 +461,10 @@ function guardarCambiosFondo() {
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/actualizar/${id}`,
         method: "PUT",
-        headers: {},
+        headers: {
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO en headers también
+            "usuario": usuario                   // ✅ DINÁMICO en headers también
+        },
         data: JSON.stringify(dataParaGuardar),
         contentType: "application/json",
         success: function (response) {
@@ -400,6 +487,7 @@ function guardarCambiosFondo() {
             }
         },
         error: function (xhr, status, error) {
+            console.error("Error al guardar:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -499,9 +587,22 @@ function obtenerPrimerValorValido(...valores) {
  * Carga la tabla de proveedores desde la API en el modal.
  */
 function consultarProveedor() {
-    const usuario = "1";
-    const idopcion = "9";
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    const usuario = window.usuarioActual || "admin";
     const $tbody = $("#tablaProveedores tbody");
+
+    console.log('Consultando proveedores con idOpcion:', idOpcionActual);
 
     if ($tbody.length === 0) {
         console.error("¡ERROR DE JAVASCRIPT! No se encontró '#tablaProveedores tbody'.");
@@ -514,8 +615,8 @@ function consultarProveedor() {
         url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
         method: "GET",
         headers: {
-            "idopcion": idopcion,
-            "usuario": usuario
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario                   // ✅ DINÁMICO
         },
         success: function (data) {
             console.log("Proveedores cargados:", data);
@@ -564,6 +665,7 @@ function consultarProveedor() {
         },
         error: function (xhr, status, error) {
             console.error("Error en la llamada AJAX a /api/Proveedor/Listar:", error);
+            console.error("Detalles del error:", xhr.responseText);
             $tbody.empty().append(`<tr><td colspan="7" class="text-center text-danger">Error al cargar datos.</td></tr>`);
         }
     });

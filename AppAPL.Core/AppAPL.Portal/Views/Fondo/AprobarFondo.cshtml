@@ -7,12 +7,16 @@
     // Viene del ViewBag que llenamos en el controlador
     var usuarioActual = ViewBag.UsuarioActual as string;
 }
-
-<script>
-    // Variable global con el usuario logueado
-    window.usuarioActual = '@usuarioActual';
-</script>   
-
+  
+@section Scripts {
+    <script>
+        // Variable global con el usuario logueado
+        window.usuarioActual = '@usuarioActual';
+    </script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <script src="~/js/Fondo/AprobarFondo.js" asp-append-version="true"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+}
 
 <h2>Aprobación - Fondo</h2>
 <hr>
@@ -24,11 +28,7 @@
     </div>
 </div>
 
-@section Scripts {
-    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
-    <script src="~/js/Fondo/AprobarFondo.js" asp-append-version="true"></script>
-    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-}
+
 
 <!-- Modal Personalizado -->
 <div id="modalEditarFondo" class="custom-modal">
