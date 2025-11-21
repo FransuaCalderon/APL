@@ -11,36 +11,44 @@ namespace AppAPL.Api.Controllers
     public class OpcionesController(IOpcionServicio servicio, ILogger<OpcionesController> logger) : ControllerBase
     {
         [HttpGet("listar/{NombreUsuario}")]
-        public async Task<ActionResult<List<OpcionDTO>>> ObtenerTodos(string NombreUsuario)
+        public async Task<ActionResult<GrupoOpcionDTO>> ObtenerTodos(string NombreUsuario)
         {
            
             var listaOpciones = await servicio.ListarAsync(NombreUsuario);
 
-            return listaOpciones.ToList();
+            var grupos = listaOpciones
+                .Select(x => new GrupoDistinctDTO { IdGrupo = x.IdGrupo, Grupo = x.Grupo })
+                .DistinctBy(x => new { x.IdGrupo, x.Grupo }) // 👈 necesitas System.Linq (NET 6+)
+                .ToList();
+
+            //var listaConvertido = listaOpciones.ToList();
+
+            var grupoOpciones = new GrupoOpcionDTO()
+            {
+                Grupos = grupos,
+                Opciones = listaOpciones
+            };
+
+            return grupoOpciones;
         }
 
-        [HttpGet("ListarOpcionesAutorizadasInternas/{NombreUsuario}")]
-        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(string NombreUsuario)
+        [HttpGet("ListarOpcionesAutorizadasInternas/{idUsuario:int}")]
+        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(int idUsuario)
         {
-            var listaOpcionesPorRol = await servicio.ListarOpcionesAutorizadasInternas(NombreUsuario);
-
-            /*
-            var grupos = (from filtrado in listaOpcionesPorRol
-                          select filtrado.IdGrupo)
-             .Distinct();*/
+            var listaOpcionesPorRol = await servicio.ListarOpcionesAutorizadasInternas(idUsuario);
 
             var grupos = listaOpcionesPorRol
                 .Select(x => new GrupoDistinctDTO { IdGrupo = x.IdGrupo, Grupo = x.Grupo })
                 .DistinctBy(x => new { x.IdGrupo, x.Grupo }) // 👈 necesitas System.Linq (NET 6+)
                 .ToList();
 
-            var listaConvertido = listaOpcionesPorRol.ToList();
+            //var listaConvertido = listaOpcionesPorRol.ToList();
 
 
             var grupoOpciones = new GrupoOpcionDTO()
             {
                 Grupos = grupos,
-                Opciones = listaConvertido
+                Opciones = listaOpcionesPorRol
             };
 
             return grupoOpciones;

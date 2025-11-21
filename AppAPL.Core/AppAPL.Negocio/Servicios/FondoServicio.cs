@@ -12,8 +12,9 @@ namespace AppAPL.Negocio.Servicios
 {
     public class FondoServicio(IFondoRepositorio repo) : IFondoServicio
     {
-        public async Task<IEnumerable<FondoDTO>> ListarAsync()
-            => await repo.ObtenerFondosAsync();
+        public async Task<IEnumerable<FondoDTO>> ListarAsync(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null,
+             string? IdEvento = null)
+            => await repo.ObtenerFondosAsync(NombreUsuario,IdOpcion,IdControlInterfaz,IdEvento);
 
         public async Task<FondoDTO?> ObtenerPorIdAsync(int idFondo)
             => await repo.ObtenerPorIdAsync(idFondo);

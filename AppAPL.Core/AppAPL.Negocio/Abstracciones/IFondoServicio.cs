@@ -14,7 +14,8 @@ namespace AppAPL.Negocio.Abstracciones
         Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo);
         Task<ControlErroresDTO> CrearAsync(CrearFondoRequest fondo);
         Task EliminarAsync(int idFondo);
-        Task<IEnumerable<FondoDTO>> ListarAsync();
+        Task<IEnumerable<FondoDTO>> ListarAsync(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null,
+             string? IdEvento = null);
         Task<FondoDTO?> ObtenerPorIdAsync(int idFondo);
         Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaModificacion();
         Task<BandejaFondoDTO?> ObtenerBandejaModificacionPorId(int idFondo);

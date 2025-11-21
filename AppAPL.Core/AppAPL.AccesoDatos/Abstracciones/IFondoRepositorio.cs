@@ -22,7 +22,8 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaInactivacion();
         Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaModificacion();
         Task<BandejaFondoDTO?> ObtenerBandejaModificacionPorId(int idFondo);
-        Task<IEnumerable<FondoDTO>> ObtenerFondosAsync();
+        Task<IEnumerable<FondoDTO>> ObtenerFondosAsync(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null,
+             string? IdEvento = null);
         Task<FondoDTO?> ObtenerPorIdAsync(int idFondo);
     }
 }

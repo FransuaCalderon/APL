@@ -1,30 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AppAPL.AccesoDatos.Abstracciones;
+﻿using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
 using AppAPL.Dto;
 using AppAPL.Dto.CatalogoTipo;
 using AppAPL.Dto.Fondos;
 using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
     public class FondoRepositorio(OracleConnectionFactory factory, ILogger<FondoRepositorio> logger) : IFondoRepositorio
     {
-        public async Task<IEnumerable<FondoDTO>> ObtenerFondosAsync()
+        public async Task<IEnumerable<FondoDTO>> ObtenerFondosAsync(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null,
+             string? IdEvento = null)
         {
             using var connection = factory.CreateOpenConnection();
 
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new
+            {
+                p_nombreusuario = NombreUsuario,
+                p_idopcion = IdOpcion,
+                p_idcontrolinterfaz = IdControlInterfaz,
+                p_idevento_etiqueta = IdEvento
+            };
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters(paramObject);
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
@@ -209,12 +219,13 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_valorfondo = fondo.ValorFondo,
                 p_fechainiciovigencia = fondo.FechaInicioVigencia,
                 p_fechafinvigencia = fondo.FechaFinVigencia,
-                //p_idusuarioingreso = fondo.IdUsuarioIngreso,
+                p_idusuarioingreso = fondo.IdUsuarioIngreso,
                 p_nombreusuarioingreso = fondo.NombreUsuarioIngreso,
 
                 p_idopcion = fondo.IdOpcion,
-                p_idcontrolinterfaz = 1,
-                p_idevento = 1
+                p_idcontrolinterfaz = fondo.IdControlInterfaz,
+                p_idevento_etiqueta = fondo.IdEvento,
+                p_nombreusuario = fondo.NombreUsuario
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
@@ -262,7 +273,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
                 p_idopcion = fondo.IdOpcion,
                 p_idcontrolinterfaz = fondo.IdControlInterfaz,
-                p_idevento = fondo.IdEvento
+                p_idevento = fondo.IdEvento,
+                p_nombreusuario = fondo.NombreUsuario
             };
 
             logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
@@ -306,7 +318,8 @@ namespace AppAPL.AccesoDatos.Repositorio
                 
                 p_idopcion = fondo.IdOpcion,
                 p_idcontrolinterfaz = fondo.IdControlInterfaz,
-                p_idevento = fondo.IdEvento
+                p_idevento = fondo.IdEvento,
+                p_nombreusuario = fondo.NombreUsuario
             };
 
             logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
@@ -356,7 +369,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
                 p_idopcion = fondo.IdOpcion,
                 p_idcontrolinterfaz = fondo.IdControlInterfaz,
-                p_idevento = fondo.IdEvento
+                p_idevento_etiqueta = fondo.IdEvento,
+                p_nombreusuario = fondo.NombreUsuario
             };
 
             var parameters = new OracleDynamicParameters(paramObject);

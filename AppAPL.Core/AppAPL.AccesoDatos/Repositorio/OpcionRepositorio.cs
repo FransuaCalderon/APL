@@ -11,14 +11,14 @@ namespace AppAPL_AccesoDatos.Repositorio
 {
     public sealed class OpcionRepositorio(OracleConnectionFactory factory) : IOpcionRepositorio
     {
-        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(string NombreUsuario)
+        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario)
         {
             using var connection = factory.CreateOpenConnection();
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
             var paramObject = new 
             { 
-                p_idusuario = NombreUsuario
+                p_idusuario = idUsuario
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
@@ -57,7 +57,7 @@ namespace AppAPL_AccesoDatos.Repositorio
             return datos;
         }
 
-        public async Task<IEnumerable<OpcionDTO>> ListarAsync(string NombreUsuario)
+        public async Task<IEnumerable<OpcionJoinDTO>> ListarAsync(string NombreUsuario)
         {
             using var connection = factory.CreateOpenConnection();
 
@@ -71,7 +71,7 @@ namespace AppAPL_AccesoDatos.Repositorio
             parameters.Add("p_opciones_out", OracleDbType.RefCursor, ParameterDirection.Output);
             
 
-            var datos = await connection.QueryAsync<OpcionDTO>(
+            var datos = await connection.QueryAsync<OpcionJoinDTO>(
                 "APL_PKG_OPCIONES.listar",
                 parameters,
                 commandType: CommandType.StoredProcedure
@@ -86,7 +86,10 @@ namespace AppAPL_AccesoDatos.Repositorio
         {
             using var connection = factory.CreateOpenConnection();
 
-            var paramObject = new { p_idopcion = idOpcion };
+            var paramObject = new 
+            { 
+                p_idopcion = idOpcion 
+            };
             var parameters = new OracleDynamicParameters(paramObject);
             parameters.Add("p_opciones_out", OracleDbType.RefCursor, ParameterDirection.Output);
 
@@ -139,8 +142,8 @@ namespace AppAPL_AccesoDatos.Repositorio
                 p_idgrupo = opcion.IdGrupo,
                 p_vista = opcion.Vista,
                 p_idusuariomodificacion = opcion.IdUsuarioModificacion,
-                p_idestado = opcion.IdEstado,
-                p_IdTipoServicio = opcion.IdTipoServicio
+                p_IdTipoServicio = opcion.IdTipoServicio,
+                p_idestado = opcion.IdEstado
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
