@@ -19,32 +19,40 @@ namespace AppAPL.Api.Controllers
     {
         
         [HttpGet("listar")]
-        public async Task<ActionResult<List<FondoDTO>>> ObtenerTodos()
+        public async Task<ActionResult<List<FondoDTO>>> ObtenerTodos([FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
+            [FromHeader] string? IdEvento)
         {
+            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
             var listaFondos = await servicio.ListarAsync();
 
             return listaFondos.ToList();
         }
 
         [HttpGet("bandeja-modificacion")]
-        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaModificacion()
+        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaModificacion([FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
+            [FromHeader] string? IdEvento)
         {
+            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
             var listaFondos = await servicio.ObtenerBandejaModificacion();
 
             return listaFondos.ToList();
         }
 
         [HttpGet("bandeja-aprobacion/{usuarioAprobador}")]
-        public async Task<ActionResult<List<BandejaAprobacionDTO>>> ObtenerBandejaAprobacion(string usuarioAprobador)
+        public async Task<ActionResult<List<BandejaAprobacionDTO>>> ObtenerBandejaAprobacion(string usuarioAprobador, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
+            [FromHeader] string? IdEvento)
         {
+            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
             var listaFondos = await servicio.ObtenerBandejaAprobacion(usuarioAprobador);
 
             return listaFondos.ToList();
         }
 
         [HttpGet("bandeja-aprobacion-id/{idFondo:int}/{idAprobacion:int}")]
-        public async Task<ActionResult<BandejaAprobacionDTO>> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion)
+        public async Task<ActionResult<BandejaAprobacionDTO>> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
+            [FromHeader] string? IdEvento)
         {
+            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
             var item = await servicio.ObtenerBandejaAprobacionPorId(idFondo, idAprobacion);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese idFondo: {idFondo}, idAprobacion: {idAprobacion}" });
@@ -52,16 +60,20 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpGet("bandeja-inactivacion")]
-        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaInactivacion()
+        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaInactivacion([FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
+            [FromHeader] string? IdEvento)
         {
+            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
             var listaFondos = await servicio.ObtenerBandejaInactivacion();
 
             return listaFondos.ToList();
         }
 
         [HttpGet("bandeja-inactivacion-id/{idFondo:int}")]
-        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaInactivacionPorId(int idFondo)
+        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaInactivacionPorId(int idFondo, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
+            [FromHeader] string? IdEvento)
         {
+            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
             var listaFondos = await servicio.ObtenerBandejaInactivacion();
 
             var query = from filtrado in listaFondos
@@ -75,8 +87,9 @@ namespace AppAPL.Api.Controllers
 
         // 🔹 GET: Obtener por ID
         [HttpGet("obtener/{id:int}")]
-        public async Task<ActionResult<FondoDTO>> ObtenerPorId(int id)
+        public async Task<ActionResult<FondoDTO>> ObtenerPorId(int id, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz, [FromHeader] string? IdEvento)
         {
+            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
             var item = await servicio.ObtenerPorIdAsync(id);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
@@ -85,8 +98,10 @@ namespace AppAPL.Api.Controllers
 
         // 🔹 GET: Obtener por ID
         [HttpGet("bandeja-modificacion-id/{id:int}")]
-        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaModificacionPorId(int id)
+        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaModificacionPorId(int id, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
+            [FromHeader] string? IdEvento)
         {
+            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
             var item = await servicio.ObtenerBandejaModificacionPorId(id);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
@@ -118,7 +133,7 @@ namespace AppAPL.Api.Controllers
         [Email("ENTFONDO", TipoProceso.Aprobacion)]
         public async Task<ActionResult<ControlErroresDTO>> AprobarFondo(AprobarFondoRequest fondo)
         {
-            /*
+            
             var retorno = await servicio.AprobarFondo(fondo);
 
             if (retorno.codigoRetorno == 0)
@@ -131,8 +146,7 @@ namespace AppAPL.Api.Controllers
 
                 logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
-            }*/
-            return Ok();
+            }
         }
 
         [HttpPost("inactivar-fondo")]

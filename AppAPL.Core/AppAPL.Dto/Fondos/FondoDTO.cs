@@ -88,8 +88,8 @@ namespace AppAPL.Dto.Fondos
         public string? IdUsuarioIngreso { get; set; }
         public string? NombreUsuarioIngreso { get; set; }
         public int? IdOpcion { get; set; }
-        public int? IdControlInterfaz { get; set; }
-        public int? IdEvento { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
     }
 
     public class ActualizarFondoRequest
@@ -103,8 +103,8 @@ namespace AppAPL.Dto.Fondos
         public string? IdUsuarioModifica { get; set; }
         public string? NombreUsuarioModifica { get; set; }
         public int? IdOpcion { get; set; }
-        public int? IdControlInterfaz { get; set; }
-        public int? IdEvento { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
     }
 
     public class AprobarFondoRequest
@@ -119,8 +119,8 @@ namespace AppAPL.Dto.Fondos
         public string? UsuarioAprobador { get; set; }
 
         public int? IdOpcion { get; set; }
-        public int? IdControlInterfaz { get; set; }
-        public int? IdEvento { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
 
     }
 
@@ -130,8 +130,8 @@ namespace AppAPL.Dto.Fondos
         public string? NombreUsuarioIngreso { get; set; }
 
         public int? IdOpcion { get; set; }
-        public int? IdControlInterfaz { get; set; }
-        public int? IdEvento { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
 
     }
 }   
