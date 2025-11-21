@@ -738,21 +738,24 @@ function cargarAcuerdoFondo(idFondo) {
             "idtipoproceso": "0"
         },
         success: function (data) {
-            console.log("Datos del Acuerdo (raw):", data, typeof data);
+            console.log("Datos del Acuerdo (raw):", data, typeof data);
 
-            if (typeof data === "string") {
-                try {
-                    data = JSON.parse(data);
-                } catch (e) {
-                    console.error("No se pudo parsear la respuesta como JSON:", e);
-                    $('#tabla-acuerdo-fondo').html('<p class="alert alert-danger text-center">Respuesta inválida del servidor.</p>');
-                    return;
-                }
-            }
+            if (typeof data === "string") {
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    console.error("No se pudo parsear la respuesta como JSON:", e);
+                    $('#tabla-acuerdo-fondo').html('<p class="alert alert-danger text-center">Respuesta inválida del servidor.</p>');
+                    return;
+                }
+            }
 
-            let acuerdos = Array.isArray(data) ? data : [data];
+            // ⚠️ POSIBLE PUNTO DE FALLO: Si la API devuelve un solo objeto, 
+            // asegúrate de que se convierta correctamente en un array para el bucle.
+            let acuerdos = Array.isArray(data) ? data : (data && data.idfondo ? [data] : []); // Lógica más robusta
 
-            if (!acuerdos.length || !acuerdos[0].idAcuerdofondo || acuerdos[0].idAcuerdofondo === 0) {
+            // Usamos idacuerdofondo (minúsculas)
+            if (!acuerdos.length || !acuerdos[0].idacuerdofondo || acuerdos[0].idacuerdofondo === 0) {
                 $('#tabla-acuerdo-fondo').html(
                     '<p class="alert alert-warning mb-0 text-center">No se encontraron datos de acuerdo para este fondo.</p>'
                 );
@@ -776,16 +779,18 @@ function cargarAcuerdoFondo(idFondo) {
 
             acuerdos.forEach(acuerdo => {
                 console.log("Acuerdo completo:", acuerdo);
-                const valor = acuerdo.valorImporte ?? acuerdo.valorFondo ?? 0;
+                // ANTES: const valor = acuerdo.valorImporte ?? acuerdo.valorFondo ?? 0;
+                const valor = acuerdo.valorFondo ?? 0; // Usando solo valorFondo por simplificación
 
                 html += "<tr>";
-                html += "  <td>" + (acuerdo.idAcuerdofondo ?? "") + "</td>";
-                html += "  <td>" + (acuerdo.acuerdofondo_estado_nombre ?? "") + "</td>";
-                html += "  <td>" + (acuerdo.acuerdo_descripcion ?? "") + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(valor) + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_disponible) + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_comprometido) + "</td>";
-                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_liquidado) + "</td>";
+                // ANTES: html += "  <td>" + (acuerdo.idAcuerdofondo ?? "") + "</td>";
+                html += "  <td>" + (acuerdo.idacuerdofondo ?? "") + "</td>"; // Propiedad en minúsculas
+                html += "  <td>" + (acuerdo.acuerdofondo_estado_nombre ?? "") + "</td>";
+                html += "  <td>" + (acuerdo.acuerdo_descripcion ?? "") + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valorfondo) + "</td>"; // Usar valorfondo (minúsculas)
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_disponible) + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_comprometido) + "</td>";
+                html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_liquidado) + "</td>";
                 html += "</tr>";
             });
 
