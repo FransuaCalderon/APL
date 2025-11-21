@@ -452,8 +452,9 @@ function guardarCambiosFondo() {
         idusuariomodifica: usuario,           // ✅ DINÁMICO
         nombreusuariomodifica: usuario,       // ✅ DINÁMICO
         idopcion: idOpcionActual,             // ✅ DINÁMICO (antes era 11 hardcoded)
-        idcontrolinterfaz: 0,
-        idevento: 29
+        idcontrolinterfaz: "BTNMODIFICAR",
+        idevento: "EVCLICK",
+        nombreusuario: usuario
     };
 
     console.log("datos a guardar:", dataParaGuardar);

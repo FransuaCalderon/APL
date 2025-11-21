@@ -9,7 +9,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<int> CrearAsync(CrearActualizarOpcionRequest opcion);
         Task EliminarAsync(int idOpcion);
         Task<IEnumerable<OpcionJoinDTO>> ListarAsync(string NombreUsuario);
-        Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario);
+        Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(string NombreUsuario);
         Task<OpcionDTO?> ObtenerPorIdAsync(int idOpcion);
         Task<IEnumerable<ComboDTO>> ConsultarCombos(string etiqueta);
     }

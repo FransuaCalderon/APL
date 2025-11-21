@@ -1,5 +1,7 @@
 ﻿// wwwroot/js/site.js
 $(document).ready(function () {
+    // ✅ LOGS DE VERIFICACIÓN AL INICIAR LA PÁGINA
+    console.log("Usuario actual capturado:", window.usuarioActual);
 
     // ----- ELIMINADO -----
     // const rutasMapeo = { ... };
@@ -44,7 +46,7 @@ $(document).ready(function () {
         window.apiBaseUrl = apiBaseUrl;
 
         $.ajax({
-            url: `${apiBaseUrl}/api/Opciones/ListarOpcionesAutorizadasInternas/${idUsuario}`,
+            url: `${apiBaseUrl}/api/Opciones/listarOpcionesAutorizadasInternas/${window.usuarioActual}`,
             method: "GET",
             headers: {
                 // Tus headers

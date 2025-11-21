@@ -21,8 +21,8 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<OpcionJoinDTO>> ListarAsync(string NombreUsuario)
            => repo.ListarAsync(NombreUsuario);
 
-        public Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario)
-            => repo.ListarOpcionesAutorizadasInternas(idUsuario);
+        public Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(string NombreUsuario)
+            => repo.ListarOpcionesAutorizadasInternas(NombreUsuario);
 
         public Task<IEnumerable<ComboDTO>> ConsultarCombos(string etiqueta)
             => repo.ConsultarCombos(etiqueta);

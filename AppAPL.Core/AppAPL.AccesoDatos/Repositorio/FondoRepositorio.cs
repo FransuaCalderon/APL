@@ -25,16 +25,17 @@ namespace AppAPL.AccesoDatos.Repositorio
             using var connection = factory.CreateOpenConnection();
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            /*
             var paramObject = new
             {
                 p_nombreusuario = NombreUsuario,
                 p_idopcion = IdOpcion,
                 p_idcontrolinterfaz = IdControlInterfaz,
                 p_idevento_etiqueta = IdEvento
-            };
+            };*/
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
-            var parameters = new OracleDynamicParameters(paramObject);
+            var parameters = new OracleDynamicParameters();  //mandar el paramObject en el constructor del parametro
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
@@ -273,7 +274,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
                 p_idopcion = fondo.IdOpcion,
                 p_idcontrolinterfaz = fondo.IdControlInterfaz,
-                p_idevento = fondo.IdEvento,
+                p_idevento_etiqueta = fondo.IdEvento,
                 p_nombreusuario = fondo.NombreUsuario
             };
 
@@ -318,7 +319,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 
                 p_idopcion = fondo.IdOpcion,
                 p_idcontrolinterfaz = fondo.IdControlInterfaz,
-                p_idevento = fondo.IdEvento,
+                p_idevento_etiqueta = fondo.IdEvento,
                 p_nombreusuario = fondo.NombreUsuario
             };
 

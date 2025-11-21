@@ -11,31 +11,18 @@ namespace AppAPL.Api.Controllers
     public class OpcionesController(IOpcionServicio servicio, ILogger<OpcionesController> logger) : ControllerBase
     {
         [HttpGet("listar/{NombreUsuario}")]
-        public async Task<ActionResult<GrupoOpcionDTO>> ObtenerTodos(string NombreUsuario)
+        public async Task<ActionResult<List<OpcionJoinDTO>>> ObtenerTodos(string NombreUsuario)
         {
            
             var listaOpciones = await servicio.ListarAsync(NombreUsuario);
 
-            var grupos = listaOpciones
-                .Select(x => new GrupoDistinctDTO { IdGrupo = x.IdGrupo, Grupo = x.Grupo })
-                .DistinctBy(x => new { x.IdGrupo, x.Grupo }) // 👈 necesitas System.Linq (NET 6+)
-                .ToList();
-
-            //var listaConvertido = listaOpciones.ToList();
-
-            var grupoOpciones = new GrupoOpcionDTO()
-            {
-                Grupos = grupos,
-                Opciones = listaOpciones
-            };
-
-            return grupoOpciones;
+            return listaOpciones.ToList();
         }
 
-        [HttpGet("ListarOpcionesAutorizadasInternas/{idUsuario:int}")]
-        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(int idUsuario)
+        [HttpGet("listarOpcionesAutorizadasInternas/{NombreUsuario}")]
+        public async Task<ActionResult<GrupoOpcionDTO>> listarPorRol(string NombreUsuario)
         {
-            var listaOpcionesPorRol = await servicio.ListarOpcionesAutorizadasInternas(idUsuario);
+            var listaOpcionesPorRol = await servicio.ListarOpcionesAutorizadasInternas(NombreUsuario);
 
             var grupos = listaOpcionesPorRol
                 .Select(x => new GrupoDistinctDTO { IdGrupo = x.IdGrupo, Grupo = x.Grupo })

@@ -20,8 +20,7 @@ namespace AppAPL.Api.Controllers
         
         [HttpGet("listar")]
         public async Task<ActionResult<List<FondoDTO>>> ObtenerTodos([FromHeader] string? NombreUsuario, [FromHeader] int? IdOpcion, 
-            [FromHeader] string? IdControlInterfaz,
-            [FromHeader] string? IdEvento)
+            [FromHeader] string? IdControlInterfaz,[FromHeader] string? IdEvento)
         {
             logger.LogInformation($"NombreUsuario: {NombreUsuario}, IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
             var listaFondos = await servicio.ListarAsync(NombreUsuario, IdOpcion, IdControlInterfaz, IdEvento);

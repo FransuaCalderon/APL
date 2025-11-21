@@ -446,6 +446,7 @@ $(document).ready(function () {
                     idopcion: idOpcionActual,
                     idcontrolinterfaz: "BTNGRABAR",
                     idevento: "EVCLICK",
+                    nombreusuario: window.usuarioActual
                 };
 
                 // --- FIN DE CAMBIOS ---

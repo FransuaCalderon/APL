@@ -11,14 +11,14 @@ namespace AppAPL_AccesoDatos.Repositorio
 {
     public sealed class OpcionRepositorio(OracleConnectionFactory factory) : IOpcionRepositorio
     {
-        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(int idUsuario)
+        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(string NombreUsuario)
         {
             using var connection = factory.CreateOpenConnection();
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
             var paramObject = new 
-            { 
-                p_idusuario = idUsuario
+            {
+                p_nombreusuario = NombreUsuario
             };
 
             var parameters = new OracleDynamicParameters(paramObject);

@@ -97,12 +97,9 @@ $(document).ready(function () {
             method: "GET",
             headers: {
                 "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                "usuario": usuario,                  // ✅ DINÁMICO
+                "nombreusuario": window.usuarioActual,                  // ✅ DINÁMICO
                 "idcontrolinterfaz": "BTNCONSULTAR",
                 "idevento": "EVCLICK",
-                "entidad": "0",
-                "identidad": "0",
-                "idtipoproceso": "0"
             },
             success: function (data) {
                 console.log("Bandeja cargada:", data);

@@ -694,8 +694,9 @@ function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
         idaprobacion: datosAprobacionActual.idaprobacion,
         usuarioaprobador: usuarioActual,       // ✅ DINÁMICO
         idopcion: idOpcionActual,              // ✅ DINÁMICO
-        idcontrolinterfaz: 26,
-        idevento: 29
+        idcontrolinterfaz: "BTNAPROBAR",
+        idevento: "EVCLICK",
+        nombreusuario: usuarioActual
     };
 
     console.log("Enviando aprobación/rechazo:", datosPost);

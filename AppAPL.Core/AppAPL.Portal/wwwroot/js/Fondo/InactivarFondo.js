@@ -599,8 +599,9 @@ function ejecutarInactivacion(idFondo) {
         idfondo: parseInt(idFondo),
         nombreusuarioingreso: usuario,     // ✅ DINÁMICO
         idopcion: idOpcionActual,          // ✅ DINÁMICO
-        idcontrolinterfaz: 28,
-        idevento: 29
+        idcontrolinterfaz: "BTNINACTIVAR",
+        idevento: "EVCLICK",
+        nombreusuario: usuario
     };
 
     console.log("Cuerpo de la solicitud (requestBody) para inactivar:", requestBody);
