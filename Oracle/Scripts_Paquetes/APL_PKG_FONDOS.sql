@@ -10,9 +10,10 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_idusuarioingreso     IN VARCHAR2,
         p_nombreusuarioingreso IN VARCHAR2,
         --log
-        p_idopcion             IN NUMBER,
-        p_idcontrolinterfaz    IN NUMBER,
-        p_idevento             IN NUMBER DEFAULT 29,
+        p_idopcion             IN NUMBER, 
+        p_idcontrolinterfaz    IN VARCHAR2,
+        p_idevento_etiqueta    IN VARCHAR2,
+        p_nombreusuario        IN VARCHAR2,  
         p_idfondo              OUT NUMBER,
         p_codigo_salida        OUT NUMBER,
         p_mensaje_salida       OUT VARCHAR2
@@ -30,18 +31,24 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_idusuariomodifica     IN VARCHAR2,
         p_nombreusuariomodifica IN VARCHAR2,
         --parametros para el log
-        p_idopcion             IN NUMBER,
-        p_idcontrolinterfaz    IN NUMBER,
-        p_idevento             IN NUMBER DEFAULT 29,
-        p_codigo_salida         OUT NUMBER,
-        p_mensaje_salida        OUT VARCHAR2
+        p_idopcion             IN NUMBER, 
+        p_idcontrolinterfaz    IN VARCHAR2,
+        p_idevento_etiqueta    IN VARCHAR2,
+        p_nombreusuario        IN VARCHAR2,  
+        p_codigo_salida        OUT NUMBER,
+        p_mensaje_salida       OUT VARCHAR2
     );
         
     --Procedimiento para listar fondo
     PROCEDURE sp_listar_fondos (
         p_cursor         OUT SYS_REFCURSOR,
-        p_codigo_salida  OUT NUMBER,
-        p_mensaje_salida OUT VARCHAR2
+         --parametros para el log
+        p_nombreusuario        IN VARCHAR2, 
+        p_idopcion             IN NUMBER, 
+        p_idcontrolinterfaz    IN VARCHAR2,
+        p_idevento_etiqueta    IN VARCHAR2,  
+        p_codigo_salida        OUT NUMBER,
+        p_mensaje_salida       OUT VARCHAR2
     );
     
     --Procedimiento Inactivo
@@ -49,9 +56,10 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_idfondo               IN NUMBER,
         p_nombreusuarioingreso  IN VARCHAR2 DEFAULT NULL,
          --parametros para el log
-        p_idopcion              IN NUMBER,
-        p_idcontrolinterfaz     IN NUMBER,
-        p_idevento              IN NUMBER DEFAULT 29,
+        p_idopcion              IN NUMBER, 
+        p_idcontrolinterfaz     IN VARCHAR2,
+        p_idevento_etiqueta     IN VARCHAR2,
+        p_nombreusuario         IN VARCHAR2,  
         p_codigo_salida         OUT NUMBER,
         p_mensaje               OUT VARCHAR2
     );
@@ -97,6 +105,7 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_cursor       OUT SYS_REFCURSOR
     );
     
+    --Procesar Fondo
     PROCEDURE sp_proceso_aprobacion_fondo (       
         p_entidad                   IN NUMBER,
         p_identidad                 IN NUMBER,
@@ -107,9 +116,10 @@ create or replace PACKAGE apl_pkg_fondos AS
         p_idaprobacion              IN NUMBER,
         p_usuarioaprobador          IN VARCHAR2,
         --parametros para el log
-        p_idopcion                  IN NUMBER,
-        p_idcontrolinterfaz         IN NUMBER,
-        p_idevento                  IN NUMBER DEFAULT 29,
+        p_idopcion                  IN NUMBER, 
+        p_idcontrolinterfaz         IN VARCHAR2,
+        p_idevento_etiqueta         IN VARCHAR2,
+        p_nombreusuario             IN VARCHAR2,  
         p_codigo_salida             OUT NUMBER,
         p_mensaje_salida            OUT VARCHAR2   
     );
@@ -130,9 +140,10 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         p_idusuarioingreso     IN VARCHAR2,
         p_nombreusuarioingreso IN VARCHAR2,
         --parametros para el log
-        p_idopcion             IN NUMBER,
-        p_idcontrolinterfaz    IN NUMBER,
-        p_idevento             IN NUMBER DEFAULT 29,
+        p_idopcion             IN NUMBER, 
+        p_idcontrolinterfaz    IN VARCHAR2,
+        p_idevento_etiqueta    IN VARCHAR2,
+        p_nombreusuario        IN VARCHAR2,  
         p_idfondo              OUT NUMBER,
         p_codigo_salida        OUT NUMBER,
         p_mensaje_salida       OUT VARCHAR2
@@ -151,11 +162,17 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         v_tiene_aprobadores NUMBER;
         
       -- Variables para LOG
-        v_json_datos        JSON_OBJECT_T;
-        v_datos_json        VARCHAR2(4000);
+        v_datos_json            VARCHAR2(4000);
+        v_id_control_interfaz   NUMBER;
+        v_idevento              NUMBER;
         
         
     BEGIN
+    
+      --VARIABLES PARA EL LOG
+        SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+        SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
+        
       -- 1) Resolver catálogos
         SELECT
             idcatalogo
@@ -233,7 +250,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             idusuariomodifica,
             fechamodifica,
             idestadoregistro,
-            indicadorcreacion
+            indicadorcreacion,
+            marcaprocesoaprobacion 
         ) VALUES (
             p_descripcion,
             p_idproveedor,
@@ -249,7 +267,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             NULL,
             NULL,
             v_estado_registro,
-            v_creacion_manual
+            v_creacion_manual,
+            ' '
         ) RETURNING idfondo INTO v_idfondo;
         
         p_idfondo := v_idfondo;
@@ -314,18 +333,18 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             fechahoratrx,
             iduser,
             idopcion,
-            idcontrolinterfaz,
+            idcontrolinterfaz ,
             idevento,
             entidad,
             identidad,
-            idtipoproceso,
+            idtipoproceso,        
             datos
         ) VALUES (
             SYSTIMESTAMP,
             p_idusuarioingreso,
-            p_idopcion, -- Ajusta según corresponda (catálogo de opciones)
-            p_idcontrolinterfaz,  -- Ajusta según corresponda
-            p_idevento,  -- Ajusta según corresponda (catálogo de eventos: ej. "CREACION_FONDO")
+            p_idopcion, 
+            v_id_control_interfaz, 
+            v_idevento, 
             v_entidad_fondo,
             v_idfondo,
             v_tipo_creacion,
@@ -357,9 +376,10 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         p_idusuariomodifica     IN VARCHAR2,
         p_nombreusuariomodifica IN VARCHAR2,
          --parametros para el log
-        p_idopcion              IN NUMBER,
-        p_idcontrolinterfaz     IN NUMBER,
-        p_idevento              IN NUMBER DEFAULT 29,
+        p_idopcion              IN NUMBER,           
+        p_idcontrolinterfaz     IN VARCHAR2,           
+        p_idevento_etiqueta     IN VARCHAR2,
+        p_nombreusuario         IN VARCHAR2,  
         p_codigo_salida         OUT NUMBER,
         p_mensaje_salida        OUT VARCHAR2
        
@@ -394,9 +414,15 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         --v_estado_activo     NUMBER;
         
       -- Variables para LOG
-        v_datos_json         VARCHAR2(4000);
+        v_datos_json            VARCHAR2(4000);
+        v_id_control_interfaz   NUMBER;
+        v_idevento              NUMBER;
         
     BEGIN
+        --VARIABLES PARA EL LOG
+        SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+        SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
+        
       -- ============================================================================
       -- 1) RESOLVER CATÁLOGOS
       -- ============================================================================
@@ -648,8 +674,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 SYSTIMESTAMP,
                 p_idusuariomodifica,
                 p_idopcion,
-                p_idcontrolinterfaz,
-                p_idevento,
+                v_id_control_interfaz,
+                v_idevento,
                 v_entidad_fondo,
                 p_idfondo,
                 v_tipo_modificacion,
@@ -774,8 +800,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 SYSTIMESTAMP,
                 p_idusuariomodifica,
                 p_idopcion,
-                p_idcontrolinterfaz,
-                p_idevento,
+                v_id_control_interfaz,
+                v_idevento,
                 v_entidad_fondo,
                 p_idfondo,
                 v_tipo_modificacion,
@@ -836,55 +862,69 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
 
 
     PROCEDURE sp_listar_fondos (
-        p_cursor         OUT SYS_REFCURSOR,
-        p_codigo_salida  OUT NUMBER,
-        p_mensaje_salida OUT VARCHAR2
-    ) AS
-    BEGIN
-        OPEN p_cursor FOR SELECT
-                f.idfondo,
-                f.descripcion,
-                f.idproveedor,
-                arp.nombre,
-                f.idtipofondo,
-                f.valorfondo,
-                f.fechainiciovigencia,
-                f.fechafinvigencia,
-                f.valordisponible,
-                f.valorcomprometido,
-                f.valorliquidado,
-                f.idusuarioingreso,
-                f.fechaingreso,
-                f.idusuariomodifica,
-                f.fechamodifica,
-                f.idestadoregistro,
-                f.indicadorcreacion,
-                --
-                c.idcatalogo    AS estado_id,
-                c.nombre        AS estado_nombre,
-                c.idetiqueta    AS estado_etiqueta
-        FROM
-                apl_tb_fondo f
-                LEFT JOIN apl_tb_catalogo c ON c.idcatalogo = f.idestadoregistro
-                INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
-                ORDER BY
-                fechaingreso DESC;
-
-    EXCEPTION
-        WHEN OTHERS THEN
-            p_codigo_salida := -20001;
-            p_mensaje_salida := 'Error al listar fondos: ' || sqlerrm;
-            RETURN;
+        p_cursor               OUT SYS_REFCURSOR,
+        p_nombreusuario        IN VARCHAR2, 
+        p_idopcion             IN NUMBER, 
+        p_idcontrolinterfaz    IN VARCHAR2,
+        p_idevento_etiqueta    IN VARCHAR2,
+        p_codigo_salida        OUT NUMBER,
+        p_mensaje_salida       OUT VARCHAR2
+        ) AS
+        v_id_control_interfaz    NUMBER;
+        v_idevento               NUMBER;
+        BEGIN
+        
+            -- Obtener IDs de catálogo
+            SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+            SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
+            
+            OPEN p_cursor FOR SELECT
+                    f.idfondo,
+                    f.descripcion,
+                    f.idproveedor,
+                    arp.nombre,
+                    f.idtipofondo,
+                    f.valorfondo,
+                    f.fechainiciovigencia,
+                    f.fechafinvigencia,
+                    f.valordisponible,
+                    f.valorcomprometido,
+                    f.valorliquidado,
+                    f.idusuarioingreso,
+                    f.fechaingreso,
+                    f.idusuariomodifica,
+                    f.fechamodifica,
+                    f.idestadoregistro,
+                    f.indicadorcreacion,
+                    --
+                    c.idcatalogo    AS estado_id,
+                    c.nombre        AS estado_nombre,
+                    c.idetiqueta    AS estado_etiqueta
+            FROM
+                    apl_tb_fondo f
+                    LEFT JOIN apl_tb_catalogo c ON c.idcatalogo = f.idestadoregistro
+                    INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                    ORDER BY
+                    fechaingreso DESC;
+                    
+          
+    
+        EXCEPTION
+            WHEN OTHERS THEN
+                p_codigo_salida := -20001;
+                p_mensaje_salida := 'Error al listar fondos: ' || sqlerrm;
+                RETURN;
     END sp_listar_fondos;
 
 
     PROCEDURE sp_inactivacion_fondo (
         p_idfondo               IN NUMBER,
-        p_nombreusuarioingreso  IN VARCHAR2  DEFAULT NULL,
+        p_nombreusuarioingreso  IN VARCHAR2,
         --variables log
         p_idopcion              IN NUMBER,
-        p_idcontrolinterfaz     IN NUMBER,
-        p_idevento              IN NUMBER DEFAULT 29,
+        p_idcontrolinterfaz     IN VARCHAR2,
+        p_idevento_etiqueta     IN VARCHAR2,
+        p_nombreusuario         IN VARCHAR2,  
         p_codigo_salida         OUT NUMBER,
         p_mensaje               OUT VARCHAR2
     ) AS
@@ -903,12 +943,16 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         v_estado_aprobado         NUMBER;
         
         
-        
         --variable log
         v_datos_json             VARCHAR2(4000);
-     
+        v_id_control_interfaz    NUMBER;
+        v_idevento               NUMBER;
         
     BEGIN
+    
+      --VARIABLES PARA EL LOG
+        SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+        SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
     
         --catalogos
         SELECT idcatalogo INTO v_entidad_fondo FROM apl_tb_catalogo WHERE idetiqueta = 'ENTFONDO';       
@@ -965,7 +1009,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         END IF;
         
                 
-        -- ¿Hay aprobadores configurados para ENTFONDO + TPCREACION + ACTIVO?
+        -- ¿Hay aprobadores configurados para ENTFONDO + TPINACTIVACION + ACTIVO?
         SELECT
             COUNT(*)
         INTO v_count_aprobadores
@@ -973,7 +1017,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             apl_tb_aprobador
         WHERE
                 entidad = v_entidad_fondo
-            AND idtipoproceso = v_tipo_proceso_aprobador
+            AND idtipoproceso = v_tipo_proceso_inactivar
             AND idestadoregistro = v_estado_activo;
                        
         
@@ -984,7 +1028,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 IDESTADOREGISTRO = v_estado_inactivo,
                 VALORDISPONIBLE = 0.00,
                 FECHAMODIFICA = SYSTIMESTAMP,
-                IDUSUARIOMODIFICA = p_nombreusuarioingreso
+                IDUSUARIOMODIFICA = p_nombreusuarioingreso,
+                MARCAPROCESOAPROBACION = ' '
             WHERE IDFONDO = p_idfondo;
             
             p_codigo_salida := 0;
@@ -1024,7 +1069,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     apl_tb_aprobador a
                 WHERE
                         a.entidad = v_entidad_fondo
-                    AND a.idtipoproceso = v_tipo_proceso_aprobador
+                    AND a.idtipoproceso = v_tipo_proceso_inactivar
                     AND a.idestadoregistro = v_estado_activo;
                     
               p_codigo_salida := 0;
@@ -1069,9 +1114,9 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         ) VALUES (
             SYSTIMESTAMP,
             p_nombreusuarioingreso,
-            p_idopcion, -- Ajusta según corresponda (catálogo de opciones)
-            p_idcontrolinterfaz,  -- Ajusta según corresponda
-            p_idevento,  -- Ajusta según corresponda (catálogo de eventos: ej. "CREACION_FONDO")
+            p_idopcion, 
+            v_id_control_interfaz,
+            v_idevento,
             v_entidad_fondo,
             p_idfondo,
             v_tipo_proceso_inactivar,
@@ -1217,7 +1262,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     LEFT JOIN apl_tb_catalogo ce ON f.idestadoregistro = ce.idcatalogo
                     INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
             WHERE  
-                    ce.idetiqueta != 'ESTADOAPROBADO' AND f.marcaprocesoaprobacion = ' '
+                    ce.idetiqueta IN ('ESTADONUEVO', 'ESTADOMODIFICADO', 'ESTADONEGADO')  AND f.marcaprocesoaprobacion = ' '
                     
                     
         ) q 
@@ -1444,9 +1489,10 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         p_idaprobacion              IN NUMBER,
         p_usuarioaprobador          IN VARCHAR2,
         --parametros para el log
-        p_idopcion                  IN NUMBER,
-        p_idcontrolinterfaz         IN NUMBER,
-        p_idevento                  IN NUMBER DEFAULT 29,
+        p_idopcion                  IN NUMBER, 
+        p_idcontrolinterfaz         IN VARCHAR2,
+        p_idevento_etiqueta         IN VARCHAR2,
+        p_nombreusuario             IN VARCHAR2,  
         p_codigo_salida             OUT NUMBER,
         p_mensaje_salida            OUT VARCHAR2
     ) AS
@@ -1472,9 +1518,14 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         v_fechasolicitud      TIMESTAMP := SYSTIMESTAMP;
         v_idestadoregistro    NUMBER;
         v_nivelaprobacion     NUMBER;
+        v_id_control_interfaz NUMBER;
+        v_idevento            NUMBER;
     
     BEGIN
-        -- ===== VALIDACIONES INICIALES =====
+        
+        --VARIABLES PARA EL LOG
+        SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+        SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
         
         -- Validar que existe la aprobación
         SELECT COUNT(*) 
@@ -1686,8 +1737,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 SYSTIMESTAMP,
                 p_usuarioaprobador,
                 p_idopcion,
-                p_idcontrolinterfaz,
-                p_idevento,
+                v_id_control_interfaz,
+                v_idevento,
                 p_identidad,
                 p_entidad,
                 p_idtipoproceso, 

@@ -141,6 +141,10 @@ namespace AppAPL.Api.Controllers
                 logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
             }
+<<<<<<< Updated upstream
+=======
+            
+>>>>>>> Stashed changes
         }
 
         [HttpPost("inactivar-fondo")]
