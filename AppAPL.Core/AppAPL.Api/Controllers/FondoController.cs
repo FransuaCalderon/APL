@@ -29,30 +29,27 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpGet("bandeja-modificacion")]
-        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaModificacion([FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
-            [FromHeader] string? IdEvento)
+        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaModificacion()
         {
-            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
+            
             var listaFondos = await servicio.ObtenerBandejaModificacion();
 
             return listaFondos.ToList();
         }
 
         [HttpGet("bandeja-aprobacion/{usuarioAprobador}")]
-        public async Task<ActionResult<List<BandejaAprobacionDTO>>> ObtenerBandejaAprobacion(string usuarioAprobador, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
-            [FromHeader] string? IdEvento)
+        public async Task<ActionResult<List<BandejaAprobacionDTO>>> ObtenerBandejaAprobacion(string usuarioAprobador)
         {
-            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
+           
             var listaFondos = await servicio.ObtenerBandejaAprobacion(usuarioAprobador);
 
             return listaFondos.ToList();
         }
 
         [HttpGet("bandeja-aprobacion-id/{idFondo:int}/{idAprobacion:int}")]
-        public async Task<ActionResult<BandejaAprobacionDTO>> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
-            [FromHeader] string? IdEvento)
+        public async Task<ActionResult<BandejaAprobacionDTO>> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion)
         {
-            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
+            
             var item = await servicio.ObtenerBandejaAprobacionPorId(idFondo, idAprobacion);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese idFondo: {idFondo}, idAprobacion: {idAprobacion}" });
@@ -60,20 +57,18 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpGet("bandeja-inactivacion")]
-        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaInactivacion([FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
-            [FromHeader] string? IdEvento)
+        public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaInactivacion()
         {
-            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
+            
             var listaFondos = await servicio.ObtenerBandejaInactivacion();
 
             return listaFondos.ToList();
         }
 
         [HttpGet("bandeja-inactivacion-id/{idFondo:int}")]
-        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaInactivacionPorId(int idFondo, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
-            [FromHeader] string? IdEvento)
+        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaInactivacionPorId(int idFondo)
         {
-            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
+            
             var listaFondos = await servicio.ObtenerBandejaInactivacion();
 
             var query = from filtrado in listaFondos
@@ -87,9 +82,9 @@ namespace AppAPL.Api.Controllers
 
         // 🔹 GET: Obtener por ID
         [HttpGet("obtener/{id:int}")]
-        public async Task<ActionResult<FondoDTO>> ObtenerPorId(int id, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz, [FromHeader] string? IdEvento)
+        public async Task<ActionResult<FondoDTO>> ObtenerPorId(int id)
         {
-            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
+          
             var item = await servicio.ObtenerPorIdAsync(id);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
@@ -98,10 +93,9 @@ namespace AppAPL.Api.Controllers
 
         // 🔹 GET: Obtener por ID
         [HttpGet("bandeja-modificacion-id/{id:int}")]
-        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaModificacionPorId(int id, [FromHeader] int? IdOpcion, [FromHeader] string? IdControlInterfaz,
-            [FromHeader] string? IdEvento)
+        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaModificacionPorId(int id)
         {
-            logger.LogInformation($"IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
+            
             var item = await servicio.ObtenerBandejaModificacionPorId(id);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
