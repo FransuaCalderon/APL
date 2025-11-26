@@ -5,24 +5,25 @@ namespace AppAPL.Portal.Controllers
 {
     public class OpcionesController : Controller
     {
-        
-
         public OpcionesController()
         {
             
         }
-
         //[HttpGet]
         public async Task<IActionResult> Index()
         {
-            //var opciones = await opcionesApiClient.ListarAsync();
+            // 1️⃣ Leer el usuario desde la sesión
+            var usuario = HttpContext.Session.GetString("Usuario");
+
+            // 2️⃣ Si no hay usuario, lo mandas al login
+            if (string.IsNullOrEmpty(usuario))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            // 3️⃣ Lo pasas a la vista
+            ViewBag.UsuarioActual = usuario;
             return View();
         }
-
-
-        
-
-
-        
     }
 }
