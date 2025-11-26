@@ -87,27 +87,9 @@ $(document).ready(function () {
 
         console.log('Cargando opciones con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
-        $.ajax({
-            url: `${apiBaseUrl}/api/Opciones/listar`,
-            method: "GET",
-            headers: {
-                "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                "usuario": usuario                   // ✅ DINÁMICO
-            },
-            success: function (data) {
-                console.log("Datos de opciones cargados:", data);
-                crearListado(data);
-            },
-            error: function (xhr, status, error) {
-                console.error("Error al obtener opciones:", error);
-                console.error("Detalles del error:", xhr.responseText);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar las opciones'
-                });
-            }
-        });
+
+        //llamar a la funcion aqui
+        cargarOpcionesLista(usuario);
     });
 
     // Delegación de clic para el botón "Agregar Nuevo"
@@ -162,7 +144,7 @@ $(document).ready(function () {
             nombre: $("#modal-nombre").val(),
             descripcion: $("#modal-descripcion").val(),
             idgrupo: parseInt($("#modal-tipo-grupo").val()), // ✅ Usar el valor del combo
-            vista: $("#modal-vista").val() || "sin vista",
+            vista: $("#modal-etiqueta").val() || "sin vista",
             idUsuarioCreacion: 1,
             fechaCreacion: new Date().toISOString(),
             idUsuarioModificacion: 1,
@@ -181,6 +163,8 @@ $(document).ready(function () {
 
         const method = id ? "PUT" : "POST";
 
+        console.log("data antes de enviar: ", data);
+        return;
         $.ajax({
             url: url,
             type: method,
@@ -206,17 +190,7 @@ $(document).ready(function () {
                 }
 
                 // Recargar la lista con headers dinámicos
-                $.ajax({
-                    url: `${window.apiBaseUrl}/api/Opciones/listar`,
-                    method: "GET",
-                    headers: {
-                        "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                        "usuario": usuario                   // ✅ DINÁMICO
-                    },
-                    success: function (data) {
-                        crearListado(data);
-                    }
-                });
+                cargarOpcionesLista(usuario);
             },
             error: function (xhr, status, error) {
                 const mensaje = id ? "actualizar" : "guardar";
@@ -262,6 +236,33 @@ $(document).ready(function () {
 // ===================================================================
 // ===== FUNCIONES GLOBALES =====
 // ===================================================================
+
+function cargarOpcionesLista(usuario) {
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Opciones/listar/${usuario}`,
+        method: "GET",
+        /*
+        headers: {
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario                   // ✅ DINÁMICO
+        },
+        */
+        success: function (data) {
+            console.log("Datos de opciones cargados:", data);
+            crearListado(data);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al obtener opciones:", error);
+            console.error("Detalles del error:", xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar las opciones'
+            });
+        }
+    });
+}
+
 
 /**
  * Cargar Tipos de Servicio
@@ -625,17 +626,7 @@ function confirmDelete(id) {
                     }
 
                     // Recargar la lista con headers dinámicos
-                    $.ajax({
-                        url: `${window.apiBaseUrl}/api/Opciones/listar`,
-                        method: "GET",
-                        headers: {
-                            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                            "usuario": usuario                   // ✅ DINÁMICO
-                        },
-                        success: function (data) {
-                            crearListado(data);
-                        }
-                    });
+                    cargarOpcionesLista(usuario);
                 },
                 error: function (xhr, status, error) {
                     console.error("Error al eliminar:", error);
