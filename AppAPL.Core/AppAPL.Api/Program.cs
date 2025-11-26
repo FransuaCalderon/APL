@@ -149,6 +149,7 @@ if (enableAuditoria)
     app.UseMiddleware<AuditoriaMiddleware>();
 }*/
 
+app.UseMiddleware<CleanJsonMiddleware>();
 app.UseMiddleware<AuditoriaMiddleware>();
 if (enableEmail)
 {
