@@ -17,6 +17,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<ControlErroresDTO> CrearAsync(CrearFondoRequest fondo);
         Task EliminarAsync(int idFondo);
         Task<ControlErroresDTO> InactivarFondo(InactivarFondoRequest fondo);
+        Task<IEnumerable<FondoDTO>> ListarFondoAcuerdo(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null, string? IdEvento = null);
         Task<IEnumerable<BandejaAprobacionDTO>> ObtenerBandejaAprobacion(string usuarioAprobador);
         Task<BandejaAprobacionDTO?> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion);
         Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaInactivacion();

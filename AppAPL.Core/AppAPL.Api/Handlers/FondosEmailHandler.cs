@@ -13,11 +13,11 @@ using Humanizer;
 namespace AppAPL.Api.Handlers
 {
     public class FondosEmailHandler (IEmailRepositorio emailRepo, ILogger<FondosEmailHandler> logger, 
-        IProveedorRepositorio proveedorRepo, IFondoRepositorio fondoRepo) : IFondosEmailHandler
+        IProveedorRepositorio proveedorRepo, IFondoRepositorio fondoRepo) :  HandlerBase(emailRepo, logger), IFondosEmailHandler
     {
         public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, FondoDTO? fondoAntiguo = null, string? responseBody = null)
         {
-            logger.LogInformation($"📨 [FondosHandler] Procesando correo. Entidad={entidad}, TipoProceso={tipoProceso}");
+            logger.LogInformation($"[FondosHandler] Procesando correo. Entidad={entidad}, TipoProceso={tipoProceso}");
             var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
             // 🔹 Mapear el enum a la etiqueta que usa el SP
@@ -37,10 +37,6 @@ namespace AppAPL.Api.Handlers
             // 2. Aplicamos el "Strategy Pattern". 
             // Cada 'case' es una estrategia completa: deserializa el DTO correcto
             // y construye los campos de plantilla específicos para ese DTO.
-
-
-            //var proveedorLista = await proveedorRepo.ListarAsync();
-            
 
             switch (tipoProceso)
             {
@@ -234,87 +230,7 @@ namespace AppAPL.Api.Handlers
             // 3. A partir de aquí, la lógica es común y ya tiene los datos correctos
             //    (IdProveedor y camposPlantilla) sin importar qué 'case' se ejecutó.
 
-            // 🔹 Consultar SP y enviar correo
-            var datos = await emailRepo.ObtenerDatosCorreo(new ConsultarDatosCorreoRequest
-            {
-                Entidad = entidad,
-                TipoProceso = tipoProcEtiqueta,
-                IdDocumento = IdProveedor // Usamos la variable llenada en el switch
-            });
-
-            var plantilla = datos.FirstOrDefault(d => d.tipo_registro == "PLANTILLA");
-            var destinatarios = datos.Where(d => d.tipo_registro == "DESTINATARIO").ToList();
-
-            if (plantilla == null || !destinatarios.Any())
-            {
-                logger.LogWarning("⚠️ [FondosHandler] No se encontraron datos para enviar correo.");
-                return;
-            }
-
-            // ... (Tu lógica para toList y ccList no cambia) ...
-            var toList = destinatarios
-                .Select(d => d.para)
-                .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Distinct()
-                .ToList();
-
-            var ccList = destinatarios
-                .Select(d => d.cc)
-                .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Distinct()
-                .ToList();
-
-            // 4. Ya no necesitas 'ObtenerCamposPlantilla' ni la validación 'null'.
-            //    'camposPlantilla' ya está listo.
-
-            foreach (var item in toList)
-            {
-                logger.LogInformation($"destinatario: {item}");
-            }
-
-            foreach (var item in ccList)
-            {
-                logger.LogInformation($"cc destinatario: {item}");
-            }
-
-            await emailRepo.SendEmailAsync(
-                toList,
-                $"Notificación: {tipoProceso}",
-                plantilla.nombrearchivo,
-                camposPlantilla, // Usamos el diccionario llenado en el switch
-                ccList
-            );
-        }
-
-
-        private string ConvertirDecimalAPalabras(decimal valor)
-        {
-            // 1. Redondeamos a 2 decimales (estándar para moneda)
-            // Ej: 150.758 -> 150.76
-            decimal valorRedondeado = Math.Round(valor, 2);
-
-            // 2. Separamos la parte entera
-            // Ej: 150.76 -> 150
-            long parteEntera = (long)Math.Truncate(valorRedondeado);
-
-            // 3. Separamos los decimales
-            // Ej: (150.76 - 150) * 100 -> 76
-            int parteDecimal = (int)((valorRedondeado - parteEntera) * 100);
-
-            // 4. Convertimos la parte entera (esto es 'long' y funciona)
-            string palabrasEnteras = parteEntera.ToWords(new CultureInfo("es"));
-
-            // 5. Combinamos el resultado
-            if (parteDecimal > 0)
-            {
-                // Convertimos la parte decimal (esto es 'int' y funciona)
-                string palabrasDecimales = parteDecimal.ToWords(new CultureInfo("es"));
-                return $"{palabrasEnteras} DOLARES con {palabrasDecimales} centavos".ToUpper();
-            }
-            else
-            {
-                return palabrasEnteras.ToUpper();
-            }
+            await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla);
         }
 
 

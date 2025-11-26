@@ -28,6 +28,16 @@ namespace AppAPL.Api.Controllers
             return listaFondos.ToList();
         }
 
+        [HttpGet("fondo-acuerdo")]
+        public async Task<ActionResult<List<FondoDTO>>> ListarFondoAcuerdo([FromHeader] string? NombreUsuario, [FromHeader] int? IdOpcion,
+            [FromHeader] string? IdControlInterfaz, [FromHeader] string? IdEvento)
+        {
+            logger.LogInformation($"NombreUsuario: {NombreUsuario}, IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
+            var listaFondos = await servicio.ListarFondoAcuerdo(NombreUsuario, IdOpcion, IdControlInterfaz, IdEvento);
+
+            return listaFondos.ToList();
+        }
+
         [HttpGet("bandeja-modificacion")]
         public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaModificacion()
         {
@@ -174,13 +184,13 @@ namespace AppAPL.Api.Controllers
 
             if (retorno.codigoRetorno == 0)
             {
-                //logger.LogInformation(retorno.mensaje);
+                logger.LogInformation(retorno.mensaje);
                 return retorno;
             }
             else
             {
 
-                //logger.LogError(retorno.mensaje);
+                logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
             }
         }

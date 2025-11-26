@@ -1,17 +1,18 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Text;
-using System.Text.Json;
-using AppAPL.AccesoDatos.Abstracciones;
+﻿using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.Api.Attributes;
 using AppAPL.Api.Handlers;
 using AppAPL.Api.Handlers.Interfaces;
+using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Text.Json;
 using static AppAPL.Api.Attributes.EmailAttribute;
 
 namespace AppAPL.Api.Middlewares
@@ -67,16 +68,42 @@ namespace AppAPL.Api.Middlewares
 
 
             FondoDTO fondoAntiguo = null;
+            AcuerdoDTO acuerdoAntiguo = null;
             //logica para sacar el fondo antiguo antes de modificar
             if (emailAttr.Entidad == "ENTFONDO" && emailAttr.TipoProceso == TipoProceso.Modificacion)
             {
-                fondoAntiguo = await this.consultarFondoAntiguo(context.Request.RouteValues, serviceProvider);
+                //context.Request.RouteValues
+                fondoAntiguo = await ConsultarEntidadAntiguaAsync<FondoDTO, IFondoServicio>(
+                    context.Request.RouteValues,
+                    "idFondo",
+                    serviceProvider,
+                    (svc, id) => svc.ObtenerPorIdAsync(id));
             }
+            
+            if (emailAttr.Entidad == "ENTACUERDO" && emailAttr.TipoProceso == TipoProceso.Modificacion)
+            {
+                acuerdoAntiguo = await ConsultarEntidadAntiguaAsync<AcuerdoDTO, IAcuerdoServicio>(
+                context.Request.RouteValues,
+                "idAcuerdo",
+                serviceProvider,
+                (svc, id) => svc.ObtenerPorIdAsync(id));
+            }
+
+
 
             // 🔹 Continuar la ejecución normal del pipeline
             await next(context);
 
 
+            int status = context.Response.StatusCode;
+            bool esExitoso = status >= 200 && status < 300;
+            
+            if (!esExitoso)
+            {
+                logger.LogInformation($"el status no fue exitoso: {status}");
+                return;
+            }
+            
             //---------------leer body del response despues del next------------------------
 
             // Leer el resultado del response
@@ -96,7 +123,7 @@ namespace AppAPL.Api.Middlewares
 
 
 
-            logger.LogInformation($"📧 [Middleware] Procesando correo para controlador={controllerName}, Entidad={emailAttr.Entidad}, TipoProceso={emailAttr.TipoProceso}");
+            logger.LogInformation($"[EmailMiddleware] Procesando correo para controlador={controllerName}, Entidad={emailAttr.Entidad}, TipoProceso={emailAttr.TipoProceso}");
 
             
 
@@ -111,7 +138,7 @@ namespace AppAPL.Api.Middlewares
 
             if (handler == null)
             {
-                logger.LogWarning($"⚠️ [Middleware] No se encontró handler para el controlador '{controllerName}'.");
+                logger.LogWarning($"⚠️ [EmailMiddleware] No se encontró handler para el controlador '{controllerName}'.");
                 return;
             }
 
@@ -123,14 +150,11 @@ namespace AppAPL.Api.Middlewares
                 case IFondosEmailHandler fondosHandler:
                     await fondosHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, requestBody, fondoAntiguo, responseBody);
                     break;
-                /*
+                
                 case IAcuerdosEmailHandler acuerdosHandler:
-                    await acuerdosHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, requestBody);
+                    await acuerdosHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, requestBody, acuerdoAntiguo, responseBody);
                     break;
-
-                case IPromocionEmailHandler promoHandler:
-                    await promoHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, requestBody);
-                    break;*/
+               
             }
 
 
@@ -138,7 +162,7 @@ namespace AppAPL.Api.Middlewares
             logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE EMAIL [hilo: {processId}] ------------------");
         }
 
-        
+        /*
         private async Task<FondoDTO> consultarFondoAntiguo(RouteValueDictionary routeValues, IServiceProvider serviceProvider)
         {
             
@@ -148,7 +172,7 @@ namespace AppAPL.Api.Middlewares
 
                 if (!string.IsNullOrEmpty(idComoString))
                 {
-                    logger.LogInformation($"[MiMiddleware] Se encontró el parámetro 'idFondo': {idComoString}");
+                    logger.LogInformation($"[EmailMiddleware] Se encontró el parámetro 'idFondo': {idComoString}");
 
                     var servicioFondo = serviceProvider.GetService<IFondoServicio>();
                     return await servicioFondo.ObtenerPorIdAsync(Convert.ToInt32(idComoString));
@@ -157,6 +181,46 @@ namespace AppAPL.Api.Middlewares
 
             logger.LogInformation($"No se encontro parametro de ruta 'idFondo'");
             return null;
+        }*/
+
+        private async Task<T?> ConsultarEntidadAntiguaAsync<T, TServicio>(
+        RouteValueDictionary routeValues,
+        string nombreParametro,
+        IServiceProvider serviceProvider,
+        Func<TServicio, int, Task<T?>> metodoBusqueda)
+        where T : class
+        {
+            if (routeValues.TryGetValue(nombreParametro, out var idValue))
+            {
+                var idString = idValue?.ToString();
+
+                if (!string.IsNullOrWhiteSpace(idString) && int.TryParse(idString, out int id))
+                {
+                    logger.LogInformation($"[EmailMiddleware] Parámetro '{nombreParametro}' encontrado: {id}");
+
+                    var servicio = serviceProvider.GetService<TServicio>();
+                    if (servicio == null)
+                    {
+                        logger.LogError($"No se pudo resolver el servicio: {typeof(TServicio).Name}");
+                        return null;
+                    }
+
+                    // Sin manejo de excepciones, se las dejas al filtro global
+                    return await metodoBusqueda(servicio, id);
+                }
+
+                logger.LogInformation($"El parámetro '{nombreParametro}' no es un entero válido: '{idString}'");
+            }
+            else
+            {
+                logger.LogInformation($"No se encontró el parámetro de ruta '{nombreParametro}'");
+            }
+
+            return null;
         }
+
+
+
+
     }
 }

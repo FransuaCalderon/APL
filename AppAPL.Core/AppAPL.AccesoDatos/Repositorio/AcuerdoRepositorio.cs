@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
 using Dapper;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 {
     public class AcuerdoRepositorio (OracleConnectionFactory factory, ILogger<AcuerdoRepositorio> logger) : IAcuerdoRepositorio
     {
+        
+
         public async Task<IEnumerable<ConsultarAcuerdoFondoDTO>> ConsultarAcuerdoFondo(int idFondo)
         {
             using var connection = factory.CreateOpenConnection();
@@ -42,5 +45,32 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             return datos;
         }
+
+        public Task<AcuerdoDTO?> ObtenerPorIdAsync(int idAcuerdo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ControlErroresDTO> ActualizarAsync(CrearActualizarAcuerdoDTO acuerdo, int idAcuerdo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoDTO acuerdo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoDTO acuerdo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ControlErroresDTO> InactivarAcuerdo(InactivarAcuerdoDTO acuerdo)
+        {
+            throw new NotImplementedException();
+        }
+
+        
     }
 }

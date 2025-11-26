@@ -16,8 +16,8 @@ namespace AppAPL.Dto.Acuerdo
         public DateTime FechaFinVigencia { get; set; }
         public DateTime FechaIngreso { get; set; }
         public string IdUsuarioIngreso { get; set; }
-        public DateTime FechaModifica { get; set; }
-        public string IdUsuarioModifica { get; set; }
+        public DateTime? FechaModifica { get; set; }
+        public string? IdUsuarioModifica { get; set; }
         public int IdEstadoRegistro { get; set; }
     }
 
@@ -59,5 +59,47 @@ namespace AppAPL.Dto.Acuerdo
         public string acuerdo_estado_etiqueta { get; set; }
         public DateTime fondo_fecha_ingreso { get; set; }
         public DateTime acuerdo_fecha_ingreso { get; set; }
+    }
+
+    public class CrearActualizarAcuerdoDTO
+    {
+        public int IdTipoAcuerdo { get; set; }
+        public int IdMotivoAcuerdo { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime FechaInicioVigencia { get; set; }
+        public DateTime FechaFinVigencia { get; set; }
+        public DateTime? FechaIngreso { get; set; }
+        public string? IdUsuarioIngreso { get; set; }
+        public DateTime? FechaModifica { get; set; }
+        public string? IdUsuarioModifica { get; set; }
+        public int IdEstadoRegistro { get; set; }
+    }
+
+    public class AprobarAcuerdoDTO
+    {
+        public int IdTipoAcuerdo { get; set; }
+        public int IdMotivoAcuerdo { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime FechaInicioVigencia { get; set; }
+        public DateTime FechaFinVigencia { get; set; }
+        public DateTime? FechaIngreso { get; set; }
+        public string? IdUsuarioIngreso { get; set; }
+        public DateTime? FechaModifica { get; set; }
+        public string? IdUsuarioModifica { get; set; }
+        public int IdEstadoRegistro { get; set; }
+    }
+
+    public class InactivarAcuerdoDTO
+    {
+        public int IdTipoAcuerdo { get; set; }
+        public int IdMotivoAcuerdo { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime FechaInicioVigencia { get; set; }
+        public DateTime FechaFinVigencia { get; set; }
+        public DateTime? FechaIngreso { get; set; }
+        public string? IdUsuarioIngreso { get; set; }
+        public DateTime? FechaModifica { get; set; }
+        public string? IdUsuarioModifica { get; set; }
+        public int IdEstadoRegistro { get; set; }
     }
 }

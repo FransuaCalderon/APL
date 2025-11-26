@@ -16,6 +16,7 @@ namespace AppAPL.Negocio.Abstracciones
         Task EliminarAsync(int idFondo);
         Task<IEnumerable<FondoDTO>> ListarAsync(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null,
              string? IdEvento = null);
+        Task<IEnumerable<FondoDTO>> ListarFondoAcuerdo(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null, string? IdEvento = null);
         Task<FondoDTO?> ObtenerPorIdAsync(int idFondo);
         Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaModificacion();
         Task<BandejaFondoDTO?> ObtenerBandejaModificacionPorId(int idFondo);

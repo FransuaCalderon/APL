@@ -57,6 +57,44 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<IEnumerable<FondoDTO>> ListarFondoAcuerdo(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null,
+             string? IdEvento = null)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            /*
+            var paramObject = new
+            {
+                p_nombreusuario = NombreUsuario,
+                p_idopcion = IdOpcion,
+                p_idcontrolinterfaz = IdControlInterfaz,
+                p_idevento_etiqueta = IdEvento
+            };*/
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var parameters = new OracleDynamicParameters();  //mandar el paramObject en el constructor del parametro
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<FondoDTO>(
+                "APL_PKG_FONDOS.sp_listar_fondos",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
         public async Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaModificacion()
         {
             using var connection = factory.CreateOpenConnection();
