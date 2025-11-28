@@ -1,4 +1,4 @@
-﻿/**
+﻿    /**
 * Carga el combo (select) de Tipos de Fondo desde la API.
 * @param {function} [callback] - Una función opcional a ejecutar cuando la carga sea exitosa.
 */

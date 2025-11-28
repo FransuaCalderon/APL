@@ -86,10 +86,32 @@ $(document).ready(function () {
         }
 
         console.log('Cargando opciones con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+        console.log('URL completa:', `${apiBaseUrl}/api/Opciones/listar/${usuario}`);
 
 
         //llamar a la funcion aqui
         cargarOpcionesLista(usuario);
+        $.ajax({
+            url: `${apiBaseUrl}/api/Opciones/listar/${usuario}`, // ✅ USUARIO EN LA RUTA
+            method: "GET",
+            headers: {
+                "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+                "usuario": usuario                   // ✅ DINÁMICO también en headers
+            },
+            success: function (data) {
+                console.log("Datos de opciones cargados:", data);
+                crearListado(data);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error al obtener opciones:", error);
+                console.error("Detalles del error:", xhr.responseText);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudieron cargar las opciones'
+                });
+            }
+        });
     });
 
     // Delegación de clic para el botón "Agregar Nuevo"
@@ -122,7 +144,6 @@ $(document).ready(function () {
     $("#btnGuardarCambios").on("click", function (e) {
         e.preventDefault();
 
-        // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
         const idOpcionActual = window.obtenerIdOpcionActual();
         const usuario = obtenerUsuarioActual();
 
@@ -143,8 +164,8 @@ $(document).ready(function () {
         const data = {
             nombre: $("#modal-nombre").val(),
             descripcion: $("#modal-descripcion").val(),
-            idgrupo: parseInt($("#modal-tipo-grupo").val()), // ✅ Usar el valor del combo
-            vista: $("#modal-etiqueta").val() || "sin vista",
+            idgrupo: parseInt($("#modal-tipo-grupo").val()),
+            vista: $("#modal-vista").val() || "sin vista", // ✅ AHORA USA EL ID CORRECTO
             idUsuarioCreacion: 1,
             fechaCreacion: new Date().toISOString(),
             idUsuarioModificacion: 1,
@@ -164,15 +185,16 @@ $(document).ready(function () {
         const method = id ? "PUT" : "POST";
 
         console.log("data antes de enviar: ", data);
-        return;
+        // ✅ ELIMINAR EL "return;" QUE ESTÁ BLOQUEANDO LA EJECUCIÓN
+
         $.ajax({
             url: url,
             type: method,
             contentType: "application/json",
             data: JSON.stringify(data),
             headers: {
-                "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                "usuario": usuario                   // ✅ DINÁMICO
+                "idopcion": String(idOpcionActual),
+                "usuario": usuario
             },
             success: function (response) {
                 $("#editarModal").modal("hide");
@@ -189,7 +211,7 @@ $(document).ready(function () {
                     ultimaFilaModificada = id;
                 }
 
-                // Recargar la lista con headers dinámicos
+                // Recargar la lista
                 cargarOpcionesLista(usuario);
             },
             error: function (xhr, status, error) {
@@ -515,22 +537,24 @@ function abrirModalEditar(id) {
                 url: `${window.apiBaseUrl}/api/Opciones/obtener/${id}`,
                 method: "GET",
                 headers: {
-                    "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                    "usuario": usuario                   // ✅ DINÁMICO
+                    "idopcion": String(idOpcionActual),
+                    "usuario": usuario
                 },
                 success: function (data) {
-                    console.log("Datos de la opción cargados:", data);
+                    console.log("Datos de la opción cargados para edición:", data);
 
-                    $("#modal-id").val(data.idopcion);
+                    // ✅ SETEAR TODOS LOS CAMPOS CORRECTAMENTE
+                    $("#modal-idOpcion").val(data.idopcion);
                     $("#modal-nombre").val(data.nombre);
                     $("#modal-descripcion").val(data.descripcion);
                     $("#modal-activo").prop("checked", data.idestado === 1);
-                    $("#modal-etiqueta").val(data.idetiqueta);
-                    $("#modal-vista").val(data.vista);
+                    $("#modal-vista").val(data.vista); // ✅ AHORA USA EL ID CORRECTO
 
-                    // Seleccionar los valores correspondientes
+                    // Seleccionar los valores de los combos
                     $("#modal-tipo-servicio").val(data.idtiposervicio);
                     $("#modal-tipo-grupo").val(data.idgrupo);
+
+                    console.log("Campo vista seteado con valor:", data.vista);
 
                     var editarModal = new bootstrap.Modal(document.getElementById('editarModal'));
                     editarModal.show();
@@ -627,6 +651,23 @@ function confirmDelete(id) {
 
                     // Recargar la lista con headers dinámicos
                     cargarOpcionesLista(usuario);
+                    // ✅ RECARGAR LA LISTA CON USUARIO EN LA RUTA
+                    console.log('Recargando lista después de eliminar con URL:', `${window.apiBaseUrl}/api/Opciones/listar/${usuario}`);
+                    $.ajax({
+                        url: `${window.apiBaseUrl}/api/Opciones/listar/${usuario}`, // ✅ USUARIO EN LA RUTA
+                        method: "GET",
+                        headers: {
+                            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+                            "usuario": usuario                   // ✅ DINÁMICO
+                        },
+                        success: function (data) {
+                            crearListado(data);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error al recargar opciones:", error);
+                            console.error("Detalles del error:", xhr.responseText);
+                        }
+                    });
                 },
                 error: function (xhr, status, error) {
                     console.error("Error al eliminar:", error);
