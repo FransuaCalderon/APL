@@ -46,17 +46,27 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
-        public Task<AcuerdoDTO?> ObtenerPorIdAsync(int idAcuerdo)
+        public Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ControlErroresDTO> ActualizarAsync(CrearActualizarAcuerdoDTO acuerdo, int idAcuerdo)
+        public Task<IEnumerable<ClaseDTO>> ConsultarClases()
         {
             throw new NotImplementedException();
         }
 
-        public Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoDTO acuerdo)
+        public Task<IEnumerable<DepartamentoDTO>> ConsultarDepartamentos()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<DivisionDTO>> ConsultarDivisiones()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<MarcaDTO>> ConsultarMarcas()
         {
             throw new NotImplementedException();
         }
@@ -66,11 +76,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             throw new NotImplementedException();
         }
 
-        public Task<ControlErroresDTO> InactivarAcuerdo(InactivarAcuerdoDTO acuerdo)
+        public Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo)
         {
             throw new NotImplementedException();
         }
-
-        
     }
 }

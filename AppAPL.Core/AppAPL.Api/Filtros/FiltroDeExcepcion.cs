@@ -37,7 +37,7 @@ namespace AppAPL.Api.Filtros
                 TaskCanceledException timeoutEx => CrearResultado(408, "La solicitud superó el tiempo de espera.", timeoutEx.Message),
                 NullReferenceException nullEx => CrearResultado(500, "Referencia nula en el servidor.", nullEx.Message),
                 ArgumentException argEx => CrearResultado(400, "Argumento inválido en la solicitud.", argEx.Message),
-                NotImplementedException notImpleEx => CrearResultado(400, "Metodo aun no incrementado, en desarrollo", notImpleEx.Message),
+                NotImplementedException notImpleEx => CrearResultado(400, "Metodo aun no implementado, en desarrollo", notImpleEx.Message),
                 _ => CrearResultado(500, "Ocurrió un error interno en el servidor.", ex.Message)
             };
 

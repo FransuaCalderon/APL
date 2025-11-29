@@ -18,20 +18,39 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<ConsultarAcuerdoFondoDTO>> ConsultarAcuerdoFondo(int idFondo)
             => repo.ConsultarAcuerdoFondo(idFondo);
 
-        public Task<AcuerdoDTO?> ObtenerPorIdAsync(int idAcuerdo)
-            => repo.ObtenerPorIdAsync(idAcuerdo);
+        public Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase)
+        {
+            throw new NotImplementedException();
+        }
 
-        public  Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoDTO acuerdo)
-            => repo.CrearAsync(acuerdo);
+        public Task<IEnumerable<ClaseDTO>> ConsultarClases()
+        {
+            throw new NotImplementedException();
+        }
 
+        public Task<IEnumerable<DepartamentoDTO>> ConsultarDepartamentos()
+        {
+            throw new NotImplementedException();
+        }
 
-        public Task<ControlErroresDTO> InactivarAcuerdo(InactivarAcuerdoDTO acuerdo)
-            => repo.InactivarAcuerdo(acuerdo);
+        public Task<IEnumerable<DivisionDTO>> ConsultarDivisiones()
+        {
+            throw new NotImplementedException();
+        }
 
-        public Task<ControlErroresDTO> ActualizarAsync(CrearActualizarAcuerdoDTO acuerdo, int idAcuerdo)
-            => repo.ActualizarAsync(acuerdo, idAcuerdo);
+        public Task<IEnumerable<MarcaDTO>> ConsultarMarcas()
+        {
+            throw new NotImplementedException();
+        }
 
-        public Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoDTO acuerdo)
-            => repo.AprobarAcuerdo(acuerdo);
+        public Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoDTO acuerdo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -79,7 +79,7 @@ namespace AppAPL.Api.Middlewares
                     serviceProvider,
                     (svc, id) => svc.ObtenerPorIdAsync(id));
             }
-            
+            /*
             if (emailAttr.Entidad == "ENTACUERDO" && emailAttr.TipoProceso == TipoProceso.Modificacion)
             {
                 acuerdoAntiguo = await ConsultarEntidadAntiguaAsync<AcuerdoDTO, IAcuerdoServicio>(
@@ -87,7 +87,7 @@ namespace AppAPL.Api.Middlewares
                 "idAcuerdo",
                 serviceProvider,
                 (svc, id) => svc.ObtenerPorIdAsync(id));
-            }
+            }*/
 
 
 

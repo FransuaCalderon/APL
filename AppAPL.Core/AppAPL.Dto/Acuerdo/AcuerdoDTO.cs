@@ -21,6 +21,36 @@ namespace AppAPL.Dto.Acuerdo
         public int IdEstadoRegistro { get; set; }
     }
 
+    public class MarcaDTO
+    {
+        public int IdMarca { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class DivisionDTO
+    {
+        public int IdDivision { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class DepartamentoDTO
+    {
+        public int IdDepartamento { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class ClaseDTO
+    {
+        public int IdClase { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class ArticuloDTO
+    {
+        public int IdArticulo { get; set; }
+        public string Nombre { get; set; }
+    }
+
     public class ConsultarAcuerdoFondoDTO
     {
         public int idfondo { get; set; }
@@ -75,31 +105,5 @@ namespace AppAPL.Dto.Acuerdo
         public int IdEstadoRegistro { get; set; }
     }
 
-    public class AprobarAcuerdoDTO
-    {
-        public int IdTipoAcuerdo { get; set; }
-        public int IdMotivoAcuerdo { get; set; }
-        public string Descripcion { get; set; }
-        public DateTime FechaInicioVigencia { get; set; }
-        public DateTime FechaFinVigencia { get; set; }
-        public DateTime? FechaIngreso { get; set; }
-        public string? IdUsuarioIngreso { get; set; }
-        public DateTime? FechaModifica { get; set; }
-        public string? IdUsuarioModifica { get; set; }
-        public int IdEstadoRegistro { get; set; }
-    }
-
-    public class InactivarAcuerdoDTO
-    {
-        public int IdTipoAcuerdo { get; set; }
-        public int IdMotivoAcuerdo { get; set; }
-        public string Descripcion { get; set; }
-        public DateTime FechaInicioVigencia { get; set; }
-        public DateTime FechaFinVigencia { get; set; }
-        public DateTime? FechaIngreso { get; set; }
-        public string? IdUsuarioIngreso { get; set; }
-        public DateTime? FechaModifica { get; set; }
-        public string? IdUsuarioModifica { get; set; }
-        public int IdEstadoRegistro { get; set; }
-    }
+    
 }

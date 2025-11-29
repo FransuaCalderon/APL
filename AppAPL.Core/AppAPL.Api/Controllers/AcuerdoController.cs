@@ -20,21 +20,62 @@ namespace AppAPL.Api.Controllers
             return listaAcuerdoFondos.ToList();
         }
 
-        [HttpGet("obtener/{id:int}")]
-        public async Task<ActionResult<AcuerdoDTO>> ObtenerPorId(int id)
+        [HttpGet("consultar-marcas")]
+        public async Task<ActionResult<List<MarcaDTO>>> ConsultarMarcas()
         {
+            var listaMarcas = await servicio.ConsultarMarcas();
 
-            var item = await servicio.ObtenerPorIdAsync(id);
+            return listaMarcas.ToList();
+        }
+
+        [HttpGet("consultar-divisiones")]
+        public async Task<ActionResult<List<DivisionDTO>>> ConsultarDivisiones()
+        {
+            var listaDivisiones = await servicio.ConsultarDivisiones();
+
+            return listaDivisiones.ToList();
+        }
+
+        [HttpGet("consultar-departamentos")]
+        public async Task<ActionResult<List<DepartamentoDTO>>> ConsultarDepartamentos()
+        {
+            var listaDepartamentos = await servicio.ConsultarDepartamentos();
+
+            return listaDepartamentos.ToList();
+        }
+
+        [HttpGet("consultar-clases")]
+        public async Task<ActionResult<List<ClaseDTO>>> ConsultarClases()
+        {
+            var listaClases = await servicio.ConsultarClases();
+
+            return listaClases.ToList();
+        }
+
+        [HttpGet("consultar-articulos/{idMarca:int}/{idDivision:int}/{idDepartamento:int}/{idClase:int}")]
+        public async Task<ActionResult<List<ArticuloDTO>>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase)
+        {
+            var listaArticulos = await servicio.ConsultarArticulos(idMarca, idDivision, idDepartamento, idClase);
+
+            return listaArticulos.ToList();
+        }
+
+        [HttpGet("obtener-articulo-por-id/{id:int}")]
+        public async Task<ActionResult<ArticuloDTO>> ObtenerArticuloPorId(int idArticulo)
+        {
+            
+            var item = await servicio.ObtenerArticuloPorId(idArticulo);
             if (item == null)
-                return NotFound(new { mensaje = $"No se encontró el acuerdo con ese id {id}" });
+                return NotFound(new { mensaje = $"No se encontró el articulo con ese id {idArticulo}" });
             return item;
         }
 
 
         [HttpPost("insertar")]
-        [Email("ENTACUERDO", TipoProceso.Creacion)]
+        //[Email("ENTACUERDO", TipoProceso.Creacion)]
         public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearActualizarAcuerdoDTO acuerdo)
         {
+            
             var retorno = await servicio.CrearAsync(acuerdo);
 
             if (retorno.codigoRetorno == 0)
@@ -50,67 +91,7 @@ namespace AppAPL.Api.Controllers
             }
         }
 
-        [HttpPost("aprobar-acuerdo")]
-        [Email("ENTACUERDO", TipoProceso.Aprobacion)]
-        public async Task<ActionResult<ControlErroresDTO>> AprobarAcuerdo( AprobarAcuerdoDTO acuerdo)
-        {
-
-            var retorno = await servicio.AprobarAcuerdo(acuerdo);
-
-            if (retorno.codigoRetorno == 0)
-            {
-                logger.LogInformation(retorno.mensaje);
-                return retorno;
-            }
-            else
-            {
-
-                logger.LogError(retorno.mensaje);
-                return BadRequest(retorno);
-            }
-        }
-
-        [HttpPost("inactivar-acuerdo")]
-        [Email("ENTACUERDO", TipoProceso.Inactivacion)]
-        public async Task<ActionResult<ControlErroresDTO>> InactivarAcuerdo(InactivarAcuerdoDTO acuerdo)
-        {
-
-            var retorno = await servicio.InactivarAcuerdo(acuerdo);
-
-            if (retorno.codigoRetorno == 0)
-            {
-                logger.LogInformation(retorno.mensaje);
-                return retorno;
-            }
-            else
-            {
-
-                logger.LogError(retorno.mensaje);
-                return BadRequest(retorno);
-            }
-        }
-
-        // 🔹 PUT: Actualizar
-        [HttpPut("actualizar/{idAcuerdo:int}")]
-        [Email("ENTACUERDO", TipoProceso.Modificacion)]
-
-        public async Task<ActionResult<ControlErroresDTO>> Actualizar( CrearActualizarAcuerdoDTO acuerdo, int idAcuerdo)
-        {
-
-            var retorno = await servicio.ActualizarAsync(acuerdo, idAcuerdo);
-
-            if (retorno.codigoRetorno == 0)
-            {
-                //logger.LogInformation(retorno.mensaje);
-                return retorno;
-            }
-            else
-            {
-
-                //logger.LogError(retorno.mensaje);
-                return BadRequest(retorno);
-            }
-        }
+     
 
     }
 }

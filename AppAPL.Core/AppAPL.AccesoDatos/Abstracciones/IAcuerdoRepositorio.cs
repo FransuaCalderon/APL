@@ -12,10 +12,13 @@ namespace AppAPL.AccesoDatos.Abstracciones
     {
         Task<IEnumerable<ConsultarAcuerdoFondoDTO>> ConsultarAcuerdoFondo(int idFondo);
 
-        Task<ControlErroresDTO> ActualizarAsync(CrearActualizarAcuerdoDTO acuerdo, int idAcuerdo);
+        Task<IEnumerable<MarcaDTO>> ConsultarMarcas();
+        Task<IEnumerable<DivisionDTO>> ConsultarDivisiones();
+        Task<IEnumerable<DepartamentoDTO>> ConsultarDepartamentos();
+        Task<IEnumerable<ClaseDTO>> ConsultarClases();
+        Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase);
+        Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo);
+
         Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoDTO acuerdo);
-        Task<AcuerdoDTO?> ObtenerPorIdAsync(int idAcuerdo);
-        Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoDTO acuerdo);
-        Task<ControlErroresDTO> InactivarAcuerdo(InactivarAcuerdoDTO acuerdo);
     }
 }
