@@ -1,50 +1,43 @@
 ﻿@{
     ViewData["Title"] = "Creación de Acuerdo";
-}
-
-@{
-    // Viene del ViewBag que llenamos en el controlador
     var usuarioActual = ViewBag.UsuarioActual as string;
 }
 
 @section Scripts {
     <script>
-        // Variable global con el usuario logueado
         window.usuarioActual = '@usuarioActual';
     </script>
+
     <!-- jQuery -->
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
 
-    <!-- jQuery UI (para el Datepicker) -->
+    <!-- jQuery UI (Datepicker) -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.s"></script>
+    <!-- OJO: aquí era .s, debe ser .js -->
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
 
-    <!-- Script de localización para español -->
+    <!-- Localización Datepicker ES -->
     <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
+
+    <!-- DataTables (si lo usas) -->
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 
-    <!-- *** ¡NUEVO! Carga de Font Awesome para los iconos *** -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJ/fK5R28hTCJtTfF/rP7N06lHnF4nL9Q/w5E0L+D4O12L8j+12/5O0S0w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- *** ¡MODIFICADO! *** -->
-    <!-- 2. Carga el archivo de la VISTA después (apuntando a CraerFondo.js) -->
+    <!-- Script principal -->
     <script src="~/js/Acuerdo/CrearAcuerdo.js" asp-append-version="true"></script>
 
-    <!-- Estilo simple para que el datepicker se parezca a Bootstrap -->
     <style>
         .ui-datepicker {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            font-size: 0.9rem; /* Tamaño de letra más acorde */
-            z-index: 1056 !important; /* Asegura que se muestre sobre otros elementos (como modales si los usaras) */
-        }
-        /* Para que el check de la tabla se vea bien */
-        #tablaProveedores img {
-            height: 1.2em;
+            font-size: 0.9rem;
+            z-index: 1056 !important;
         }
 
-        /* Estilos personalizados para la tabla de Items (simulando la imagen) */
         .detalle-header {
-            background-color: #343a40; /* Dark Gray / Gris Oscuro */
+            background-color: #343a40;
             color: white;
             padding: 8px 15px;
             text-align: center;
@@ -55,8 +48,8 @@
         }
 
         .tabla-items-header th {
-            background-color: #a4c995; /* Color verde claro similar al de la imagen */
-            color: #343a40; /* Texto oscuro para contraste */
+            background-color: #a4c995;
+            color: #343a40;
             font-weight: bold;
             vertical-align: middle;
             text-align: center;
@@ -67,144 +60,14 @@
             text-align: right;
             padding: 0.25rem 0.5rem;
             font-size: 0.875rem;
-            height: 28px; /* Altura ajustada */
+            height: 28px;
             border: 1px solid #ced4da;
             border-radius: 0.2rem;
         }
     </style>
-
-    <!-- Script para inicializar el Datepicker en Español y con botones -->
-    <script>
-        $(document).ready(function () {
-            // =========================================================================
-            // *** LÓGICA DE VISIBILIDAD DE FORMULARIOS POR TIPO DE ACUERDO ***
-            // =========================================================================
-
-            function toggleAcuerdoForm() {
-                const tipo = $("#acuerdoTipo").val();
-
-                // Ocultar ambos formularios inicialmente
-                $("#formGeneral").hide();
-                $("#formItems").hide();
-
-                // Mostrar el formulario según el tipo seleccionado
-                if (tipo === "General") {
-                    $("#formGeneral").show();
-                } else if (tipo === "Items") {
-                    $("#formItems").show();
-                }
-            }
-
-            // 1. Inicializa el estado al cargar la página
-            toggleAcuerdoForm();
-
-            // 2. Asigna el evento 'change' al select para cambiar la visibilidad
-            $("#acuerdoTipo").on('change', toggleAcuerdoForm);
-
-
-            // =========================================================================
-            // LÓGICA DEL DATEPICKER (EXISTENTE)
-            // =========================================================================
-
-            // 1. Cargar la configuración regional en español
-            $.datepicker.setDefaults($.datepicker.regional['es']);
-
-            // 2. Inicializa los datepickers (aplicable a ambos forms si usan los mismos IDs)
-            $("#fondoFechaInicio, #fondoFechaFin").datepicker({
-                dateFormat: "dd/mm/yy", // Formato que coincide con tu placeholder
-                changeMonth: true,
-                changeYear: true,
-                showButtonPanel: true, // Muestra el panel de botones
-                // 'beforeShow' se usa para modificar los botones antes de que se muestren
-                beforeShow: function(input, inst) {
-                    // Retrasar la modificación para asegurar que el panel de botones exista
-                    setTimeout(function() {
-                        let buttonPane = $(inst.dpDiv).find(".ui-datepicker-buttonpane");
-
-                        // 1. Cambiar el texto del botón "Done" (Cerrar) a "Borrar"
-                        let doneButton = buttonPane.find(".ui-datepicker-close");
-                        doneButton.text("Borrar");
-
-                        // 2. Reasignar el evento 'click' del botón "Borrar" para que limpie el campo
-                        doneButton.off("click").on("click", function () {
-                            // Limpiar el valor del input
-                            $(input).val("");
-                            // Esconder el datepicker
-                            $.datepicker._hideDatepicker();
-                        });
-
-                        // 3. (Opcional) Asegurarse que el botón "Hoy" esté correcto
-                        let todayButton = buttonPane.find(".ui-datepicker-current");
-                        todayButton.text("Hoy");
-
-                    }, 1);
-                }
-            });
-
-            // 3. Asigna el clic del *botón* para que abra el datepicker del *input*
-            $("#btnFechaInicio").on("click", function () {
-                $("#fondoFechaInicio").datepicker("show");
-            });
-
-            $("#btnFechaFin").on("click", function () {
-                $("#fondoFechaFin").datepicker("show");
-            });
-
-            // =========================================================================
-            // LÓGICA DE LA TABLA DE ITEMS (Simulación de carga de datos)
-            // =========================================================================
-            const mockItems = [
-                { id: "COD1231", nombre: "TV 65 Samsung 4K", costo: "999,999.99", unidades: "999", precioContado: "999,999.99", precioTC: "999,999.99", precioCredito: "999,999.99", aporteProveedor: "999,999.99", comprometido: "999,999.99", margenContado: "99.99", margenTC: "99.99", margenCredito: "99.99" },
-                { id: "COD1232", nombre: "TV 70 Samsung 4K", costo: "999,999.99", unidades: "999", precioContado: "999,999.99", precioTC: "999,999.99", precioCredito: "999,999.99", aporteProveedor: "999,999.99", comprometido: "999,999.99", margenContado: "99.99", margenTC: "99.99", margenCredito: "99.99" }
-            ];
-
-            function renderItemsTable() {
-                const tbody = $('#tablaItemsBody');
-                tbody.empty(); // Limpia la tabla existente
-
-                mockItems.forEach(item => {
-                    const row = `
-                        <tr class="tabla-items-row">
-                            <td class="align-middle text-center"><input type="radio" name="selectedItem" value="${item.id}"></td>
-                            <td class="align-middle">${item.id} - ${item.nombre}</td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="$ ${item.costo}" disabled></td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="${item.unidades}"></td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="$ ${item.precioContado}"></td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="$ ${item.precioTC}"></td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="$ ${item.precioCredito}"></td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="$ ${item.aporteProveedor}"></td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="$ ${item.comprometido}" disabled></td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="${item.margenContado}"></td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="${item.margenTC}"></td>
-                            <td class="align-middle"><input type="text" class="form-control-sm w-100" value="${item.margenCredito}"></td>
-                        </tr>
-                    `;
-                    tbody.append(row);
-                });
-            }
-
-            // Llamar a la función para renderizar la tabla al cargar
-            renderItemsTable();
-            // Esto solo es una simulación de datos, en producción deberías cargarlos de la API/Backend
-
-            // Lógica de botones de la tabla de Items (ejemplo)
-            $("#btnAddItem").on('click', function() {
-                // Aquí iría la lógica para abrir el modal de búsqueda de items
-                console.log("Abrir modal para añadir Item.");
-            });
-            $("#btnModifyItem").on('click', function() {
-                // Aquí iría la lógica para modificar el item seleccionado
-                console.log("Modificar Item seleccionado.");
-            });
-            $("#btnDeleteItem").on('click', function() {
-                // Aquí iría la lógica para eliminar el item seleccionado
-                console.log("Eliminar Item seleccionado.");
-            });
-        });
-    </script>
 }
 
-<!-- Encabezado compacto -->
+<!-- Encabezado -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-1 mb-2 border-bottom">
     <h1 class="h4">Acuerdo - Creación</h1>
 </div>
@@ -212,98 +75,95 @@
 <!-- Selector tipo acuerdo -->
 <div class="col-md-13">
     <label for="acuerdoTipo" class="form-label fw-bold col-form-label-sm">Tipo de Acuerdo</label>
-    <!-- Este select se rellenará dinámicamente por Fondo.js -->
     <select id="acuerdoTipo" class="form-select form-select-sm">
         <option value="General" selected>General</option>
-        <option value="Items">Articulo</option>
+        <option value="Items">Artículo</option>
     </select>
 </div>
 
-<hr>
+<hr />
 
-<!-- =================================================================== -->
-<!-- FORMULARIO PARA SELECT GENERAL -->
-<!-- *** ¡MODIFICADO! Se agrega ID: formGeneral *** -->
-<!-- =================================================================== -->
+<!-- ========================================================= -->
+<!-- FORM GENERAL -->
+<!-- ========================================================= -->
 <form id="formGeneral" class="row g-1 mb-1 pb-1">
 
-    <!-- Fila 1 -->
+    <div class="col-md-3">
+        <label class="form-label fw-bold col-form-label-sm">Proveedor</label>
+        <div class="input-group input-group-sm">
+            <input type="text" class="form-control" id="fondoProveedorGeneral" value="Seleccione..." readonly>
+            <button class="btn btn-outline-secondary" type="button"
+                    data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
+                <img src="~/img/ico/search.svg" alt="Buscar">
+            </button>
+        </div>
+        <input type="hidden" id="fondoProveedorIdGeneral">
+    </div>
+
     <div class="col-md-2">
-        <label for="fondoTipo" class="form-label fw-bold col-form-label-sm">Fondos Proveedores</label>
-        <!-- Este select se rellenará dinámicamente por Fondo.js -->
+        <label for="fondoTipoGeneral" class="form-label fw-bold col-form-label-sm">Motivo</label>
         <select id="fondoTipoGeneral" class="form-select form-select-sm">
             <option selected>Cargando...</option>
         </select>
     </div>
-    <div class="col-md-3">
-        <label for="fondoProveedor" class="form-label fw-bold col-form-label-sm">Motivo</label>
-        <div class="input-group input-group-sm">
-            <input type="text" class="form-control" id="fondoProveedor" value="Seleccione..." readonly>
-            <button class="btn btn-outline-secondary" type="button" id="btnBuscarProveedorModal" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
-                <img src="~/img/ico/search.svg" alt="Buscar">
-            </button>
-        </div>
 
-        <input type="hidden" id="fondoProveedorId">
-
-    </div>
     <div class="col-md-3">
         <label for="fondoDescripcionGeneral" class="form-label fw-bold col-form-label-sm">Descripción</label>
         <input type="text" class="form-control form-control-sm" id="fondoDescripcionGeneral" placeholder="Ingrese Descripción">
     </div>
+
     <div class="col-md-2">
         <label for="fondoFechaInicioGeneral" class="form-label fw-bold col-form-label-sm">Fecha Inicio</label>
         <div class="input-group input-group-sm">
-            <!-- NOTA: He cambiado los IDs de fecha para que sean únicos, aunque el script de datepicker ya los maneja. Se mantienen los originales como ejemplo de repetición. -->
-            <input id="fondoFechaInicio" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <!-- ID agregado al botón para el script -->
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicio">
-                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
-            </button>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <label for="fondoFechaFinGeneral" class="form-label fw-bold col-form-label-sm">Fecha Fin</label>
-        <div class="input-group input-group-sm">
-            <input id="fondoFechaFin" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <!-- ID agregado al botón para el script -->
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaFin">
+            <input id="fondoFechaInicioGeneral" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicioGeneral">
                 <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
             </button>
         </div>
     </div>
 
-    <!-- Fila 2 -->
+    <div class="col-md-2">
+        <label for="fondoFechaFinGeneral" class="form-label fw-bold col-form-label-sm">Fecha Fin</label>
+        <div class="input-group input-group-sm">
+            <input id="fondoFechaFinGeneral" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaFinGeneral">
+                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
+            </button>
+        </div>
+    </div>
+
     <div class="col-md-3 mt-0">
         <label for="fondoValorTotalGeneral" class="form-label fw-bold col-form-label-sm">$ Valor Total</label>
         <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotalGeneral" placeholder="$ 0,00">
     </div>
+
     <div class="col-md-3 mt-0">
         <label for="fondoDisponibleGeneral" class="form-label fw-bold col-form-label-sm">$ Disponible</label>
         <input type="text" class="form-control form-control-sm text-end" id="fondoDisponibleGeneral" placeholder="$ 0,00" disabled>
     </div>
+
     <div class="col-md-3 mt-0">
-        <label for="fondoComprometidoGeneral" class="form-label fw-bold col-form-label-sm">$ Comprometido</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoComprometidoGeneral" value="$ 0.00" disabled>
-    </div>
-    <div class="col-md-3 mt-0">
-        <label for="fondoLiquidadoGeneral" class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoLiquidadoGeneral" value="$ 0.00" disabled>
+        <label class="form-label fw-bold col-form-label-sm">$ Comprometido</label>
+        <input type="text" class="form-control form-control-sm text-end" value="$ 0,00" disabled>
     </div>
 
-    <hr class="mt-1 mb-1">
-    <!-- Fila 3 - Botón (se quitó mt-2 para reducir espacio) -->
-    <div class="col-20">
-        <!-- *** ¡NUEVO! *** Se agregó el ID -->
-        <button type="button" class="btn btn-primary" id="btnGuardarFondosGeneral">Grabar</button>
+    <div class="col-md-3 mt-0">
+        <label class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
+        <input type="text" class="form-control form-control-sm text-end" value="$ 0,00" disabled>
+    </div>
+
+    <hr class="mt-1 mb-1" />
+
+    <div class="col-12">
+        <button type="button" class="btn btn-primary" id="btnGuardarAcuerdoGeneral">Grabar</button>
     </div>
 </form>
 
-
-<!-- =================================================================== -->
-<!-- INICIO: MODAL CONSULTA DE PROVEEDORES (Se mantiene intacto) -->
-<!-- =================================================================== -->
-<div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalConsultaProveedorLabel" aria-hidden="true">
+<!-- ========================================================= -->
+<!-- MODAL PROVEEDORES -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="modalConsultaProveedorLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xxl">
         <div class="modal-content" style="height: 90vh; max-height: 90vh;">
             <div class="modal-header">
@@ -312,43 +172,38 @@
             </div>
 
             <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
-                <!-- Búsqueda -->
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-semibold">Seleccione un Proveedor</span>
                     <input type="text" class="form-control form-control-sm" placeholder="Buscar..." style="width: 250px;">
                 </div>
 
-                <!-- Tabla -->
                 <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
                     <table id="tablaProveedores" class="table table-hover table-sm table-bordered mb-0">
                         <thead class="table-success sticky-top">
                             <tr class="text-nowrap">
-                                <th scope="col" class="text-center align-middle" style="min-width: 110px;">Seleccionar</th>
-                                <th scope="col" class="align-middle" style="min-width: 80px;">Código</th>
-                                <th scope="col" class="align-middle" style="min-width: 130px;">RUC</th>
-                                <th scope="col" class="align-middle" style="min-width: 200px;">Nombre Proveedor</th>
-                                <th scope="col" class="align-middle" style="min-width: 150px;">Contacto</th>
-                                <th scope="col" class="align-middle" style="min-width: 200px;">Mail</th>
-                                <th scope="col" class="align-middle" style="min-width: 130px;">Teléfono</th>
+                                <th class="text-center align-middle" style="min-width: 110px;">Seleccionar</th>
+                                <th class="align-middle" style="min-width: 80px;">Código</th>
+                                <th class="align-middle" style="min-width: 130px;">RUC</th>
+                                <th class="align-middle" style="min-width: 200px;">Nombre Proveedor</th>
+                                <th class="align-middle" style="min-width: 150px;">Contacto</th>
+                                <th class="align-middle" style="min-width: 200px;">Mail</th>
+                                <th class="align-middle" style="min-width: 130px;">Teléfono</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Los datos se cargan dinámicamente -->
+                            <!-- Se llena por JS -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Paginador -->
                 <nav aria-label="Navegación de páginas" class="mt-2">
                     <ul class="pagination pagination-sm justify-content-center mb-0">
                         <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true" aria-label="Anterior">
+                            <a class="page-link" href="#" aria-label="Anterior">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
-                        <li class="page-item active" aria-current="page">
-                            <a class="page-link" href="#">1</a>
-                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
                         <li class="page-item"><a class="page-link" href="#">2</a></li>
                         <li class="page-item"><a class="page-link" href="#">3</a></li>
                         <li class="page-item">
@@ -368,71 +223,63 @@
     </div>
 </div>
 
-<!-- =================================================================== -->
-<!-- FORMULARIO PARA SELECT ITEMS -->
-<!-- *** ¡MODIFICADO! Se agrega ID: formItems y el Detalle de Items *** -->
-<!-- =================================================================== -->
-<form id="formItems" class="row g-1 mb-1 pb-1">
-    <!-- Fila 1 - Campos principales -->
+<!-- ========================================================= -->
+<!-- FORM ITEMS -->
+<!-- ========================================================= -->
+<form id="formItems" class="row g-1 mb-1 pb-1" style="display:none;">
+
     <div class="col-md-3">
         <label for="fondoTipoItems" class="form-label fw-bold col-form-label-sm">Motivo</label>
-        <!-- Este select se rellenará dinámicamente por Fondo.js -->
         <select id="fondoTipoItems" class="form-select form-select-sm">
             <option selected>Cargando...</option>
         </select>
     </div>
+
     <div class="col-md-3">
         <label for="fondoDescripcionItems" class="form-label fw-bold col-form-label-sm">Descripción</label>
         <input type="text" class="form-control form-control-sm" id="fondoDescripcionItems" placeholder="Ingrese Descripción">
     </div>
+
     <div class="col-md-3">
         <label for="fondoFechaInicioItems" class="form-label fw-bold col-form-label-sm">Fecha Inicio</label>
         <div class="input-group input-group-sm">
-            <input id="fondoFechaInicio" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicio">
+            <input id="fondoFechaInicioItems" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicioItems">
                 <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
             </button>
         </div>
     </div>
+
     <div class="col-md-3">
         <label for="fondoFechaFinItems" class="form-label fw-bold col-form-label-sm">Fecha Fin</label>
         <div class="input-group input-group-sm">
-            <input id="fondoFechaFin" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaFin">
+            <input id="fondoFechaFinItems" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaFinItems">
                 <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
             </button>
         </div>
     </div>
 
-    <!-- Fila 2 - Valores (Disponible, Comprometido, etc.) -->
-    <div class="col-md-3 mt-0">
-        <label for="fondoValorTotalItems" class="form-label fw-bold col-form-label-sm">$ Valor Total</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotalItems" placeholder="$ 0,00">
-    </div>
-    <div class="col-md-3 mt-0">
-        <label for="fondoDisponibleItems" class="form-label fw-bold col-form-label-sm">$ Disponible</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoDisponibleItems" placeholder="$ 0,00" disabled>
-    </div>
-    <div class="col-md-3 mt-0">
-        <label for="fondoComprometidoItems" class="form-label fw-bold col-form-label-sm">$ Comprometido</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoComprometidoItems" value="$ 0.00" disabled>
-    </div>
-    <div class="col-md-3 mt-0">
-        <label for="fondoLiquidadoItems" class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
-        <input type="text" class="form-control form-control-sm text-end" id="fondoLiquidadoItems" value="$ 0.00" disabled>
-    </div>
-
-    <!-- =================================================================== -->
-    <!-- INICIO: DETALLE DE ARTÍCULOS (TABLA) -->
-    <!-- Se usa 'col-12' para que ocupe todo el ancho -->
-    <!-- =================================================================== -->
-    <div class="col-12 mt-3">
-        <!-- Título del Detalle con color oscuro -->
-        <div class="detalle-header">
-            Detalle de los Artículos
+    <div class="col-md-3">
+        <label class="form-label fw-bold col-form-label-sm">Proveedor</label>
+        <div class="input-group input-group-sm">
+            <input type="text" class="form-control" id="fondoProveedorItems" value="Seleccione..." readonly>
+            <button class="btn btn-outline-secondary" type="button"
+                    data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
+                <img src="~/img/ico/search.svg" alt="Buscar">
+            </button>
         </div>
+        <input type="hidden" id="fondoProveedorIdItems">
+    </div>
 
-        <!-- Botones de Acción *** ¡MODIFICADO! Se usan iconos de Font Awesome *** -->
+    <div class="col-md-3 mt-0">
+        <label class="form-label fw-bold col-form-label-sm">$ Proveedor - Total</label>
+        <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotalItems" placeholder="$ 0,00" disabled>
+    </div>
+
+    <div class="col-12 mt-3">
+        <div class="detalle-header">Detalle de los Artículos</div>
+
         <div class="d-flex align-items-center gap-3 pt-2 pb-1">
             <a href="#" class="text-decoration-none text-primary fw-semibold d-flex align-items-center gap-1" id="btnAddItem">
                 <i class="fa-solid fa-plus"></i> Añadir Item
@@ -445,39 +292,35 @@
             </a>
         </div>
 
-        <!-- Contenedor de la Tabla con scroll horizontal y vertical -->
         <div class="table-responsive border rounded" style="max-height: 40vh; overflow-y: auto;">
             <table id="tablaItems" class="table table-sm table-bordered mb-0">
                 <thead class="tabla-items-header sticky-top">
                     <tr>
-                        <th scope="col" style="min-width: 50px;"></th> <!-- Radio button -->
-                        <th scope="col" style="min-width: 250px;">Item</th>
-                        <th scope="col" style="min-width: 120px;">Costo</th>
-                        <th scope="col" style="min-width: 100px;">Unidades Límite</th>
-                        <th scope="col" style="min-width: 130px;">Precio - Contado</th>
-                        <th scope="col" style="min-width: 130px;">Precio - TC</th>
-                        <th scope="col" style="min-width: 130px;">Precio - Crédito</th>
-                        <th scope="col" style="min-width: 150px;">Aporte por Unidad - Proveedor</th>
-                        <th scope="col" style="min-width: 130px;">Comprometido Proveedor</th>
-                        <th scope="col" style="min-width: 100px;">Margen Contado</th>
-                        <th scope="col" style="min-width: 100px;">Margen TC</th>
-                        <th scope="col" style="min-width: 100px;">Margen Crédito</th>
+                        <th style="min-width: 50px;"></th>
+                        <th style="min-width: 250px;">Item</th>
+                        <th style="min-width: 120px;">Costo</th>
+                        <th style="min-width: 100px;">Unidades Límite</th>
+                        <th style="min-width: 130px;">Precio - Contado</th>
+                        <th style="min-width: 130px;">Precio - TC</th>
+                        <th style="min-width: 130px;">Precio - Crédito</th>
+                        <th style="min-width: 150px;">Aporte por Unidad - Proveedor</th>
+                        <th style="min-width: 130px;">Comprometido Proveedor</th>
+                        <th style="min-width: 100px;">Margen Contado</th>
+                        <th style="min-width: 100px;">Margen TC</th>
+                        <th style="min-width: 100px;">Margen Crédito</th>
                     </tr>
                 </thead>
                 <tbody id="tablaItemsBody" class="tabla-items-body">
-                    <!-- Filas de Items se cargan aquí con JavaScript -->
+                    <!-- Se llena por JS -->
                 </tbody>
             </table>
         </div>
     </div>
-    <!-- =================================================================== -->
-    <!-- FIN: DETALLE DE ARTÍCULOS (TABLA) -->
-    <!-- =================================================================== -->
 
-    <hr class="mt-3 mb-1">
-    <!-- Fila final - Botón Grabar -->
-    <div class="col-20">
-        <button type="button" class="btn btn-primary" id="btnGuardarFondosItems">Grabar</button>
+    <hr class="mt-3 mb-1" />
+
+    <div class="col-12">
+        <button type="button" class="btn btn-primary" id="btnGuardarAcuerdoItems">Grabar</button>
     </div>
 </form>
 
