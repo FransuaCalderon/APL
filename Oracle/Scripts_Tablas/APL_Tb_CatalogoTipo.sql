@@ -57,3 +57,10 @@ VALUES ('Tipo de Proceso', 'Tipo de Proceso', 1,  SYSDATE, NULL, TO_DATE('2024-1
 --acuedos 12/11/2025
   INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
 VALUES ('Tipo de Acuerdo', 'Tipo de Acuerdo', 1,  SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOACUERDO');
+
+--Acuerdo 27/11/2025
+  INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
+VALUES ('Clase de Acuerdo', 'Clases de Acuerdo', 1,  SYSDATE, NULL, TO_DATE('2025-11-27 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'CLASEACUERDO');
+
+  INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
+VALUES ('Motivos Acuerdo', 'Motivo de Creacion de Acuerdo', 1,  SYSDATE, NULL, TO_DATE('2025-11-27 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'ACMOTIVOS');

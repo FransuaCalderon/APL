@@ -169,3 +169,17 @@ VALUES ('Acuerdo General', '', '', 13, 1, SYSDATE, NULL, NULL, 1, 'ACGENERAL');
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Acuerdo Por Articulo', '', '', 13, 1, SYSDATE, NULL, NULL, 1, 'ACARTICULO');
+
+--Acuerdos
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('General', '', '', 14, 1, SYSDATE, NULL, NULL, 1, 'CLAGENERAL');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Por Articulo', '', '', 14, 1, SYSDATE, NULL, NULL, 1, 'CLAARTICULO');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Exceso Inventario', '', '', 15, 1, SYSDATE, NULL, NULL, 1, 'MTAEXCESO');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Renovacion de Stock', '', '', 15, 1, SYSDATE, NULL, NULL, 1, 'MTARENOVACION');
