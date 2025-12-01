@@ -12,6 +12,7 @@ namespace AppAPL.Negocio.Abstracciones
     public interface IAcuerdoServicio
     {
         Task<IEnumerable<ConsultarAcuerdoFondoDTO>> ConsultarAcuerdoFondo(int idFondo);
+        Task<IEnumerable<FondoAcuerdoDTO>> ConsultarFondoAcuerdo();
 
         Task<IEnumerable<MarcaDTO>> ConsultarMarcas();
         Task<IEnumerable<DivisionDTO>> ConsultarDivisiones();
@@ -20,6 +21,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase);
         Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo);
 
-        Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoDTO acuerdo);
+        Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo);
     }
 }

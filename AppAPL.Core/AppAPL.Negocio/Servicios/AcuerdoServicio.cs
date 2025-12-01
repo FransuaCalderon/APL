@@ -18,6 +18,9 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<ConsultarAcuerdoFondoDTO>> ConsultarAcuerdoFondo(int idFondo)
             => repo.ConsultarAcuerdoFondo(idFondo);
 
+        public Task<IEnumerable<FondoAcuerdoDTO>> ConsultarFondoAcuerdo()
+            => repo.ConsultarFondoAcuerdo();
+
         public Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase)
         {
             throw new NotImplementedException();
@@ -43,10 +46,8 @@ namespace AppAPL.Negocio.Servicios
             throw new NotImplementedException();
         }
 
-        public Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoDTO acuerdo)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo)
+            => repo.CrearAsync(acuerdo);
 
         public Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo)
         {

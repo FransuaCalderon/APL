@@ -20,6 +20,14 @@ namespace AppAPL.Api.Controllers
             return listaAcuerdoFondos.ToList();
         }
 
+        [HttpGet("consultar-fondo-acuerdo")]
+        public async Task<ActionResult<List<FondoAcuerdoDTO>>> ConsultarFondoAcuerdo()
+        {
+            var listaAcuerdoFondos = await servicio.ConsultarFondoAcuerdo();
+
+            return listaAcuerdoFondos.ToList();
+        }
+
         [HttpGet("consultar-marcas")]
         public async Task<ActionResult<List<MarcaDTO>>> ConsultarMarcas()
         {
@@ -73,12 +81,12 @@ namespace AppAPL.Api.Controllers
 
         [HttpPost("insertar")]
         //[Email("ENTACUERDO", TipoProceso.Creacion)]
-        public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearActualizarAcuerdoDTO acuerdo)
+        public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearActualizarAcuerdoGrupoDTO acuerdo)
         {
             
             var retorno = await servicio.CrearAsync(acuerdo);
 
-            if (retorno.codigoRetorno == 0)
+            if (retorno.Id > 0)
             {
                 logger.LogInformation(retorno.mensaje);
                 return retorno;

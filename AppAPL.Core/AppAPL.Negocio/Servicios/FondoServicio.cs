@@ -16,8 +16,7 @@ namespace AppAPL.Negocio.Servicios
              string? IdEvento = null)
             => await repo.ObtenerFondosAsync(NombreUsuario,IdOpcion,IdControlInterfaz,IdEvento);
 
-        public async Task<IEnumerable<FondoDTO>> ListarFondoAcuerdo(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null, string? IdEvento = null)
-            => await repo.ListarFondoAcuerdo(NombreUsuario, IdOpcion, IdControlInterfaz, IdEvento);
+        
 
         public async Task<FondoDTO?> ObtenerPorIdAsync(int idFondo)
             => await repo.ObtenerPorIdAsync(idFondo);
