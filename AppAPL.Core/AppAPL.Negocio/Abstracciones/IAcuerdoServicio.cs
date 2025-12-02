@@ -18,8 +18,8 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<DivisionDTO>> ConsultarDivisiones();
         Task<IEnumerable<DepartamentoDTO>> ConsultarDepartamentos();
         Task<IEnumerable<ClaseDTO>> ConsultarClases();
-        Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase);
-        Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo);
+        Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto);
+        //Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo);
 
         Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo);
     }

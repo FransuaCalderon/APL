@@ -42,32 +42,67 @@ namespace AppAPL.Dto.Acuerdo
 
     public class MarcaDTO
     {
-        public int IdMarca { get; set; }
+        public string Codigo { get; set; }
         public string Nombre { get; set; }
     }
 
     public class DivisionDTO
     {
-        public int IdDivision { get; set; }
+        public string Codigo { get; set; }
         public string Nombre { get; set; }
     }
 
     public class DepartamentoDTO
     {
-        public int IdDepartamento { get; set; }
+        public string Codigo { get; set; }
         public string Nombre { get; set; }
     }
 
     public class ClaseDTO
     {
-        public int IdClase { get; set; }
+        public string Codigo { get; set; }
         public string Nombre { get; set; }
     }
 
     public class ArticuloDTO
     {
-        public int IdArticulo { get; set; }
-        public string Nombre { get; set; }
+        public string Codigo { get; set; }
+        public string Descripcion { get; set; }
+        public decimal Costo { get; set; }
+        public int Stock_Bodega { get; set; }
+        public int Stock_Tiendas { get; set; }
+        public int Unidades_Disponibles { get; set; }
+        public int Inventario_Optimo { get; set; }
+        public decimal Excedentes_Unidades { get; set; }
+        public decimal Excedentes_Dolares { get; set; }
+        public int M0_Unidades { get; set; }
+        public decimal M0_Dolares { get; set; }
+        public int M1_Unidades { get; set; }
+        public decimal M1_Dolares { get; set; }
+        public int M2_Unidades { get; set; }
+        public decimal M2_Dolares { get; set; }
+        public decimal Igualar_Precio { get; set; }
+        public decimal Dias_Antiguedad { get; set; }
+        public decimal Margen_Min_Contado { get; set; }
+        public decimal Margen_Min_Tarjeta_Credito { get; set; }
+        public decimal Margen_Min_Precio_Credito { get; set; }
+        public decimal Margen_Min_Igualar { get; set; }
+        public decimal Precio_Lista_Contado { get; set; }
+        public decimal Precio_Lista_Credito { get; set; }
+        public string Marca { get; set; }
+        public string Division { get; set; }
+        public string Departamento { get; set; }
+        public string Clase { get; set; }
+
+    }
+
+    public class ConsultarArticuloDTO
+    {
+        public List<string> Marcas { get; set; }
+        public List<string> Divisiones { get; set; }
+        public List<string> Departamentos { get; set; }
+        public List<string> Clases { get; set; }
+        public string Articulo { get; set; }
     }
 
     public class ConsultarAcuerdoFondoDTO

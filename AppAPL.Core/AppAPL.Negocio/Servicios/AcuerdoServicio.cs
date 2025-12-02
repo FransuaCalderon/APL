@@ -21,37 +21,27 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<FondoAcuerdoDTO>> ConsultarFondoAcuerdo()
             => repo.ConsultarFondoAcuerdo();
 
-        public Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto)
+            => repo.ConsultarArticulos(dto);
 
         public Task<IEnumerable<ClaseDTO>> ConsultarClases()
-        {
-            throw new NotImplementedException();
-        }
+            => repo.ConsultarClases();
 
         public Task<IEnumerable<DepartamentoDTO>> ConsultarDepartamentos()
-        {
-            throw new NotImplementedException();
-        }
+            => repo.ConsultarDepartamentos();
 
         public Task<IEnumerable<DivisionDTO>> ConsultarDivisiones()
-        {
-            throw new NotImplementedException();
-        }
+            => repo.ConsultarDivisiones();
 
         public Task<IEnumerable<MarcaDTO>> ConsultarMarcas()
-        {
-            throw new NotImplementedException();
-        }
+            => repo.ConsultarMarcas();
 
         public Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo)
             => repo.CrearAsync(acuerdo);
-
+        /*
         public Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo)
         {
             throw new NotImplementedException();
-        }
+        }*/
     }
 }

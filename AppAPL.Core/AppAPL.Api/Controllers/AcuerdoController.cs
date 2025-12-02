@@ -60,14 +60,14 @@ namespace AppAPL.Api.Controllers
             return listaClases.ToList();
         }
 
-        [HttpGet("consultar-articulos/{idMarca:int}/{idDivision:int}/{idDepartamento:int}/{idClase:int}")]
-        public async Task<ActionResult<List<ArticuloDTO>>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase)
+        [HttpPost("consultar-articulos")]
+        public async Task<ActionResult<List<ArticuloDTO>>> ConsultarArticulos(ConsultarArticuloDTO dto)
         {
-            var listaArticulos = await servicio.ConsultarArticulos(idMarca, idDivision, idDepartamento, idClase);
+            var listaArticulos = await servicio.ConsultarArticulos(dto);
 
             return listaArticulos.ToList();
         }
-
+        /*
         [HttpGet("obtener-articulo-por-id/{id:int}")]
         public async Task<ActionResult<ArticuloDTO>> ObtenerArticuloPorId(int idArticulo)
         {
@@ -76,7 +76,7 @@ namespace AppAPL.Api.Controllers
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el articulo con ese id {idArticulo}" });
             return item;
-        }
+        }*/
 
 
         [HttpPost("insertar")]

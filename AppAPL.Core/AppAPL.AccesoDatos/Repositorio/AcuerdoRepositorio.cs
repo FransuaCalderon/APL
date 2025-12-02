@@ -76,29 +76,149 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
-        public Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(int idMarca, int idDivision, int idDepartamento, int idClase)
+        public async Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto)
         {
-            throw new NotImplementedException();
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+
+            //var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            /*
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<ArticuloDTO>(
+                "SELECT * FROM APL_TB_ARTEFACTA_ARTICULO",
+                null,
+                commandType: CommandType.Text
+            );
+
+            //int? codigoSalida = parameters.Get<int>("p_codigo");
+            //string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
         }
 
-        public Task<IEnumerable<ClaseDTO>> ConsultarClases()
+        public async Task<IEnumerable<ClaseDTO>> ConsultarClases()
         {
-            throw new NotImplementedException();
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+
+            //var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            /*
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<ClaseDTO>(
+                "SELECT CODIGO, NOMBRE FROM APL_TB_ARTEFACTA_CLASE",
+                null,
+                commandType: CommandType.Text
+            );
+
+            //int? codigoSalida = parameters.Get<int>("p_codigo");
+            //string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
         }
 
-        public Task<IEnumerable<DepartamentoDTO>> ConsultarDepartamentos()
+        public async Task<IEnumerable<DepartamentoDTO>> ConsultarDepartamentos()
         {
-            throw new NotImplementedException();
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+
+            //var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            /*
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<DepartamentoDTO>(
+                "SELECT CODIGO, NOMBRE FROM APL_TB_ARTEFACTA_DEPARTAMENTO",
+                null,
+                commandType: CommandType.Text
+            );
+
+            //int? codigoSalida = parameters.Get<int>("p_codigo");
+            //string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
         }
 
-        public Task<IEnumerable<DivisionDTO>> ConsultarDivisiones()
+        public async Task<IEnumerable<DivisionDTO>> ConsultarDivisiones()
         {
-            throw new NotImplementedException();
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+
+            //var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            /*
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<DivisionDTO>(
+                "SELECT CODIGO, NOMBRE FROM APL_TB_ARTEFACTA_DIVISION",
+                null,
+                commandType: CommandType.Text
+            );
+
+            //int? codigoSalida = parameters.Get<int>("p_codigo");
+            //string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
         }
 
-        public Task<IEnumerable<MarcaDTO>> ConsultarMarcas()
+        public async Task<IEnumerable<MarcaDTO>> ConsultarMarcas()
         {
-            throw new NotImplementedException();
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+
+            //var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            /*
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<MarcaDTO>(
+                "SELECT CODIGO, NOMBRE FROM APL_TB_ARTEFACTA_MARCA",
+                null,
+                commandType: CommandType.Text
+            );
+
+            //int? codigoSalida = parameters.Get<int>("p_codigo");
+            //string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
         }
 
         public async Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo)
@@ -142,10 +262,10 @@ namespace AppAPL.AccesoDatos.Repositorio
             };
             return retorno;
         }
-
-        public Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo)
+        /*
+        public async Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo)
         {
             throw new NotImplementedException();
-        }
+        }*/
     }
 }

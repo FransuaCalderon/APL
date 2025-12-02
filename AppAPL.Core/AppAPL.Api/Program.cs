@@ -106,6 +106,9 @@ builder.Services.AddCors(options =>
 
 //habilitar middleware por archivo appsetting.sjon
 //var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
+
+var enableCleanJson = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableCleanJson");
+var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
 var enableEmail = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableEmail");
 
 
@@ -149,8 +152,16 @@ if (enableAuditoria)
     app.UseMiddleware<AuditoriaMiddleware>();
 }*/
 
-app.UseMiddleware<CleanJsonMiddleware>();
-app.UseMiddleware<AuditoriaMiddleware>();
+if (enableCleanJson)
+{
+    app.UseMiddleware<CleanJsonMiddleware>();
+}
+
+if (enableAuditoria)
+{
+    app.UseMiddleware<AuditoriaMiddleware>();
+}
+
 if (enableEmail)
 {
     app.UseMiddleware<EmailMiddleware>();
