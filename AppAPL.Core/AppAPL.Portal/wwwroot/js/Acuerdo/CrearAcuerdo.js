@@ -272,81 +272,122 @@
             return;
         }
 
-        function obtenerPrimerValorValido(...valores) {
-            for (let valor of valores) {
-                if (valor != null && String(valor).trim() !== "") return String(valor).trim();
+        const pick = (obj, keys, def = "") => {
+            for (const k of keys) {
+                const v = obj?.[k];
+                if (v != null && String(v).trim() !== "") return String(v).trim();
             }
-            return "";
-        }
+            return def;
+        };
 
-        $tbody
-            .empty()
-            .append('<tr><td colspan="7" class="text-center">Cargando proveedores...</td></tr>');
+        const toNumber = (v) => {
+            const n = Number(v);
+            return Number.isFinite(n) ? n : 0;
+        };
+
+        const fmtMoney = (v) =>
+            toNumber(v).toLocaleString("es-EC", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const fmtDate = (iso) => {
+            if (!iso) return "";
+            const d = new Date(iso);
+            if (isNaN(d.getTime())) return "";
+            return new Intl.DateTimeFormat("es-EC", { year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+        };
+
+        const esc = (s) =>
+            String(s ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+
+        $tbody.empty().append('<tr><td colspan="13" class="text-center">Cargando...</td></tr>');
 
         $.ajax({
-            url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
+            url: `${window.apiBaseUrl}/api/Acuerdo/consultar-fondo-acuerdo`,
             method: "GET",
             headers: {
                 idopcion: String(idOpcionActual),
                 usuario: usuario,
             },
             success: function (data) {
-                console.log("Proveedores cargados:", data);
+                console.log("Datos fondo-acuerdo:", data);
                 $tbody.empty();
 
-                if (Array.isArray(data) && data.length > 0) {
-                    data.forEach(function (proveedor) {
-                        const codigo = proveedor.codigo ?? "";
-                        const ruc = proveedor.identificacion ?? "";
-                        const nombre = proveedor.nombre ?? "";
-
-                        const contacto = obtenerPrimerValorValido(
-                            proveedor.nombrecontacto1,
-                            proveedor.nombrecontacto2,
-                            proveedor.nombrecontacto3,
-                            proveedor.nombrecontacto4
-                        );
-
-                        const mail = obtenerPrimerValorValido(
-                            proveedor.mailcontacto1,
-                            proveedor.mailcontacto2,
-                            proveedor.mailcontacto3,
-                            proveedor.mailcontacto4
-                        );
-
-                        const telefono = "";
-
-                        const fila = `
-              <tr>
-                <td class="align-middle text-center">
-                  <input class="form-check-input" type="radio" name="selectProveedor"
-                         data-id="${codigo}"
-                         data-nombre="${nombre}"
-                         data-ruc="${ruc}">
-                </td>
-                <td class="align-middle">${codigo}</td>
-                <td class="align-middle">${ruc}</td>
-                <td class="align-middle">${nombre}</td>
-                <td class="align-middle">${contacto}</td>
-                <td class="align-middle">${mail}</td>
-                <td class="align-middle">${telefono}</td>
-              </tr>
-            `;
-                        $tbody.append(fila);
-                    });
-                } else {
-                    $tbody.append('<tr><td colspan="7" class="text-center">No se encontraron proveedores.</td></tr>');
+                if (!Array.isArray(data) || data.length === 0) {
+                    $tbody.append('<tr><td colspan="13" class="text-center">No se encontraron registros.</td></tr>');
+                    return;
                 }
+
+                data.forEach((x) => {
+                    // === ASOCIACIÓN REAL a tu endpoint ===
+                    const idFondo = pick(x, ["idfondo", "idFondo"]);
+                    const descripcion = pick(x, ["descripcion", "descripcionFondo", "nombreFondo"]);
+                    const ruc = pick(x, ["idproveedor", "ruc", "identificacion"]);
+                    const proveedor = pick(x, ["proveedor", "nombreProveedor", "razonSocialProveedor"], ""); // si no viene, queda vacío
+                    const tipoFondo = pick(x, ["tipoFondo", "tipoFondoDescripcion", "descTipoFondo"], pick(x, ["idtipofondo", "idTipoFondo"]));
+
+                    const valorFondo = fmtMoney(pick(x, ["valorfondo", "valorFondo", "montoFondo"], 0));
+                    const fechaInicio = fmtDate(pick(x, ["fechainidovigencia", "fechainicio", "fechaInicio", "fechaIniVigencia"]));
+                    const fechaFin = fmtDate(pick(x, ["fechafinvigencia", "fechafin", "fechaFin", "fechaFinVigencia"]));
+
+                    const disponible = fmtMoney(pick(x, ["valordisponible", "valorDisponible"], 0));
+                    const comprometido = fmtMoney(pick(x, ["valorcomprometido", "valorComprometido"], 0));
+                    const liquidado = fmtMoney(pick(x, ["valorliquidado", "valorLiquidado"], 0));
+
+                    // Estado: si el endpoint trae texto, úsalo; si no, muestra el id
+                    const estado = pick(x, ["estado", "descEstado"], pick(x, ["idestadoregistro", "idEstadoRegistro"]));
+
+                    const fila = `
+          <tr class="text-nowrap">
+            <td class="align-middle text-center">
+              <input class="form-check-input" type="radio" name="selectProveedor"
+                data-idfondo="${esc(idFondo)}"
+                data-descripcion="${esc(descripcion)}"
+                data-ruc="${esc(ruc)}"
+                data-proveedor="${esc(proveedor)}"
+                data-idtipofondo="${esc(pick(x, ["idtipofondo", "idTipoFondo"]))}"
+                data-tipofondo="${esc(tipoFondo)}"
+                data-valorfondo="${esc(pick(x, ["valorfondo", "valorFondo"]))}"
+                data-fechainicio="${esc(pick(x, ["fechainidovigencia", "fechainicio", "fechaInicio"]))}"
+                data-fechafin="${esc(pick(x, ["fechafinvigencia", "fechafin", "fechaFin"]))}"
+                data-disponible="${esc(pick(x, ["valordisponible", "valorDisponible"]))}"
+                data-comprometido="${esc(pick(x, ["valorcomprometido", "valorComprometido"]))}"
+                data-liquidado="${esc(pick(x, ["valorliquidado", "valorLiquidado"]))}"
+                data-estado="${esc(estado)}"
+              >
+            </td>
+
+            <td class="align-middle">${esc(idFondo)}</td>
+            <td class="align-middle">${esc(descripcion)}</td>
+            <td class="align-middle">${esc(ruc)}</td>
+            <td class="align-middle">${esc(proveedor)}</td>
+            <td class="align-middle">${esc(tipoFondo)}</td>
+            <td class="align-middle text-end">${esc(valorFondo)}</td>
+            <td class="align-middle">${esc(fechaInicio)}</td>
+            <td class="align-middle">${esc(fechaFin)}</td>
+            <td class="align-middle text-end">${esc(disponible)}</td>
+            <td class="align-middle text-end">${esc(comprometido)}</td>
+            <td class="align-middle text-end">${esc(liquidado)}</td>
+            <td class="align-middle">${esc(estado)}</td>
+          </tr>
+        `;
+
+                    $tbody.append(fila);
+                });
             },
             error: function (xhr, status, error) {
-                console.error("Error proveedores:", error);
+                console.error("Error fondo-acuerdo:", error);
                 console.error("Detalles:", xhr.status, xhr.responseText);
-                $tbody
-                    .empty()
-                    .append('<tr><td colspan="7" class="text-center text-danger">Error al cargar datos.</td></tr>');
+                $tbody.empty().append(
+                    '<tr><td colspan="13" class="text-center text-danger">Error al cargar datos.</td></tr>'
+                );
             },
         });
     }
+
 
     function setProveedorEnFormActivo(proveedorNombre, proveedorRuc) {
         const tipo = getTipoAcuerdo();
