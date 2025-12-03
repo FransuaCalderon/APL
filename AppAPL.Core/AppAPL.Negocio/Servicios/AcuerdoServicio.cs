@@ -24,24 +24,13 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto)
             => repo.ConsultarArticulos(dto);
 
-        public Task<IEnumerable<ClaseDTO>> ConsultarClases()
-            => repo.ConsultarClases();
-
-        public Task<IEnumerable<DepartamentoDTO>> ConsultarDepartamentos()
-            => repo.ConsultarDepartamentos();
-
-        public Task<IEnumerable<DivisionDTO>> ConsultarDivisiones()
-            => repo.ConsultarDivisiones();
-
-        public Task<IEnumerable<MarcaDTO>> ConsultarMarcas()
-            => repo.ConsultarMarcas();
+        public Task<FiltrosItemsDTO> CargarCombosFiltrosItems()
+            => repo.CargarCombosFiltrosItems();
 
         public Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo)
             => repo.CrearAsync(acuerdo);
-        /*
-        public Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo)
-        {
-            throw new NotImplementedException();
-        }*/
+
+        public Task<IEnumerable<ArticuloDTO>> ObtenerArticuloEspecificos(string texto)
+            => repo.ObtenerArticuloEspecificos(texto);
     }
 }

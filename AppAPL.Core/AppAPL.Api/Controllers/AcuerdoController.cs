@@ -28,38 +28,6 @@ namespace AppAPL.Api.Controllers
             return listaAcuerdoFondos.ToList();
         }
 
-        [HttpGet("consultar-marcas")]
-        public async Task<ActionResult<List<MarcaDTO>>> ConsultarMarcas()
-        {
-            var listaMarcas = await servicio.ConsultarMarcas();
-
-            return listaMarcas.ToList();
-        }
-
-        [HttpGet("consultar-divisiones")]
-        public async Task<ActionResult<List<DivisionDTO>>> ConsultarDivisiones()
-        {
-            var listaDivisiones = await servicio.ConsultarDivisiones();
-
-            return listaDivisiones.ToList();
-        }
-
-        [HttpGet("consultar-departamentos")]
-        public async Task<ActionResult<List<DepartamentoDTO>>> ConsultarDepartamentos()
-        {
-            var listaDepartamentos = await servicio.ConsultarDepartamentos();
-
-            return listaDepartamentos.ToList();
-        }
-
-        [HttpGet("consultar-clases")]
-        public async Task<ActionResult<List<ClaseDTO>>> ConsultarClases()
-        {
-            var listaClases = await servicio.ConsultarClases();
-
-            return listaClases.ToList();
-        }
-
         [HttpPost("consultar-articulos")]
         public async Task<ActionResult<List<ArticuloDTO>>> ConsultarArticulos(ConsultarArticuloDTO dto)
         {
@@ -67,16 +35,25 @@ namespace AppAPL.Api.Controllers
 
             return listaArticulos.ToList();
         }
-        /*
-        [HttpGet("obtener-articulo-por-id/{id:int}")]
-        public async Task<ActionResult<ArticuloDTO>> ObtenerArticuloPorId(int idArticulo)
+
+        [HttpGet("consultar-combos")]
+        public async Task<ActionResult<FiltrosItemsDTO>> CargarCombosFiltrosItems()
+        {
+            var combos = await servicio.CargarCombosFiltrosItems();
+
+            return combos;
+        }
+
+        
+        
+        [HttpGet("obtener-articulos-especificos/{texto}")]
+        public async Task<ActionResult<List<ArticuloDTO>>> ObtenerArticuloEspecificos(string texto)
         {
             
-            var item = await servicio.ObtenerArticuloPorId(idArticulo);
-            if (item == null)
-                return NotFound(new { mensaje = $"No se encontró el articulo con ese id {idArticulo}" });
-            return item;
-        }*/
+            var listaArticulos = await servicio.ObtenerArticuloEspecificos(texto);
+            
+            return listaArticulos.ToList();
+        }
 
 
         [HttpPost("insertar")]

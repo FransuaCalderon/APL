@@ -14,12 +14,9 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<ConsultarAcuerdoFondoDTO>> ConsultarAcuerdoFondo(int idFondo);
         Task<IEnumerable<FondoAcuerdoDTO>> ConsultarFondoAcuerdo();
 
-        Task<IEnumerable<MarcaDTO>> ConsultarMarcas();
-        Task<IEnumerable<DivisionDTO>> ConsultarDivisiones();
-        Task<IEnumerable<DepartamentoDTO>> ConsultarDepartamentos();
-        Task<IEnumerable<ClaseDTO>> ConsultarClases();
+        Task<FiltrosItemsDTO> CargarCombosFiltrosItems();
         Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto);
-        //Task<ArticuloDTO?> ObtenerArticuloPorId(int idArticulo);
+        Task<IEnumerable<ArticuloDTO>> ObtenerArticuloEspecificos(string texto);
 
         Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo);
     }

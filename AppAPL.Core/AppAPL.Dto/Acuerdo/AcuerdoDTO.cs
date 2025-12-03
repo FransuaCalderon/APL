@@ -27,6 +27,7 @@ namespace AppAPL.Dto.Acuerdo
         public int IdFondo { get; set; }
         public string Descripcion { get; set; }
         public string IdProveedor { get; set; }
+        public string Nombre { get; set; }
         public int IdTipoFondo { get; set; }
         public decimal ValorFondo { get; set; }
         public DateTime FechaInicioVigencia { get; set; }
@@ -64,10 +65,19 @@ namespace AppAPL.Dto.Acuerdo
         public string Nombre { get; set; }
     }
 
+    public class FiltrosItemsDTO
+    {
+        public IEnumerable<MarcaDTO> Marcas { get; set; } = Enumerable.Empty<MarcaDTO>();
+        public IEnumerable<DivisionDTO> Divisiones { get; set; } = Enumerable.Empty<DivisionDTO>();
+        public IEnumerable<DepartamentoDTO> Departamentos { get; set; } = Enumerable.Empty<DepartamentoDTO>();
+        public IEnumerable<ClaseDTO> Clases { get; set; } = Enumerable.Empty<ClaseDTO>();
+    }
+
     public class ArticuloDTO
     {
         public string Codigo { get; set; }
         public string Descripcion { get; set; }
+        /*
         public decimal Costo { get; set; }
         public int Stock_Bodega { get; set; }
         public int Stock_Tiendas { get; set; }
@@ -93,7 +103,7 @@ namespace AppAPL.Dto.Acuerdo
         public string Division { get; set; }
         public string Departamento { get; set; }
         public string Clase { get; set; }
-
+        */
     }
 
     public class ConsultarArticuloDTO
@@ -186,7 +196,10 @@ namespace AppAPL.Dto.Acuerdo
 
     public class CrearActualizarAcuerdoGrupoDTO
     {
-        public string? TipoClaseEtiqueta { get; set; }
+        public string TipoClaseEtiqueta { get; set; }
+        public int IdOpcion { get; set; }
+        public string IdControlInterfaz { get; set; }
+        public string IdEvento { get; set; }
         public CrearActualizarAcuerdoDTO Acuerdo { get; set; }
         public CrearActualizarAcuerdoFondoDTO Fondo { get; set; }
         public IEnumerable<CrearActualizarAcuerdoArticuloDTO> Articulos { get; set; }
