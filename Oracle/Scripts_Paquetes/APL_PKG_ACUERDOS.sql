@@ -17,7 +17,11 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_json_fondo              IN  CLOB DEFAULT NULL,      -- Para GENERAL
         p_json_articulos          IN  CLOB DEFAULT NULL,      -- Para CON ARTICULOS
         p_idacuerdo_out           OUT NUMBER,
-        p_resultado               OUT VARCHAR2
+        p_idopcion                IN NUMBER,
+        p_idcontrolinterfaz       IN VARCHAR2,
+        p_idevento_etiqueta       IN VARCHAR2,
+        p_codigo_salida           OUT NUMBER,
+        p_mensaje_salida          OUT VARCHAR2
     );
 
 END APL_PKG_ACUERDOS;
@@ -93,7 +97,12 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         p_json_fondo              IN  CLOB DEFAULT NULL,
         p_json_articulos          IN  CLOB DEFAULT NULL,
         p_idacuerdo_out           OUT NUMBER,
-        p_resultado               OUT VARCHAR2
+        --parametros para el log
+        p_idopcion                IN NUMBER,
+        p_idcontrolinterfaz       IN VARCHAR2,
+        p_idevento_etiqueta       IN VARCHAR2,
+        p_codigo_salida           OUT NUMBER,
+        p_mensaje_salida          OUT VARCHAR2
     ) IS
         -- Variables para cabecera
         v_idacuerdo             NUMBER;
@@ -104,8 +113,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_fechafinvigencia      TIMESTAMP;
         v_idusuarioingreso      VARCHAR2(50);
         v_idestadoregistro      NUMBER;
-        v_marcaproceso          CHAR(1);
-        v_numerolote            NUMBER;
+        v_marcaproceso          CHAR(1); --
         v_fechaingreso          TIMESTAMP := SYSTIMESTAMP;
         
         -- Variables para fondo
@@ -122,6 +130,29 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_etiqueta_recibida     VARCHAR2(50);
         v_etiqueta_general      VARCHAR2(50);
         v_etiqueta_articulos    VARCHAR2(50);
+        
+         --variables aprobadores
+        v_tiene_aprobadores       NUMBER;
+        v_entidad_acuerdo         NUMBER;
+        v_tipo_creacion           NUMBER;
+        v_estado_activo           NUMBER;
+        
+        --variables no hay aprobadores
+        v_estado_nuevo            NUMBER;
+        v_estado_registro         NUMBER;
+        v_estado_aprobado         NUMBER;
+        
+        --variables lote
+        v_numero_lote_aprobacion  NUMBER;
+        v_row_exists              NUMBER;
+        
+         -- Variables para LOG
+        v_json_log               CLOB;
+        v_json_acuerdo           CLOB;
+        v_json_fondo_log         CLOB;
+        v_json_articulos_log     CLOB;
+        v_id_control_interfaz    NUMBER;
+        v_idevento               NUMBER;
     
     BEGIN
         -- =============================================================
@@ -130,12 +161,21 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         
         v_etiqueta_recibida := UPPER(TRIM(p_tipo_clase_etiqueta));
         
-        -- Obtener etiqueta GENERAL del catálogo
-        SELECT idetiqueta INTO v_etiqueta_general FROM apl_tb_catalogo WHERE idetiqueta = 'ACGENERAL';
-        
-        -- Obtener etiqueta CON ARTICULOS del catálogo      
+        --catalogos clase acuerdo
+        SELECT idetiqueta INTO v_etiqueta_general FROM apl_tb_catalogo WHERE idetiqueta = 'ACGENERAL';    
         SELECT idetiqueta INTO v_etiqueta_articulos FROM apl_tb_catalogo WHERE idetiqueta = 'ACARTICULO';
         
+        --catalogos
+        SELECT idcatalogo INTO v_entidad_acuerdo FROM apl_tb_catalogo WHERE idetiqueta = 'ENTACUERDO';
+        SELECT idcatalogo INTO v_tipo_creacion FROM apl_tb_catalogo WHERE idetiqueta = 'TPCREACION';  
+        SELECT idcatalogo INTO v_estado_activo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOACTIVO';
+        SELECT idcatalogo INTO v_estado_nuevo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';
+        SELECT idcatalogo INTO v_estado_aprobado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOAPROBADO';
+        
+         --VARIABLES PARA EL LOG
+        SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+        SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
+           
         
         -- =============================================================
         -- PASO 1: Extraer datos de la CABECERA desde JSON
@@ -144,12 +184,11 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             JSON_VALUE(p_json_cabecera, '$.idTipoAcuerdo' RETURNING NUMBER),
             JSON_VALUE(p_json_cabecera, '$.idMotivoAcuerdo' RETURNING NUMBER),
             JSON_VALUE(p_json_cabecera, '$.descripcion'),
-            TO_TIMESTAMP(JSON_VALUE(p_json_cabecera, '$.fechaInicioVigencia'), 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'),
-            TO_TIMESTAMP(JSON_VALUE(p_json_cabecera, '$.fechaFinVigencia'), 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'),
+            TO_TIMESTAMP(JSON_VALUE(p_json_cabecera, '$.fechaInicioVigencia'), 'YYYY-MM-DD'),
+            TO_TIMESTAMP(JSON_VALUE(p_json_cabecera, '$.fechaFinVigencia'), 'YYYY-MM-DD'),
             JSON_VALUE(p_json_cabecera, '$.idUsuarioIngreso'),
             NVL(JSON_VALUE(p_json_cabecera, '$.idEstadoRegistro' RETURNING NUMBER), 1),
-            NVL(JSON_VALUE(p_json_cabecera, '$.marcaProcesoAprobacion'), 'N'),
-            JSON_VALUE(p_json_cabecera, '$.numeroLoteAprobacion' RETURNING NUMBER)
+            NVL(JSON_VALUE(p_json_cabecera, '$.marcaProcesoAprobacion'), ' ')
         INTO 
             v_idtipoacuerdo,
             v_idmotivoacuerdo,
@@ -158,22 +197,68 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             v_fechafinvigencia,
             v_idusuarioingreso,
             v_idestadoregistro,
-            v_marcaproceso,
-            v_numerolote
+            v_marcaproceso
         FROM DUAL;
         
-        -- =============================================================
-        -- PASO 2: Evaluar CLASE DE ACUERDO con IF-ELSIF
-        -- =============================================================
         
         -- ---------------------------------------------------------
         -- CASO: GENERAL (2 tablas: acuerdo + fondo)
         -- ---------------------------------------------------------
         IF v_etiqueta_recibida = v_etiqueta_general THEN
+        
+            -- Valida si existen aprobadores
+            SELECT
+                    COUNT(*)
+                INTO v_tiene_aprobadores
+                FROM
+                    apl_tb_aprobador
+                WHERE
+                    entidad = v_entidad_acuerdo
+                    AND idtipoproceso = v_tipo_creacion
+                    AND idestadoregistro = v_estado_activo;
+                    
+            -- Si no existen aprobadores realiza esta logica
+            IF v_tiene_aprobadores > 0 THEN
+                    v_estado_registro := v_estado_nuevo;     -- NUEVO
+                     
+                     -- Validar que el fondo existe
+                     SELECT
+                        CASE
+                            WHEN EXISTS (SELECT 1 FROM apl_tb_lote WHERE entidad = v_entidad_acuerdo
+                            ) THEN
+                             1
+                            ELSE
+                             0
+                        END
+                        
+                        INTO v_row_exists
+                        FROM
+                            dual;
+                    
+                        IF v_row_exists = 0  THEN
+                            v_numero_lote_aprobacion := 1;
+                            INSERT INTO apl_tb_lote (
+                                entidad,
+                                secuencial
+                            )VALUES(
+                                v_entidad_acuerdo,
+                                v_numero_lote_aprobacion
+                            );
+                    ELSE 
+                        SELECT secuencial INTO v_numero_lote_aprobacion FROM apl_tb_lote WHERE entidad = v_entidad_acuerdo;
+                         v_numero_lote_aprobacion := v_numero_lote_aprobacion + 1;
+                         UPDATE apl_tb_lote  
+                         SET secuencial = v_numero_lote_aprobacion
+                         WHERE entidad = v_entidad_acuerdo;
+                    END IF;
+                ELSE
+                    v_estado_registro := v_estado_aprobado;  
+                END IF;
             
             -- Validar JSON fondo
             IF p_json_fondo IS NULL OR LENGTH(p_json_fondo) < 3 THEN
-                p_resultado := 'ERROR: Para clase "General" debe enviar información del fondo';
+                 p_codigo_salida := 0;
+                 p_mensaje_salida := 'ERROR: Para clase "General" debe enviar información del fondo';
                 RETURN;
             END IF;
             
@@ -219,7 +304,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 NULL,
                 v_idestadoregistro,
                 v_marcaproceso,
-                v_numerolote
+                v_numero_lote_aprobacion
             );
             
             -- Obtener ID generado
@@ -247,23 +332,176 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 1
             );
             
-            p_resultado := 'OK - Acuerdo General #' || v_idacuerdo || 
-                           ' creado con Fondo #' || v_idfondo;
-    
+            -- =============================================================
+            -- CONSTRUIR JSON PARA LOG (GENERAL: acuerdo + fondo)
+            -- =============================================================
+            
+            -- JSON del acuerdo
+            SELECT JSON_OBJECT(
+                'idacuerdo'             VALUE a.idacuerdo,
+                'idtipoacuerdo'         VALUE a.idtipoacuerdo,
+                'idmotivoacuerdo'       VALUE a.idmotivoacuerdo,
+                'descripcion'           VALUE a.descripcion,
+                'fechainiciovigencia'   VALUE TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
+                'fechafinvigencia'      VALUE TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
+                'fechaingreso'          VALUE TO_CHAR(a.fechaingreso, 'YYYY-MM-DD HH24:MI:SS'),
+                'idusuarioingreso'      VALUE a.idusuarioingreso,
+                'idestadoregistro'      VALUE a.idestadoregistro
+            ) INTO v_json_acuerdo
+            FROM apl_tb_acuerdo a
+            WHERE a.idacuerdo = v_idacuerdo;
+            
+            -- JSON del fondo
+            SELECT JSON_OBJECT(
+                'idacuerdo'         VALUE f.idacuerdo,
+                'idfondo'           VALUE f.idfondo,
+                'valoraporte'       VALUE f.valoraporte,
+                'valordisponible'   VALUE f.valordisponible,
+                'valorcomprometido' VALUE f.valorcomprometido,
+                'valorliquidado'    VALUE f.valorliquidado,
+                'idestadoregistro'  VALUE f.idestadoregistro
+            ) INTO v_json_fondo_log
+            FROM apl_tb_acuerdofondo f
+            WHERE f.idacuerdo = v_idacuerdo;
+            
+            -- JSON completo para el log (GENERAL)
+            v_json_log := JSON_OBJECT(
+                'tipoAcuerdo'   VALUE 'GENERAL',
+                'acuerdo'       VALUE JSON(v_json_acuerdo),
+                'fondo'         VALUE JSON(v_json_fondo_log)
+            );
+            
+             -- INSERT en APL_TB_LOG
+            INSERT INTO apl_tb_log (
+                fechahoratrx,
+                iduser,
+                idopcion,
+                idcontrolinterfaz,
+                idevento,
+                entidad,
+                identidad,
+                idtipoproceso,
+                datos
+            ) VALUES (
+                SYSTIMESTAMP,
+                v_idusuarioingreso,
+                p_idopcion,                  
+                v_id_control_interfaz,                      
+                v_idevento,                      
+                v_entidad_acuerdo,                      
+                v_idacuerdo,
+                v_tipo_creacion,                      
+                v_json_log
+            );
+        
+            p_codigo_salida := 1;
+            p_mensaje_salida := 'OK - Acuerdo General #' || v_idacuerdo || ' creado con Fondo #' || v_idfondo;
+            
+            -- Si hay aprobadores, generar filas en APL_TB_APROBACION (una por aprobador activo)
+            IF v_tiene_aprobadores > 0 THEN
+                    INSERT INTO apl_tb_aprobacion (
+                        entidad,
+                        identidad,
+                        idtipoproceso,
+                        idusersolicitud,
+                        nombreusersolicitud,
+                        fechasolicitud,
+                        iduseraprobador,
+                        fechaaprobacion,
+                        comentario,
+                        nivelaprobacion,
+                        idestadoregistro,
+                        numeroloteaprobacion
+                    )
+                    SELECT
+                        v_entidad_acuerdo        AS entidad,         -- SIEMPRE el catálogo ENTFONDO
+                        v_idfondo                AS identidad,       -- el IdFondo recién creado
+                        v_tipo_creacion          AS idtipoproceso,   -- TPCREACION
+                        v_idusuarioingreso       AS idusersolicitud,
+                        v_idusuarioingreso       AS nombreusersolicitud,
+                        systimestamp             AS fechasolicitud,
+                        a.iduseraprobador        AS iduseraprobador,
+                        NULL                     AS fechaaprobacion,
+                        NULL                     AS comentario,
+                        a.nivelaprobacion        AS nivelaprobacion,
+                        v_estado_nuevo           AS idestadoregistro,
+                        v_numero_lote_aprobacion
+                    FROM
+                        apl_tb_aprobador a
+                    WHERE
+                            a.entidad = v_entidad_acuerdo
+                        AND a.idtipoproceso = v_tipo_creacion
+                        AND a.idestadoregistro = v_estado_activo;
+
+            END IF;
+            
+        
         -- ---------------------------------------------------------
         -- CASO: CON ARTICULOS (3 tablas: acuerdo + fondo + articulos)
         -- ---------------------------------------------------------
         ELSIF v_etiqueta_recibida = v_etiqueta_articulos THEN
+        
+            -- Valida si existen aprobadores
+            SELECT
+                    COUNT(*)
+                INTO v_tiene_aprobadores
+                FROM
+                    apl_tb_aprobador
+                WHERE
+                    entidad = v_entidad_acuerdo
+                    AND idtipoproceso = v_tipo_creacion
+                    AND idestadoregistro = v_estado_activo;
+                    
+            -- Si no existen aprobadores realiza esta logica
+            IF v_tiene_aprobadores > 0 THEN
+                    v_estado_registro := v_estado_nuevo;     -- NUEVO
+                     
+                     -- Validar que el fondo existe
+                     SELECT
+                        CASE
+                            WHEN EXISTS (SELECT 1 FROM apl_tb_lote WHERE entidad = v_entidad_acuerdo
+                            ) THEN
+                             1
+                            ELSE
+                             0
+                        END
+                        
+                        INTO v_row_exists
+                        FROM
+                            dual;
+                    
+                        IF v_row_exists = 0  THEN
+                            v_numero_lote_aprobacion := 1;
+                            INSERT INTO apl_tb_lote (
+                                entidad,
+                                secuencial
+                            )VALUES(
+                                v_entidad_acuerdo,
+                                v_numero_lote_aprobacion
+                            );
+                    ELSE 
+                        SELECT secuencial INTO v_numero_lote_aprobacion FROM apl_tb_lote WHERE entidad = v_entidad_acuerdo;
+                         v_numero_lote_aprobacion := v_numero_lote_aprobacion + 1;
+                         UPDATE apl_tb_lote  
+                         SET secuencial = v_numero_lote_aprobacion
+                         WHERE entidad = v_entidad_acuerdo;
+                    END IF;
+                ELSE
+                    v_estado_registro := v_estado_aprobado;  
+                END IF;
+                    
             
             -- Validar JSON fondo
             IF p_json_fondo IS NULL OR LENGTH(p_json_fondo) < 3 THEN
-                p_resultado := 'ERROR: Para clase "Con Articulos" debe enviar información del fondo';
+                p_codigo_salida := 0;
+                p_mensaje_salida := 'ERROR: Para clase "Con Articulos" debe enviar información del fondo';
                 RETURN;
             END IF;
             
             -- Validar JSON artículos
             IF p_json_articulos IS NULL OR LENGTH(p_json_articulos) < 3 THEN
-                p_resultado := 'ERROR: Para clase "Con Articulos" debe enviar artículos';
+                p_codigo_salida := 0;
+                p_mensaje_salida := 'ERROR: Para clase "Con Articulos" debe enviar artículos';
                 RETURN;
             END IF;
             
@@ -309,7 +547,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 NULL,
                 v_idestadoregistro,
                 v_marcaproceso,
-                v_numerolote
+                v_numero_lote_aprobacion
             );
             
             -- Obtener ID generado
@@ -384,15 +622,140 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             
             v_count_articulos := SQL%ROWCOUNT;
             
-            p_resultado := 'OK - Acuerdo #' || v_idacuerdo || 
-                           ' creado con Fondo #' || v_idfondo ||
-                           ' y ' || v_count_articulos || ' artículos';
+            -- =============================================================
+            -- CONSTRUIR JSON PARA LOG (ARTICULO: acuerdo + fondo + articulos)
+            -- =============================================================
+            
+            -- JSON del acuerdo
+            SELECT JSON_OBJECT(
+                'idacuerdo'             VALUE a.idacuerdo,
+                'idtipoacuerdo'         VALUE a.idtipoacuerdo,
+                'idmotivoacuerdo'       VALUE a.idmotivoacuerdo,
+                'descripcion'           VALUE a.descripcion,
+                'fechainiciovigencia'   VALUE TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
+                'fechafinvigencia'      VALUE TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
+                'fechaingreso'          VALUE TO_CHAR(a.fechaingreso, 'YYYY-MM-DD HH24:MI:SS'),
+                'idusuarioingreso'      VALUE a.idusuarioingreso,
+                'idestadoregistro'      VALUE a.idestadoregistro
+            ) INTO v_json_acuerdo
+            FROM apl_tb_acuerdo a
+            WHERE a.idacuerdo = v_idacuerdo;
+            
+            -- JSON del fondo
+            SELECT JSON_OBJECT(
+                'idacuerdo'         VALUE f.idacuerdo,
+                'idfondo'           VALUE f.idfondo,
+                'valoraporte'       VALUE f.valoraporte,
+                'valordisponible'   VALUE f.valordisponible,
+                'valorcomprometido' VALUE f.valorcomprometido,
+                'valorliquidado'    VALUE f.valorliquidado,
+                'idestadoregistro'  VALUE f.idestadoregistro
+            ) INTO v_json_fondo_log
+            FROM apl_tb_acuerdofondo f
+            WHERE f.idacuerdo = v_idacuerdo;
+            
+            -- JSON array de artículos
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'idacuerdo'             VALUE art.idacuerdo,
+                    'codigoarticulo'        VALUE art.codigoarticulo,
+                    'costoactual'           VALUE art.costoactual,
+                    'unidadeslimite'        VALUE art.unidadeslimite,
+                    'preciocontado'         VALUE art.preciocontado,
+                    'preciotarjetacredito'  VALUE art.preciotarjetacredito,
+                    'preciocredito'         VALUE art.preciocredito,
+                    'margencontado'         VALUE art.margencontado,
+                    'margentarjetacredito'  VALUE art.margentarjetacredito,
+                    'valoraporte'           VALUE art.valoraporte,
+                    'valorcomprometido'     VALUE art.valorcomprometido,
+                    'idestadoregistro'      VALUE art.idestadoregistro
+                )
+            ) INTO v_json_articulos_log
+            FROM apl_tb_acuerdoarticulo art
+            WHERE art.idacuerdo = v_idacuerdo;
+            
+            -- JSON completo para el log (ARTICULO)
+            v_json_log := JSON_OBJECT(
+                'tipoAcuerdo'   VALUE 'ARTICULO',
+                'acuerdo'       VALUE JSON(v_json_acuerdo),
+                'fondo'         VALUE JSON(v_json_fondo_log),
+                'articulos'     VALUE JSON(v_json_articulos_log)
+            );
+            
+            -- INSERT en APL_TB_LOG
+            INSERT INTO apl_tb_log (
+                fechahoratrx,
+                iduser,
+                idopcion,
+                idcontrolinterfaz,
+                idevento,
+                entidad,
+                identidad,
+                idtipoproceso,
+                datos
+            ) VALUES (
+                SYSTIMESTAMP,
+                v_idusuarioingreso,
+                p_idopcion,                  
+                v_id_control_interfaz,                      
+                v_idevento,                      
+                v_entidad_acuerdo,                      
+                v_idacuerdo,
+                v_tipo_creacion,                      
+                v_json_log
+             );
+        
+            -- Si hay aprobadores, generar filas en APL_TB_APROBACION (una por aprobador activo)
+            IF v_tiene_aprobadores > 0 THEN
+                    INSERT INTO apl_tb_aprobacion (
+                        entidad,
+                        identidad,
+                        idtipoproceso,
+                        idusersolicitud,
+                        nombreusersolicitud,
+                        fechasolicitud,
+                        iduseraprobador,
+                        fechaaprobacion,
+                        comentario,
+                        nivelaprobacion,
+                        idestadoregistro,
+                        numeroloteaprobacion
+                    )
+                    SELECT
+                        v_entidad_acuerdo        AS entidad,         -- SIEMPRE el catálogo ENTFONDO
+                        v_idfondo                AS identidad,       -- el IdFondo recién creado
+                        v_tipo_creacion          AS idtipoproceso,   -- TPCREACION
+                        v_idusuarioingreso       AS idusersolicitud,
+                        v_idusuarioingreso       AS nombreusersolicitud,
+                        systimestamp             AS fechasolicitud,
+                        a.iduseraprobador        AS iduseraprobador,
+                        NULL                     AS fechaaprobacion,
+                        NULL                     AS comentario,
+                        a.nivelaprobacion        AS nivelaprobacion,
+                        v_estado_nuevo           AS idestadoregistro,
+                        v_numero_lote_aprobacion
+                    FROM
+                        apl_tb_aprobador a
+                    WHERE
+                            a.entidad = v_entidad_acuerdo
+                        AND a.idtipoproceso = v_tipo_creacion
+                        AND a.idestadoregistro = v_estado_activo;
+
+                 END IF;
+            
+        
+            p_codigo_salida := 1;
+            p_mensaje_salida := 'OK - Acuerdo #' || v_idacuerdo || ' creado con Fondo #' || v_idfondo || ' y ' || v_count_articulos || ' artículos';
         
         ELSE
-            p_resultado := 'ERROR: Clase de acuerdo no válida: ' || p_tipo_clase_etiqueta;
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'ERROR: Clase de acuerdo no válida: ' || p_tipo_clase_etiqueta;
             RETURN;
             
         END IF;
+        
+       
+        
         
         COMMIT;
         p_idacuerdo_out := v_idacuerdo;
@@ -401,7 +764,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         WHEN OTHERS THEN
             ROLLBACK;
             p_idacuerdo_out := NULL;
-            p_resultado := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
     END sp_crear_acuerdo;
     
 
