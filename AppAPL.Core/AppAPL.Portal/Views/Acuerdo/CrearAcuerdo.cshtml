@@ -64,6 +64,10 @@
             border: 1px solid #ced4da;
             border-radius: 0.2rem;
         }
+        /* Mismo ancho para Proveedores e Items */
+        .modal-bm-xxl {
+            --bs-modal-width: min(95vw, 1500px); /* ajusta 1500px si quieres más/menos */
+        }
     </style>
 }
 
@@ -89,7 +93,7 @@
 <form id="formGeneral" class="row g-1 mb-1 pb-1">
 
     <div class="col-md-3">
-        <label class="form-label fw-bold col-form-label-sm">Proveedor</label>
+        <label class="form-label fw-bold col-form-label-sm">Fondos Proveedor</label>
         <div class="input-group input-group-sm">
             <input type="text" class="form-control" id="fondoProveedorGeneral" value="Seleccione..." readonly>
             <button class="btn btn-outline-secondary" type="button"
@@ -266,7 +270,7 @@
     </div>
 
     <div class="col-md-3">
-        <label class="form-label fw-bold col-form-label-sm">Proveedor</label>
+        <label class="form-label fw-bold col-form-label-sm">Proveedor - ID Fondo</label>
         <div class="input-group input-group-sm">
             <input type="text" class="form-control" id="fondoProveedorItems" value="Seleccione..." readonly>
             <button class="btn btn-outline-secondary" type="button"
@@ -278,7 +282,7 @@
     </div>
 
     <div class="col-md-3 mt-0">
-        <label class="form-label fw-bold col-form-label-sm">$ Proveedor - Total</label>
+        <label class="form-label fw-bold col-form-label-sm">$ Proveedor - Valor Total</label>
         <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotalItems" placeholder="$ 0,00" disabled>
     </div>
 
@@ -286,7 +290,8 @@
         <div class="detalle-header">Detalle de los Artículos</div>
 
         <div class="d-flex align-items-center gap-3 pt-2 pb-1">
-            <a href="#" class="text-decoration-none text-primary fw-semibold d-flex align-items-center gap-1" id="btnAddItem">
+            <a href="#" class="text-decoration-none text-primary fw-semibold d-flex align-items-center gap-1"
+               id="btnAddItem" data-bs-toggle="modal" data-bs-target="#modalConsultaItems">
                 <i class="fa-solid fa-plus"></i> Añadir Item
             </a>
             <a href="#" class="text-decoration-none text-warning fw-semibold d-flex align-items-center gap-1" id="btnModifyItem">
@@ -328,5 +333,118 @@
         <button type="button" class="btn btn-primary" id="btnGuardarAcuerdoItems">Grabar</button>
     </div>
 </form>
+
+<!-- ========================================================= -->
+<!-- MODAL AÑADIR ITEMS -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalConsultaItems" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalConsultaItemsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xxl modal-bm-xxl">
+        <div class="modal-content" style="height: 90vh; max-height: 90vh;">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalConsultaItemsLabel">Consulta de Items</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
+                <!-- FILTROS -->
+                <h6 class="fw-bold mb-3">Criterios de Selección</h6>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Marca</label>
+                        <select id="filtroMarca" class="form-select form-select-sm">
+                            <option value="">Todas</option>
+                            <option>Marca 1</option>
+                            <option>Marca 2</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">División</label>
+                        <select id="filtroDivision" class="form-select form-select-sm">
+                            <option value="">Todas</option>
+                            <option>Division 1</option>
+                            <option>Division 2</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Departamento</label>
+                        <select id="filtroDepartamento" class="form-select form-select-sm">
+                            <option value="">Todos</option>
+                            <option>Departamento 1</option>
+                            <option>Departamento 2</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Clase</label>
+                        <select id="filtroClase" class="form-select form-select-sm">
+                            <option value="">Todas</option>
+                            <option>Clase 1</option>
+                            <option>Clase 2</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <button type="button" id="btnProcesarFiltros"
+                                class="btn btn-secondary w-100 py-1">
+                            Procesar Selección
+                        </button>
+                    </div>
+                </div>
+                <hr><
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">Seleccione un Item</span>
+                    <input id="buscarItem" type="text" class="form-control form-control-sm" placeholder="Buscar..." style="width: 250px;">
+                </div>
+
+                <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
+                    <table id="tablaItemsConsulta" class="table table-hover table-sm table-bordered mb-0">
+                        <thead class="table-success sticky-top">
+                            <tr class="text-nowrap">
+                                <th class="text-center align-middle" style="min-width: 70px;">
+                                    <input id="checkTodosItems" type="checkbox" class="form-check-input">
+                                </th>
+                                <th class="align-middle" style="min-width: 90px;">Codigo</th>
+                                <th class="align-middle" style="min-width: 220px;">Descripción</th>
+                                <th class="align-middle text-end" style="min-width: 140px;">Costo</th>
+                                <th class="align-middle text-center" style="min-width: 120px;">Stock</th>
+                                <th class="align-middle text-center" style="min-width: 120px;">Óptimo</th>
+                                <th class="align-middle text-center" style="min-width: 120px;">Excedente (u)</th>
+                                <th class="align-middle text-end" style="min-width: 120px;">Excedente ($)</th>
+                                <th class="align-middle text-center" style="min-width: 120px;">M-0 (u)</th>
+                                <th class="align-middle text-end" style="min-width: 120px;">M-0 ($)</th>
+                                <th class="align-middle text-center" style="min-width: 120px;">M-1 (u)</th>
+                                <th class="align-middle text-end" style="min-width: 120px;">M-1 ($)</th>
+                                <th class="align-middle text-center" style="min-width: 120px;">M-2 (u)</th>
+                                <th class="align-middle text-end" style="min-width: 120px;">M-2 ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <nav aria-label="Navegación de páginas" class="mt-2">
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Anterior"><span aria-hidden="true">&laquo;</span></a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Siguiente"><span aria-hidden="true">&raquo;</span></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnSeleccionarItems">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->
