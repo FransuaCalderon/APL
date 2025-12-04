@@ -1,5 +1,5 @@
 ﻿/**
- * CrearAcuerdo.js
+ * CrearAcuerdo.js - CORREGIDO
  * Lógica completa para la vista CrearAcuerdo.cshtml
  * - Diferencia General vs Items
  * - Carga combos Motivo (ACMOTIVO)
@@ -7,6 +7,8 @@
  * - Modal Items (Consulta y Selección)
  * - Validaciones por formulario
  * - Datepickers separados
+ * 
+ * CORRECCIÓN: JSON enviado ahora coincide con el formato esperado por el endpoint
  */
 
 (function () {
@@ -55,7 +57,8 @@
     function toISOFromDDMMYYYY(s) {
         const [dd, mm, yyyy] = s.split("/").map(Number);
         const d = new Date(yyyy, mm - 1, dd);
-        return d.toISOString();
+        // Retornar en formato YYYY-MM-DD para el API
+        return d.toISOString().split('T')[0];
     }
 
     function compareDatesDDMMYYYY(a, b) {
@@ -257,7 +260,8 @@
                     const idFondo = pick(x, ["idfondo", "idFondo"]);
                     const descripcion = pick(x, ["descripcion", "descripcionFondo", "nombreFondo"]);
                     const ruc = pick(x, ["idproveedor", "ruc", "identificacion"]);
-                    const proveedor = pick(x, ["proveedor", "nombreProveedor", "razonSocialProveedor"], "");
+                    // ✅ CORRECCIÓN: Agregado "nombre" como primer opción
+                    const proveedor = pick(x, ["nombre", "proveedor", "nombreProveedor", "razonSocialProveedor"], "");
                     const tipoFondo = pick(
                         x,
                         ["tipoFondo", "tipoFondoDescripcion", "descTipoFondo"],
@@ -349,11 +353,6 @@
         } else {
             $("#fondoProveedorItems").val(f.display);
             $("#fondoProveedorIdItems").val(f.idFondo);
-
-            // Si quisieras usar disponible como valor total para items:
-            // if (f.disponible != null && f.disponible !== "") {
-            //     $("#fondoValorTotalItems").val(formatCurrencySpanish(f.disponible));
-            // }
         }
     }
 
@@ -878,7 +877,7 @@
     }
 
     // -----------------------------
-    // Guardar (General)
+    // Guardar (General) - CORREGIDO
     // -----------------------------
     function guardarGeneral() {
         if (!ensureApiBaseUrl()) return;
@@ -890,20 +889,36 @@
             return;
         }
 
+        const valorTotal = parseCurrencyToNumber($("#fondoValorTotalGeneral").val());
+        const valorDisponible = parseCurrencyToNumber($("#fondoDisponibleGeneral").val());
+
+        // ✅ FORMATO CORRECTO SEGÚN EL SWAGGER
         const data = {
-            descripcion: $("#fondoDescripcionGeneral").val().trim(),
-            idproveedor: $("#fondoProveedorIdGeneral").val().trim(), // aquí estás mandando el idFondo
-            idmotivo: parseInt($("#fondoTipoGeneral").val(), 10) || 0,
-            valoracuerdo: parseCurrencyToNumber($("#fondoValorTotalGeneral").val()),
-            fechainicio: toISOFromDDMMYYYY($("#fondoFechaInicioGeneral").val()),
-            fechafin: toISOFromDDMMYYYY($("#fondoFechaFinGeneral").val()),
-            idusuarioingreso: getUsuario(),
-            nombreusuarioingreso: getUsuario(),
+            tipoclaseetiqueta: "ACGENERAL",
             idopcion: idOpcionActual,
             idcontrolinterfaz: "BTNGRABAR",
             idevento: "EVCLICK",
-            nombreusuario: getUsuario(),
+            acuerdo: {
+                idTipoAcuerdo: 1, // 1 = General (según el ejemplo que funciona)
+                idMotivoAcuerdo: parseInt($("#fondoTipoGeneral").val(), 10) || 0,
+                descripcion: $("#fondoDescripcionGeneral").val().trim(),
+                fechaInicioVigencia: toISOFromDDMMYYYY($("#fondoFechaInicioGeneral").val()),
+                fechaFinVigencia: toISOFromDDMMYYYY($("#fondoFechaFinGeneral").val()),
+                idUsuarioIngreso: getUsuario(),
+                idEstadoRegistro: 1,
+                marcaProcesoAprobacion: " " // espacio como en el ejemplo
+            },
+            fondo: {
+                idFondo: parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0,
+                valorAporte: valorTotal,
+                valorDisponible: valorDisponible,
+                valorComprometido: 0,
+                valorLiquidado: 0
+            },
+            articulos: [] // vacío para acuerdo general
         };
+
+        console.log("📤 Enviando JSON General:", JSON.stringify(data, null, 2));
 
         Swal.fire({
             title: "Confirmar Guardado",
@@ -926,7 +941,8 @@
                     idopcion: String(idOpcionActual),
                     usuario: getUsuario(),
                 },
-                success: function () {
+                success: function (response) {
+                    console.log("✅ Respuesta exitosa:", response);
                     Swal.fire({
                         icon: "success",
                         title: "¡Guardado!",
@@ -935,6 +951,7 @@
                         timer: 1400,
                     });
 
+                    // Limpiar formulario
                     $("#fondoTipoGeneral").val("");
                     $("#fondoProveedorGeneral").val("Seleccione...");
                     $("#fondoProveedorIdGeneral").val("");
@@ -945,12 +962,25 @@
                     $("#fondoDisponibleGeneral").val("");
                 },
                 error: function (xhr) {
-                    console.error("Error guardado general:", xhr.status, xhr.responseText);
+                    console.error("❌ Error guardado general:", xhr.status, xhr.responseText);
+                    let mensajeError = "Algo salió mal al guardar el acuerdo GENERAL.";
+
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        if (errorResponse.message) {
+                            mensajeError = errorResponse.message;
+                        }
+                    } catch (e) {
+                        if (xhr.responseText) {
+                            mensajeError = xhr.responseText;
+                        }
+                    }
+
                     Swal.fire({
                         icon: "error",
-                        title: "Oops...",
-                        text: "Algo salió mal al guardar el acuerdo GENERAL.",
-                        footer: xhr.responseText ? `Detalle: ${xhr.responseText}` : "",
+                        title: "Error al Guardar",
+                        text: mensajeError,
+                        footer: `<small>Código: ${xhr.status}</small>`,
                     });
                 },
             });
@@ -974,7 +1004,7 @@
 
         const data = {
             descripcion: $("#fondoDescripcionItems").val().trim(),
-            idproveedor: $("#fondoProveedorIdItems").val().trim(), // aquí igual mandas el idFondo
+            idproveedor: $("#fondoProveedorIdItems").val().trim(),
             idmotivo: parseInt($("#fondoTipoItems").val(), 10) || 0,
             fechainicio: toISOFromDDMMYYYY($("#fondoFechaInicioItems").val()),
             fechafin: toISOFromDDMMYYYY($("#fondoFechaFinItems").val()),
@@ -1045,7 +1075,7 @@
     // Init principal
     // -----------------------------
     $(document).ready(function () {
-        console.log("=== CrearAcuerdo INIT ===");
+        console.log("=== CrearAcuerdo INIT (CORREGIDO) ===");
 
         toggleAcuerdoForm();
         $("#acuerdoTipo").on("change", function () {
@@ -1094,7 +1124,7 @@
             const comprometido = $selected.data("comprometido");
             const liquidado = $selected.data("liquidado");
 
-            const display = `${idFondo} - ${descripcion} (${proveedor})`;
+            const display = `${idFondo} - (${proveedor})`; //Select de Fondo Proveedor
 
             console.log("✅ Fondo seleccionado:", {
                 idFondo,
@@ -1130,7 +1160,7 @@
             $("#tablaItemsConsulta tbody .item-checkbox").prop("checked", isChecked);
         });
 
-        // Botón Procesar Selección (coincide con id del HTML: btnProcesarFiltros)
+        // Botón Procesar Selección
         $("#btnProcesarFiltros").on("click", function () {
             const filtros = {
                 marca: $("#filtroMarca").val() || [],
@@ -1188,7 +1218,6 @@
                 Swal.fire("Atención", "Seleccione solo un item para modificar.", "info");
                 return;
             }
-            // Aquí puedes implementar la lógica de modificación
             Swal.fire("Info", "Funcionalidad de modificación en desarrollo.", "info");
         });
 
