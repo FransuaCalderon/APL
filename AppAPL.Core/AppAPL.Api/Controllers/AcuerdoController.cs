@@ -45,7 +45,7 @@ namespace AppAPL.Api.Controllers
         }
 
         
-        
+        /*
         [HttpGet("obtener-articulos-especificos/{texto}")]
         public async Task<ActionResult<List<ArticuloDTO>>> ObtenerArticuloEspecificos(string texto)
         {
@@ -53,7 +53,7 @@ namespace AppAPL.Api.Controllers
             var listaArticulos = await servicio.ObtenerArticuloEspecificos(texto);
             
             return listaArticulos.ToList();
-        }
+        }*/
 
 
         [HttpPost("insertar")]

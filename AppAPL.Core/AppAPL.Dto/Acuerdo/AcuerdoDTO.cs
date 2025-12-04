@@ -77,20 +77,22 @@ namespace AppAPL.Dto.Acuerdo
     {
         public string Codigo { get; set; }
         public string Descripcion { get; set; }
-        /*
+        
         public decimal Costo { get; set; }
-        public int Stock_Bodega { get; set; }
-        public int Stock_Tiendas { get; set; }
-        public int Unidades_Disponibles { get; set; }
-        public int Inventario_Optimo { get; set; }
-        public decimal Excedentes_Unidades { get; set; }
-        public decimal Excedentes_Dolares { get; set; }
-        public int M0_Unidades { get; set; }
-        public decimal M0_Dolares { get; set; }
-        public int M1_Unidades { get; set; }
-        public decimal M1_Dolares { get; set; }
-        public int M2_Unidades { get; set; }
-        public decimal M2_Dolares { get; set; }
+        public int Stock { get; set; }
+        public int Optimo { get; set; }
+        //public int Stock_Tiendas { get; set; }
+        //public int Unidades_Disponibles { get; set; }
+        //public int Inventario_Optimo { get; set; }
+        public decimal Excedente_U { get; set; }
+        public decimal Excedente_D { get; set; }
+        public int M0_U { get; set; }
+        public decimal M0_D { get; set; }
+        public int M1_U { get; set; }
+        public decimal M1_D { get; set; }
+        public int M2_U { get; set; }
+        public decimal M2_D { get; set; }
+        /*
         public decimal Igualar_Precio { get; set; }
         public decimal Dias_Antiguedad { get; set; }
         public decimal Margen_Min_Contado { get; set; }
@@ -102,17 +104,17 @@ namespace AppAPL.Dto.Acuerdo
         public string Marca { get; set; }
         public string Division { get; set; }
         public string Departamento { get; set; }
-        public string Clase { get; set; }
-        */
+        public string Clase { get; set; }*/
+        
     }
 
     public class ConsultarArticuloDTO
     {
-        public List<string> Marcas { get; set; }
-        public List<string> Divisiones { get; set; }
-        public List<string> Departamentos { get; set; }
-        public List<string> Clases { get; set; }
-        public string Articulo { get; set; }
+        public List<string>? Marcas { get; set; }
+        public List<string>? Divisiones { get; set; }
+        public List<string>? Departamentos { get; set; }
+        public List<string>? Clases { get; set; }
+        public string? CodigoArticulo { get; set; }
     }
 
     public class ConsultarAcuerdoFondoDTO

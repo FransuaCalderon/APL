@@ -1,17 +1,18 @@
-﻿using AppAPL.AccesoDatos.Abstracciones;
-using AppAPL.AccesoDatos.Oracle;
-using AppAPL.Dto;
-using AppAPL.Dto.Acuerdo;
-using Dapper;
-using Microsoft.Extensions.Logging;
-using Oracle.ManagedDataAccess.Client;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AppAPL.AccesoDatos.Abstracciones;
+using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto;
+using AppAPL.Dto.Acuerdo;
+using Dapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Oracle.ManagedDataAccess.Client;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace AppAPL.AccesoDatos.Repositorio
@@ -77,32 +78,41 @@ namespace AppAPL.AccesoDatos.Repositorio
         }
 
 
-        //PENDIENTE ESTE SI VA
+      
         public async Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto)
         {
             using var connection = factory.CreateOpenConnection();
 
-            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            // 🎯 Lógica para determinar el valor de p_codigo
+            string codigoArticuloParam = string.IsNullOrWhiteSpace(dto.CodigoArticulo)
+                ? null // Si está vacío, se envía NULL
+                : dto.CodigoArticulo; // De lo contrario, se envía el valor
 
-            //var parameters = new OracleDynamicParameters();
+            var paramObject = new
+            {
+                // 🚀 Uso de '?? Enumerable.Empty<string>()' para manejar la nulidad
+                p_marcas = String.Join(",", dto.Marcas ?? Enumerable.Empty<string>()),
+                p_divisiones = String.Join(",", dto.Divisiones ?? Enumerable.Empty<string>()),
+                p_departamentos = String.Join(",", dto.Departamentos ?? Enumerable.Empty<string>()),
+                p_clases = String.Join(",", dto.Clases ?? Enumerable.Empty<string>()),
+                p_codigo = codigoArticuloParam
+            };
+
+            logger.LogInformation($"parametros antes de enviar a sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
 
             // 🔹 Agregar los parámetros de salida
-            /*
+            
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+          
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<ArticuloDTO>(
-                "SELECT * FROM APL_TB_ARTEFACTA_ARTICULO",
-                null,
-                commandType: CommandType.Text
+                "SP_PROCESAR_SELECCION",
+                parameters,
+                commandType: CommandType.StoredProcedure
             );
-
-            //int? codigoSalida = parameters.Get<int>("p_codigo");
-            //string? mensajeSalida = parameters.Get<string>("p_mensaje");
-
-            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
             return datos;
         }
@@ -193,7 +203,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             };
             return retorno;
         }
-        
+        /*
         public async Task<IEnumerable<ArticuloDTO>> ObtenerArticuloEspecificos(string texto)
         {
             using var connection = factory.CreateOpenConnection();
@@ -219,6 +229,6 @@ namespace AppAPL.AccesoDatos.Repositorio
             
 
             return datos;
-        }
+        }*/
     }
 }
