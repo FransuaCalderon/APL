@@ -37,8 +37,12 @@ namespace AppAPL.Api.Filtros
                 TaskCanceledException timeoutEx => CrearResultado(408, "La solicitud superó el tiempo de espera.", timeoutEx.Message),
                 NullReferenceException nullEx => CrearResultado(500, "Referencia nula en el servidor.", nullEx.Message),
                 ArgumentException argEx => CrearResultado(400, "Argumento inválido en la solicitud.", argEx.Message),
+                NotImplementedException notImpleEx => CrearResultado(400, "Metodo aun no implementado, en desarrollo", notImpleEx.Message),
                 _ => CrearResultado(500, "Ocurrió un error interno en el servidor.", ex.Message)
             };
+
+            // ESTA ES LA LÍNEA QUE HACE QUE EL RESPONSE SE ENVÍE AL CLIENTE
+            context.ExceptionHandled = true;
 
             logger.LogError("------------------------------------- FIN DE EXCEPCIÓN ----------------------------------------\n");
 
@@ -72,7 +76,11 @@ namespace AppAPL.Api.Filtros
         private ObjectResult CrearResultado(int statusCode, string mensaje, string detalle)
         {
             // Solo devuelve al cliente un mensaje genérico, pero loguea el detalle internamente
-            return new ObjectResult(new { error = $"[hilo: {this.processId}] " +mensaje })
+            return new ObjectResult(new
+            {
+                mensaje = mensaje,
+                detalle = detalle
+            })
             {
                 StatusCode = statusCode
             };

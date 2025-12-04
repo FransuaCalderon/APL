@@ -27,7 +27,8 @@ create or replace PACKAGE APL_PKG_OPCIONES AS
   );
 
   PROCEDURE listar(
-    p_opciones_out OUT SYS_REFCURSOR
+    p_opciones_out          OUT SYS_REFCURSOR,
+    p_nombreusuario         IN VARCHAR2
   );
   
   PROCEDURE obtener_por_id(
@@ -36,8 +37,9 @@ create or replace PACKAGE APL_PKG_OPCIONES AS
   );
 
   PROCEDURE listarOpcionesAutorizadasInternas(
-    p_idusuario    IN  NUMBER,
-    p_opciones_out OUT SYS_REFCURSOR
+    --p_idusuario    IN  NUMBER,
+    p_nombreusuario   IN VARCHAR2,
+    p_opciones_out    OUT SYS_REFCURSOR
   );
 
   PROCEDURE listarOpcionesAutorizadasCorporativa(
@@ -148,7 +150,8 @@ create or replace PACKAGE BODY APL_PKG_OPCIONES AS
 
 
   PROCEDURE listar(
-    p_opciones_out OUT SYS_REFCURSOR
+    p_opciones_out          OUT SYS_REFCURSOR,
+    p_nombreusuario         IN VARCHAR2 
   ) IS 
   BEGIN 
     OPEN p_opciones_out FOR
@@ -194,7 +197,8 @@ create or replace PACKAGE BODY APL_PKG_OPCIONES AS
 
 
   PROCEDURE listarOpcionesAutorizadasInternas(
-    p_idusuario    IN  NUMBER,
+    --p_idusuario    IN  NUMBER,
+    p_nombreusuario   IN VARCHAR2,
     p_opciones_out OUT SYS_REFCURSOR
   ) IS
   BEGIN

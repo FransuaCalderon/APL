@@ -21,7 +21,7 @@ namespace AppAPL.Api.Controllers
             this.catalogoServicio = catalogoServicio;
             this.opcionServicio = opcionServicio;
         }
-
+        /*
         [HttpGet("listar/{IdCatalogoTipo:int}")]
         public async Task<ActionResult<List<GrupoDTO>>> ObtenerTodos(int IdCatalogoTipo, [FromQuery] string? nombre = null,
          [FromQuery] int? idGrupo = null,
@@ -134,6 +134,6 @@ namespace AppAPL.Api.Controllers
             }
 
             return grupos;
-        }
+        }*/
     }
 }

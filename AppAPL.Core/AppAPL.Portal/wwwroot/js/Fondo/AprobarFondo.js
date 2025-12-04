@@ -1,17 +1,76 @@
 ﻿// ~/js/Fondo/AprobarFondo.js
 
+// ===============================================================
 // Variables globales
+// ===============================================================
 let tabla; // GLOBAL
 let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
 let datosAprobacionActual = null; // Para almacenar los datos de la aprobación actual
 
-// Se ejecuta cuando el DOM está listo
+// ===============================================================
+// FUNCIÓN HELPER PARA OBTENER USUARIO (Busca en múltiples lugares)
+// ===============================================================
+function obtenerUsuarioActual() {
+    // Buscar en múltiples ubicaciones posibles
+    const usuario = window.usuarioActual
+        || sessionStorage.getItem('usuarioActual')
+        || sessionStorage.getItem('usuario')
+        || localStorage.getItem('usuarioActual')
+        || localStorage.getItem('usuario')
+        || "admin"; // Fallback final
+
+    return usuario;
+}
+
+// ===============================================================
+// DOCUMENT READY
+// ===============================================================
 $(document).ready(function () {
+
+    console.log("=== INICIO DE CARGA DE PÁGINA - AprobarFondo ===");
+    console.log("");
+
+    // 🔍 ===== DIAGNÓSTICO COMPLETO DEL USUARIO ===== 🔍
+    console.log("🔍 DIAGNÓSTICO DE USUARIO:");
+    console.log("  window.usuarioActual:", window.usuarioActual);
+    console.log("  Tipo:", typeof window.usuarioActual);
+    console.log("  sessionStorage.usuarioActual:", sessionStorage.getItem('usuarioActual'));
+    console.log("  sessionStorage.usuario:", sessionStorage.getItem('usuario'));
+    console.log("  localStorage.usuarioActual:", localStorage.getItem('usuarioActual'));
+    console.log("  localStorage.usuario:", localStorage.getItem('usuario'));
+
+    const usuarioFinal = obtenerUsuarioActual();
+    console.log("  ✅ Usuario final obtenido:", usuarioFinal);
+    console.log("");
+
+    // ✅ LOGS DE VERIFICACIÓN DE IDOPCION
+    console.log("🔍 DIAGNÓSTICO DE IDOPCION:");
+    const infoOpcion = window.obtenerInfoOpcionActual();
+    console.log("  Información de la opción actual:", {
+        idOpcion: infoOpcion.idOpcion,
+        nombre: infoOpcion.nombre,
+        ruta: infoOpcion.ruta
+    });
+
+    // Verificación adicional
+    if (!infoOpcion.idOpcion) {
+        console.warn("  ⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
+        console.warn("  Esto es normal si accediste directamente a la URL sin pasar por el menú.");
+        console.warn("  Para que funcione correctamente, accede a esta página desde el menú.");
+    } else {
+        console.log("  ✅ idOpcion capturado correctamente:", infoOpcion.idOpcion);
+    }
+
+    console.log("");
+    console.log("=== FIN DE VERIFICACIÓN INICIAL ===");
+    console.log("");
 
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
         const apiBaseUrl = config.apiBaseUrl;
         window.apiBaseUrl = apiBaseUrl;
+
+        console.log("API Base URL configurada:", apiBaseUrl);
 
         cargarBandeja();
     });
@@ -30,15 +89,21 @@ $(document).ready(function () {
 
     // ===== BOTÓN APROBAR =====
     $('body').on('click', '#btnAprobarFondo', function () {
-        procesarAprobacionFondo("APROBAR");
+        let comentario = $("#modal-fondo-comentario").val();
+        console.log('comentario: ', comentario);
+        console.log('boton de aprobar fondo');
+        procesarAprobacionFondo("APROBAR", comentario);
     });
 
     // ===== BOTÓN RECHAZAR =====
     $('body').on('click', '#btnRechazarFondo', function () {
-        procesarAprobacionFondo("RECHAZAR");
+        let comentario = $("#modal-fondo-comentario").val();
+        console.log('comentario: ', comentario);
+        console.log('boton de rechazar fondo');
+        procesarAprobacionFondo("RECHAZAR", comentario);
     });
 
-}); // <-- FIN de $(document).ready
+}); // FIN document.ready
 
 
 // ===================================================================
@@ -46,14 +111,30 @@ $(document).ready(function () {
 // ===================================================================
 
 function cargarBandeja() {
-    const apiBaseUrl = window.apiBaseUrl
-   
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        console.error("No se pudo obtener el idOpcion para cargar la bandeja");
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+    const apiBaseUrl = window.apiBaseUrl;
+
+    if (!usuario) {
+        console.error('No hay usuario en sesión, no se puede cargar la bandeja.');
+        return;
+    }
+
+    console.log('Cargando bandeja para usuario:', usuario, 'con idOpcion:', idOpcionActual);
+
     $.ajax({
-        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/JGonzalez`,
+        url: `${apiBaseUrl}/api/Fondo/bandeja-aprobacion/${usuario}`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -66,6 +147,7 @@ function cargarBandeja() {
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos de fondos:", error);
+            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -74,6 +156,7 @@ function cargarBandeja() {
         }
     });
 }
+
 
 function crearListado(data) {
     if (tabla) {
@@ -93,18 +176,20 @@ function crearListado(data) {
 
     html += "  <thead>";
 
-    // Fila del Título ROJO
+    // Fila del Título ROJO - Actualizado colspan a 12
     html += "    <tr>";
-    html += "      <th colspan='10' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
+    html += "      <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
     html += "          BANDEJA DE APROBACIÓN - FONDOS";
     html += "      </th>";
     html += "    </tr>";
 
-    // Fila de las Cabeceras
+    // Fila de las Cabeceras - Agregada columna Solicitud
     html += "    <tr>";
     html += "      <th>Acción</th>";
+    html += "      <th>Solicitud</th>";
     html += "      <th>IDFondo</th>";
     html += "      <th>Descripción</th>";
+    html += "      <th>RUC</th>";
     html += "      <th>Proveedor</th>";
     html += "      <th>Tipo Fondo</th>";
     html += "      <th>Fecha Inicio</th>";
@@ -126,15 +211,17 @@ function crearListado(data) {
 
         html += "<tr>";
         html += "  <td class='text-center'>" + viewButton + "</td>";
+        html += "  <td>" + (fondo.solicitud ?? "") + "</td>";
         html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
         html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
         html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
+        html += "  <td>" + (fondo.nombre ?? "") + "</td>";
         html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_comprometido) + "</td>";
-        html += "  <td>" + (fondo.estado ?? "") + "</td>";
+        html += "  <td>" + (fondo.nombre_estado_fondo ?? "") + "</td>";
         html += "</tr>";
     }
 
@@ -150,11 +237,12 @@ function crearListado(data) {
         pagingType: 'full_numbers',
         columnDefs: [
             { targets: 0, width: "8%", className: "dt-center", orderable: false },
-            { targets: 1, width: "6%", className: "dt-center" },
-            { targets: [7, 8], className: "dt-right" },
-            { targets: [5, 6], className: "dt-center" },
+            { targets: 1, width: "8%", className: "dt-center" },
+            { targets: 2, width: "6%", className: "dt-center" },
+            { targets: [8, 9], className: "dt-right" },
+            { targets: [6, 7], className: "dt-center" },
         ],
-        order: [[1, 'desc']],
+        order: [[2, 'desc']],
         language: {
             decimal: "",
             emptyTable: "No hay datos disponibles en la tabla",
@@ -198,6 +286,22 @@ function crearListado(data) {
  * Abre el modal personalizado y carga los datos del fondo para aprobar.
  */
 function abrirModalEditar(idFondo, idAprobacion) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+
+    console.log('Abriendo modal para aprobar fondo ID:', idFondo, 'idAprobacion:', idAprobacion, 'con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
     // Limpiar datos previos
     datosAprobacionActual = null;
 
@@ -206,8 +310,8 @@ function abrirModalEditar(idFondo, idAprobacion) {
         url: `${window.apiBaseUrl}/api/Fondo/bandeja-aprobacion-id/${idFondo}/${idAprobacion}`,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -217,22 +321,31 @@ function abrirModalEditar(idFondo, idAprobacion) {
         success: function (data) {
             console.log(`Datos del fondo (${idFondo}, ${idAprobacion}):`, data);
 
+            // CONCATENACIÓN RUC/ID y NOMBRE
+            const idProveedor = data.proveedor || '';
+            const nombreProveedor = data.nombre || '';
+
+            const proveedorCompleto = (idProveedor && nombreProveedor)
+                ? `${idProveedor} - ${nombreProveedor}`
+                : idProveedor || nombreProveedor || '';
+
             // Guardar datos para los botones de aprobación/rechazo
             datosAprobacionActual = {
-                entidad: data.entidad_id || 0,
+                entidad: data.entidad || 0,
                 identidad: data.idfondo || 0,
                 idtipoproceso: data.idtipoproceso || "",
                 idetiquetatipoproceso: data.idetiquetatipoproceso || "",
                 idaprobacion: idAprobacion,
                 entidad_etiqueta: data.entidad_etiqueta,
-                idetiquetatestado: data.estado_etiqueta || ""
+                idetiquetatestado: data.estado_etiqueta || "",
+                comentario: ""
             };
 
             // Preparar los datos para el modal
             const datosModal = {
                 idfondo: data.idfondo,
                 descripcion: data.descripcion,
-                proveedor: data.proveedor,
+                proveedor: proveedorCompleto,
                 tipo_fondo: data.tipo_fondo,
                 valor_fondo: formatearMoneda(data.valor_fondo),
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
@@ -261,6 +374,7 @@ function abrirModalEditar(idFondo, idAprobacion) {
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del fondo:", error);
+            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -276,7 +390,6 @@ function abrirModalEditar(idFondo, idAprobacion) {
 function abrirModalFondo(datos) {
     const modal = document.getElementById('modalEditarFondo');
 
-    // Llenar los datos
     document.getElementById('modal-fondo-id').value = datos.idfondo || '';
     document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
     document.getElementById('modal-fondo-proveedor').value = datos.proveedor || '';
@@ -289,7 +402,6 @@ function abrirModalFondo(datos) {
     document.getElementById('modal-fondo-comprometido').value = datos.valor_comprometido || '';
     document.getElementById('modal-fondo-liquidado').value = datos.valor_liquidado || '';
 
-    // Mostrar modal
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -310,8 +422,7 @@ function cerrarModalFondo() {
 }
 
 /**
- * Convierte una fecha/hora (ej: "2025-11-03T00:00:00")
- * al formato "YYYY-MM-DD" que necesita <input type="date">.
+ * Convierte una fecha/hora al formato "YYYY-MM-DD"
  */
 function formatDateForInput(fechaString) {
     if (!fechaString) {
@@ -325,7 +436,7 @@ function formatDateForInput(fechaString) {
 // ===================================================================
 
 /**
- * Formatea un número como moneda (ej: 20000 -> 20,000.00)
+ * Formatea un número como moneda
  */
 function formatearMoneda(valor) {
     var numero = parseFloat(valor);
@@ -364,7 +475,18 @@ function formatearFecha(fechaString) {
  * Llama a la API para obtener las aprobaciones y crea la tabla.
  */
 function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
+
+    if (!idOpcionActual) {
+        console.error("No se pudo obtener el idOpcion para cargar aprobaciones");
+        return;
+    }
+
+    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+
     console.log("=== CARGANDO APROBACIONES ===");
+    console.log('Con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
     // Destruir tabla anterior si existe
     if ($.fn.DataTable.isDataTable('#tabla-aprobaciones')) {
@@ -387,8 +509,8 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
         url: urlCompleta,
         method: "GET",
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
+            "usuario": usuario,                  // ✅ DINÁMICO
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -430,7 +552,7 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
                     estadoClass = 'badge bg-primary';
                 } else if (estadoEtiqueta === 'ESTADOAPROBADO') {
                     estadoClass = 'badge bg-success';
-                } else if (estadoEtiqueta === 'ESTADORECHAZADO') {
+                } else if (estadoEtiqueta === 'ESTADOINACTIVO') {
                     estadoClass = 'badge bg-danger';
                 } else {
                     estadoClass = 'badge bg-secondary';
@@ -484,6 +606,7 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
         },
         error: function (xhr, status, error) {
             console.error("Error al cargar aprobaciones:", error);
+            console.error("Detalles del error:", xhr.responseText);
             $('#tabla-aprobaciones-fondo').html(
                 '<p class="alert alert-danger">Error al cargar las aprobaciones: ' + error + '</p>'
             );
@@ -498,7 +621,7 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
 /**
  * Procesa la aprobación o rechazo de un fondo
  */
-function procesarAprobacionFondo(accion) {
+function procesarAprobacionFondo(accion, comentario) {
     cerrarModalFondo();
     if (!datosAprobacionActual) {
         Swal.fire({
@@ -518,7 +641,7 @@ function procesarAprobacionFondo(accion) {
         tituloAccion = "Aprobar Fondo";
         mensajeAccion = "¿Está seguro que desea aprobar este fondo?";
     } else if (accion === "RECHAZAR") {
-        nuevoEstado = "ESTADORECHAZADO";
+        nuevoEstado = "ESTADONEGADO";
         tituloAccion = "Rechazar Fondo";
         mensajeAccion = "¿Está seguro que desea rechazar este fondo?";
     }
@@ -528,13 +651,13 @@ function procesarAprobacionFondo(accion) {
         text: mensajeAccion,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: accion === "APROBAR" ? '#28a745' : '#dc3545',
+        confirmButtonColor: accion == "APROBAR" ? '#28a745' : '#dc3545',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: accion === "APROBAR" ? 'Sí, aprobar' : 'Sí, rechazar',
+        confirmButtonText: accion == "APROBAR" ? 'Sí, aprobar' : 'Sí, rechazar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            ejecutarAprobacionFondo(accion, nuevoEstado);
+            ejecutarAprobacionFondo(accion, nuevoEstado, comentario);
         }
     });
 }
@@ -542,22 +665,39 @@ function procesarAprobacionFondo(accion) {
 /**
  * Ejecuta el POST al API para aprobar o rechazar
  */
-function ejecutarAprobacionFondo(accion, nuevoEstado) {
-    const usuarioActual = "JGONZALEZ"; // TODO: Obtener del usuario logueado
+function ejecutarAprobacionFondo(accion, nuevoEstado, comentario) {
+    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
+    const idOpcionActual = window.obtenerIdOpcionActual();
 
+    if (!idOpcionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
+        });
+        return;
+    }
+
+    // ✅ OBTENER EL USUARIO DINÁMICAMENTE
+    const usuarioActual = obtenerUsuarioActual();
+
+    console.log("accion: ", accion);
     console.log("datosAprobacionActual: ", datosAprobacionActual);
+    console.log('Ejecutando aprobación/rechazo con idOpcion:', idOpcionActual, 'y usuario:', usuarioActual);
 
     const datosPost = {
-        entidad: 32,
+        entidad: datosAprobacionActual.entidad,
         identidad: datosAprobacionActual.identidad,
         idtipoproceso: datosAprobacionActual.idtipoproceso,
         idetiquetatipoproceso: datosAprobacionActual.idetiquetatipoproceso,
-        idetiquetatestado: nuevoEstado,
+        comentario: comentario,
+        idetiquetaestado: nuevoEstado,
         idaprobacion: datosAprobacionActual.idaprobacion,
-        usuarioaprobador: usuarioActual,
-        idopcion: 32,
-        idcontrolinterfaz: 26,
-        idevento: 9
+        usuarioaprobador: usuarioActual,       // ✅ DINÁMICO
+        idopcion: idOpcionActual,              // ✅ DINÁMICO
+        idcontrolinterfaz: accion == "APROBAR" ? "BTNAPROBAR" : "BTNNEGAR", 
+        idevento: "EVCLICK",
+        nombreusuario: usuarioActual
     };
 
     console.log("Enviando aprobación/rechazo:", datosPost);
@@ -577,8 +717,8 @@ function ejecutarAprobacionFondo(accion, nuevoEstado) {
         contentType: "application/json",
         data: JSON.stringify(datosPost),
         headers: {
-            "idopcion": "1",
-            "usuario": "admin",
+            "idopcion": String(idOpcionActual), // ✅ DINÁMICO en headers también
+            "usuario": usuarioActual,            // ✅ DINÁMICO en headers también
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -586,34 +726,42 @@ function ejecutarAprobacionFondo(accion, nuevoEstado) {
             "idtipoproceso": "0"
         },
         success: function (response) {
+            cerrarModalFondo();
+
             Swal.fire({
                 icon: 'success',
                 title: '¡Éxito!',
                 text: response.respuesta || `Fondo ${accion === "APROBAR" ? "aprobado" : "rechazado"} correctamente`,
-                confirmButtonText: 'Aceptar'
+                confirmButtonText: 'Aceptar',
+                timer: 2000,
+                timerProgressBar: true
             }).then(() => {
-                //cerrarModalFondo();
+                // Limpiar datos de la aprobación actual
+                datosAprobacionActual = null;
+                ultimaFilaModificada = null;
 
+                // Recargar la bandeja para reflejar los cambios
                 cargarBandeja();
             });
         },
         error: function (xhr, status, error) {
-            //cerrarModalFondo();
+            cerrarModalFondo();
 
-            console.error("Error al procesar aprobación:", xhr.responseJSON);
+            const mensajeError = xhr.responseJSON?.mensaje || error || 'Error desconocido';
+            console.error("Error al procesar aprobación:", mensajeError);
+            console.error("Detalles del error:", xhr.responseText);
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo procesar la aprobación/rechazo: '
+                text: 'No se pudo procesar la aprobación/rechazo: ' + mensajeError
             });
-
-
         }
     });
 }
 
 // ===================================================================
-// ===== EVENT LISTENERS PARA EL MODAL =====
+// ===== EVENT LISTENERS PARA EL MODAL (Cerrar) =====
 // ===================================================================
 
 // Cerrar modal al hacer clic fuera

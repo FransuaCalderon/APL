@@ -2,6 +2,21 @@
     ViewData["Title"] = "Modificación de Fondos";
 }
 
+@{
+    // Viene del ViewBag que llenamos en el controlador
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+
+@section Scripts {
+    <script>
+        // Variable global con el usuario logueado
+        window.usuarioActual = '@usuarioActual';
+    </script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <script src="~/js/Fondo/ModificarFondo.js" asp-append-version="true"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+}
+
 <h2>Modificación - Fondo</h2>
 <hr>
 
@@ -12,13 +27,6 @@
     </div>
 </div>
 
-@section Scripts {
-    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
-    <script src="~/js/Fondo/ModificarFondo.js" asp-append-version="true"></script>
-    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-}
-
-<!-- Modal Personalizado -->
 <div id="modalEditarFondo" class="custom-modal">
     <div class="custom-modal-overlay"></div>
     <div class="custom-modal-container">
@@ -29,11 +37,11 @@
 
         <div class="custom-modal-body">
             <form id="formEditarFondo">
-                <!-- PRIMERA FILA -->
                 <div class="custom-form-row">
                     <div class="custom-form-col">
                         <label class="custom-label">ID Fondo</label>
                         <input type="text" class="custom-input" id="modal-fondo-id" name="idfondo" disabled>
+                        <input type="hidden" id="modal-fondo-idproveedor-hidden">
                     </div>
                     <div class="custom-form-col">
                         <label class="custom-label">Descripción <span class="text-danger">*</span></label>
@@ -41,9 +49,12 @@
                     </div>
                     <div class="custom-form-col">
                         <label class="custom-label">Proveedor <span class="text-danger">*</span></label>
-                        <select class="custom-input" id="modal-fondo-proveedor" name="proveedor">
-                            <option value="">Cargando...</option>
-                        </select>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="modal-fondo-proveedor" value="Seleccione..." readonly>
+                            <button class="btn btn-outline-secondary" type="button" id="btnBuscarProveedorModalModificar" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
+                                <img src="~/img/ico/search.svg" alt="Buscar">
+                            </button>
+                        </div>
                     </div>
                     <div class="custom-form-col">
                         <label class="custom-label">Tipo de Fondo <span class="text-danger">*</span></label>
@@ -53,7 +64,6 @@
                     </div>
                 </div>
 
-                <!-- SEGUNDA FILA -->
                 <div class="custom-form-row">
                     <div class="custom-form-col">
                         <label class="custom-label">Fecha Inicio <span class="text-danger">*</span></label>
@@ -83,6 +93,67 @@
                 <i class="fa-solid fa-pen-to-square custom-btn-icon"></i>
                 Modificar
             </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalConsultaProveedorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xxl">
+        <div class="modal-content" style="height: 90vh; max-height: 90vh;">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalConsultaProveedorLabel">Consulta de Proveedores</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">Seleccione un Proveedor</span>
+                    <input type="text" class="form-control form-control-sm" placeholder="Buscar..." style="width: 250px;">
+                </div>
+
+                <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
+                    <table id="tablaProveedores" class="table table-hover table-sm table-bordered mb-0">
+                        <thead class="table-success sticky-top">
+                            <tr class="text-nowrap">
+                                <th scope="col" class="text-center align-middle" style="min-width: 110px;">Seleccionar</th>
+                                <th scope="col" class="align-middle" style="min-width: 80px;">Código</th>
+                                <th scope="col" class="align-middle" style="min-width: 130px;">RUC</th>
+                                <th scope="col" class="align-middle" style="min-width: 200px;">Nombre Proveedor</th>
+                                <th scope="col" class="align-middle" style="min-width: 150px;">Contacto</th>
+                                <th scope="col" class="align-middle" style="min-width: 200px;">Mail</th>
+                                <th scope="col" class="align-middle" style="min-width: 130px;">Teléfono</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+                <nav aria-label="Navegación de páginas" class="mt-2">
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true" aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item active" aria-current="page">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Siguiente">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarProveedorModificar">Aceptar</button>
+            </div>
         </div>
     </div>
 </div>

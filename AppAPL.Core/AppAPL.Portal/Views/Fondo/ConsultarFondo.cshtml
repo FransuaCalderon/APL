@@ -2,21 +2,29 @@
     ViewData["Title"] = "Consulta de Fondos";
 }
 
-<h2>Consulta de Fondos</h2>
-<hr>
-
-<link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
-
-<div class="table-responsive">
-    <div id="tabla">
-    </div>
-</div>
+@{
+    // Viene del ViewBag que llenamos en el controlador
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
 
 @section Scripts {
+    <script>
+        // Variable global con el usuario logueado
+        window.usuarioActual = '@usuarioActual';
+    </script>
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
     <script src="~/js/Fondo/ConsultarFondo.js" asp-append-version="true"></script>
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 }
+<h2 class="titulo-fondos">Consulta de Fondos</h2>
+<hr class="separador-fondos" />
+
+<link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
+
+<div class="table-responsive" style="margin-top:0; padding-top:0;">
+    <div id="tabla">
+    </div>
+</div>
 
 <!-- Modal Personalizado -->
 <div id="modalVisualizarFondo" class="custom-modal">

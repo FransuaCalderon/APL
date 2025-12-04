@@ -1,64 +1,60 @@
 ﻿using AppAPL.AccesoDatos.Abstracciones;
+using AppAPL.Api.Attributes;
 using AppAPL.Api.Handlers.Interfaces;
+using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Email;
+using AppAPL.Dto.Fondos;
+using System.Text.Json;
 
 namespace AppAPL.Api.Handlers
 {
-    public class AcuerdosEmailHandler (IEmailRepositorio emailRepo, ILogger<AcuerdosEmailHandler> logger) : IAcuerdosEmailHandler
+    public class AcuerdosEmailHandler (IEmailRepositorio emailRepo, ILogger<AcuerdosEmailHandler> logger) : HandlerBase(emailRepo, logger), IAcuerdosEmailHandler
     {
-        public async Task HandleAsync(string entidad, string tipoProceso, string idDocumento)
+        public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, AcuerdoDTO? acuerdoAntiguo = null, string? responseBody = null)
         {
 
-            logger.LogInformation($"📧 [Fondos] Iniciando envío de correo para Entidad={entidad}, TipoProceso={tipoProceso}, Id={idDocumento}");
+            logger.LogInformation($"[AcuerdosHandler] Procesando correo. Entidad={entidad}, TipoProceso={tipoProceso}");
 
-            // Consultar los datos del SP
-            var request = new ConsultarDatosCorreoRequest
+            var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+            // 🔹 Mapear el enum a la etiqueta que usa el SP
+            string tipoProcEtiqueta = tipoProceso switch
             {
-                Entidad = entidad,
-                TipoProceso = tipoProceso,
-                IdDocumento = idDocumento
+                TipoProceso.Creacion => "TPCREACION",
+                TipoProceso.Modificacion => "TPMODIFICACION",
+                TipoProceso.Aprobacion => "TPAPROBACION",
+                TipoProceso.Inactivacion => "TPINACTIVACION",
+                _ => tipoProceso.ToString().ToUpper()
             };
 
-            var datos = await emailRepo.ObtenerDatosCorreo(request);
+            // 1. Declaramos las variables que llenará el switch
+            string IdProveedor;
+            Dictionary<string, string> camposPlantilla = null;
 
-            var plantilla = datos.FirstOrDefault(d => d.tipo_registro == "PLANTILLA");
-            var destinatarios = datos.Where(d => d.tipo_registro == "DESTINATARIO").ToList();
-
-            if (plantilla == null || !destinatarios.Any())
+            switch (tipoProceso)
             {
-                logger.LogWarning("⚠️ [Fondos] No se encontraron datos de plantilla o destinatarios para el correo.");
-                return;
+                case TipoProceso.Creacion:
+                    logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
+                    break;
+
+                case TipoProceso.Modificacion:
+                    logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
+                    break;
+
+                case TipoProceso.Aprobacion:
+                    logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
+                    break;
+
+                case TipoProceso.Inactivacion:
+                    logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
+                    break;
+
+                default:
+                    logger.LogWarning($"[AcuerdosHandler] TipoProceso no reconocido o sin estrategia definida: {tipoProceso}.");
+                    return;
             }
 
-            // 2️⃣ Extraer listas de correos
-            var toList = destinatarios
-                .Where(d => !string.IsNullOrWhiteSpace(d.para))
-                .Select(d => d.para)
-                .Distinct()
-                .ToList();
-
-            var ccList = destinatarios
-                .Where(d => !string.IsNullOrWhiteSpace(d.cc))
-                .Select(d => d.cc)
-                .Distinct()
-                .ToList();
-
-            // 3️⃣ Placeholder de ejemplo (puedes ajustar según tu plantilla HTML)
-            var placeholders = new Dictionary<string, string>
-            {
-                { "Entidad", entidad },
-                { "Documento", idDocumento },
-                { "TipoProceso", tipoProceso }
-            };
-
-            // 4️⃣ Enviar el correo usando tu repositorio
-            await emailRepo.SendEmailAsync(
-                toList: toList,
-                subject: $"Notificación: {tipoProceso}",
-                templateName: plantilla.nombrearchivo,
-                placeholders: placeholders,
-                ccList: ccList
-            );
-        }
+                //await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla);
+            }
     }
 }

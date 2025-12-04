@@ -2,6 +2,21 @@
     ViewData["Title"] = "Inactivación de Fondos";
 }
 
+@{
+    // 1. C# obtiene el valor del ViewBag
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+
+@section Scripts {
+    <script>
+        // Variable global con el usuario logueado
+        window.usuarioActual = '@usuarioActual';
+    </script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <script src="~/js/Fondo/InactivarFondo.js" asp-append-version="true"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+}
+
 <h2>Inactivación - Fondo</h2>
 <hr>
 
@@ -12,12 +27,6 @@
     </div>
 </div>
 
-@section Scripts {
-    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
-    <script src="~/js/Fondo/InactivarFondo.js" asp-append-version="true"></script>
-    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-}
-@**@
 
 <!-- Modal Personalizado -->
 <div id="modalVisualizarFondo" class="custom-modal">

@@ -1,5 +1,21 @@
 ﻿@{
     ViewData["Title"] = "Aprobación de Fondos";
+
+}
+
+@{
+    // Viene del ViewBag que llenamos en el controlador
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+  
+@section Scripts {
+    <script>
+        // Variable global con el usuario logueado
+        window.usuarioActual = '@usuarioActual';
+    </script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <script src="~/js/Fondo/AprobarFondo.js" asp-append-version="true"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 }
 
 <h2>Aprobación - Fondo</h2>
@@ -12,11 +28,7 @@
     </div>
 </div>
 
-@section Scripts {
-    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
-    <script src="~/js/Fondo/AprobarFondo.js" asp-append-version="true"></script>
-    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-}
+
 
 <!-- Modal Personalizado -->
 <div id="modalEditarFondo" class="custom-modal">
@@ -86,6 +98,16 @@
                     <div class="custom-form-col">
                         <!-- Espacio vacío para mantener el grid -->
                     </div>
+                </div>
+
+
+                <!-- CUARTA FILA (Comentario) -->
+                <div class="custom-form-row">
+                    <div class="custom-form-col">
+                        <label class="custom-label" for="comentario">Comentario:</label>
+                        <textarea class="custom-input" rows="3" maxlength="200" id="modal-fondo-comentario" name="comentario"></textarea>
+                    </div>
+                    
                 </div>
             </form>
 

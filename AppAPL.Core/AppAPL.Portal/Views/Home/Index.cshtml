@@ -1,0 +1,9 @@
+﻿@{
+    // Viene del ViewBag que llenamos en el controlador
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+
+<script>
+    // Variable global con el usuario logueado
+    window.usuarioActual = '@usuarioActual';
+</script>

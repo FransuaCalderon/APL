@@ -7,6 +7,7 @@ using AppAPL.Dto.Email;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.InteropServices;
 using static AppAPL.Api.Attributes.EmailAttribute;
 
 namespace AppAPL.Api.Controllers
@@ -18,9 +19,11 @@ namespace AppAPL.Api.Controllers
     {
         
         [HttpGet("listar")]
-        public async Task<ActionResult<List<FondoDTO>>> ObtenerTodos()
+        public async Task<ActionResult<List<FondoDTO>>> ObtenerTodos([FromHeader] string? NombreUsuario, [FromHeader] int? IdOpcion, 
+            [FromHeader] string? IdControlInterfaz,[FromHeader] string? IdEvento)
         {
-            var listaFondos = await servicio.ListarAsync();
+            logger.LogInformation($"NombreUsuario: {NombreUsuario}, IdOpcion: {IdOpcion}, IdControlInterfaz: {IdControlInterfaz}, IdEvento: {IdEvento}");
+            var listaFondos = await servicio.ListarAsync(NombreUsuario, IdOpcion, IdControlInterfaz, IdEvento);
 
             return listaFondos.ToList();
         }
@@ -28,6 +31,7 @@ namespace AppAPL.Api.Controllers
         [HttpGet("bandeja-modificacion")]
         public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaModificacion()
         {
+            
             var listaFondos = await servicio.ObtenerBandejaModificacion();
 
             return listaFondos.ToList();
@@ -36,6 +40,7 @@ namespace AppAPL.Api.Controllers
         [HttpGet("bandeja-aprobacion/{usuarioAprobador}")]
         public async Task<ActionResult<List<BandejaAprobacionDTO>>> ObtenerBandejaAprobacion(string usuarioAprobador)
         {
+           
             var listaFondos = await servicio.ObtenerBandejaAprobacion(usuarioAprobador);
 
             return listaFondos.ToList();
@@ -44,6 +49,7 @@ namespace AppAPL.Api.Controllers
         [HttpGet("bandeja-aprobacion-id/{idFondo:int}/{idAprobacion:int}")]
         public async Task<ActionResult<BandejaAprobacionDTO>> ObtenerBandejaAprobacionPorId(int idFondo, int idAprobacion)
         {
+            
             var item = await servicio.ObtenerBandejaAprobacionPorId(idFondo, idAprobacion);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese idFondo: {idFondo}, idAprobacion: {idAprobacion}" });
@@ -53,15 +59,32 @@ namespace AppAPL.Api.Controllers
         [HttpGet("bandeja-inactivacion")]
         public async Task<ActionResult<List<BandejaFondoDTO>>> ObtenerBandejaInactivacion()
         {
+            
             var listaFondos = await servicio.ObtenerBandejaInactivacion();
 
             return listaFondos.ToList();
+        }
+
+        [HttpGet("bandeja-inactivacion-id/{idFondo:int}")]
+        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaInactivacionPorId(int idFondo)
+        {
+            
+            var listaFondos = await servicio.ObtenerBandejaInactivacion();
+
+            var query = from filtrado in listaFondos
+                        where filtrado.IdFondo == idFondo
+                        select filtrado;
+
+            var fondo = query.FirstOrDefault();
+
+            return fondo;
         }
 
         // 🔹 GET: Obtener por ID
         [HttpGet("obtener/{id:int}")]
         public async Task<ActionResult<FondoDTO>> ObtenerPorId(int id)
         {
+          
             var item = await servicio.ObtenerPorIdAsync(id);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
@@ -72,6 +95,7 @@ namespace AppAPL.Api.Controllers
         [HttpGet("bandeja-modificacion-id/{id:int}")]
         public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaModificacionPorId(int id)
         {
+            
             var item = await servicio.ObtenerBandejaModificacionPorId(id);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
@@ -119,6 +143,26 @@ namespace AppAPL.Api.Controllers
             }
         }
 
+        [HttpPost("inactivar-fondo")]
+        [Email("ENTFONDO", TipoProceso.Inactivacion)]
+        public async Task<ActionResult<ControlErroresDTO>> InactivarFondo(InactivarFondoRequest fondo)
+        {
+
+            var retorno = await servicio.InactivarFondo(fondo);
+
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
+        }
+
         // 🔹 PUT: Actualizar
         [HttpPut("actualizar/{idFondo:int}")]
         [Email("ENTFONDO", TipoProceso.Modificacion)]
@@ -130,13 +174,13 @@ namespace AppAPL.Api.Controllers
 
             if (retorno.codigoRetorno == 0)
             {
-                //logger.LogInformation(retorno.mensaje);
+                logger.LogInformation(retorno.mensaje);
                 return retorno;
             }
             else
             {
 
-                //logger.LogError(retorno.mensaje);
+                logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
             }
         }

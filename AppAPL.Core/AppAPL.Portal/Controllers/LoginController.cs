@@ -1,44 +1,71 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http; // Necesario para HttpContext.Session
 
-namespace AppAPL.Portal.Controllers // Asegúrate que este namespace sea correcto
+namespace AppAPL.Portal.Controllers
 {
     public class LoginController : Controller
     {
         // --------------------------------------------------------
-        // MÉTODO 1: [HttpGet] - RESPONSABLE DE RENDERIZAR LA VISTA
+        // MÉTODO 1: [HttpGet] - RENDERIZA LA VISTA DE LOGIN
         // --------------------------------------------------------
-        // Este método se ejecuta cuando navegas a la ruta base y tu Program.cs
-        // te redirige a Login/Login (solicitud GET).
         [HttpGet]
         public IActionResult Login()
         {
-            // Simplemente retorna la vista por convención: Views/Login/Login.cshtml
-            return View();
+            // Opcional: Si ya hay sesión activa, redirigir al Home.
+            if (!string.IsNullOrEmpty(HttpContext.Session.GetString("Usuario")))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(); // Renderiza Login.cshtml
         }
 
         // --------------------------------------------------------
-        // MÉTODO 2: [HttpPost] - PROCESA LA VALIDACIÓN DEL FORMULARIO
+        // MÉTODO 2: [HttpPost] - PROCESA LA CAPTURA DEL USUARIO DEL FORMULARIO
         // --------------------------------------------------------
-        // Este método se ejecuta cuando el usuario presiona el botón "Ingresar"
         [HttpPost]
         public IActionResult Login(string Usuario, string Clave)
         {
-            // Validación de prueba para maquetado: admin / admin
-            const string usuarioValido = "admin";
+            // **Paso 1: Captura el valor del formulario (Usuario y Clave) automáticamente**
+            // ASP.NET Core MVC enlaza automáticamente los inputs del formulario 
+            // con los parámetros 'Usuario' y 'Clave' de este método.
+
+            // Simulación de validación (usando la clave 'admin' como mock-up)
             const string claveValida = "admin";
 
-            if (Usuario == usuarioValido && Clave == claveValida)
+            if (string.IsNullOrWhiteSpace(Usuario) || string.IsNullOrWhiteSpace(Clave))
             {
-                // Éxito: Redirigir a la página principal (Home/Index)
-                // (Necesitas una página de Home válida que use tu _Layout.cshtml)
+                ViewData["Error"] = "Por favor ingrese usuario y contraseña.";
+                return View();
+            }
+
+            if (Clave == claveValida)
+            {
+                // **Paso 2: Persistencia del Usuario Capturado**
+                // Guardar el nombre de usuario capturado en la Sesión del servidor.
+                HttpContext.Session.SetString("Usuario", Usuario);
+
+                Console.WriteLine($"✅ Login exitoso. Usuario capturado y guardado en sesión: {Usuario}");
+
+                // **Paso 3: Redirección al Home**
+                // Esto inicia una nueva petición HTTP (GET) donde el HomeController leerá la sesión.
                 return RedirectToAction("Index", "Home");
             }
             else
             {
-                // Fallo: Añadir mensaje de error y volver a renderizar la vista de Login
-                ViewData["Error"] = "Usuario o contraseña incorrectos.";
+                ViewData["Error"] = "Contraseña incorrecta.";
                 return View();
             }
+        }
+
+        // --------------------------------------------------------
+        // MÉTODO 3: Logout - Cerrar sesión
+        // --------------------------------------------------------
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            Console.WriteLine("🚪 Usuario cerró sesión");
+            return RedirectToAction("Login");
         }
     }
 }

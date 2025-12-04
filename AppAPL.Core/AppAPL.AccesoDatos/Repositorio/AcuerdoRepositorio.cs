@@ -1,20 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AppAPL.AccesoDatos.Abstracciones;
+﻿using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
 using Dapper;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
     public class AcuerdoRepositorio (OracleConnectionFactory factory, ILogger<AcuerdoRepositorio> logger) : IAcuerdoRepositorio
     {
+        
+
         public async Task<IEnumerable<ConsultarAcuerdoFondoDTO>> ConsultarAcuerdoFondo(int idFondo)
         {
             using var connection = factory.CreateOpenConnection();
@@ -39,6 +44,179 @@ namespace AppAPL.AccesoDatos.Repositorio
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
+        public async Task<IEnumerable<FondoAcuerdoDTO>> ConsultarFondoAcuerdo()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+           
+            var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<FondoAcuerdoDTO>(
+                "APL_PKG_ACUERDOS.listar_consulta_fondo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
+
+        //PENDIENTE ESTE SI VA
+        public async Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+
+            //var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            /*
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<ArticuloDTO>(
+                "SELECT * FROM APL_TB_ARTEFACTA_ARTICULO",
+                null,
+                commandType: CommandType.Text
+            );
+
+            //int? codigoSalida = parameters.Get<int>("p_codigo");
+            //string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
+        public async Task<FiltrosItemsDTO> CargarCombosFiltrosItems()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Parámetros de Salida (RefCursors)
+            var parameters = new OracleDynamicParameters();
+
+            // Agregar los 4 RefCursors como parámetros de salida
+            parameters.Add("p_cur_marcas", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cur_divisiones", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cur_departamentos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cur_clases", OracleDbType.RefCursor, ParameterDirection.Output);
+
+            // 🔹 Ejecutar el SP con QueryMultiple
+            using var multi = await connection.QueryMultipleAsync(
+                "APL_SP_CARGAR_COMBOS_FILTROS_ITEMS",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            // 🔹 Leer cada conjunto de resultados en el ORDEN en que están definidos en el SP
+            var resultado = new FiltrosItemsDTO
+            {
+                // 1. Marcas (p_cur_marcas)
+                Marcas = await multi.ReadAsync<MarcaDTO>(),
+
+                // 2. Divisiones (p_cur_divisiones)
+                Divisiones = await multi.ReadAsync<DivisionDTO>(),
+
+                // 3. Departamentos (p_cur_departamentos)
+                Departamentos = await multi.ReadAsync<DepartamentoDTO>(),
+
+                // 4. Clases (p_cur_clases)
+                Clases = await multi.ReadAsync<ClaseDTO>()
+            };
+
+            return resultado;
+        }
+
+        public async Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo)
+        {
+            using var connection = factory.CreateOpenConnection();
+            var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+            var paramObject = new
+            {
+                p_tipo_clase_etiqueta = acuerdo.TipoClaseEtiqueta,
+                p_json_cabecera = JsonSerializer.Serialize(acuerdo.Acuerdo, options),
+                p_json_fondo = JsonSerializer.Serialize(acuerdo.Fondo, options),
+                p_json_articulos = JsonSerializer.Serialize(acuerdo.Articulos, options),
+                p_idopcion = acuerdo.IdOpcion,
+                p_idcontrolinterfaz = acuerdo.IdControlInterfaz,
+                p_idevento_etiqueta = acuerdo.IdEvento
+            };
+
+            //logger.LogInformation($"parametros a enviar para el sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+           
+            parameters.Add("p_idacuerdo_out", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            //parameters.Add("p_resultado", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "APL_PKG_ACUERDOS.sp_crear_acuerdo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? idAcuerdo = parameters.Get<int>("p_idacuerdo_out");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}, idAcuerdo: {idAcuerdo}");
+
+            //return parameters.Get<int>("p_idfondo_out");
+            var retorno = new ControlErroresDTO()
+            {
+                Id = idAcuerdo,
+                filasAfectadas = filasAfectadas,
+                mensaje = mensajeSalida,
+                codigoRetorno = codigoSalida
+            };
+            return retorno;
+        }
+        
+        public async Task<IEnumerable<ArticuloDTO>> ObtenerArticuloEspecificos(string texto)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new 
+            {
+                p_texto = texto
+            };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<ArticuloDTO>(
+                "APL_SP_BUSCAR_ARTICULO_AUTOCOMPLETE_ITEMS",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            
 
             return datos;
         }

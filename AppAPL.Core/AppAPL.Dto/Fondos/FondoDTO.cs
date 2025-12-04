@@ -11,6 +11,7 @@ namespace AppAPL.Dto.Fondos
         public long IdFondo { get; set; }
         public string? Descripcion { get; set; }
         public string? IdProveedor { get; set; }
+        public string? Nombre { get; set; }
         public decimal? IdTipoFondo { get; set; }
         public decimal? ValorFondo { get; set; }
         public DateTime? FechaInicioVigencia { get; set; }
@@ -38,6 +39,7 @@ namespace AppAPL.Dto.Fondos
         public int idfondo { get; set; }
         public string descripcion { get; set; }
         public string proveedor { get; set; }
+        public string? Nombre { get; set; }
         public string tipo_fondo { get; set; }
         public decimal valor_fondo { get; set; }
         public DateTime fecha_inicio { get; set; }
@@ -51,6 +53,7 @@ namespace AppAPL.Dto.Fondos
         public int nivelaprobacion { get; set; }
         public string aprobador { get; set; }
         public int idaprobacion { get; set; }
+        public int entidad { get; set; }
         public string entidad_etiqueta { get; set; }
         public string tipo_proceso_etiqueta { get; set; }
         public string estado_aprob_etiqueta { get; set; }
@@ -61,6 +64,7 @@ namespace AppAPL.Dto.Fondos
         public int IdFondo { get; set; }
         public string? Descripcion { get; set; }
         public string? Proveedor { get; set; }
+        public string? Nombre { get; set; }
         public string? Tipo_Fondo { get; set; }
         public decimal? Valor_Fondo { get; set; }
         public DateTime? Fecha_Inicio { get; set; }
@@ -69,6 +73,7 @@ namespace AppAPL.Dto.Fondos
         public decimal? Valor_Comprometido { get; set; }
         public decimal? Valor_Liquidado { get; set; }
         public string? Estado { get; set; }
+        public string? Estado_Etiqeuta { get; set; }
 
     }
 
@@ -83,8 +88,9 @@ namespace AppAPL.Dto.Fondos
         public string? IdUsuarioIngreso { get; set; }
         public string? NombreUsuarioIngreso { get; set; }
         public int? IdOpcion { get; set; }
-        public int? IdControlInterfaz { get; set; }
-        public int? IdEvento { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
+        public string? NombreUsuario { get; set; }
     }
 
     public class ActualizarFondoRequest
@@ -98,8 +104,9 @@ namespace AppAPL.Dto.Fondos
         public string? IdUsuarioModifica { get; set; }
         public string? NombreUsuarioModifica { get; set; }
         public int? IdOpcion { get; set; }
-        public int? IdControlInterfaz { get; set; }
-        public int? IdEvento { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
+        public string? NombreUsuario { get; set; }
     }
 
     public class AprobarFondoRequest
@@ -114,10 +121,21 @@ namespace AppAPL.Dto.Fondos
         public string? UsuarioAprobador { get; set; }
 
         public int? IdOpcion { get; set; }
-        public int? IdControlInterfaz { get; set; }
-        public int? IdEvento { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
+        public string? NombreUsuario { get; set; }
 
     }
 
+    public class InactivarFondoRequest
+    {
+        public int IdFondo { get; set; }
+        public string? NombreUsuarioIngreso { get; set; }
 
+        public int? IdOpcion { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
+        public string? NombreUsuario { get; set; }
+
+    }
 }   

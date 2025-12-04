@@ -1,30 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AppAPL.AccesoDatos.Abstracciones;
+﻿using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
 using AppAPL.Dto;
 using AppAPL.Dto.CatalogoTipo;
 using AppAPL.Dto.Fondos;
 using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
     public class FondoRepositorio(OracleConnectionFactory factory, ILogger<FondoRepositorio> logger) : IFondoRepositorio
     {
-        public async Task<IEnumerable<FondoDTO>> ObtenerFondosAsync()
+        public async Task<IEnumerable<FondoDTO>> ObtenerFondosAsync(string? NombreUsuario = null, int? IdOpcion = null, string? IdControlInterfaz = null,
+             string? IdEvento = null)
         {
             using var connection = factory.CreateOpenConnection();
 
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            /*
+            var paramObject = new
+            {
+                p_nombreusuario = NombreUsuario,
+                p_idopcion = IdOpcion,
+                p_idcontrolinterfaz = IdControlInterfaz,
+                p_idevento_etiqueta = IdEvento
+            };*/
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters();  //mandar el paramObject en el constructor del parametro
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
@@ -45,6 +56,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             return datos;
         }
+
+        
 
         public async Task<IEnumerable<BandejaFondoDTO>> ObtenerBandejaModificacion()
         {
@@ -214,7 +227,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
                 p_idopcion = fondo.IdOpcion,
                 p_idcontrolinterfaz = fondo.IdControlInterfaz,
-                p_idevento = fondo.IdEvento
+                p_idevento_etiqueta = fondo.IdEvento,
+                p_nombreusuario = fondo.NombreUsuario
             };
 
             var parameters = new OracleDynamicParameters(paramObject);
@@ -262,8 +276,11 @@ namespace AppAPL.AccesoDatos.Repositorio
 
                 p_idopcion = fondo.IdOpcion,
                 p_idcontrolinterfaz = fondo.IdControlInterfaz,
-                p_idevento = fondo.IdEvento
+                p_idevento_etiqueta = fondo.IdEvento,
+                p_nombreusuario = fondo.NombreUsuario
             };
+
+            logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
 
             var parameters = new OracleDynamicParameters(paramObject);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
@@ -291,6 +308,52 @@ namespace AppAPL.AccesoDatos.Repositorio
             return retorno;
         }
 
+
+        public async Task<ControlErroresDTO> InactivarFondo(InactivarFondoRequest fondo)
+        {
+            
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idfondo = fondo.IdFondo,
+                p_nombreusuarioingreso = fondo.NombreUsuarioIngreso,
+                
+                p_idopcion = fondo.IdOpcion,
+                p_idcontrolinterfaz = fondo.IdControlInterfaz,
+                p_idevento_etiqueta = fondo.IdEvento,
+                p_nombreusuario = fondo.NombreUsuario
+            };
+
+            logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "APL_PKG_FONDOS.sp_inactivacion_fondo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+            
+
+
+            var retorno = new ControlErroresDTO()
+            {
+                codigoRetorno = codigoSalida,
+                mensaje = mensajeSalida,
+                filasAfectadas = filasAfectadas
+            };
+
+            return retorno;
+        }
+
         public async Task<ControlErroresDTO> ActualizarAsync(ActualizarFondoRequest fondo, int idFondo)
         {
             using var connection = factory.CreateOpenConnection();
@@ -309,7 +372,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
                 p_idopcion = fondo.IdOpcion,
                 p_idcontrolinterfaz = fondo.IdControlInterfaz,
-                p_idevento = fondo.IdEvento
+                p_idevento_etiqueta = fondo.IdEvento,
+                p_nombreusuario = fondo.NombreUsuario
             };
 
             var parameters = new OracleDynamicParameters(paramObject);

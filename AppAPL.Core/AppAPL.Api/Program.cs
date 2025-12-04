@@ -25,7 +25,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 
 // Leer el valor del appsettings.json
-bool enableHeaderFilter = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
+//bool enableHeaderFilter = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
 
 
 builder.Services.AddSwaggerGen(c =>
@@ -39,10 +39,11 @@ builder.Services.AddSwaggerGen(c =>
 
     //c.OperationFilter<OptionalRouteParamFilter>();
     // Solo agregar el filtro si está habilitado en appsettings
+    /*
     if (enableHeaderFilter)
     {
         c.OperationFilter<AgregarHeadersAuditoriaOperationFilter>();
-    }
+    }*/
 
     c.EnableAnnotations();
 });
@@ -105,6 +106,9 @@ builder.Services.AddCors(options =>
 
 //habilitar middleware por archivo appsetting.sjon
 //var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
+
+var enableCleanJson = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableCleanJson");
+var enableAuditoria = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
 var enableEmail = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableEmail");
 
 
@@ -147,6 +151,16 @@ if (enableAuditoria)
 {
     app.UseMiddleware<AuditoriaMiddleware>();
 }*/
+
+if (enableCleanJson)
+{
+    app.UseMiddleware<CleanJsonMiddleware>();
+}
+
+if (enableAuditoria)
+{
+    app.UseMiddleware<AuditoriaMiddleware>();
+}
 
 if (enableEmail)
 {
