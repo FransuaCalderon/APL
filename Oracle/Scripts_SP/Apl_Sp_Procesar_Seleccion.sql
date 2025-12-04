@@ -1,9 +1,9 @@
-CREATE OR REPLACE PROCEDURE SP_PROCESAR_SELECCION(
-    p_marcas         IN VARCHAR2 DEFAULT NULL,  -- 'Samsung,LG,Sony'
-    p_divisiones     IN VARCHAR2 DEFAULT NULL,  -- 'Electrónica,Hogar'
-    p_departamentos  IN VARCHAR2 DEFAULT NULL,  -- 'Audio y Video,Cocina'
-    p_clases         IN VARCHAR2 DEFAULT NULL,  -- 'Televisores,Laptops'
-    p_codigo         IN VARCHAR2 DEFAULT NULL,  -- Código artículo directo
+create or replace PROCEDURE APL_SP_PROCESAR_SELECCION(
+    p_marcas         IN VARCHAR2 DEFAULT NULL,  
+    p_divisiones     IN VARCHAR2 DEFAULT NULL,  
+    p_departamentos  IN VARCHAR2 DEFAULT NULL,  
+    p_clases         IN VARCHAR2 DEFAULT NULL,  
+    p_codigo         IN VARCHAR2 DEFAULT NULL,  
     p_cursor         OUT SYS_REFCURSOR
 ) AS
 BEGIN
@@ -34,4 +34,4 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         RAISE_APPLICATION_ERROR(-20001, 'Error en SP_PROCESAR_SELECCION: ' || SQLERRM);
-END SP_PROCESAR_SELECCION;
+END APL_SP_PROCESAR_SELECCION;
