@@ -109,7 +109,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<ArticuloDTO>(
-                "SP_PROCESAR_SELECCION",
+                "APL_SP_PROCESAR_SELECCION",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
