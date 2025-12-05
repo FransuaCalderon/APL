@@ -57,7 +57,7 @@ namespace AppAPL.Api.Controllers
 
 
         [HttpPost("insertar")]
-        //[Email("ENTACUERDO", TipoProceso.Creacion)]
+        [Email("ENTACUERDO", TipoProceso.Creacion)]
         public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearActualizarAcuerdoGrupoDTO acuerdo)
         {
             

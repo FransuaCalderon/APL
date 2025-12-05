@@ -1,14 +1,16 @@
-﻿using AppAPL.AccesoDatos.Abstracciones;
+﻿using System.Text.Json;
+using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.Api.Attributes;
 using AppAPL.Api.Handlers.Interfaces;
+using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Email;
 using AppAPL.Dto.Fondos;
-using System.Text.Json;
 
 namespace AppAPL.Api.Handlers
 {
-    public class AcuerdosEmailHandler (IEmailRepositorio emailRepo, ILogger<AcuerdosEmailHandler> logger) : HandlerBase(emailRepo, logger), IAcuerdosEmailHandler
+    public class AcuerdosEmailHandler (IEmailRepositorio emailRepo, ILogger<AcuerdosEmailHandler> logger,
+        IFondoRepositorio fondoRepo, IProveedorRepositorio proveedorRepo, ICatalogoRepositorio catalogoRepo) : HandlerBase(emailRepo, logger, catalogoRepo), IAcuerdosEmailHandler
     {
         public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, AcuerdoDTO? acuerdoAntiguo = null, string? responseBody = null)
         {
@@ -28,12 +30,64 @@ namespace AppAPL.Api.Handlers
             };
 
             // 1. Declaramos las variables que llenará el switch
-            string IdProveedor;
+            string IdProveedor = "";
             Dictionary<string, string> camposPlantilla = null;
 
             switch (tipoProceso)
             {
                 case TipoProceso.Creacion:
+                    var reqCreacion = JsonSerializer.Deserialize<CrearActualizarAcuerdoGrupoDTO>(requestBody, jsonOptions);
+                    if (reqCreacion == null)
+                    {
+                        logger.LogWarning("⚠️ [FondosHandler] No se pudo deserializar body de Crear Acuerdo");
+                        return;
+                    }
+
+                    var retorno = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
+                    if (retorno == null)
+                    {
+                        logger.LogWarning("No existe Response body");
+                        return;
+                    }
+
+
+                    var fondo = await fondoRepo.ObtenerPorIdAsync(reqCreacion.Fondo.IdFondo);
+                    if (fondo == null)
+                    {
+                        logger.LogWarning($"no se encontro el fondo con el id: {reqCreacion.Fondo.IdFondo}");
+                    }
+
+                    IdProveedor = fondo.IdProveedor;
+                    var proveedor = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
+
+                    if (proveedor == null)
+                    {
+                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
+                        return;
+                    }
+
+                    var catalogo = await catalogoRepo.ObtenerPorIdAsync((int)fondo.IdTipoFondo);
+                    if (catalogo == null)
+                    {
+                        logger.LogWarning($"no se encontro catalogo con el idTipoFondo: {fondo.IdTipoFondo}");
+                        return;
+                    }
+
+                    camposPlantilla = new Dictionary<string, string>
+                    {
+                        { "Nombre", "" },
+                        { "IdAcuerdo", retorno.Id.ToString() },
+                        { "NombreProveedor", proveedor.Nombre },
+                        { "ValorAcuerdo", reqCreacion.Fondo.ValorAporte.ToString() },
+                        { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(reqCreacion.Fondo.ValorAporte) },
+                        { "FechaInicio", reqCreacion.Acuerdo.FechaInicioVigencia.ToString() },
+                        { "FechaFin", reqCreacion.Acuerdo.FechaFinVigencia.ToString() },
+                        { "IdFondo", reqCreacion.Fondo.IdFondo.ToString() },
+                        { "TipoFondo", catalogo.Nombre },
+                        { "Firma", "" },
+                        // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
+                    };
+
                     logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
                     break;
 
@@ -54,7 +108,15 @@ namespace AppAPL.Api.Handlers
                     return;
             }
 
-                //await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla);
+            if (camposPlantilla != null)
+            {
+                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla);
             }
+            else
+            {
+                logger.LogWarning($"[AcuerdosHandler] campos para plantilla de email no definido");
+            }
+                
+        }
     }
 }

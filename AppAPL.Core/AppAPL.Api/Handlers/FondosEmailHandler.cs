@@ -13,7 +13,7 @@ using Humanizer;
 namespace AppAPL.Api.Handlers
 {
     public class FondosEmailHandler (IEmailRepositorio emailRepo, ILogger<FondosEmailHandler> logger, 
-        IProveedorRepositorio proveedorRepo, IFondoRepositorio fondoRepo) :  HandlerBase(emailRepo, logger), IFondosEmailHandler
+        IProveedorRepositorio proveedorRepo, IFondoRepositorio fondoRepo, ICatalogoRepositorio catalogoRepo) :  HandlerBase(emailRepo, logger, catalogoRepo), IFondosEmailHandler
     {
         public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, FondoDTO? fondoAntiguo = null, string? responseBody = null)
         {
@@ -230,7 +230,14 @@ namespace AppAPL.Api.Handlers
             // 3. A partir de aquí, la lógica es común y ya tiene los datos correctos
             //    (IdProveedor y camposPlantilla) sin importar qué 'case' se ejecutó.
 
-            await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla);
+            if (camposPlantilla != null)
+            {
+                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla);
+            }
+            else
+            {
+                logger.LogWarning($"[FondosHandler] campos para plantilla de email no definido");
+            }
         }
 
 

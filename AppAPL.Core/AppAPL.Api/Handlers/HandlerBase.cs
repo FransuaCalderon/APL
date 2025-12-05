@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace AppAPL.Api.Handlers
 {
-    public class HandlerBase(IEmailRepositorio emailRepo, ILogger logger)
+    public class HandlerBase(IEmailRepositorio emailRepo, ILogger logger, ICatalogoRepositorio catalogoRepo)
     {
         protected string ConvertirDecimalAPalabras(decimal valor)
         {
@@ -84,13 +84,24 @@ namespace AppAPL.Api.Handlers
                 logger.LogInformation($"cc destinatario: {item}");
             }
 
+            string? nombreEntidad = await this.RetornarNombreEntidad(entidad);
+
             await emailRepo.SendEmailAsync(
                 toList,
-                $"Notificación: {tipoProceso}",
+                $"Notificación {nombreEntidad}: {tipoProceso}",
                 plantilla.nombrearchivo,
                 camposPlantilla, // Usamos el diccionario llenado en el switch
                 ccList
             );
+        }
+
+        protected async Task<string?> RetornarNombreEntidad(string etiquetaEntidad)
+        {
+            var listaCatalogo = await catalogoRepo.ListarAsync();
+
+            var entidad = listaCatalogo.Where(x => x.IdEtiqueta == etiquetaEntidad).FirstOrDefault();
+
+            return entidad?.Nombre;
         }
     }
 }
