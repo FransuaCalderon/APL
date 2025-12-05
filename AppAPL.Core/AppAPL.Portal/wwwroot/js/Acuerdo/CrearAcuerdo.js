@@ -992,7 +992,7 @@
                 valorComprometido: comprometido,
                 margenContado: margenContado,
                 margenTarjetaCredito: margenTC,
-                margenCredito: margenCredito
+                //margenCredito: margenCredito
             });
         });
 
@@ -1003,6 +1003,7 @@
     // Guardar (Items) - ACTUALIZADO
     // -----------------------------
     function guardarItems() {
+        console.log("ejecutar guardarItems actual");
         if (!ensureApiBaseUrl()) return;
         if (!validarItems()) return;
 
@@ -1312,11 +1313,15 @@
     // -----------------------------
     // Guardar (Items)
     // -----------------------------
+
+    /*
     function guardarItems() {
+        console.log("ejecutar guardar items");
         if (!ensureApiBaseUrl()) return;
         if (!validarItems()) return;
 
         const idOpcionActual = getIdOpcionSeguro();
+        console.log("idOpcionActual: ", idOpcionActual);
         if (!idOpcionActual) {
             Swal.fire("Error", "No se pudo obtener idOpcion.", "error");
             return;
@@ -1339,6 +1344,7 @@
             nombreusuario: getUsuario(),
         };
 
+        console.log("data que envia al guardar: ", data);
         Swal.fire({
             title: "Confirmar Guardado",
             text: "¿Desea guardar el acuerdo POR ÍTEMS?",
@@ -1391,7 +1397,7 @@
                 },
             });
         });
-    }
+    }*/
 
     /**
  * Modifica el item seleccionado habilitando los campos editables
