@@ -85,7 +85,6 @@
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         });
-
         return `$ ${formatter.format(number)}`;
     }
 
@@ -315,7 +314,6 @@
             <td class="align-middle">${esc(estado)}</td>
           </tr>
         `;
-
                     $tbody.append(fila);
                 });
             },
@@ -398,7 +396,14 @@
                 $tbody.empty();
 
                 if (!Array.isArray(data) || data.length === 0) {
-                    $tbody.append('<tr><td colspan="14" class="text-center">No se encontraron items.</td></tr>');
+                    $tbody.append(`
+                        <tr>
+                            <td colspan="14" class="text-center text-muted p-3">
+                                <i class="fa-solid fa-circle-info"></i><br>
+                                No se encontraron items con los criterios seleccionados
+                            </td>
+                        </tr>
+                    `);
                     return;
                 }
 
@@ -489,7 +494,7 @@
                         const checkboxHtml = `
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox" 
-                                   id="marca_${marca.codigo}" value="${marca.nombre}" checked>
+                                id="marca_${marca.codigo}" value="${marca.nombre}">
                             <label class="form-check-label" for="marca_${marca.codigo}">
                                 ${marca.nombre}
                             </label>
@@ -508,7 +513,7 @@
                         const checkboxHtml = `
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox"
-                                   id="division_${div.codigo}" value="${div.nombre}" checked>
+                                   id="division_${div.codigo}" value="${div.nombre}">
                             <label class="form-check-label" for="division_${div.codigo}">
                                 ${div.nombre}
                             </label>
@@ -527,7 +532,7 @@
                         const checkboxHtml = `
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox" 
-                                   id="departamento_${dep.codigo}" value="${dep.nombre}" checked>
+                                   id="departamento_${dep.codigo}" value="${dep.nombre}">
                             <label class="form-check-label" for="departamento_${dep.codigo}">
                                 ${dep.nombre}
                             </label>
@@ -546,7 +551,7 @@
                         const checkboxHtml = `
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox" 
-                                   id="clase_${clase.codigo}" value="${clase.nombre}" checked>
+                                   id="clase_${clase.codigo}" value="${clase.nombre}">
                             <label class="form-check-label" for="clase_${clase.codigo}">
                                 ${clase.nombre}
                             </label>
@@ -727,7 +732,6 @@
             $("#tablaItemsBody tr").removeClass("fila-seleccionada");
             $(this).closest("tr").addClass("fila-seleccionada");
         });
-
         calcularTotalesItems();
     }
 
@@ -944,7 +948,6 @@
             Swal.fire("Validación", "El valor total debe ser mayor a 0.", "warning");
             return false;
         }
-
         return true;
     }
 
@@ -953,7 +956,6 @@
     // -----------------------------
     function leerDetalleItemsDesdeTabla() {
         const articulos = [];
-
         $("#tablaItemsBody tr").each(function () {
             const $tr = $(this);
             const codigo = $tr.data("codigo");
@@ -961,23 +963,18 @@
             // Leer valores
             const costoStr = $tr.find(".item-costo").val();
             const costo = parseCurrencyToNumber(costoStr);
-
             const unidades = parseInt($tr.find('input[name="unidadesLimite"]').val()) || 0;
-
             const precioContado = parseCurrencyToNumber($tr.find(".item-precio-contado").val());
             const precioTC = parseCurrencyToNumber($tr.find(".item-precio-tc").val());
             const precioCredito = parseCurrencyToNumber($tr.find(".item-precio-credito").val());
             const aporte = parseCurrencyToNumber($tr.find(".item-aporte").val());
-
             // Leer márgenes (están en formato "XX.XX%")
             const margenContadoStr = $tr.find(".margen-contado").text().replace("%", "").trim();
             const margenTCStr = $tr.find(".margen-tc").text().replace("%", "").trim();
             const margenCreditoStr = $tr.find(".margen-credito").text().replace("%", "").trim();
-
             const margenContado = parseFloat(margenContadoStr) || 0;
             const margenTC = parseFloat(margenTCStr) || 0;
             const margenCredito = parseFloat(margenCreditoStr) || 0;
-
             // Calcular comprometido
             const comprometido = aporte * unidades;
 
@@ -995,12 +992,11 @@
                 //margenCredito: margenCredito
             });
         });
-
         return articulos;
     }
 
     // -----------------------------
-    // Guardar (Items) - ACTUALIZADO
+    // Guardar (Items) - Articulo
     // -----------------------------
     function guardarItems() {
         console.log("ejecutar guardarItems actual");
@@ -1310,96 +1306,7 @@
         });
     }
 
-    // -----------------------------
-    // Guardar (Items)
-    // -----------------------------
-
-    /*
-    function guardarItems() {
-        console.log("ejecutar guardar items");
-        if (!ensureApiBaseUrl()) return;
-        if (!validarItems()) return;
-
-        const idOpcionActual = getIdOpcionSeguro();
-        console.log("idOpcionActual: ", idOpcionActual);
-        if (!idOpcionActual) {
-            Swal.fire("Error", "No se pudo obtener idOpcion.", "error");
-            return;
-        }
-
-        const detalle = leerDetalleItemsDesdeTabla();
-
-        const data = {
-            descripcion: $("#fondoDescripcionItems").val().trim(),
-            idproveedor: $("#fondoProveedorIdItems").val().trim(),
-            idmotivo: parseInt($("#fondoTipoItems").val(), 10) || 0,
-            fechainicio: toISOFromDDMMYYYY($("#fondoFechaInicioItems").val()),
-            fechafin: toISOFromDDMMYYYY($("#fondoFechaFinItems").val()),
-            detalleItems: detalle,
-            idusuarioingreso: getUsuario(),
-            nombreusuarioingreso: getUsuario(),
-            idopcion: idOpcionActual,
-            idcontrolinterfaz: "BTNGRABAR",
-            idevento: "EVCLICK",
-            nombreusuario: getUsuario(),
-        };
-
-        console.log("data que envia al guardar: ", data);
-        Swal.fire({
-            title: "Confirmar Guardado",
-            text: "¿Desea guardar el acuerdo POR ÍTEMS?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#009845",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, Guardar",
-            cancelButtonText: "Cancelar",
-        }).then((result) => {
-            if (!result.isConfirmed) return;
-
-            const url = `${window.apiBaseUrl}/api/Acuerdo/insertar-items`;
-
-            $.ajax({
-                url: url,
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(data),
-                headers: {
-                    idopcion: String(idOpcionActual),
-                    usuario: getUsuario(),
-                },
-                success: function () {
-                    Swal.fire({
-                        icon: "success",
-                        title: "¡Guardado!",
-                        text: "El acuerdo POR ÍTEMS se guardó correctamente.",
-                        showConfirmButton: false,
-                        timer: 1400,
-                    });
-
-                    $("#fondoTipoItems").val("");
-                    $("#fondoProveedorItems").val("Seleccione...");
-                    $("#fondoProveedorIdItems").val("");
-                    $("#fondoDescripcionItems").val("");
-                    $("#fondoFechaInicioItems").val("");
-                    $("#fondoFechaFinItems").val("");
-                    $("#fondoValorTotalItems").val("");
-                    $("#tablaItemsBody").empty();
-                },
-                error: function (xhr) {
-                    console.error("Error guardado items:", xhr.status, xhr.responseText);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "Algo salió mal al guardar el acuerdo POR ÍTEMS.",
-                        footer: xhr.responseText ? `Detalle: ${xhr.responseText}` : "",
-                    });
-                },
-            });
-        });
-    }*/
-
-    /**
+ /**
  * Modifica el item seleccionado habilitando los campos editables
  */
     function modificarItemSeleccionado() {
@@ -1591,8 +1498,19 @@
 
         // Modal Items
         $("#modalConsultaItems").on("show.bs.modal", function () {
-            cargarFiltrosItems();
-            consultarItems();
+            cargarFiltrosItems(); // Solo carga los filtros
+            // ❌ REMOVIDO: consultarItems(); 
+
+            // Mostrar mensaje inicial en la tabla
+            const $tbody = $("#tablaItemsConsulta tbody");
+            $tbody.empty().append(`
+                <tr>
+                    <td colspan="14" class="text-center text-muted p-4">
+                        <i class="fa-solid fa-filter"></i><br>
+                        Seleccione los criterios de búsqueda y presione <strong>"Procesar Selección"</strong>
+                    </td>
+                </tr>
+            `);
         });
 
         // Checkbox "Todos" en modal Items
@@ -1610,6 +1528,22 @@
             const departamentosSeleccionados = getSelectedFilterValues('filtroDepartamento');
             const clasesSeleccionadas = getSelectedFilterValues('filtroClase');
             const articuloBuscado = $("#filtroArticulo").val().trim();
+
+            // Validar que al menos haya algo seleccionado
+            if (marcasSeleccionadas.length === 0 &&
+                divisionesSeleccionadas.length === 0 &&
+                departamentosSeleccionados.length === 0 &&
+                clasesSeleccionadas.length === 0 &&
+                articuloBuscado === '') {
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Atención',
+                    text: 'Debe seleccionar al menos un criterio de búsqueda',
+                    confirmButtonColor: '#009845'
+                });
+                return;
+            }
 
             const filtros = {
                 marcas: marcasSeleccionadas.length > 0 ? marcasSeleccionadas : [],
@@ -1634,6 +1568,7 @@
                 timer: 1000,
             });
 
+            // Ahora sí, consultar con filtros
             consultarItems(filtros);
         });
 
@@ -1699,6 +1634,80 @@
         $("#btnGuardarAcuerdoItems").on("click", function (e) {
             e.preventDefault();
             guardarItems();
+        });
+
+        // Botón Cancelar General
+        $("#formGeneral button.btn-secondary").on("click", function (e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: '¿Está seguro?',
+                html: 'Se perderán todos los datos ingresados en el formulario <strong>GENERAL</strong>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, Cancelar',
+                cancelButtonText: 'No, Continuar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Limpiar formulario General
+                    $("#fondoTipoGeneral").val("");
+                    $("#fondoProveedorGeneral").val("Seleccione...");
+                    $("#fondoProveedorIdGeneral").val("");
+                    $("#fondoDescripcionGeneral").val("");
+                    $("#fondoFechaInicioGeneral").val("");
+                    $("#fondoFechaFinGeneral").val("");
+                    $("#fondoValorTotalGeneral").val("");
+                    $("#fondoDisponibleGeneral").val("");
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: 'Formulario limpiado',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        });
+
+        // Botón Cancelar Items
+        $("#formItems button.btn-secondary").on("click", function (e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: '¿Está seguro?',
+                html: 'Se perderán todos los datos ingresados en el formulario de <strong>ARTÍCULOS</strong><br><small class="text-muted">Incluyendo el detalle de items agregados</small>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, Cancelar',
+                cancelButtonText: 'No, Continuar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Limpiar formulario Items
+                    $("#fondoTipoItems").val("");
+                    $("#fondoProveedorItems").val("Seleccione...");
+                    $("#fondoProveedorIdItems").val("");
+                    $("#fondoDescripcionItems").val("");
+                    $("#fondoFechaInicioItems").val("");
+                    $("#fondoFechaFinItems").val("");
+                    $("#fondoValorTotalItems").val("");
+                    $("#tablaItemsBody").empty();
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: 'Formulario limpiado',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
         });
     });
 })();
