@@ -1,9 +1,9 @@
 ﻿/**
- * CrearAcuerdo.js - VERSIÓN CON FILTROS CHECKBOX
+ * CrearAcuerdo.js - VERSIÓN CON FILTROS CHECKBOX Y VALIDACIÓN DE PROVEEDOR
  * Lógica completa para la vista CrearAcuerdo.cshtml
  * - Diferencia General vs Items
  * - Carga combos Motivo (ACMOTIVO)
- * - Modal Proveedores (Fondos)
+ * - Modal Proveedores (Fondos) con validación de selección
  * - Modal Items (Consulta y Selección con CHECKBOXES)
  * - Validaciones por formulario
  * - Datepickers separados
@@ -11,6 +11,9 @@
 
 (function () {
     "use strict";
+
+    // Variable para almacenar temporalmente el proveedor seleccionado
+    let proveedorTemporal = null;
 
     // -----------------------------
     // Helpers base
@@ -284,7 +287,7 @@
                     const fila = `
           <tr class="text-nowrap">
             <td class="align-middle text-center">
-              <input class="form-check-input" type="radio" name="selectProveedor"
+              <input class="form-check-input proveedor-radio" type="radio" name="selectProveedor"
                 data-idfondo="${esc(idFondo)}"
                 data-descripcion="${esc(descripcion)}"
                 data-ruc="${esc(ruc)}"
@@ -297,8 +300,7 @@
                 data-disponible="${esc(pick(x, ["valordisponible", "valorDisponible"]))}"
                 data-comprometido="${esc(pick(x, ["valorcomprometido", "valorComprometido"]))}"
                 data-liquidado="${esc(pick(x, ["valorliquidado", "valorLiquidado"]))}"
-                data-estado="${esc(estado)}"
-              >
+                data-estado="${esc(estado)}">
             </td>
             <td class="align-middle">${esc(idFondo)}</td>
             <td class="align-middle">${esc(descripcion)}</td>
@@ -316,6 +318,9 @@
         `;
                     $tbody.append(fila);
                 });
+
+                // Agregar evento para resaltar fila seleccionada (solo visual)
+                initProveedorRowSelection();
             },
             error: function (xhr, status, error) {
                 console.error("Error fondo-acuerdo:", error);
@@ -326,6 +331,33 @@
         });
     }
 
+    /**
+     * Inicializa el evento de selección de fila (solo feedback visual)
+     */
+    function initProveedorRowSelection() {
+        $(document).off("change", ".proveedor-radio").on("change", ".proveedor-radio", function () {
+            // Remover resaltado de todas las filas
+            $("#tablaProveedores tbody tr").removeClass("table-active");
+
+            // Resaltar la fila seleccionada
+            $(this).closest("tr").addClass("table-active");
+
+            // Guardar temporalmente los datos (NO actualizar el formulario aún)
+            const $selected = $(this);
+            proveedorTemporal = {
+                idFondo: $selected.data("idfondo"),
+                descripcion: $selected.data("descripcion"),
+                proveedor: $selected.data("proveedor"),
+                ruc: $selected.data("ruc"),
+                disponible: $selected.data("disponible"),
+                comprometido: $selected.data("comprometido"),
+                liquidado: $selected.data("liquidado"),
+            };
+
+            console.log("✓ Proveedor seleccionado (temporal):", proveedorTemporal.idFondo);
+        });
+    }
+
     function setFondoEnFormActivo(f) {
         const tipo = getTipoAcuerdo();
 
@@ -333,9 +365,6 @@
             $("#fondoProveedorGeneral").val(f.display);
             $("#fondoProveedorIdGeneral").val(f.idFondo);
 
-            if (f.disponible != null && f.disponible !== "") {
-                $("#fondoDisponibleGeneral").val(formatCurrencySpanish(f.disponible));
-            }
         } else {
             $("#fondoProveedorItems").val(f.display);
             $("#fondoProveedorIdItems").val(f.idFondo);
@@ -380,17 +409,12 @@
         let url = `${window.apiBaseUrl}/api/Acuerdo/consultar-articulos`;
 
         console.log("filtros: ", filtros);
-        
+
         $.ajax({
             url: url,
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify(filtros),
-            /*
-            headers: {
-                idopcion: String(idOpcionActual),
-                usuario: usuario,
-            },*/
             success: function (data) {
                 console.log("Datos items:", data);
                 $tbody.empty();
@@ -881,7 +905,7 @@
             const rawValue = $(this).val().replace(",", ".");
             const formattedValue = formatCurrencySpanish(rawValue);
             $(this).val(formattedValue);
-            $dispo.val(formattedValue);
+            $dispo.val(formattedValue); // ✅ Copia Valor Total → Disponible
         });
     }
 
@@ -1306,9 +1330,9 @@
         });
     }
 
- /**
- * Modifica el item seleccionado habilitando los campos editables
- */
+    /**
+     * Modifica el item seleccionado habilitando los campos editables
+     */
     function modificarItemSeleccionado() {
         const $radioSeleccionado = $("#tablaItemsBody .item-row-radio:checked");
 
@@ -1413,7 +1437,7 @@
                     icon: "success",
                     title: "Item eliminado",
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 1500,
                 });
             }
         });
@@ -1423,7 +1447,7 @@
     // Init principal
     // -----------------------------
     $(document).ready(function () {
-        console.log("=== CrearAcuerdo INIT (CON CHECKBOXES) ===");
+        console.log("=== CrearAcuerdo INIT (CON VALIDACIÓN DE PROVEEDOR) ===");
 
         toggleAcuerdoForm();
         $("#acuerdoTipo").on("change", function () {
@@ -1452,54 +1476,91 @@
                 });
             });
 
-        // Modal proveedores
+        // ========== MODAL PROVEEDORES - EVENTOS ==========
+
+        // Al abrir el modal
         $("#modalConsultaProveedor").on("show.bs.modal", function () {
+            // Limpiar selección temporal
+            proveedorTemporal = null;
             consultarProveedor();
         });
 
+        // Al cerrar el modal sin aceptar
+        $("#modalConsultaProveedor").on("hidden.bs.modal", function () {
+            // Limpiar selección temporal y visual
+            proveedorTemporal = null;
+            $("#tablaProveedores tbody tr").removeClass("table-active");
+            $("#tablaProveedores tbody input[name='selectProveedor']").prop("checked", false);
+        });
+
+        // Botón Aceptar Proveedor
         $("#btnAceptarProveedor").on("click", function () {
             const $selected = $("#tablaProveedores tbody input[name='selectProveedor']:checked");
+
             if ($selected.length === 0) {
-                Swal.fire("Atención", "Seleccione un registro.", "info");
+                Swal.fire({
+                    icon: "info",
+                    title: "Atención",
+                    text: "Debe seleccionar un proveedor de la tabla.",
+                    confirmButtonColor: "#009845"
+                });
                 return;
             }
 
-            const idFondo = $selected.data("idfondo");
-            const descripcion = $selected.data("descripcion");
-            const proveedor = $selected.data("proveedor");
-            const ruc = $selected.data("ruc");
-            const disponible = $selected.data("disponible");
-            const comprometido = $selected.data("comprometido");
-            const liquidado = $selected.data("liquidado");
+            // Verificar que tengamos los datos temporales
+            if (!proveedorTemporal) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "No se pudieron obtener los datos del proveedor seleccionado.",
+                });
+                return;
+            }
 
-            const display = `${idFondo} - (${proveedor})`;
+            const display = `${proveedorTemporal.idFondo} - (${proveedorTemporal.proveedor})`;
 
-            console.log("✅ Fondo seleccionado:", {
-                idFondo,
-                descripcion,
-                proveedor,
-                ruc,
-                disponible,
-                comprometido,
-                liquidado,
+            console.log("✅ Proveedor confirmado:", {
+                idFondo: proveedorTemporal.idFondo,
+                proveedor: proveedorTemporal.proveedor,
+                disponible: proveedorTemporal.disponible,
             });
 
+            // AHORA SÍ actualizar el formulario
             setFondoEnFormActivo({
-                idFondo,
-                display,
-                ruc,
-                disponible,
-                comprometido,
-                liquidado,
+                idFondo: proveedorTemporal.idFondo,
+                display: display,
+                ruc: proveedorTemporal.ruc,
+                disponible: proveedorTemporal.disponible,
+                comprometido: proveedorTemporal.comprometido,
+                liquidado: proveedorTemporal.liquidado,
             });
 
+            // Mostrar confirmación
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                icon: "success",
+                title: "Proveedor seleccionado",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+
+            // Cerrar modal
             $("#modalConsultaProveedor").modal("hide");
+
+            // Limpiar selección temporal
+            proveedorTemporal = null;
         });
 
-        // Modal Items
+        // Botones Cerrar modal (X y botón Cerrar)
+        $("#modalConsultaProveedor .btn-secondary, #modalConsultaProveedor .btn-close").on("click", function () {
+            proveedorTemporal = null;
+        });
+
+        // ========== MODAL ITEMS - EVENTOS ==========
+
         $("#modalConsultaItems").on("show.bs.modal", function () {
-            cargarFiltrosItems(); // Solo carga los filtros
-            // ❌ REMOVIDO: consultarItems(); 
+            cargarFiltrosItems();
 
             // Mostrar mensaje inicial en la tabla
             const $tbody = $("#tablaItemsConsulta tbody");
@@ -1554,10 +1615,6 @@
             };
 
             console.log("📋 Filtros aplicados:", filtros);
-            console.log(`   - Marcas: ${marcasSeleccionadas.length} seleccionadas`);
-            console.log(`   - Divisiones: ${divisionesSeleccionadas.length} seleccionadas`);
-            console.log(`   - Departamentos: ${departamentosSeleccionados.length} seleccionados`);
-            console.log(`   - Clases: ${clasesSeleccionadas.length} seleccionadas`);
 
             Swal.fire({
                 toast: true,
@@ -1568,11 +1625,10 @@
                 timer: 1000,
             });
 
-            // Ahora sí, consultar con filtros
             consultarItems(filtros);
         });
 
-        // Botón Limpiar Filtros (si existe en el HTML)
+        // Botón Limpiar Filtros
         $("#btnLimpiarFiltros").on("click", function () {
             limpiarFiltros();
         });
@@ -1674,6 +1730,7 @@
         });
 
         // Botón Cancelar Items
+        // Botón Cancelar Items
         $("#formItems button.btn-secondary").on("click", function (e) {
             e.preventDefault();
 
@@ -1697,6 +1754,9 @@
                     $("#fondoFechaFinItems").val("");
                     $("#fondoValorTotalItems").val("");
                     $("#tablaItemsBody").empty();
+
+                    // ✅ AGREGAR ESTA LÍNEA: Volver a General
+                    $("#acuerdoTipo").val("General").trigger("change");
 
                     Swal.fire({
                         toast: true,
