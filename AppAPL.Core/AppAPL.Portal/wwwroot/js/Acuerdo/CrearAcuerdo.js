@@ -379,36 +379,20 @@
         $tbody.empty().append('<tr><td colspan="14" class="text-center">Cargando...</td></tr>');
 
         // Construir URL con filtros
-        let url = `${window.apiBaseUrl}/api/Items/consultar`;
-        const params = [];
+        let url = `${window.apiBaseUrl}/api/Acuerdo/consultar-articulos`;
 
-        if (filtros.marca && filtros.marca.length > 0) {
-            params.push(`marca=${filtros.marca.join(",")}`);
-        }
-        if (filtros.division && filtros.division.length > 0) {
-            params.push(`division=${filtros.division.join(",")}`);
-        }
-        if (filtros.departamento && filtros.departamento.length > 0) {
-            params.push(`departamento=${filtros.departamento.join(",")}`);
-        }
-        if (filtros.clase && filtros.clase.length > 0) {
-            params.push(`clase=${filtros.clase.join(",")}`);
-        }
-        if (filtros.articulo) {
-            params.push(`articulo=${filtros.articulo}`);
-        }
-
-        if (params.length > 0) {
-            url += "?" + params.join("&");
-        }
-
+        console.log("filtros: ", filtros);
+        
         $.ajax({
             url: url,
-            method: "GET",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(filtros),
+            /*
             headers: {
                 idopcion: String(idOpcionActual),
                 usuario: usuario,
-            },
+            },*/
             success: function (data) {
                 console.log("Datos items:", data);
                 $tbody.empty();
@@ -505,7 +489,7 @@
                         const checkboxHtml = `
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox" 
-                                   id="marca_${marca.codigo}" value="${marca.codigo}" checked>
+                                   id="marca_${marca.codigo}" value="${marca.nombre}" checked>
                             <label class="form-check-label" for="marca_${marca.codigo}">
                                 ${marca.nombre}
                             </label>
@@ -523,8 +507,8 @@
                     data.divisiones.forEach((div) => {
                         const checkboxHtml = `
                         <div class="form-check">
-                            <input class="form-check-input filtro-item-checkbox" type="checkbox" 
-                                   id="division_${div.codigo}" value="${div.codigo}" checked>
+                            <input class="form-check-input filtro-item-checkbox" type="checkbox"
+                                   id="division_${div.codigo}" value="${div.nombre}" checked>
                             <label class="form-check-label" for="division_${div.codigo}">
                                 ${div.nombre}
                             </label>
@@ -543,7 +527,7 @@
                         const checkboxHtml = `
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox" 
-                                   id="departamento_${dep.codigo}" value="${dep.codigo}" checked>
+                                   id="departamento_${dep.codigo}" value="${dep.nombre}" checked>
                             <label class="form-check-label" for="departamento_${dep.codigo}">
                                 ${dep.nombre}
                             </label>
@@ -562,7 +546,7 @@
                         const checkboxHtml = `
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox" 
-                                   id="clase_${clase.codigo}" value="${clase.codigo}" checked>
+                                   id="clase_${clase.codigo}" value="${clase.nombre}" checked>
                             <label class="form-check-label" for="clase_${clase.codigo}">
                                 ${clase.nombre}
                             </label>
@@ -1449,11 +1433,11 @@
             const articuloBuscado = $("#filtroArticulo").val().trim();
 
             const filtros = {
-                marca: marcasSeleccionadas.length > 0 ? marcasSeleccionadas : null,
-                division: divisionesSeleccionadas.length > 0 ? divisionesSeleccionadas : null,
-                departamento: departamentosSeleccionados.length > 0 ? departamentosSeleccionados : null,
-                clase: clasesSeleccionadas.length > 0 ? clasesSeleccionadas : null,
-                articulo: articuloBuscado || null,
+                marcas: marcasSeleccionadas.length > 0 ? marcasSeleccionadas : [],
+                divisiones: divisionesSeleccionadas.length > 0 ? divisionesSeleccionadas : [],
+                departamentos: departamentosSeleccionados.length > 0 ? departamentosSeleccionados : [],
+                clases: clasesSeleccionadas.length > 0 ? clasesSeleccionadas : [],
+                codigoarticulo: articuloBuscado || '',
             };
 
             console.log("📋 Filtros aplicados:", filtros);
