@@ -948,27 +948,200 @@
         return true;
     }
 
+    // -----------------------------
+    // Leer Detalle Items (ACTUALIZADO)
+    // -----------------------------
     function leerDetalleItemsDesdeTabla() {
-        const detalle = [];
+        const articulos = [];
+
         $("#tablaItemsBody tr").each(function () {
             const $tr = $(this);
             const codigo = $tr.data("codigo");
+
+            // Leer valores
+            const costoStr = $tr.find(".item-costo").val();
+            const costo = parseCurrencyToNumber(costoStr);
+
             const unidades = parseInt($tr.find('input[name="unidadesLimite"]').val()) || 0;
+
             const precioContado = parseCurrencyToNumber($tr.find(".item-precio-contado").val());
             const precioTC = parseCurrencyToNumber($tr.find(".item-precio-tc").val());
             const precioCredito = parseCurrencyToNumber($tr.find(".item-precio-credito").val());
             const aporte = parseCurrencyToNumber($tr.find(".item-aporte").val());
 
-            detalle.push({
-                codigo: codigo,
+            // Leer márgenes (están en formato "XX.XX%")
+            const margenContadoStr = $tr.find(".margen-contado").text().replace("%", "").trim();
+            const margenTCStr = $tr.find(".margen-tc").text().replace("%", "").trim();
+            const margenCreditoStr = $tr.find(".margen-credito").text().replace("%", "").trim();
+
+            const margenContado = parseFloat(margenContadoStr) || 0;
+            const margenTC = parseFloat(margenTCStr) || 0;
+            const margenCredito = parseFloat(margenCreditoStr) || 0;
+
+            // Calcular comprometido
+            const comprometido = aporte * unidades;
+
+            articulos.push({
+                codigoArticulo: codigo,
+                costoActual: costo,
                 unidadesLimite: unidades,
                 precioContado: precioContado,
-                precioTC: precioTC,
+                precioTarjetaCredito: precioTC,
                 precioCredito: precioCredito,
-                aporteUnidad: aporte,
+                valorAporte: aporte,
+                valorComprometido: comprometido,
+                margenContado: margenContado,
+                margenTarjetaCredito: margenTC,
+                margenCredito: margenCredito
             });
         });
-        return detalle;
+
+        return articulos;
+    }
+
+    // -----------------------------
+    // Guardar (Items) - ACTUALIZADO
+    // -----------------------------
+    function guardarItems() {
+        if (!ensureApiBaseUrl()) return;
+        if (!validarItems()) return;
+
+        const idOpcionActual = getIdOpcionSeguro();
+        if (!idOpcionActual) {
+            Swal.fire("Error", "No se pudo obtener idOpcion.", "error");
+            return;
+        }
+
+        // Leer datos del formulario
+        const idFondo = parseInt($("#fondoProveedorIdItems").val(), 10) || 0;
+        const idMotivo = parseInt($("#fondoTipoItems").val(), 10) || 0;
+        const descripcion = $("#fondoDescripcionItems").val().trim();
+        const fechaInicio = toISOFromDDMMYYYY($("#fondoFechaInicioItems").val());
+        const fechaFin = toISOFromDDMMYYYY($("#fondoFechaFinItems").val());
+
+        // Leer valor total (es calculado)
+        const valorTotal = parseCurrencyToNumber($("#fondoValorTotalItems").val());
+
+        // Leer artículos de la tabla
+        const articulos = leerDetalleItemsDesdeTabla();
+
+        // Construir JSON
+        const data = {
+            tipoclaseetiqueta: "ACARTICULO",
+            idopcion: idOpcionActual,
+            idcontrolinterfaz: "BTNGRABAR",
+            idevento: "EVCLICK",
+            acuerdo: {
+                idTipoAcuerdo: 2, // 2 para Items (ajusta según tu lógica)
+                idMotivoAcuerdo: idMotivo,
+                descripcion: descripcion,
+                fechaInicioVigencia: fechaInicio,
+                fechaFinVigencia: fechaFin,
+                idUsuarioIngreso: getUsuario(),
+                idEstadoRegistro: 1,
+                marcaProcesoAprobacion: " "
+            },
+            fondo: {
+                idFondo: idFondo,
+                valorAporte: valorTotal,
+                valorDisponible: valorTotal,
+                valorComprometido: 0,
+                valorLiquidado: 0
+            },
+            articulos: articulos
+        };
+
+        console.log("📤 Enviando JSON Items:", JSON.stringify(data, null, 2));
+
+        Swal.fire({
+            title: "Confirmar Guardado",
+            html: `
+            <p>¿Desea guardar el acuerdo POR ÍTEMS?</p>
+            <p class="text-muted small">Se guardarán ${articulos.length} artículo(s)</p>
+        `,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#009845",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, Guardar",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            // Mostrar loading
+            Swal.fire({
+                title: 'Guardando...',
+                text: 'Por favor espere',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: `${window.apiBaseUrl}/api/Acuerdo/insertar`,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                headers: {
+                    idopcion: String(idOpcionActual),
+                    usuario: getUsuario(),
+                },
+                success: function (response) {
+                    console.log("✅ Respuesta exitosa Items:", response);
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "¡Guardado!",
+                        html: `
+                        El acuerdo POR ÍTEMS se guardó correctamente.
+                        <br><small class="text-muted">${articulos.length} artículo(s) registrado(s)</small>
+                    `,
+                        showConfirmButton: false,
+                        timer: 2000,
+                    }).then(() => {
+                        // Limpiar formulario
+                        $("#fondoTipoItems").val("");
+                        $("#fondoProveedorItems").val("Seleccione...");
+                        $("#fondoProveedorIdItems").val("");
+                        $("#fondoDescripcionItems").val("");
+                        $("#fondoFechaInicioItems").val("");
+                        $("#fondoFechaFinItems").val("");
+                        $("#fondoValorTotalItems").val("");
+                        $("#tablaItemsBody").empty();
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("❌ Error guardado items:", xhr.status, xhr.responseText);
+
+                    let mensajeError = "Algo salió mal al guardar el acuerdo POR ÍTEMS.";
+
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        if (errorResponse.message) {
+                            mensajeError = errorResponse.message;
+                        } else if (errorResponse.errors) {
+                            // Si hay errores de validación
+                            const errores = Object.values(errorResponse.errors).flat();
+                            mensajeError = errores.join('<br>');
+                        }
+                    } catch (e) {
+                        if (xhr.responseText) {
+                            mensajeError = xhr.responseText;
+                        }
+                    }
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error al Guardar",
+                        html: mensajeError,
+                        footer: `<small>Código: ${xhr.status}</small>`,
+                        confirmButtonColor: "#d33"
+                    });
+                },
+            });
+        });
     }
 
     function validarItems() {

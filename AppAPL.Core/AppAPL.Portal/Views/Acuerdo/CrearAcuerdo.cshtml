@@ -56,6 +56,24 @@
             border: 1px solid #dee2e6;
         }
 
+        /* Cabeceras Consulta/Solo Lectura - Verde */
+        .custom-header-cons-bg {
+            background-color: #a4c995 !important; /* Verde suave */
+            color: #343a40 !important;
+        }
+
+        /* Cabeceras Editables - Amarillo */
+        .custom-header-ingr-bg {
+            background-color: #FFEC99 !important; /* Amarillo */
+            color: #343a40 !important;
+        }
+
+        /* Cabeceras de Cálculos - Naranja */
+        .custom-header-calc-bg {
+            background-color: #FFBF47 !important; /* Naranja */
+            color: #343a40 !important;
+        }
+
         .tabla-items-body input[type="text"] {
             text-align: right;
             padding: 0.25rem 0.5rem;
@@ -64,6 +82,7 @@
             border: 1px solid #ced4da;
             border-radius: 0.2rem;
         }
+
         /* Reajustamos el espacio del modal y la tabla para que se vea correctamente */
         #modalConsultaItems .modal-body {
             padding-top: 0 !important;
@@ -116,6 +135,17 @@
             color: white !important;
             font-weight: bold;
         }
+
+        /* Cabeceras Editables - Amarillo */
+        .custom-header-ingr-bg {
+            background-color: #FFEC99; /* Amarillo */
+        }
+
+        /* Cabeceras de Cálculos - Naranja */
+        .custom-header-calc-bg {
+            background-color: #FFBF47; /* Naranja */
+        }
+
     </style>
 }
 
@@ -362,13 +392,18 @@
                             <thead class="sticky-top text-nowrap">
                                 <tr class="text-center tabla-items-header">
                                     <th scope="col" style="width: 40px;">Sel.</th>
+                                    <!-- Verde - Solo lectura -->
                                     <th scope="col" class="custom-header-cons-bg">Item</th>
                                     <th scope="col" class="custom-header-cons-bg">Costo</th>
+
+                                    <!-- Amarillo - Editables -->
                                     <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
                                     <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
                                     <th scope="col" class="custom-header-ingr-bg">Precio - TC</th>
                                     <th scope="col" class="custom-header-ingr-bg">Precio - Crédito</th>
                                     <th scope="col" class="custom-header-ingr-bg">Aporte por Unidad - Proveedor</th>
+
+                                    <!-- Naranja - Cálculos -->
                                     <th scope="col" class="custom-header-calc-bg">Comprometido Proveedor</th>
                                     <th scope="col" class="custom-header-calc-bg">Margen Contado</th>
                                     <th scope="col" class="custom-header-calc-bg">Margen TC</th>
@@ -523,6 +558,17 @@
                                     <th>Optimo</th>
                                     <th>Excedente(u)</th>
                                     <th>Excedente($)</th>
+                                    <th>M-0(u)</th>
+                                    <th>>M-0($)</th>
+                                    <th>M-1(u)</th>
+                                    <th>M-1($)</th>
+                                    <th>M-2(u)</th>
+                                    <th>M-2($)</th>
+                                    <th>Marg.Efe</th>
+                                    <th>Marg.Cre</th>
+                                    <th>Marg.Igu</th>
+                                    <th>Precio</th>
+                                    <th>Marg.Precio</th>
                                 </tr>
                             </thead>
                             <tbody>

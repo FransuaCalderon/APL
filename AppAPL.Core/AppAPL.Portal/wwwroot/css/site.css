@@ -1097,26 +1097,65 @@ body .modal-dialog .modal-content .modal-body .col-md-12 {
 }
 
 /* Estilos para la tabla de items */
+/* ===== ESTILOS PARA LA TABLA DE ITEMS ===== */
+
+/* Estilo base para todas las cabeceras (sin color de fondo) */
 .tabla-items-header th {
-    background-color: #a4c995 !important;
     color: #343a40 !important;
     font-weight: bold;
     vertical-align: middle;
     text-align: center;
     border: 1px solid #dee2e6;
+    padding: 8px;
 }
 
-.custom-header-cons-bg {
+/* Verde suave - Solo lectura (Item, Costo) */
+.tabla-items-header th.custom-header-cons-bg {
     background-color: #a4c995 !important;
-}
-
-.custom-header-ingr-bg {
-    background-color: #ffffcc !important;
     color: #343a40 !important;
 }
 
-.custom-header-calc-bg {
-    background-color: #a4c995 !important;
+/* Amarillo - Campos editables */
+.tabla-items-header th.custom-header-ingr-bg {
+    background-color: #FFEC99 !important;
+    color: #343a40 !important;
+}
+
+/* Naranja - Campos calculados */
+.tabla-items-header th.custom-header-calc-bg {
+    background-color: #FFBF47 !important;
+    color: #343a40 !important;
+}
+
+/* Estilo para inputs de la tabla */
+.tabla-items-body input[type="text"],
+.tabla-items-body input[type="number"] {
+    text-align: right;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    height: 28px;
+    border: 1px solid #ced4da;
+    border-radius: 0.2rem;
+}
+
+.tabla-items-body input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Estilo para fila seleccionada */
+.fila-seleccionada {
+    background-color: #e3f2fd !important;
+}
+
+/* Celdas editables (fondo amarillo claro en el body) */
+.celda-editable {
+    background-color: #fffef5 !important;
+}
+
+/* Celdas readonly (fondo gris claro en el body) */
+.celda-readonly {
+    background-color: #f8f9fa !important;
 }
 
 .celda-editable {
