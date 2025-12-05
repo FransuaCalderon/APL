@@ -1,14 +1,12 @@
 ﻿/**
- * CrearAcuerdo.js - CORREGIDO
+ * CrearAcuerdo.js - VERSIÓN CON FILTROS CHECKBOX
  * Lógica completa para la vista CrearAcuerdo.cshtml
  * - Diferencia General vs Items
  * - Carga combos Motivo (ACMOTIVO)
  * - Modal Proveedores (Fondos)
- * - Modal Items (Consulta y Selección)
+ * - Modal Items (Consulta y Selección con CHECKBOXES)
  * - Validaciones por formulario
  * - Datepickers separados
- * 
- * CORRECCIÓN: JSON enviado ahora coincide con el formato esperado por el endpoint
  */
 
 (function () {
@@ -57,7 +55,6 @@
     function toISOFromDDMMYYYY(s) {
         const [dd, mm, yyyy] = s.split("/").map(Number);
         const d = new Date(yyyy, mm - 1, dd);
-        // Retornar en formato YYYY-MM-DD para el API
         return d.toISOString().split('T')[0];
     }
 
@@ -260,7 +257,6 @@
                     const idFondo = pick(x, ["idfondo", "idFondo"]);
                     const descripcion = pick(x, ["descripcion", "descripcionFondo", "nombreFondo"]);
                     const ruc = pick(x, ["idproveedor", "ruc", "identificacion"]);
-                    // ✅ CORRECCIÓN: Agregado "nombre" como primer opción
                     const proveedor = pick(x, ["nombre", "proveedor", "nombreProveedor", "razonSocialProveedor"], "");
                     const tipoFondo = pick(
                         x,
@@ -332,21 +328,13 @@
         });
     }
 
-    /**
-     * Setea el fondo/proveedor seleccionado en el formulario activo
-     * (General o Items).
-     * f: { idFondo, display, ruc, disponible, comprometido, liquidado }
-     */
     function setFondoEnFormActivo(f) {
         const tipo = getTipoAcuerdo();
 
         if (tipo === "General") {
-            // Texto visible
             $("#fondoProveedorGeneral").val(f.display);
-            // Hidden: id del fondo
             $("#fondoProveedorIdGeneral").val(f.idFondo);
 
-            // Opcional: reflejar disponible
             if (f.disponible != null && f.disponible !== "") {
                 $("#fondoDisponibleGeneral").val(formatCurrencySpanish(f.disponible));
             }
@@ -357,7 +345,7 @@
     }
 
     // -----------------------------
-    // Items (modal)
+    // Items (modal) - CON CHECKBOXES
     // -----------------------------
     function consultarItems(filtros = {}) {
         const idOpcionActual = getIdOpcionSeguro();
@@ -467,7 +455,6 @@
                     $tbody.append(fila);
                 });
 
-                // Inicializar búsqueda local
                 initBusquedaItems();
             },
             error: function (xhr, status, error) {
@@ -479,74 +466,211 @@
         });
     }
 
+    /**
+     * Carga los filtros usando CHECKBOXES desde el endpoint
+     */
     function cargarFiltrosItems() {
         const idOpcionActual = getIdOpcionSeguro();
         const usuario = getUsuario();
 
         if (!ensureApiBaseUrl() || !idOpcionActual) return;
 
-        // Cargar Marcas
+        console.log("📥 Cargando filtros desde consultar-combos...");
+
+        // Mostrar indicador de carga
+        $("#filtroMarca").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
+        $("#filtroDivision").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
+        $("#filtroDepartamento").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
+        $("#filtroClase").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
+
         $.ajax({
-            url: `${window.apiBaseUrl}/api/Items/marcas`,
+            url: `${window.apiBaseUrl}/api/Acuerdo/consultar-combos`,
             method: "GET",
-            headers: { idopcion: String(idOpcionActual), usuario: usuario },
+            headers: {
+                idopcion: String(idOpcionActual),
+                usuario: usuario,
+            },
             success: function (data) {
-                const $select = $("#filtroMarca");
-                $select.find('option:not([value=""])').remove();
-                if (Array.isArray(data)) {
-                    data.forEach((m) => {
-                        $select.append($("<option>").val(m.id).text(m.nombre));
+                console.log("✅ Datos de combos recibidos:", data);
+
+                // Limpiar contenedores
+                $("#filtroMarca").empty();
+                $("#filtroDivision").empty();
+                $("#filtroDepartamento").empty();
+                $("#filtroClase").empty();
+
+                // Cargar Marcas
+                if (Array.isArray(data.marcas) && data.marcas.length > 0) {
+                    data.marcas.forEach((marca) => {
+                        const checkboxHtml = `
+                        <div class="form-check">
+                            <input class="form-check-input filtro-item-checkbox" type="checkbox" 
+                                   id="marca_${marca.codigo}" value="${marca.codigo}" checked>
+                            <label class="form-check-label" for="marca_${marca.codigo}">
+                                ${marca.nombre}
+                            </label>
+                        </div>
+                    `;
+                        $("#filtroMarca").append(checkboxHtml);
                     });
+                    console.log(`✅ ${data.marcas.length} marcas cargadas`);
+                } else {
+                    $("#filtroMarca").html('<small class="text-muted">No hay marcas disponibles</small>');
                 }
+
+                // Cargar Divisiones
+                if (Array.isArray(data.divisiones) && data.divisiones.length > 0) {
+                    data.divisiones.forEach((div) => {
+                        const checkboxHtml = `
+                        <div class="form-check">
+                            <input class="form-check-input filtro-item-checkbox" type="checkbox" 
+                                   id="division_${div.codigo}" value="${div.codigo}" checked>
+                            <label class="form-check-label" for="division_${div.codigo}">
+                                ${div.nombre}
+                            </label>
+                        </div>
+                    `;
+                        $("#filtroDivision").append(checkboxHtml);
+                    });
+                    console.log(`✅ ${data.divisiones.length} divisiones cargadas`);
+                } else {
+                    $("#filtroDivision").html('<small class="text-muted">No hay divisiones disponibles</small>');
+                }
+
+                // Cargar Departamentos
+                if (Array.isArray(data.departamentos) && data.departamentos.length > 0) {
+                    data.departamentos.forEach((dep) => {
+                        const checkboxHtml = `
+                        <div class="form-check">
+                            <input class="form-check-input filtro-item-checkbox" type="checkbox" 
+                                   id="departamento_${dep.codigo}" value="${dep.codigo}" checked>
+                            <label class="form-check-label" for="departamento_${dep.codigo}">
+                                ${dep.nombre}
+                            </label>
+                        </div>
+                    `;
+                        $("#filtroDepartamento").append(checkboxHtml);
+                    });
+                    console.log(`✅ ${data.departamentos.length} departamentos cargados`);
+                } else {
+                    $("#filtroDepartamento").html('<small class="text-muted">No hay departamentos disponibles</small>');
+                }
+
+                // Cargar Clases
+                if (Array.isArray(data.clases) && data.clases.length > 0) {
+                    data.clases.forEach((clase) => {
+                        const checkboxHtml = `
+                        <div class="form-check">
+                            <input class="form-check-input filtro-item-checkbox" type="checkbox" 
+                                   id="clase_${clase.codigo}" value="${clase.codigo}" checked>
+                            <label class="form-check-label" for="clase_${clase.codigo}">
+                                ${clase.nombre}
+                            </label>
+                        </div>
+                    `;
+                        $("#filtroClase").append(checkboxHtml);
+                    });
+                    console.log(`✅ ${data.clases.length} clases cargadas`);
+                } else {
+                    $("#filtroClase").html('<small class="text-muted">No hay clases disponibles</small>');
+                }
+
+                // ✅ INICIALIZAR LÓGICA DE CHECKBOXES
+                initMultiSelectFilters();
+            },
+            error: function (xhr, status, error) {
+                console.error("❌ Error cargando combos:", error);
+                console.error("Respuesta:", xhr.responseText);
+
+                const errorMsg = '<small class="text-danger">Error al cargar</small>';
+                $("#filtroMarca").html(errorMsg);
+                $("#filtroDivision").html(errorMsg);
+                $("#filtroDepartamento").html(errorMsg);
+                $("#filtroClase").html(errorMsg);
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "No se pudieron cargar los filtros de búsqueda.",
+                });
             },
         });
+    }
 
-        // Cargar Divisiones
-        $.ajax({
-            url: `${window.apiBaseUrl}/api/Items/divisiones`,
-            method: "GET",
-            headers: { idopcion: String(idOpcionActual), usuario: usuario },
-            success: function (data) {
-                const $select = $("#filtroDivision");
-                $select.find('option:not([value=""])').remove();
-                if (Array.isArray(data)) {
-                    data.forEach((d) => {
-                        $select.append($("<option>").val(d.id).text(d.nombre));
-                    });
-                }
-            },
+    /**
+     * Inicializa la lógica de checkboxes para los filtros
+     */
+    function initMultiSelectFilters() {
+        console.log("🎯 Inicializando filtros con checkboxes");
+
+        // Manejar checkbox "Todas" de cada categoría
+        $(".filtro-todas").off("change").on("change", function () {
+            const targetId = $(this).data("target");
+            const isChecked = $(this).is(":checked");
+
+            // Marcar/desmarcar todos los checkboxes del grupo
+            $(`#${targetId} .filtro-item-checkbox`).prop("checked", isChecked);
+
+            console.log(`${isChecked ? "✅" : "❌"} Todas - ${targetId}`);
         });
 
-        // Cargar Departamentos
-        $.ajax({
-            url: `${window.apiBaseUrl}/api/Items/departamentos`,
-            method: "GET",
-            headers: { idopcion: String(idOpcionActual), usuario: usuario },
-            success: function (data) {
-                const $select = $("#filtroDepartamento");
-                $select.find('option:not([value=""])').remove();
-                if (Array.isArray(data)) {
-                    data.forEach((d) => {
-                        $select.append($("<option>").val(d.id).text(d.nombre));
-                    });
-                }
-            },
-        });
+        // Manejar checkboxes individuales (delegado para elementos dinámicos)
+        $(document).off("change", ".filtro-item-checkbox").on("change", ".filtro-item-checkbox", function () {
+            const $container = $(this).closest(".border.rounded");
+            const $checkboxTodas = $container.find(".filtro-todas");
+            const $todosLosItems = $container.find(".filtro-item-checkbox");
+            const totalItems = $todosLosItems.length;
+            const itemsMarcados = $todosLosItems.filter(":checked").length;
 
-        // Cargar Clases
-        $.ajax({
-            url: `${window.apiBaseUrl}/api/Items/clases`,
-            method: "GET",
-            headers: { idopcion: String(idOpcionActual), usuario: usuario },
-            success: function (data) {
-                const $select = $("#filtroClase");
-                $select.find('option:not([value=""])').remove();
-                if (Array.isArray(data)) {
-                    data.forEach((c) => {
-                        $select.append($("<option>").val(c.id).text(c.nombre));
-                    });
-                }
-            },
+            // Si todos están marcados, marcar "Todas"
+            if (itemsMarcados === totalItems) {
+                $checkboxTodas.prop("checked", true);
+            } else {
+                $checkboxTodas.prop("checked", false);
+            }
+
+            const targetId = $checkboxTodas.data("target");
+            console.log(`📊 ${targetId}: ${itemsMarcados}/${totalItems} seleccionados`);
+        });
+    }
+
+    /**
+     * Obtiene los valores seleccionados de un grupo de checkboxes
+     */
+    function getSelectedFilterValues(containerId) {
+        const valores = [];
+        $(`#${containerId} .filtro-item-checkbox:checked`).each(function () {
+            valores.push($(this).val());
+        });
+        return valores;
+    }
+
+    /**
+     * Verifica si "Todas" está seleccionado en un filtro
+     */
+    function isTodasSelected(checkboxTodasId) {
+        return $(`#${checkboxTodasId}`).is(":checked");
+    }
+
+    /**
+     * Limpia todos los filtros
+     */
+    function limpiarFiltros() {
+        // Marcar todos los checkboxes "Todas"
+        $(".filtro-todas").prop("checked", true).trigger("change");
+
+        // Limpiar campo de artículo
+        $("#filtroArticulo").val("");
+
+        console.log("🧹 Filtros limpiados");
+
+        Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "info",
+            title: "Filtros limpiados",
+            showConfirmButton: false,
+            timer: 1500,
         });
     }
 
@@ -566,7 +690,6 @@
         const $tbody = $("#tablaItemsBody");
 
         items.forEach((item) => {
-            // Verificar si el item ya existe en la tabla
             const existe = $tbody.find(`tr[data-codigo="${item.codigo}"]`).length > 0;
             if (existe) {
                 console.log(`Item ${item.codigo} ya existe en la tabla`);
@@ -575,28 +698,52 @@
 
             const nuevaFila = `
         <tr data-codigo="${item.codigo}">
-          <td class="text-center">
-            <input type="checkbox" class="form-check-input item-row-checkbox">
+          <td class="text-center align-middle">
+            <input type="radio" class="form-check-input item-row-radio" name="itemSeleccionado">
           </td>
-          <td>${item.codigo} - ${item.descripcion}</td>
-          <td><input type="text" class="form-control form-control-sm text-end" value="${formatCurrencySpanish(
-                item.costo
-            )}" readonly></td>
-          <td><input type="number" class="form-control form-control-sm text-end" name="unidadesLimite" placeholder="0" min="1" required></td>
-          <td><input type="text" class="form-control form-control-sm text-end item-precio-contado" placeholder="0.00" data-tipo="contado"></td>
-          <td><input type="text" class="form-control form-control-sm text-end item-precio-tc" placeholder="0.00" data-tipo="tc"></td>
-          <td><input type="text" class="form-control form-control-sm text-end item-precio-credito" placeholder="0.00" data-tipo="credito"></td>
-          <td><input type="text" class="form-control form-control-sm text-end item-aporte" placeholder="0.00"></td>
-          <td><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" readonly></td>
-          <td class="text-center margen-contado">0.00%</td>
-          <td class="text-center margen-tc">0.00%</td>
-          <td class="text-center margen-credito">0.00%</td>
+          <td class="align-middle celda-readonly">${item.codigo} - ${item.descripcion}</td>
+          <td class="align-middle celda-readonly">
+            <input type="text" class="form-control form-control-sm text-end item-costo" 
+                   value="${formatCurrencySpanish(item.costo)}" readonly disabled>
+          </td>
+          <td class="align-middle celda-editable">
+            <input type="number" class="form-control form-control-sm text-end" 
+                   name="unidadesLimite" placeholder="0" min="1" disabled required>
+          </td>
+          <td class="align-middle celda-editable">
+            <input type="text" class="form-control form-control-sm text-end item-precio-contado" 
+                   placeholder="0.00" data-tipo="contado" disabled>
+          </td>
+          <td class="align-middle celda-editable">
+            <input type="text" class="form-control form-control-sm text-end item-precio-tc" 
+                   placeholder="0.00" data-tipo="tc" disabled>
+          </td>
+          <td class="align-middle celda-editable">
+            <input type="text" class="form-control form-control-sm text-end item-precio-credito" 
+                   placeholder="0.00" data-tipo="credito" disabled>
+          </td>
+          <td class="align-middle celda-editable">
+            <input type="text" class="form-control form-control-sm text-end item-aporte" 
+                   placeholder="0.00" disabled>
+          </td>
+          <td class="align-middle celda-readonly">
+            <input type="text" class="form-control form-control-sm text-end item-comprometido" 
+                   placeholder="0.00" readonly disabled>
+          </td>
+          <td class="text-center align-middle celda-readonly margen-contado">0.00%</td>
+          <td class="text-center align-middle celda-readonly margen-tc">0.00%</td>
+          <td class="text-center align-middle celda-readonly margen-credito">0.00%</td>
         </tr>
       `;
             $tbody.append(nuevaFila);
         });
 
-        // Calcular totales después de agregar
+        // Agregar evento para resaltar fila seleccionada
+        $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
+            $("#tablaItemsBody tr").removeClass("fila-seleccionada");
+            $(this).closest("tr").addClass("fila-seleccionada");
+        });
+
         calcularTotalesItems();
     }
 
@@ -604,34 +751,43 @@
         let totalProveedor = 0;
 
         $("#tablaItemsBody tr").each(function () {
-            const costo = parseCurrencyToNumber($(this).find("input[readonly]").val());
-            const unidades = parseInt($(this).find('input[name="unidadesLimite"]').val()) || 0;
-            const aporte = parseCurrencyToNumber($(this).find(".item-aporte").val());
+            // Obtener costo (ya está en formato currency)
+            const costoStr = $(this).find(".item-costo").val();
+            const costo = parseCurrencyToNumber(costoStr);
 
-            const subtotal = aporte * unidades;
-            totalProveedor += subtotal;
+            // Obtener unidades
+            const unidades = parseInt($(this).find('input[name="unidadesLimite"]').val()) || 0;
+
+            // Obtener aporte
+            const aporteStr = $(this).find(".item-aporte").val();
+            const aporte = parseCurrencyToNumber(aporteStr);
 
             // Calcular comprometido proveedor
-            $(this).find("td:eq(8) input").val(formatCurrencySpanish(subtotal));
+            const subtotal = aporte * unidades;
+            totalProveedor += subtotal;
+            $(this).find(".item-comprometido").val(formatCurrencySpanish(subtotal));
 
-            // Calcular márgenes
-            const precioContado = parseCurrencyToNumber($(this).find(".item-precio-contado").val());
-            const precioTC = parseCurrencyToNumber($(this).find(".item-precio-tc").val());
-            const precioCredito = parseCurrencyToNumber($(this).find(".item-precio-credito").val());
-
+            // Calcular márgenes solo si hay costo
             if (costo > 0) {
-                const margenContado =
-                    precioContado > 0 ? (((precioContado - costo) / precioContado) * 100).toFixed(2) : "0.00";
-                const margenTC = precioTC > 0 ? (((precioTC - costo) / precioTC) * 100).toFixed(2) : "0.00";
-                const margenCredito =
-                    precioCredito > 0 ? (((precioCredito - costo) / precioCredito) * 100).toFixed(2) : "0.00";
+                const precioContado = parseCurrencyToNumber($(this).find(".item-precio-contado").val());
+                const precioTC = parseCurrencyToNumber($(this).find(".item-precio-tc").val());
+                const precioCredito = parseCurrencyToNumber($(this).find(".item-precio-credito").val());
+
+                const margenContado = precioContado > 0
+                    ? (((precioContado - costo) / precioContado) * 100).toFixed(2)
+                    : "0.00";
+                const margenTC = precioTC > 0
+                    ? (((precioTC - costo) / precioTC) * 100).toFixed(2)
+                    : "0.00";
+                const margenCredito = precioCredito > 0
+                    ? (((precioCredito - costo) / precioCredito) * 100).toFixed(2)
+                    : "0.00";
 
                 $(this).find(".margen-contado").text(margenContado + "%");
                 $(this).find(".margen-tc").text(margenTC + "%");
                 $(this).find(".margen-credito").text(margenCredito + "%");
             }
         });
-
         // Actualizar total proveedor
         $("#fondoValorTotalItems").val(formatCurrencySpanish(totalProveedor));
     }
@@ -741,20 +897,31 @@
         });
     }
 
-    // Formateo moneda para tabla Items
     function initCurrencyItems() {
+        // Formatear campos de precio y aporte al perder el foco
         $(document).on(
             "blur",
             ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte",
             function () {
-                const rawValue = $(this).val().replace(",", ".");
-                $(this).val(formatCurrencySpanish(rawValue));
-                calcularTotalesItems();
+                // Solo formatear si no está disabled
+                if (!$(this).prop("disabled")) {
+                    const rawValue = $(this).val().replace(",", ".");
+                    $(this).val(formatCurrencySpanish(rawValue));
+                    calcularTotalesItems();
+                }
             }
         );
 
+        // Recalcular al cambiar unidades
         $(document).on("change", "input[name='unidadesLimite']", function () {
             calcularTotalesItems();
+        });
+
+        // Recalcular al escribir en campos de precio (para ver márgenes en tiempo real)
+        $(document).on("keyup", ".item-precio-contado, .item-precio-tc, .item-precio-credito", function () {
+            if (!$(this).prop("disabled")) {
+                calcularTotalesItems();
+            }
         });
     }
 
@@ -877,7 +1044,7 @@
     }
 
     // -----------------------------
-    // Guardar (General) - CORREGIDO
+    // Guardar (General)
     // -----------------------------
     function guardarGeneral() {
         if (!ensureApiBaseUrl()) return;
@@ -892,21 +1059,20 @@
         const valorTotal = parseCurrencyToNumber($("#fondoValorTotalGeneral").val());
         const valorDisponible = parseCurrencyToNumber($("#fondoDisponibleGeneral").val());
 
-        // ✅ FORMATO CORRECTO SEGÚN EL SWAGGER
         const data = {
             tipoclaseetiqueta: "ACGENERAL",
             idopcion: idOpcionActual,
             idcontrolinterfaz: "BTNGRABAR",
             idevento: "EVCLICK",
             acuerdo: {
-                idTipoAcuerdo: 1, // 1 = General (según el ejemplo que funciona)
+                idTipoAcuerdo: 1,
                 idMotivoAcuerdo: parseInt($("#fondoTipoGeneral").val(), 10) || 0,
                 descripcion: $("#fondoDescripcionGeneral").val().trim(),
                 fechaInicioVigencia: toISOFromDDMMYYYY($("#fondoFechaInicioGeneral").val()),
                 fechaFinVigencia: toISOFromDDMMYYYY($("#fondoFechaFinGeneral").val()),
                 idUsuarioIngreso: getUsuario(),
                 idEstadoRegistro: 1,
-                marcaProcesoAprobacion: " " // espacio como en el ejemplo
+                marcaProcesoAprobacion: " "
             },
             fondo: {
                 idFondo: parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0,
@@ -915,7 +1081,7 @@
                 valorComprometido: 0,
                 valorLiquidado: 0
             },
-            articulos: [] // vacío para acuerdo general
+            articulos: []
         };
 
         console.log("📤 Enviando JSON General:", JSON.stringify(data, null, 2));
@@ -951,7 +1117,6 @@
                         timer: 1400,
                     });
 
-                    // Limpiar formulario
                     $("#fondoTipoGeneral").val("");
                     $("#fondoProveedorGeneral").val("Seleccione...");
                     $("#fondoProveedorIdGeneral").val("");
@@ -1071,11 +1236,124 @@
         });
     }
 
+    /**
+ * Modifica el item seleccionado habilitando los campos editables
+ */
+    function modificarItemSeleccionado() {
+        const $radioSeleccionado = $("#tablaItemsBody .item-row-radio:checked");
+
+        if ($radioSeleccionado.length === 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "Atención",
+                text: "Debe seleccionar un item para modificar.",
+                confirmButtonColor: "#009845"
+            });
+            return;
+        }
+
+        const $fila = $radioSeleccionado.closest("tr");
+
+        // Verificar si ya está en modo edición
+        const yaEnEdicion = !$fila.find('input[name="unidadesLimite"]').prop("disabled");
+
+        if (yaEnEdicion) {
+            // Guardar cambios y deshabilitar
+            Swal.fire({
+                title: "Guardar Cambios",
+                text: "¿Desea guardar los cambios realizados?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#009845",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Sí, Guardar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Deshabilitar campos editables
+                    $fila.find(".celda-editable input").prop("disabled", true);
+
+                    // Recalcular totales
+                    calcularTotalesItems();
+
+                    Swal.fire({
+                        toast: true,
+                        position: "top-end",
+                        icon: "success",
+                        title: "Cambios guardados",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        } else {
+            // Habilitar campos editables (amarillos)
+            $fila.find(".celda-editable input").prop("disabled", false);
+
+            // Enfocar el primer campo editable
+            $fila.find('input[name="unidadesLimite"]').focus();
+
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                icon: "info",
+                title: "Modo edición activado",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    }
+
+    /**
+     * Elimina el item seleccionado
+     */
+    function eliminarItemSeleccionado() {
+        const $radioSeleccionado = $("#tablaItemsBody .item-row-radio:checked");
+
+        if ($radioSeleccionado.length === 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "Atención",
+                text: "Debe seleccionar un item para eliminar.",
+                confirmButtonColor: "#009845"
+            });
+            return;
+        }
+
+        const $fila = $radioSeleccionado.closest("tr");
+        const itemDescripcion = $fila.find("td:eq(1)").text();
+
+        Swal.fire({
+            title: "¿Está seguro?",
+            html: `Se eliminará el item:<br><strong>${itemDescripcion}</strong>`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Sí, Eliminar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $fila.remove();
+                calcularTotalesItems();
+
+                Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: "Item eliminado",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        });
+    }
+
     // -----------------------------
     // Init principal
     // -----------------------------
     $(document).ready(function () {
-        console.log("=== CrearAcuerdo INIT (CORREGIDO) ===");
+        console.log("=== CrearAcuerdo INIT (CON CHECKBOXES) ===");
 
         toggleAcuerdoForm();
         $("#acuerdoTipo").on("change", function () {
@@ -1124,7 +1402,7 @@
             const comprometido = $selected.data("comprometido");
             const liquidado = $selected.data("liquidado");
 
-            const display = `${idFondo} - (${proveedor})`; //Select de Fondo Proveedor
+            const display = `${idFondo} - (${proveedor})`;
 
             console.log("✅ Fondo seleccionado:", {
                 idFondo,
@@ -1162,15 +1440,43 @@
 
         // Botón Procesar Selección
         $("#btnProcesarFiltros").on("click", function () {
+            console.log("🔍 Procesando filtros...");
+
+            const marcasSeleccionadas = getSelectedFilterValues('filtroMarca');
+            const divisionesSeleccionadas = getSelectedFilterValues('filtroDivision');
+            const departamentosSeleccionados = getSelectedFilterValues('filtroDepartamento');
+            const clasesSeleccionadas = getSelectedFilterValues('filtroClase');
+            const articuloBuscado = $("#filtroArticulo").val().trim();
+
             const filtros = {
-                marca: $("#filtroMarca").val() || [],
-                division: $("#filtroDivision").val() || [],
-                departamento: $("#filtroDepartamento").val() || [],
-                clase: $("#filtroClase").val() || [],
-                articulo: $("#filtroArticulo").val() || "",
+                marca: marcasSeleccionadas.length > 0 ? marcasSeleccionadas : null,
+                division: divisionesSeleccionadas.length > 0 ? divisionesSeleccionadas : null,
+                departamento: departamentosSeleccionados.length > 0 ? departamentosSeleccionados : null,
+                clase: clasesSeleccionadas.length > 0 ? clasesSeleccionadas : null,
+                articulo: articuloBuscado || null,
             };
 
+            console.log("📋 Filtros aplicados:", filtros);
+            console.log(`   - Marcas: ${marcasSeleccionadas.length} seleccionadas`);
+            console.log(`   - Divisiones: ${divisionesSeleccionadas.length} seleccionadas`);
+            console.log(`   - Departamentos: ${departamentosSeleccionados.length} seleccionados`);
+            console.log(`   - Clases: ${clasesSeleccionadas.length} seleccionadas`);
+
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                icon: "info",
+                title: "Aplicando filtros...",
+                showConfirmButton: false,
+                timer: 1000,
+            });
+
             consultarItems(filtros);
+        });
+
+        // Botón Limpiar Filtros (si existe en el HTML)
+        $("#btnLimpiarFiltros").on("click", function () {
+            limpiarFiltros();
         });
 
         // Botón Seleccionar Items
@@ -1196,7 +1502,6 @@
             agregarItemsATabla(itemsSeleccionados);
             $("#modalConsultaItems").modal("hide");
 
-            // Limpiar selección
             $("#checkTodosItems").prop("checked", false);
             $("#tablaItemsConsulta tbody .item-checkbox").prop("checked", false);
         });
@@ -1209,21 +1514,12 @@
 
         $("#btnModifyItem").on("click", function (e) {
             e.preventDefault();
-            const $selected = $("#tablaItemsBody .item-row-checkbox:checked");
-            if ($selected.length === 0) {
-                Swal.fire("Atención", "Seleccione un item para modificar.", "info");
-                return;
-            }
-            if ($selected.length > 1) {
-                Swal.fire("Atención", "Seleccione solo un item para modificar.", "info");
-                return;
-            }
-            Swal.fire("Info", "Funcionalidad de modificación en desarrollo.", "info");
+            modificarItemSeleccionado();
         });
 
         $("#btnDeleteItem").on("click", function (e) {
             e.preventDefault();
-            eliminarItemsSeleccionados();
+            eliminarItemSeleccionado();
         });
 
         // Datepickers + moneda

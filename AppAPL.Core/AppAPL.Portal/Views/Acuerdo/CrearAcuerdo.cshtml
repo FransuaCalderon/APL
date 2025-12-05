@@ -64,9 +64,57 @@
             border: 1px solid #ced4da;
             border-radius: 0.2rem;
         }
-        /* Mismo ancho para Proveedores e Items */
-        .modal-bm-xxl {
-            --bs-modal-width: min(95vw, 1500px); /* ajusta 1500px si quieres más/menos */
+        /* Reajustamos el espacio del modal y la tabla para que se vea correctamente */
+        #modalConsultaItems .modal-body {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* Elimina el alto mínimo y el comportamiento flex */
+        #modalConsultaItems .modal-dialog {
+            display: block !important;
+        }
+
+        /* Mantén el card con tamaño automático */
+        #modalConsultaItems .card {
+            height: auto !important;
+        }
+
+        /* Elimina márgenes en el form */
+        #modalConsultaItems form {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* La tabla ahora tendrá su propio scroll con altura controlada */
+        #modalConsultaItems .table-responsive {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        /* El botón procesar selección no tendrá espacio extra */
+        #btnseleccionar {
+            margin-top: 0 !important;
+        }
+
+        /* Estilos para select múltiple */
+        #filtroMarca, #filtroDivision, #filtroDepartamento, #filtroClase {
+            cursor: pointer;
+        }
+
+        #filtroMarca option:hover,
+        #filtroDivision option:hover,
+        #filtroDepartamento option:hover,
+        #filtroClase option:hover {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        /* Estilo para opciones seleccionadas */
+        .form-select option:checked {
+            background-color: #198754 !important;
+            color: white !important;
+            font-weight: bold;
         }
     </style>
 }
@@ -91,7 +139,6 @@
 <!-- FORM GENERAL -->
 <!-- ========================================================= -->
 <form id="formGeneral" class="row g-1 mb-1 pb-1">
-
     <div class="col-md-3">
         <label class="form-label fw-bold col-form-label-sm">Fondos Proveedor</label>
         <div class="input-group input-group-sm">
@@ -202,7 +249,6 @@
                         </thead>
                         <tbody></tbody>
                     </table>
-
                 </div>
 
                 <nav aria-label="Navegación de páginas" class="mt-2">
@@ -282,7 +328,7 @@
     </div>
 
     <div class="col-md-3 mt-0">
-        <label class="form-label fw-bold col-form-label-sm">$ Proveedor - Valor Total</label>
+        <label class="form-label fw-bold col-form-label-sm">Proveedor - Valor Total</label>
         <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotalItems" placeholder="$ 0,00" disabled>
     </div>
 
@@ -290,40 +336,51 @@
         <div class="detalle-header">Detalle de los Artículos</div>
 
         <div class="d-flex align-items-center gap-3 pt-2 pb-1">
-            <a href="#" class="text-decoration-none text-primary fw-semibold d-flex align-items-center gap-1"
-               id="btnAddItem" data-bs-toggle="modal" data-bs-target="#modalConsultaItems">
-                <i class="fa-solid fa-plus"></i> Añadir Item
-            </a>
-            <a href="#" class="text-decoration-none text-warning fw-semibold d-flex align-items-center gap-1" id="btnModifyItem">
+            <!-- Botón Añadir Item -->
+            <button id="btnAddItem" type="button" class="btn btn-outline-primary border-0 d-flex align-items-center gap-1"
+                    data-bs-toggle="modal" data-bs-target="#modalConsultaItems">
+                <i class="fa-regular fa-square-plus"></i> Añadir Item
+            </button>
+
+            <!-- Botón Modificar -->
+            <button id="btnModifyItem" type="button" class="btn btn-outline-warning border-0 d-flex align-items-center gap-1">
                 <i class="fa-regular fa-pen-to-square"></i> Modificar
-            </a>
-            <a href="#" class="text-decoration-none text-danger fw-semibold d-flex align-items-center gap-1" id="btnDeleteItem">
+            </button>
+
+            <!-- Botón Eliminar -->
+            <button id="btnDeleteItem" type="button" class="btn btn-outline-danger border-0 d-flex align-items-center gap-1">
                 <i class="fa-regular fa-trash-can"></i> Eliminar
-            </a>
+            </button>
         </div>
 
-        <div class="table-responsive border rounded" style="max-height: 40vh; overflow-y: auto;">
-            <table id="tablaItems" class="table table-sm table-bordered mb-0">
-                <thead class="tabla-items-header sticky-top">
-                    <tr>
-                        <th style="min-width: 50px;"></th>
-                        <th style="min-width: 250px;">Item</th>
-                        <th style="min-width: 120px;">Costo</th>
-                        <th style="min-width: 100px;">Unidades Límite</th>
-                        <th style="min-width: 130px;">Precio - Contado</th>
-                        <th style="min-width: 130px;">Precio - TC</th>
-                        <th style="min-width: 130px;">Precio - Crédito</th>
-                        <th style="min-width: 150px;">Aporte por Unidad - Proveedor</th>
-                        <th style="min-width: 130px;">Comprometido Proveedor</th>
-                        <th style="min-width: 100px;">Margen Contado</th>
-                        <th style="min-width: 100px;">Margen TC</th>
-                        <th style="min-width: 100px;">Margen Crédito</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaItemsBody" class="tabla-items-body">
-                    <!-- Se llena por JS -->
-                </tbody>
-            </table>
+        <div class="col-12">
+            <div class="row p-0">
+                <div class="col">
+                    <div class="table-responsive small border" style="height: 220px;">
+                        <table class="table table-bordered table-sm">
+                            <thead class="sticky-top text-nowrap">
+                                <tr class="text-center tabla-items-header">
+                                    <th scope="col" style="width: 40px;">Sel.</th>
+                                    <th scope="col" class="custom-header-cons-bg">Item</th>
+                                    <th scope="col" class="custom-header-cons-bg">Costo</th>
+                                    <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
+                                    <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
+                                    <th scope="col" class="custom-header-ingr-bg">Precio - TC</th>
+                                    <th scope="col" class="custom-header-ingr-bg">Precio - Crédito</th>
+                                    <th scope="col" class="custom-header-ingr-bg">Aporte por Unidad - Proveedor</th>
+                                    <th scope="col" class="custom-header-calc-bg">Comprometido Proveedor</th>
+                                    <th scope="col" class="custom-header-calc-bg">Margen Contado</th>
+                                    <th scope="col" class="custom-header-calc-bg">Margen TC</th>
+                                    <th scope="col" class="custom-header-calc-bg">Margen Crédito</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaItemsBody" class="text-nowrap tabla-items-body">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -335,112 +392,149 @@
 </form>
 
 <!-- ========================================================= -->
-<!-- MODAL AÑADIR ITEMS -->
+<!-- MODAL AÑADIR ITEMS ARTICULOS -->
 <!-- ========================================================= -->
-<div class="modal fade" id="modalConsultaItems" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalConsultaItemsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xxl modal-bm-xxl">
-        <div class="modal-content" style="height: 90vh; max-height: 90vh;">
+<div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-labelledby="modalConsultaItemLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <!-- HEADER -->
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="modalConsultaItemsLabel">Consulta de Items</h1>
+                <h1 class="modal-title fs-5" id="modalConsultaItemLabel">Consulta de Items</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
-                <!-- FILTROS -->
-                <h6 class="fw-bold mb-3">Criterios de Selección</h6>
-                <div class="row">
-                    <div class="col-md-2">
-                        <label class="form-label fw-semibold">Marca</label>
-                        <select id="filtroMarca" class="form-select form-select-sm">
-                            <option value="">Todas</option>
-                            <option>Marca 1</option>
-                            <option>Marca 2</option>
-                        </select>
-                    </div>
 
-                    <div class="col-md-2">
-                        <label class="form-label fw-semibold">División</label>
-                        <select id="filtroDivision" class="form-select form-select-sm">
-                            <option value="">Todas</option>
-                            <option>Division 1</option>
-                            <option>Division 2</option>
-                        </select>
-                    </div>
+            <!-- BODY -->
+            <div class="modal-body">
 
-                    <div class="col-md-2">
-                        <label class="form-label fw-semibold">Departamento</label>
-                        <select id="filtroDepartamento" class="form-select form-select-sm">
-                            <option value="">Todos</option>
-                            <option>Departamento 1</option>
-                            <option>Departamento 2</option>
-                        </select>
-                    </div>
+                <!-- CRITERIOS DE SELECCIÓN -->
+                <div class="row m-2">
+                    <div class="card border-secondary p-0">
+                        <div class="card-header">
+                            Criterios de Seleccion
+                        </div>
 
-                    <div class="col-md-2">
-                        <label class="form-label fw-semibold">Clase</label>
-                        <select id="filtroClase" class="form-select form-select-sm">
-                            <option value="">Todas</option>
-                            <option>Clase 1</option>
-                            <option>Clase 2</option>
-                        </select>
-                    </div>
+                        <div class="card-body">
+                            <form class="row g-2">
+                                <!-- MARCA -->
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Marca</label>
+                                    <div class="border rounded p-2" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check">
+                                            <input class="form-check-input filtro-todas" type="checkbox" id="todasMarcas" data-target="filtroMarca" checked>
+                                            <label class="form-check-label fw-bold" for="todasMarcas">
+                                                Todas
+                                            </label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroMarca"></div>
+                                    </div>
+                                </div>
 
-                    <div class="col-12 mt-2">
-                        <button type="button" id="btnProcesarFiltros"
-                                class="btn btn-secondary w-100 py-1">
-                            Procesar Selección
-                        </button>
+                                <!-- DIVISION -->
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">División</label>
+                                    <div class="border rounded p-2" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check">
+                                            <input class="form-check-input filtro-todas" type="checkbox" id="todasDivisiones" data-target="filtroDivision" checked>
+                                            <label class="form-check-label fw-bold" for="todasDivisiones">
+                                                Todas
+                                            </label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroDivision"></div>
+                                    </div>
+                                </div>
+
+                                <!-- DEPARTAMENTO -->
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Departamento</label>
+                                    <div class="border rounded p-2" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check">
+                                            <input class="form-check-input filtro-todas" type="checkbox" id="todosDepartamentos" data-target="filtroDepartamento" checked>
+                                            <label class="form-check-label fw-bold" for="todosDepartamentos">
+                                                Todos
+                                            </label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroDepartamento"></div>
+                                    </div>
+                                </div>
+
+                                <!-- CLASE -->
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Clase</label>
+                                    <div class="border rounded p-2" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check">
+                                            <input class="form-check-input filtro-todas" type="checkbox" id="todasClases" data-target="filtroClase" checked>
+                                            <label class="form-check-label fw-bold" for="todasClases">
+                                                Todas
+                                            </label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroClase"></div>
+                                    </div>
+                                </div>
+
+                                <!-- ARTÍCULO -->
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Artículo</label>
+                                    <input type="text" id="filtroArticulo" class="form-control form-control-sm" placeholder="Buscar...">
+                                </div>
+
+                                <!-- BOTÓN DE PROCESAR -->
+                                <div class="col-12 mt-2">
+                                    <button type="button" id="btnProcesarFiltros" class="btn btn-secondary btn-sm w-100">
+                                        <i class="fa-solid fa-filter"></i> Procesar Selección
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-                <hr><
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-semibold">Seleccione un Item</span>
-                    <input id="buscarItem" type="text" class="form-control form-control-sm" placeholder="Buscar..." style="width: 250px;">
+
+                <!-- CHECK + BUSCAR -->
+                <div class="row m-2">
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="form-check form-check-sm">
+                            <input class="form-check-input" type="checkbox" id="checkTodosItems" checked>
+                            <label class="form-check-label" for="checkTodosItems">Todos</label>
+                        </div>
+
+                        <div class="flex-grow-1"></div>
+
+                        <input type="text" class="form-control w-25" placeholder="Buscar...">
+                    </div>
                 </div>
 
-                <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
-                    <table id="tablaItemsConsulta" class="table table-hover table-sm table-bordered mb-0">
-                        <thead class="table-success sticky-top">
-                            <tr class="text-nowrap">
-                                <th class="text-center align-middle" style="min-width: 70px;">
-                                    <input id="checkTodosItems" type="checkbox" class="form-check-input">
-                                </th>
-                                <th class="align-middle" style="min-width: 90px;">Codigo</th>
-                                <th class="align-middle" style="min-width: 220px;">Descripción</th>
-                                <th class="align-middle text-end" style="min-width: 140px;">Costo</th>
-                                <th class="align-middle text-center" style="min-width: 120px;">Stock</th>
-                                <th class="align-middle text-center" style="min-width: 120px;">Óptimo</th>
-                                <th class="align-middle text-center" style="min-width: 120px;">Excedente (u)</th>
-                                <th class="align-middle text-end" style="min-width: 120px;">Excedente ($)</th>
-                                <th class="align-middle text-center" style="min-width: 120px;">M-0 (u)</th>
-                                <th class="align-middle text-end" style="min-width: 120px;">M-0 ($)</th>
-                                <th class="align-middle text-center" style="min-width: 120px;">M-1 (u)</th>
-                                <th class="align-middle text-end" style="min-width: 120px;">M-1 ($)</th>
-                                <th class="align-middle text-center" style="min-width: 120px;">M-2 (u)</th>
-                                <th class="align-middle text-end" style="min-width: 120px;">M-2 ($)</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <!-- TABLA -->
+                <div class="row m-2">
+                    <div class="table-responsive small p-1 border border-secondary" style="max-height: 300px; overflow-y: auto;">
+                        <table id="tablaItemsConsulta" class="table table-hover table-bordered w-100">
+                            <thead class="sticky-top table-success text-white text-nowrap">
+                                <tr>
+                                    <th>Sel</th>
+                                    <th>Codigo</th>
+                                    <th>Descripcion</th>
+                                    <th>Costo</th>
+                                    <th>Stock</th>
+                                    <th>Optimo</th>
+                                    <th>Excedente(u)</th>
+                                    <th>Excedente($)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-
-                <nav aria-label="Navegación de páginas" class="mt-2">
-                    <ul class="pagination pagination-sm justify-content-center mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" aria-label="Anterior"><span aria-hidden="true">&laquo;</span></a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Siguiente"><span aria-hidden="true">&raquo;</span></a>
-                        </li>
-                    </ul>
-                </nav>
             </div>
 
+            <!-- FOOTER -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="btnSeleccionarItems">Aceptar</button>
+                <button type="button" id="btnSeleccionarItems" class="btn btn-primary">Seleccionar</button>
             </div>
         </div>
     </div>
