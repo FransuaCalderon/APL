@@ -1,18 +1,19 @@
-﻿using System;
+﻿using AppAPL.AccesoDatos.Abstracciones;
+using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto;
+using AppAPL.Dto.Acuerdo;
+using AppAPL.Dto.Fondos;
+using Dapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Oracle.ManagedDataAccess.Client;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using AppAPL.AccesoDatos.Abstracciones;
-using AppAPL.AccesoDatos.Oracle;
-using AppAPL.Dto;
-using AppAPL.Dto.Acuerdo;
-using Dapper;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Oracle.ManagedDataAccess.Client;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace AppAPL.AccesoDatos.Repositorio
@@ -234,6 +235,38 @@ namespace AppAPL.AccesoDatos.Repositorio
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
             return datos;
+        }
+
+        public async Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idacuerdo = idAcuerdo
+            };
+
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            var datos = await connection.QueryAsync<BandejaAprobacionAcuerdoDTO>(
+                "APL_PKG_ACUERDOS.sp_consulta_bandeja_aprobacion_por_id",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+
+            return datos.FirstOrDefault();
         }
     }
 }

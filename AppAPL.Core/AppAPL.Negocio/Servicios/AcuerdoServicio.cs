@@ -32,5 +32,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador)
             => repo.ConsultarBandAprobAcuerdo(usuarioAprobador);
+
+        public Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo)
+            => repo.ObtenerBandejaAprobacionPorId(idAcuerdo);
     }
 }

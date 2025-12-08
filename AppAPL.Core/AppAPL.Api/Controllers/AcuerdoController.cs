@@ -1,6 +1,7 @@
 ﻿using AppAPL.Api.Attributes;
 using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
+using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
 using static System.Net.Mime.MediaTypeNames;
@@ -53,6 +54,17 @@ namespace AppAPL.Api.Controllers
             var listaBandeja = await servicio.ConsultarBandAprobAcuerdo(usuarioAprobador);
             
             return listaBandeja.ToList();
+        }
+
+        [HttpGet("bandeja-aprobacion-id/{idAcuerdo:int}")]
+        public async Task<ActionResult<BandejaAprobacionAcuerdoDTO>> ObtenerBandejaAprobacionPorId(int idAcuerdo)
+        {
+
+            var item = await servicio.ObtenerBandejaAprobacionPorId(idAcuerdo);
+            if (item == null)
+                return NotFound(new { mensaje = $"No se encontró el aprobacion con ese idAcuerdo: {idAcuerdo}" });
+
+            return item;
         }
 
 

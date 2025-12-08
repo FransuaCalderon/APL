@@ -19,5 +19,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo);
         Task<IEnumerable<FondoAcuerdoDTO>> ConsultarFondoAcuerdo();
         Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador);
+        Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo);
     }
 }
