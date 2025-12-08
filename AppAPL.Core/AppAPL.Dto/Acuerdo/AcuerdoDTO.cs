@@ -119,6 +119,7 @@ namespace AppAPL.Dto.Acuerdo
         public string nombre_proveedor { get; set; }
         public int id_tipo_acuerdo { get; set; }
         public string nombre_tipo_acuerdo { get; set; }
+        public int cantidad_articulos { get; set; }
         public decimal valor_acuerdo { get; set; }
         public DateTime fecha_inicio { get; set; }
         public DateTime fecha_fin { get; set; }
