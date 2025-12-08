@@ -1,8 +1,14 @@
-CREATE OR REPLACE PROCEDURE APL_SP_COMBOS_CATALOGO_TIPO (
+create or replace PROCEDURE APL_SP_COMBOS (
     p_etiqueta IN VARCHAR2,
     p_cursor   OUT SYS_REFCURSOR
 )
 AS
+/*
+================================================================================
+  Descripción  : Busca registros por etiqueta en las tablas APL_TB_CATALOGOTIPO 
+                 o APL_TB_CATALOGO y retorna la información relacionada.    
+================================================================================
+*/
 BEGIN
     OPEN p_cursor FOR
         SELECT CASE 
@@ -22,4 +28,4 @@ BEGIN
         WHERE cp.idetiqueta = p_etiqueta 
            OR c.idetiqueta = p_etiqueta;
         
-END APL_SP_COMBOS_CATALOGO_TIPO;
+END APL_SP_COMBOS;
