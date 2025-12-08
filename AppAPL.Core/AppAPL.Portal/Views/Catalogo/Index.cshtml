@@ -3,9 +3,22 @@
 
 
 @{
+    // Viene del ViewBag que llenamos en el controlador
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+
+@section Scripts {
+    <script>
+        // Variable global con el usuario logueado
+        window.usuarioActual = '@usuarioActual';
+    </script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <script src="~/js/Catalogo/Catalogo.js" asp-append-version="true"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 }
 
 <h2>Catálogo</h2>
+
 <hr />
 
 <style>
@@ -37,13 +50,6 @@
         <i class="fa-solid fa-plus"></i> Agregar
     </button>
 </div>
-
-
-@section Scripts {
-    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
-    <script src="~/js/Catalogo/Catalogo.js" asp-append-version="true"></script>
-    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-}
 
 @* El modal no necesita cambios *@
 <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">

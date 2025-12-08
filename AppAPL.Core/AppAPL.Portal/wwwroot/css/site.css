@@ -1186,3 +1186,27 @@ body .modal-dialog .modal-content .modal-body .col-md-12 {
     background-color: #e9ecef;
     cursor: not-allowed;
 }
+
+/* =========================================
+   ESTILOS PARA MENÚ LATERAL ACTIVO
+   ========================================= */
+
+/* Cuando el enlace tiene la clase 'active' */
+#menu-dinamico a.active {
+    background-color: #e2e6ea !important; /* Gris visible */
+    color: #000000 !important; /* Texto negro fuerte */
+    font-weight: bold !important; /* Texto en negrita */
+    border-left: 4px solid #1b2c9e; /* Una barrita azul a la izquierda para destacar más */
+    transition: all 0.3s ease;
+}
+
+/* Efecto hover suave para las opciones que NO están activas */
+#menu-dinamico a:not(.active):hover {
+    background-color: #f8f9fa;
+    color: #1b2c9e;
+}
+
+/* Ajuste para que el texto no quede pegado a la barra azul */
+#menu-dinamico a {
+    padding-left: 10px;
+}

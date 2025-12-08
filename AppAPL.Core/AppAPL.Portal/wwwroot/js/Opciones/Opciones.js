@@ -165,7 +165,7 @@ $(document).ready(function () {
             nombre: $("#modal-nombre").val(),
             descripcion: $("#modal-descripcion").val(),
             idgrupo: parseInt($("#modal-tipo-grupo").val()),
-            vista: $("#modal-vista").val() || "sin vista", // ✅ AHORA USA EL ID CORRECTO
+            vista: $("#modal-vista").val() || "sin vista",
             idUsuarioCreacion: 1,
             fechaCreacion: new Date().toISOString(),
             idUsuarioModificacion: 1,
@@ -185,7 +185,6 @@ $(document).ready(function () {
         const method = id ? "PUT" : "POST";
 
         console.log("data antes de enviar: ", data);
-        // ✅ ELIMINAR EL "return;" QUE ESTÁ BLOQUEANDO LA EJECUCIÓN
 
         $.ajax({
             url: url,
@@ -199,20 +198,20 @@ $(document).ready(function () {
             success: function (response) {
                 $("#editarModal").modal("hide");
 
+                // ✅ CAMBIO PRINCIPAL AQUÍ:
                 Swal.fire({
                     icon: 'success',
                     title: '¡Guardado!',
-                    text: 'El registro se ha guardado correctamente.',
+                    text: 'El registro se ha guardado correctamente y la página se recargará.',
                     showConfirmButton: false,
                     timer: 1500
+                }).then(() => {
+                    // ✅ Recarga completa de la página para actualizar menú y tabla
+                    console.log("Recargando página para actualizar menú...");
+                    window.location.reload();
                 });
 
-                if (!isCrear && id) {
-                    ultimaFilaModificada = id;
-                }
-
-                // Recargar la lista
-                cargarOpcionesLista(usuario);
+                // Nota: Ya no llamamos a cargarOpcionesLista() porque el reload() lo hará por nosotros.
             },
             error: function (xhr, status, error) {
                 const mensaje = id ? "actualizar" : "guardar";

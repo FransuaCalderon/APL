@@ -7,34 +7,65 @@ $(document).ready(function () {
     // const rutasMapeo = { ... };
     // function obtenerRutaReal(rutaApi) { ... }
     // Ya no son necesarios, usaremos la "vista" directamente.
-
-    // Función para resaltar la opción activa (CORREGIDA)
+    // Función para resaltar la opción activa (MEJORADA)
     function resaltarOpcionActiva() {
-        // Convertir la ruta actual a minúsculas para una comparación consistente
+        // 1. Obtener la ruta actual normalizada
         const rutaActual = window.location.pathname.toLowerCase();
+
+        console.log("🔍 Intentando resaltar opción para ruta:", rutaActual);
+
+        let encontrada = false;
 
         $('#menu-dinamico a').each(function () {
             const $link = $(this);
             const href = $link.attr('href');
 
-            // Limpiar la clase 'active' de todos los enlaces primero
+            // Limpiar estados previos
             $link.removeClass('active');
 
+            // Si ya encontramos la activa, no seguimos marcando otras (opcional)
+            // pero mejor dejamos que corra por si hay sub-rutas.
+
             if (href && href !== '#') {
-                // Convertir también el href a minúsculas
                 const hrefMinusculas = href.toLowerCase();
 
-                // Comparar la ruta actual con el href del enlace (ambos en minúsculas)
-                if (hrefMinusculas === rutaActual || (hrefMinusculas !== '/' && rutaActual.startsWith(hrefMinusculas))) {
+                // Lógica de comparación:
+                // 1. Coincidencia Exacta (Ej: /Home/Index)
+                // 2. Coincidencia de Inicio (Ej: /Opciones/Index vs /Opciones/Index?id=1)
 
-                    $link.addClass('active'); // <-- Aquí se aplica la clase
+                // Verificamos que no sea solo un "/" para evitar marcar todo en el home
+                const esCoincidencia = (hrefMinusculas === rutaActual) ||
+                    (hrefMinusculas !== '/' && rutaActual.startsWith(hrefMinusculas));
 
-                    // Expandir el grupo padre
-                    $link.closest('.collapse').addClass('show');
-                    $link.closest('.collapse').prev('button').attr('aria-expanded', 'true').removeClass('collapsed');
+                if (esCoincidencia) {
+                    console.log("✅ Opción activa encontrada:", href);
+
+                    // Aplicar clase activa
+                    $link.addClass('active');
+                    encontrada = true;
+
+                    // ABRIR EL ACORDEÓN (COLLAPSE) PADRE
+                    const $collapsePadre = $link.closest('.collapse');
+                    if ($collapsePadre.length > 0) {
+                        // Agrega la clase show para mostrarlo
+                        $collapsePadre.addClass('show');
+
+                        // Ajustar el botón flecha del grupo
+                        const $btnGrupo = $collapsePadre.prev('button');
+                        if ($btnGrupo.length > 0) {
+                            $btnGrupo.removeClass('collapsed');
+                            $btnGrupo.attr('aria-expanded', 'true');
+                            // Opcional: Resaltar también el grupo padre
+                            $btnGrupo.addClass('fw-bold text-primary');
+                        }
+                    }
                 }
             }
         });
+
+        if (!encontrada) {
+            console.log("⚠️ No se encontró ninguna opción de menú que coincida con la ruta actual.");
+        }
     }
 
 

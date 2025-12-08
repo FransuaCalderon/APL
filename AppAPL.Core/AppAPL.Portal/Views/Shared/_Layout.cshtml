@@ -44,225 +44,68 @@
     <meta name="theme-color" content="#712cf9">
 
     <script src="~/js/sweetalert2.all.min.js"></script>
-
-
-
 </head>
 
 <body>
-
     <header class="fixed-top">
-
         <div class="py-2 bg-wine-red border-bottom">
-
             <div class="container-fluid">
-
                 <div class="d-flex align-items-center justify-content-between">
-
                     <a href="/" class="d-flex align-items-center text-white text-decoration-none">
-
                         <span class="logo-text me-2">BM</span>
-
                         <span style="font-size: 1.25rem; font-weight: bold;">APL Software</span>
-
                     </a>
 
                     <ul class="nav text-small mb-0">
-
                         <li class="nav-item dropdown">
-
                             <a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-
                                 <img src="https://github.com/mdo.png" alt="Perfil" width="32" height="32" class="rounded-circle">
-
                             </a>
 
                             <ul class="dropdown-menu dropdown-menu-end">
-
                                 <li>
                                     <a class="dropdown-item text-dark text-center bg-warning" href="#">
                                         @usuarioActual
                                     </a>
                                 </li>
-
-
                                 <li><hr class="dropdown-divider"></li>
-
                                 <li><a class="dropdown-item" href="#">Configuración</a></li>
-
                                 <li><a class="dropdown-item" href="#">Perfil</a></li>
-
                                 <li><hr class="dropdown-divider"></li>
-
                                 <li>
                                     <a class="dropdown-item" asp-controller="Login" asp-action="Logout">
                                         Cerrar Sesión
                                     </a>
                                 </li>
-
-
                             </ul>
-
                         </li>
-
                     </ul>
-
                 </div>
-
             </div>
-
         </div>
-
     </header>
 
-
-
     <div class="container-fluid">
-
         <div class="row">
-
             <div id="sidebar" class="flex-shrink-0 p-3 scrollarea col-auto" style="transition: all 0.3s; width: 250px;">
-
                 <h5 class="mb-3 fw-bold">Opciones</h5>
-
                 <hr>
-
-                <ul id="menu-dinamico" class="list-unstyled ps-0">
-                    <!--
-                    <li class="mb-1">
-
-                        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                                data-bs-toggle="collapse" data-bs-target="#config-collapse" aria-expanded="true">
-
-                            Configuración
-
-                        </button>
-
-                        <div class="collapse show" id="config-collapse">
-
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-
-                                <li>
-
-                                    <a class="link-body-emphasis d-inline-flex text-decoration-none rounded"
-                                       asp-area="" asp-controller="CatalogoTipo" asp-action="Index">Tipo Catálogo</a>
-
-                                </li>
-
-                                <li>
-
-                                    <a class="link-body-emphasis d-inline-flex text-decoration-none rounded"
-                                       asp-area="" asp-controller="Catalogo" asp-action="Index">Catálogo</a>
-
-                                </li>
-
-                                <li>
-
-                                    <a class="link-body-emphasis d-inline-flex text-decoration-none rounded"
-                                       asp-area="" asp-controller="Opciones" asp-action="Index">Opciones</a>
-
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                    </li>
-
-                    <li class="mb-1">
-
-                        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                                data-bs-toggle="collapse" data-bs-target="#acuerdos-collapse" aria-expanded="false">
-
-                            Acuerdos
-
-                        </button>
-
-                        <div class="collapse" id="acuerdos-collapse">
-
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-
-                                <li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" href="#">Gestión de Acuerdos</a></li>
-
-                                <li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" href="#">Historial</a></li>
-
-                            </ul>
-
-                        </div>
-
-                    </li>
-
-                    <li class="mb-1">
-
-                        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                                data-bs-toggle="collapse" data-bs-target="#fondos-collapse" aria-expanded="false">
-
-                            Fondos
-
-                        </button>
-
-                        <div class="collapse" id="fondos-collapse">
-
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-
-                                <li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" href="#">Movimientos</a></li>
-
-                                <li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" href="#">Cuentas</a></li>
-
-                            </ul>
-
-                        </div>
-
-                    </li>
-
-                    <li class="mb-1">
-
-                        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                                data-bs-toggle="collapse" data-bs-target="#promo-collapse" aria-expanded="false">
-
-                            Promociones
-
-                        </button>
-
-                        <div class="collapse" id="promo-collapse">
-
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-
-                                <li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" href="#">Campañas</a></li>
-
-                                <li><a class="link-body-emphasis d-inline-flex text-decoration-none rounded" href="#">Descuentos</a></li>
-
-                            </ul>
-
-                        </div>
-
-                    </li>
-                    -->
+                <ul id="menu-dinamico" class="list-unstyled ps-0">                   
                 </ul>
-
             </div>
 
             <div class="menu-toggle-container col-auto py-2 px-1">
 
                 <button id="toggleMenu" class="btn btn-primary">
-
                     ☰
-
                 </button>
 
             </div>
-
             <main id="mainContent" class="col p-3" style="transition: all 0.3s;">
-
                 @RenderBody()
-
             </main>
-
         </div>
-
     </div>
-
-
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
@@ -270,14 +113,11 @@
 
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-
-
     <script>
         document.getElementById('toggleMenu').addEventListener('click', function () {
             document.getElementById('sidebar').classList.toggle('hidden');
         });
     </script>
-
 
     @await RenderSectionAsync("Scripts", required: false)
 

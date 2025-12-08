@@ -19,5 +19,69 @@ namespace AppWebAPL.Controllers
             ViewBag.UsuarioActual = usuario;
             return View();
         }
+
+        public IActionResult AprobarAcuerdo()
+        {
+            // 1️⃣ Leer el usuario desde la sesión
+            var usuario = HttpContext.Session.GetString("Usuario");
+
+            // 2️⃣ Si no hay usuario, lo mandas al login
+            if (string.IsNullOrEmpty(usuario))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            // 3️⃣ Lo pasas a la vista
+            ViewBag.UsuarioActual = usuario;
+            return View();
+        }
+
+        public IActionResult ModificarAcuerdo()
+        {
+            // 1️⃣ Leer el usuario desde la sesión
+            var usuario = HttpContext.Session.GetString("Usuario");
+
+            // 2️⃣ Si no hay usuario, lo mandas al login
+            if (string.IsNullOrEmpty(usuario))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            // 3️⃣ Lo pasas a la vista
+            ViewBag.UsuarioActual = usuario;
+            return View();
+        }
+
+        public IActionResult InactivarAcuerdo()
+        {
+            // 1️⃣ Leer el usuario desde la sesión
+            var usuario = HttpContext.Session.GetString("Usuario");
+
+            // 2️⃣ Si no hay usuario, lo mandas al login
+            if (string.IsNullOrEmpty(usuario))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            // 3️⃣ Lo pasas a la vista
+            ViewBag.UsuarioActual = usuario;
+            return View();
+        }
+
+        public IActionResult ConsultarAcuerdo()
+        {
+            // 1️⃣ Leer el usuario desde la sesión
+            var usuario = HttpContext.Session.GetString("Usuario");
+
+            // 2️⃣ Si no hay usuario, lo mandas al login
+            if (string.IsNullOrEmpty(usuario))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            // 3️⃣ Lo pasas a la vista
+            ViewBag.UsuarioActual = usuario;
+            return View();
+        }
     }
 }
