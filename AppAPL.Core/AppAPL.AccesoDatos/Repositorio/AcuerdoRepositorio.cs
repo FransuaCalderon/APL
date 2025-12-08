@@ -203,32 +203,37 @@ namespace AppAPL.AccesoDatos.Repositorio
             };
             return retorno;
         }
-        /*
-        public async Task<IEnumerable<ArticuloDTO>> ObtenerArticuloEspecificos(string texto)
+        
+        public async Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador)
         {
             using var connection = factory.CreateOpenConnection();
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
             var paramObject = new 
             {
-                p_texto = texto
+                p_usuarioaprobador = usuarioAprobador
             };
             var parameters = new OracleDynamicParameters(paramObject);
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
-            
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             // 🔹 Ejecutar el SP
-            var datos = await connection.QueryAsync<ArticuloDTO>(
-                "APL_SP_BUSCAR_ARTICULO_AUTOCOMPLETE_ITEMS",
+            var datos = await connection.QueryAsync<BandejaAprobacionAcuerdoDTO>(
+                "APL_PKG_ACUERDOS.sp_consulta_bandeja_aprobacion_acuerdos",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
 
             
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
             return datos;
-        }*/
+        }
     }
 }

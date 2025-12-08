@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace AppAPL.Api.Handlers
 {
-    public class HandlerBase(IEmailRepositorio emailRepo, ILogger logger, ICatalogoRepositorio catalogoRepo)
+    public class HandlerBase(IEmailRepositorio emailRepo, ILogger logger)
     {
         protected string ConvertirDecimalAPalabras(decimal valor)
         {
@@ -39,7 +39,7 @@ namespace AppAPL.Api.Handlers
         }
 
         protected async Task EnviarCorreo(string entidad, string tipoProcEtiqueta, string IdProveedor, TipoProceso tipoProceso,
-            Dictionary<string, string>? camposPlantilla)
+            Dictionary<string, string>? camposPlantilla, string? nombreEntidad = null)
         {
             // 🔹 Consultar SP y enviar correo
             var datos = await emailRepo.ObtenerDatosCorreo(new ConsultarDatosCorreoRequest
@@ -84,7 +84,7 @@ namespace AppAPL.Api.Handlers
                 logger.LogInformation($"cc destinatario: {item}");
             }
 
-            string? nombreEntidad = await this.RetornarNombreEntidad(entidad);
+            //string? nombreEntidad = await this.RetornarNombreEntidad(entidad);
 
             await emailRepo.SendEmailAsync(
                 toList,
@@ -95,6 +95,7 @@ namespace AppAPL.Api.Handlers
             );
         }
 
+        /*
         protected async Task<string?> RetornarNombreEntidad(string etiquetaEntidad)
         {
             var listaCatalogo = await catalogoRepo.ListarAsync();
@@ -102,6 +103,6 @@ namespace AppAPL.Api.Handlers
             var entidad = listaCatalogo.Where(x => x.IdEtiqueta == etiquetaEntidad).FirstOrDefault();
 
             return entidad?.Nombre;
-        }
+        }*/
     }
 }

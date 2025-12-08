@@ -108,6 +108,34 @@ namespace AppAPL.Dto.Acuerdo
         
     }
 
+    public class BandejaAprobacionAcuerdoDTO
+    {
+        public string Solicitud { get; set; }
+        public int IdAcuerdo { get; set; }
+        public string Descripcion { get; set; }
+        public int Id_Fondo { get; set; }
+        public int Id_Tipo_Fondo { get; set; }
+        public string nombre_tipo_fondo { get; set; }
+        public string nombre_proveedor { get; set; }
+        public int id_tipo_acuerdo { get; set; }
+        public string nombre_tipo_acuerdo { get; set; }
+        public decimal valor_acuerdo { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public int idestados_fondo { get; set; }
+        public string nombre_estado_fondo { get; set; }
+        public string id_etiqueta_estado_fondo { get; set; }
+        public int nivelaprobacion { get; set; }
+        public string aprobador { get; set; }
+        public int idaprobacion { get; set; }
+        public string entidad_etiqueta { get; set; }
+        public string tipo_proceso_etiqueta { get; set; }
+        public string estado_aprob_etiqueta { get; set; }
+    }
+
     public class ConsultarArticuloDTO
     {
         public List<string>? Marcas { get; set; }

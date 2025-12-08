@@ -30,8 +30,7 @@ namespace AppAPL.Negocio.Servicios
         public Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo)
             => repo.CrearAsync(acuerdo);
 
-        /*
-        public Task<IEnumerable<ArticuloDTO>> ObtenerArticuloEspecificos(string texto)
-            => repo.ObtenerArticuloEspecificos(texto);*/
+        public Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador)
+            => repo.ConsultarBandAprobAcuerdo(usuarioAprobador);
     }
 }

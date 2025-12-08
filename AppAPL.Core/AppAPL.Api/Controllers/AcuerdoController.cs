@@ -45,15 +45,15 @@ namespace AppAPL.Api.Controllers
         }
 
         
-        /*
-        [HttpGet("obtener-articulos-especificos/{texto}")]
-        public async Task<ActionResult<List<ArticuloDTO>>> ObtenerArticuloEspecificos(string texto)
+        
+        [HttpGet("consultar-bandeja-aprobacion/{usuarioAprobador}")]
+        public async Task<ActionResult<List<BandejaAprobacionAcuerdoDTO>>> ConsultarBandAprobAcuerdo(string usuarioAprobador)
         {
             
-            var listaArticulos = await servicio.ObtenerArticuloEspecificos(texto);
+            var listaBandeja = await servicio.ConsultarBandAprobAcuerdo(usuarioAprobador);
             
-            return listaArticulos.ToList();
-        }*/
+            return listaBandeja.ToList();
+        }
 
 
         [HttpPost("insertar")]

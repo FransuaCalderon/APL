@@ -10,7 +10,7 @@ using AppAPL.Dto.Fondos;
 namespace AppAPL.Api.Handlers
 {
     public class AcuerdosEmailHandler (IEmailRepositorio emailRepo, ILogger<AcuerdosEmailHandler> logger,
-        IFondoRepositorio fondoRepo, IProveedorRepositorio proveedorRepo, ICatalogoRepositorio catalogoRepo) : HandlerBase(emailRepo, logger, catalogoRepo), IAcuerdosEmailHandler
+        IFondoRepositorio fondoRepo, IProveedorRepositorio proveedorRepo, ICatalogoRepositorio catalogoRepo) : HandlerBase(emailRepo, logger), IAcuerdosEmailHandler
     {
         public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, AcuerdoDTO? acuerdoAntiguo = null, string? responseBody = null)
         {
@@ -32,6 +32,8 @@ namespace AppAPL.Api.Handlers
             // 1. Declaramos las variables que llenará el switch
             string IdProveedor = "";
             Dictionary<string, string> camposPlantilla = null;
+
+            logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
 
             switch (tipoProceso)
             {
@@ -55,6 +57,7 @@ namespace AppAPL.Api.Handlers
                     if (fondo == null)
                     {
                         logger.LogWarning($"no se encontro el fondo con el id: {reqCreacion.Fondo.IdFondo}");
+                        return;
                     }
 
                     IdProveedor = fondo.IdProveedor;
@@ -88,29 +91,29 @@ namespace AppAPL.Api.Handlers
                         // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                     };
 
-                    logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
+                    
                     break;
 
                 case TipoProceso.Modificacion:
-                    logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
+                    
                     break;
 
                 case TipoProceso.Aprobacion:
-                    logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
+                    
                     break;
 
                 case TipoProceso.Inactivacion:
-                    logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
+                    
                     break;
 
                 default:
-                    logger.LogWarning($"[AcuerdosHandler] TipoProceso no reconocido o sin estrategia definida: {tipoProceso}.");
+                    
                     return;
             }
 
             if (camposPlantilla != null)
             {
-                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla);
+                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, "Acuerdos");
             }
             else
             {

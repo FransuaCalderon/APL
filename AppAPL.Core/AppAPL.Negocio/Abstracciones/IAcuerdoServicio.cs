@@ -16,8 +16,9 @@ namespace AppAPL.Negocio.Abstracciones
 
         Task<FiltrosItemsDTO> CargarCombosFiltrosItems();
         Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto);
-        //Task<IEnumerable<ArticuloDTO>> ObtenerArticuloEspecificos(string texto);
+        
 
         Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo);
+        Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador);
     }
 }
