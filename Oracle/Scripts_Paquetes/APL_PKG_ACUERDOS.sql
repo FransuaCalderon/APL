@@ -204,7 +204,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             TO_TIMESTAMP(JSON_VALUE(p_json_cabecera, '$.fechaInicioVigencia'), 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'),
             TO_TIMESTAMP(JSON_VALUE(p_json_cabecera, '$.fechaFinVigencia'), 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'),
             JSON_VALUE(p_json_cabecera, '$.idUsuarioIngreso'),
-            NVL(JSON_VALUE(p_json_cabecera, '$.idEstadoRegistro' RETURNING NUMBER), 1),
+            JSON_VALUE(p_json_cabecera, '$.idEstadoRegistro'),
             NVL(JSON_VALUE(p_json_cabecera, '$.marcaProcesoAprobacion'), ' ')
         INTO 
             v_idtipoacuerdo,
@@ -821,9 +821,10 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 f.idfondo                                       AS id_fondo,
                 f.idtipofondo                                   AS id_tipo_fondo,
                 tf.nombre                                       AS nombre_tipo_fondo,
-                 arp.nombre                                      AS nombre_proveedor,
-                ac.idtipoacuerdo                                AS id_tipo_acuerdo,
-                ct.nombre                                       AS nombre_tipo_acuerdo,
+                 arp.nombre                                     AS nombre_proveedor,
+                ac.idtipoacuerdo                                AS id_tipo_clase_acuerdo,
+                ct.nombre                                       AS nombre_clase_acuerdo,
+                NVL(art.cantidad_articulos, 0)                  AS cantidad_articulos,
                 NVL(acf.valoraporte, 0)                         AS valor_acuerdo,
                 TO_CHAR(ac.fechainiciovigencia, 'YYYY-MM-DD')   AS fecha_inicio,
                 TO_CHAR(ac.fechafinvigencia, 'YYYY-MM-DD')      AS fecha_fin,
@@ -847,6 +848,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             INNER JOIN apl_tb_aprobacion a ON a.identidad = acf.idfondo AND a.idestadoregistro = v_estado_nuevo
             INNER JOIN apl_tb_fondo f ON  f.idfondo = acf.idfondo
             INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+            LEFT JOIN (SELECT idacuerdo, COUNT(*) AS cantidad_articulos FROM apl_tb_acuerdoarticulo GROUP BY idacuerdo) art ON art.idacuerdo = ac.idacuerdo
             -- JOINs con catálogos
             LEFT JOIN apl_tb_catalogo cp ON a.idtipoproceso = cp.idcatalogo
             LEFT JOIN apl_tb_catalogo ct ON ac.idtipoacuerdo = ct.idcatalogo
