@@ -23,6 +23,23 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_codigo_salida           OUT NUMBER,
         p_mensaje_salida          OUT VARCHAR2
     );
+    
+    --Procedimiento para mostrar la bandeja de Aprobacion Acuerdos
+    PROCEDURE sp_consulta_bandeja_aprobacion_acuerdos (
+        p_usuarioaprobador  IN VARCHAR2,                   -- Usuario aprobador (OBLIGATORIO)
+        p_cursor            OUT SYS_REFCURSOR,
+        p_codigo_salida           OUT NUMBER,
+        p_mensaje_salida          OUT VARCHAR2
+    );
+    
+    --Procedimiento para mostrar la bandeja de Aprobacion Acuerdos Por Id
+    /*PROCEDURE sp_consulta_bandeja_aprobacion_por_id (
+        p_idacuerdo      IN NUMBER,
+        p_idaprobacion   IN NUMBER,
+        p_cursor         OUT SYS_REFCURSOR
+    );*/
+    
+   
 
 END APL_PKG_ACUERDOS;
 
@@ -768,6 +785,95 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             p_mensaje_salida := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
     END sp_crear_acuerdo;
     
+    
+    /*
+    =========================================================
+    Descripción: Bandeja Consulta  Aprobacion Acuerdo
+     =========================================================
+    */
+    PROCEDURE sp_consulta_bandeja_aprobacion_acuerdos (
+        p_usuarioaprobador        IN VARCHAR2,
+        p_cursor                  OUT SYS_REFCURSOR,
+        p_codigo_salida           OUT NUMBER,
+        p_mensaje_salida          OUT VARCHAR2
+    ) AS
+        -- Variables para IDs de catálogo
+        v_estado_nuevo          NUMBER;
+     
+    
+    BEGIN
+        -- =========================================================================
+        -- PASO 1: Obtener IDs de catálogos necesarios
+        -- =========================================================================
+        
+       SELECT idcatalogo INTO v_estado_nuevo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';
+              
+        
+        -- =========================================================================
+        -- PASO 2: Abrir cursor con la consulta principal
+        -- =========================================================================
+        
+        OPEN p_cursor FOR
+            SELECT
+                cp.nombre                                       AS solicitud,
+                ac.idacuerdo,
+                ac.descripcion,
+                f.idfondo                                       AS id_fondo,
+                f.idtipofondo                                   AS id_tipo_fondo,
+                tf.nombre                                       AS nombre_tipo_fondo,
+                 arp.nombre                                      AS nombre_proveedor,
+                ac.idtipoacuerdo                                AS id_tipo_acuerdo,
+                ct.nombre                                       AS nombre_tipo_acuerdo,
+                NVL(acf.valoraporte, 0)                         AS valor_acuerdo,
+                TO_CHAR(ac.fechainiciovigencia, 'YYYY-MM-DD')   AS fecha_inicio,
+                TO_CHAR(ac.fechafinvigencia, 'YYYY-MM-DD')      AS fecha_fin,
+                NVL(acf.valordisponible, 0)                     AS valor_disponible,
+                NVL(acf.valorcomprometido, 0)                   AS valor_comprometido,
+                NVL(acf.valorliquidado, 0)                      AS valor_liquidado,
+                acf.idestadoregistro                            AS idestados_fondo,
+                ce.nombre                                       AS nombre_estado_fondo,
+                ce.idetiqueta                                   AS id_etiqueta_estado_fondo,
+                a.nivelaprobacion,
+                a.iduseraprobador                               AS aprobador,
+                a.idaprobacion,
+                en.idetiqueta                                   AS entidad_etiqueta,
+                cp.idetiqueta                                   AS tipo_proceso_etiqueta,
+                ea.idetiqueta                                   AS estado_aprob_etiqueta
+            FROM 
+                apl_tb_acuerdo ac
+            -- JOIN con acuerdo fondo
+            INNER JOIN apl_tb_acuerdofondo acf ON acf.idacuerdo = ac.idacuerdo
+            -- JOIN CORREGIDO: aprobacion se relaciona con IDFONDO
+            INNER JOIN apl_tb_aprobacion a ON a.identidad = acf.idfondo AND a.idestadoregistro = v_estado_nuevo
+            INNER JOIN apl_tb_fondo f ON  f.idfondo = acf.idfondo
+            INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+            -- JOINs con catálogos
+            LEFT JOIN apl_tb_catalogo cp ON a.idtipoproceso = cp.idcatalogo
+            LEFT JOIN apl_tb_catalogo ct ON ac.idtipoacuerdo = ct.idcatalogo
+            LEFT JOIN apl_tb_catalogo ce ON ac.idestadoregistro = ce.idcatalogo
+            LEFT JOIN apl_tb_catalogo en ON a.entidad = en.idcatalogo
+            LEFT JOIN apl_tb_catalogo ea ON a.idestadoregistro = ea.idcatalogo
+            LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
+            WHERE
+                -- Filtros principales
+                (ce.idetiqueta IN ( 'ESTADONUEVO', 'ESTADOMODIFICADO')
+                               AND en.idetiqueta = 'ENTACUERDO'
+                               AND cp.idetiqueta IN ( 'TPCREACION')) OR
+                 --modicacion
+                ( ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE' )
+                               AND en.idetiqueta = 'ENTACUERDO'
+                               AND cp.idetiqueta IN ('TPINACTIVACION' ))
+            ORDER BY 
+                ac.idacuerdo;
+    
+     EXCEPTION
+        WHEN OTHERS THEN
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
+   
+            
+    END sp_consulta_bandeja_aprobacion_acuerdos;
+
 
     
 END APL_PKG_ACUERDOS;
