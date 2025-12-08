@@ -7,10 +7,15 @@
  * - Modal Items (Consulta y Selección con CHECKBOXES)
  * - Validaciones por formulario
  * - Datepickers separados
+ * - ✅ CARGA DINÁMICA DE TIPOS DE ACUERDO (CLAGENERAL / CLAARTICULO)
  */
 
 (function () {
     "use strict";
+
+    // ✅ VARIABLES GLOBALES para almacenar los IDs de catálogo
+    let idCatalogoGeneral = null;
+    let idCatalogoArticulo = null;
 
     // Variable para almacenar temporalmente el proveedor seleccionado
     let proveedorTemporal = null;
@@ -99,6 +104,144 @@
         const tipo = getTipoAcuerdo();
         $("#formGeneral").toggle(tipo === "General");
         $("#formItems").toggle(tipo === "Items");
+    }
+
+    // -----------------------------
+    // ✅ NUEVA FUNCIÓN: Cargar Tipos de Acuerdo desde API
+    // -----------------------------
+    function cargarTiposAcuerdo(callback) {
+        console.log("=== INICIO cargarTiposAcuerdo ===");
+
+        const idOpcionActual = getIdOpcionSeguro();
+        const usuario = getUsuario();
+
+        if (!ensureApiBaseUrl()) {
+            console.error("❌ apiBaseUrl no está configurado");
+            return;
+        }
+
+        if (!idOpcionActual) {
+            console.error("❌ No se pudo obtener idOpcion para cargar tipos de acuerdo");
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo obtener el ID de la opción. Ingrese nuevamente desde el menú.",
+            });
+            return;
+        }
+
+        const $select = $("#acuerdoTipo");
+        $select.empty().append($("<option>").val("").text("Cargando..."));
+
+        // ✅ Cargar CLAGENERAL
+        $.ajax({
+            url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/CLAGENERAL`,
+            method: "GET",
+            headers: {
+                idopcion: String(idOpcionActual),
+                usuario: usuario,
+            },
+            success: function (dataGeneral) {
+                console.log("✅ CLAGENERAL cargado:", dataGeneral);
+
+                // ✅ Cargar CLAARTICULO
+                $.ajax({
+                    url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/CLAARTICULO`,
+                    method: "GET",
+                    headers: {
+                        idopcion: String(idOpcionActual),
+                        usuario: usuario,
+                    },
+                    success: function (dataArticulo) {
+                        console.log("✅ CLAARTICULO cargado:", dataArticulo);
+
+                        // ✅ Limpiar el select
+                        $select.empty();
+
+                        // ✅ Agregar opción General
+                        if (Array.isArray(dataGeneral) && dataGeneral.length > 0) {
+                            const itemGeneral = dataGeneral[0];
+                            idCatalogoGeneral = itemGeneral.idcatalogo;
+
+                            $select.append(
+                                $("<option>")
+                                    .val("General")
+                                    .text(itemGeneral.nombre_catalogo || "General")
+                                    .attr("data-idcatalogo", itemGeneral.idcatalogo)
+                            );
+
+                            console.log(`📌 General - ID Catálogo: ${idCatalogoGeneral}`);
+                        }
+
+                        // ✅ Agregar opción Artículo
+                        if (Array.isArray(dataArticulo) && dataArticulo.length > 0) {
+                            const itemArticulo = dataArticulo[0];
+                            idCatalogoArticulo = itemArticulo.idcatalogo;
+
+                            $select.append(
+                                $("<option>")
+                                    .val("Items")
+                                    .text(itemArticulo.nombre_catalogo || "Artículo")
+                                    .attr("data-idcatalogo", itemArticulo.idcatalogo)
+                            );
+
+                            console.log(`📌 Artículo - ID Catálogo: ${idCatalogoArticulo}`);
+                        }
+
+                        // ✅ Seleccionar General por defecto
+                        $select.val("General");
+
+                        // ✅ MOSTRAR FORMULARIO GENERAL POR DEFECTO
+                        toggleAcuerdoForm();
+
+                        // ✅ Ejecutar callback si existe
+                        if (typeof callback === "function") {
+                            callback();
+                        }
+
+                        console.log("✅ Tipos de acuerdo cargados correctamente");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("❌ Error cargando CLAARTICULO:", error);
+                        $select.empty().append(
+                            $("<option>").val("").text("Error al cargar")
+                        );
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "No se pudieron cargar los tipos de acuerdo (Artículo).",
+                        });
+                    },
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("❌ Error cargando CLAGENERAL:", error);
+                $select.empty().append(
+                    $("<option>").val("").text("Error al cargar")
+                );
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "No se pudieron cargar los tipos de acuerdo (General).",
+                });
+            },
+        });
+    }
+
+    // -----------------------------
+    // ✅ FUNCIÓN AUXILIAR: Obtener ID Catálogo actual
+    // -----------------------------
+    function getIdCatalogoActual() {
+        const tipoAcuerdo = getTipoAcuerdo();
+
+        if (tipoAcuerdo === "General") {
+            return idCatalogoGeneral;
+        } else if (tipoAcuerdo === "Items") {
+            return idCatalogoArticulo;
+        }
+
+        console.error("❌ Tipo de acuerdo no válido:", tipoAcuerdo);
+        return null;
     }
 
     // -----------------------------
@@ -319,7 +462,6 @@
                     $tbody.append(fila);
                 });
 
-                // Agregar evento para resaltar fila seleccionada (solo visual)
                 initProveedorRowSelection();
             },
             error: function (xhr, status, error) {
@@ -331,18 +473,11 @@
         });
     }
 
-    /**
-     * Inicializa el evento de selección de fila (solo feedback visual)
-     */
     function initProveedorRowSelection() {
         $(document).off("change", ".proveedor-radio").on("change", ".proveedor-radio", function () {
-            // Remover resaltado de todas las filas
             $("#tablaProveedores tbody tr").removeClass("table-active");
-
-            // Resaltar la fila seleccionada
             $(this).closest("tr").addClass("table-active");
 
-            // Guardar temporalmente los datos (NO actualizar el formulario aún)
             const $selected = $(this);
             proveedorTemporal = {
                 idFondo: $selected.data("idfondo"),
@@ -405,7 +540,6 @@
 
         $tbody.empty().append('<tr><td colspan="14" class="text-center">Cargando...</td></tr>');
 
-        // Construir URL con filtros
         let url = `${window.apiBaseUrl}/api/Acuerdo/consultar-articulos`;
 
         console.log("filtros: ", filtros);
@@ -479,9 +613,6 @@
         });
     }
 
-    /**
-     * Carga los filtros usando CHECKBOXES desde el endpoint
-     */
     function cargarFiltrosItems() {
         const idOpcionActual = getIdOpcionSeguro();
         const usuario = getUsuario();
@@ -490,7 +621,6 @@
 
         console.log("📥 Cargando filtros desde consultar-combos...");
 
-        // Mostrar indicador de carga
         $("#filtroMarca").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
         $("#filtroDivision").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
         $("#filtroDepartamento").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
@@ -506,13 +636,11 @@
             success: function (data) {
                 console.log("✅ Datos de combos recibidos:", data);
 
-                // Limpiar contenedores
                 $("#filtroMarca").empty();
                 $("#filtroDivision").empty();
                 $("#filtroDepartamento").empty();
                 $("#filtroClase").empty();
 
-                // Cargar Marcas
                 if (Array.isArray(data.marcas) && data.marcas.length > 0) {
                     data.marcas.forEach((marca) => {
                         const checkboxHtml = `
@@ -531,7 +659,6 @@
                     $("#filtroMarca").html('<small class="text-muted">No hay marcas disponibles</small>');
                 }
 
-                // Cargar Divisiones
                 if (Array.isArray(data.divisiones) && data.divisiones.length > 0) {
                     data.divisiones.forEach((div) => {
                         const checkboxHtml = `
@@ -550,7 +677,6 @@
                     $("#filtroDivision").html('<small class="text-muted">No hay divisiones disponibles</small>');
                 }
 
-                // Cargar Departamentos
                 if (Array.isArray(data.departamentos) && data.departamentos.length > 0) {
                     data.departamentos.forEach((dep) => {
                         const checkboxHtml = `
@@ -569,7 +695,6 @@
                     $("#filtroDepartamento").html('<small class="text-muted">No hay departamentos disponibles</small>');
                 }
 
-                // Cargar Clases
                 if (Array.isArray(data.clases) && data.clases.length > 0) {
                     data.clases.forEach((clase) => {
                         const checkboxHtml = `
@@ -588,7 +713,6 @@
                     $("#filtroClase").html('<small class="text-muted">No hay clases disponibles</small>');
                 }
 
-                // ✅ INICIALIZAR LÓGICA DE CHECKBOXES
                 initMultiSelectFilters();
             },
             error: function (xhr, status, error) {
@@ -610,24 +734,16 @@
         });
     }
 
-    /**
-     * Inicializa la lógica de checkboxes para los filtros
-     */
     function initMultiSelectFilters() {
         console.log("🎯 Inicializando filtros con checkboxes");
 
-        // Manejar checkbox "Todas" de cada categoría
         $(".filtro-todas").off("change").on("change", function () {
             const targetId = $(this).data("target");
             const isChecked = $(this).is(":checked");
-
-            // Marcar/desmarcar todos los checkboxes del grupo
             $(`#${targetId} .filtro-item-checkbox`).prop("checked", isChecked);
-
             console.log(`${isChecked ? "✅" : "❌"} Todas - ${targetId}`);
         });
 
-        // Manejar checkboxes individuales (delegado para elementos dinámicos)
         $(document).off("change", ".filtro-item-checkbox").on("change", ".filtro-item-checkbox", function () {
             const $container = $(this).closest(".border.rounded");
             const $checkboxTodas = $container.find(".filtro-todas");
@@ -635,7 +751,6 @@
             const totalItems = $todosLosItems.length;
             const itemsMarcados = $todosLosItems.filter(":checked").length;
 
-            // Si todos están marcados, marcar "Todas"
             if (itemsMarcados === totalItems) {
                 $checkboxTodas.prop("checked", true);
             } else {
@@ -647,9 +762,6 @@
         });
     }
 
-    /**
-     * Obtiene los valores seleccionados de un grupo de checkboxes
-     */
     function getSelectedFilterValues(containerId) {
         const valores = [];
         $(`#${containerId} .filtro-item-checkbox:checked`).each(function () {
@@ -658,23 +770,13 @@
         return valores;
     }
 
-    /**
-     * Verifica si "Todas" está seleccionado en un filtro
-     */
     function isTodasSelected(checkboxTodasId) {
         return $(`#${checkboxTodasId}`).is(":checked");
     }
 
-    /**
-     * Limpia todos los filtros
-     */
     function limpiarFiltros() {
-        // Marcar todos los checkboxes "Todas"
         $(".filtro-todas").prop("checked", true).trigger("change");
-
-        // Limpiar campo de artículo
         $("#filtroArticulo").val("");
-
         console.log("🧹 Filtros limpiados");
 
         Swal.fire({
@@ -751,7 +853,6 @@
             $tbody.append(nuevaFila);
         });
 
-        // Agregar evento para resaltar fila seleccionada
         $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
             $("#tablaItemsBody tr").removeClass("fila-seleccionada");
             $(this).closest("tr").addClass("fila-seleccionada");
@@ -763,23 +864,16 @@
         let totalProveedor = 0;
 
         $("#tablaItemsBody tr").each(function () {
-            // Obtener costo (ya está en formato currency)
             const costoStr = $(this).find(".item-costo").val();
             const costo = parseCurrencyToNumber(costoStr);
-
-            // Obtener unidades
             const unidades = parseInt($(this).find('input[name="unidadesLimite"]').val()) || 0;
-
-            // Obtener aporte
             const aporteStr = $(this).find(".item-aporte").val();
             const aporte = parseCurrencyToNumber(aporteStr);
 
-            // Calcular comprometido proveedor
             const subtotal = aporte * unidades;
             totalProveedor += subtotal;
             $(this).find(".item-comprometido").val(formatCurrencySpanish(subtotal));
 
-            // Calcular márgenes solo si hay costo
             if (costo > 0) {
                 const precioContado = parseCurrencyToNumber($(this).find(".item-precio-contado").val());
                 const precioTC = parseCurrencyToNumber($(this).find(".item-precio-tc").val());
@@ -800,7 +894,6 @@
                 $(this).find(".margen-credito").text(margenCredito + "%");
             }
         });
-        // Actualizar total proveedor
         $("#fondoValorTotalItems").val(formatCurrencySpanish(totalProveedor));
     }
 
@@ -905,17 +998,15 @@
             const rawValue = $(this).val().replace(",", ".");
             const formattedValue = formatCurrencySpanish(rawValue);
             $(this).val(formattedValue);
-            $dispo.val(formattedValue); // ✅ Copia Valor Total → Disponible
+            $dispo.val(formattedValue);
         });
     }
 
     function initCurrencyItems() {
-        // Formatear campos de precio y aporte al perder el foco
         $(document).on(
             "blur",
             ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte",
             function () {
-                // Solo formatear si no está disabled
                 if (!$(this).prop("disabled")) {
                     const rawValue = $(this).val().replace(",", ".");
                     $(this).val(formatCurrencySpanish(rawValue));
@@ -924,12 +1015,10 @@
             }
         );
 
-        // Recalcular al cambiar unidades
         $(document).on("change", "input[name='unidadesLimite']", function () {
             calcularTotalesItems();
         });
 
-        // Recalcular al escribir en campos de precio (para ver márgenes en tiempo real)
         $(document).on("keyup", ".item-precio-contado, .item-precio-tc, .item-precio-credito", function () {
             if (!$(this).prop("disabled")) {
                 calcularTotalesItems();
@@ -976,7 +1065,7 @@
     }
 
     // -----------------------------
-    // Leer Detalle Items (ACTUALIZADO)
+    // Leer Detalle Items
     // -----------------------------
     function leerDetalleItemsDesdeTabla() {
         const articulos = [];
@@ -984,7 +1073,6 @@
             const $tr = $(this);
             const codigo = $tr.data("codigo");
 
-            // Leer valores
             const costoStr = $tr.find(".item-costo").val();
             const costo = parseCurrencyToNumber(costoStr);
             const unidades = parseInt($tr.find('input[name="unidadesLimite"]').val()) || 0;
@@ -992,14 +1080,12 @@
             const precioTC = parseCurrencyToNumber($tr.find(".item-precio-tc").val());
             const precioCredito = parseCurrencyToNumber($tr.find(".item-precio-credito").val());
             const aporte = parseCurrencyToNumber($tr.find(".item-aporte").val());
-            // Leer márgenes (están en formato "XX.XX%")
             const margenContadoStr = $tr.find(".margen-contado").text().replace("%", "").trim();
             const margenTCStr = $tr.find(".margen-tc").text().replace("%", "").trim();
             const margenCreditoStr = $tr.find(".margen-credito").text().replace("%", "").trim();
             const margenContado = parseFloat(margenContadoStr) || 0;
             const margenTC = parseFloat(margenTCStr) || 0;
             const margenCredito = parseFloat(margenCreditoStr) || 0;
-            // Calcular comprometido
             const comprometido = aporte * unidades;
 
             articulos.push({
@@ -1013,14 +1099,13 @@
                 valorComprometido: comprometido,
                 margenContado: margenContado,
                 margenTarjetaCredito: margenTC,
-                //margenCredito: margenCredito
             });
         });
         return articulos;
     }
 
     // -----------------------------
-    // Guardar (Items) - Articulo
+    // ✅ Guardar (Items) - MODIFICADO
     // -----------------------------
     function guardarItems() {
         console.log("ejecutar guardarItems actual");
@@ -1033,27 +1118,35 @@
             return;
         }
 
-        // Leer datos del formulario
+        // ✅ OBTENER ID CATÁLOGO DINÁMICAMENTE
+        const idTipoAcuerdoDinamico = getIdCatalogoActual();
+
+        if (!idTipoAcuerdoDinamico) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo determinar el tipo de acuerdo. Recargue la página.",
+            });
+            return;
+        }
+
+        console.log(`📌 Guardando Items con ID Tipo Acuerdo: ${idTipoAcuerdoDinamico}`);
+
         const idFondo = parseInt($("#fondoProveedorIdItems").val(), 10) || 0;
         const idMotivo = parseInt($("#fondoTipoItems").val(), 10) || 0;
         const descripcion = $("#fondoDescripcionItems").val().trim();
         const fechaInicio = toISOFromDDMMYYYY($("#fondoFechaInicioItems").val());
         const fechaFin = toISOFromDDMMYYYY($("#fondoFechaFinItems").val());
-
-        // Leer valor total (es calculado)
         const valorTotal = parseCurrencyToNumber($("#fondoValorTotalItems").val());
-
-        // Leer artículos de la tabla
         const articulos = leerDetalleItemsDesdeTabla();
 
-        // Construir JSON
         const data = {
             tipoclaseetiqueta: "ACARTICULO",
             idopcion: idOpcionActual,
             idcontrolinterfaz: "BTNGRABAR",
             idevento: "EVCLICK",
             acuerdo: {
-                idTipoAcuerdo: 2, // 2 para Items (ajusta según tu lógica)
+                idTipoAcuerdo: idTipoAcuerdoDinamico, // ✅ DINÁMICO
                 idMotivoAcuerdo: idMotivo,
                 descripcion: descripcion,
                 fechaInicioVigencia: fechaInicio,
@@ -1089,7 +1182,6 @@
         }).then((result) => {
             if (!result.isConfirmed) return;
 
-            // Mostrar loading
             Swal.fire({
                 title: 'Guardando...',
                 text: 'Por favor espere',
@@ -1122,7 +1214,6 @@
                         showConfirmButton: false,
                         timer: 2000,
                     }).then(() => {
-                        // Limpiar formulario
                         $("#fondoTipoItems").val("");
                         $("#fondoProveedorItems").val("Seleccione...");
                         $("#fondoProveedorIdItems").val("");
@@ -1143,7 +1234,6 @@
                         if (errorResponse.message) {
                             mensajeError = errorResponse.message;
                         } else if (errorResponse.errors) {
-                            // Si hay errores de validación
                             const errores = Object.values(errorResponse.errors).flat();
                             mensajeError = errores.join('<br>');
                         }
@@ -1222,7 +1312,7 @@
     }
 
     // -----------------------------
-    // Guardar (General)
+    // ✅ Guardar (General) - MODIFICADO
     // -----------------------------
     function guardarGeneral() {
         if (!ensureApiBaseUrl()) return;
@@ -1234,6 +1324,20 @@
             return;
         }
 
+        // ✅ OBTENER ID CATÁLOGO DINÁMICAMENTE
+        const idTipoAcuerdoDinamico = getIdCatalogoActual();
+
+        if (!idTipoAcuerdoDinamico) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo determinar el tipo de acuerdo. Recargue la página.",
+            });
+            return;
+        }
+
+        console.log(`📌 Guardando General con ID Tipo Acuerdo: ${idTipoAcuerdoDinamico}`);
+
         const valorTotal = parseCurrencyToNumber($("#fondoValorTotalGeneral").val());
         const valorDisponible = parseCurrencyToNumber($("#fondoDisponibleGeneral").val());
 
@@ -1243,7 +1347,7 @@
             idcontrolinterfaz: "BTNGRABAR",
             idevento: "EVCLICK",
             acuerdo: {
-                idTipoAcuerdo: 1,
+                idTipoAcuerdo: idTipoAcuerdoDinamico, // ✅ DINÁMICO
                 idMotivoAcuerdo: parseInt($("#fondoTipoGeneral").val(), 10) || 0,
                 descripcion: $("#fondoDescripcionGeneral").val().trim(),
                 fechaInicioVigencia: toISOFromDDMMYYYY($("#fondoFechaInicioGeneral").val()),
@@ -1330,9 +1434,6 @@
         });
     }
 
-    /**
-     * Modifica el item seleccionado habilitando los campos editables
-     */
     function modificarItemSeleccionado() {
         const $radioSeleccionado = $("#tablaItemsBody .item-row-radio:checked");
 
@@ -1347,12 +1448,9 @@
         }
 
         const $fila = $radioSeleccionado.closest("tr");
-
-        // Verificar si ya está en modo edición
         const yaEnEdicion = !$fila.find('input[name="unidadesLimite"]').prop("disabled");
 
         if (yaEnEdicion) {
-            // Guardar cambios y deshabilitar
             Swal.fire({
                 title: "Guardar Cambios",
                 text: "¿Desea guardar los cambios realizados?",
@@ -1364,10 +1462,7 @@
                 cancelButtonText: "Cancelar"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Deshabilitar campos editables
                     $fila.find(".celda-editable input").prop("disabled", true);
-
-                    // Recalcular totales
                     calcularTotalesItems();
 
                     Swal.fire({
@@ -1381,10 +1476,7 @@
                 }
             });
         } else {
-            // Habilitar campos editables (amarillos)
             $fila.find(".celda-editable input").prop("disabled", false);
-
-            // Enfocar el primer campo editable
             $fila.find('input[name="unidadesLimite"]').focus();
 
             Swal.fire({
@@ -1398,9 +1490,6 @@
         }
     }
 
-    /**
-     * Elimina el item seleccionado
-     */
     function eliminarItemSeleccionado() {
         const $radioSeleccionado = $("#tablaItemsBody .item-row-radio:checked");
 
@@ -1444,10 +1533,10 @@
     }
 
     // -----------------------------
-    // Init principal
+    // ✅ Init principal - MODIFICADO
     // -----------------------------
     $(document).ready(function () {
-        console.log("=== CrearAcuerdo INIT (CON VALIDACIÓN DE PROVEEDOR) ===");
+        console.log("=== CrearAcuerdo INIT (CON CARGA DINÁMICA DE TIPOS) ===");
 
         toggleAcuerdoForm();
         $("#acuerdoTipo").on("change", function () {
@@ -1458,14 +1547,18 @@
             }
         });
 
-        // Cargar config + combos
+        // ✅ Cargar config + tipos de acuerdo + combos
         $.get("/config")
             .done(function (config) {
                 window.apiBaseUrl = config.apiBaseUrl;
                 console.log("apiBaseUrl:", window.apiBaseUrl);
 
-                cargarMotivosGeneral();
-                cargarMotivosItems();
+                // ✅ CARGAR TIPOS DE ACUERDO PRIMERO
+                cargarTiposAcuerdo(function () {
+                    // ✅ Después cargar motivos
+                    cargarMotivosGeneral();
+                    cargarMotivosItems();
+                });
             })
             .fail(function (xhr) {
                 console.error("ERROR /config:", xhr.status, xhr.responseText);
@@ -1476,24 +1569,18 @@
                 });
             });
 
-        // ========== MODAL PROVEEDORES - EVENTOS ==========
-
-        // Al abrir el modal
+        // Modal Proveedores
         $("#modalConsultaProveedor").on("show.bs.modal", function () {
-            // Limpiar selección temporal
             proveedorTemporal = null;
             consultarProveedor();
         });
 
-        // Al cerrar el modal sin aceptar
         $("#modalConsultaProveedor").on("hidden.bs.modal", function () {
-            // Limpiar selección temporal y visual
             proveedorTemporal = null;
             $("#tablaProveedores tbody tr").removeClass("table-active");
             $("#tablaProveedores tbody input[name='selectProveedor']").prop("checked", false);
         });
 
-        // Botón Aceptar Proveedor
         $("#btnAceptarProveedor").on("click", function () {
             const $selected = $("#tablaProveedores tbody input[name='selectProveedor']:checked");
 
@@ -1507,7 +1594,6 @@
                 return;
             }
 
-            // Verificar que tengamos los datos temporales
             if (!proveedorTemporal) {
                 Swal.fire({
                     icon: "error",
@@ -1525,7 +1611,6 @@
                 disponible: proveedorTemporal.disponible,
             });
 
-            // AHORA SÍ actualizar el formulario
             setFondoEnFormActivo({
                 idFondo: proveedorTemporal.idFondo,
                 display: display,
@@ -1535,7 +1620,6 @@
                 liquidado: proveedorTemporal.liquidado,
             });
 
-            // Mostrar confirmación
             Swal.fire({
                 toast: true,
                 position: "top-end",
@@ -1545,24 +1629,18 @@
                 timer: 1500,
             });
 
-            // Cerrar modal
             $("#modalConsultaProveedor").modal("hide");
-
-            // Limpiar selección temporal
             proveedorTemporal = null;
         });
 
-        // Botones Cerrar modal (X y botón Cerrar)
         $("#modalConsultaProveedor .btn-secondary, #modalConsultaProveedor .btn-close").on("click", function () {
             proveedorTemporal = null;
         });
 
-        // ========== MODAL ITEMS - EVENTOS ==========
-
+        // Modal Items
         $("#modalConsultaItems").on("show.bs.modal", function () {
             cargarFiltrosItems();
 
-            // Mostrar mensaje inicial en la tabla
             const $tbody = $("#tablaItemsConsulta tbody");
             $tbody.empty().append(`
                 <tr>
@@ -1574,13 +1652,11 @@
             `);
         });
 
-        // Checkbox "Todos" en modal Items
         $("#checkTodosItems").on("change", function () {
             const isChecked = $(this).is(":checked");
             $("#tablaItemsConsulta tbody .item-checkbox").prop("checked", isChecked);
         });
 
-        // Botón Procesar Selección
         $("#btnProcesarFiltros").on("click", function () {
             console.log("🔍 Procesando filtros...");
 
@@ -1590,7 +1666,6 @@
             const clasesSeleccionadas = getSelectedFilterValues('filtroClase');
             const articuloBuscado = $("#filtroArticulo").val().trim();
 
-            // Validar que al menos haya algo seleccionado
             if (marcasSeleccionadas.length === 0 &&
                 divisionesSeleccionadas.length === 0 &&
                 departamentosSeleccionados.length === 0 &&
@@ -1628,12 +1703,10 @@
             consultarItems(filtros);
         });
 
-        // Botón Limpiar Filtros
         $("#btnLimpiarFiltros").on("click", function () {
             limpiarFiltros();
         });
 
-        // Botón Seleccionar Items
         $("#btnSeleccionarItems").on("click", function () {
             const itemsSeleccionados = [];
 
@@ -1660,7 +1733,6 @@
             $("#tablaItemsConsulta tbody .item-checkbox").prop("checked", false);
         });
 
-        // Botones de gestión de items
         $("#btnAddItem").on("click", function (e) {
             e.preventDefault();
             $("#modalConsultaItems").modal("show");
@@ -1676,12 +1748,10 @@
             eliminarItemSeleccionado();
         });
 
-        // Datepickers + moneda
         initDatepickers();
         initCurrencyGeneral();
         initCurrencyItems();
 
-        // Botones guardar
         $("#btnGuardarAcuerdoGeneral").on("click", function (e) {
             e.preventDefault();
             guardarGeneral();
@@ -1692,7 +1762,6 @@
             guardarItems();
         });
 
-        // Botón Cancelar General
         $("#formGeneral button.btn-secondary").on("click", function (e) {
             e.preventDefault();
 
@@ -1707,7 +1776,6 @@
                 cancelButtonText: 'No, Continuar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Limpiar formulario General
                     $("#fondoTipoGeneral").val("");
                     $("#fondoProveedorGeneral").val("Seleccione...");
                     $("#fondoProveedorIdGeneral").val("");
@@ -1729,8 +1797,6 @@
             });
         });
 
-        // Botón Cancelar Items
-        // Botón Cancelar Items
         $("#formItems button.btn-secondary").on("click", function (e) {
             e.preventDefault();
 
@@ -1745,7 +1811,6 @@
                 cancelButtonText: 'No, Continuar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Limpiar formulario Items
                     $("#fondoTipoItems").val("");
                     $("#fondoProveedorItems").val("Seleccione...");
                     $("#fondoProveedorIdItems").val("");
@@ -1755,7 +1820,6 @@
                     $("#fondoValorTotalItems").val("");
                     $("#tablaItemsBody").empty();
 
-                    // ✅ AGREGAR ESTA LÍNEA: Volver a General
                     $("#acuerdoTipo").val("General").trigger("change");
 
                     Swal.fire({
