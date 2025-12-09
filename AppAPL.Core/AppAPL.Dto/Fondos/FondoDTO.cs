@@ -113,10 +113,10 @@ namespace AppAPL.Dto.Fondos
     {
         public int? Entidad { get; set; }
         public int? Identidad { get; set; }
-        public int? idTipoProceso { get; set; }
-        public string? idEtiquetaTipoProceso { get; set; }
+        public int? IdTipoProceso { get; set; }
+        public string? IdEtiquetaTipoProceso { get; set; }
         public string? Comentario { get; set; }
-        public string? idEtiquetaEstado { get; set; }
+        public string? IdEtiquetaEstado { get; set; }
         public int? IdAprobacion { get; set; }
         public string? UsuarioAprobador { get; set; }
 

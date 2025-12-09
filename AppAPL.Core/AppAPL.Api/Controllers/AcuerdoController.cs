@@ -88,7 +88,25 @@ namespace AppAPL.Api.Controllers
             }
         }
 
-     
 
+        [HttpPost("aprobar-acuerdo")]
+        [Email("ENTACUERDO", TipoProceso.Aprobacion)]
+        public async Task<ActionResult<ControlErroresDTO>> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo)
+        {
+
+            var retorno = await servicio.AprobarAcuerdo(acuerdo);
+
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
+        }
     }
 }

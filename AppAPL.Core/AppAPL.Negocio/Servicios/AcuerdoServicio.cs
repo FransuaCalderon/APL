@@ -35,5 +35,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo)
             => repo.ObtenerBandejaAprobacionPorId(idAcuerdo);
+
+        public Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo)
+            => repo.AprobarAcuerdo(acuerdo);
     }
 }

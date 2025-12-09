@@ -140,7 +140,7 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    string estadoCorreo = reqAprobacion.idEtiquetaEstado switch
+                    string estadoCorreo = reqAprobacion.IdEtiquetaEstado switch
                     {
                         "ESTADOAPROBADO" => "APROBADO",
                         "ESTADONEGADO" => "NEGADO"

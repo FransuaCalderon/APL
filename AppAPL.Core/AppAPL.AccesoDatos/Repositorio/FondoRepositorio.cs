@@ -267,10 +267,10 @@ namespace AppAPL.AccesoDatos.Repositorio
             {
                 p_entidad = fondo.Entidad,
                 p_identidad = fondo.Identidad,
-                p_idtipoproceso = fondo.idTipoProceso,
-                p_idetiquetatipoproceso = fondo.idEtiquetaTipoProceso,
+                p_idtipoproceso = fondo.IdTipoProceso,
+                p_idetiquetatipoproceso = fondo.IdEtiquetaTipoProceso,
                 p_comentario = fondo.Comentario,
-                p_idetiquetaestado = fondo.idEtiquetaEstado,
+                p_idetiquetaestado = fondo.IdEtiquetaEstado,
                 p_idaprobacion = fondo.IdAprobacion,
                 p_usuarioaprobador = fondo.UsuarioAprobador,
 

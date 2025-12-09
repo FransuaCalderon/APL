@@ -65,7 +65,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<FondoAcuerdoDTO>(
-                "APL_PKG_ACUERDOS.listar_consulta_fondo",
+                "APL_PKG_ACUERDOS.sp_listar_consulta_fondo",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -267,6 +267,55 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
             return datos.FirstOrDefault();
+        }
+
+        public async Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_entidad = acuerdo.Entidad,
+                p_identidad = acuerdo.Identidad,
+                p_idtipoproceso = acuerdo.IdTipoProceso,
+                p_idetiquetatipoproceso = acuerdo.IdEtiquetaTipoProceso,
+                p_comentario = acuerdo.Comentario,
+                p_idetiquetaestado = acuerdo.IdEtiquetaEstado,
+                p_idaprobacion = acuerdo.IdAprobacion,
+                p_usuarioaprobador = acuerdo.UsuarioAprobador,
+
+                p_idopcion = acuerdo.IdOpcion,
+                p_idcontrolinterfaz = acuerdo.IdControlInterfaz,
+                p_idevento_etiqueta = acuerdo.IdEvento,
+                p_nombreusuario = acuerdo.NombreUsuario
+            };
+
+            logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "APL_PKG_ACUERDOS.sp_proceso_aprobacion_acuerdo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+
+            var retorno = new ControlErroresDTO()
+            {
+                codigoRetorno = codigoSalida,
+                mensaje = mensajeSalida,
+                filasAfectadas = filasAfectadas
+            };
+
+            return retorno;
         }
     }
 }

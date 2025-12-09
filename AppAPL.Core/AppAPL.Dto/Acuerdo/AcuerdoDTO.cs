@@ -237,5 +237,23 @@ namespace AppAPL.Dto.Acuerdo
 
     }
 
-    
+    public class AprobarAcuerdoRequest
+    {
+        public int? Entidad { get; set; }
+        public int? Identidad { get; set; }
+        public int? IdTipoProceso { get; set; }
+        public string? IdEtiquetaTipoProceso { get; set; }
+        public string? Comentario { get; set; }
+        public string? IdEtiquetaEstado { get; set; }
+        public int? IdAprobacion { get; set; }
+        public string? UsuarioAprobador { get; set; }
+
+        public int? IdOpcion { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
+        public string? NombreUsuario { get; set; }
+
+    }
+
+
 }
