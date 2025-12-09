@@ -1036,7 +1036,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     END sp_consulta_bandeja_aprobacion_por_id;
     
        
-    /*
+        /*
     =========================================================
     Descripción: Procesa la aprobación/rechazo de un acuerdo según el tipo de proceso (Creación o Inactivación)
     =========================================================
@@ -1062,7 +1062,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_idestado                NUMBER;
         v_estadonuevo             NUMBER;
         v_idestadoinactivo        NUMBER;
-        --v_idestadovigente         NUMBER;
         
         -- Contador de registros pendientes
         v_registros_pendientes_aprobacion NUMBER := 0;
@@ -1085,8 +1084,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_idevento                NUMBER;
 
     BEGIN
-        -- Inicializar código de salida
-        p_codigo_salida := 1;
         
         -- =========================================================================
         -- VARIABLES PARA EL LOG
@@ -1107,7 +1104,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         WHERE idaprobacion = p_idaprobacion;
         
         IF v_existe_aprobacion = 0 THEN
-            p_codigo_salida := 0;
+            p_codigo_salida := 1;
             p_mensaje_salida := 'ERROR: No existe la aprobación con ID ' || p_idaprobacion;
             RETURN;
         END IF;
@@ -1119,7 +1116,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         WHERE idacuerdo = p_identidad;
         
         IF v_existe_acuerdo = 0 THEN
-            p_codigo_salida := 0;
+            p_codigo_salida := 1;
             p_mensaje_salida := 'ERROR: No existe el acuerdo con ID ' || p_identidad;
             RETURN;
         END IF;
@@ -1136,11 +1133,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
              
         -- ID del estado INACTIVO
         SELECT idcatalogo INTO v_idestadoinactivo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOINACTIVO';
-            
-        -- ID del estado VIGENTE (para acuerdos aprobados)
-        --SELECT idcatalogo INTO v_idestadovigente FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOVIGENTE';
-            
-            
+                 
         -- =========================================================================
         -- PASO 1: ACTUALIZAR APROBACIÓN
         -- =========================================================================
@@ -1154,7 +1147,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             idaprobacion = p_idaprobacion;
         
         IF SQL%ROWCOUNT = 0 THEN
-            p_codigo_salida := 0;
+            p_codigo_salida := 1;
             p_mensaje_salida := 'ERROR: No se pudo actualizar la aprobación';
             ROLLBACK;
             RETURN;
@@ -1242,7 +1235,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     idacuerdo = p_identidad;
                     
                 IF SQL%ROWCOUNT = 0 THEN
-                    p_codigo_salida := 0;
+                    p_codigo_salida := 1;
                     p_mensaje_salida := 'ERROR: No se pudo actualizar el acuerdo';
                     ROLLBACK;
                     RETURN;
@@ -1255,7 +1248,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 WHERE 
                     idacuerdo = p_identidad;
                 
-                p_codigo_salida := 1;
+                p_codigo_salida := 0;
                 p_mensaje_salida := 'OK: Acuerdo creado y aprobado exitosamente';
                 
             -- -----------------------------------------------------------------
@@ -1277,7 +1270,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                         idacuerdo = p_identidad;
                         
                     IF SQL%ROWCOUNT = 0 THEN
-                        p_codigo_salida := 0;
+                        p_codigo_salida := 1;
                         p_mensaje_salida := 'ERROR: No se pudo inactivar el acuerdo';
                         ROLLBACK;
                         RETURN;
@@ -1291,12 +1284,12 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     WHERE 
                         idacuerdo = p_identidad;
                     
-                    p_codigo_salida := 1;
+                    p_codigo_salida := 0;
                     p_mensaje_salida := 'OK: Acuerdo inactivado exitosamente';
                     
                 ELSE
                     -- Rechazo de inactivación
-                    p_codigo_salida := 1;
+                    p_codigo_salida := 0;
                     p_mensaje_salida := 'OK: Aprobación rechazada, acuerdo no inactivado';
                     
                     -- Quitar marca de proceso de aprobación
@@ -1320,7 +1313,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 END IF;
                 
             ELSE
-                p_codigo_salida := 0;
+                p_codigo_salida := 1;
                 p_mensaje_salida := 'ERROR: Tipo de proceso no reconocido: ' || p_idetiquetatipoproceso;
                 ROLLBACK;
                 RETURN;
@@ -1328,7 +1321,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             
         ELSE
             -- Aún hay aprobaciones pendientes
-            p_codigo_salida := 1;
+            p_codigo_salida := 0;
             p_mensaje_salida := 'OK: Aprobación registrada. Quedan ' || 
                                v_registros_pendientes_aprobacion || ' aprobaciones pendientes';
         END IF;
@@ -1367,7 +1360,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
-            p_codigo_salida := 0;
+            p_codigo_salida := 1;
             p_mensaje_salida := 'Error en proceso de aprobación de acuerdo: ' || SQLERRM;
             
     END sp_proceso_aprobacion_acuerdo;
