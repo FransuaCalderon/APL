@@ -159,25 +159,27 @@ function crearListado(data) {
 
     html += "  <thead>";
 
-    // Fila del Título ROJO
+    // Fila del Título ROJO - colspan actualizado a 13 columnas
     html += "    <tr>";
-    html += "      <th colspan='11' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
+    html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
     html += "          BANDEJA DE APROBACIÓN - ACUERDOS";
     html += "      </th>";
     html += "    </tr>";
 
-    // Fila de las Cabeceras - Ajusta según los campos que devuelve tu API
+    // Fila de las Cabeceras - Exactamente como en tu imagen
     html += "    <tr>";
     html += "      <th>Acción</th>";
     html += "      <th>Solicitud</th>";
-    html += "      <th>ID Acuerdo</th>";
+    html += "      <th>IdAcuerdo</th>";
     html += "      <th>Descripción</th>";
-    html += "      <th>Proveedor</th>";
-    html += "      <th>Tipo Acuerdo</th>";
+    html += "      <th>Fondo</th>";
+    html += "      <th>Clase de Acuerdo</th>";
+    html += "      <th>Valor Fondo</th>";
     html += "      <th>Fecha Inicio</th>";
     html += "      <th>Fecha Fin</th>";
-    html += "      <th>Monto</th>";
-    html += "      <th>Moneda</th>";
+    html += "      <th>Valor Disponi</th>";
+    html += "      <th>Valor Comprometido</th>";
+    html += "      <th>Valor Liquidado</th>";
     html += "      <th>Estado</th>";
     html += "    </tr>";
     html += "  </thead>";
@@ -186,7 +188,7 @@ function crearListado(data) {
     for (var i = 0; i < data.length; i++) {
         var acuerdo = data[i];
 
-        // Botón de visualizar (puedes implementar la función más adelante)
+        // Botón de visualizar
         var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + acuerdo.idacuerdo + ', ' + acuerdo.idaprobacion + ')">' +
             '<i class="fa-regular fa-eye"></i>' +
             '</button>';
@@ -196,13 +198,20 @@ function crearListado(data) {
         html += "  <td>" + (acuerdo.solicitud ?? "") + "</td>";
         html += "  <td>" + (acuerdo.idacuerdo ?? "") + "</td>";
         html += "  <td>" + (acuerdo.descripcion ?? "") + "</td>";
-        html += "  <td>" + (acuerdo.proveedor ?? "") + "</td>";
-        html += "  <td>" + (acuerdo.tipo_acuerdo ?? "") + "</td>";
+        html += "  <td>" + (acuerdo.nombre_tipo_fondo ?? "") + "</td>";
+        // DESPUÉS
+        var claseAcuerdoHTML = (acuerdo.nombre_clase_acuerdo ?? "");
+        if (acuerdo.cantidad_articulos > 0) {
+            claseAcuerdoHTML += ' <span class="badge bg-info ms-1">' + acuerdo.cantidad_articulos + '</span>';
+        }
+        html += "  <td>" + claseAcuerdoHTML + "</td>";
+        html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_acuerdo) + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(acuerdo.fecha_inicio) + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(acuerdo.fecha_fin) + "</td>";
-        html += "  <td class='text-end'>" + formatearMoneda(acuerdo.monto) + "</td>";
-        html += "  <td class='text-center'>" + (acuerdo.moneda ?? "") + "</td>";
-        html += "  <td>" + (acuerdo.nombre_estado ?? "") + "</td>";
+        html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_disponible) + "</td>";
+        html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_comprometido) + "</td>";
+        html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_liquidado) + "</td>";
+        html += "  <td>" + (acuerdo.nombre_estado_fondo ?? "") + "</td>";
         html += "</tr>";
     }
 
@@ -217,11 +226,11 @@ function crearListado(data) {
         lengthMenu: [5, 10, 25, 50],
         pagingType: 'full_numbers',
         columnDefs: [
-            { targets: 0, width: "8%", className: "dt-center", orderable: false },
+            { targets: 0, width: "6%", className: "dt-center", orderable: false },
             { targets: 1, width: "8%", className: "dt-center" },
             { targets: 2, width: "8%", className: "dt-center" },
-            { targets: [6, 7, 9], className: "dt-center" },
-            { targets: 8, className: "dt-right" },
+            { targets: [7, 8], className: "dt-center" },
+            { targets: [6, 9, 10, 11], className: "dt-right" },
         ],
         order: [[2, 'desc']],
         language: {
