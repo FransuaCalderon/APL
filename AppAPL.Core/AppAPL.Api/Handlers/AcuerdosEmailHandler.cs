@@ -10,7 +10,8 @@ using AppAPL.Dto.Fondos;
 namespace AppAPL.Api.Handlers
 {
     public class AcuerdosEmailHandler (IEmailRepositorio emailRepo, ILogger<AcuerdosEmailHandler> logger,
-        IFondoRepositorio fondoRepo, IProveedorRepositorio proveedorRepo, ICatalogoRepositorio catalogoRepo) : HandlerBase(emailRepo, logger), IAcuerdosEmailHandler
+        IFondoRepositorio fondoRepo, IProveedorRepositorio proveedorRepo, ICatalogoRepositorio catalogoRepo,
+        IAcuerdoRepositorio acuerdoRepo) : HandlerBase(emailRepo, logger), IAcuerdosEmailHandler
     {
         public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, AcuerdoDTO? acuerdoAntiguo = null, string? responseBody = null)
         {
@@ -99,7 +100,73 @@ namespace AppAPL.Api.Handlers
                     break;
 
                 case TipoProceso.Aprobacion:
+                    var reqAprobacion = JsonSerializer.Deserialize<AprobarAcuerdoRequest>(requestBody, jsonOptions);
+                    if (reqAprobacion == null || reqAprobacion.Identidad == null)
+                    {
+                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        return;
+                    }
+
+                    string estadoCorreo = reqAprobacion.IdEtiquetaEstado switch
+                    {
+                        "ESTADOAPROBADO" => "APROBADO",
+                        "ESTADONEGADO" => "NEGADO"
+                    };
+
+                    var acuerdo = await acuerdoRepo.ObtenerPorIdAsync((int)reqAprobacion.Identidad);
+                    if (acuerdo == null)
+                    {
+                        logger.LogWarning($"no se encontro el acuerdo con el idacuerdo: {reqAprobacion.Identidad}");
+                        return;
+                    }
+
+                    var acuerdoFondo = await acuerdoRepo.ObtenerAcuerdoFondoPorIdAsync((int)reqAprobacion.Identidad);
+                    if (acuerdoFondo == null)
+                    {
+                        logger.LogWarning($"no se encontro el acuerdo fondo con el idacuerdo: {reqAprobacion.Identidad}");
+                        return;
+                    }
+
                     
+                    var fondo2 = await fondoRepo.ObtenerPorIdAsync(acuerdoFondo.IdFondo);
+                    if (fondo2 == null)
+                    {
+                        logger.LogWarning($"no se encontro el fondo con el id: {acuerdoFondo.IdFondo}");
+                        return;
+                    }
+
+                    IdProveedor = fondo2.IdProveedor;
+                    var proveedor2 = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
+
+                    if (proveedor2 == null)
+                    {
+                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
+                        return;
+                    }
+
+                    var catalogo2 = await catalogoRepo.ObtenerPorIdAsync((int)fondo2.IdTipoFondo);
+                    if (catalogo2 == null)
+                    {
+                        logger.LogWarning($"no se encontro catalogo con el idTipoFondo: {fondo2.IdTipoFondo}");
+                        return;
+                    }
+
+                    camposPlantilla = new Dictionary<string, string>
+                        {
+                            { "Nombre", "" },
+                            { "Estado", estadoCorreo },
+                            { "IdAcuerdo", reqAprobacion.Identidad.ToString() },
+                            { "NombreProveedor", proveedor2.Nombre },
+                            
+                            { "ValorAcuerdo", acuerdoFondo.ValorAporte.ToString() },
+                            { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdoFondo.ValorAporte) },
+                            { "FechaInicio", acuerdo.FechaInicioVigencia.ToString() },
+                            { "FechaFin", acuerdo.FechaFinVigencia.ToString() },
+                            { "IdFondo", fondo2.IdFondo.ToString() },
+                            { "TipoFondo", catalogo2.Nombre },
+                            { "Firma", "" },
+                            
+                        };
                     break;
 
                 case TipoProceso.Inactivacion:

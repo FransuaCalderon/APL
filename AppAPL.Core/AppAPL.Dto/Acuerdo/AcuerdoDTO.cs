@@ -20,6 +20,20 @@ namespace AppAPL.Dto.Acuerdo
         public DateTime? FechaModifica { get; set; }
         public string? IdUsuarioModifica { get; set; }
         public int IdEstadoRegistro { get; set; }
+        public string MarcaProcesoAprobacion { get; set; }
+        public int NumeroLoteAprobacion { get; set; }
+    }
+
+    public class AcuerdoFondoDTO
+    {
+        public int IdAcuerdoFondo { get; set; }
+        public int IdAcuerdo { get; set; }
+        public int IdFondo { get; set; }
+        public decimal ValorAporte { get; set; }
+        public decimal ValorDisponible { get; set; }
+        public decimal ValorComprometido { get; set; }
+        public decimal ValorLiquidado { get; set; }
+        public int IdEstadoRegistro { get; set; }
     }
 
     public class FondoAcuerdoDTO
@@ -117,8 +131,8 @@ namespace AppAPL.Dto.Acuerdo
         public int Id_Tipo_Fondo { get; set; }
         public string nombre_tipo_fondo { get; set; }
         public string nombre_proveedor { get; set; }
-        public int id_tipo_acuerdo { get; set; }
-        public string nombre_tipo_acuerdo { get; set; }
+        public int id_tipo_clase_acuerdo { get; set; }
+        public string nombre_clase_acuerdo { get; set; }
         public int cantidad_articulos { get; set; }
         public decimal valor_acuerdo { get; set; }
         public DateTime fecha_inicio { get; set; }
