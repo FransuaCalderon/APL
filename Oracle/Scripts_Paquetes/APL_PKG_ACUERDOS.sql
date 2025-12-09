@@ -130,7 +130,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_fechainiciovigencia   TIMESTAMP;
         v_fechafinvigencia      TIMESTAMP;
         v_idusuarioingreso      VARCHAR2(50);
-        v_idestadoregistro      NUMBER;
         v_marcaproceso          CHAR(1); --
         v_fechaingreso          TIMESTAMP := SYSTIMESTAMP;
         
@@ -205,7 +204,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             TO_TIMESTAMP(JSON_VALUE(p_json_cabecera, '$.fechaInicioVigencia'), 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'),
             TO_TIMESTAMP(JSON_VALUE(p_json_cabecera, '$.fechaFinVigencia'), 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'),
             JSON_VALUE(p_json_cabecera, '$.idUsuarioIngreso'),
-            JSON_VALUE(p_json_cabecera, '$.idEstadoRegistro'),
             NVL(JSON_VALUE(p_json_cabecera, '$.marcaProcesoAprobacion'), ' ')
         INTO 
             v_idtipoacuerdo,
@@ -214,7 +212,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             v_fechainiciovigencia,
             v_fechafinvigencia,
             v_idusuarioingreso,
-            v_idestadoregistro,
             v_marcaproceso
         FROM DUAL;
         
@@ -320,7 +317,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 v_idusuarioingreso,
                 NULL,
                 NULL,
-                v_idestadoregistro,
+                v_estado_registro,
                 v_marcaproceso,
                 v_numero_lote_aprobacion
             );
@@ -363,8 +360,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 'fechainiciovigencia'   VALUE TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
                 'fechafinvigencia'      VALUE TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
                 'fechaingreso'          VALUE TO_CHAR(a.fechaingreso, 'YYYY-MM-DD HH24:MI:SS'),
-                'idusuarioingreso'      VALUE a.idusuarioingreso,
-                'idestadoregistro'      VALUE a.idestadoregistro
+                'idusuarioingreso'      VALUE a.idusuarioingreso
+                --'idestadoregistro'      VALUE a.idestadoregistro
             ) INTO v_json_acuerdo
             FROM apl_tb_acuerdo a
             WHERE a.idacuerdo = v_idacuerdo;
@@ -376,8 +373,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 'valoraporte'       VALUE f.valoraporte,
                 'valordisponible'   VALUE f.valordisponible,
                 'valorcomprometido' VALUE f.valorcomprometido,
-                'valorliquidado'    VALUE f.valorliquidado,
-                'idestadoregistro'  VALUE f.idestadoregistro
+                'valorliquidado'    VALUE f.valorliquidado
+                --'idestadoregistro'  VALUE f.idestadoregistro
             ) INTO v_json_fondo_log
             FROM apl_tb_acuerdofondo f
             WHERE f.idacuerdo = v_idacuerdo;
@@ -563,7 +560,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 v_idusuarioingreso,
                 NULL,
                 NULL,
-                v_idestadoregistro,
+                v_estado_registro,
                 v_marcaproceso,
                 v_numero_lote_aprobacion
             );
@@ -740,8 +737,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                         numeroloteaprobacion
                     )
                     SELECT
-                        v_entidad_acuerdo        AS entidad,         -- SIEMPRE el catálogo ENTFONDO
-                        v_idfondo                AS identidad,       -- el IdFondo recién creado
+                        v_entidad_acuerdo        AS entidad,         
+                        v_idfondo                AS identidad,       
                         v_tipo_creacion          AS idtipoproceso,   -- TPCREACION
                         v_idusuarioingreso       AS idusersolicitud,
                         v_idusuarioingreso       AS nombreusersolicitud,
