@@ -4,7 +4,7 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
 
 
     -- Declaración de procedimientos públicos
-    PROCEDURE listar_consulta_fondo(
+    PROCEDURE sp_listar_consulta_fondo(
         p_cursor    OUT t_cursor,
         p_codigo    OUT NUMBER,
         p_mensaje   OUT VARCHAR2
@@ -40,19 +40,39 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_mensaje_salida          OUT VARCHAR2
     );
     
+    --Procedimiento para aprobar Acuerdo
+    PROCEDURE sp_proceso_aprobacion_acuerdo (
+        p_entidad                   IN NUMBER,
+        p_identidad                 IN NUMBER,
+        p_idtipoproceso             IN NUMBER,
+        p_idetiquetatipoproceso     IN VARCHAR2,
+        p_comentario                IN VARCHAR2,
+        p_idetiquetaestado          IN VARCHAR2,
+        p_idaprobacion              IN NUMBER,
+        p_usuarioaprobador          IN VARCHAR2,
+        -- Parámetros para el LOG
+        p_idopcion                  IN NUMBER, 
+        p_idcontrolinterfaz         IN VARCHAR2,
+        p_idevento_etiqueta         IN VARCHAR2,
+        p_nombreusuario             IN VARCHAR2,  
+        p_codigo_salida             OUT NUMBER,
+        p_mensaje_salida            OUT VARCHAR2
+    );
+    
    
 
 END APL_PKG_ACUERDOS;
 
 
 ------------------------------------------body----
+
 create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     /*
     =========================================================
     Descripción: Lista los fondos con estado VIGENTE y valor disponible mayor a 0
     =========================================================
     */
-    PROCEDURE listar_consulta_fondo(
+    PROCEDURE sp_listar_consulta_fondo(
         p_cursor    OUT t_cursor,
         p_codigo    OUT NUMBER,
         p_mensaje   OUT VARCHAR2
@@ -102,7 +122,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             p_codigo  := SQLCODE;
             p_mensaje := 'Error: ' || SQLERRM;
                 
-    END listar_consulta_fondo;
+    END sp_listar_consulta_fondo;
+    
     
     /*
     =========================================================
@@ -874,6 +895,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             
     END sp_consulta_bandeja_aprobacion_acuerdos;
     
+    
     /*
     =========================================================
     Descripción: Bandeja Consulta  Aprobacion Acuerdo Por Id
@@ -1012,6 +1034,344 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             OPEN p_cursor FOR SELECT NULL FROM DUAL WHERE 1 = 0;
             
     END sp_consulta_bandeja_aprobacion_por_id;
+    
+       
+    /*
+    =========================================================
+    Descripción: Procesa la aprobación/rechazo de un acuerdo según el tipo de proceso (Creación o Inactivación)
+    =========================================================
+    */
+    PROCEDURE sp_proceso_aprobacion_acuerdo (
+        p_entidad                   IN NUMBER,
+        p_identidad                 IN NUMBER,
+        p_idtipoproceso             IN NUMBER,
+        p_idetiquetatipoproceso     IN VARCHAR2,
+        p_comentario                IN VARCHAR2,
+        p_idetiquetaestado          IN VARCHAR2,
+        p_idaprobacion              IN NUMBER,
+        p_usuarioaprobador          IN VARCHAR2,
+        -- Parámetros para el LOG
+        p_idopcion                  IN NUMBER, 
+        p_idcontrolinterfaz         IN VARCHAR2,
+        p_idevento_etiqueta         IN VARCHAR2,
+        p_nombreusuario             IN VARCHAR2,  
+        p_codigo_salida             OUT NUMBER,
+        p_mensaje_salida            OUT VARCHAR2
+    ) AS
+        -- Variables para IDs de catálogo
+        v_idestado                NUMBER;
+        v_estadonuevo             NUMBER;
+        v_idestadoinactivo        NUMBER;
+        --v_idestadovigente         NUMBER;
+        
+        -- Contador de registros pendientes
+        v_registros_pendientes_aprobacion NUMBER := 0;
+        
+        -- Fecha del sistema
+        v_fechasistema            TIMESTAMP := SYSTIMESTAMP;
+        
+        -- Variables para validación
+        v_existe_aprobacion       NUMBER := 0;
+        v_existe_acuerdo          NUMBER := 0;
+        
+        -- Variables para LOG
+        v_datos_json              VARCHAR2(4000);
+        v_idusersolicitud         VARCHAR2(50);
+        v_nombreusersolicitud     VARCHAR2(100);
+        v_fechasolicitud          TIMESTAMP := SYSTIMESTAMP;
+        v_idestadoregistro        NUMBER;
+        v_nivelaprobacion         NUMBER;
+        v_id_control_interfaz     NUMBER;
+        v_idevento                NUMBER;
+
+    BEGIN
+        -- Inicializar código de salida
+        p_codigo_salida := 1;
+        
+        -- =========================================================================
+        -- VARIABLES PARA EL LOG
+        -- =========================================================================
+        SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+            
+        SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
+       
+     
+        -- =========================================================================
+        -- VALIDACIONES INICIALES
+        -- =========================================================================
+        
+        -- Validar que existe la aprobación
+        SELECT COUNT(*) 
+        INTO v_existe_aprobacion
+        FROM apl_tb_aprobacion 
+        WHERE idaprobacion = p_idaprobacion;
+        
+        IF v_existe_aprobacion = 0 THEN
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'ERROR: No existe la aprobación con ID ' || p_idaprobacion;
+            RETURN;
+        END IF;
+        
+        -- Validar que existe el acuerdo
+        SELECT COUNT(*) 
+        INTO v_existe_acuerdo
+        FROM apl_tb_acuerdo 
+        WHERE idacuerdo = p_identidad;
+        
+        IF v_existe_acuerdo = 0 THEN
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'ERROR: No existe el acuerdo con ID ' || p_identidad;
+            RETURN;
+        END IF;
+        
+        -- =========================================================================
+        -- OBTENER IDS DE CATÁLOGO
+        -- =========================================================================
+        
+        -- ID del estado destino según etiqueta
+        SELECT idcatalogo INTO v_idestado FROM apl_tb_catalogo WHERE idetiqueta = p_idetiquetaestado;
+                
+        -- ID del estado NUEVO
+        SELECT idcatalogo INTO v_estadonuevo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';
+             
+        -- ID del estado INACTIVO
+        SELECT idcatalogo INTO v_idestadoinactivo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOINACTIVO';
+            
+        -- ID del estado VIGENTE (para acuerdos aprobados)
+        --SELECT idcatalogo INTO v_idestadovigente FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOVIGENTE';
+            
+            
+        -- =========================================================================
+        -- PASO 1: ACTUALIZAR APROBACIÓN
+        -- =========================================================================
+        
+        UPDATE apl_tb_aprobacion 
+        SET 
+            fechaaprobacion = v_fechasistema,
+            comentario = p_comentario,
+            idestadoregistro = v_idestado
+        WHERE 
+            idaprobacion = p_idaprobacion;
+        
+        IF SQL%ROWCOUNT = 0 THEN
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'ERROR: No se pudo actualizar la aprobación';
+            ROLLBACK;
+            RETURN;
+        END IF;
+        
+        -- =========================================================================
+        -- ACTIVAR MARCA DE PROCESO DE APROBACIÓN EN EL ACUERDO
+        -- =========================================================================
+        
+        UPDATE apl_tb_acuerdo 
+        SET 
+            idusuariomodifica = p_usuarioaprobador,
+            fechamodifica = v_fechasistema,
+            marcaprocesoaprobacion = 'A'
+        WHERE 
+            idacuerdo = p_identidad;
+        
+        -- =========================================================================
+        -- OBTENER DATOS DE APROBACIÓN PARA EL LOG
+        -- =========================================================================
+        
+        SELECT 
+            idusersolicitud,
+            nombreusersolicitud,
+            fechasolicitud,
+            idestadoregistro,
+            nivelaprobacion
+        INTO 
+            v_idusersolicitud,
+            v_nombreusersolicitud,
+            v_fechasolicitud,
+            v_idestadoregistro,
+            v_nivelaprobacion
+        FROM apl_tb_aprobacion 
+        WHERE idaprobacion = p_idaprobacion;
+        
+        -- Construir JSON con los datos actualizados
+        v_datos_json := JSON_OBJECT(
+            'idaprobacion'          VALUE p_idaprobacion,
+            'entidad'               VALUE p_entidad,
+            'identidad'             VALUE p_identidad,
+            'idtipoproceso'         VALUE p_idtipoproceso,
+            'idusersolicitud'       VALUE v_idusersolicitud,
+            'nombreusersolicitud'   VALUE v_nombreusersolicitud,
+            'fechasolicitud'        VALUE TO_CHAR(v_fechasolicitud, 'YYYY-MM-DD HH24:MI:SS'),
+            'iduseraprobador'       VALUE p_usuarioaprobador,
+            'fechaaprobacion'       VALUE TO_CHAR(v_fechasistema, 'YYYY-MM-DD HH24:MI:SS'),
+            'comentario'            VALUE p_comentario,
+            'nivelaprobacion'       VALUE v_nivelaprobacion,
+            'idestadoregistro'      VALUE v_idestadoregistro
+        );
+        
+        -- =========================================================================
+        -- PASO 2: VERIFICAR APROBACIONES PENDIENTES
+        -- =========================================================================
+        
+        SELECT COUNT(*) 
+        INTO v_registros_pendientes_aprobacion
+        FROM apl_tb_aprobacion 
+        WHERE 
+            entidad = p_entidad
+            AND identidad = p_identidad
+            AND idtipoproceso = p_idtipoproceso
+            AND idestadoregistro = v_estadonuevo;
+        
+        -- =========================================================================
+        -- PASO 3: ACTUALIZAR ACUERDO SI NO HAY PENDIENTES
+        -- =========================================================================
+        
+        IF v_registros_pendientes_aprobacion = 0 THEN
+            
+            -- -----------------------------------------------------------------
+            -- Caso 1: CREACIÓN DE ACUERDO
+            -- -----------------------------------------------------------------
+            IF UPPER(p_idetiquetatipoproceso) = 'TPCREACION' THEN
+                
+                -- Actualizar estado del acuerdo
+                UPDATE apl_tb_acuerdo 
+                SET 
+                    idusuariomodifica = p_usuarioaprobador,
+                    fechamodifica = v_fechasistema,
+                    idestadoregistro = v_idestado,
+                    marcaprocesoaprobacion = ' '
+                WHERE 
+                    idacuerdo = p_identidad;
+                    
+                IF SQL%ROWCOUNT = 0 THEN
+                    p_codigo_salida := 0;
+                    p_mensaje_salida := 'ERROR: No se pudo actualizar el acuerdo';
+                    ROLLBACK;
+                    RETURN;
+                END IF;
+                
+                -- Actualizar estado del acuerdo-fondo asociado
+                UPDATE apl_tb_acuerdofondo 
+                SET 
+                    idestadoregistro = v_idestado
+                WHERE 
+                    idacuerdo = p_identidad;
+                
+                p_codigo_salida := 1;
+                p_mensaje_salida := 'OK: Acuerdo creado y aprobado exitosamente';
+                
+            -- -----------------------------------------------------------------
+            -- Caso 2: INACTIVACIÓN DE ACUERDO
+            -- -----------------------------------------------------------------
+            ELSIF UPPER(p_idetiquetatipoproceso) = 'TPINACTIVACION' THEN
+                
+                -- Solo inactivar si el estado es APROBADO
+                IF UPPER(p_idetiquetaestado) = 'ESTADOAPROBADO' THEN
+                    
+                    -- Actualizar estado del acuerdo a INACTIVO
+                    UPDATE apl_tb_acuerdo 
+                    SET 
+                        idusuariomodifica = p_usuarioaprobador,
+                        fechamodifica = v_fechasistema,
+                        idestadoregistro = v_idestadoinactivo,
+                        marcaprocesoaprobacion = ' '
+                    WHERE 
+                        idacuerdo = p_identidad;
+                        
+                    IF SQL%ROWCOUNT = 0 THEN
+                        p_codigo_salida := 0;
+                        p_mensaje_salida := 'ERROR: No se pudo inactivar el acuerdo';
+                        ROLLBACK;
+                        RETURN;
+                    END IF;
+                    
+                    -- Actualizar acuerdo-fondo: inactivar y poner valores en 0
+                    UPDATE apl_tb_acuerdofondo 
+                    SET 
+                        idestadoregistro = v_idestadoinactivo,
+                        valordisponible = 0
+                    WHERE 
+                        idacuerdo = p_identidad;
+                    
+                    p_codigo_salida := 1;
+                    p_mensaje_salida := 'OK: Acuerdo inactivado exitosamente';
+                    
+                ELSE
+                    -- Rechazo de inactivación
+                    p_codigo_salida := 1;
+                    p_mensaje_salida := 'OK: Aprobación rechazada, acuerdo no inactivado';
+                    
+                    -- Quitar marca de proceso de aprobación
+                    UPDATE apl_tb_acuerdo 
+                    SET 
+                        idusuariomodifica = p_usuarioaprobador,
+                        fechamodifica = v_fechasistema,
+                        marcaprocesoaprobacion = ' '
+                    WHERE 
+                        idacuerdo = p_identidad;
+                    
+                    -- Construir JSON para rechazo de inactivación
+                    v_datos_json := JSON_OBJECT(
+                        'tipo_proceso'      VALUE 'TPINACTIVACION',
+                        'tipo_registro'     VALUE 'RECHAZO_INACTIVACION',
+                        'razon'             VALUE 'Estado de aprobación no es APROBADO',
+                        'estado_recibido'   VALUE p_idetiquetaestado,
+                        'idacuerdo'         VALUE p_identidad,
+                        'idaprobacion'      VALUE p_idaprobacion
+                    );
+                END IF;
+                
+            ELSE
+                p_codigo_salida := 0;
+                p_mensaje_salida := 'ERROR: Tipo de proceso no reconocido: ' || p_idetiquetatipoproceso;
+                ROLLBACK;
+                RETURN;
+            END IF;
+            
+        ELSE
+            -- Aún hay aprobaciones pendientes
+            p_codigo_salida := 1;
+            p_mensaje_salida := 'OK: Aprobación registrada. Quedan ' || 
+                               v_registros_pendientes_aprobacion || ' aprobaciones pendientes';
+        END IF;
+        
+        -- =========================================================================
+        -- PASO 4: INSERTAR EN LOG
+        -- =========================================================================
+        
+        INSERT INTO apl_tb_log (
+            fechahoratrx,
+            iduser,
+            idopcion,
+            idcontrolinterfaz,
+            idevento,
+            entidad,
+            identidad,
+            idtipoproceso,
+            datos
+        ) VALUES (
+            SYSTIMESTAMP,
+            p_usuarioaprobador,
+            p_idopcion,
+            v_id_control_interfaz,
+            v_idevento,
+            p_entidad,
+            p_identidad,
+            p_idtipoproceso, 
+            v_datos_json
+        );
+        
+        -- =========================================================================
+        -- CONFIRMAR TRANSACCIÓN
+        -- =========================================================================
+        COMMIT;
+        
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'Error en proceso de aprobación de acuerdo: ' || SQLERRM;
+            
+    END sp_proceso_aprobacion_acuerdo;
+
 
     
 END APL_PKG_ACUERDOS;
