@@ -163,10 +163,12 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         v_tiene_aprobadores NUMBER;
         
       -- Variables para LOG
-        v_datos_json            VARCHAR2(4000);
-        v_id_control_interfaz   NUMBER;
-        v_idevento              NUMBER;
-        
+        v_datos_json             VARCHAR2(4000);
+        v_id_control_interfaz    NUMBER;
+        v_idevento               NUMBER;
+      --Variable para el lote
+        v_numero_lote_aprobacion NUMBER;
+        v_row_exists             NUMBER;
         
     BEGIN
     
@@ -231,6 +233,37 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
 
         IF v_tiene_aprobadores > 0 THEN
             v_estado_registro := v_estado_nuevo;     -- NUEVO
+             
+             -- Validar que el fondo existe
+             SELECT
+                CASE
+                    WHEN EXISTS (SELECT 1 FROM apl_tb_lote WHERE entidad = v_entidad_fondo 
+                    ) THEN
+                     1
+                    ELSE
+                     0
+                END
+                
+                INTO v_row_exists
+                FROM
+                    dual;
+            
+                IF v_row_exists = 0  THEN
+                    v_numero_lote_aprobacion := 1;
+                    INSERT INTO apl_tb_lote (
+                        entidad,
+                        secuencial
+                    )VALUES(
+                        v_entidad_fondo,
+                        v_numero_lote_aprobacion
+                    );
+                ELSE 
+                    SELECT secuencial INTO v_numero_lote_aprobacion FROM apl_tb_lote WHERE entidad = v_entidad_fondo;
+                     v_numero_lote_aprobacion := v_numero_lote_aprobacion + 1;
+                     UPDATE apl_tb_lote  
+                     SET secuencial = v_numero_lote_aprobacion
+                     WHERE entidad = v_entidad_fondo;
+                END IF;
         ELSE
             v_estado_registro := v_estado_aprobado;  -- APROBADO
         END IF;
@@ -252,7 +285,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             fechamodifica,
             idestadoregistro,
             indicadorcreacion,
-            marcaprocesoaprobacion 
+            marcaprocesoaprobacion,
+            numeroloteaprobacion
         ) VALUES (
             p_descripcion,
             p_idproveedor,
@@ -269,7 +303,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             NULL,
             v_estado_registro,
             v_creacion_manual,
-            ' '
+            ' ',
+            v_numero_lote_aprobacion
         ) RETURNING idfondo INTO v_idfondo;
         
         p_idfondo := v_idfondo;
@@ -287,7 +322,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 fechaaprobacion,
                 comentario,
                 nivelaprobacion,
-                idestadoregistro
+                idestadoregistro,
+                numeroloteaprobacion
             )
                 SELECT
                     v_entidad_fondo        AS entidad,         -- SIEMPRE el catálogo ENTFONDO
@@ -300,8 +336,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     NULL                   AS fechaaprobacion,
                     NULL                   AS comentario,
                     a.nivelaprobacion      AS nivelaprobacion,
-                    v_estado_nuevo         AS idestadoregistro
-                    
+                    v_estado_nuevo         AS idestadoregistro,
+                    v_numero_lote_aprobacion
                 FROM
                     apl_tb_aprobador a
                 WHERE
@@ -326,7 +362,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             'idusuarioingreso' VALUE p_idusuarioingreso,
             'fechaingreso' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
             'idestadoregistro' VALUE v_estado_registro,
-            'indicadorcreacion' VALUE v_creacion_manual
+            'indicadorcreacion' VALUE v_creacion_manual,
+            'numeroloteaprobacion' VALUE v_numero_lote_aprobacion
         );
         
         -- Insertar en la tabla de LOG
@@ -950,6 +987,10 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         v_id_control_interfaz    NUMBER;
         v_idevento               NUMBER;
         
+         --Variable para el lote
+        v_numero_lote_aprobacion      NUMBER;
+        v_row_exists_lote             NUMBER;
+        
     BEGIN
     
       --VARIABLES PARA EL LOG
@@ -1042,6 +1083,40 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         --CASO B: Si hay aprobadores, generar filas en APL_TB_APROBACION (una por aprobador activo)
         ELSE
         DBMS_OUTPUT.PUT_LINE('DEBUG - Entrando a CASO B: Con ' || v_count_aprobadores || ' aprobadores');
+        
+             -- Validar que el lote exista
+             SELECT
+                CASE
+                    WHEN EXISTS (SELECT 1 FROM apl_tb_lote WHERE entidad = v_entidad_fondo 
+                    ) THEN
+                     1
+                    ELSE
+                     0
+                END
+                
+                INTO v_row_exists_lote
+                FROM
+                    dual;
+            
+             IF v_row_exists_lote = 0  THEN
+                    v_numero_lote_aprobacion := 1;
+                    INSERT INTO apl_tb_lote (
+                        entidad,
+                        secuencial
+                    )VALUES(
+                        v_entidad_fondo,
+                        v_numero_lote_aprobacion
+                    );
+              ELSE 
+                    SELECT secuencial INTO v_numero_lote_aprobacion FROM apl_tb_lote WHERE entidad = v_entidad_fondo;
+                     v_numero_lote_aprobacion := v_numero_lote_aprobacion + 1;
+                     UPDATE apl_tb_lote  
+                     SET secuencial = v_numero_lote_aprobacion
+                     WHERE entidad = v_entidad_fondo;
+              END IF;
+        
+        
+        
             --Insertar solicitudes de aprobación
             INSERT INTO apl_tb_aprobacion (
                 entidad,
@@ -1054,7 +1129,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                 fechaaprobacion,
                 comentario,
                 nivelaprobacion,
-                idestadoregistro
+                idestadoregistro,
+                numeroloteaprobacion
             )
                 SELECT
                     v_entidad_fondo                 AS entidad,         
@@ -1067,14 +1143,18 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     NULL                            AS fechaaprobacion,
                     NULL                            AS comentario,
                     a.nivelaprobacion               AS nivelaprobacion,
-                    v_estado_nuevo                  AS idestadoregistro 
-                    
+                    v_estado_nuevo                  AS idestadoregistro,
+                    v_numero_lote_aprobacion
                 FROM
                     apl_tb_aprobador a
                 WHERE
                         a.entidad = v_entidad_fondo
                     AND a.idtipoproceso = v_tipo_proceso_inactivar
                     AND a.idestadoregistro = v_estado_activo;
+                    
+              UPDATE apl_tb_fondo  
+                     SET numeroloteaprobacion = v_numero_lote_aprobacion
+                     WHERE idfondo = p_idfondo;
                     
               p_codigo_salida := 0;
               p_mensaje := 'Solicitud de inactivación generada. Pendiente de aprobación (' || v_count_aprobadores || ' aprobador(es))';
@@ -1089,6 +1169,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
 				'idusuarioingreso' VALUE p_nombreusuarioingreso,
 				'fechaingreso' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
 				'idestadoregistro' VALUE v_tipo_proceso_inactivar,
+                'numeroloteaprobacion' VALUE 0,
 				'comentario' VALUE 'Inactivacion Directa sin aprobadores'
 			);
 		
@@ -1100,6 +1181,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
 				'idusuarioingreso' VALUE p_nombreusuarioingreso,
 				'fechaingreso' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
 				'idestadoregistro' VALUE v_tipo_proceso_inactivar,
+                'numeroloteaprobacion' VALUE v_numero_lote_aprobacion,
 				'comentario' VALUE 'Solicitud de inactivacion que requiere aprobacion'
 			);
 		 END IF;
@@ -1696,7 +1778,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             ELSIF UPPER(p_idetiquetatipoproceso) = 'TPINACTIVACION' THEN
                 
                 -- Solo inactivar si el estado es APROBADO
-                IF UPPER(p_idetiquetaestado) = 'ESTADOAPROBADO' THEN
+                IF UPPER(p_idetiquetaestado) IN ('ESTADOAPROBADO', 'ESTADOVIGENTE') THEN
                     
                      IF v_registros_pendientes_aprobacion = 0 THEN
                         UPDATE apl_tb_fondo 
