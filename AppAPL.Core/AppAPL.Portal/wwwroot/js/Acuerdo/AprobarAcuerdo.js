@@ -5,6 +5,8 @@
 // ===============================================================
 let tabla; // GLOBAL
 let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
+let datosAprobacionActual = null; // Para almacenar los datos de la aprobación actual
+let tablaHistorial; // Para la tabla de historial de aprobaciones
 
 // ===============================================================
 // FUNCIÓN HELPER PARA OBTENER USUARIO (Busca en múltiples lugares)
@@ -56,10 +58,27 @@ $(document).ready(function () {
     });
 
     // ===============================================================
-    // ✅ NUEVO: EVENTOS PARA VOLVER A LA TABLA (CERRAR DETALLE)
+    // ✅ EVENTOS PARA VOLVER A LA TABLA (CERRAR DETALLE)
     // ===============================================================
     $('#btnVolverTabla, #btnVolverAbajo').on('click', function () {
         cerrarDetalle();
+    });
+
+    // ===============================================================
+    // ✅ EVENTOS PARA APROBAR Y RECHAZAR ACUERDO
+    // ===============================================================
+    $('#btnAprobarFondo').on('click', function () {
+        let comentario = $("#modal-acuerdo-comentario").val();
+        console.log('comentario: ', comentario);
+        console.log('boton de aprobar acuerdo');
+        procesarAprobacionAcuerdo("APROBAR", comentario);
+    });
+
+    $('#btnRechazarFondo').on('click', function () {
+        let comentario = $("#modal-acuerdo-comentario").val();
+        console.log('comentario: ', comentario);
+        console.log('boton de rechazar acuerdo');
+        procesarAprobacionAcuerdo("RECHAZAR", comentario);
     });
 
 }); // FIN document.ready
@@ -255,18 +274,21 @@ function formatearFecha(fechaString) {
 }
 
 // ===================================================================
-// ✅ NUEVAS FUNCIONES: LOGICA DE DETALLE (VISUALIZAR)
+// ✅ FUNCIONES: LOGICA DE DETALLE (VISUALIZAR)
 // ===================================================================
 
 /**
  * Consulta el detalle por ID y muestra el DIV de detalle (Ocultando la tabla)
  */
 function abrirModalEditar(idAcuerdo, idAprobacion) {
-    console.log("Consultando detalle idAcuerdo:", idAcuerdo);
+    console.log("Consultando detalle idAcuerdo:", idAcuerdo, "idAprobacion:", idAprobacion);
     $('body').css('cursor', 'wait');
 
     const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
     const usuario = obtenerUsuarioActual();
+
+    // Limpiar datos previos
+    datosAprobacionActual = null;
 
     $("#formVisualizar")[0].reset();
     $("#lblIdAcuerdo").text(idAcuerdo);
@@ -279,9 +301,30 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
         method: "GET",
         headers: {
             "idopcion": String(idOpcionActual),
-            "usuario": usuario
+            "usuario": usuario,
+            "idcontrolinterfaz": "0",
+            "idevento": "0",
+            "entidad": "0",
+            "identidad": "0",
+            "idtipoproceso": "0"
         },
         success: function (data) {
+            console.log(`Datos del acuerdo (${idAcuerdo}):`, data);
+
+            // ✅ Guardar datos para los botones de aprobación/rechazo
+            datosAprobacionActual = {
+                entidad: data.entidad || 0,
+                identidad: data.idacuerdo || 0,
+                idtipoproceso: data.idtipoproceso || "",
+                idetiquetatipoproceso: data.tipo_proceso_etiqueta || "",
+                idaprobacion: idAprobacion,
+                entidad_etiqueta: data.entidad_etiqueta,
+                idetiquetatestado: data.estado_etiqueta || "",
+                comentario: ""
+            };
+
+            console.log("Datos de aprobación guardados:", datosAprobacionActual);
+
             // 1. Llenar Formulario
             $("#verNombreProveedor").val(data.nombre_proveedor);
             $("#verNombreTipoFondo").val(data.nombre_tipo_fondo);
@@ -302,7 +345,6 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
             $('body').css('cursor', 'default');
 
             // 3. CARGAR TABLA DE HISTORIAL DE APROBACIONES
-            // Usamos los campos del JSON de respuesta (Según tu Swagger: entidad_etiqueta, tipo_proceso_etiqueta)
             if (data.entidad_etiqueta && data.tipo_proceso_etiqueta) {
                 console.log("Cargando historial de aprobaciones...");
                 cargarAprobaciones(
@@ -312,11 +354,19 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
                 );
             } else {
                 console.warn("Faltan etiquetas para cargar el historial");
+                $('#tabla-aprobaciones-fondo').html(
+                    '<p class="alert alert-warning">No se encontraron los parámetros necesarios para cargar aprobaciones.</p>'
+                );
             }
         },
         error: function (xhr) {
             $('body').css('cursor', 'default');
             console.error("Error detalle:", xhr);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar los datos del acuerdo.'
+            });
         }
     });
 }
@@ -332,6 +382,9 @@ function cerrarDetalle() {
             tabla.columns.adjust();
         }
     });
+
+    // Limpiar datos de aprobación
+    datosAprobacionActual = null;
 }
 
 /**
@@ -342,6 +395,14 @@ function cargarAprobaciones(entidad, idEntidad, tipoProceso) {
     const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
     const usuario = obtenerUsuarioActual();
 
+    console.log("=== CARGANDO APROBACIONES DE ACUERDO ===");
+    console.log('Con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
+    // Destruir tabla anterior si existe
+    if ($.fn.DataTable.isDataTable('#dt-historial')) {
+        $('#dt-historial').DataTable().destroy();
+    }
+
     // Spinner de carga
     $('#tabla-aprobaciones-fondo').html(`
         <div class="text-center p-3">
@@ -350,14 +411,23 @@ function cargarAprobaciones(entidad, idEntidad, tipoProceso) {
         </div>
     `);
 
+    const urlCompleta = `${window.apiBaseUrl}/api/Aprobacion/consultar-aprobaciones/${entidad}/${idEntidad}/${tipoProceso}`;
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Aprobacion/consultar-aprobaciones/${entidad}/${idEntidad}/${tipoProceso}`,
+        url: urlCompleta,
         method: "GET",
         headers: {
             "idopcion": String(idOpcionActual),
-            "usuario": usuario
+            "usuario": usuario,
+            "idcontrolinterfaz": "0",
+            "idevento": "0",
+            "entidad": "0",
+            "identidad": "0",
+            "idtipoproceso": "0"
         },
         success: function (data) {
+            console.log("Datos de aprobaciones del acuerdo:", data);
+
             let lista = Array.isArray(data) ? data : [data];
 
             if (!lista || lista.length === 0) {
@@ -369,10 +439,12 @@ function cargarAprobaciones(entidad, idEntidad, tipoProceso) {
             <table id='dt-historial' class='table table-sm table-bordered table-hover w-100'>
                 <thead class="table-light">
                     <tr>
-                        <th>Nivel</th>
+                        <th>ID Aprobación</th>
+                        <th>Usuario Solicitante</th>
                         <th>Usuario Aprobador</th>
                         <th>Estado</th>
                         <th>Fecha Solicitud</th>
+                        <th>Nivel Aprobación</th>
                         <th>Tipo Proceso</th>
                     </tr>
                 </thead>
@@ -383,13 +455,15 @@ function cargarAprobaciones(entidad, idEntidad, tipoProceso) {
                 let badgeClass = 'bg-secondary';
                 if (item.estado_etiqueta === 'ESTADONUEVO') badgeClass = 'bg-primary';
                 if (item.estado_etiqueta === 'ESTADOAPROBADO') badgeClass = 'bg-success';
-                if (item.estado_etiqueta === 'ESTADONEGADO') badgeClass = 'bg-danger';
+                if (item.estado_etiqueta === 'ESTADOINACTIVO' || item.estado_etiqueta === 'ESTADONEGADO') badgeClass = 'bg-danger';
 
                 html += `<tr>
-                    <td class="text-center">${item.nivelaprobacion || 0}</td>
+                    <td class="text-center">${item.idaprobacion || ""}</td>
+                    <td>${item.idusersolicitud || ""}</td>
                     <td>${item.iduseraprobador || ""}</td>
                     <td class="text-center"><span class="badge ${badgeClass}">${item.estado_nombre || item.estado_etiqueta}</span></td>
                     <td class="text-center">${formatearFecha(item.fechasolicitud)}</td>
+                    <td class="text-center">${item.nivelaprobacion || 0}</td>
                     <td>${item.tipoproceso_nombre || ""}</td>
                 </tr>`;
             });
@@ -397,18 +471,166 @@ function cargarAprobaciones(entidad, idEntidad, tipoProceso) {
             html += `</tbody></table>`;
             $('#tabla-aprobaciones-fondo').html(html);
 
-            // Convertir a DataTable simple (sin paginación pesada si son pocos registros)
+            // Convertir a DataTable
             tablaHistorial = $('#dt-historial').DataTable({
-                paging: false,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25],
+                pagingType: 'simple_numbers',
                 searching: false,
-                info: false,
-                order: [[0, 'asc']], // Ordenar por nivel
-                language: { emptyTable: "No hay datos" }
+                columnDefs: [
+                    { targets: [0, 4, 5], className: "dt-center" }
+                ],
+                order: [[0, 'desc']],
+                language: {
+                    decimal: "",
+                    emptyTable: "No hay aprobaciones disponibles",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ aprobaciones",
+                    infoEmpty: "Mostrando 0 a 0 de 0 aprobaciones",
+                    infoFiltered: "(filtrado de _MAX_ aprobaciones totales)",
+                    lengthMenu: "Mostrar _MENU_ aprobaciones",
+                    loadingRecords: "Cargando...",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    zeroRecords: "No se encontraron aprobaciones coincidentes",
+                    paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+                }
             });
         },
         error: function (xhr) {
             console.error("Error historial:", xhr);
+            console.error("Detalles del error:", xhr.responseText);
             $('#tabla-aprobaciones-fondo').html('<div class="text-danger small">Error al cargar historial.</div>');
+        }
+    });
+}
+
+// ===================================================================
+// ✅ FUNCIONES PARA APROBAR/RECHAZAR ACUERDOS
+// ===================================================================
+
+/**
+ * Procesa la aprobación o rechazo de un acuerdo
+ */
+function procesarAprobacionAcuerdo(accion, comentario) {
+    if (!datosAprobacionActual) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No hay datos de aprobación disponibles.'
+        });
+        return;
+    }
+
+    let nuevoEstado = "";
+    let tituloAccion = "";
+    let mensajeAccion = "";
+
+    if (accion === "APROBAR") {
+        nuevoEstado = "ESTADOAPROBADO";
+        tituloAccion = "Aprobar Acuerdo";
+        mensajeAccion = "¿Está seguro que desea aprobar este acuerdo?";
+    } else if (accion === "RECHAZAR") {
+        nuevoEstado = "ESTADONEGADO";
+        tituloAccion = "Rechazar Acuerdo";
+        mensajeAccion = "¿Está seguro que desea rechazar este acuerdo?";
+    }
+
+    Swal.fire({
+        title: tituloAccion,
+        text: mensajeAccion,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: accion == "APROBAR" ? '#28a745' : '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: accion == "APROBAR" ? 'Sí, aprobar' : 'Sí, rechazar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario);
+        }
+    });
+}
+
+/**
+ * Ejecuta el POST al API para aprobar o rechazar
+ */
+function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
+    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
+    const usuarioActual = obtenerUsuarioActual();
+
+    console.log("accion: ", accion);
+    console.log("datosAprobacionActual: ", datosAprobacionActual);
+    console.log('Ejecutando aprobación/rechazo con idOpcion:', idOpcionActual, 'y usuario:', usuarioActual);
+
+    const datosPost = {
+        entidad: datosAprobacionActual.entidad,
+        identidad: datosAprobacionActual.identidad,
+        idtipoproceso: datosAprobacionActual.idtipoproceso,
+        idetiquetatipoproceso: datosAprobacionActual.idetiquetatipoproceso,
+        comentario: comentario,
+        idetiquetaestado: nuevoEstado,
+        idaprobacion: datosAprobacionActual.idaprobacion,
+        usuarioaprobador: usuarioActual,
+        idopcion: idOpcionActual,
+        idcontrolinterfaz: accion == "APROBAR" ? "BTNAPROBAR" : "BTNNEGAR",
+        idevento: "EVCLICK",
+        nombreusuario: usuarioActual
+    };
+
+    console.log("Enviando aprobación/rechazo:", datosPost);
+
+    Swal.fire({
+        title: 'Procesando...',
+        text: 'Por favor espere',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Acuerdo/aprobar-acuerdo`,
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(datosPost),
+        headers: {
+            "idopcion": String(idOpcionActual),
+            "usuario": usuarioActual,
+            "idcontrolinterfaz": "0",
+            "idevento": "0",
+            "entidad": "0",
+            "identidad": "0",
+            "idtipoproceso": "0"
+        },
+        success: function (response) {
+            cerrarDetalle();
+
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: response.respuesta || `Acuerdo ${accion === "APROBAR" ? "aprobado" : "rechazado"} correctamente`,
+                confirmButtonText: 'Aceptar',
+                timer: 2000,
+                timerProgressBar: true
+            }).then(() => {
+                // Limpiar datos de la aprobación actual
+                datosAprobacionActual = null;
+                ultimaFilaModificada = null;
+
+                // Recargar la bandeja para reflejar los cambios
+                cargarBandeja();
+            });
+        },
+        error: function (xhr, status, error) {
+            const mensajeError = xhr.responseJSON?.mensaje || error || 'Error desconocido';
+            console.error("Error al procesar aprobación:", mensajeError);
+            console.error("Detalles del error:", xhr.responseText);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo procesar la aprobación/rechazo: ' + mensajeError
+            });
         }
     });
 }
