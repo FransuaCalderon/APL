@@ -65,7 +65,6 @@ END APL_PKG_ACUERDOS;
 
 
 ------------------------------------------body----
-
 create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     /*
     =========================================================
@@ -818,80 +817,149 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     ) AS
         -- Variables para IDs de catálogo
         v_estado_nuevo          NUMBER;
-     
     
     BEGIN
         -- =========================================================================
         -- PASO 1: Obtener IDs de catálogos necesarios
         -- =========================================================================
         
-       SELECT idcatalogo INTO v_estado_nuevo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';
+        SELECT idcatalogo 
+        INTO v_estado_nuevo 
+        FROM apl_tb_catalogo 
+        WHERE idetiqueta = 'ESTADONUEVO';
               
-        
         -- =========================================================================
         -- PASO 2: Abrir cursor con la consulta principal
         -- =========================================================================
         
-        OPEN p_cursor FOR
+        OPEN p_cursor FOR 
             SELECT
-                cp.nombre                                       AS solicitud,
-                ac.idacuerdo,
-                ac.descripcion,
-                f.idfondo                                       AS id_fondo,
-                f.idtipofondo                                   AS id_tipo_fondo,
-                tf.nombre                                       AS nombre_tipo_fondo,
-                 arp.nombre                                     AS nombre_proveedor,
-                ac.idtipoacuerdo                                AS id_tipo_clase_acuerdo,
-                ct.nombre                                       AS nombre_clase_acuerdo,
-                NVL(art.cantidad_articulos, 0)                  AS cantidad_articulos,
-                NVL(acf.valoraporte, 0)                         AS valor_acuerdo,
-                TO_CHAR(ac.fechainiciovigencia, 'YYYY-MM-DD')   AS fecha_inicio,
-                TO_CHAR(ac.fechafinvigencia, 'YYYY-MM-DD')      AS fecha_fin,
-                NVL(acf.valordisponible, 0)                     AS valor_disponible,
-                NVL(acf.valorcomprometido, 0)                   AS valor_comprometido,
-                NVL(acf.valorliquidado, 0)                      AS valor_liquidado,
-                acf.idestadoregistro                            AS idestados_fondo,
-                ce.nombre                                       AS nombre_estado_fondo,
-                ce.idetiqueta                                   AS id_etiqueta_estado_fondo,
-                a.nivelaprobacion,
-                a.iduseraprobador                               AS aprobador,
-                a.idaprobacion,
-                en.idetiqueta                                   AS entidad_etiqueta,
-                cp.idetiqueta                                   AS tipo_proceso_etiqueta,
-                ea.idetiqueta                                   AS estado_aprob_etiqueta
-            FROM 
-                apl_tb_acuerdo ac
-            -- JOIN con acuerdo fondo
-            INNER JOIN apl_tb_acuerdofondo acf ON acf.idacuerdo = ac.idacuerdo
-            -- JOIN CORREGIDO: aprobacion se relaciona con IDFONDO
-            INNER JOIN apl_tb_aprobacion a ON a.identidad = acf.idfondo AND a.idestadoregistro = v_estado_nuevo
-            INNER JOIN apl_tb_fondo f ON  f.idfondo = acf.idfondo
-            INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
-            LEFT JOIN (SELECT idacuerdo, COUNT(*) AS cantidad_articulos FROM apl_tb_acuerdoarticulo GROUP BY idacuerdo) art ON art.idacuerdo = ac.idacuerdo
-            -- JOINs con catálogos
-            LEFT JOIN apl_tb_catalogo cp ON a.idtipoproceso = cp.idcatalogo
-            LEFT JOIN apl_tb_catalogo ct ON ac.idtipoacuerdo = ct.idcatalogo
-            LEFT JOIN apl_tb_catalogo ce ON ac.idestadoregistro = ce.idcatalogo
-            LEFT JOIN apl_tb_catalogo en ON a.entidad = en.idcatalogo
-            LEFT JOIN apl_tb_catalogo ea ON a.idestadoregistro = ea.idcatalogo
-            LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
+                x.*
+            FROM
+                (
+                    SELECT
+                        solicitud,
+                        idacuerdo,
+                        descripcion,
+                        id_fondo,
+                        id_tipo_fondo,
+                        nombre_tipo_fondo,
+                        nombre_proveedor,
+                        id_tipo_clase_acuerdo,
+                        nombre_clase_acuerdo,
+                        cantidad_articulos,
+                        valor_acuerdo,
+                        fecha_inicio,
+                        fecha_fin,
+                        valor_disponible,
+                        valor_comprometido,
+                        valor_liquidado,
+                        idestados_acuerdo,
+                        nombre_estado_acuerdo,
+                        id_etiqueta_estado_acuerdo,
+                        nivelaprobacion,
+                        aprobador,
+                        idaprobacion,
+                        entidad_etiqueta,
+                        tipo_proceso_etiqueta,
+                        estado_aprob_etiqueta
+                    FROM
+                        (
+                            SELECT
+                                cp.nombre                                       AS solicitud,
+                                ac.idacuerdo,
+                                ac.descripcion,
+                                f.idfondo                                       AS id_fondo,
+                                f.idtipofondo                                   AS id_tipo_fondo,
+                                tf.nombre                                       AS nombre_tipo_fondo,
+                                arp.nombre                                      AS nombre_proveedor,
+                                ac.idtipoacuerdo                                AS id_tipo_clase_acuerdo,
+                                ct.nombre                                       AS nombre_clase_acuerdo,
+                                NVL(art.cantidad_articulos, 0)                  AS cantidad_articulos,
+                                NVL(acf.valoraporte, 0)                         AS valor_acuerdo,
+                                TO_CHAR(ac.fechainiciovigencia, 'YYYY-MM-DD')   AS fecha_inicio,
+                                TO_CHAR(ac.fechafinvigencia, 'YYYY-MM-DD')      AS fecha_fin,
+                                NVL(acf.valordisponible, 0)                     AS valor_disponible,
+                                NVL(acf.valorcomprometido, 0)                   AS valor_comprometido,
+                                NVL(acf.valorliquidado, 0)                      AS valor_liquidado,
+                                ac.idestadoregistro                             AS idestados_acuerdo,
+                                ce.nombre                                       AS nombre_estado_acuerdo,
+                                ce.idetiqueta                                   AS id_etiqueta_estado_acuerdo,
+                                a.nivelaprobacion,
+                                a.iduseraprobador                               AS aprobador,
+                                a.idaprobacion,
+                                en.idetiqueta                                   AS entidad_etiqueta,
+                                cp.idetiqueta                                   AS tipo_proceso_etiqueta,
+                                ea.idetiqueta                                   AS estado_aprob_etiqueta,
+                                ROW_NUMBER() OVER (
+                                    PARTITION BY a.entidad, a.identidad, a.idtipoproceso
+                                    ORDER BY a.entidad, a.identidad, a.idtipoproceso, a.nivelaprobacion ASC
+                                )                                               AS rn
+                            FROM
+                                apl_tb_acuerdo ac
+                            -- JOIN con acuerdo fondo
+                            INNER JOIN apl_tb_acuerdofondo acf 
+                                ON acf.idacuerdo = ac.idacuerdo
+                            -- *** CAMBIO: JOIN con aprobación por IDACUERDO (no IDFONDO) ***
+                            INNER JOIN apl_tb_aprobacion a 
+                                ON a.identidad = ac.idacuerdo   -- << CAMBIADO
+                                AND a.idestadoregistro = v_estado_nuevo
+                            -- JOIN con fondo
+                            INNER JOIN apl_tb_fondo f 
+                                ON f.idfondo = acf.idfondo
+                            -- JOIN con proveedor
+                            INNER JOIN apl_tb_artefacta_proveedor arp 
+                                ON arp.identificacion = f.idproveedor
+                            -- Subquery para contar artículos
+                            LEFT JOIN (
+                                SELECT idacuerdo, COUNT(*) AS cantidad_articulos 
+                                FROM apl_tb_acuerdoarticulo 
+                                GROUP BY idacuerdo
+                            ) art ON art.idacuerdo = ac.idacuerdo
+                            -- JOINs con catálogos
+                            LEFT JOIN apl_tb_catalogo cp 
+                                ON a.idtipoproceso = cp.idcatalogo
+                            LEFT JOIN apl_tb_catalogo ct 
+                                ON ac.idtipoacuerdo = ct.idcatalogo
+                            LEFT JOIN apl_tb_catalogo ce 
+                                ON ac.idestadoregistro = ce.idcatalogo
+                            LEFT JOIN apl_tb_catalogo en 
+                                ON a.entidad = en.idcatalogo
+                            LEFT JOIN apl_tb_catalogo ea 
+                                ON a.idestadoregistro = ea.idcatalogo
+                            LEFT JOIN apl_tb_catalogo tf 
+                                ON f.idtipofondo = tf.idcatalogo
+                            WHERE
+                                -- Creación: Estados NUEVO o MODIFICADO
+                                (
+                                    ce.idetiqueta IN ('ESTADONUEVO', 'ESTADOMODIFICADO')
+                                    AND en.idetiqueta = 'ENTACUERDO'
+                                    AND cp.idetiqueta = 'TPCREACION'
+                                ) 
+                                OR
+                                -- Inactivación: Estados APROBADO o VIGENTE
+                                (
+                                    ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE')
+                                    AND en.idetiqueta = 'ENTACUERDO'
+                                    AND cp.idetiqueta = 'TPINACTIVACION'
+                                )
+                        )
+                    WHERE
+                        rn = 1
+                ) x
             WHERE
-                -- Filtros principales
-                (ce.idetiqueta IN ( 'ESTADONUEVO', 'ESTADOMODIFICADO')
-                               AND en.idetiqueta = 'ENTACUERDO'
-                               AND cp.idetiqueta IN ( 'TPCREACION')) OR
-                 --modicacion
-                ( ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE' )
-                               AND en.idetiqueta = 'ENTACUERDO'
-                               AND cp.idetiqueta IN ('TPINACTIVACION' ))
-            ORDER BY 
-                ac.idacuerdo;
+                x.aprobador = p_usuarioaprobador
+            ORDER BY
+                x.idacuerdo;
+        
+        -- Respuesta exitosa
+        p_codigo_salida := 0;
+        p_mensaje_salida := 'OK';
     
-     EXCEPTION
+    EXCEPTION
         WHEN OTHERS THEN
-            p_codigo_salida := 0;
+            p_codigo_salida := 1;
             p_mensaje_salida := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
-   
             
     END sp_consulta_bandeja_aprobacion_acuerdos;
     
