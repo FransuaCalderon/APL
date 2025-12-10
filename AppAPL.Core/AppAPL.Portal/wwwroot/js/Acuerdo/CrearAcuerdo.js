@@ -1,14 +1,14 @@
 ﻿/**
- * CrearAcuerdo.js - VERSIÓN CON FILTROS CHECKBOX Y VALIDACIÓN DE PROVEEDOR
- * Lógica completa para la vista CrearAcuerdo.cshtml
- * - Diferencia General vs Items
- * - Carga combos Motivo (ACMOTIVO)
- * - Modal Proveedores (Fondos) con validación de selección
- * - Modal Items (Consulta y Selección con CHECKBOXES)
- * - Validaciones por formulario
- * - Datepickers separados
- * - ✅ CARGA DINÁMICA DE TIPOS DE ACUERDO (CLAGENERAL / CLAARTICULO)
- */
+* CrearAcuerdo.js - VERSIÓN CON FILTROS CHECKBOX Y VALIDACIÓN DE PROVEEDOR
+* Lógica completa para la vista CrearAcuerdo.cshtml
+* - Diferencia General vs Items
+* - Carga combos Motivo (ACMOTIVO)
+* - Modal Proveedores (Fondos) con validación de selección
+* - Modal Items (Consulta y Selección con CHECKBOXES)
+* - Validaciones por formulario
+* - Datepickers separados
+* - ✅ CARGA DINÁMICA DE TIPOS DE ACUERDO (CLAGENERAL / CLAARTICULO)
+*/
 
 (function () {
     "use strict";
@@ -926,6 +926,9 @@
     // -----------------------------
     // Datepickers
     // -----------------------------
+    // -----------------------------
+    // Datepickers (MODIFICADO CON VALIDACIÓN DE FECHAS)
+    // -----------------------------
     function initDatepickers() {
         if (!$.datepicker) {
             console.warn("jQuery UI Datepicker no está disponible.");
@@ -934,34 +937,79 @@
 
         $.datepicker.setDefaults($.datepicker.regional["es"] || {});
 
-        function attachPicker(inputId) {
-            $(inputId).datepicker({
-                dateFormat: "dd/mm/yy",
-                changeMonth: true,
-                changeYear: true,
-                showButtonPanel: true,
-                beforeShow: function (input, inst) {
-                    setTimeout(function () {
-                        let buttonPane = $(inst.dpDiv).find(".ui-datepicker-buttonpane");
-                        let doneButton = buttonPane.find(".ui-datepicker-close");
-                        doneButton.text("Borrar");
-                        doneButton.off("click").on("click", function () {
-                            $(input).val("");
-                            $.datepicker._hideDatepicker();
-                        });
+        // Configuración base con tus botones personalizados (Borrar/Hoy)
+        const commonOptions = {
+            dateFormat: "dd/mm/yy",
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true,
+            beforeShow: function (input, inst) {
+                setTimeout(function () {
+                    let buttonPane = $(inst.dpDiv).find(".ui-datepicker-buttonpane");
 
-                        let todayButton = buttonPane.find(".ui-datepicker-current");
-                        todayButton.text("Hoy");
-                    }, 1);
-                },
+                    // Botón Borrar
+                    let doneButton = buttonPane.find(".ui-datepicker-close");
+                    doneButton.text("Borrar");
+                    doneButton.off("click").on("click", function () {
+                        $(input).val("");
+                        // Si borramos inicio, reseteamos la restricción del fin
+                        if (input.id.includes("Inicio")) {
+                            const endId = input.id.replace("Inicio", "Fin");
+                            $("#" + endId).datepicker("option", "minDate", null);
+                        }
+                        $.datepicker._hideDatepicker();
+                    });
+
+                    // Botón Hoy
+                    let todayButton = buttonPane.find(".ui-datepicker-current");
+                    todayButton.text("Hoy");
+                }, 1);
+            }
+        };
+
+        // Función auxiliar para vincular Inicio -> Fin
+        function setupDatePair(startId, endId) {
+            // 1. Configurar Fecha Inicio
+            $(startId).datepicker({
+                ...commonOptions,
+                minDate: 0, // ✅ REGLA 1: No permite fechas anteriores a hoy
+                onSelect: function (dateText, inst) {
+                    // Obtener la fecha seleccionada como objeto Date
+                    const startDate = $(this).datepicker("getDate");
+
+                    if (startDate) {
+                        // Crear una nueva fecha para el Fin (Inicio + 1 día)
+                        const minEndDate = new Date(startDate.getTime());
+                        minEndDate.setDate(minEndDate.getDate() + 1);
+
+                        // ✅ REGLA 2: Actualizar el minDate del campo Fin
+                        $(endId).datepicker("option", "minDate", minEndDate);
+
+                        // Opcional: Si la fecha fin actual es menor o igual a la nueva fecha inicio, limpiarla
+                        const currentEndDate = $(endId).datepicker("getDate");
+                        if (currentEndDate && currentEndDate <= startDate) {
+                            $(endId).val("");
+                        }
+                    }
+                }
+            });
+
+            // 2. Configurar Fecha Fin
+            $(endId).datepicker({
+                ...commonOptions,
+                minDate: 1 // Por defecto mañana (se actualiza dinámicamente)
             });
         }
 
-        attachPicker("#fondoFechaInicioGeneral");
-        attachPicker("#fondoFechaFinGeneral");
-        attachPicker("#fondoFechaInicioItems");
-        attachPicker("#fondoFechaFinItems");
+        // --- Aplicar la lógica a los pares de inputs ---
 
+        // Par 1: Formulario General
+        setupDatePair("#fondoFechaInicioGeneral", "#fondoFechaFinGeneral");
+
+        // Par 2: Formulario Items
+        setupDatePair("#fondoFechaInicioItems", "#fondoFechaFinItems");
+
+        // --- Eventos de los botones de calendario (íconos) ---
         $("#btnFechaInicioGeneral").on("click", function () {
             $("#fondoFechaInicioGeneral").datepicker("show");
         });

@@ -30,39 +30,8 @@ $(document).ready(function () {
     console.log("");
 
     // 🔍 ===== DIAGNÓSTICO COMPLETO DEL USUARIO ===== 🔍
-    console.log("🔍 DIAGNÓSTICO DE USUARIO:");
-    console.log("  window.usuarioActual:", window.usuarioActual);
-    console.log("  Tipo:", typeof window.usuarioActual);
-    console.log("  sessionStorage.usuarioActual:", sessionStorage.getItem('usuarioActual'));
-    console.log("  sessionStorage.usuario:", sessionStorage.getItem('usuario'));
-    console.log("  localStorage.usuarioActual:", localStorage.getItem('usuarioActual'));
-    console.log("  localStorage.usuario:", localStorage.getItem('usuario'));
-
     const usuarioFinal = obtenerUsuarioActual();
     console.log("  ✅ Usuario final obtenido:", usuarioFinal);
-    console.log("");
-
-    // ✅ LOGS DE VERIFICACIÓN DE IDOPCION
-    console.log("🔍 DIAGNÓSTICO DE IDOPCION:");
-    const infoOpcion = window.obtenerInfoOpcionActual();
-    console.log("  Información de la opción actual:", {
-        idOpcion: infoOpcion.idOpcion,
-        nombre: infoOpcion.nombre,
-        ruta: infoOpcion.ruta
-    });
-
-    // Verificación adicional
-    if (!infoOpcion.idOpcion) {
-        console.warn("  ⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
-        console.warn("  Esto es normal si accediste directamente a la URL sin pasar por el menú.");
-        console.warn("  Para que funcione correctamente, accede a esta página desde el menú.");
-    } else {
-        console.log("  ✅ idOpcion capturado correctamente:", infoOpcion.idOpcion);
-    }
-
-    console.log("");
-    console.log("=== FIN DE VERIFICACIÓN INICIAL ===");
-    console.log("");
 
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
@@ -86,6 +55,13 @@ $(document).ready(function () {
         }
     });
 
+    // ===============================================================
+    // ✅ NUEVO: EVENTOS PARA VOLVER A LA TABLA (CERRAR DETALLE)
+    // ===============================================================
+    $('#btnVolverTabla, #btnVolverAbajo').on('click', function () {
+        cerrarDetalle();
+    });
+
 }); // FIN document.ready
 
 
@@ -95,14 +71,11 @@ $(document).ready(function () {
 
 function cargarBandeja() {
     // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
-    const idOpcionActual = window.obtenerIdOpcionActual();
+    // Nota: Asegúrate de que esta función exista en tu layout o script global, 
+    // si no, usa un valor fijo o "0" como fallback.
+    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
 
-    if (!idOpcionActual) {
-        console.error("No se pudo obtener el idOpcion para cargar la bandeja");
-        return;
-    }
-
-    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+    const usuario = obtenerUsuarioActual();
     const apiBaseUrl = window.apiBaseUrl;
 
     if (!usuario) {
@@ -116,8 +89,8 @@ function cargarBandeja() {
         url: `${apiBaseUrl}/api/Acuerdo/consultar-bandeja-aprobacion/${usuario}`,
         method: "GET",
         headers: {
-            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-            "usuario": usuario,                  // ✅ DINÁMICO
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario,
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -130,7 +103,6 @@ function cargarBandeja() {
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos de acuerdos:", error);
-            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -158,15 +130,14 @@ function crearListado(data) {
     html += "<table id='tabla-acuerdos' class='table table-bordered table-striped table-hover'>";
 
     html += "  <thead>";
-
-    // Fila del Título ROJO - colspan actualizado a 13 columnas
+    // Fila del Título ROJO
     html += "    <tr>";
     html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
     html += "          BANDEJA DE APROBACIÓN - ACUERDOS";
     html += "      </th>";
     html += "    </tr>";
 
-    // Fila de las Cabeceras - Exactamente como en tu imagen
+    // Fila de las Cabeceras
     html += "    <tr>";
     html += "      <th>Acción</th>";
     html += "      <th>Solicitud</th>";
@@ -188,22 +159,20 @@ function crearListado(data) {
     for (var i = 0; i < data.length; i++) {
         var acuerdo = data[i];
 
-        // Botón de visualizar
+        // Botón de visualizar (Llama a abrirModalEditar)
         var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + acuerdo.idacuerdo + ', ' + acuerdo.idaprobacion + ')">' +
             '<i class="fa-regular fa-eye"></i>' +
             '</button>';
-
+        var claseAcuerdoHTML = (acuerdo.nombre_clase_acuerdo ?? "");
+        if (acuerdo.cantidad_articulos > 0) {
+            claseAcuerdoHTML += '<sup style="font-size: 0.8em; margin-left: 2px; font-weight: bold;">' + acuerdo.cantidad_articulos + '</sup>';
+        }
         html += "<tr>";
         html += "  <td class='text-center'>" + viewButton + "</td>";
         html += "  <td>" + (acuerdo.solicitud ?? "") + "</td>";
         html += "  <td>" + (acuerdo.idacuerdo ?? "") + "</td>";
         html += "  <td>" + (acuerdo.descripcion ?? "") + "</td>";
         html += "  <td>" + (acuerdo.nombre_tipo_fondo ?? "") + "</td>";
-        // DESPUÉS
-        var claseAcuerdoHTML = (acuerdo.nombre_clase_acuerdo ?? "");
-        if (acuerdo.cantidad_articulos > 0) {
-            claseAcuerdoHTML += ' <span class="badge bg-info ms-1">' + acuerdo.cantidad_articulos + '</span>';
-        }
         html += "  <td>" + claseAcuerdoHTML + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_acuerdo) + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(acuerdo.fecha_inicio) + "</td>";
@@ -239,33 +208,14 @@ function crearListado(data) {
             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
             infoEmpty: "Mostrando 0 a 0 de 0 registros",
             infoFiltered: "(filtrado de _MAX_ registros totales)",
-            infoPostFix: "",
-            thousands: ",",
             lengthMenu: "Mostrar _MENU_ registros",
             loadingRecords: "Cargando...",
             processing: "Procesando...",
             search: "Buscar:",
             zeroRecords: "No se encontraron registros coincidentes",
-            paginate: {
-                first: "Primero",
-                last: "Último",
-                next: "Siguiente",
-                previous: "Anterior"
-            }
-        },
-        drawCallback: function () {
-            if (ultimaFilaModificada !== null) {
-                if (typeof marcarFilaPorId === 'function') {
-                    marcarFilaPorId('#tabla-acuerdos', ultimaFilaModificada);
-                }
-            }
+            paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
         }
     });
-
-    console.log('Llamando a inicializarMarcadoFilas para Acuerdos');
-    if (typeof inicializarMarcadoFilas === 'function') {
-        inicializarMarcadoFilas('#tabla-acuerdos');
-    }
 }
 
 // ===================================================================
@@ -280,7 +230,6 @@ function formatearMoneda(valor) {
     if (isNaN(numero) || valor === null || valor === undefined) {
         return "$ 0.00";
     }
-
     return '$ ' + numero.toLocaleString('es-EC', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
@@ -293,14 +242,11 @@ function formatearMoneda(valor) {
 function formatearFecha(fechaString) {
     try {
         if (!fechaString) return '';
-
         var fecha = new Date(fechaString);
         if (isNaN(fecha)) return fechaString;
-
         var dia = String(fecha.getDate()).padStart(2, '0');
         var mes = String(fecha.getMonth() + 1).padStart(2, '0');
         var anio = fecha.getFullYear();
-
         return `${dia}/${mes}/${anio}`;
     } catch (e) {
         console.warn("Error formateando fecha:", fechaString);
@@ -308,15 +254,161 @@ function formatearFecha(fechaString) {
     }
 }
 
+// ===================================================================
+// ✅ NUEVAS FUNCIONES: LOGICA DE DETALLE (VISUALIZAR)
+// ===================================================================
+
 /**
- * Función placeholder para abrir modal (implementar más adelante)
+ * Consulta el detalle por ID y muestra el DIV de detalle (Ocultando la tabla)
  */
 function abrirModalEditar(idAcuerdo, idAprobacion) {
-    console.log("Abrir modal para acuerdo:", idAcuerdo, "aprobación:", idAprobacion);
-    // TODO: Implementar modal de edición/aprobación
-    Swal.fire({
-        icon: 'info',
-        title: 'Funcionalidad en desarrollo',
-        text: 'El modal de aprobación será implementado próximamente'
+    console.log("Consultando detalle idAcuerdo:", idAcuerdo);
+    $('body').css('cursor', 'wait');
+
+    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
+    const usuario = obtenerUsuarioActual();
+
+    $("#formVisualizar")[0].reset();
+    $("#lblIdAcuerdo").text(idAcuerdo);
+
+    // Limpiar tabla historial previa
+    $('#tabla-aprobaciones-fondo').html('');
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-aprobacion-id/${idAcuerdo}`,
+        method: "GET",
+        headers: {
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario
+        },
+        success: function (data) {
+            // 1. Llenar Formulario
+            $("#verNombreProveedor").val(data.nombre_proveedor);
+            $("#verNombreTipoFondo").val(data.nombre_tipo_fondo);
+            $("#verDescripcion").val(data.descripcion);
+            $("#verClaseAcuerdo").val(data.nombre_clase_acuerdo);
+            $("#verEstado").val(data.nombre_estado_fondo);
+            $("#verFechaInicio").val(formatearFecha(data.fecha_inicio));
+            $("#verFechaFin").val(formatearFecha(data.fecha_fin));
+            $("#verValorAcuerdo").val(formatearMoneda(data.valor_acuerdo));
+            $("#verValorDisponible").val(formatearMoneda(data.valor_disponible));
+            $("#verValorComprometido").val(formatearMoneda(data.valor_comprometido));
+            $("#verValorLiquidado").val(formatearMoneda(data.valor_liquidado));
+
+            // 2. LOGICA VISUAL
+            $("#vistaTabla").fadeOut(200, function () {
+                $("#vistaDetalle").fadeIn(200);
+            });
+            $('body').css('cursor', 'default');
+
+            // 3. CARGAR TABLA DE HISTORIAL DE APROBACIONES
+            // Usamos los campos del JSON de respuesta (Según tu Swagger: entidad_etiqueta, tipo_proceso_etiqueta)
+            if (data.entidad_etiqueta && data.tipo_proceso_etiqueta) {
+                console.log("Cargando historial de aprobaciones...");
+                cargarAprobaciones(
+                    data.entidad_etiqueta,       // Ej: "ENTACUERDO"
+                    idAcuerdo,                   // El ID del acuerdo
+                    data.tipo_proceso_etiqueta   // Ej: "TPCREACION"
+                );
+            } else {
+                console.warn("Faltan etiquetas para cargar el historial");
+            }
+        },
+        error: function (xhr) {
+            $('body').css('cursor', 'default');
+            console.error("Error detalle:", xhr);
+        }
+    });
+}
+
+/**
+ * Cierra el div de detalle y vuelve a mostrar la tabla
+ */
+function cerrarDetalle() {
+    $("#vistaDetalle").fadeOut(200, function () {
+        $("#vistaTabla").fadeIn(200);
+        // Si necesitas ajustar columnas de DataTables al volver a mostrar:
+        if (tabla) {
+            tabla.columns.adjust();
+        }
+    });
+}
+
+/**
+ * Consume el servicio de Aprobaciones y dibuja la tabla en el detalle
+ * Reutiliza el ID '#tabla-aprobaciones-fondo' que pusiste en el HTML
+ */
+function cargarAprobaciones(entidad, idEntidad, tipoProceso) {
+    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
+    const usuario = obtenerUsuarioActual();
+
+    // Spinner de carga
+    $('#tabla-aprobaciones-fondo').html(`
+        <div class="text-center p-3">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+            <p class="mt-2 small text-muted">Cargando historial...</p>
+        </div>
+    `);
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Aprobacion/consultar-aprobaciones/${entidad}/${idEntidad}/${tipoProceso}`,
+        method: "GET",
+        headers: {
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario
+        },
+        success: function (data) {
+            let lista = Array.isArray(data) ? data : [data];
+
+            if (!lista || lista.length === 0) {
+                $('#tabla-aprobaciones-fondo').html('<div class="alert alert-light text-center border">No hay historial de aprobaciones.</div>');
+                return;
+            }
+
+            let html = `
+            <table id='dt-historial' class='table table-sm table-bordered table-hover w-100'>
+                <thead class="table-light">
+                    <tr>
+                        <th>Nivel</th>
+                        <th>Usuario Aprobador</th>
+                        <th>Estado</th>
+                        <th>Fecha Solicitud</th>
+                        <th>Tipo Proceso</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            lista.forEach(item => {
+                // Badges para el estado
+                let badgeClass = 'bg-secondary';
+                if (item.estado_etiqueta === 'ESTADONUEVO') badgeClass = 'bg-primary';
+                if (item.estado_etiqueta === 'ESTADOAPROBADO') badgeClass = 'bg-success';
+                if (item.estado_etiqueta === 'ESTADONEGADO') badgeClass = 'bg-danger';
+
+                html += `<tr>
+                    <td class="text-center">${item.nivelaprobacion || 0}</td>
+                    <td>${item.iduseraprobador || ""}</td>
+                    <td class="text-center"><span class="badge ${badgeClass}">${item.estado_nombre || item.estado_etiqueta}</span></td>
+                    <td class="text-center">${formatearFecha(item.fechasolicitud)}</td>
+                    <td>${item.tipoproceso_nombre || ""}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            $('#tabla-aprobaciones-fondo').html(html);
+
+            // Convertir a DataTable simple (sin paginación pesada si son pocos registros)
+            tablaHistorial = $('#dt-historial').DataTable({
+                paging: false,
+                searching: false,
+                info: false,
+                order: [[0, 'asc']], // Ordenar por nivel
+                language: { emptyTable: "No hay datos" }
+            });
+        },
+        error: function (xhr) {
+            console.error("Error historial:", xhr);
+            $('#tabla-aprobaciones-fondo').html('<div class="text-danger small">Error al cargar historial.</div>');
+        }
     });
 }
