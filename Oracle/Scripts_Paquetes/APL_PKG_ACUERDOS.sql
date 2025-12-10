@@ -1220,7 +1220,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             AND identidad = p_identidad
             AND idtipoproceso = p_idtipoproceso
             AND idestadoregistro = v_estadonuevo;
-        
+            
         -- =========================================================================
         -- PASO 3: ACTUALIZAR ACUERDO SI NO HAY PENDIENTES
         -- =========================================================================
@@ -1231,9 +1231,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             -- Caso 1: CREACIÓN DE ACUERDO
             -- -----------------------------------------------------------------
             IF UPPER(p_idetiquetatipoproceso) = 'TPCREACION' THEN
-            
-                -- Solo procesar si el estado es APROBADO
-                IF UPPER(p_idetiquetaestado) = 'ESTADOAPROBADO' THEN
             
                 -- =============================================================
                 -- NUEVA LÓGICA: OBTENER DATOS DEL ACUERDO-FONDO
@@ -1252,7 +1249,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     AND ROWNUM = 1;
                 EXCEPTION
                     WHEN NO_DATA_FOUND THEN
-                        p_codigo_salida := 0;
+                        p_codigo_salida := 1;
                         p_mensaje_salida := 'ERROR: No se encontró el acuerdo-fondo para el acuerdo ' || p_identidad;
                         ROLLBACK;
                         RETURN;
@@ -1324,53 +1321,31 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 -- Actualizar estado del acuerdo-fondo asociado
                 UPDATE apl_tb_acuerdofondo 
                 SET 
-                    idestadoregistro = v_idestado
+                    idestadoregistro = 1
                 WHERE 
                     idacuerdo = p_identidad;
                 
                 -- Agregar información del fondo al JSON del LOG
                 v_datos_json := JSON_OBJECT(
-                    'idaprobacion'          VALUE p_idaprobacion,
-                    'entidad'               VALUE p_entidad,
-                    'identidad'             VALUE p_identidad,
-                    'idtipoproceso'         VALUE p_idtipoproceso,
-                    'tipo_proceso'          VALUE 'TPCREACION',
-                    'idfondo'               VALUE v_idfondo,
-                    'valor_acuerdo'         VALUE v_valor_acuerdo,
+                    'idaprobacion'             VALUE p_idaprobacion,
+                    'entidad'                  VALUE p_entidad,
+                    'identidad'                VALUE p_identidad,
+                    'idtipoproceso'            VALUE p_idtipoproceso,
+                    'tipo_proceso'             VALUE 'TPCREACION',
+                    'idfondo'                  VALUE v_idfondo,
+                    'valor_acuerdo'            VALUE v_valor_acuerdo,
                     'valor_comprometido_antes' VALUE (v_valor_disponible_fondo + v_valor_acuerdo - v_valor_disponible_fondo),
                     'valor_disponible_antes'   VALUE v_valor_disponible_fondo,
                     'valor_disponible_despues' VALUE (v_valor_disponible_fondo - v_valor_acuerdo),
-                    'iduseraprobador'       VALUE p_usuarioaprobador,
-                    'fechaaprobacion'       VALUE TO_CHAR(v_fechasistema, 'YYYY-MM-DD HH24:MI:SS'),
-                    'comentario'            VALUE p_comentario
+                    'iduseraprobador'          VALUE p_usuarioaprobador,
+                    'fechaaprobacion'          VALUE TO_CHAR(v_fechasistema, 'YYYY-MM-DD HH24:MI:SS'),
+                    'comentario'               VALUE p_comentario
                 );
                 
                 p_codigo_salida := 0;
                 p_mensaje_salida := 'OK: Acuerdo creado y aprobado exitosamente. ' ||
                                    'Fondo actualizado - Comprometido +' || v_valor_acuerdo || 
                                    ', Disponible -' || v_valor_acuerdo;
-            
-            ELSE
-                -- Rechazo de creación
-                UPDATE apl_tb_acuerdo 
-                SET 
-                    idusuariomodifica = p_usuarioaprobador,
-                    fechamodifica = v_fechasistema,
-                    idestadoregistro = v_idestado,
-                    marcaprocesoaprobacion = ' '
-                WHERE 
-                    idacuerdo = p_identidad;
-                
-                -- Actualizar estado del acuerdo-fondo
-                UPDATE apl_tb_acuerdofondo 
-                SET 
-                    idestadoregistro = v_idestado
-                WHERE 
-                    idacuerdo = p_identidad;
-                
-                p_codigo_salida := 0;
-                p_mensaje_salida := 'OK: Creación de acuerdo rechazada';
-            END IF;
                 
             -- -----------------------------------------------------------------
             -- Caso 2: INACTIVACIÓN DE ACUERDO
@@ -1378,10 +1353,10 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             ELSIF UPPER(p_idetiquetatipoproceso) = 'TPINACTIVACION' THEN
                 
                 -- Solo inactivar si el estado es APROBADO
-                IF UPPER(p_idetiquetaestado) = 'ESTADOAPROBADO' THEN
+                IF UPPER(p_idetiquetaestado) IN ('ESTADOAPROBADO', 'ESTADOVIGENTE') THEN
                     
                     -- =============================================================
-                    -- OBTENER DATOS DEL ACUERDO-FONDO PARA REVERTIR
+                    -- PASO 1: OBTENER DATOS DEL ACUERDO-FONDO PARA REVERTIR
                     -- Usamos VALORDISPONIBLE del acuerdo (no valoraporte)
                     -- =============================================================
                     BEGIN
@@ -1405,7 +1380,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     END;
                     
                     -- =============================================================
-                    -- OBTENER VALORES ACTUALES DEL FONDO PARA VALIDACIÓN Y LOG
+                    -- PASO 2: OBTENER VALORES ACTUALES DEL FONDO PARA LOG
                     -- =============================================================
                     BEGIN
                         SELECT 
@@ -1425,7 +1400,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     END;
                     
                     -- =============================================================
-                    -- ACTUALIZAR APL_TB_FONDO: REVERTIR COMPROMETIDO A DISPONIBLE
+                    -- PASO 3: ACTUALIZAR APL_TB_FONDO (PRIMERO)
                     -- Decrementar VALORCOMPROMETIDO con el valor disponible del acuerdo
                     -- Incrementar VALORDISPONIBLE con el valor disponible del acuerdo
                     -- =============================================================
@@ -1445,7 +1420,28 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                         RETURN;
                     END IF;
                     
+                    -- =============================================================
+                    -- PASO 4: ACTUALIZAR APL_TB_ACUERDOFONDO (SEGUNDO)
+                    -- Inactivar y poner valores en 0
+                    -- =============================================================
+                    UPDATE apl_tb_acuerdofondo 
+                    SET 
+                        idestadoregistro = 1,
+                        valordisponible = 0
+                    WHERE 
+                        idacuerdo = p_identidad;
+                        
+                    IF SQL%ROWCOUNT = 0 THEN
+                        p_codigo_salida := 1;
+                        p_mensaje_salida := 'ERROR: No se pudo actualizar el acuerdo-fondo';
+                        ROLLBACK;
+                        RETURN;
+                    END IF;
+                    
+                    -- =============================================================
+                    -- PASO 5: ACTUALIZAR APL_TB_ACUERDO (TERCERO)
                     -- Actualizar estado del acuerdo a INACTIVO
+                    -- =============================================================
                     UPDATE apl_tb_acuerdo 
                     SET 
                         idusuariomodifica = p_usuarioaprobador,
@@ -1462,31 +1458,25 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                         RETURN;
                     END IF;
                     
-                    -- Actualizar acuerdo-fondo: inactivar y poner valores en 0
-                    UPDATE apl_tb_acuerdofondo 
-                    SET 
-                        idestadoregistro = v_idestadoinactivo,
-                        valordisponible = 0
-                    WHERE 
-                        idacuerdo = p_identidad;
-                    
-                    -- Construir JSON con información de la inactivación
+                    -- =============================================================
+                    -- PASO 6: CONSTRUIR JSON PARA LOG
+                    -- =============================================================
                     v_datos_json := JSON_OBJECT(
-                        'idaprobacion'                  VALUE p_idaprobacion,
-                        'entidad'                       VALUE p_entidad,
-                        'identidad'                     VALUE p_identidad,
-                        'idtipoproceso'                 VALUE p_idtipoproceso,
-                        'tipo_proceso'                  VALUE 'TPINACTIVACION',
-                        'tipo_operacion'                VALUE 'APROBACION_INACTIVACION',
-                        'idfondo'                       VALUE v_idfondo,
-                        'valor_disponible_acuerdo'      VALUE v_valor_disponible_acuerdo,
-                        'fondo_comprometido_antes'      VALUE v_valor_comprometido_fondo,
-                        'fondo_comprometido_despues'    VALUE (v_valor_comprometido_fondo - v_valor_disponible_acuerdo),
-                        'fondo_disponible_antes'        VALUE v_valor_disponible_fondo,
-                        'fondo_disponible_despues'      VALUE (v_valor_disponible_fondo + v_valor_disponible_acuerdo),
-                        'iduseraprobador'               VALUE p_usuarioaprobador,
-                        'fechaaprobacion'               VALUE TO_CHAR(v_fechasistema, 'YYYY-MM-DD HH24:MI:SS'),
-                        'comentario'                    VALUE p_comentario
+                        'idaprobacion'               VALUE p_idaprobacion,
+                        'entidad'                    VALUE p_entidad,
+                        'identidad'                  VALUE p_identidad,
+                        'idtipoproceso'              VALUE p_idtipoproceso,
+                        'tipo_proceso'               VALUE 'TPINACTIVACION',
+                        'tipo_operacion'             VALUE 'APROBACION_INACTIVACION',
+                        'idfondo'                    VALUE v_idfondo,
+                        'valor_disponible_acuerdo'   VALUE v_valor_disponible_acuerdo,
+                        'fondo_comprometido_antes'   VALUE v_valor_comprometido_fondo,
+                        'fondo_comprometido_despues' VALUE (v_valor_comprometido_fondo - v_valor_disponible_acuerdo),
+                        'fondo_disponible_antes'     VALUE v_valor_disponible_fondo,
+                        'fondo_disponible_despues'   VALUE (v_valor_disponible_fondo + v_valor_disponible_acuerdo),
+                        'iduseraprobador'            VALUE p_usuarioaprobador,
+                        'fechaaprobacion'            VALUE TO_CHAR(v_fechasistema, 'YYYY-MM-DD HH24:MI:SS'),
+                        'comentario'                 VALUE p_comentario
                     );
                     
                     p_codigo_salida := 0;
@@ -1510,28 +1500,34 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     
                     -- Construir JSON para rechazo de inactivación
                     v_datos_json := JSON_OBJECT(
-                        'tipo_proceso'      VALUE 'TPINACTIVACION',
-                        'tipo_operacion'    VALUE 'RECHAZO_INACTIVACION',
-                        'razon'             VALUE 'Estado de aprobación no es APROBADO',
-                        'estado_recibido'   VALUE p_idetiquetaestado,
-                        'idacuerdo'         VALUE p_identidad,
-                        'idaprobacion'      VALUE p_idaprobacion
+                        'tipo_proceso'    VALUE 'TPINACTIVACION',
+                        'tipo_operacion'  VALUE 'RECHAZO_INACTIVACION',
+                        'razon'           VALUE 'Estado de aprobación no es APROBADO',
+                        'estado_recibido' VALUE p_idetiquetaestado,
+                        'idacuerdo'       VALUE p_identidad,
+                        'idaprobacion'    VALUE p_idaprobacion
                     );
-                END IF;
+                    
+                END IF; -- Fin IF ESTADOAPROBADO
                 
-                ELSE
-                    p_codigo_salida := 1;
-                    p_mensaje_salida := 'ERROR: Tipo de proceso no reconocido: ' || p_idetiquetatipoproceso;
-                    ROLLBACK;
-                    RETURN;
-                END IF;
-            
             ELSE
-                -- Aún hay aprobaciones pendientes
-                p_codigo_salida := 0;
-                p_mensaje_salida := 'OK: Aprobación registrada. Quedan ' || 
-                                   v_registros_pendientes_aprobacion || ' aprobaciones pendientes';
-            END IF;
+                -- Tipo de proceso no reconocido
+                p_codigo_salida := 1;
+                p_mensaje_salida := 'ERROR: Tipo de proceso no reconocido: ' || p_idetiquetatipoproceso;
+                ROLLBACK;
+                RETURN;
+                
+            END IF; -- Fin IF TPCREACION / ELSIF TPINACTIVACION
+            
+        ELSE
+            -- Aún hay aprobaciones pendientes
+            p_codigo_salida := 0;
+            p_mensaje_salida := 'OK: Aprobación registrada. Quedan ' || 
+                               v_registros_pendientes_aprobacion || ' aprobaciones pendientes';
+                               
+        END IF; -- Fin IF v_registros_pendientes_aprobacion = 0
+        
+
         
         -- =========================================================================
         -- PASO 4: INSERTAR EN LOG
