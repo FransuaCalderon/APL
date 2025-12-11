@@ -140,12 +140,13 @@ namespace AppAPL.Dto.Acuerdo
         public decimal valor_disponible { get; set; }
         public decimal valor_comprometido { get; set; }
         public decimal valor_liquidado { get; set; }
-        public int idestados_fondo { get; set; }
-        public string nombre_estado_fondo { get; set; }
-        public string id_etiqueta_estado_fondo { get; set; }
+        public int idestados_acuerdo { get; set; }
+        public string nombre_estado_acuerdo { get; set; }
+        public string id_etiqueta_estado_acuerdo { get; set; }
         public int nivelaprobacion { get; set; }
         public string aprobador { get; set; }
         public int idaprobacion { get; set; }
+        public int id_entidad { get; set; }
         public string entidad_etiqueta { get; set; }
         public string tipo_proceso_etiqueta { get; set; }
         public string estado_aprob_etiqueta { get; set; }

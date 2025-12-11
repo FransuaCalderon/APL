@@ -313,9 +313,9 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
 
             // ✅ Guardar datos para los botones de aprobación/rechazo
             datosAprobacionActual = {
-                entidad: data.entidad || 0,
+                entidad: data.id_entidad || 0,
                 identidad: data.idacuerdo || 0,
-                idtipoproceso: data.idtipoproceso || "",
+                idtipoproceso: data.idtipoproceso || 43, // temporal hasta q este el sp de la base
                 idetiquetatipoproceso: data.tipo_proceso_etiqueta || "",
                 idaprobacion: idAprobacion,
                 entidad_etiqueta: data.entidad_etiqueta,
@@ -588,6 +588,7 @@ function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
         }
     });
 
+    
     $.ajax({
         url: `${window.apiBaseUrl}/api/Acuerdo/aprobar-acuerdo`,
         method: "POST",
