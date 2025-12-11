@@ -202,6 +202,7 @@ namespace AppAPL.Dto.Acuerdo
 
     public class CrearActualizarAcuerdoDTO
     {
+        public int? IdAcuerdo { get; set; }
         public int IdTipoAcuerdo { get; set; }
         public int IdMotivoAcuerdo { get; set; }
         public string? Descripcion { get; set; }
@@ -227,6 +228,7 @@ namespace AppAPL.Dto.Acuerdo
 
     public class CrearActualizarAcuerdoArticuloDTO
     {
+        public int? IdAcuerdoArticulo { get; set; }
         public string? CodigoArticulo { get; set; }
         public decimal CostoActual { get; set; }
         public int UnidadesLimite { get; set; }
