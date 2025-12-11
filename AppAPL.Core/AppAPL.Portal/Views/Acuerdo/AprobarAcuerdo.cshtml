@@ -12,7 +12,49 @@
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 }
 
-<h2>Aprobación - Acuerdos</h2>
+<style>
+    /* Estilos de cabecera específicos para la tabla dinámica de artículos */
+    .custom-header-cons-bg {
+        background-color: #d4edda !important; /* Verde suave */
+        color: #155724;
+    }
+
+    .custom-header-ingr-bg {
+        background-color: #fff3cd !important; /* Amarillo suave */
+        color: #856404;
+    }
+
+    .custom-header-calc-bg {
+        background-color: #ffe5d0 !important; /* Naranja suave */
+        color: #fd7e14;
+    }
+    /* Ajustes generales de la tabla */
+    .tabla-items-header th {
+        vertical-align: middle;
+        font-size: 0.85rem;
+        text-align: center;
+    }
+
+    .tabla-items-body td {
+        font-size: 0.85rem;
+        vertical-align: middle;
+    }
+    /* Estilos adicionales para tus botones personalizados si no están en global */
+    .custom-btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+    }
+
+    .custom-btn-danger:hover {
+        background-color: #c82333;
+    }
+
+</style>
+
+<h2>Aprobar - Acuerdos</h2>
 <hr>
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
@@ -98,18 +140,20 @@
                     <label class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
                     <input type="text" class="form-control form-control-sm text-end" id="verValorLiquidado" readonly disabled>
                 </div>
-                <!-- CUARTA FILA (Comentario) -->
-                <div class="custom-form-row">
-                    <div class="custom-form-col">
-                        <label class="custom-label" for="comentario">Comentario:</label>
-                        <textarea class="custom-input" rows="3" maxlength="200" id="modal-acuerdo-comentario" name="comentario"></textarea>
+
+                <div class="col-12 mt-4" id="contenedor-tabla-articulos" style="display:none;">
+                </div>
+                <div class="custom-form-row mt-3">
+                    <div class="custom-form-col w-100">
+                        <label class="form-label fw-bold col-form-label-sm" for="modal-acuerdo-comentario">Comentario de Aprobación/Rechazo:</label>
+                        <textarea class="form-control" rows="3" maxlength="200" id="modal-acuerdo-comentario" name="comentario"></textarea>
                     </div>
-                    
                 </div>
             </form>
-            <hr class="custom-divider">
-            <!-- SECCIÓN TABLA DE APROBACIONES -->
-            <h5 class="custom-section-title">
+
+            <hr class="custom-divider mt-4">
+
+            <h5 class="custom-section-title mt-3 mb-3">
                 <i class="fa-solid fa-list-check"></i> Historial de Aprobaciones
             </h5>
             <div class="custom-table-container">

@@ -293,11 +293,17 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
     $("#formVisualizar")[0].reset();
     $("#lblIdAcuerdo").text(idAcuerdo);
 
-    // Limpiar tabla historial previa
+    // Limpiar tablas previas
     $('#tabla-aprobaciones-fondo').html('');
+    $('#contenedor-tabla-articulos').html('').hide();
+
+    // ========================================================================
+    // 🔴 CORRECCIÓN AQUÍ: Se agregó /${idAprobacion} al final de la URL
+    // ========================================================================
+    const urlConsulta = `${window.apiBaseUrl}/api/Acuerdo/bandeja-aprobacion-id/${idAcuerdo}/${idAprobacion}`;
 
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-aprobacion-id/${idAcuerdo}`,
+        url: urlConsulta, // Usamos la URL corregida
         method: "GET",
         headers: {
             "idopcion": String(idOpcionActual),
@@ -311,19 +317,17 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
         success: function (data) {
             console.log(`Datos del acuerdo (${idAcuerdo}):`, data);
 
-            // ✅ Guardar datos para los botones de aprobación/rechazo
+            // Guardar datos para los botones de aprobación/rechazo
             datosAprobacionActual = {
                 entidad: data.id_entidad || 0,
                 identidad: data.idacuerdo || 0,
-                idtipoproceso: data.idtipoproceso || 43, // temporal hasta q este el sp de la base
+                idtipoproceso: data.idtipoproceso || 43,
                 idetiquetatipoproceso: data.tipo_proceso_etiqueta || "",
                 idaprobacion: idAprobacion,
                 entidad_etiqueta: data.entidad_etiqueta,
                 idetiquetatestado: data.estado_etiqueta || "",
                 comentario: ""
             };
-
-            console.log("Datos de aprobación guardados:", datosAprobacionActual);
 
             // 1. Llenar Formulario
             $("#verNombreProveedor").val(data.nombre_proveedor);
@@ -338,6 +342,69 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
             $("#verValorComprometido").val(formatearMoneda(data.valor_comprometido));
             $("#verValorLiquidado").val(formatearMoneda(data.valor_liquidado));
 
+            // =================================================================
+            // ✅ LOGICA DE ARTÍCULOS (CON TU ESTRUCTURA DE COLORES)
+            // =================================================================
+            if (data.articulos && data.articulos.length > 0) {
+                console.log("Acuerdo por artículos detectado. Renderizando tabla...");
+
+                let htmlArticulos = `
+                    <h6 class="fw-bold mb-2"><i class="fa fa-list"></i> Detalle de Artículos</h6>
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-bordered table-sm mb-0">
+                            <thead class="sticky-top text-nowrap">
+                                <tr class="text-center tabla-items-header">
+                                    <th scope="col" style="width: 40px; background-color: #e9ecef;">Sel.</th>
+                                    <th scope="col" class="custom-header-cons-bg">Item</th>
+                                    <th scope="col" class="custom-header-cons-bg">Costo</th>
+
+                                    <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
+                                    <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
+                                    <th scope="col" class="custom-header-ingr-bg">Precio - TC</th>
+                                    <th scope="col" class="custom-header-ingr-bg">Precio - Crédito</th>
+                                    <th scope="col" class="custom-header-ingr-bg">Aporte x Unidad</th>
+
+                                    <th scope="col" class="custom-header-calc-bg">Comprometido Prov.</th>
+                                    <th scope="col" class="custom-header-calc-bg">Margen Contado</th>
+                                    <th scope="col" class="custom-header-calc-bg">Margen TC</th>
+                                    <th scope="col" class="custom-header-calc-bg">Margen Crédito</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-nowrap tabla-items-body bg-white">`;
+
+                data.articulos.forEach(art => {
+                    // Calculamos margen crédito visualmente si no viene del back
+                    let margenCredito = (art.preciocredito || 0) - (art.costoactual || 0);
+
+                    htmlArticulos += `
+                        <tr>
+                            <td class="text-center">
+                                <input type="checkbox" checked disabled>
+                            </td>
+                            <td class="fw-bold text-center">${art.codigoarticulo || ''}</td>
+                            <td class="text-end">${formatearMoneda(art.costoactual)}</td>
+
+                            <td class="text-center fw-bold text-primary">${art.unidadeslimite}</td>
+                            <td class="text-end">${formatearMoneda(art.preciocontado)}</td>
+                            <td class="text-end">${formatearMoneda(art.preciotarjetacredito)}</td>
+                            <td class="text-end">${formatearMoneda(art.preciocredito)}</td>
+                            <td class="text-end fw-bold">${formatearMoneda(art.valoraporte)}</td>
+
+                            <td class="text-end fw-bold">${formatearMoneda(art.valorcomprometido)}</td>
+                            <td class="text-end">${formatearMoneda(art.margencontado)}</td>
+                            <td class="text-end">${formatearMoneda(art.margentarjetacredito)}</td>
+                            <td class="text-end">${formatearMoneda(margenCredito)}</td>
+                        </tr>`;
+                });
+
+                htmlArticulos += `
+                            </tbody>
+                        </table>
+                    </div>`;
+
+                $('#contenedor-tabla-articulos').html(htmlArticulos).fadeIn();
+            }
+
             // 2. LOGICA VISUAL
             $("#vistaTabla").fadeOut(200, function () {
                 $("#vistaDetalle").fadeIn(200);
@@ -346,14 +413,12 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
 
             // 3. CARGAR TABLA DE HISTORIAL DE APROBACIONES
             if (data.entidad_etiqueta && data.tipo_proceso_etiqueta) {
-                console.log("Cargando historial de aprobaciones...");
                 cargarAprobaciones(
-                    data.entidad_etiqueta,       // Ej: "ENTACUERDO"
-                    idAcuerdo,                   // El ID del acuerdo
-                    data.tipo_proceso_etiqueta   // Ej: "TPCREACION"
+                    data.entidad_etiqueta,
+                    idAcuerdo,
+                    data.tipo_proceso_etiqueta
                 );
             } else {
-                console.warn("Faltan etiquetas para cargar el historial");
                 $('#tabla-aprobaciones-fondo').html(
                     '<p class="alert alert-warning">No se encontraron los parámetros necesarios para cargar aprobaciones.</p>'
                 );
@@ -365,7 +430,7 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudieron cargar los datos del acuerdo.'
+                text: 'No se pudieron cargar los datos del acuerdo. Verifique la conexión.'
             });
         }
     });
@@ -590,7 +655,7 @@ function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
 
     
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Acuerdo/aprobar-acuerdo`,
+        url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-aprobacion-id/${idAcuerdo}/${idAprobacion}`,
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify(datosPost),
