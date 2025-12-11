@@ -83,7 +83,6 @@ $(document).ready(function () {
 
 }); // FIN document.ready
 
-
 // ===================================================================
 // ===== FUNCIONES GLOBALES =====
 // ===================================================================
@@ -93,7 +92,6 @@ function cargarBandeja() {
     // Nota: Asegúrate de que esta función exista en tu layout o script global, 
     // si no, usa un valor fijo o "0" como fallback.
     const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
-
     const usuario = obtenerUsuarioActual();
     const apiBaseUrl = window.apiBaseUrl;
 
@@ -130,7 +128,6 @@ function cargarBandeja() {
         }
     });
 }
-
 
 function crearListado(data) {
     if (tabla) {
@@ -353,17 +350,14 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
                     <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                         <table class="table table-bordered table-sm mb-0">
                             <thead class="sticky-top text-nowrap">
-                                <tr class="text-center tabla-items-header">
-                                    
+                                <tr class="text-center tabla-items-header">                                    
                                     <th scope="col" class="custom-header-cons-bg">Item</th>
                                     <th scope="col" class="custom-header-cons-bg">Costo</th>
-
                                     <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
                                     <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
                                     <th scope="col" class="custom-header-ingr-bg">Precio - TC</th>
                                     <th scope="col" class="custom-header-ingr-bg">Precio - Crédito</th>
                                     <th scope="col" class="custom-header-ingr-bg">Aporte x Unidad</th>
-
                                     <th scope="col" class="custom-header-calc-bg">Comprometido Prov.</th>
                                     <th scope="col" class="custom-header-calc-bg">Margen Contado</th>
                                     <th scope="col" class="custom-header-calc-bg">Margen TC</th>
@@ -445,7 +439,6 @@ function cerrarDetalle() {
             tabla.columns.adjust();
         }
     });
-
     // Limpiar datos de aprobación
     datosAprobacionActual = null;
 }
@@ -570,7 +563,6 @@ function cargarAprobaciones(entidad, idEntidad, tipoProceso) {
 // ===================================================================
 // ✅ FUNCIONES PARA APROBAR/RECHAZAR ACUERDOS
 // ===================================================================
-
 /**
  * Procesa la aprobación o rechazo de un acuerdo
  */
@@ -620,7 +612,6 @@ function procesarAprobacionAcuerdo(accion, comentario) {
 function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
     const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
     const usuarioActual = obtenerUsuarioActual();
-
     console.log("accion: ", accion);
     console.log("datosAprobacionActual: ", datosAprobacionActual);
     console.log('Ejecutando aprobación/rechazo con idOpcion:', idOpcionActual, 'y usuario:', usuarioActual);
@@ -639,7 +630,6 @@ function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
         idevento: "EVCLICK",
         nombreusuario: usuarioActual
     };
-
     console.log("Enviando aprobación/rechazo:", datosPost);
 
     Swal.fire({
@@ -688,7 +678,6 @@ function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
             const mensajeError = xhr.responseJSON?.mensaje || error || 'Error desconocido';
             console.error("Error al procesar aprobación:", mensajeError);
             console.error("Detalles del error:", xhr.responseText);
-
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
