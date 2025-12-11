@@ -26,8 +26,8 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
     
     --Procedimiento para mostrar la bandeja de Aprobacion Acuerdos
     PROCEDURE sp_consulta_bandeja_aprobacion_acuerdos (
-        p_usuarioaprobador  IN VARCHAR2,                   -- Usuario aprobador (OBLIGATORIO)
-        p_cursor            OUT SYS_REFCURSOR,
+        p_usuarioaprobador        IN VARCHAR2,                   -- Usuario aprobador (OBLIGATORIO)
+        p_cursor                  OUT SYS_REFCURSOR,
         p_codigo_salida           OUT NUMBER,
         p_mensaje_salida          OUT VARCHAR2
     );
@@ -35,6 +35,7 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
     --Procedimiento para mostrar la bandeja de Aprobacion Acuerdos Por Id
     PROCEDURE sp_consulta_bandeja_aprobacion_por_id (
         p_idacuerdo               IN NUMBER,
+        p_idaprobacion            IN NUMBER,
         p_cursor                  OUT SYS_REFCURSOR,
         p_codigo_salida           OUT NUMBER,
         p_mensaje_salida          OUT VARCHAR2
@@ -759,7 +760,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     )
                     SELECT
                         v_entidad_acuerdo        AS entidad,         
-                        v_idfondo                AS identidad,       
+                        v_idacuerdo              AS identidad,       
                         v_tipo_creacion          AS idtipoproceso,   -- TPCREACION
                         v_idusuarioingreso       AS idusersolicitud,
                         v_idusuarioingreso       AS nombreusersolicitud,
@@ -972,6 +973,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     */
     PROCEDURE sp_consulta_bandeja_aprobacion_por_id (
         p_idacuerdo               IN NUMBER,
+        p_idaprobacion            IN NUMBER,
         p_cursor                  OUT SYS_REFCURSOR,
         p_codigo_salida           OUT NUMBER,
         p_mensaje_salida          OUT VARCHAR2
@@ -1000,6 +1002,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     
         -- =========================================================================
         -- Abrir cursor con la consulta principal
+        -- - ACGENERAL: articulos_json será NULL o []
+        -- - ACARTICULO: articulos_json contendrá el array de artículos
         -- =========================================================================
         
         OPEN p_cursor FOR
@@ -1013,7 +1017,12 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 arp.nombre                                      AS nombre_proveedor,
                 ac.idtipoacuerdo                                AS id_tipo_clase_acuerdo,
                 ct.nombre                                       AS nombre_clase_acuerdo,
-                NVL(art.cantidad_articulos, 0)                  AS cantidad_articulos,
+                ct.idetiqueta                                   AS etiqueta_clase_acuerdo,
+                -- Cantidad total de artículos
+                NVL(art_data.cantidad_articulos, 0)             AS cantidad_articulos,
+                -- JSON con todos los artículos (NULL si es ACGENERAL)
+                art_data.articulos_json                         AS articulos_json,
+                -- Valores del acuerdo fondo
                 NVL(acf.valoraporte, 0)                         AS valor_acuerdo,
                 TO_CHAR(ac.fechainiciovigencia, 'YYYY-MM-DD')   AS fecha_inicio,
                 TO_CHAR(ac.fechafinvigencia, 'YYYY-MM-DD')      AS fecha_fin,
@@ -1028,6 +1037,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 a.idaprobacion,
                 a.entidad                                       AS id_entidad,
                 en.idetiqueta                                   AS entidad_etiqueta,
+                cp.idcatalogo                                   AS id_tipo_proceso, 
                 cp.idetiqueta                                   AS tipo_proceso_etiqueta,
                 ea.idetiqueta                                   AS estado_aprob_etiqueta
             FROM 
@@ -1035,7 +1045,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             -- JOIN con acuerdo fondo
             INNER JOIN apl_tb_acuerdofondo acf 
                 ON acf.idacuerdo = ac.idacuerdo
-            -- *** JOIN con aprobación por IDACUERDO ***
+            -- JOIN con aprobación por IDACUERDO
             INNER JOIN apl_tb_aprobacion a 
                 ON a.identidad = ac.idacuerdo
                 AND a.idestadoregistro = v_estado_nuevo
@@ -1045,16 +1055,33 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             -- JOIN con proveedor
             INNER JOIN apl_tb_artefacta_proveedor arp 
                 ON arp.identificacion = f.idproveedor
-            -- Subquery para contar artículos
+            -- *** SUBQUERY: Cuenta artículos y genera JSON ***
             LEFT JOIN (
                 SELECT 
-                    idacuerdo, 
-                    COUNT(*) AS cantidad_articulos 
+                    idacuerdo,
+                    COUNT(*) AS cantidad_articulos,
+                    JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'idAcuerdoArticulo'     VALUE idacuerdoarticulo,
+                            'codigoArticulo'        VALUE codigoarticulo,
+                            'costoActual'           VALUE costoactual,
+                            'unidadesLimite'        VALUE unidadeslimite,
+                            'precioContado'         VALUE preciocontado,
+                            'precioTarjetaCredito'  VALUE preciotarjetacredito,
+                            'precioCredito'         VALUE preciocredito,
+                            'margenContado'         VALUE margencontado,
+                            'margenTarjetaCredito'  VALUE margentarjetacredito,
+                            'valorAporte'           VALUE valoraporte,
+                            'valorComprometido'     VALUE valorcomprometido,
+                            'idEstadoRegistro'      VALUE idestadoregistro
+                        )
+                        RETURNING CLOB
+                    ) AS articulos_json
                 FROM 
                     apl_tb_acuerdoarticulo 
                 GROUP BY 
                     idacuerdo
-            ) art ON art.idacuerdo = ac.idacuerdo
+            ) art_data ON art_data.idacuerdo = ac.idacuerdo
             -- JOINs con catálogos
             LEFT JOIN apl_tb_catalogo cp 
                 ON a.idtipoproceso = cp.idcatalogo
@@ -1069,24 +1096,9 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             LEFT JOIN apl_tb_catalogo tf 
                 ON f.idtipofondo = tf.idcatalogo
             WHERE
-                -- *** FILTRO POR ID DE ACUERDO ***
-                ac.idacuerdo = p_idacuerdo
-                -- Condiciones de estado y proceso
-                AND (
-                    -- Creación: Estados NUEVO o MODIFICADO
-                    (
-                        ce.idetiqueta IN ('ESTADONUEVO', 'ESTADOMODIFICADO')
-                        AND en.idetiqueta = 'ENTACUERDO'
-                        AND cp.idetiqueta = 'TPCREACION'
-                    ) 
-                    OR
-                    -- Inactivación: Estados APROBADO o VIGENTE
-                    (
-                        ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE')
-                        AND en.idetiqueta = 'ENTACUERDO'
-                        AND cp.idetiqueta = 'TPINACTIVACION'
-                    )
-                )
+                -- FILTRO POR ID DE ACUERDO
+                ac.idacuerdo = p_idacuerdo and a.idaprobacion =  p_idaprobacion       
+              
             ORDER BY 
                 ac.idacuerdo;
 
