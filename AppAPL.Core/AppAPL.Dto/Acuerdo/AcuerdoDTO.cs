@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Nodes;
 
 namespace AppAPL.Dto.Acuerdo
 {
@@ -34,6 +35,22 @@ namespace AppAPL.Dto.Acuerdo
         public decimal ValorComprometido { get; set; }
         public decimal ValorLiquidado { get; set; }
         public int IdEstadoRegistro { get; set; }
+    }
+
+    public class AcuerdoArticuloDTO
+    {
+        public int idAcuerdoArticulo { get; set; }
+        public string codigoArticulo { get; set; }
+        public decimal costoActual { get; set; }
+        public int unidadesLimite { get; set; }
+        public decimal precioContado { get; set; }
+        public decimal precioTarjetaCredito { get; set; }
+        public decimal precioCredito { get; set; }
+        public decimal margenContado { get; set; }
+        public decimal margenTarjetaCredito { get; set; }
+        public decimal valorAporte { get; set; }
+        public decimal valorComprometido { get; set; }
+        public int idEstadoRegistro { get; set; }
     }
 
     public class FondoAcuerdoDTO
@@ -134,6 +151,7 @@ namespace AppAPL.Dto.Acuerdo
         public int id_tipo_clase_acuerdo { get; set; }
         public string nombre_clase_acuerdo { get; set; }
         public int cantidad_articulos { get; set; }
+        
         public decimal valor_acuerdo { get; set; }
         public DateTime fecha_inicio { get; set; }
         public DateTime fecha_fin { get; set; }
@@ -148,8 +166,44 @@ namespace AppAPL.Dto.Acuerdo
         public int idaprobacion { get; set; }
         public int id_entidad { get; set; }
         public string entidad_etiqueta { get; set; }
+        public int id_tipo_proceso { get; set; }
         public string tipo_proceso_etiqueta { get; set; }
         public string estado_aprob_etiqueta { get; set; }
+        public IEnumerable<AcuerdoArticuloDTO> articulos { get; set; }
+    }
+
+    public class BandejaAprobacionAcuerdoRawDTO
+    {
+        public string Solicitud { get; set; }
+        public int IdAcuerdo { get; set; }
+        public string Descripcion { get; set; }
+        public int Id_Fondo { get; set; }
+        public int Id_Tipo_Fondo { get; set; }
+        public string nombre_tipo_fondo { get; set; }
+        public string nombre_proveedor { get; set; }
+        public int id_tipo_clase_acuerdo { get; set; }
+        public string nombre_clase_acuerdo { get; set; }
+        public int cantidad_articulos { get; set; }
+
+        
+        public decimal valor_acuerdo { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public int idestados_acuerdo { get; set; }
+        public string nombre_estado_acuerdo { get; set; }
+        public string id_etiqueta_estado_acuerdo { get; set; }
+        public int nivelaprobacion { get; set; }
+        public string aprobador { get; set; }
+        public int idaprobacion { get; set; }
+        public int id_entidad { get; set; }
+        public string entidad_etiqueta { get; set; }
+        public int id_tipo_proceso { get; set; }
+        public string tipo_proceso_etiqueta { get; set; }
+        public string estado_aprob_etiqueta { get; set; }
+        public string articulos_json { get; set; }
     }
 
     public class ConsultarArticuloDTO

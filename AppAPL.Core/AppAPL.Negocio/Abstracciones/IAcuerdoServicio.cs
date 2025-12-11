@@ -20,7 +20,7 @@ namespace AppAPL.Negocio.Abstracciones
 
         Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo);
         Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador);
-        Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo);
+        Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion);
         Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo);
         Task<IEnumerable<AcuerdoDTO>> ListarAsync();
         Task<AcuerdoDTO?> ObtenerPorIdAsync(int idAcuerdo);

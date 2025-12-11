@@ -361,13 +361,14 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
-        public async Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo)
+        public async Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
         {
             using var connection = factory.CreateOpenConnection();
 
             var paramObject = new
             {
-                p_idacuerdo = idAcuerdo
+                p_idacuerdo = idAcuerdo,
+                p_idaprobacion = idAprobacion
             };
 
 
@@ -378,7 +379,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
-            var datos = await connection.QueryAsync<BandejaAprobacionAcuerdoDTO>(
+            var datosRaw = await connection.QueryAsync<BandejaAprobacionAcuerdoRawDTO>(
                 "APL_PKG_ACUERDOS.sp_consulta_bandeja_aprobacion_por_id",
                 parameters,
                 commandType: CommandType.StoredProcedure
@@ -390,7 +391,61 @@ namespace AppAPL.AccesoDatos.Repositorio
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
 
-            return datos.FirstOrDefault();
+            var rawResult = datosRaw.FirstOrDefault();
+
+            if (rawResult == null)
+            {
+                logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+                return null;
+            }
+
+            List<AcuerdoArticuloDTO>? articulosDeserializados = null;
+            logger.LogInformation($"articulos antes de serializar: {rawResult.articulos_json}");
+
+            if (!string.IsNullOrEmpty(rawResult.articulos_json))
+            {
+                // 2. Deserialización: Si falla, la excepción subirá al filtro global.
+                articulosDeserializados = JsonSerializer.Deserialize<List<AcuerdoArticuloDTO>>(
+                    rawResult.articulos_json
+                );
+            }
+
+            var resultadoFinal = new BandejaAprobacionAcuerdoDTO
+            {
+                Solicitud = rawResult.Solicitud,
+                IdAcuerdo = rawResult.IdAcuerdo,
+                Descripcion = rawResult.Descripcion,
+                Id_Fondo = rawResult.Id_Fondo,
+                Id_Tipo_Fondo = rawResult.Id_Tipo_Fondo,
+                nombre_tipo_fondo = rawResult.nombre_tipo_fondo,
+                nombre_proveedor = rawResult.nombre_proveedor,
+                id_tipo_clase_acuerdo = rawResult.id_tipo_clase_acuerdo,
+                nombre_clase_acuerdo = rawResult.nombre_clase_acuerdo,
+                cantidad_articulos = rawResult.cantidad_articulos,
+                
+                valor_acuerdo = rawResult.valor_acuerdo,
+                fecha_inicio = rawResult.fecha_inicio,
+                fecha_fin = rawResult.fecha_fin,
+                valor_disponible = rawResult.valor_disponible,
+                valor_comprometido = rawResult.valor_comprometido,
+                valor_liquidado = rawResult.valor_liquidado,
+                idestados_acuerdo = rawResult.idestados_acuerdo,
+                nombre_estado_acuerdo = rawResult.nombre_estado_acuerdo,
+                id_etiqueta_estado_acuerdo = rawResult.id_etiqueta_estado_acuerdo,
+                nivelaprobacion = rawResult.nivelaprobacion,
+                aprobador = rawResult.aprobador,
+                idaprobacion = rawResult.idaprobacion,
+                id_entidad = rawResult.id_entidad,
+                entidad_etiqueta = rawResult.entidad_etiqueta,
+                id_tipo_proceso = rawResult.id_tipo_proceso,
+                tipo_proceso_etiqueta = rawResult.tipo_proceso_etiqueta,
+                estado_aprob_etiqueta = rawResult.estado_aprob_etiqueta,
+                articulos = articulosDeserializados ?? Enumerable.Empty<AcuerdoArticuloDTO>()
+            };
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return resultadoFinal;
         }
 
         public async Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo)
