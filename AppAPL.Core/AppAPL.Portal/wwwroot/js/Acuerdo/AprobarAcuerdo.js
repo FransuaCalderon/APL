@@ -321,7 +321,7 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
             datosAprobacionActual = {
                 entidad: data.id_entidad || 0,
                 identidad: data.idacuerdo || 0,
-                idtipoproceso: data.idtipoproceso || 43,
+                idtipoproceso: data.id_tipo_proceso || 0,
                 idetiquetatipoproceso: data.tipo_proceso_etiqueta || "",
                 idaprobacion: idAprobacion,
                 entidad_etiqueta: data.entidad_etiqueta,
@@ -354,7 +354,7 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
                         <table class="table table-bordered table-sm mb-0">
                             <thead class="sticky-top text-nowrap">
                                 <tr class="text-center tabla-items-header">
-                                    <th scope="col" style="width: 40px; background-color: #e9ecef;">Sel.</th>
+                                    
                                     <th scope="col" class="custom-header-cons-bg">Item</th>
                                     <th scope="col" class="custom-header-cons-bg">Costo</th>
 
@@ -378,9 +378,7 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
 
                     htmlArticulos += `
                         <tr>
-                            <td class="text-center">
-                                <input type="checkbox" checked disabled>
-                            </td>
+                           
                             <td class="fw-bold text-center">${art.codigoarticulo || ''}</td>
                             <td class="text-end">${formatearMoneda(art.costoactual)}</td>
 
@@ -653,9 +651,8 @@ function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
         }
     });
 
-    
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-aprobacion-id/${idAcuerdo}/${idAprobacion}`,
+        url: `${window.apiBaseUrl}/api/Acuerdo/aprobar-acuerdo`,
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify(datosPost),
