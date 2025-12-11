@@ -199,7 +199,7 @@ function crearListado(data) {
         html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_disponible) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_comprometido) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_liquidado) + "</td>";
-        html += "  <td>" + (acuerdo.nombre_estado_fondo ?? "") + "</td>";
+        html += "  <td>" + (acuerdo.nombre_estado_acuerdo ?? "") + "</td>";
         html += "</tr>";
     }
 
