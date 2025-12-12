@@ -361,7 +361,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
-        public async Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
+        public async Task<BandejaAprobacionAcuerdoRawDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
         {
             using var connection = factory.CreateOpenConnection();
 
@@ -389,8 +389,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+            return datosRaw.FirstOrDefault();
 
-
+            /*
             var rawResult = datosRaw.FirstOrDefault();
 
             if (rawResult == null)
@@ -445,7 +446,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
-            return resultadoFinal;
+            return resultadoFinal;*/
         }
 
         public async Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo)

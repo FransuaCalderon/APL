@@ -1,5 +1,4 @@
 ﻿using AppAPL.Dto.Catalogo;
-using AppAPL.Dto.Grupo;
 using AppAPL.Dto.Opciones;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;

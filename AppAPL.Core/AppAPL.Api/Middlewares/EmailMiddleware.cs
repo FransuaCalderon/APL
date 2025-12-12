@@ -95,14 +95,7 @@ namespace AppAPL.Api.Middlewares
             await next(context);
 
 
-            int status = context.Response.StatusCode;
-            bool esExitoso = status >= 200 && status < 300;
             
-            if (!esExitoso)
-            {
-                logger.LogInformation($"el status no fue exitoso: {status}");
-                return;
-            }
             
             //---------------leer body del response despues del next------------------------
 
@@ -121,7 +114,14 @@ namespace AppAPL.Api.Middlewares
             //---------------------------------------------------------------------
 
 
+            int status = context.Response.StatusCode;
+            bool esExitoso = status >= 200 && status < 300;
 
+            if (!esExitoso)
+            {
+                logger.LogInformation($"el status no fue exitoso: {status}");
+                return;
+            }
 
             logger.LogInformation($"[EmailMiddleware] Procesando correo para controlador={controllerName}, Entidad={emailAttr.Entidad}, TipoProceso={emailAttr.TipoProceso}");
 

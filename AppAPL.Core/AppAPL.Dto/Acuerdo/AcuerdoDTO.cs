@@ -169,7 +169,7 @@ namespace AppAPL.Dto.Acuerdo
         public int id_tipo_proceso { get; set; }
         public string tipo_proceso_etiqueta { get; set; }
         public string estado_aprob_etiqueta { get; set; }
-        public IEnumerable<AcuerdoArticuloDTO> articulos { get; set; }
+        public IEnumerable<AcuerdoArticuloDTO>? articulos { get; set; }
     }
 
     public class BandejaAprobacionAcuerdoRawDTO
@@ -203,7 +203,7 @@ namespace AppAPL.Dto.Acuerdo
         public int id_tipo_proceso { get; set; }
         public string tipo_proceso_etiqueta { get; set; }
         public string estado_aprob_etiqueta { get; set; }
-        public string articulos_json { get; set; }
+        public string? articulos_json { get; set; }
     }
 
     public class ConsultarArticuloDTO

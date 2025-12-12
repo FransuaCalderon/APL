@@ -8,10 +8,11 @@ using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
+using AutoMapper;
 
 namespace AppAPL.Negocio.Servicios
 {
-    public class AcuerdoServicio (IAcuerdoRepositorio repo) : IAcuerdoServicio
+    public class AcuerdoServicio (IAcuerdoRepositorio repo, IMapper mapper) : IAcuerdoServicio
     {
         
 
@@ -33,8 +34,14 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador)
             => repo.ConsultarBandAprobAcuerdo(usuarioAprobador);
 
-        public Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
-            => repo.ObtenerBandejaAprobacionPorId(idAcuerdo, idAprobacion);
+        public async Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
+        {
+            var datosRaw = await repo.ObtenerBandejaAprobacionPorId(idAcuerdo, idAprobacion);
+
+            var datosDeserializados = mapper.Map<BandejaAprobacionAcuerdoDTO>(datosRaw);
+            return datosDeserializados;
+        }
+            
 
         public Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo)
             => repo.AprobarAcuerdo(acuerdo);
