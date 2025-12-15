@@ -24,7 +24,11 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_mensaje_salida          OUT VARCHAR2
     );
     
-    --Procedimiento para mostrar la bandeja de Aprobacion Acuerdos
+    /*
+    =========================================================
+    Descripción: Bandeja Consulta / Aprobacion Acuerdo
+    =========================================================
+    */
     PROCEDURE sp_consulta_bandeja_aprobacion_acuerdos (
         p_usuarioaprobador        IN VARCHAR2,                   -- Usuario aprobador (OBLIGATORIO)
         p_cursor                  OUT SYS_REFCURSOR,
@@ -32,7 +36,6 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_mensaje_salida          OUT VARCHAR2
     );
     
-    --Procedimiento para mostrar la bandeja de Aprobacion Acuerdos Por Id
     PROCEDURE sp_consulta_bandeja_aprobacion_por_id (
         p_idacuerdo               IN NUMBER,
         p_idaprobacion            IN NUMBER,
@@ -41,7 +44,6 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_mensaje_salida          OUT VARCHAR2
     );
     
-    --Procedimiento para aprobar Acuerdo
     PROCEDURE sp_proceso_aprobacion_acuerdo (
         p_entidad                   IN NUMBER,
         p_identidad                 IN NUMBER,
@@ -60,6 +62,16 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_mensaje_salida            OUT VARCHAR2
     );
     
+    /*
+    =========================================================
+    Descripción: Bandeja Consulta / Modificacion Acuerdo 
+    =========================================================
+    */
+    PROCEDURE sp_consulta_bandeja_modificacion (
+        p_cursor          OUT t_cursor,
+        p_codigo_salida   OUT NUMBER,
+        p_mensaje_salida  OUT VARCHAR2
+    );
    
 
 END APL_PKG_ACUERDOS;
@@ -192,6 +204,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_json_articulos_log     CLOB;
         v_id_control_interfaz    NUMBER;
         v_idevento               NUMBER;
+        
+        v_fondo_disponible       NUMBER;
     
     BEGIN
         -- =============================================================
@@ -238,6 +252,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         FROM DUAL;
         
         
+       
         -- ---------------------------------------------------------
         -- CASO: GENERAL (2 tablas: acuerdo + fondo)
         -- ---------------------------------------------------------
@@ -315,6 +330,43 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 v_valorliquidado
             FROM DUAL;
             
+            -- ----------------------------------------------------------
+            -- Validar si el fondo no existe
+            -- ----------------------------------------------------------
+             SELECT
+                CASE
+                    WHEN EXISTS (SELECT 1 FROM apl_tb_fondo  WHERE idfondo = v_idfondo
+                    ) THEN
+                     1
+                    ELSE
+                     0
+                END
+                
+                INTO v_row_exists
+                FROM
+                    dual;
+            
+                IF v_row_exists = 0  THEN
+                    p_codigo_salida := 1;
+                    p_mensaje_salida := 'Error Fondo no existe ' ||  v_idfondo;
+                
+                    RETURN;
+                ELSE 
+                    -- ----------------------------------------------------------
+                    -- Validar si el fondo tiene disponible para crear el acuerdo
+                    -- ----------------------------------------------------------
+                    SELECT valordisponible INTO v_fondo_disponible FROM apl_tb_fondo WHERE idfondo = v_idfondo;
+                    IF  v_valoraporte > v_fondo_disponible THEN
+                    
+                        p_codigo_salida := 1;
+                        p_mensaje_salida := 'Error Fondo disponible ' ||  v_fondo_disponible || ' menor al valor del acuerdo' || v_valoraporte;
+                        
+                      RETURN;
+                    END IF;
+                END IF;
+       
+            
+
             -- INSERT 1: APL_TB_ACUERDO
             INSERT INTO apl_tb_acuerdo (
                 idtipoacuerdo,
@@ -557,6 +609,41 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 v_valorcomprometido,
                 v_valorliquidado
             FROM DUAL;
+            
+            -- ----------------------------------------------------------
+            -- Validar si el fondo no existe
+            -- ----------------------------------------------------------
+            SELECT
+                CASE
+                    WHEN EXISTS (SELECT 1 FROM apl_tb_fondo  WHERE idfondo = v_idfondo
+                    ) THEN
+                     1
+                    ELSE
+                     0
+                END
+                
+                INTO v_row_exists
+                FROM
+                    dual;
+            
+                IF v_row_exists = 0  THEN
+                        p_codigo_salida := 1;
+                        p_mensaje_salida := 'Error Fondo no existe ' ||  v_idfondo;
+                    
+                        RETURN;
+                    ELSE 
+                        -- ----------------------------------------------------------
+                        -- Validar si el fondo tiene disponible para crear el acuerdo
+                        -- ----------------------------------------------------------
+                        SELECT valordisponible INTO v_fondo_disponible FROM apl_tb_fondo WHERE idfondo = v_idfondo;
+                        IF  v_valoraporte > v_fondo_disponible THEN
+                        
+                            p_codigo_salida := 1;
+                            p_mensaje_salida := 'Error Fondo disponible ' ||  v_fondo_disponible || ' menor al valor del acuerdo' || v_valoraporte;
+                            
+                          RETURN;
+                        END IF;
+                END IF;
             
             -- INSERT 1: APL_TB_ACUERDO
             INSERT INTO apl_tb_acuerdo (
@@ -808,7 +895,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     
     /*
     =========================================================
-    Descripción: Bandeja Consulta  Aprobacion Acuerdo
+    Descripción: Bandeja Consulta / Aprobacion Acuerdo
     =========================================================
     */
     PROCEDURE sp_consulta_bandeja_aprobacion_acuerdos (
@@ -965,12 +1052,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             
     END sp_consulta_bandeja_aprobacion_acuerdos;
     
-    
-    /*
-    =========================================================
-    Descripción: Bandeja Consulta  Aprobacion Acuerdo Por Id
-    =========================================================
-    */
+
     PROCEDURE sp_consulta_bandeja_aprobacion_por_id (
         p_idacuerdo               IN NUMBER,
         p_idaprobacion            IN NUMBER,
@@ -1119,11 +1201,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     END sp_consulta_bandeja_aprobacion_por_id;
     
        
-    /*
-    =========================================================
-    Descripción: Procesa la aprobación/rechazo de un acuerdo según el tipo de proceso (Creación o Inactivación)
-    =========================================================
-    */
     PROCEDURE sp_proceso_aprobacion_acuerdo (
         p_entidad                   IN NUMBER,
         p_identidad                 IN NUMBER,
@@ -1651,6 +1728,97 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             
     END sp_proceso_aprobacion_acuerdo;
 
+    /*
+    =========================================================
+    Descripción: Bandeja Consulta / Modificacion Acuerdo 
+    =========================================================
+    */
+    PROCEDURE sp_consulta_bandeja_modificacion (
+        p_cursor          OUT t_cursor, 
+        p_codigo_salida   OUT NUMBER,
+        p_mensaje_salida  OUT VARCHAR2
+    ) AS
+        -- Variables para catálogos
+        v_estado_negado      NUMBER;
+        v_estado_nuevo       NUMBER;
+        v_estado_modificado  NUMBER;
+        v_contador_registro  NUMBER;
+        
+    BEGIN
+        -- Inicializar salida exitosa
+        p_codigo_salida  := 0;
+        p_mensaje_salida := 'OK';
+        
+        -- Obtener catálogos de estados
+        SELECT idcatalogo INTO v_estado_negado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONEGADO';
+        
+        SELECT idcatalogo INTO v_estado_nuevo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';
+        
+        SELECT idcatalogo INTO v_estado_modificado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOMODIFICADO';
+        
+        -- Validar que existan registros
+        SELECT COUNT(*) INTO v_contador_registro
+        FROM apl_tb_acuerdo a
+        INNER JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
+        LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
+        WHERE ce.idetiqueta IN ('ESTADONUEVO', 'ESTADOMODIFICADO', 'ESTADONEGADO')
+          AND NVL(a.marcaprocesoaprobacion, ' ') = ' ';
+        
+        IF v_contador_registro = 0 THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'No se encontraron registros en la bandeja de modificación.';
+        END IF;
+        
+        -- Abrir cursor con la consulta
+        OPEN p_cursor FOR
+            SELECT q.* FROM (
+                SELECT 
+                    a.idacuerdo,
+                    a.descripcion,
+                    af.idfondo,
+                    tf.nombre                                        AS nombre_tipo_fondo,
+                    arp.nombre                                       AS nombre_proveedor,
+                    ct.nombre                                        AS clase_acuerdo,
+                    NVL(art.cantidad_articulos, 0)                   AS cantidad_articulos,
+                    af.valoraporte                                   AS valor_acuerdo,
+                    TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD')     AS fecha_inicio,
+                    TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD')        AS fecha_fin,
+                    af.valordisponible                               AS valor_disponible,
+                    af.valorcomprometido                             AS valor_comprometido,
+                    af.valorliquidado                                AS valor_liquidado,
+                    ce.nombre                                        AS estado,
+                    ce.idetiqueta                                    AS estado_etiqueta
+                FROM 
+                    apl_tb_acuerdo a
+                    INNER JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
+                    LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
+                    LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
+                    LEFT JOIN (SELECT idacuerdo, COUNT(*) AS cantidad_articulos FROM apl_tb_acuerdoarticulo GROUP BY idacuerdo) art ON art.idacuerdo = a.idacuerdo
+                    INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
+                    INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                    LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
+                WHERE 
+                    ce.idetiqueta IN ('ESTADONUEVO', 'ESTADOMODIFICADO', 'ESTADONEGADO')
+                    AND NVL(a.marcaprocesoaprobacion, ' ') = ' '
+            ) q
+            ORDER BY q.idacuerdo;
+    
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Error: No se encontraron los catálogos necesarios para la consulta.';
+            OPEN p_cursor FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+                
+        WHEN OTHERS THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Error: ' || SQLCODE || ' - ' || SQLERRM;
+            OPEN p_cursor FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            
+    END sp_consulta_bandeja_modificacion;
+
+    
 
     
 END APL_PKG_ACUERDOS;
