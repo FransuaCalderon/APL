@@ -361,6 +361,35 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<IEnumerable<BandejaModificacionAcuerdoDTO>> ConsultarBandModAcuerdo()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+           
+            var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<BandejaModificacionAcuerdoDTO>(
+                "APL_PKG_ACUERDOS.sp_consulta_bandeja_modificacion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
         public async Task<BandejaAprobacionAcuerdoRawDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
         {
             using var connection = factory.CreateOpenConnection();

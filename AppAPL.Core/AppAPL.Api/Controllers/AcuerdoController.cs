@@ -106,6 +106,15 @@ namespace AppAPL.Api.Controllers
             return item;
         }
 
+        [HttpGet("consultar-bandeja-modificacion")]
+        public async Task<ActionResult<List<BandejaModificacionAcuerdoDTO>>> ConsultarBandModAcuerdo()
+        {
+
+            var listaBandeja = await servicio.ConsultarBandModAcuerdo();
+
+            return listaBandeja.ToList();
+        }
+
 
         [HttpPost("insertar")]
         [Email("ENTACUERDO", TipoProceso.Creacion)]

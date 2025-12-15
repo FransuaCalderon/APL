@@ -57,5 +57,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<AcuerdoFondoDTO?> ObtenerAcuerdoFondoPorIdAsync(int idAcuerdo)
             => repo.ObtenerAcuerdoFondoPorIdAsync(idAcuerdo);
+
+        public Task<IEnumerable<BandejaModificacionAcuerdoDTO>> ConsultarBandModAcuerdo()
+            => repo.ConsultarBandModAcuerdo();
     }
 }

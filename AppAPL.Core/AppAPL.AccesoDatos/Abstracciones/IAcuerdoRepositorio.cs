@@ -25,5 +25,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<AcuerdoDTO?> ObtenerPorIdAsync(int idAcuerdo);
         Task<IEnumerable<AcuerdoFondoDTO>> ObtenerAcuerdosFondosAsync();
         Task<AcuerdoFondoDTO?> ObtenerAcuerdoFondoPorIdAsync(int idAcuerdo);
+        Task<IEnumerable<BandejaModificacionAcuerdoDTO>> ConsultarBandModAcuerdo();
     }
 }
