@@ -54,9 +54,9 @@ VALUES ('Indicador de Creacion', 'Indicador de Creacion', 1, SYSDATE, NULL, TO_D
   INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
 VALUES ('Tipo de Proceso', 'Tipo de Proceso', 1,  SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOPROCESO');
 
---acuedos 12/11/2025
+--Promociones 12/11/2025
   INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
-VALUES ('Tipo de Acuerdo', 'Tipo de Acuerdo', 1,  SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'TIPOACUERDO');
+VALUES ('Clase de Promocion', 'Clase de Promocion', 1,  SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'CLASEPROMOCION');
 
 --Acuerdo 27/11/2025
   INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
