@@ -1471,12 +1471,27 @@
                         }
                     }
 
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error al Guardar",
-                        text: mensajeError,
-                        footer: `<small>Código: ${xhr.status}</small>`,
-                    });
+
+                    if (xhr.status >= 400 && xhr.status < 500) {
+                        mensajeError = xhr.responseJSON?.mensaje || error || 'Error desconocido';
+
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Error al Guardar, validacion de lado del cliente",
+                            text: mensajeError,
+                            footer: `<small>Código: ${xhr.status}</small>`,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error al Guardar",
+                            text: mensajeError,
+                            footer: `<small>Código: ${xhr.status}</small>`,
+                        });
+                    }
+
+
+                    
                 },
             });
         });
