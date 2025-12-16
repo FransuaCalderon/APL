@@ -1189,7 +1189,7 @@
         const articulos = leerDetalleItemsDesdeTabla();
 
         const data = {
-            tipoclaseetiqueta: "ACARTICULO",
+            tipoclaseetiqueta: "CLAARTICULO",
             idopcion: idOpcionActual,
             idcontrolinterfaz: "BTNGRABAR",
             idevento: "EVCLICK",
@@ -1390,7 +1390,7 @@
         const valorDisponible = parseCurrencyToNumber($("#fondoDisponibleGeneral").val());
 
         const data = {
-            tipoclaseetiqueta: "ACGENERAL",
+            tipoclaseetiqueta: "CLAGENERAL",
             idopcion: idOpcionActual,
             idcontrolinterfaz: "BTNGRABAR",
             idevento: "EVCLICK",

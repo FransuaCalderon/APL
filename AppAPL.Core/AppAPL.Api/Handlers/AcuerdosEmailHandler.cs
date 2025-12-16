@@ -96,7 +96,36 @@ namespace AppAPL.Api.Handlers
                     break;
 
                 case TipoProceso.Modificacion:
-                    
+                    /*
+                    camposPlantilla = new Dictionary<string, string>
+                        {
+                            { "Nombre", "" },
+                            { "IdAcuerdo", "" },
+                            { "NombreProveedor", "" },
+                            { "NuevoNombreProveedor", "" },
+                            { "ValorAcuerdo", "" },
+                            { "ValorAcuerdoLetras", "" },
+                            { "NuevoValorAcuerdo", "" },
+                            { "NuevoValorAcuerdoLetras", "" },
+                            { "FechaInicio", "" },
+                            { "NuevaFechaInicio", "" },
+                            { "FechaFin", "" },
+                            { "NuevaFechaFin", "" },
+
+                            { "ValorDisponible", "" },
+                            { "NuevoValorDisponible", "" },
+                            { "ValorComprometido", "" },
+                            { "NuevoValorComprometido", "" },
+                            { "ValorLiquidado", "" },
+                            { "NuevoValorLiquidado", "" },
+
+                            { "IdFondoAnterior", "" },
+                            { "IdFondoActual", "" },
+
+                            { "Firma", "" },
+
+                        };*/
+
                     break;
 
                 case TipoProceso.Aprobacion:
@@ -170,7 +199,25 @@ namespace AppAPL.Api.Handlers
                     break;
 
                 case TipoProceso.Inactivacion:
-                    
+                    /*
+                    camposPlantilla = new Dictionary<string, string>
+                        {
+                            { "Nombre", "" },
+                            { "IdAcuerdo", "" },
+                            { "NombreProveedor", "" },
+
+                            { "ValorAcuerdo", "" },
+                            { "ValorAcuerdoLetras", "" },
+                            { "ValorDisponibleAcuerdo", "" },
+                            { "ValorDisponibleAcuerdoLetras", "" },
+                            { "FechaInicio", "" },
+                            { "FechaFin", "" },
+                            { "IdFondo", "" },
+                            { "ValorDisponibleFondo", "" },
+                            { "Firma", "" },
+
+                        };
+                    */
                     break;
 
                 default:

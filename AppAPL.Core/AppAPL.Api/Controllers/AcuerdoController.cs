@@ -96,12 +96,23 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpGet("bandeja-aprobacion-id/{idAcuerdo:int}/{idAprobacion:int}")]
-        public async Task<ActionResult<BandejaAprobacionAcuerdoDTO>> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
+        public async Task<ActionResult<BandAproAcuerdoPorIDDTO>> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
         {
 
             var item = await servicio.ObtenerBandejaAprobacionPorId(idAcuerdo, idAprobacion);
             if (item == null)
-                return NotFound(new { mensaje = $"No se encontró el aprobacion con ese idAcuerdo: {idAcuerdo}" });
+                return NotFound(new { mensaje = $"No se encontró el aprobacion con ese idAcuerdo: {idAcuerdo}, idAprobacion: {idAprobacion}" });
+
+            return item;
+        }
+
+        [HttpGet("bandeja-modificacion-id/{idAcuerdo:int}")]
+        public async Task<ActionResult<BandModAcuerdoPorIDDTO>> ObtenerBandejaModificacionPorId(int idAcuerdo)
+        {
+
+            var item = await servicio.ObtenerBandejaModificacionPorId(idAcuerdo);
+            if (item == null)
+                return NotFound(new { mensaje = $"No se encontró el modificacion con ese idAcuerdo: {idAcuerdo}" });
 
             return item;
         }

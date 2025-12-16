@@ -20,6 +20,7 @@ namespace AppAPL.Api.Attributes
         Creacion,
         Modificacion,
         Aprobacion,
-        Inactivacion
+        Inactivacion,
+        Rechazo
     }
 }

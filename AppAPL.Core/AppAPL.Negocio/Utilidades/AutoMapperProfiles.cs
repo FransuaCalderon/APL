@@ -14,12 +14,13 @@ namespace AppAPL.Negocio.Utilidades
     {
         public AutoMapperProfiles()
         {
-            CreateMap<BandejaAprobacionAcuerdoRawDTO, BandejaAprobacionAcuerdoDTO>()
+           /* CreateMap<BandejaAprobacionAcuerdoRawDTO, BandejaAprobacionAcuerdoDTO>()
                 .ForMember(dto => dto.articulos,
-                config => config.MapFrom(bandapro => this.DeserializarArticulos(bandapro.articulos_json)));
+                config => config.MapFrom(bandapro => this.DeserializarArticulos(bandapro.articulos_json)));*/
                 
         }
 
+        /*
         private List<AcuerdoArticuloDTO>? DeserializarArticulos(string articulos_json)
         {
             List<AcuerdoArticuloDTO>? articulosDeserializados = null;
@@ -30,7 +31,7 @@ namespace AppAPL.Negocio.Utilidades
             }
 
             return articulosDeserializados;
-        }
+        }*/
 
     }
 }

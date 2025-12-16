@@ -316,28 +316,28 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
 
             // Guardar datos para los botones de aprobación/rechazo
             datosAprobacionActual = {
-                entidad: data.id_entidad || 0,
-                identidad: data.idacuerdo || 0,
-                idtipoproceso: data.id_tipo_proceso || 0,
-                idetiquetatipoproceso: data.tipo_proceso_etiqueta || "",
+                entidad: data.cabecera.id_entidad || 0,
+                identidad: data.cabecera.idacuerdo || 0,
+                idtipoproceso: data.cabecera.id_tipo_proceso || 0,
+                idetiquetatipoproceso: data.cabecera.tipo_proceso_etiqueta || "",
                 idaprobacion: idAprobacion,
-                entidad_etiqueta: data.entidad_etiqueta,
-                idetiquetatestado: data.estado_etiqueta || "",
+                entidad_etiqueta: data.cabecera.entidad_etiqueta,
+                idetiquetatestado: data.cabecera.estado_etiqueta || "",
                 comentario: ""
             };
 
             // 1. Llenar Formulario
-            $("#verNombreProveedor").val(data.nombre_proveedor);
-            $("#verNombreTipoFondo").val(data.nombre_tipo_fondo);
-            $("#verDescripcion").val(data.descripcion);
-            $("#verClaseAcuerdo").val(data.nombre_clase_acuerdo);
-            $("#verEstado").val(data.nombre_estado_fondo);
-            $("#verFechaInicio").val(formatearFecha(data.fecha_inicio));
-            $("#verFechaFin").val(formatearFecha(data.fecha_fin));
-            $("#verValorAcuerdo").val(formatearMoneda(data.valor_acuerdo));
-            $("#verValorDisponible").val(formatearMoneda(data.valor_disponible));
-            $("#verValorComprometido").val(formatearMoneda(data.valor_comprometido));
-            $("#verValorLiquidado").val(formatearMoneda(data.valor_liquidado));
+            $("#verNombreProveedor").val(data.cabecera.nombre_proveedor);
+            $("#verNombreTipoFondo").val(data.cabecera.nombre_tipo_fondo);
+            $("#verDescripcion").val(data.cabecera.descripcion);
+            $("#verClaseAcuerdo").val(data.cabecera.nombre_clase_acuerdo);
+            $("#verEstado").val(data.cabecera.nombre_estado_fondo);
+            $("#verFechaInicio").val(formatearFecha(data.cabecera.fecha_inicio));
+            $("#verFechaFin").val(formatearFecha(data.cabecera.fecha_fin));
+            $("#verValorAcuerdo").val(formatearMoneda(data.cabecera.valor_acuerdo));
+            $("#verValorDisponible").val(formatearMoneda(data.cabecera.valor_disponible));
+            $("#verValorComprometido").val(formatearMoneda(data.cabecera.valor_comprometido));
+            $("#verValorLiquidado").val(formatearMoneda(data.cabecera.valor_liquidado));
 
             // =================================================================
             // ✅ LOGICA DE ARTÍCULOS (CON TU ESTRUCTURA DE COLORES)
@@ -404,11 +404,11 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
             $('body').css('cursor', 'default');
 
             // 3. CARGAR TABLA DE HISTORIAL DE APROBACIONES
-            if (data.entidad_etiqueta && data.tipo_proceso_etiqueta) {
+            if (data.cabecera.entidad_etiqueta && data.cabecera.tipo_proceso_etiqueta) {
                 cargarAprobaciones(
-                    data.entidad_etiqueta,
+                    data.cabecera.entidad_etiqueta,
                     idAcuerdo,
-                    data.tipo_proceso_etiqueta
+                    data.cabecera.tipo_proceso_etiqueta
                 );
             } else {
                 $('#tabla-aprobaciones-fondo').html(

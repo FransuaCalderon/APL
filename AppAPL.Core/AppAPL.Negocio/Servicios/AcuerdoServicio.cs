@@ -34,14 +34,9 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador)
             => repo.ConsultarBandAprobAcuerdo(usuarioAprobador);
 
-        public async Task<BandejaAprobacionAcuerdoDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
-        {
-            var datosRaw = await repo.ObtenerBandejaAprobacionPorId(idAcuerdo, idAprobacion);
+        public Task<BandAproAcuerdoPorIDDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion)
+            => repo.ObtenerBandejaAprobacionPorId(idAcuerdo, idAprobacion);
 
-            var datosDeserializados = mapper.Map<BandejaAprobacionAcuerdoDTO>(datosRaw);
-            return datosDeserializados;
-        }
-            
 
         public Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo)
             => repo.AprobarAcuerdo(acuerdo);
@@ -60,5 +55,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<BandejaModificacionAcuerdoDTO>> ConsultarBandModAcuerdo()
             => repo.ConsultarBandModAcuerdo();
+
+        public Task<BandModAcuerdoPorIDDTO?> ObtenerBandejaModificacionPorId(int idAcuerdo)
+            => repo.ObtenerBandejaModificacionPorId(idAcuerdo);
     }
 }
