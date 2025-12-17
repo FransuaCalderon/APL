@@ -2057,6 +2057,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     a.idacuerdo,
                     a.idtipoacuerdo,
                     ct.nombre                                        AS clase_acuerdo,
+                    NVL(art.cantidad_articulos, 0)                   AS cantidad_articulos,
                     ct.idetiqueta                                    AS clase_acuerdo_etiqueta,
                     a.idmotivoacuerdo,
                     cm.nombre                                        AS motivo,
@@ -2078,6 +2079,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
                     LEFT JOIN apl_tb_catalogo cm ON a.idmotivoacuerdo = cm.idcatalogo
                     LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
+                    LEFT JOIN (SELECT idacuerdo, COUNT(*) AS cantidad_articulos FROM apl_tb_acuerdoarticulo GROUP BY idacuerdo) art ON art.idacuerdo = a.idacuerdo
                 WHERE 
                     a.idacuerdo = p_idacuerdo;
             
