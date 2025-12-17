@@ -83,10 +83,28 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_codigo_salida        OUT NUMBER,
         p_mensaje_salida       OUT VARCHAR2
     );
+        /*
+    =========================================================
+    Descripción: Bandeja Consulta / Inactivacion Acuerdo 
+    =========================================================
+    */
+    PROCEDURE sp_consulta_bandeja_inactivacion_acuerdo(
+        p_cursor OUT SYS_REFCURSOR
+    );
+    
+    /*
+    =========================================================
+    Descripción: Bandeja Consulta / Acuerdo 
+    =========================================================
+    */
+    PROCEDURE sp_bandeja_consulta_acuerdo (
+        p_cursor          OUT t_cursor, 
+        p_codigo_salida     OUT NUMBER,
+        p_mensaje_salida    OUT VARCHAR2
+    );
    
 
 END APL_PKG_ACUERDOS;
-
 
 ------------------------------------------body----
 
@@ -2138,6 +2156,143 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             
     END sp_consulta_bandeja_modificacion_por_id;
     
+    /*
+    =========================================================
+    Descripción: Bandeja Consulta / Inactivacion Acuerdo 
+    =========================================================
+    */
+    PROCEDURE sp_consulta_bandeja_inactivacion_acuerdo (
+        p_cursor OUT SYS_REFCURSOR
+    ) AS
+        
+    BEGIN
+        
+        OPEN p_cursor FOR 
+            SELECT
+                a.idacuerdo,
+                a.descripcion,
+                -- Información del Fondo
+                f.idfondo                                       AS id_fondo,
+                tf.nombre                                       AS nombre_tipo_fondo,
+                arp.nombre                                      AS nombre_proveedor,
+                cta.nombre                                      AS clase_acuerdo,
+                NVL(art.cantidad_articulos, 0)                   AS cantidad_articulos,
+                NVL(SUM(af.valoraporte), 0)                     AS valor_acuerdo,
+                TO_CHAR(a.fechainiciovigencia, 'YYYY-Mon-DD')   AS fecha_inicio,
+                TO_CHAR(a.fechafinvigencia, 'YYYY-Mon-DD')      AS fecha_fin,
+                NVL(SUM(af.valordisponible), 0)                 AS valor_disponible,
+                NVL(SUM(af.valorcomprometido), 0)               AS valor_comprometido,
+                NVL(SUM(af.valorliquidado), 0)                  AS valor_liquidado,
+                ce.nombre                                       AS estado
+            FROM
+                apl_tb_acuerdo a
+                LEFT JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
+                LEFT JOIN apl_tb_fondo f ON af.idfondo = f.idfondo
+                LEFT JOIN apl_tb_catalogo cta ON a.idtipoacuerdo = cta.idcatalogo
+                LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
+                LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
+                LEFT JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                LEFT JOIN (SELECT idacuerdo, COUNT(*) AS cantidad_articulos FROM apl_tb_acuerdoarticulo GROUP BY idacuerdo) art ON art.idacuerdo = a.idacuerdo
+            WHERE 
+                ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE')
+            GROUP BY
+                a.idacuerdo,
+                a.descripcion,
+                f.idfondo,
+                tf.nombre,
+                arp.nombre,
+                cta.nombre,
+                art.cantidad_articulos,
+                a.fechainiciovigencia,
+                a.fechafinvigencia,
+                ce.nombre
+            ORDER BY
+                a.idacuerdo;
+    
+    END sp_consulta_bandeja_inactivacion_acuerdo;
+
+
+
+
+    /*
+    =========================================================
+    Descripción: Bandeja Consulta /  Acuerdo 
+    =========================================================
+    */
+    PROCEDURE sp_bandeja_consulta_acuerdo (
+        p_cursor            OUT t_cursor,
+        p_codigo_salida     OUT NUMBER,
+        p_mensaje_salida    OUT VARCHAR2
+    ) AS
+    
+        v_contador_registro NUMBER;
+        
+    BEGIN
+        p_codigo_salida  := 0;
+        p_mensaje_salida := 'OK';
+        
+        -- Validar que existan registros
+        SELECT COUNT(*) INTO v_contador_registro
+        FROM apl_tb_acuerdo a
+        INNER JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo;
+        
+        IF v_contador_registro = 0 THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'No se encontraron registros en la bandeja de acuerdos.';
+        END IF;
+        
+        -- Abrir cursor con la consulta
+        OPEN p_cursor FOR
+            SELECT q.* FROM (
+                SELECT 
+                    a.idacuerdo,
+                    a.descripcion,
+                    af.idfondo,
+                    tf.nombre                                                       AS nombre_tipo_fondo,
+                    arp.nombre                                                      AS nombre_proveedor,
+                    ct.nombre                                                       AS clase_acuerdo,
+                    NVL(art.cantidad_articulos, 0)                                  AS cantidad_articulos,
+                    NVL(af.valoraporte, 0)                                          AS valor_acuerdo,
+                    TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD')                    AS fecha_inicio,
+                    TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD')                       AS fecha_fin,
+                    NVL(af.valordisponible, 0)                                      AS valor_disponible,
+                    NVL(af.valorcomprometido, 0)                                    AS valor_comprometido,
+                    NVL(af.valorliquidado, 0)                                       AS valor_liquidado,
+                    ce.nombre                                                       AS estado,
+                    ce.idetiqueta                                                   AS estado_etiqueta
+                FROM 
+                    apl_tb_acuerdo a
+                    INNER JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
+                    LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
+                    LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
+                    LEFT JOIN (
+                        SELECT idacuerdo, COUNT(*) AS cantidad_articulos 
+                        FROM apl_tb_acuerdoarticulo 
+                        GROUP BY idacuerdo
+                    ) art ON art.idacuerdo = a.idacuerdo
+                    INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
+                    INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                    LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
+            ) q
+            ORDER BY q.idacuerdo;
+    
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Error: No se encontraron los catálogos necesarios para la consulta.';
+            OPEN p_cursor FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+                
+        WHEN OTHERS THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Error: ' || SQLCODE || ' - ' || SQLERRM;
+            OPEN p_cursor FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            
+    END sp_bandeja_consulta_acuerdo;
+    
+
+
 
     
 END APL_PKG_ACUERDOS;
