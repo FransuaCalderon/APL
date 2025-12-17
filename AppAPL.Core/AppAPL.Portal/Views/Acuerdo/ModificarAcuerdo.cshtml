@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Modificación de Acuerdos";
+}
+
+@{
+    // Viene del ViewBag que llenamos en el controlador
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+
+@section Scripts {
+    <script>
+        // Variable global con el usuario logueado
+        window.usuarioActual = '@usuarioActual';
+    </script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <script src="~/js/Acuerdo/ModificarAcuerdo.js" asp-append-version="true"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+}
+
+<h2>Modificación - Acuerdo</h2>
+<hr>
+
+<link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
+
+<div class="table-responsive">
+    <div id="tabla">
+        <!-- Aquí se cargará dinámicamente la tabla de acuerdos -->
+    </div>
+</div>
+
+<!--
+    NOTA: El modal de edición se agregará en una fase posterior
+    Por ahora solo tenemos la bandeja de visualización
+-->
