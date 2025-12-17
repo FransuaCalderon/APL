@@ -126,6 +126,24 @@ namespace AppAPL.Api.Controllers
             return listaBandeja.ToList();
         }
 
+        [HttpGet("consultar-bandeja-inactivacion")]
+        public async Task<ActionResult<List<BandejaInactivacionAcuerdoDTO>>> ConsultarBandInacAcuerdo()
+        {
+
+            var listaBandeja = await servicio.ConsultarBandInacAcuerdo();
+
+            return listaBandeja.ToList();
+        }
+
+        [HttpGet("consultar-bandeja-general")]
+        public async Task<ActionResult<List<BandejaConsultaAcuerdoDTO>>> ConsultarBandConsAcuerdo()
+        {
+
+            var listaBandeja = await servicio.ConsultarBandConsAcuerdo();
+
+            return listaBandeja.ToList();
+        }
+
 
         [HttpPost("insertar")]
         [Email("ENTACUERDO", TipoProceso.Creacion)]

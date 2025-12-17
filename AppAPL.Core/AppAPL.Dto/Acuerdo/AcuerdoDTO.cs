@@ -163,6 +163,44 @@ namespace AppAPL.Dto.Acuerdo
         public string? TipoAcuerdo { get; set; }
     }
 
+    public class BandejaConsultaAcuerdoDTO
+    {
+        public int idacuerdo { get; set; }
+        public string descripcion { get; set; }
+        public int idfondo { get; set; }
+        public string nombre_tipo_fondo { get; set; }
+        public string nombre_proveedor { get; set; }
+        public string clase_acuerdo { get; set; }
+        public int cantidad_articulos { get; set; }
+        public decimal valor_acuerdo { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public string estado { get; set; }
+        public string estado_etiqueta { get; set; }
+    }
+
+    public class BandejaInactivacionAcuerdoDTO
+    {
+        public int idacuerdo { get; set; }
+        public string descripcion { get; set; }
+        public int idfondo { get; set; }
+        public string nombre_tipo_fondo { get; set; }
+        public string nombre_proveedor { get; set; }
+        public string clase_acuerdo { get; set; }
+        public int cantidad_articulos { get; set; }
+        public decimal valor_acuerdo { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public string estado { get; set; }
+        
+    }
+
     public class BandejaModificacionAcuerdoDTO 
     {
         public int idacuerdo { get; set; }

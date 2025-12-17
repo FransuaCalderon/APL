@@ -58,5 +58,11 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<BandModAcuerdoPorIDDTO?> ObtenerBandejaModificacionPorId(int idAcuerdo)
             => repo.ObtenerBandejaModificacionPorId(idAcuerdo);
+
+        public Task<IEnumerable<BandejaInactivacionAcuerdoDTO>> ConsultarBandInacAcuerdo()
+            => repo.ConsultarBandInacAcuerdo();
+
+        public Task<IEnumerable<BandejaConsultaAcuerdoDTO>> ConsultarBandConsAcuerdo()
+            => repo.ConsultarBandConsAcuerdo();
     }
 }
