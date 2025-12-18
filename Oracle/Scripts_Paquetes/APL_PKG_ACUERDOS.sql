@@ -92,6 +92,31 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_cursor OUT SYS_REFCURSOR
     );
     
+    PROCEDURE sp_consulta_bandeja_inactivacion_acuerdo_por_id (
+        p_idacuerdo            IN  NUMBER,
+        p_cursor_cabecera      OUT SYS_REFCURSOR,
+        p_cursor_articulos     OUT SYS_REFCURSOR,
+        p_cursor_promociones   OUT SYS_REFCURSOR,
+        p_tipo_acuerdo         OUT VARCHAR2,
+        p_codigo_salida        OUT NUMBER,
+        p_mensaje_salida       OUT VARCHAR2
+    );
+    
+    
+    PROCEDURE sp_proceso_inactivacion_acuerdo (
+        p_idacuerdo             IN  NUMBER,
+        p_nombreusuarioingreso  IN  VARCHAR2,
+        -- Variables log
+        p_idopcion              IN  NUMBER,
+        p_idcontrolinterfaz     IN  VARCHAR2,
+        p_idevento_etiqueta     IN  VARCHAR2,
+        p_nombreusuario         IN  VARCHAR2,  
+        -- Variables de salida
+        p_cursor_promociones    OUT SYS_REFCURSOR,
+        p_codigo_salida         OUT NUMBER,
+        p_mensaje               OUT VARCHAR2
+    );
+    
     /*
     =========================================================
     Descripción: Bandeja Consulta / Acuerdo 
@@ -101,6 +126,17 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_cursor          OUT t_cursor, 
         p_codigo_salida     OUT NUMBER,
         p_mensaje_salida    OUT VARCHAR2
+    );
+    
+    
+    PROCEDURE sp_bandeja_consulta_acuerdo_por_id (
+        p_idacuerdo            IN  NUMBER,
+        p_cursor_cabecera      OUT t_cursor,
+        p_cursor_articulos     OUT t_cursor,
+        p_cursor_promociones   OUT t_cursor,
+        p_tipo_acuerdo         OUT VARCHAR2,
+        p_codigo_salida        OUT NUMBER,
+        p_mensaje_salida       OUT VARCHAR2
     );
    
 
@@ -165,7 +201,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             p_mensaje := 'Error: ' || SQLERRM;
                 
     END sp_listar_consulta_fondo;
-    
     
     /*
     =========================================================
@@ -920,7 +955,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             p_codigo_salida := 0;
             p_mensaje_salida := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
     END sp_crear_acuerdo;
-    
     
     /*
     =========================================================
@@ -2172,18 +2206,18 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 a.idacuerdo,
                 a.descripcion,
                 -- Información del Fondo
-                f.idfondo                                       AS id_fondo,
-                tf.nombre                                       AS nombre_tipo_fondo,
-                arp.nombre                                      AS nombre_proveedor,
-                cta.nombre                                      AS clase_acuerdo,
+                f.idfondo                                        AS id_fondo,
+                tf.nombre                                        AS nombre_tipo_fondo,
+                arp.nombre                                       AS nombre_proveedor,
+                cta.nombre                                       AS clase_acuerdo,
                 NVL(art.cantidad_articulos, 0)                   AS cantidad_articulos,
-                NVL(SUM(af.valoraporte), 0)                     AS valor_acuerdo,
-                TO_CHAR(a.fechainiciovigencia, 'YYYY-Mon-DD')   AS fecha_inicio,
-                TO_CHAR(a.fechafinvigencia, 'YYYY-Mon-DD')      AS fecha_fin,
-                NVL(SUM(af.valordisponible), 0)                 AS valor_disponible,
-                NVL(SUM(af.valorcomprometido), 0)               AS valor_comprometido,
-                NVL(SUM(af.valorliquidado), 0)                  AS valor_liquidado,
-                ce.nombre                                       AS estado
+                NVL(SUM(af.valoraporte), 0)                      AS valor_acuerdo,
+                TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD')     AS fecha_inicio,
+                TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD')        AS fecha_fin,
+                NVL(SUM(af.valordisponible), 0)                  AS valor_disponible,
+                NVL(SUM(af.valorcomprometido), 0)                AS valor_comprometido,
+                NVL(SUM(af.valorliquidado), 0)                   AS valor_liquidado,
+                ce.nombre                                        AS estado
             FROM
                 apl_tb_acuerdo a
                 LEFT JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
@@ -2211,8 +2245,604 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     
     END sp_consulta_bandeja_inactivacion_acuerdo;
 
+    
+    PROCEDURE sp_consulta_bandeja_inactivacion_acuerdo_por_id (
+        p_idacuerdo            IN  NUMBER,
+        p_cursor_cabecera      OUT SYS_REFCURSOR,
+        p_cursor_articulos     OUT SYS_REFCURSOR,
+        p_cursor_promociones   OUT SYS_REFCURSOR,
+        p_tipo_acuerdo         OUT VARCHAR2,
+        p_codigo_salida        OUT NUMBER,
+        p_mensaje_salida       OUT VARCHAR2
+    ) AS
+        -- Variables
+        v_etiqueta_tipo         VARCHAR2(50);
+        v_contador_registro     NUMBER;
+        v_etiqueta_general      VARCHAR2(50);
+        v_etiqueta_articulos    VARCHAR2(50);
+        
+    BEGIN
+        p_codigo_salida  := 0;
+        p_mensaje_salida := 'OK';
+        p_tipo_acuerdo   := NULL;
+        
+        -- Validar que el acuerdo exista
+        SELECT COUNT(*) INTO v_contador_registro
+        FROM apl_tb_acuerdo
+        WHERE idacuerdo = p_idacuerdo;
+        
+        IF v_contador_registro = 0 THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'No se encontró el acuerdo con ID: ' || p_idacuerdo;
+            
+            OPEN p_cursor_cabecera FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            RETURN;
+        END IF;
+        
+        -- Obtener etiquetas de catálogo
+        SELECT idetiqueta INTO v_etiqueta_general 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'CLAGENERAL';
+        
+        SELECT idetiqueta INTO v_etiqueta_articulos 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'CLAARTICULO';
+        
+        -- Obtener tipo de acuerdo
+        SELECT ct.idetiqueta INTO v_etiqueta_tipo
+        FROM apl_tb_acuerdo a
+        INNER JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
+        WHERE a.idacuerdo = p_idacuerdo;
+        
+        p_tipo_acuerdo := v_etiqueta_tipo;
+        
+        -- =====================================================
+        -- CASO 1: ACUERDO GENERAL
+        -- =====================================================
+        IF v_etiqueta_tipo = v_etiqueta_general THEN
+            
+            -- Cursor cabecera GENERAL
+            OPEN p_cursor_cabecera FOR
+                SELECT 
+                    a.idacuerdo,
+                    a.idtipoacuerdo,
+                    ct.nombre                                        AS clase_acuerdo,
+                    ct.idetiqueta                                    AS clase_acuerdo_etiqueta,
+                    af.idfondo,
+                    tf.nombre || ' - ' || arp.nombre                 AS fondo_proveedor,
+                    a.idmotivoacuerdo,
+                    cm.nombre                                        AS motivo,
+                    a.descripcion,
+                    TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD')     AS fecha_inicio,
+                    TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD')        AS fecha_fin,
+                    NVL(af.valoraporte, 0)                           AS valor_total,
+                    NVL(af.valordisponible, 0)                       AS valor_disponible,
+                    NVL(af.valorcomprometido, 0)                     AS valor_comprometido,
+                    NVL(af.valorliquidado, 0)                        AS valor_liquidado,
+                    a.idestadoregistro,
+                    ce.nombre                                        AS estado,
+                    ce.idetiqueta                                    AS estado_etiqueta
+                FROM 
+                    apl_tb_acuerdo a
+                    INNER JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
+                    LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
+                    LEFT JOIN apl_tb_catalogo cm ON a.idmotivoacuerdo = cm.idcatalogo
+                    LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
+                    INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
+                    INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                    LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
+                WHERE 
+                    a.idacuerdo = p_idacuerdo;
+            
+            -- Cursor artículos vacío (no aplica para GENERAL)
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+        
+        -- =====================================================
+        -- CASO 2: ACUERDO CON ARTÍCULOS
+        -- =====================================================
+        ELSIF v_etiqueta_tipo = v_etiqueta_articulos THEN
+            
+            -- Cursor cabecera ARTÍCULO
+            OPEN p_cursor_cabecera FOR
+                SELECT 
+                    a.idacuerdo,
+                    a.idtipoacuerdo,
+                    ct.nombre                                        AS clase_acuerdo,
+                    ct.idetiqueta                                    AS clase_acuerdo_etiqueta,
+                    a.idmotivoacuerdo,
+                    cm.nombre                                        AS motivo,
+                    a.descripcion,
+                    TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD')     AS fecha_inicio,
+                    TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD')        AS fecha_fin,
+                    af.idfondo,
+                    arp.nombre                                       AS proveedor_nombre,
+                    NVL(af.valoraporte, 0)                           AS valor_total,
+                    NVL(af.valordisponible, 0)                       AS valor_disponible,
+                    NVL(af.valorcomprometido, 0)                     AS valor_comprometido,
+                    NVL(af.valorliquidado, 0)                        AS valor_liquidado,
+                    NVL(art.cantidad_articulos, 0)                   AS cantidad_articulos,
+                    a.idestadoregistro,
+                    ce.nombre                                        AS estado,
+                    ce.idetiqueta                                    AS estado_etiqueta
+                FROM 
+                    apl_tb_acuerdo a
+                    INNER JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
+                    LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
+                    LEFT JOIN apl_tb_catalogo cm ON a.idmotivoacuerdo = cm.idcatalogo
+                    LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
+                    LEFT JOIN (
+                        SELECT idacuerdo, COUNT(*) AS cantidad_articulos 
+                        FROM apl_tb_acuerdoarticulo 
+                        GROUP BY idacuerdo
+                    ) art ON art.idacuerdo = a.idacuerdo
+                    INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
+                    INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                    LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
+                WHERE 
+                    a.idacuerdo = p_idacuerdo;
+            
+            -- Cursor artículos con detalle
+            OPEN p_cursor_articulos FOR
+                SELECT 
+                    aa.idacuerdoarticulo,
+                    aa.idacuerdo,
+                    aa.codigoarticulo                                AS articulo,
+                    NVL(aa.costoactual, 0)                           AS costo,
+                    NVL(aa.unidadeslimite, 0)                        AS unidades_limite,
+                    NVL(aa.preciocontado, 0)                         AS precio_contado,
+                    NVL(aa.preciotarjetacredito, 0)                  AS precio_tc,
+                    NVL(aa.preciocredito, 0)                         AS precio_credito,
+                    NVL(aa.valoraporte, 0)                           AS aporte_unidad_proveedor,
+                    NVL(aa.valorcomprometido, 0)                     AS comprometido_proveedor,
+                    NVL(aa.margencontado, 0)                         AS margen_contado,
+                    NVL(aa.margentarjetacredito, 0)                  AS margen_tc,
+                    aa.idestadoregistro
+                FROM 
+                    apl_tb_acuerdoarticulo aa
+                WHERE 
+                    aa.idacuerdo = p_idacuerdo
+                ORDER BY 
+                    aa.idacuerdoarticulo;
+        
+        -- =====================================================
+        -- CASO 3: TIPO NO RECONOCIDO
+        -- =====================================================
+        ELSE
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Tipo de acuerdo no reconocido: ' || v_etiqueta_tipo;
+            
+            OPEN p_cursor_cabecera FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            RETURN;
+        END IF;
+        
+        -- =====================================================
+        -- CURSOR PROMOCIONES (APLICA PARA AMBOS CASOS)
+        -- =====================================================
+        OPEN p_cursor_promociones FOR
+            SELECT 
+                p.idpromocion,
+                p.descripcion,
+                p.motivo                                             AS id_motivo,
+                cm.nombre                                            AS motivo_nombre,
+                p.clasepromocion                                     AS id_clase_promocion,
+                cp.nombre                                            AS clase_acuerdo,
+                NVL(pa.valorcomprometido, 0)                         AS valor_comprometido,
+                TO_CHAR(p.fechahorainicio, 'YYYY-MM-DD')             AS fecha_inicio,
+                TO_CHAR(p.fechahorafin, 'YYYY-MM-DD')                AS fecha_fin,
+                p.marcaregalo                                        AS marca_regalo,
+                p.estadoregistro                                     AS id_estado,
+                ce.nombre                                            AS estado,
+                ce.idetiqueta                                        AS estado_etiqueta
+            FROM 
+                apl_tb_promocion p
+                INNER JOIN apl_tb_promocionacuerdo pa ON p.idpromocion = pa.idpromocion
+                LEFT JOIN apl_tb_catalogo cm ON p.motivo = cm.idcatalogo
+                LEFT JOIN apl_tb_catalogo cp ON p.clasepromocion = cp.idcatalogo
+                LEFT JOIN apl_tb_catalogo ce ON p.estadoregistro = ce.idcatalogo
+            WHERE 
+                pa.idacuerdo = p_idacuerdo
+            ORDER BY 
+                p.idpromocion;
+    
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Error: No se encontró información para el acuerdo ID: ' || p_idacuerdo;
+            OPEN p_cursor_cabecera FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+                
+        WHEN OTHERS THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Error: ' || SQLCODE || ' - ' || SQLERRM;
+            OPEN p_cursor_cabecera FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            
+    END sp_consulta_bandeja_inactivacion_acuerdo_por_id;
 
-
+    
+    PROCEDURE sp_proceso_inactivacion_acuerdo (
+        p_idacuerdo             IN  NUMBER,
+        p_nombreusuarioingreso  IN  VARCHAR2,
+        -- Variables log
+        p_idopcion              IN  NUMBER,
+        p_idcontrolinterfaz     IN  VARCHAR2,
+        p_idevento_etiqueta     IN  VARCHAR2,
+        p_nombreusuario         IN  VARCHAR2,  
+        -- Variables de salida
+        p_cursor_promociones    OUT SYS_REFCURSOR,
+        p_codigo_salida         OUT NUMBER,
+        p_mensaje               OUT VARCHAR2
+    ) AS
+        -- Variables catálogo
+        v_count_aprobadores       NUMBER;
+        v_count_promociones       NUMBER;
+        v_estado_actual           NUMBER;
+        v_row_exists              NUMBER;
+        
+        -- Variables
+        v_entidad_acuerdo         NUMBER;
+        v_tipo_proceso_inactivar  NUMBER;
+        v_tipo_proceso_aprobador  NUMBER;
+        v_estado_activo           NUMBER;
+        v_estado_inactivo         NUMBER;
+        v_estado_vigente          NUMBER;
+        v_estado_aprobado         NUMBER;
+        v_estado_nuevo            NUMBER;
+        v_estado_modificado       NUMBER;
+        
+        -- Variable log
+        v_datos_json              VARCHAR2(4000);
+        v_id_control_interfaz     NUMBER;
+        v_idevento                NUMBER;
+        
+        -- Variable para el lote
+        v_numero_lote_aprobacion  NUMBER;
+        v_row_exists_lote         NUMBER;
+        
+        -- Cursor para recorrer fondos del acuerdo
+        CURSOR c_fondos_acuerdo IS
+            SELECT 
+                idacuerdofondo,
+                idfondo,
+                NVL(valordisponible, 0) AS valordisponible
+            FROM apl_tb_acuerdofondo
+            WHERE idacuerdo = p_idacuerdo;
+        
+    BEGIN
+    
+        -- =========================================================
+        -- VARIABLES PARA EL LOG
+        -- =========================================================
+        SELECT idcatalogo INTO v_id_control_interfaz 
+        FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+        
+        SELECT idcatalogo INTO v_idevento 
+        FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
+    
+        -- =========================================================
+        -- CATÁLOGOS
+        -- =========================================================
+        SELECT idcatalogo INTO v_entidad_acuerdo 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'ENTACUERDO';       
+            
+        SELECT idcatalogo INTO v_tipo_proceso_inactivar 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'TPINACTIVACION';
+        
+        SELECT idcatalogo INTO v_tipo_proceso_aprobador 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'TPCREACION';
+            
+        SELECT idcatalogo INTO v_estado_activo 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOACTIVO';   
+            
+        SELECT idcatalogo INTO v_estado_inactivo 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOINACTIVO';
+        
+        SELECT idcatalogo INTO v_estado_vigente 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOVIGENTE'; 
+        
+        SELECT idcatalogo INTO v_estado_aprobado 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOAPROBADO'; 
+        
+        SELECT idcatalogo INTO v_estado_nuevo 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';
+        
+        SELECT idcatalogo INTO v_estado_modificado 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOMODIFICADO';
+        
+        -- =========================================================
+        -- VALIDAR QUE EL ACUERDO EXISTA
+        -- =========================================================
+        SELECT
+            CASE
+                WHEN EXISTS (SELECT 1 FROM apl_tb_acuerdo WHERE idacuerdo = p_idacuerdo) THEN 1
+                ELSE 0
+            END
+        INTO v_row_exists
+        FROM dual;
+        
+        IF v_row_exists = 0 THEN
+            p_codigo_salida := -1;
+            p_mensaje := 'El acuerdo con ID ' || p_idacuerdo || ' no existe';
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            RETURN;
+        END IF;
+        
+        -- =========================================================
+        -- OBTENER ESTADO ACTUAL DEL ACUERDO
+        -- =========================================================
+        SELECT idestadoregistro INTO v_estado_actual 
+        FROM apl_tb_acuerdo 
+        WHERE idacuerdo = p_idacuerdo; 
+        
+        -- Validar que el acuerdo no esté ya inactivo
+        IF v_estado_actual = v_estado_inactivo THEN
+            p_codigo_salida := -2;
+            p_mensaje := 'El acuerdo ya se encuentra inactivo';
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            RETURN;
+        END IF;
+        
+        -- Validar que el acuerdo solo esté 'APROBADO' O 'VIGENTE'
+        IF v_estado_actual NOT IN (v_estado_vigente, v_estado_aprobado) THEN
+            p_codigo_salida := -2;
+            p_mensaje := 'El acuerdo debe estar vigente o aprobado';
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            RETURN;
+        END IF;
+        
+        -- =========================================================
+        -- VERIFICAR PROMOCIONES ACTIVAS
+        -- =========================================================
+        SELECT COUNT(*) INTO v_count_promociones
+        FROM apl_tb_promocion p
+        INNER JOIN apl_tb_promocionacuerdo pa ON p.idpromocion = pa.idpromocion
+        WHERE pa.idacuerdo = p_idacuerdo
+          AND p.estadoregistro IN (v_estado_nuevo, v_estado_modificado, v_estado_aprobado, v_estado_vigente);
+        
+        IF v_count_promociones > 0 THEN
+            p_codigo_salida := -3;
+            p_mensaje := 'El acuerdo tiene ' || v_count_promociones || ' promoción(es) activa(s). Debe inactivar las promociones primero.';
+            
+            OPEN p_cursor_promociones FOR
+                SELECT 
+                    p.idpromocion,
+                    p.descripcion,
+                    p.motivo                                   AS id_motivo,
+                    cm.nombre                                  AS motivo_nombre,
+                    p.clasepromocion                           AS id_clase_promocion,
+                    cp.nombre                                  AS clase_promocion,
+                    NVL(pa.valorcomprometido, 0)               AS valor_comprometido,
+                    TO_CHAR(p.fechahorainicio, 'YYYY-MM-DD')   AS fecha_inicio,
+                    TO_CHAR(p.fechahorafin, 'YYYY-MM-DD')      AS fecha_fin,
+                    p.marcaregalo                              AS marca_regalo,
+                    p.estadoregistro                           AS id_estado,
+                    ce.nombre                                  AS estado,
+                    ce.idetiqueta                              AS estado_etiqueta
+                FROM 
+                    apl_tb_promocion p
+                    INNER JOIN apl_tb_promocionacuerdo pa ON p.idpromocion = pa.idpromocion
+                    LEFT JOIN apl_tb_catalogo cm ON p.motivo = cm.idcatalogo
+                    LEFT JOIN apl_tb_catalogo cp ON p.clasepromocion = cp.idcatalogo
+                    LEFT JOIN apl_tb_catalogo ce ON p.estadoregistro = ce.idcatalogo
+                WHERE 
+                    pa.idacuerdo = p_idacuerdo
+                    AND p.estadoregistro IN (v_estado_nuevo, v_estado_modificado, v_estado_aprobado, v_estado_vigente)
+                ORDER BY 
+                    p.idpromocion;
+            RETURN;
+        END IF;
+        
+        -- No tiene promociones, cursor vacío
+        OPEN p_cursor_promociones FOR 
+            SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+        
+        -- =========================================================
+        -- ¿HAY APROBADORES CONFIGURADOS?
+        -- ENTACUERDO + TPINACTIVACION + ACTIVO
+        -- =========================================================
+        SELECT COUNT(*) INTO v_count_aprobadores
+        FROM apl_tb_aprobador
+        WHERE entidad = v_entidad_acuerdo
+          AND idtipoproceso = v_tipo_proceso_inactivar
+          AND idestadoregistro = v_estado_activo;
+        
+        -- =========================================================
+        -- CASO A: NO HAY APROBADORES - Inactivar directamente
+        -- =========================================================
+        IF v_count_aprobadores = 0 THEN
+            
+            -- Recorrer cada fondo del acuerdo y actualizar saldos
+            FOR r_fondo IN c_fondos_acuerdo LOOP
+                
+                -- Actualizar saldos en Apl_Tb_Fondo
+                UPDATE apl_tb_fondo
+                SET valorcomprometido = NVL(valorcomprometido, 0) - r_fondo.valordisponible,
+                    valordisponible   = NVL(valordisponible, 0) + r_fondo.valordisponible,
+                    fechamodifica     = SYSTIMESTAMP,
+                    idusuariomodifica = p_nombreusuarioingreso
+                WHERE idfondo = r_fondo.idfondo;
+                
+                -- Actualizar AcuerdoFondo: valor disponible = 0 e inactivar
+                UPDATE apl_tb_acuerdofondo
+                SET valordisponible  = 0,
+                    idestadoregistro = v_estado_inactivo
+                WHERE idacuerdofondo = r_fondo.idacuerdofondo;
+                
+            END LOOP;
+            
+            -- Inactivar el acuerdo
+            UPDATE apl_tb_acuerdo
+            SET idestadoregistro       = v_estado_inactivo,
+                fechamodifica          = SYSTIMESTAMP,
+                idusuariomodifica      = p_nombreusuarioingreso,
+                marcaprocesoaprobacion = ' '
+            WHERE idacuerdo = p_idacuerdo;
+            
+            p_codigo_salida := 0;
+            p_mensaje := 'Acuerdo inactivado directamente (sin aprobadores).';
+        
+        -- =========================================================
+        -- CASO B: HAY APROBADORES - Generar registros de aprobación
+        -- =========================================================
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('DEBUG - Entrando a CASO B: Con ' || v_count_aprobadores || ' aprobadores');
+            
+            -- Validar que el lote exista
+            SELECT
+                CASE
+                    WHEN EXISTS (SELECT 1 FROM apl_tb_lote WHERE entidad = v_entidad_acuerdo) THEN 1
+                    ELSE 0
+                END
+            INTO v_row_exists_lote
+            FROM dual;
+            
+            IF v_row_exists_lote = 0 THEN
+                v_numero_lote_aprobacion := 1;
+                INSERT INTO apl_tb_lote (
+                    entidad,
+                    secuencial
+                ) VALUES (
+                    v_entidad_acuerdo,
+                    v_numero_lote_aprobacion
+                );
+            ELSE 
+                SELECT secuencial INTO v_numero_lote_aprobacion 
+                FROM apl_tb_lote 
+                WHERE entidad = v_entidad_acuerdo;
+                
+                v_numero_lote_aprobacion := v_numero_lote_aprobacion + 1;
+                
+                UPDATE apl_tb_lote  
+                SET secuencial = v_numero_lote_aprobacion
+                WHERE entidad = v_entidad_acuerdo;
+            END IF;
+            
+            -- Insertar solicitudes de aprobación
+            INSERT INTO apl_tb_aprobacion (
+                entidad,
+                identidad,
+                idtipoproceso,
+                idusersolicitud,
+                nombreusersolicitud,
+                fechasolicitud,
+                iduseraprobador,
+                fechaaprobacion,
+                comentario,
+                nivelaprobacion,
+                idestadoregistro,
+                numeroloteaprobacion
+            )
+            SELECT
+                v_entidad_acuerdo            AS entidad,         
+                p_idacuerdo                  AS identidad,       
+                v_tipo_proceso_inactivar     AS idtipoproceso,   
+                p_nombreusuarioingreso       AS idusersolicitud,
+                p_nombreusuarioingreso       AS nombreusersolicitud,
+                SYSTIMESTAMP                 AS fechasolicitud,
+                a.iduseraprobador            AS iduseraprobador,
+                NULL                         AS fechaaprobacion,
+                NULL                         AS comentario,
+                a.nivelaprobacion            AS nivelaprobacion,
+                v_estado_nuevo               AS idestadoregistro,
+                v_numero_lote_aprobacion
+            FROM
+                apl_tb_aprobador a
+            WHERE
+                a.entidad = v_entidad_acuerdo
+                AND a.idtipoproceso = v_tipo_proceso_inactivar
+                AND a.idestadoregistro = v_estado_activo;
+            
+            -- Actualizar número de lote en el acuerdo
+            UPDATE apl_tb_acuerdo  
+            SET numeroloteaprobacion = v_numero_lote_aprobacion
+            WHERE idacuerdo = p_idacuerdo;
+            
+            p_codigo_salida := 0;
+            p_mensaje := 'Solicitud de inactivación generada. Pendiente de aprobación (' || v_count_aprobadores || ' aprobador(es))';
+            
+        END IF;
+        
+        -- =========================================================
+        -- REGISTRAR LOG
+        -- =========================================================
+        IF v_count_aprobadores = 0 THEN
+            v_datos_json := JSON_OBJECT(
+                'idacuerdo'            VALUE p_idacuerdo,
+                'valorcomprometido'    VALUE 0,
+                'valorliquidado'       VALUE 0,
+                'idusuarioingreso'     VALUE p_nombreusuarioingreso,
+                'fechaingreso'         VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
+                'idestadoregistro'     VALUE v_estado_inactivo,
+                'numeroloteaprobacion' VALUE 0,
+                'comentario'           VALUE 'Inactivacion Directa sin aprobadores'
+            );
+        ELSE
+            v_datos_json := JSON_OBJECT(
+                'idacuerdo'            VALUE p_idacuerdo,
+                'valorcomprometido'    VALUE 0,
+                'valorliquidado'       VALUE 0,
+                'idusuarioingreso'     VALUE p_nombreusuarioingreso,
+                'fechaingreso'         VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
+                'idestadoregistro'     VALUE v_tipo_proceso_inactivar,
+                'numeroloteaprobacion' VALUE v_numero_lote_aprobacion,
+                'comentario'           VALUE 'Solicitud de inactivacion que requiere aprobacion'
+            );
+        END IF;
+        
+        -- Insertar en la tabla de LOG
+        INSERT INTO apl_tb_log (
+            fechahoratrx,
+            iduser,
+            idopcion,
+            idcontrolinterfaz,
+            idevento,
+            entidad,
+            identidad,
+            idtipoproceso,
+            datos
+        ) VALUES (
+            SYSTIMESTAMP,
+            p_nombreusuarioingreso,
+            p_idopcion, 
+            v_id_control_interfaz,
+            v_idevento,
+            v_entidad_acuerdo,
+            p_idacuerdo,
+            v_tipo_proceso_inactivar,
+            v_datos_json
+        );
+            
+        COMMIT;
+    
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            p_codigo_salida := -99;
+            p_mensaje := 'Error al inactivar acuerdo: ' || SQLERRM;
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            
+    END sp_proceso_inactivacion_acuerdo;
 
     /*
     =========================================================
@@ -2291,8 +2921,240 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             
     END sp_bandeja_consulta_acuerdo;
     
-
-
+    
+    PROCEDURE sp_bandeja_consulta_acuerdo_por_id (
+        p_idacuerdo            IN  NUMBER,
+        p_cursor_cabecera      OUT t_cursor,
+        p_cursor_articulos     OUT t_cursor,
+        p_cursor_promociones   OUT t_cursor,
+        p_tipo_acuerdo         OUT VARCHAR2,
+        p_codigo_salida        OUT NUMBER,
+        p_mensaje_salida       OUT VARCHAR2
+    ) AS
+        -- Variables
+        v_etiqueta_tipo         VARCHAR2(50);
+        v_contador_registro     NUMBER;
+        v_etiqueta_general      VARCHAR2(50);
+        v_etiqueta_articulos    VARCHAR2(50);
+        
+    BEGIN
+        p_codigo_salida  := 0;
+        p_mensaje_salida := 'OK';
+        p_tipo_acuerdo   := NULL;
+        
+        -- Validar que el acuerdo exista
+        SELECT COUNT(*) INTO v_contador_registro
+        FROM apl_tb_acuerdo
+        WHERE idacuerdo = p_idacuerdo;
+        
+        IF v_contador_registro = 0 THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'No se encontró el acuerdo con ID: ' || p_idacuerdo;
+            
+            OPEN p_cursor_cabecera FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            RETURN;
+        END IF;
+        
+        -- Obtener etiquetas de catálogo
+        SELECT idetiqueta INTO v_etiqueta_general 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'CLAGENERAL';
+        
+        SELECT idetiqueta INTO v_etiqueta_articulos 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'CLAARTICULO';
+        
+        -- Obtener tipo de acuerdo
+        SELECT ct.idetiqueta INTO v_etiqueta_tipo
+        FROM apl_tb_acuerdo a
+        INNER JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
+        WHERE a.idacuerdo = p_idacuerdo;
+        
+        p_tipo_acuerdo := v_etiqueta_tipo;
+        
+        -- =====================================================
+        -- CASO 1: ACUERDO GENERAL
+        -- =====================================================
+        IF v_etiqueta_tipo = v_etiqueta_general THEN
+            
+            -- Cursor cabecera GENERAL
+            OPEN p_cursor_cabecera FOR
+                SELECT 
+                    a.idacuerdo,
+                    a.idtipoacuerdo,
+                    ct.nombre                                        AS clase_acuerdo,
+                    ct.idetiqueta                                    AS clase_acuerdo_etiqueta,
+                    a.idmotivoacuerdo,
+                    cm.nombre                                        AS motivo,
+                    a.descripcion,
+                    TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD')     AS fecha_inicio,
+                    TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD')        AS fecha_fin,
+                    af.idacuerdofondo,
+                    af.idfondo,
+                    tf.nombre || ' - ' || arp.nombre                 AS fondo_proveedor,
+                    NVL(af.valoraporte, 0)                           AS valor_total,
+                    NVL(af.valordisponible, 0)                       AS valor_disponible,
+                    NVL(af.valorcomprometido, 0)                     AS valor_comprometido,
+                    NVL(af.valorliquidado, 0)                        AS valor_liquidado,
+                    a.idestadoregistro,
+                    ce.nombre                                        AS estado,
+                    ce.idetiqueta                                    AS estado_etiqueta
+                FROM 
+                    apl_tb_acuerdo a
+                    INNER JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
+                    LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
+                    LEFT JOIN apl_tb_catalogo cm ON a.idmotivoacuerdo = cm.idcatalogo
+                    LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
+                    INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
+                    INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                    LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
+                WHERE 
+                    a.idacuerdo = p_idacuerdo;
+            
+            -- Cursor artículos vacío (no aplica para GENERAL)
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+        
+        -- =====================================================
+        -- CASO 2: ACUERDO CON ARTÍCULOS
+        -- =====================================================
+        ELSIF v_etiqueta_tipo = v_etiqueta_articulos THEN
+            
+            -- Cursor cabecera ARTÍCULO
+            OPEN p_cursor_cabecera FOR
+                SELECT 
+                    a.idacuerdo,
+                    a.idtipoacuerdo,
+                    ct.nombre                                        AS clase_acuerdo,
+                    ct.idetiqueta                                    AS clase_acuerdo_etiqueta,
+                    NVL(art.cantidad_articulos, 0)                   AS cantidad_articulos,
+                    a.idmotivoacuerdo,
+                    cm.nombre                                        AS motivo,
+                    a.descripcion,
+                    TO_CHAR(a.fechainiciovigencia, 'YYYY-MM-DD')     AS fecha_inicio,
+                    TO_CHAR(a.fechafinvigencia, 'YYYY-MM-DD')        AS fecha_fin,
+                    af.idacuerdofondo,
+                    af.idfondo,
+                    tf.nombre || ' - ' || arp.nombre                 AS fondo_proveedor,
+                    NVL(af.valoraporte, 0)                           AS valor_total,
+                    NVL(af.valordisponible, 0)                       AS valor_disponible,
+                    NVL(af.valorcomprometido, 0)                     AS valor_comprometido,
+                    NVL(af.valorliquidado, 0)                        AS valor_liquidado,
+                    a.idestadoregistro,
+                    ce.nombre                                        AS estado,
+                    ce.idetiqueta                                    AS estado_etiqueta
+                FROM 
+                    apl_tb_acuerdo a
+                    INNER JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
+                    LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
+                    LEFT JOIN apl_tb_catalogo cm ON a.idmotivoacuerdo = cm.idcatalogo
+                    LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
+                    LEFT JOIN (
+                        SELECT idacuerdo, COUNT(*) AS cantidad_articulos 
+                        FROM apl_tb_acuerdoarticulo 
+                        GROUP BY idacuerdo
+                    ) art ON art.idacuerdo = a.idacuerdo
+                    INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
+                    INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                    LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
+                WHERE 
+                    a.idacuerdo = p_idacuerdo;
+            
+            -- Cursor artículos con detalle
+            OPEN p_cursor_articulos FOR
+                SELECT 
+                    aa.idacuerdoarticulo,
+                    aa.idacuerdo,
+                    aa.codigoarticulo                                AS articulo,
+                    NVL(aa.costoactual, 0)                           AS costo,
+                    NVL(aa.unidadeslimite, 0)                        AS unidades_limite,
+                    NVL(aa.preciocontado, 0)                         AS precio_contado,
+                    NVL(aa.preciotarjetacredito, 0)                  AS precio_tc,
+                    NVL(aa.preciocredito, 0)                         AS precio_credito,
+                    NVL(aa.valoraporte, 0)                           AS aporte_unidad_proveedor,
+                    NVL(aa.valorcomprometido, 0)                     AS comprometido_proveedor,
+                    NVL(aa.margencontado, 0)                         AS margen_contado,
+                    NVL(aa.margentarjetacredito, 0)                  AS margen_tc,
+                    --NVL(aa.margencredito, 0)                         AS margen_credito,
+                    aa.idestadoregistro
+                FROM 
+                    apl_tb_acuerdoarticulo aa
+                WHERE 
+                    aa.idacuerdo = p_idacuerdo
+                ORDER BY 
+                    aa.idacuerdoarticulo;
+        
+        -- =====================================================
+        -- CASO 3: TIPO NO RECONOCIDO
+        -- =====================================================
+        ELSE
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Tipo de acuerdo no reconocido: ' || v_etiqueta_tipo;
+            
+            OPEN p_cursor_cabecera FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            RETURN;
+        END IF;
+        
+        -- =====================================================
+        -- CURSOR PROMOCIONES (APLICA PARA AMBOS CASOS)
+        -- =====================================================
+        OPEN p_cursor_promociones FOR
+            SELECT 
+                p.idpromocion,
+                p.descripcion,
+                p.motivo                                             AS id_motivo,
+                cm.nombre                                            AS motivo_nombre,
+                p.clasepromocion                                     AS id_clase_promocion,
+                cp.nombre                                            AS clase_acuerdo,
+                NVL(pa.valorcomprometido, 0)                         AS valor_comprometido,
+                TO_CHAR(p.fechahorainicio, 'YYYY-MM-DD')             AS fecha_inicio,
+                TO_CHAR(p.fechahorafin, 'YYYY-MM-DD')                AS fecha_fin,
+                p.marcaregalo                                        AS marca_regalo,
+                p.estadoregistro                                     AS id_estado,
+                ce.nombre                                            AS estado,
+                ce.idetiqueta                                        AS estado_etiqueta
+            FROM 
+                apl_tb_promocion p
+                INNER JOIN apl_tb_promocionacuerdo pa ON p.idpromocion = pa.idpromocion
+                LEFT JOIN apl_tb_catalogo cm ON p.motivo = cm.idcatalogo
+                LEFT JOIN apl_tb_catalogo cp ON p.clasepromocion = cp.idcatalogo
+                LEFT JOIN apl_tb_catalogo ce ON p.estadoregistro = ce.idcatalogo
+            WHERE 
+                pa.idacuerdo = p_idacuerdo
+            ORDER BY 
+                p.idpromocion;
+    
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Error: No se encontró información para el acuerdo ID: ' || p_idacuerdo;
+            OPEN p_cursor_cabecera FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+                
+        WHEN OTHERS THEN
+            p_codigo_salida  := 1;
+            p_mensaje_salida := 'Error: ' || SQLCODE || ' - ' || SQLERRM;
+            OPEN p_cursor_cabecera FOR 
+                SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_articulos FOR 
+                SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
+            OPEN p_cursor_promociones FOR 
+                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
+            
+    END sp_bandeja_consulta_acuerdo_por_id;
+    
 
     
 END APL_PKG_ACUERDOS;
