@@ -342,8 +342,6 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
             
-
-
             var retorno = new ControlErroresDTO()
             {
                 codigoRetorno = codigoSalida,

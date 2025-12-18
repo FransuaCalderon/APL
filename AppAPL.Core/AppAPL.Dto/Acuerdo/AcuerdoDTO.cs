@@ -182,11 +182,78 @@ namespace AppAPL.Dto.Acuerdo
         public string estado_etiqueta { get; set; }
     }
 
+    public class BandConsAcuerdoCabeceraDTO
+    {
+        public int idacuerdo { get; set; }
+        public int idtipoacuerdo { get; set; }
+        public string clase_acuerdo { get; set; }
+        public string clase_acuerdo_etiqueta { get; set; }
+        public int cantidad_articulos { get; set; }
+        public int idmotivoacuerdo { get; set; }
+        public string motivo { get; set; }
+        public string descripcion { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public int idacuerdofondo { get; set; }
+        public int idfondo { get; set; }
+        public string fondo_proveedor { get; set; }
+        public decimal valor_total { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public int idestadoregistro { get; set; }
+        public string estado { get; set; }
+        public string estado_etiqueta { get; set; }
+    }
+
+    public class ArticuloBandConsDTO
+    {
+        public int idacuerdoarticulo { get; set; }
+        public int idacuerdo { get; set; }
+        public string articulo { get; set; }
+        public decimal costo { get; set; }
+        public int unidades_limite { get; set; }
+        public decimal precio_contado { get; set; }
+        public decimal precio_tc { get; set; }
+        public decimal precio_credito { get; set; }
+        public decimal aporte_unidad_proveedor { get; set; }
+        public decimal comprometido_proveedor { get; set; }
+        public decimal margen_contado { get; set; }
+        public decimal margen_tc { get; set; }
+        public int idestadoregistro { get; set; }
+    }
+
+    public class PromocionBandConsDTO
+    {
+        public int idpromocion { get; set; }
+        public string descripcion { get; set; }
+        public int id_motivo { get; set; }
+        public string motivo_nombre { get; set; }
+        public int id_clase_promocion { get; set; }
+        public string clase_acuerdo { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public string marca_regalo { get; set; }
+        public int id_estado { get; set; }
+        public string estado { get; set; }
+        public string estado_etiqueta { get; set; }
+
+    }
+
+    public class BandConsAcuerdoPorIDDTO
+    {
+        public BandConsAcuerdoCabeceraDTO? cabecera { get; set; }
+        public IEnumerable<ArticuloBandConsDTO>? articulos { get; set; }
+        public IEnumerable<PromocionBandConsDTO>? promociones { get; set; }
+        public string? TipoAcuerdo { get; set; }
+    }
+
     public class BandejaInactivacionAcuerdoDTO
     {
         public int idacuerdo { get; set; }
         public string descripcion { get; set; }
-        public int idfondo { get; set; }
+        public int id_fondo { get; set; }
         public string nombre_tipo_fondo { get; set; }
         public string nombre_proveedor { get; set; }
         public string clase_acuerdo { get; set; }
@@ -384,6 +451,24 @@ namespace AppAPL.Dto.Acuerdo
         public string? IdEvento { get; set; }
         public string? NombreUsuario { get; set; }
 
+    }
+
+    public class InactivarAcuerdoRequest
+    {
+        public int IdAcuerdo { get; set; }
+        public string? NombreUsuarioIngreso { get; set; }
+
+        public int? IdOpcion { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
+        public string? NombreUsuario { get; set; }
+
+    }
+
+    public class InactivarAcuerdoResponse
+    {
+        public ControlErroresDTO retorno { get; set; }
+        public IEnumerable<PromocionBandConsDTO> promociones { get; set; }
     }
 
 

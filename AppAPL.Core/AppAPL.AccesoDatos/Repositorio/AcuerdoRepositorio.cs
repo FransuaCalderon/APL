@@ -494,6 +494,54 @@ namespace AppAPL.AccesoDatos.Repositorio
             return resultado;
         }
 
+        public async Task<BandConsAcuerdoPorIDDTO?> ObtenerBandejaConsultaPorId(int idAcuerdo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idacuerdo = idAcuerdo
+            };
+
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_tipo_acuerdo", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+
+            using var multi = await connection.QueryMultipleAsync(
+                "APL_PKG_ACUERDOS.sp_bandeja_consulta_acuerdo_por_id",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+            var cabecera = await multi.ReadFirstOrDefaultAsync<BandConsAcuerdoCabeceraDTO>();
+            var articulos = await multi.ReadAsync<ArticuloBandConsDTO>();
+            var promociones = await multi.ReadAsync<PromocionBandConsDTO>();
+
+            string? tipoAcuerdo = parameters.Get<string>("p_tipo_acuerdo");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}, tipoAcuerdo: {tipoAcuerdo}");
+
+            var resultado = new BandConsAcuerdoPorIDDTO()
+            {
+                cabecera = cabecera,
+                articulos = articulos,
+                promociones = promociones,
+                TipoAcuerdo = tipoAcuerdo
+            };
+
+            return resultado;
+        }
+
         public async Task<BandModAcuerdoPorIDDTO?> ObtenerBandejaModificacionPorId(int idAcuerdo)
         {
             using var connection = factory.CreateOpenConnection();
@@ -518,7 +566,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 "APL_PKG_ACUERDOS.sp_consulta_bandeja_modificacion_por_id",
                 parameters,
                 commandType: CommandType.StoredProcedure
-                );
+            );
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<BandModAcuerdoCabeceraDTO>();
             var articulos = await multi.ReadAsync<ArticuloBandModDTO>();
@@ -586,6 +634,59 @@ namespace AppAPL.AccesoDatos.Repositorio
             };
 
             return retorno;
+        }
+
+        public async Task<InactivarAcuerdoResponse> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
+        {
+
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idacuerdo = acuerdo.IdAcuerdo,
+                p_nombreusuarioingreso = acuerdo.NombreUsuarioIngreso,
+
+                p_idopcion = acuerdo.IdOpcion,
+                p_idcontrolinterfaz = acuerdo.IdControlInterfaz,
+                p_idevento_etiqueta = acuerdo.IdEvento,
+                p_nombreusuario = acuerdo.NombreUsuario
+            };
+
+            logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            using var multi = await connection.QueryMultipleAsync(
+                "APL_PKG_ACUERDOS.sp_proceso_inactivacion_acuerdo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            var promociones = await multi.ReadAsync<PromocionBandConsDTO>();
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            
+            var retorno = new ControlErroresDTO()
+            {
+                codigoRetorno = codigoSalida,
+                mensaje = mensajeSalida
+            };
+
+            var respuesta = new InactivarAcuerdoResponse
+            {
+                retorno = retorno,
+                promociones = promociones
+            };
+
+            return respuesta;
         }
     }
 }

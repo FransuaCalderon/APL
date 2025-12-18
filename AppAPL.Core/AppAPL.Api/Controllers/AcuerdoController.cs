@@ -112,7 +112,7 @@ namespace AppAPL.Api.Controllers
 
             var item = await servicio.ObtenerBandejaModificacionPorId(idAcuerdo);
             if (item == null)
-                return NotFound(new { mensaje = $"No se encontró el modificacion con ese idAcuerdo: {idAcuerdo}" });
+                return NotFound(new { mensaje = $"No se encontró la bandeja modificacion con ese idAcuerdo: {idAcuerdo}" });
 
             return item;
         }
@@ -142,6 +142,17 @@ namespace AppAPL.Api.Controllers
             var listaBandeja = await servicio.ConsultarBandConsAcuerdo();
 
             return listaBandeja.ToList();
+        }
+
+        [HttpGet("bandeja-general-id/{idAcuerdo:int}")]
+        public async Task<ActionResult<BandConsAcuerdoPorIDDTO>> ObtenerBandejaConsultaPorId(int idAcuerdo)
+        {
+
+            var item = await servicio.ObtenerBandejaConsultaPorId(idAcuerdo);
+            if (item == null)
+                return NotFound(new { mensaje = $"No se encontró la bandeja general con ese idAcuerdo: {idAcuerdo}" });
+
+            return item;
         }
 
 
@@ -184,6 +195,35 @@ namespace AppAPL.Api.Controllers
                 logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
             }
+        }
+
+        [HttpPost("inactivar-acuerdo")]
+        [Email("ENTACUERDO", TipoProceso.Inactivacion)]
+        public async Task<ActionResult<InactivarAcuerdoResponse>> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
+        {
+
+            var response = await servicio.InactivarAcuerdo(acuerdo);
+
+            // Caso 1: Éxito total
+            if (response.retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(response.retorno.mensaje);
+                return response;
+            }
+
+            // Caso 2: Bloqueo por Promociones Existentes (Regla de negocio)
+            if (response.promociones != null && response.promociones.Any())
+            {
+                logger.LogWarning("No se pudo inactivar: El acuerdo tiene promociones vinculadas.");
+                // Retornamos 409 (Conflicto) o 422 (Entidad no procesable)
+                return Conflict(response);
+            }
+
+
+            // Caso 3: Error de validación u otros
+            logger.LogError(response.retorno.mensaje);
+            return BadRequest(response);
+
         }
     }
 }

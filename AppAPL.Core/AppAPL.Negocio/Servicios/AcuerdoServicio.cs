@@ -9,6 +9,7 @@ using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
 using AutoMapper;
+using Org.BouncyCastle.Asn1.Mozilla;
 
 namespace AppAPL.Negocio.Servicios
 {
@@ -64,5 +65,11 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<BandejaConsultaAcuerdoDTO>> ConsultarBandConsAcuerdo()
             => repo.ConsultarBandConsAcuerdo();
+
+        public Task<BandConsAcuerdoPorIDDTO?> ObtenerBandejaConsultaPorId(int idAcuerdo)
+            => repo.ObtenerBandejaConsultaPorId(idAcuerdo);
+
+        public Task<InactivarAcuerdoResponse> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
+            => repo.InactivarAcuerdo(acuerdo);
     }
 }
