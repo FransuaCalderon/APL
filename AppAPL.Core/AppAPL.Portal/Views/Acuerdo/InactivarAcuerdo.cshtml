@@ -6,13 +6,13 @@
 @section Scripts {
     <script>window.usuarioActual = '@usuarioActual';</script>
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
-    <script src="~/js/Acuerdo/ModificarAcuerdo.js" asp-append-version="true"></script>
+    <script src="~/js/Acuerdo/InactivarAcuerdo.js" asp-append-version="true"></script>
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 }
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
-<h2>Modificación - Acuerdo</h2>
+<h2>Inactivación - Acuerdo</h2>
 <hr>
 
 <div id="vistaTabla" class="table-responsive">
@@ -91,7 +91,7 @@
         <div class="card-footer text-end">
             <button type="button" class="btn btn-secondary" id="btnVolverAbajo">Cerrar</button>
             <button type="button" class="custom-btn-primary" id="btnGuardarCambios">
-                <i class="fa-solid fa-floppy-disk custom-btn-icon"></i> Guardar Modificación
+                <i class="fa-solid fa-floppy-disk custom-btn-icon"></i>Inactivar
             </button>
         </div>
     </div>

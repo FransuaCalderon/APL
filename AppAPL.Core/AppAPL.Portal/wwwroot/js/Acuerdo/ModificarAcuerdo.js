@@ -3,310 +3,237 @@
 // ===============================================================
 // Variables globales
 // ===============================================================
-let tabla; // GLOBAL
-let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
+let tabla;
+let ultimaFilaModificada = null;
 
 // ===============================================================
-// FUNCIONES GLOBALES DE CARGA (fuera del ready)
+// FUNCIÓN HELPER PARA OBTENER USUARIO
 // ===============================================================
-
-/**
- * Carga la bandeja principal de acuerdos.
- */
-function cargarBandeja() {
-    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
-    const idOpcionActual = window.obtenerIdOpcionActual();
-
-    if (!idOpcionActual) {
-        console.error("No se pudo obtener el idOpcion para cargar la bandeja");
-        return;
-    }
-
-    const usuario = window.usuarioActual || "admin";
-    const apiBaseUrl = window.apiBaseUrl;
-
-    console.log('Cargando bandeja de acuerdos con idOpcion:', idOpcionActual);
-
-    $.ajax({
-        url: `${apiBaseUrl}/api/Acuerdo/consultar-bandeja-modificacion`,
-        method: "GET",
-        headers: {
-            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-            "usuario": usuario,                  // ✅ DINÁMICO
-            "idcontrolinterfaz": "0",
-            "idevento": "0",
-            "entidad": "0",
-            "identidad": "0",
-            "idtipoproceso": "0"
-        },
-        success: function (data) {
-            console.log("Bandeja de acuerdos cargada:", data);
-            crearListado(data);
-        },
-        error: function (xhr, status, error) {
-            console.error("Error al obtener datos de acuerdos:", error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudieron cargar los acuerdos'
-            });
-        }
-    });
+function obtenerUsuarioActual() {
+    return window.usuarioActual || sessionStorage.getItem('usuarioActual') || "admin";
 }
 
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
 $(document).ready(function () {
+    console.log("=== INICIO - ModificarAcuerdo ===");
 
-    console.log("=== INICIO DE CARGA DE PÁGINA - ModificarAcuerdo ===");
-
-    // ✅ LOGS DE VERIFICACIÓN AL INICIAR LA PÁGINA
-    console.log("Usuario actual capturado:", window.usuarioActual);
-
-    // Obtener información completa de la opción actual
-    const infoOpcion = window.obtenerInfoOpcionActual();
-    console.log("Información de la opción actual:", {
-        idOpcion: infoOpcion.idOpcion,
-        nombre: infoOpcion.nombre,
-        ruta: infoOpcion.ruta
-    });
-
-    // Verificación adicional
-    if (!infoOpcion.idOpcion) {
-        console.warn("⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
-        console.warn("Esto es normal si accediste directamente a la URL sin pasar por el menú.");
-        console.warn("Para que funcione correctamente, accede a esta página desde el menú.");
-    } else {
-        console.log("✅ idOpcion capturado correctamente:", infoOpcion.idOpcion);
-    }
-
-    console.log("=== FIN DE VERIFICACIÓN INICIAL ===");
-    console.log("");
-
-    // Configuración inicial y carga de datos
     $.get("/config", function (config) {
-        const apiBaseUrl = config.apiBaseUrl;
-        window.apiBaseUrl = apiBaseUrl;
-
-        console.log("API Base URL configurada:", apiBaseUrl);
-
+        window.apiBaseUrl = config.apiBaseUrl;
         cargarBandeja();
     });
 
-    // ===== BOTÓN LIMPIAR =====
+    // Eventos de Navegación
+    $('#btnVolverTabla, #btnVolverAbajo').on('click', function () {
+        cerrarDetalle();
+    });
+
+    // Botón Limpiar Filtros
     $('body').on('click', '#btnLimpiar', function () {
         if (tabla) {
             tabla.search('').draw();
-            tabla.page(0).draw('page');
-            ultimaFilaModificada = null;
-            if (typeof limpiarSeleccion === 'function') {
-                limpiarSeleccion('#tabla-acuerdos');
-            }
         }
     });
 
-}); // FIN document.ready
+});
 
 // ===================================================================
-// ===== FUNCIONES GLOBALES (Datatables, Abrir/Cerrar Modal) =====
+// ===== FUNCIONES DE CARGA =====
 // ===================================================================
+
+function cargarBandeja() {
+    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
+    const usuario = obtenerUsuarioActual();
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Acuerdo/consultar-bandeja-modificacion`,
+        method: "GET",
+        headers: {
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario
+        },
+        success: function (data) {
+            crearListado(data);
+        },
+        error: function () {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar la bandeja' });
+        }
+    });
+}
 
 function crearListado(data) {
-    if (tabla) {
-        tabla.destroy();
-    }
+    if (tabla) tabla.destroy();
 
-    var html = "";
-    html += "<table id='tabla-acuerdos' class='table table-bordered table-striped table-hover'>";
+    let html = `
+        <table id='tabla-acuerdos' class='table table-bordered table-striped table-hover'>
+            <thead>
+                <tr>
+                    <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold;'>
+                        BANDEJA DE MODIFICACIÓN DE ACUERDOS
+                    </th>
+                </tr>
+                <tr>
+                    <th>Acción</th>
+                    <th>IdAcuerdo</th>
+                    <th>Descripción</th>
+                    <th>Fondo</th>
+                    <th>Clase</th>
+                    <th>Valor</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                    <th>Disponible</th>
+                    <th>Comprometido</th>
+                    <th>Liquidado</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>`;
 
-    html += "  <thead>";
+    data.forEach(acuerdo => {
+        let fondoCompleto = [acuerdo.idfondo, acuerdo.nombre_tipo_fondo, acuerdo.nombre_proveedor].filter(Boolean).join(" - ");
+        let claseHTML = (acuerdo.clase_acuerdo ?? "") + (acuerdo.cantidad_articulos > 0 ? `<sup class="fw-bold"> ${acuerdo.cantidad_articulos}</sup>` : "");
 
-    // Fila del Título ROJO
-    html += "    <tr>";
-    html += "      <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE ACUERDOS";
-    html += "      </th>";
-    html += "    </tr>";
+        html += `<tr>
+            <td class='text-center'>
+                <button type="button" class="btn-action edit-btn" onclick="abrirModalEditar(${acuerdo.idacuerdo})">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                </button>
+            </td>
+            <td>${acuerdo.idacuerdo ?? ""}</td>
+            <td>${acuerdo.descripcion ?? ""}</td>
+            <td>${fondoCompleto}</td>
+            <td>${claseHTML}</td>
+            <td class='text-end'>${formatearMoneda(acuerdo.valor_acuerdo)}</td>
+            <td class='text-center'>${formatearFecha(acuerdo.fecha_inicio)}</td>
+            <td class='text-center'>${formatearFecha(acuerdo.fecha_fin)}</td>
+            <td class='text-end'>${formatearMoneda(acuerdo.valor_disponible)}</td>
+            <td class='text-end'>${formatearMoneda(acuerdo.valor_comprometido)}</td>
+            <td class='text-end'>${formatearMoneda(acuerdo.valor_liquidado)}</td>
+            <td>${acuerdo.estado ?? ""}</td>
+        </tr>`;
+    });
 
-    // Fila de las Cabeceras
-    html += "    <tr>";
-    html += "      <th>Acción</th>";
-    html += "      <th>IdAcuerdo</th>";
-    html += "      <th>Descripción</th>";
-    html += "      <th>Fondo</th>";
-    html += "      <th>Clase de Acuerdo</th>";
-    html += "      <th>Valor Acuerdo</th>";
-    html += "      <th>Fecha Inicio</th>";
-    html += "      <th>Fecha Fin</th>";
-    html += "      <th>Valor Disponible</th>";
-    html += "      <th>Valor Comprometido</th>";
-    html += "      <th>Valor Liquidado</th>";
-    html += "      <th>Estado</th>";
-    html += "    </tr>";
-    html += "  </thead>";
-    html += "  <tbody>";
-
-    if (data && data.length > 0) {
-        for (var i = 0; i < data.length; i++) {
-            var acuerdo = data[i];
-            var id = acuerdo.idacuerdo;
-
-            // Botón de editar
-            var editButton = '<button type="button" class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(' + id + ')">' +
-                '<i class="fa-regular fa-pen-to-square"></i>' +
-                '</button>';
-
-            // Construir el campo "Fondo" concatenando: IdFondo - TipoFondo - Proveedor
-            var fondoCompleto = "";
-            if (acuerdo.idfondo || acuerdo.nombre_tipo_fondo || acuerdo.nombre_proveedor) {
-                var partesFondo = [];
-                if (acuerdo.idfondo) partesFondo.push(acuerdo.idfondo);
-                if (acuerdo.nombre_tipo_fondo) partesFondo.push(acuerdo.nombre_tipo_fondo);
-                if (acuerdo.nombre_proveedor) partesFondo.push(acuerdo.nombre_proveedor);
-                fondoCompleto = partesFondo.join(" - ");
-            }
-
-            // Construir el campo "Clase de Acuerdo" con badge de cantidad de artículos
-            var claseAcuerdoHTML = (acuerdo.clase_acuerdo ?? "");
-            if (acuerdo.cantidad_articulos > 0) {
-                claseAcuerdoHTML += '<sup style="font-size: 0.8em; margin-left: 2px; font-weight: bold;">' + acuerdo.cantidad_articulos + '</sup>';
-            }
-
-            html += "<tr>";
-            html += "  <td class='text-center'>" + editButton + "</td>";
-            html += "  <td>" + (acuerdo.idacuerdo ?? "") + "</td>";
-            html += "  <td>" + (acuerdo.descripcion ?? "") + "</td>";
-            html += "  <td>" + fondoCompleto + "</td>";
-            html += "  <td>" + claseAcuerdoHTML + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_acuerdo) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(acuerdo.fecha_inicio) + "</td>";
-            html += "  <td class='text-center'>" + formatearFecha(acuerdo.fecha_fin) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_disponible) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_comprometido) + "</td>";
-            html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valor_liquidado) + "</td>";
-            html += "  <td>" + (acuerdo.estado ?? "") + "</td>";
-            html += "</tr>";
-        }
-    }
-
-    html += "  </tbody>";
-    html += "</table>";
-
-    // Inserta la tabla en el div
+    html += "</tbody></table>";
     $('#tabla').html(html);
 
-    // Inicializa DataTable
     tabla = $('#tabla-acuerdos').DataTable({
         pageLength: 10,
-        lengthMenu: [5, 10, 25, 50],
-        pagingType: 'full_numbers',
-        columnDefs: [
-            { targets: 0, width: "6%", className: "dt-center", orderable: false },
-            { targets: 1, width: "7%", className: "dt-center" },
-            { targets: [5, 8, 9, 10], className: "dt-right" },
-            { targets: [6, 7], className: "dt-center" },
-        ],
         order: [[1, 'desc']],
-        language: {
-            emptyTable: "Sin datos",
-            decimal: "",
-            emptyTable: "No hay datos disponibles en la tabla",
-            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            infoEmpty: "Mostrando 0 a 0 de 0 registros",
-            infoFiltered: "(filtrado de _MAX_ registros totales)",
-            infoPostFix: "",
-            thousands: ",",
-            lengthMenu: "Mostrar _MENU_ registros",
-            loadingRecords: "Cargando...",
-            processing: "Procesando...",
-            search: "Buscar:",
-            zeroRecords: "No se encontraron registros coincidentes",
-            paginate: {
-                first: "Primero",
-                last: "Último",
-                next: "Siguiente",
-                previous: "Anterior"
+        language: { url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json" }
+    });
+}
+
+// ===================================================================
+// ===== LÓGICA DE DETALLE (EL NÚCLEO QUE BUSCABAS) =====
+// ===================================================================
+
+function abrirModalEditar(idAcuerdo) {
+    $('body').css('cursor', 'wait');
+    const usuario = obtenerUsuarioActual();
+
+    // Limpiar campos
+    $("#formVisualizar")[0].reset();
+    $("#lblIdAcuerdo").text(idAcuerdo);
+    $('#contenedor-tabla-articulos').hide().html('');
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-modificacion-id/${idAcuerdo}`,
+        method: "GET",
+        headers: { "usuario": usuario },
+        success: function (data) {
+            const cab = data.cabecera;
+
+            // Mapeo de Cabecera (Campos de AprobarAcuerdo.cshtml)
+            $("#verNombreProveedor").val(cab.nombre_proveedor);
+            $("#verNombreTipoFondo").val(cab.motivo);
+            $("#verClaseAcuerdo").val(cab.clase_acuerdo);
+            $("#verEstado").val(cab.estado);
+            $("#verDescripcion").val(cab.descripcion);
+            $("#verFechaInicio").val(formatearFecha(cab.fecha_inicio));
+            $("#verFechaFin").val(formatearFecha(cab.fecha_fin));
+            $("#verValorAcuerdo").val(formatearMoneda(cab.valor_total));
+            $("#verValorDisponible").val(formatearMoneda(cab.valor_disponible));
+            $("#verValorComprometido").val(formatearMoneda(cab.valor_comprometido));
+            $("#verValorLiquidado").val(formatearMoneda(cab.valor_liquidado));
+
+            // Renderizado de Artículos
+            if (data.articulos && data.articulos.length > 0) {
+                renderizarTablaArticulos(data.articulos);
             }
+
+            $("#vistaTabla").fadeOut(200, function () {
+                $("#vistaDetalle").fadeIn(200);
+            });
+            $('body').css('cursor', 'default');
         },
-        drawCallback: function () {
-            if (ultimaFilaModificada !== null) {
-                if (typeof marcarFilaPorId === 'function') {
-                    marcarFilaPorId('#tabla-acuerdos', ultimaFilaModificada);
-                }
-            }
+        error: function () {
+            $('body').css('cursor', 'default');
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo obtener el detalle' });
         }
     });
-
-    console.log('Llamando a inicializarMarcadoFilas para Acuerdos');
-    if (typeof inicializarMarcadoFilas === 'function') {
-        inicializarMarcadoFilas('#tabla-acuerdos');
-    }
 }
 
-/**
- * Abre el modal y carga los datos del acuerdo para editar.
- * NOTA: Esta función está preparada para cuando implementes el modal de edición
- */
-function abrirModalEditar(id) {
-    console.log('Función abrirModalEditar preparada para el acuerdo ID:', id);
+function renderizarTablaArticulos(articulos) {
+    let htmlArticulos = `
+        <h6 class="fw-bold mb-2"><i class="fa fa-list"></i> Detalle de Artículos</h6>
+        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+            <table class="table table-bordered table-sm mb-0">
+                <thead class="sticky-top text-nowrap">
+                    <tr class="text-center tabla-items-header">                                     
+                        <th scope="col" class="custom-header-cons-bg">Item</th>
+                        <th scope="col" class="custom-header-cons-bg">Costo</th>
+                        <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
+                        <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
+                        <th scope="col" class="custom-header-ingr-bg">Precio - TC</th>
+                        <th scope="col" class="custom-header-ingr-bg">Precio - Crédito</th>
+                        <th scope="col" class="custom-header-ingr-bg">Aporte x Unidad</th>
+                        <th scope="col" class="custom-header-calc-bg">Comprometido Prov.</th>
+                        <th scope="col" class="custom-header-calc-bg">Margen Contado</th>
+                        <th scope="col" class="custom-header-calc-bg">Margen TC</th>
+                        <th scope="col" class="custom-header-calc-bg">Margen Crédito</th>
+                    </tr>
+                </thead>
+                <tbody class="text-nowrap tabla-items-body bg-white">`;
 
-    Swal.fire({
-        icon: 'info',
-        title: 'Próximamente',
-        text: 'La funcionalidad de edición estará disponible próximamente'
+    articulos.forEach(art => {
+        // Cálculo del margen de crédito (Costo - Precio Crédito) si no viene en el JSON
+        let margenCredito = (art.precio_credito || 0) - (art.costo || 0);
+
+        htmlArticulos += `
+            <tr>
+                <td class="fw-bold text-center">${art.articulo || ''}</td>
+                <td class="text-end">${formatearMoneda(art.costo)}</td>
+                <td class="text-center fw-bold text-primary">${art.unidades_limite}</td>
+                <td class="text-end">${formatearMoneda(art.precio_contado)}</td>
+                <td class="text-end">${formatearMoneda(art.precio_tc)}</td>
+                <td class="text-end">${formatearMoneda(art.precio_credito)}</td>
+                <td class="text-end fw-bold">${formatearMoneda(art.aporte_unidad_proveedor)}</td>
+                <td class="text-end fw-bold">${formatearMoneda(art.comprometido_proveedor)}</td>
+                <td class="text-end">${formatearMoneda(art.margen_contado)}</td>
+                <td class="text-end">${formatearMoneda(art.margen_tc)}</td>
+                <td class="text-end">${formatearMoneda(margenCredito)}</td>
+            </tr>`;
     });
 
-    // TODO: Implementar la lógica de edición cuando esté listo el modal
+    htmlArticulos += `
+                </tbody>
+            </table>
+        </div>`;
+
+    $('#contenedor-tabla-articulos').html(htmlArticulos).fadeIn();
 }
 
-// ===================================================================
-// ===== FUNCIONES UTILITARIAS (Formato) =====
-// ===================================================================
-
-/**
- * Formatea un número como moneda (ej: 20000 -> 20,000.00)
- */
-function formatearMoneda(valor) {
-    var numero = parseFloat(valor);
-    if (isNaN(numero) || valor === null || valor === undefined) {
-        return "$ 0.00";
-    }
-
-    return '$ ' + numero.toLocaleString('es-EC', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
+function cerrarDetalle() {
+    $("#vistaDetalle").fadeOut(200, function () { $("#vistaTabla").fadeIn(200); });
 }
 
-/**
- * Formatea la fecha al formato DD/MM/YYYY
- */
-function formatearFecha(fechaString) {
-    try {
-        if (!fechaString) return '';
-
-        var fecha = new Date(fechaString);
-        if (isNaN(fecha)) return fechaString;
-
-        var dia = String(fecha.getDate()).padStart(2, '0');
-        var mes = String(fecha.getMonth() + 1).padStart(2, '0');
-        var anio = fecha.getFullYear();
-
-        return `${dia}/${mes}/${anio}`;
-    } catch (e) {
-        console.warn("Error formateando fecha:", fechaString);
-        return fechaString;
-    }
+// Utilidades
+function formatearMoneda(v) {
+    return (v || 0).toLocaleString('es-EC', { style: 'currency', currency: 'USD' });
 }
-
-/**
- * Convierte una fecha/hora (ej: "2025-11-03T00:00:00")
- * al formato "YYYY-MM-DD" que necesita <input type="date">.
- */
-function formatDateForInput(fechaString) {
-    if (!fechaString) {
-        return "";
-    }
-    return fechaString.split('T')[0];
+function formatearFecha(f) {
+    if (!f) return "";
+    let d = new Date(f);
+    return d.toLocaleDateString('es-EC');
 }
