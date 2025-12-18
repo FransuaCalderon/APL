@@ -20,28 +20,29 @@ namespace AppAPL.AccesoDatos.Repositorio
 {
     public class AcuerdoRepositorio (OracleConnectionFactory factory, ILogger<AcuerdoRepositorio> logger) : IAcuerdoRepositorio
     {
+        /*
         public async Task<IEnumerable<AcuerdoDTO>> ObtenerAcuerdosAsync()
         {
             using var connection = factory.CreateOpenConnection();
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
-            /*
+            
             var paramObject = new
             {
                 p_nombreusuario = NombreUsuario,
                 p_idopcion = IdOpcion,
                 p_idcontrolinterfaz = IdControlInterfaz,
                 p_idevento_etiqueta = IdEvento
-            };*/
+            };
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
             //var parameters = new OracleDynamicParameters();  //mandar el paramObject en el constructor del parametro
 
             // 🔹 Agregar los parámetros de salida
-            /*
+            
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<AcuerdoDTO>(
@@ -50,37 +51,38 @@ namespace AppAPL.AccesoDatos.Repositorio
                 commandType: CommandType.Text
             );
 
-            /*
+            
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
 
-            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");*/
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
             return datos;
-        }
+        }*/
 
+        /*
         public async Task<IEnumerable<AcuerdoFondoDTO>> ObtenerAcuerdosFondosAsync()
         {
             using var connection = factory.CreateOpenConnection();
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
-            /*
+            
             var paramObject = new
             {
                 p_nombreusuario = NombreUsuario,
                 p_idopcion = IdOpcion,
                 p_idcontrolinterfaz = IdControlInterfaz,
                 p_idevento_etiqueta = IdEvento
-            };*/
+            };
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
             //var parameters = new OracleDynamicParameters();  //mandar el paramObject en el constructor del parametro
 
             // 🔹 Agregar los parámetros de salida
-            /*
+            
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<AcuerdoFondoDTO>(
@@ -89,15 +91,16 @@ namespace AppAPL.AccesoDatos.Repositorio
                 commandType: CommandType.Text
             );
 
-            /*
+            
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
 
-            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");*/
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
             return datos;
-        }
+        }*/
 
+        /*
         public async Task<AcuerdoDTO?> ObtenerPorIdAsync(int idAcuerdo)
         {
             using var connection = factory.CreateOpenConnection();
@@ -105,23 +108,24 @@ namespace AppAPL.AccesoDatos.Repositorio
             //var paramObject = new { idacuerdo = idAcuerdo };
             //var parameters = new OracleDynamicParameters(paramObject);
 
-            /*
+            
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             var acuerdo = await connection.QueryFirstOrDefaultAsync<AcuerdoDTO>(
                 @"select * from APL_TB_ACUERDO where idacuerdo = :idacuerdo", new { idacuerdo = idAcuerdo });
 
-            /*
+            
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
 
-            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");*/
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
             return acuerdo;
-        }
+        }*/
 
+        /*
         public async Task<AcuerdoFondoDTO?> ObtenerAcuerdoFondoPorIdAsync(int idAcuerdo)
         {
             using var connection = factory.CreateOpenConnection();
@@ -129,22 +133,22 @@ namespace AppAPL.AccesoDatos.Repositorio
             //var paramObject = new { idacuerdo = idAcuerdo };
             //var parameters = new OracleDynamicParameters(paramObject);
 
-            /*
+            
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             var acuerdo = await connection.QueryFirstOrDefaultAsync<AcuerdoFondoDTO>(
                 @"select * from APL_TB_ACUERDOFONDO where idacuerdo = :idacuerdo", new { idacuerdo = idAcuerdo });
 
-            /*
+            
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
 
-            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");*/
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");*
 
             return acuerdo;
-        }
+        }*/
 
         public async Task<IEnumerable<ConsultarAcuerdoFondoDTO>> ConsultarAcuerdoFondo(int idFondo)
         {

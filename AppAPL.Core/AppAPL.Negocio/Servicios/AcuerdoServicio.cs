@@ -42,6 +42,7 @@ namespace AppAPL.Negocio.Servicios
         public Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo)
             => repo.AprobarAcuerdo(acuerdo);
 
+        /*
         public Task<IEnumerable<AcuerdoDTO>> ListarAsync()
             => repo.ObtenerAcuerdosAsync();
 
@@ -53,6 +54,7 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<AcuerdoFondoDTO?> ObtenerAcuerdoFondoPorIdAsync(int idAcuerdo)
             => repo.ObtenerAcuerdoFondoPorIdAsync(idAcuerdo);
+        */
 
         public Task<IEnumerable<BandejaModificacionAcuerdoDTO>> ConsultarBandModAcuerdo()
             => repo.ConsultarBandModAcuerdo();

@@ -142,36 +142,23 @@ namespace AppAPL.Api.Handlers
                         "ESTADONEGADO" => "NEGADO"
                     };
 
-                    var acuerdo = await acuerdoRepo.ObtenerPorIdAsync((int)reqAprobacion.Identidad);
+                    var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)reqAprobacion.Identidad);
                     if (acuerdo == null)
                     {
                         logger.LogWarning($"no se encontro el acuerdo con el idacuerdo: {reqAprobacion.Identidad}");
                         return;
                     }
 
-                    var acuerdoFondo = await acuerdoRepo.ObtenerAcuerdoFondoPorIdAsync((int)reqAprobacion.Identidad);
-                    if (acuerdoFondo == null)
-                    {
-                        logger.LogWarning($"no se encontro el acuerdo fondo con el idacuerdo: {reqAprobacion.Identidad}");
-                        return;
-                    }
-
                     
-                    var fondo2 = await fondoRepo.ObtenerPorIdAsync(acuerdoFondo.IdFondo);
+                    var fondo2 = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
                     if (fondo2 == null)
                     {
-                        logger.LogWarning($"no se encontro el fondo con el id: {acuerdoFondo.IdFondo}");
+                        logger.LogWarning($"no se encontro el fondo con el id: {acuerdo.cabecera.idfondo}");
                         return;
                     }
 
                     IdProveedor = fondo2.IdProveedor;
-                    var proveedor2 = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
-
-                    if (proveedor2 == null)
-                    {
-                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
-                        return;
-                    }
+               
 
                     var catalogo2 = await catalogoRepo.ObtenerPorIdAsync((int)fondo2.IdTipoFondo);
                     if (catalogo2 == null)
@@ -185,13 +172,13 @@ namespace AppAPL.Api.Handlers
                             { "Nombre", "" },
                             { "Estado", estadoCorreo },
                             { "IdAcuerdo", reqAprobacion.Identidad.ToString() },
-                            { "NombreProveedor", proveedor2.Nombre },
+                            { "NombreProveedor", acuerdo.cabecera.fondo_proveedor },
                             
-                            { "ValorAcuerdo", acuerdoFondo.ValorAporte.ToString() },
-                            { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdoFondo.ValorAporte) },
-                            { "FechaInicio", acuerdo.FechaInicioVigencia.ToString() },
-                            { "FechaFin", acuerdo.FechaFinVigencia.ToString() },
-                            { "IdFondo", fondo2.IdFondo.ToString() },
+                            { "ValorAcuerdo", acuerdo.cabecera.valor_total.ToString() },
+                            { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdo.cabecera.valor_total) },
+                            { "FechaInicio", acuerdo.cabecera.fecha_inicio.ToString() },
+                            { "FechaFin", acuerdo.cabecera.fecha_fin.ToString() },
+                            { "IdFondo", acuerdo.cabecera.idfondo.ToString() },
                             { "TipoFondo", catalogo2.Nombre },
                             { "Firma", "" },
                             
@@ -199,25 +186,48 @@ namespace AppAPL.Api.Handlers
                     break;
 
                 case TipoProceso.Inactivacion:
-                    /*
+                    var reqInactivacion = JsonSerializer.Deserialize<InactivarAcuerdoRequest>(requestBody, jsonOptions);
+                    if (reqInactivacion == null || reqInactivacion.IdAcuerdo == null)
+                    {
+                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        return;
+                    }
+
+                    var acuerdo2 = await acuerdoRepo.ObtenerBandejaConsultaPorId(reqInactivacion.IdAcuerdo);
+                    if (acuerdo2 == null)
+                    {
+                        logger.LogWarning($"no se encontro el acuerdo con el idacuerdo: {reqInactivacion.IdAcuerdo}");
+                        return;
+                    }
+
+                    var fondo3 = await fondoRepo.ObtenerPorIdAsync(acuerdo2.cabecera.idfondo);
+
+                    if (fondo3 == null)
+                    {
+                        logger.LogWarning($"no se encontro el fondo con el id: {acuerdo2.cabecera.idfondo}");
+                    }
+
+                    IdProveedor = fondo3.IdProveedor;
+
+
                     camposPlantilla = new Dictionary<string, string>
                         {
                             { "Nombre", "" },
-                            { "IdAcuerdo", "" },
-                            { "NombreProveedor", "" },
+                            { "IdAcuerdo", acuerdo2.cabecera.idacuerdo.ToString() },
+                            { "NombreProveedor", acuerdo2.cabecera.fondo_proveedor },
 
-                            { "ValorAcuerdo", "" },
-                            { "ValorAcuerdoLetras", "" },
-                            { "ValorDisponibleAcuerdo", "" },
-                            { "ValorDisponibleAcuerdoLetras", "" },
-                            { "FechaInicio", "" },
-                            { "FechaFin", "" },
-                            { "IdFondo", "" },
-                            { "ValorDisponibleFondo", "" },
+                            { "ValorAcuerdo", acuerdo2.cabecera.valor_total.ToString() },
+                            { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdo2.cabecera.valor_total) },
+                            { "ValorDisponibleAcuerdo", acuerdo2.cabecera.valor_disponible.ToString() },
+                            { "ValorDisponibleAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdo2.cabecera.valor_disponible) },
+                            { "FechaInicio", acuerdo2.cabecera.fecha_inicio.ToString() },
+                            { "FechaFin", acuerdo2.cabecera.fecha_fin.ToString() },
+                            { "IdFondo", acuerdo2.cabecera.idfondo.ToString() },
+                            { "ValorDisponibleFondo", fondo3.ValorFondo.ToString() },
                             { "Firma", "" },
 
                         };
-                    */
+                    
                     break;
 
                 default:

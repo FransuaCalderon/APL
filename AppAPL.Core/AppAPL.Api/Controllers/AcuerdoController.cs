@@ -13,6 +13,7 @@ namespace AppAPL.Api.Controllers
 
     public class AcuerdoController(ILogger<AcuerdoController> logger, IAcuerdoServicio servicio) : ControllerBase
     {
+        /*
         [HttpGet("listar")]
         public async Task<ActionResult<List<AcuerdoDTO>>> ObtenerTodos()
         {
@@ -50,7 +51,7 @@ namespace AppAPL.Api.Controllers
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró el acuerdo fondo con ese id {id}" });
             return item;
-        }
+        }*/
 
         [HttpGet("consultar-acuerdo-fondo/{idFondo:int}")]
         public async Task<ActionResult<List<ConsultarAcuerdoFondoDTO>>> ConsultarAcuerdoFondo(int idFondo)
@@ -215,6 +216,7 @@ namespace AppAPL.Api.Controllers
             if (response.promociones != null && response.promociones.Any())
             {
                 logger.LogWarning("No se pudo inactivar: El acuerdo tiene promociones vinculadas.");
+                logger.LogWarning(response.retorno.mensaje);
                 // Retornamos 409 (Conflicto) o 422 (Entidad no procesable)
                 return Conflict(response);
             }
