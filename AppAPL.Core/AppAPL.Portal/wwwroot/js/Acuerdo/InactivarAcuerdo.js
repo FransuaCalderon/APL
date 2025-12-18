@@ -1,4 +1,4 @@
-﻿// ~/js/Acuerdo/ModificarAcuerdo.js
+﻿// ~/js/Acuerdo/InactivarAcuerdo.js
 
 // ===============================================================
 // Variables globales
@@ -10,38 +10,44 @@ let ultimaFilaModificada = null;
 // FUNCIÓN HELPER PARA OBTENER USUARIO
 // ===============================================================
 function obtenerUsuarioActual() {
-    return window.usuarioActual || sessionStorage.getItem('usuarioActual') || "admin";
+    return window.usuarioActual || sessionStorage.getItem("usuarioActual") || "admin";
 }
 
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
 $(document).ready(function () {
-    console.log("=== INICIO - ModificarAcuerdo ===");
+    console.log("=== INICIO - InactivarAcuerdo ===");
 
+    // Cargar config (apiBaseUrl) y luego la bandeja
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
         cargarBandeja();
+    }).fail(function () {
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo cargar la configuración (/config)." });
     });
 
     // Eventos de Navegación
-    $('#btnVolverTabla, #btnVolverAbajo').on('click', function () {
+    $("#btnVolverTabla, #btnVolverAbajo").on("click", function () {
         cerrarDetalle();
     });
 
-    // Botón Limpiar Filtros
-    $('body').on('click', '#btnLimpiar', function () {
+    // Botón Limpiar Filtros (si existe en tu HTML)
+    $("body").on("click", "#btnLimpiar", function () {
         if (tabla) {
-            tabla.search('').draw();
+            tabla.search("").draw();
         }
     });
 
+    // Botón Inactivar
+    $("#btnGuardarCambios").on("click", function () {
+        inactivarAcuerdo();
+    });
 });
 
 // ===================================================================
-// ===== FUNCIONES DE CARGA =====
+// ===== FUNCIONES DE CARGA (BANDEJA) =====
 // ===================================================================
-
 function cargarBandeja() {
     const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
     const usuario = obtenerUsuarioActual();
@@ -50,14 +56,14 @@ function cargarBandeja() {
         url: `${window.apiBaseUrl}/api/Acuerdo/consultar-bandeja-inactivacion`,
         method: "GET",
         headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario
+            idopcion: String(idOpcionActual),
+            usuario: usuario
         },
         success: function (data) {
-            crearListado(data);
+            crearListado(data || []);
         },
         error: function () {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar la bandeja' });
+            Swal.fire({ icon: "error", title: "Error", text: "No se pudo cargar la bandeja" });
         }
     });
 }
@@ -66,10 +72,10 @@ function crearListado(data) {
     if (tabla) tabla.destroy();
 
     let html = `
-        <table id='tabla-acuerdos' class='table table-bordered table-striped table-hover'>
+        <table id="tabla-acuerdos" class="table table-bordered table-striped table-hover">
             <thead>
                 <tr>
-                    <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold;'>
+                    <th colspan="12" style="background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold;">
                         BANDEJA DE INACTIVACIÓN DE ACUERDOS
                     </th>
                 </tr>
@@ -91,65 +97,69 @@ function crearListado(data) {
             <tbody>`;
 
     data.forEach(acuerdo => {
-        let fondoCompleto = [acuerdo.idfondo, acuerdo.nombre_tipo_fondo, acuerdo.nombre_proveedor].filter(Boolean).join(" - ");
-        let claseHTML = (acuerdo.clase_acuerdo ?? "") + (acuerdo.cantidad_articulos > 0 ? `<sup class="fw-bold"> ${acuerdo.cantidad_articulos}</sup>` : "");
+        const fondoCompleto = [acuerdo.idfondo, acuerdo.nombre_tipo_fondo, acuerdo.nombre_proveedor]
+            .filter(Boolean)
+            .join(" - ");
 
-        html += `<tr>
-            <td class='text-center'>
-                <button type="button" class="btn-action edit-btn" onclick="abrirModalEditar(${acuerdo.idacuerdo})">
-                    <i class="fa-regular fa-pen-to-square"></i>
-                </button>
-            </td>
-            <td>${acuerdo.idacuerdo ?? ""}</td>
-            <td>${acuerdo.descripcion ?? ""}</td>
-            <td>${fondoCompleto}</td>
-            <td>${claseHTML}</td>
-            <td class='text-end'>${formatearMoneda(acuerdo.valor_acuerdo)}</td>
-            <td class='text-center'>${formatearFecha(acuerdo.fecha_inicio)}</td>
-            <td class='text-center'>${formatearFecha(acuerdo.fecha_fin)}</td>
-            <td class='text-end'>${formatearMoneda(acuerdo.valor_disponible)}</td>
-            <td class='text-end'>${formatearMoneda(acuerdo.valor_comprometido)}</td>
-            <td class='text-end'>${formatearMoneda(acuerdo.valor_liquidado)}</td>
-            <td>${acuerdo.estado ?? ""}</td>
-        </tr>`;
+        const claseHTML = (acuerdo.clase_acuerdo ?? "") +
+            (acuerdo.cantidad_articulos > 0 ? `<sup class="fw-bold"> ${acuerdo.cantidad_articulos}</sup>` : "");
+
+        html += `
+            <tr>
+                <td class="text-center">
+                    <button type="button" class="btn-action edit-btn" onclick="abrirModalEditar(${acuerdo.idacuerdo})">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                </td>
+                <td>${acuerdo.idacuerdo ?? ""}</td>
+                <td>${acuerdo.descripcion ?? ""}</td>
+                <td>${fondoCompleto}</td>
+                <td>${claseHTML}</td>
+                <td class="text-end">${formatearMoneda(acuerdo.valor_acuerdo)}</td>
+                <td class="text-center">${formatearFecha(acuerdo.fecha_inicio)}</td>
+                <td class="text-center">${formatearFecha(acuerdo.fecha_fin)}</td>
+                <td class="text-end">${formatearMoneda(acuerdo.valor_disponible)}</td>
+                <td class="text-end">${formatearMoneda(acuerdo.valor_comprometido)}</td>
+                <td class="text-end">${formatearMoneda(acuerdo.valor_liquidado)}</td>
+                <td>${acuerdo.estado ?? ""}</td>
+            </tr>`;
     });
 
-    html += "</tbody></table>";
-    $('#tabla').html(html);
+    html += `</tbody></table>`;
+    $("#tabla").html(html);
 
-    tabla = $('#tabla-acuerdos').DataTable({
+    tabla = $("#tabla-acuerdos").DataTable({
         pageLength: 10,
-        order: [[1, 'desc']],
+        order: [[1, "desc"]],
         language: { url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json" }
     });
 }
 
 // ===================================================================
-// ===== LÓGICA DE DETALLE (EL NÚCLEO QUE BUSCABAS) =====
+// ===== LÓGICA DE DETALLE =====
 // ===================================================================
-
 function abrirModalEditar(idAcuerdo) {
-    $('body').css('cursor', 'wait');
+    $("body").css("cursor", "wait");
     const usuario = obtenerUsuarioActual();
 
     // Limpiar campos
     $("#formVisualizar")[0].reset();
     $("#lblIdAcuerdo").text(idAcuerdo);
-    $('#contenedor-tabla-articulos').hide().html('');
+    $("#contenedor-tabla-articulos").hide().html("");
 
     $.ajax({
         url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-general-id/${idAcuerdo}`,
         method: "GET",
-        headers: { "usuario": usuario },
+        headers: { usuario: usuario },
         success: function (data) {
-            const cab = data.cabecera;
+            const cab = data?.cabecera || {};
 
-            // Mapeo de Cabecera (Campos de AprobarAcuerdo.cshtml)
-            $("#verNombreProveedor").val(cab.nombre_proveedor);
-            $("#verNombreTipoFondo").val(cab.motivo);
-            $("#verClaseAcuerdo").val(cab.clase_acuerdo);
-            $("#verEstado").val(cab.estado);
-            $("#verDescripcion").val(cab.descripcion);
+            // Mapeo de Cabecera
+            $("#verNombreProveedor").val(cab.nombre_proveedor ?? "");
+            $("#verNombreTipoFondo").val(cab.motivo ?? "");
+            $("#verClaseAcuerdo").val(cab.clase_acuerdo ?? "");
+            $("#verEstado").val(cab.estado ?? "");
+            $("#verDescripcion").val(cab.descripcion ?? "");
             $("#verFechaInicio").val(formatearFecha(cab.fecha_inicio));
             $("#verFechaFin").val(formatearFecha(cab.fecha_fin));
             $("#verValorAcuerdo").val(formatearMoneda(cab.valor_total));
@@ -157,19 +167,20 @@ function abrirModalEditar(idAcuerdo) {
             $("#verValorComprometido").val(formatearMoneda(cab.valor_comprometido));
             $("#verValorLiquidado").val(formatearMoneda(cab.valor_liquidado));
 
-            // Renderizado de Artículos
-            if (data.articulos && data.articulos.length > 0) {
+            // Artículos
+            if (data?.articulos && data.articulos.length > 0) {
                 renderizarTablaArticulos(data.articulos);
             }
 
             $("#vistaTabla").fadeOut(200, function () {
                 $("#vistaDetalle").fadeIn(200);
             });
-            $('body').css('cursor', 'default');
+
+            $("body").css("cursor", "default");
         },
         error: function () {
-            $('body').css('cursor', 'default');
-            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo obtener el detalle' });
+            $("body").css("cursor", "default");
+            Swal.fire({ icon: "error", title: "Error", text: "No se pudo obtener el detalle" });
         }
     });
 }
@@ -180,7 +191,7 @@ function renderizarTablaArticulos(articulos) {
         <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
             <table class="table table-bordered table-sm mb-0">
                 <thead class="sticky-top text-nowrap">
-                    <tr class="text-center tabla-items-header">                                     
+                    <tr class="text-center tabla-items-header">
                         <th scope="col" class="custom-header-cons-bg">Item</th>
                         <th scope="col" class="custom-header-cons-bg">Costo</th>
                         <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
@@ -197,14 +208,13 @@ function renderizarTablaArticulos(articulos) {
                 <tbody class="text-nowrap tabla-items-body bg-white">`;
 
     articulos.forEach(art => {
-        // Cálculo del margen de crédito (Costo - Precio Crédito) si no viene en el JSON
-        let margenCredito = (art.precio_credito || 0) - (art.costo || 0);
+        const margenCredito = (art.precio_credito || 0) - (art.costo || 0);
 
         htmlArticulos += `
             <tr>
-                <td class="fw-bold text-center">${art.articulo || ''}</td>
+                <td class="fw-bold text-center">${art.articulo || ""}</td>
                 <td class="text-end">${formatearMoneda(art.costo)}</td>
-                <td class="text-center fw-bold text-primary">${art.unidades_limite}</td>
+                <td class="text-center fw-bold text-primary">${art.unidades_limite ?? ""}</td>
                 <td class="text-end">${formatearMoneda(art.precio_contado)}</td>
                 <td class="text-end">${formatearMoneda(art.precio_tc)}</td>
                 <td class="text-end">${formatearMoneda(art.precio_credito)}</td>
@@ -221,19 +231,90 @@ function renderizarTablaArticulos(articulos) {
             </table>
         </div>`;
 
-    $('#contenedor-tabla-articulos').html(htmlArticulos).fadeIn();
+    $("#contenedor-tabla-articulos").html(htmlArticulos).fadeIn();
 }
 
 function cerrarDetalle() {
-    $("#vistaDetalle").fadeOut(200, function () { $("#vistaTabla").fadeIn(200); });
+    $("#vistaDetalle").fadeOut(200, function () {
+        $("#vistaTabla").fadeIn(200);
+    });
 }
 
-// Utilidades
-function formatearMoneda(v) {
-    return (v || 0).toLocaleString('es-EC', { style: 'currency', currency: 'USD' });
+// ===================================================================
+// ===== INACTIVAR ACUERDO (POST /api/Acuerdo/inactivar-acuerdo) =====
+// ===================================================================
+function inactivarAcuerdo() {
+    const usuario = obtenerUsuarioActual();
+
+    // idacuerdo se toma del detalle (lo setéas en abrirModalEditar)
+    const idAcuerdo = parseInt($("#lblIdAcuerdo").text(), 10);
+
+    if (!idAcuerdo || isNaN(idAcuerdo)) {
+        Swal.fire({ icon: "warning", title: "Atención", text: "No se pudo determinar el Id del acuerdo." });
+        return;
+    }
+
+    // Payload (con campos quemados como pediste)
+    const payload = {
+        idacuerdo: idAcuerdo,
+        nombreusuarioingreso: usuario,
+        idopcion: 1,                    // QUEMADO
+        idcontrolinterfaz: "BTNGRABAR",  // QUEMADO
+        idevento: "EVCLICK",            // QUEMADO
+        nombreusuario: usuario
+    };
+
+    Swal.fire({
+        icon: "question",
+        title: "Confirmar inactivación",
+        text: `¿Deseas inactivar el Acuerdo #${idAcuerdo}?`,
+        showCancelButton: true,
+        confirmButtonText: "Sí, inactivar",
+        cancelButtonText: "Cancelar"
+    }).then((r) => {
+        if (!r.isConfirmed) return;
+
+        $("body").css("cursor", "wait");
+
+        $.ajax({
+            url: `${window.apiBaseUrl}/api/Acuerdo/inactivar-acuerdo`,
+            method: "POST",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(payload),
+            headers: {
+                // Si tu API usa headers para auditoría/validación
+                usuario: usuario
+            },
+            success: function () {
+                $("body").css("cursor", "default");
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Listo",
+                    text: "Acuerdo inactivado correctamente."
+                }).then(() => {
+                    cerrarDetalle();
+                    cargarBandeja(); // refresca bandeja
+                });
+            },
+            error: function (xhr) {
+                $("body").css("cursor", "default");
+                const msg = xhr?.responseJSON?.mensaje || xhr?.responseText || "No se pudo inactivar el acuerdo.";
+                Swal.fire({ icon: "error", title: "Error", text: msg });
+            }
+        });
+    });
 }
+
+// ===================================================================
+// ===== UTILIDADES =====
+// ===================================================================
+function formatearMoneda(v) {
+    return (v || 0).toLocaleString("es-EC", { style: "currency", currency: "USD" });
+}
+
 function formatearFecha(f) {
     if (!f) return "";
-    let d = new Date(f);
-    return d.toLocaleDateString('es-EC');
+    const d = new Date(f);
+    return d.toLocaleDateString("es-EC");
 }

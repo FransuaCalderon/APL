@@ -1,4 +1,4 @@
-﻿// ~/js/Acuerdo/ModificarAcuerdo.js
+﻿// ~/js/Acuerdo/ConsultarAcuerdo.js
 
 // ===============================================================
 // Variables globales
