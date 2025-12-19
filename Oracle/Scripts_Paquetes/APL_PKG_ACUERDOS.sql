@@ -140,7 +140,6 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_idevento_etiqueta     IN  VARCHAR2,
         p_nombreusuario         IN  VARCHAR2,  
         -- Variables de salida
-        p_cursor_promociones    OUT SYS_REFCURSOR,
         p_codigo_salida         OUT NUMBER,
         p_mensaje               OUT VARCHAR2
     );
@@ -3173,13 +3172,11 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         p_idevento_etiqueta     IN  VARCHAR2,
         p_nombreusuario         IN  VARCHAR2,  
         -- Variables de salida
-        p_cursor_promociones    OUT SYS_REFCURSOR,
         p_codigo_salida         OUT NUMBER,
         p_mensaje               OUT VARCHAR2
     ) AS
         -- Variables catálogo
         v_count_aprobadores       NUMBER;
-        v_count_promociones       NUMBER;
         v_estado_actual           NUMBER;
         v_row_exists              NUMBER;
         
@@ -3192,7 +3189,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_estado_vigente          NUMBER;
         v_estado_aprobado         NUMBER;
         v_estado_nuevo            NUMBER;
-        v_estado_modificado       NUMBER;
         
         -- Variable log
         v_datos_json              VARCHAR2(4000);
@@ -3250,9 +3246,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         SELECT idcatalogo INTO v_estado_nuevo 
         FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';
         
-        SELECT idcatalogo INTO v_estado_modificado 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOMODIFICADO';
-        
         -- =========================================================
         -- VALIDAR QUE EL ACUERDO EXISTA
         -- =========================================================
@@ -3267,8 +3260,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         IF v_row_exists = 0 THEN
             p_codigo_salida := -1;
             p_mensaje := 'El acuerdo con ID ' || p_idacuerdo || ' no existe';
-            OPEN p_cursor_promociones FOR 
-                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
             RETURN;
         END IF;
         
@@ -3283,21 +3274,16 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         IF v_estado_actual = v_estado_inactivo THEN
             p_codigo_salida := -2;
             p_mensaje := 'El acuerdo ya se encuentra inactivo';
-            OPEN p_cursor_promociones FOR 
-                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
             RETURN;
         END IF;
         
         -- Validar que el acuerdo solo esté 'APROBADO' O 'VIGENTE'
         IF v_estado_actual NOT IN (v_estado_vigente, v_estado_aprobado) THEN
-            p_codigo_salida := -2;
+            p_codigo_salida := -3;
             p_mensaje := 'El acuerdo debe estar vigente o aprobado';
-            OPEN p_cursor_promociones FOR 
-                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
             RETURN;
         END IF;
         
-     
         -- =========================================================
         -- ¿HAY APROBADORES CONFIGURADOS?
         -- ENTACUERDO + TPINACTIVACION + ACTIVO
@@ -3481,10 +3467,9 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             ROLLBACK;
             p_codigo_salida := -99;
             p_mensaje := 'Error al inactivar acuerdo: ' || SQLERRM;
-            OPEN p_cursor_promociones FOR 
-                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
             
     END sp_proceso_inactivacion_acuerdo;
+
 
     /*
     =========================================================
