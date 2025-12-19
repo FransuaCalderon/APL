@@ -159,7 +159,7 @@ namespace AppAPL.Api.Controllers
 
         [HttpPost("insertar")]
         [Email("ENTACUERDO", TipoProceso.Creacion)]
-        public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearActualizarAcuerdoGrupoDTO acuerdo)
+        public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearAcuerdoGrupoDTO acuerdo)
         {
             
             var retorno = await servicio.CrearAsync(acuerdo);
@@ -226,6 +226,27 @@ namespace AppAPL.Api.Controllers
             logger.LogError(response.retorno.mensaje);
             return BadRequest(response);
 
+        }
+
+
+        [HttpPut("actualizar-acuerdo")]
+        [Email("ENTACUERDO", TipoProceso.Modificacion)]
+        public async Task<ActionResult<ControlErroresDTO>> ActualizarAcuerdo(ActualizarAcuerdoDTO actualizarAcuerdoDTO)
+        {
+
+            var retorno = await servicio.ActualizarAsync(actualizarAcuerdoDTO);
+
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
         }
     }
 }

@@ -39,7 +39,7 @@ namespace AppAPL.Api.Handlers
             switch (tipoProceso)
             {
                 case TipoProceso.Creacion:
-                    var reqCreacion = JsonSerializer.Deserialize<CrearActualizarAcuerdoGrupoDTO>(requestBody, jsonOptions);
+                    var reqCreacion = JsonSerializer.Deserialize<CrearAcuerdoGrupoDTO>(requestBody, jsonOptions);
                     if (reqCreacion == null)
                     {
                         logger.LogWarning("⚠️ [FondosHandler] No se pudo deserializar body de Crear Acuerdo");

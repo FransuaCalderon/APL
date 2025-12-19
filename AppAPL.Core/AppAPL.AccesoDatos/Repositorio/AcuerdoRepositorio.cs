@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -285,7 +286,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             return resultado;
         }
 
-        public async Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo)
+        public async Task<ControlErroresDTO> CrearAsync(CrearAcuerdoGrupoDTO acuerdo)
         {
             using var connection = factory.CreateOpenConnection();
             var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -326,6 +327,65 @@ namespace AppAPL.AccesoDatos.Repositorio
             var retorno = new ControlErroresDTO()
             {
                 Id = idAcuerdo,
+                filasAfectadas = filasAfectadas,
+                mensaje = mensajeSalida,
+                codigoRetorno = codigoSalida
+            };
+            return retorno;
+        }
+
+        public async Task<ControlErroresDTO> ActualizarAsync(ActualizarAcuerdoDTO actualizarAcuerdoDTO)
+        {
+            using var connection = factory.CreateOpenConnection();
+            var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+            var paramObject = new
+            {
+                p_idacuerdo = actualizarAcuerdoDTO.IdAcuerdo,
+                p_idmotivoacuerdo = actualizarAcuerdoDTO.IdMotivoAcuerdo,
+                p_descripcion = actualizarAcuerdoDTO.Descripcion,
+                p_fechainiciovigencia = actualizarAcuerdoDTO.FechaInicioVigencia,
+                p_fechafinvigencia = actualizarAcuerdoDTO.FechaFinVigencia,
+                p_idusuariomodifica = actualizarAcuerdoDTO.IdUsuarioModifica,
+                p_nombreusuariomodifica = actualizarAcuerdoDTO.NombreUsuarioModifica,
+
+
+                p_idfondo = actualizarAcuerdoDTO.IdFondo,
+                p_valoraporte = actualizarAcuerdoDTO.ValorAporte,
+
+                p_articulos_json = JsonSerializer.Serialize(actualizarAcuerdoDTO.articulos, options),
+
+                p_idopcion = actualizarAcuerdoDTO.IdOpcion,
+                p_idcontrolinterfaz = actualizarAcuerdoDTO.IdControlInterfaz,
+                p_idevento_etiqueta = actualizarAcuerdoDTO.IdEvento_Etiqueta,
+                
+            };
+
+            logger.LogInformation($"parametros antes de enviar al sp: {paramObject.ToString()}");
+
+            //logger.LogInformation($"parametros a enviar para el sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "APL_PKG_ACUERDOS.sp_modificar_acuerdo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            //return parameters.Get<int>("p_idfondo_out");
+            var retorno = new ControlErroresDTO()
+            {
                 filasAfectadas = filasAfectadas,
                 mensaje = mensajeSalida,
                 codigoRetorno = codigoSalida

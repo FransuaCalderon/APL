@@ -29,7 +29,7 @@ namespace AppAPL.Negocio.Servicios
         public Task<FiltrosItemsDTO> CargarCombosFiltrosItems()
             => repo.CargarCombosFiltrosItems();
 
-        public Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo)
+        public Task<ControlErroresDTO> CrearAsync(CrearAcuerdoGrupoDTO acuerdo)
             => repo.CrearAsync(acuerdo);
 
         public Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador)
@@ -73,5 +73,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<InactivarAcuerdoResponse> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
             => repo.InactivarAcuerdo(acuerdo);
+
+        public Task<ControlErroresDTO> ActualizarAsync(ActualizarAcuerdoDTO actualizarAcuerdoDTO)
+            => repo.ActualizarAsync(actualizarAcuerdoDTO);
     }
 }

@@ -382,7 +382,7 @@ namespace AppAPL.Dto.Acuerdo
         public DateTime acuerdo_fecha_ingreso { get; set; }
     }
 
-    public class CrearActualizarAcuerdoDTO
+    public class CrearAcuerdoDTO
     {
         public int? IdAcuerdo { get; set; }
         public int IdTipoAcuerdo { get; set; }
@@ -399,7 +399,7 @@ namespace AppAPL.Dto.Acuerdo
         public string? MarcaProcesoAprobacion { get; set; }
     }
 
-    public class CrearActualizarAcuerdoFondoDTO
+    public class CrearAcuerdoFondoDTO
     {
         public int IdFondo { get; set; }
         public decimal ValorAporte { get; set; }
@@ -408,7 +408,7 @@ namespace AppAPL.Dto.Acuerdo
         public decimal ValorLiquidado { get; set; }
     }
 
-    public class CrearActualizarAcuerdoArticuloDTO
+    public class CrearAcuerdoArticuloDTO
     {
         public int? IdAcuerdoArticulo { get; set; }
         public string? CodigoArticulo { get; set; }
@@ -423,16 +423,53 @@ namespace AppAPL.Dto.Acuerdo
         public decimal MargenTarjetaCredito { get; set; }
     }
 
-    public class CrearActualizarAcuerdoGrupoDTO
+    public class CrearAcuerdoGrupoDTO
     {
         public string TipoClaseEtiqueta { get; set; }
         public int IdOpcion { get; set; }
         public string IdControlInterfaz { get; set; }
         public string IdEvento { get; set; }
-        public CrearActualizarAcuerdoDTO Acuerdo { get; set; }
-        public CrearActualizarAcuerdoFondoDTO Fondo { get; set; }
-        public IEnumerable<CrearActualizarAcuerdoArticuloDTO> Articulos { get; set; }
+        public CrearAcuerdoDTO Acuerdo { get; set; }
+        public CrearAcuerdoFondoDTO Fondo { get; set; }
+        public IEnumerable<CrearAcuerdoArticuloDTO> Articulos { get; set; }
 
+    }
+
+    public class ActualizarAcuerdoDTO
+    {
+        public int IdAcuerdo { get; set; }
+        public int IdMotivoAcuerdo { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime FechaInicioVigencia { get; set; }
+        public DateTime FechaFinVigencia { get; set; }
+        public string IdUsuarioModifica { get; set; }
+        public string NombreUsuarioModifica { get; set; }
+        public int IdFondo { get; set; }
+        public decimal ValorAporte { get; set; }
+
+        public int IdOpcion { get; set; }
+        public string IdControlInterfaz { get; set; }
+        public string IdEvento_Etiqueta { get; set; }
+        public List<ActualizarAcuerdoArticuloDTO>? articulos { get; set; }
+    }
+
+
+    public class ActualizarAcuerdoArticuloDTO
+    {
+        [StringLength(maximumLength: 1, ErrorMessage = "el campo {0} no debe tener mas de un caracter")]
+        [RegularExpression("[IUD]", ErrorMessage = "El campo {0} solo debe tener uno de estos caracteres {1}")]
+        public string accion { get; set; }
+
+        public int idacuerdoarticulo { get; set; }
+        public string codigoarticulo { get; set; }
+        public decimal costoactual { get; set; }
+        public int unidadeslimite { get; set; }
+        public decimal preciocontado { get; set; }
+        public decimal preciotarjetacredito { get; set; }
+        public decimal preciocredito { get; set; }
+        public decimal valoraporte { get; set; }
+        public decimal margencontado { get; set; }
+        public decimal margentarjetacredito { get; set; }
     }
 
     public class AprobarAcuerdoRequest

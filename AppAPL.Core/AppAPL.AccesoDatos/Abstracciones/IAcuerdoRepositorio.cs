@@ -16,7 +16,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto);
        
 
-        Task<ControlErroresDTO> CrearAsync(CrearActualizarAcuerdoGrupoDTO acuerdo);
+        Task<ControlErroresDTO> CrearAsync(CrearAcuerdoGrupoDTO acuerdo);
         Task<IEnumerable<FondoAcuerdoDTO>> ConsultarFondoAcuerdo();
         Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador);
         Task<BandAproAcuerdoPorIDDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion);
@@ -31,5 +31,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<BandejaConsultaAcuerdoDTO>> ConsultarBandConsAcuerdo();
         Task<BandConsAcuerdoPorIDDTO?> ObtenerBandejaConsultaPorId(int idAcuerdo);
         Task<InactivarAcuerdoResponse> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo);
+        Task<ControlErroresDTO> ActualizarAsync(ActualizarAcuerdoDTO actualizarAcuerdoDTO);
     }
 }
