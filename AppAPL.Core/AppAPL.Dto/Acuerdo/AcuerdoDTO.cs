@@ -249,6 +249,25 @@ namespace AppAPL.Dto.Acuerdo
         public string? TipoAcuerdo { get; set; }
     }
 
+    public class AcuerdoPromocionDTO
+    {
+        public int idpromocion { get; set; }
+        public string descripcion { get; set; }
+        public int id_motivo { get; set; }
+        public string motivo_nombre { get; set; }
+        public int ID_CLASE_ACUERDO { get; set; }
+        public string clase_acuerdo { get; set; }
+        public int cantidad_articulos { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public string? marca_regalo { get; set; }
+        public int id_estado { get; set; }
+        public string estado { get; set; }
+       
+
+    }
+
     public class BandejaInactivacionAcuerdoDTO
     {
         public int idacuerdo { get; set; }

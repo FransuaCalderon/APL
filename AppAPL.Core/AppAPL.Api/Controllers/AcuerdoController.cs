@@ -22,6 +22,14 @@ namespace AppAPL.Api.Controllers
             return listaAcuerdoFondos.ToList();
         }
 
+        [HttpGet("consultar-acuerdo-promocion/{idAcuerdo:int}")]
+        public async Task<ActionResult<List<AcuerdoPromocionDTO>>> ConsultarAcuerdoPromocion(int idAcuerdo)
+        {
+            var listaAcuerdoPromociones = await servicio.ConsultarAcuerdoPromocion(idAcuerdo);
+
+            return listaAcuerdoPromociones.ToList();
+        }
+
         [HttpGet("consultar-fondo-acuerdo")]
         public async Task<ActionResult<List<FondoAcuerdoDTO>>> ConsultarFondoAcuerdo()
         {

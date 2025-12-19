@@ -51,6 +51,34 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<IEnumerable<AcuerdoPromocionDTO>> ConsultarAcuerdoPromocion(int idAcuerdo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new { p_idacuerdo = idAcuerdo };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            //parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            //parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<AcuerdoPromocionDTO>(
+                "apl_sp_consulta_acuerdo_promociones",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            //int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            //string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
         public async Task<IEnumerable<FondoAcuerdoDTO>> ConsultarFondoAcuerdo()
         {
             using var connection = factory.CreateOpenConnection();
