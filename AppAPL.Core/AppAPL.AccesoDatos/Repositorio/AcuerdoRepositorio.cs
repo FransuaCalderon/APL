@@ -521,7 +521,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
+            //parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_tipo_acuerdo", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
@@ -535,7 +535,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<BandInacAcuerdoCabeceraDTO>();
             var articulos = await multi.ReadAsync<ArticuloBandInacDTO>();
-            var promociones = await multi.ReadAsync<PromocionBandInacDTO>();
+            //var promociones = await multi.ReadAsync<PromocionBandInacDTO>();
 
             string? tipoAcuerdo = parameters.Get<string>("p_tipo_acuerdo");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
@@ -547,7 +547,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             {
                 cabecera = cabecera,
                 articulos = articulos,
-                promociones = promociones,
+                //promociones = promociones,
                 TipoAcuerdo = tipoAcuerdo
             };
 

@@ -395,7 +395,7 @@ namespace AppAPL.Dto.Acuerdo
         public decimal margen_tc { get; set; }
         public int idestadoregistro { get; set; }
     }
-
+    /*
     public class PromocionBandInacDTO
     {
         public int idpromocion { get; set; }
@@ -412,13 +412,13 @@ namespace AppAPL.Dto.Acuerdo
         public string estado { get; set; }
         public string estado_etiqueta { get; set; }
 
-    }
+    }*/
 
     public class BandInacAcuerdoPorIDDTO
     {
         public BandInacAcuerdoCabeceraDTO? cabecera { get; set; }
         public IEnumerable<ArticuloBandInacDTO>? articulos { get; set; }
-        public IEnumerable<PromocionBandInacDTO>? promociones { get; set; }
+        //public IEnumerable<PromocionBandInacDTO>? promociones { get; set; }
         public string? TipoAcuerdo { get; set; }
     }
 
