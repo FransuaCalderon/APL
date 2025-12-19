@@ -160,7 +160,6 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
         p_idacuerdo            IN  NUMBER,
         p_cursor_cabecera      OUT t_cursor,
         p_cursor_articulos     OUT t_cursor,
-        p_cursor_promociones   OUT t_cursor,
         p_tipo_acuerdo         OUT VARCHAR2,
         p_codigo_salida        OUT NUMBER,
         p_mensaje_salida       OUT VARCHAR2
@@ -3553,7 +3552,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         p_idacuerdo            IN  NUMBER,
         p_cursor_cabecera      OUT t_cursor,
         p_cursor_articulos     OUT t_cursor,
-        p_cursor_promociones   OUT t_cursor,
         p_tipo_acuerdo         OUT VARCHAR2,
         p_codigo_salida        OUT NUMBER,
         p_mensaje_salida       OUT VARCHAR2
@@ -3582,8 +3580,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
             OPEN p_cursor_articulos FOR 
                 SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
-            OPEN p_cursor_promociones FOR 
-                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
             RETURN;
         END IF;
         
@@ -3705,7 +3701,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     NVL(aa.valorcomprometido, 0)                     AS comprometido_proveedor,
                     NVL(aa.margencontado, 0)                         AS margen_contado,
                     NVL(aa.margentarjetacredito, 0)                  AS margen_tc,
-                    --NVL(aa.margencredito, 0)                         AS margen_credito,
                     aa.idestadoregistro
                 FROM 
                     apl_tb_acuerdoarticulo aa
@@ -3725,39 +3720,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
             OPEN p_cursor_articulos FOR 
                 SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
-            OPEN p_cursor_promociones FOR 
-                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
-            RETURN;
         END IF;
-        
-        -- =====================================================
-        -- CURSOR PROMOCIONES (APLICA PARA AMBOS CASOS)
-        -- =====================================================
-        OPEN p_cursor_promociones FOR
-            SELECT 
-                p.idpromocion,
-                p.descripcion,
-                p.motivo                                             AS id_motivo,
-                cm.nombre                                            AS motivo_nombre,
-                p.clasepromocion                                     AS id_clase_promocion,
-                cp.nombre                                            AS clase_acuerdo,
-                NVL(pa.valorcomprometido, 0)                         AS valor_comprometido,
-                TO_CHAR(p.fechahorainicio, 'YYYY-MM-DD')             AS fecha_inicio,
-                TO_CHAR(p.fechahorafin, 'YYYY-MM-DD')                AS fecha_fin,
-                p.marcaregalo                                        AS marca_regalo,
-                p.estadoregistro                                     AS id_estado,
-                ce.nombre                                            AS estado,
-                ce.idetiqueta                                        AS estado_etiqueta
-            FROM 
-                apl_tb_promocion p
-                INNER JOIN apl_tb_promocionacuerdo pa ON p.idpromocion = pa.idpromocion
-                LEFT JOIN apl_tb_catalogo cm ON p.motivo = cm.idcatalogo
-                LEFT JOIN apl_tb_catalogo cp ON p.clasepromocion = cp.idcatalogo
-                LEFT JOIN apl_tb_catalogo ce ON p.estadoregistro = ce.idcatalogo
-            WHERE 
-                pa.idacuerdo = p_idacuerdo
-            ORDER BY 
-                p.idpromocion;
     
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -3767,8 +3730,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
             OPEN p_cursor_articulos FOR 
                 SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
-            OPEN p_cursor_promociones FOR 
-                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
                 
         WHEN OTHERS THEN
             p_codigo_salida  := 1;
@@ -3777,8 +3738,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 SELECT NULL AS idacuerdo FROM DUAL WHERE 1 = 0;
             OPEN p_cursor_articulos FOR 
                 SELECT NULL AS idacuerdoarticulo FROM DUAL WHERE 1 = 0;
-            OPEN p_cursor_promociones FOR 
-                SELECT NULL AS idpromocion FROM DUAL WHERE 1 = 0;
             
     END sp_bandeja_consulta_acuerdo_por_id;
     
