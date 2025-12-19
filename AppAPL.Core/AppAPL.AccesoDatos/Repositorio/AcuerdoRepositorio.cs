@@ -473,7 +473,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
+            //parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_tipo_acuerdo", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
@@ -487,7 +487,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<BandConsAcuerdoCabeceraDTO>();
             var articulos = await multi.ReadAsync<ArticuloBandConsDTO>();
-            var promociones = await multi.ReadAsync<PromocionBandConsDTO>();
+            //var promociones = await multi.ReadAsync<PromocionBandConsDTO>();
 
             string? tipoAcuerdo = parameters.Get<string>("p_tipo_acuerdo");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
@@ -499,7 +499,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             {
                 cabecera = cabecera,
                 articulos = articulos,
-                promociones = promociones,
+                //promociones = promociones,
                 TipoAcuerdo = tipoAcuerdo
             };
 
@@ -528,7 +528,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
             using var multi = await connection.QueryMultipleAsync(
-                "APL_PKG_ACUERDOS.sp_bandeja_consulta_acuerdo_por_id",
+                "APL_PKG_ACUERDOS.sp_consulta_bandeja_inactivacion_acuerdo_por_id",
                 parameters,
                 commandType: CommandType.StoredProcedure
                 );
@@ -648,7 +648,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             return retorno;
         }
 
-        public async Task<InactivarAcuerdoResponse> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
+        public async Task<ControlErroresDTO> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
         {
 
             using var connection = factory.CreateOpenConnection();
@@ -664,21 +664,21 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_nombreusuario = acuerdo.NombreUsuario
             };
 
-            logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
+            //logger.LogInformation($"inactivar acuerdo parametros sp: {paramObject.ToString()}");
 
             var parameters = new OracleDynamicParameters(paramObject);
 
-            parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
+            //parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
-            using var multi = await connection.QueryMultipleAsync(
+            int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_ACUERDOS.sp_proceso_inactivacion_acuerdo",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
 
-            var promociones = await multi.ReadAsync<PromocionBandConsDTO>();
+
 
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
             string? mensajeSalida = parameters.Get<string>("p_mensaje");
@@ -692,13 +692,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 mensaje = mensajeSalida
             };
 
-            var respuesta = new InactivarAcuerdoResponse
-            {
-                retorno = retorno,
-                promociones = promociones
-            };
-
-            return respuesta;
+            return retorno;
         }
     }
 }

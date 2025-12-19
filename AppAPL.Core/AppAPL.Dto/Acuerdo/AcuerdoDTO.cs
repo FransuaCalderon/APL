@@ -223,6 +223,7 @@ namespace AppAPL.Dto.Acuerdo
         public int idestadoregistro { get; set; }
     }
 
+    /*
     public class PromocionBandConsDTO
     {
         public int idpromocion { get; set; }
@@ -239,13 +240,13 @@ namespace AppAPL.Dto.Acuerdo
         public string estado { get; set; }
         public string estado_etiqueta { get; set; }
 
-    }
+    }*/
 
     public class BandConsAcuerdoPorIDDTO
     {
         public BandConsAcuerdoCabeceraDTO? cabecera { get; set; }
         public IEnumerable<ArticuloBandConsDTO>? articulos { get; set; }
-        public IEnumerable<PromocionBandConsDTO>? promociones { get; set; }
+        //public IEnumerable<PromocionBandConsDTO>? promociones { get; set; }
         public string? TipoAcuerdo { get; set; }
     }
 
@@ -594,11 +595,12 @@ namespace AppAPL.Dto.Acuerdo
 
     }
 
+    /*
     public class InactivarAcuerdoResponse
     {
         public ControlErroresDTO retorno { get; set; }
         public IEnumerable<PromocionBandConsDTO> promociones { get; set; }
-    }
+    }*/
 
 
 }

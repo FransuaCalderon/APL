@@ -180,31 +180,22 @@ namespace AppAPL.Api.Controllers
 
         [HttpPost("inactivar-acuerdo")]
         [Email("ENTACUERDO", TipoProceso.Inactivacion)]
-        public async Task<ActionResult<InactivarAcuerdoResponse>> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
+        public async Task<ActionResult<ControlErroresDTO>> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
         {
 
-            var response = await servicio.InactivarAcuerdo(acuerdo);
+            var retorno = await servicio.InactivarAcuerdo(acuerdo);
 
-            // Caso 1: Éxito total
-            if (response.retorno.codigoRetorno == 0)
+            if (retorno.codigoRetorno == 0)
             {
-                logger.LogInformation(response.retorno.mensaje);
-                return response;
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
             }
-
-            // Caso 2: Bloqueo por Promociones Existentes (Regla de negocio)
-            if (response.promociones != null && response.promociones.Any())
+            else
             {
-                logger.LogWarning("No se pudo inactivar: El acuerdo tiene promociones vinculadas.");
-                logger.LogWarning(response.retorno.mensaje);
-                // Retornamos 409 (Conflicto) o 422 (Entidad no procesable)
-                return Conflict(response);
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
             }
-
-
-            // Caso 3: Error de validación u otros
-            logger.LogError(response.retorno.mensaje);
-            return BadRequest(response);
 
         }
 

@@ -27,7 +27,7 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<BandejaInactivacionAcuerdoDTO>> ConsultarBandInacAcuerdo();
         Task<IEnumerable<BandejaConsultaAcuerdoDTO>> ConsultarBandConsAcuerdo();
         Task<BandConsAcuerdoPorIDDTO?> ObtenerBandejaConsultaPorId(int idAcuerdo);
-        Task<InactivarAcuerdoResponse> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo);
+        Task<ControlErroresDTO> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo);
         Task<ControlErroresDTO> ActualizarAsync(ActualizarAcuerdoDTO actualizarAcuerdoDTO);
         Task<BandInacAcuerdoPorIDDTO?> ObtenerBandejaInactivacionPorId(int idAcuerdo);
         Task<IEnumerable<AcuerdoPromocionDTO>> ConsultarAcuerdoPromocion(int idAcuerdo);

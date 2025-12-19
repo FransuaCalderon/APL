@@ -57,7 +57,7 @@ namespace AppAPL.Negocio.Servicios
         public Task<BandConsAcuerdoPorIDDTO?> ObtenerBandejaConsultaPorId(int idAcuerdo)
             => repo.ObtenerBandejaConsultaPorId(idAcuerdo);
 
-        public Task<InactivarAcuerdoResponse> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
+        public Task<ControlErroresDTO> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
             => repo.InactivarAcuerdo(acuerdo);
 
         public Task<ControlErroresDTO> ActualizarAsync(ActualizarAcuerdoDTO actualizarAcuerdoDTO)
