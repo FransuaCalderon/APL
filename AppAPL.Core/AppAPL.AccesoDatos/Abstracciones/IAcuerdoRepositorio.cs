@@ -21,10 +21,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<BandejaAprobacionAcuerdoDTO>> ConsultarBandAprobAcuerdo(string usuarioAprobador);
         Task<BandAproAcuerdoPorIDDTO?> ObtenerBandejaAprobacionPorId(int idAcuerdo, int idAprobacion);
         Task<ControlErroresDTO> AprobarAcuerdo(AprobarAcuerdoRequest acuerdo);
-        //Task<IEnumerable<AcuerdoDTO>> ObtenerAcuerdosAsync();
-        //Task<AcuerdoDTO?> ObtenerPorIdAsync(int idAcuerdo);
-        //Task<IEnumerable<AcuerdoFondoDTO>> ObtenerAcuerdosFondosAsync();
-        //Task<AcuerdoFondoDTO?> ObtenerAcuerdoFondoPorIdAsync(int idAcuerdo);
         Task<IEnumerable<BandejaModificacionAcuerdoDTO>> ConsultarBandModAcuerdo();
         Task<BandModAcuerdoPorIDDTO?> ObtenerBandejaModificacionPorId(int idAcuerdo);
         Task<IEnumerable<BandejaInactivacionAcuerdoDTO>> ConsultarBandInacAcuerdo();
@@ -32,5 +28,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<BandConsAcuerdoPorIDDTO?> ObtenerBandejaConsultaPorId(int idAcuerdo);
         Task<InactivarAcuerdoResponse> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo);
         Task<ControlErroresDTO> ActualizarAsync(ActualizarAcuerdoDTO actualizarAcuerdoDTO);
+        Task<BandInacAcuerdoPorIDDTO?> ObtenerBandejaInactivacionPorId(int idAcuerdo);
     }
 }

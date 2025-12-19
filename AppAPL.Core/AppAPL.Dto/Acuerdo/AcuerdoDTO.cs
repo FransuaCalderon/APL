@@ -333,6 +333,79 @@ namespace AppAPL.Dto.Acuerdo
         public string? TipoAcuerdo { get; set; }
     }
 
+    //bandeja inactivacion por id
+    public class BandInacAcuerdoCabeceraDTO
+    {
+        public int idacuerdo { get; set; }
+        public int idtipoacuerdo { get; set; }
+        public string clase_acuerdo { get; set; }
+        public string clase_acuerdo_etiqueta { get; set; }
+        public int idmotivoacuerdo { get; set; }
+        public string motivo { get; set; }
+        public string descripcion { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public int idacuerdofondo { get; set; }
+        public int idfondo { get; set; }
+        public string fondo_proveedor { get; set; }
+
+        public string proveedor_nombre { get; set; }
+        public decimal valor_total { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public int idestadoregistro { get; set; }
+        public string estado { get; set; }
+        public string estado_etiqueta { get; set; }
+    }
+
+    public class ArticuloBandInacDTO
+    {
+        public int idacuerdoarticulo { get; set; }
+        public int idacuerdo { get; set; }
+        public string articulo { get; set; }
+        public decimal costo { get; set; }
+        public int unidades_limite { get; set; }
+        public decimal precio_contado { get; set; }
+        public decimal precio_tc { get; set; }
+        public decimal precio_credito { get; set; }
+        public decimal aporte_unidad_proveedor { get; set; }
+        public decimal comprometido_proveedor { get; set; }
+        public decimal margen_contado { get; set; }
+        public decimal margen_tc { get; set; }
+        public int idestadoregistro { get; set; }
+    }
+
+    public class PromocionBandInacDTO
+    {
+        public int idpromocion { get; set; }
+        public string descripcion { get; set; }
+        public int id_motivo { get; set; }
+        public string motivo_nombre { get; set; }
+        public int id_clase_promocion { get; set; }
+        public string clase_acuerdo { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public string marca_regalo { get; set; }
+        public int id_estado { get; set; }
+        public string estado { get; set; }
+        public string estado_etiqueta { get; set; }
+
+    }
+
+    public class BandInacAcuerdoPorIDDTO
+    {
+        public BandInacAcuerdoCabeceraDTO? cabecera { get; set; }
+        public IEnumerable<ArticuloBandInacDTO>? articulos { get; set; }
+        public IEnumerable<PromocionBandInacDTO>? promociones { get; set; }
+        public string? TipoAcuerdo { get; set; }
+    }
+
+    //--------------------------------------
+
+
+
     public class ConsultarArticuloDTO
     {
         public List<string>? Marcas { get; set; }

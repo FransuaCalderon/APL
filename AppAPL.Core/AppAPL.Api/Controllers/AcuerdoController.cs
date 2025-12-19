@@ -13,45 +13,6 @@ namespace AppAPL.Api.Controllers
 
     public class AcuerdoController(ILogger<AcuerdoController> logger, IAcuerdoServicio servicio) : ControllerBase
     {
-        /*
-        [HttpGet("listar")]
-        public async Task<ActionResult<List<AcuerdoDTO>>> ObtenerTodos()
-        {
-            
-            var listaAcuerdos = await servicio.ListarAsync();
-
-            return listaAcuerdos.ToList();
-        }
-
-        [HttpGet("listar-acuerdo-fondo")]
-        public async Task<ActionResult<List<AcuerdoFondoDTO>>> ObtenerAcuerdosFondosAsync()
-        {
-
-            var listaAcuerdosFondos = await servicio.ObtenerAcuerdosFondosAsync();
-
-            return listaAcuerdosFondos.ToList();
-        }
-
-        // 🔹 GET: Obtener por ID
-        [HttpGet("obtener/{id:int}")]
-        public async Task<ActionResult<AcuerdoDTO>> ObtenerPorId(int id)
-        {
-
-            var item = await servicio.ObtenerPorIdAsync(id);
-            if (item == null)
-                return NotFound(new { mensaje = $"No se encontró el acuerdo con ese id {id}" });
-            return item;
-        }
-
-        [HttpGet("obtener-acuerdo-fondo/{id:int}")]
-        public async Task<ActionResult<AcuerdoFondoDTO>> ObtenerAcuerdoFondoPorIdAsync(int id)
-        {
-
-            var item = await servicio.ObtenerAcuerdoFondoPorIdAsync(id);
-            if (item == null)
-                return NotFound(new { mensaje = $"No se encontró el acuerdo fondo con ese id {id}" });
-            return item;
-        }*/
 
         [HttpGet("consultar-acuerdo-fondo/{idFondo:int}")]
         public async Task<ActionResult<List<ConsultarAcuerdoFondoDTO>>> ConsultarAcuerdoFondo(int idFondo)
@@ -150,6 +111,17 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaConsultaPorId(idAcuerdo);
+            if (item == null)
+                return NotFound(new { mensaje = $"No se encontró la bandeja general con ese idAcuerdo: {idAcuerdo}" });
+
+            return item;
+        }
+
+        [HttpGet("bandeja-inactivacion-id/{idAcuerdo:int}")]
+        public async Task<ActionResult<BandInacAcuerdoPorIDDTO>> ObtenerBandejaInactivacionPorId(int idAcuerdo)
+        {
+
+            var item = await servicio.ObtenerBandejaInactivacionPorId(idAcuerdo);
             if (item == null)
                 return NotFound(new { mensaje = $"No se encontró la bandeja general con ese idAcuerdo: {idAcuerdo}" });
 
