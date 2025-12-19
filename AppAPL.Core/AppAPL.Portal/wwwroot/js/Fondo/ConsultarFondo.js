@@ -725,7 +725,7 @@ function cargarAcuerdoFondo(idFondo) {
     `);
 
     $.ajax({
-        url: `${window.apiBaseUrl}/consultar-acuerdo-fondo/${idFondo}`,
+        url: `${window.apiBaseUrl}/api/acuerdo/consultar-acuerdo-fondo/${idFondo}`,
         method: "GET",
         dataType: "json",
         headers: {

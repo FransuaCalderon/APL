@@ -10,7 +10,11 @@ let ultimaFilaModificada = null;
 // FUNCIÓN HELPER PARA OBTENER USUARIO
 // ===============================================================
 function obtenerUsuarioActual() {
-    return window.usuarioActual || sessionStorage.getItem("usuarioActual") || "admin";
+    return window.usuarioActual
+        || sessionStorage.getItem('usuarioActual')
+        || sessionStorage.getItem('usuario')
+        || localStorage.getItem('usuarioActual')
+        || "admin";
 }
 
 // ===============================================================
@@ -56,8 +60,8 @@ function cargarBandeja() {
         url: `${window.apiBaseUrl}/api/Acuerdo/consultar-bandeja-inactivacion`,
         method: "GET",
         headers: {
-            idopcion: String(idOpcionActual),
-            usuario: usuario
+            "idopcion": String(idOpcionActual), // Agregado para consistencia
+            "usuario": usuario
         },
         success: function (data) {
             crearListado(data || []);
@@ -244,23 +248,33 @@ function cerrarDetalle() {
 // ===== INACTIVAR ACUERDO (POST /api/Acuerdo/inactivar-acuerdo) =====
 // ===================================================================
 function inactivarAcuerdo() {
+    // 1. Obtener datos dinámicos
     const usuario = obtenerUsuarioActual();
-
-    // idacuerdo se toma del detalle (lo setéas en abrirModalEditar)
+    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
     const idAcuerdo = parseInt($("#lblIdAcuerdo").text(), 10);
 
+    // Validación de seguridad
     if (!idAcuerdo || isNaN(idAcuerdo)) {
         Swal.fire({ icon: "warning", title: "Atención", text: "No se pudo determinar el Id del acuerdo." });
         return;
     }
 
-    // Payload (con campos quemados como pediste)
+    if (idOpcionActual === "0" || !idOpcionActual) {
+        Swal.fire({
+            icon: "error",
+            title: "Error de Sesión",
+            text: "No se pudo obtener el ID de la opción. Por favor, reingrese desde el menú."
+        });
+        return;
+    }
+
+    // 2. Construir el Payload dinámico
     const payload = {
         idacuerdo: idAcuerdo,
         nombreusuarioingreso: usuario,
-        idopcion: 1,                    // QUEMADO
-        idcontrolinterfaz: "BTNGRABAR",  // QUEMADO
-        idevento: "EVCLICK",            // QUEMADO
+        idopcion: idOpcionActual,           // ✅ DINÁMICO
+        idcontrolinterfaz: "BTNINACTIVAR",
+        idevento: "EVCLICK",
         nombreusuario: usuario
     };
 
@@ -282,19 +296,18 @@ function inactivarAcuerdo() {
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(payload),
             headers: {
-                // Si tu API usa headers para auditoría/validación
-                usuario: usuario
+                "idopcion": String(idOpcionActual), // ✅ DINÁMICO en Header
+                "usuario": usuario                  // ✅ DINÁMICO en Header
             },
-            success: function () {
+            success: function (response) {
                 $("body").css("cursor", "default");
-
                 Swal.fire({
                     icon: "success",
                     title: "Listo",
                     text: "Acuerdo inactivado correctamente."
                 }).then(() => {
                     cerrarDetalle();
-                    cargarBandeja(); // refresca bandeja
+                    cargarBandeja();
                 });
             },
             error: function (xhr) {

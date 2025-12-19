@@ -395,7 +395,6 @@ function formatearFecha(fechaString) {
 // ===== ACUERDOS POR FONDO ==========================================
 // ===================================================================
 function cargarAcuerdoFondo(idFondo) {
-    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
     const idOpcionActual = window.obtenerIdOpcionActual();
 
     if (!idOpcionActual) {
@@ -403,9 +402,7 @@ function cargarAcuerdoFondo(idFondo) {
         return;
     }
 
-    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
-
-    console.log('Cargando acuerdos para fondo ID:', idFondo, 'con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+    const usuario = obtenerUsuarioActual();
 
     if ($.fn.DataTable.isDataTable('#tabla-acuerdo')) {
         $('#tabla-acuerdo').DataTable().destroy();
@@ -421,12 +418,12 @@ function cargarAcuerdoFondo(idFondo) {
     `);
 
     $.ajax({
-        url: `${window.apiBaseUrl}/consultar-acuerdo-fondo/${idFondo}`,
+        url: `${window.apiBaseUrl}/api/acuerdo/consultar-acuerdo-fondo/${idFondo}`,
         method: "GET",
         dataType: "json",
         headers: {
-            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-            "usuario": usuario,                  // ✅ DINÁMICO
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario,
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -434,23 +431,23 @@ function cargarAcuerdoFondo(idFondo) {
             "idtipoproceso": "0"
         },
         success: function (data) {
-            console.log("Datos del Acuerdo (raw):", data, typeof data);
-
             if (typeof data === "string") {
                 try {
                     data = JSON.parse(data);
                 } catch (e) {
-                    console.error("No se pudo parsear la respuesta como JSON:", e);
+                    console.error("Error parseando JSON:", e);
                     $('#tabla-acuerdo-fondo').html('<p class="alert alert-danger text-center">Respuesta inválida del servidor.</p>');
                     return;
                 }
             }
 
-            let acuerdos = Array.isArray(data) ? data : [data];
+            // Validamos si la data es un array o un objeto único
+            let acuerdos = Array.isArray(data) ? data : (data && (data.idacuerdofondo || data.idfondo) ? [data] : []);
 
-            if (!acuerdos.length || !acuerdos[0].idAcuerdofondo || acuerdos[0].idAcuerdofondo === 0) {
+            // VALIDACIÓN CRÍTICA: Cambiado idAcuerdofondo -> idacuerdofondo
+            if (!acuerdos.length || (acuerdos[0].idacuerdofondo === undefined && acuerdos[0].idAcuerdofondo === undefined)) {
                 $('#tabla-acuerdo-fondo').html(
-                    '<p class="alert alert-warning mb-0 text-center">No se encontraron datos de acuerdo para este fondo.</p>'
+                    '<div class="alert alert-warning mb-0 text-center">No se encontraron datos de acuerdo para este fondo.</div>'
                 );
                 return;
             }
@@ -471,11 +468,12 @@ function cargarAcuerdoFondo(idFondo) {
             html += "  <tbody>";
 
             acuerdos.forEach(acuerdo => {
-                console.log("Acuerdo completo:", acuerdo);
-                const valor = acuerdo.valorImporte ?? acuerdo.valorFondo ?? 0;
+                // Usamos las propiedades tal cual vienen de la API (usualmente minúsculas en .NET Core/WebAPI)
+                const id = acuerdo.idacuerdofondo || acuerdo.idAcuerdofondo || "";
+                const valor = acuerdo.valorfondo || acuerdo.valorFondo || 0;
 
                 html += "<tr>";
-                html += "  <td>" + (acuerdo.idAcuerdofondo ?? "") + "</td>";
+                html += "  <td>" + id + "</td>";
                 html += "  <td>" + (acuerdo.acuerdofondo_estado_nombre ?? "") + "</td>";
                 html += "  <td>" + (acuerdo.acuerdo_descripcion ?? "") + "</td>";
                 html += "  <td class='text-end'>" + formatearMoneda(valor) + "</td>";
@@ -500,28 +498,12 @@ function cargarAcuerdoFondo(idFondo) {
                 ],
                 order: [[0, 'desc']],
                 language: {
-                    decimal: "",
-                    emptyTable: "No hay acuerdos disponibles",
-                    info: "Mostrando _START_ a _END_ de _TOTAL_ acuerdos",
-                    infoEmpty: "Mostrando 0 a 0 de 0 acuerdos",
-                    infoFiltered: "(filtrado de _MAX_ acuerdos totales)",
-                    lengthMenu: "Mostrar _MENU_ acuerdos",
-                    loadingRecords: "Cargando...",
-                    processing: "Procesando...",
-                    search: "Buscar:",
-                    zeroRecords: "No se encontraron acuerdos coincidentes",
-                    paginate: {
-                        first: "Primero",
-                        last: "Último",
-                        next: "Siguiente",
-                        previous: "Anterior"
-                    }
+                    url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
                 }
             });
         },
         error: function (xhr, status, error) {
             console.error("Error al obtener datos del acuerdo:", error);
-            console.error("Detalles del error:", xhr.responseText);
             $('#tabla-acuerdo-fondo').html('<p class="alert alert-danger text-center">Error al cargar el acuerdo.</p>');
         }
     });
