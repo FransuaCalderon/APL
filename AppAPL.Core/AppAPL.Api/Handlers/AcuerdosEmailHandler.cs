@@ -13,7 +13,7 @@ namespace AppAPL.Api.Handlers
         IFondoRepositorio fondoRepo, IProveedorRepositorio proveedorRepo, ICatalogoRepositorio catalogoRepo,
         IAcuerdoRepositorio acuerdoRepo) : HandlerBase(emailRepo, logger), IAcuerdosEmailHandler
     {
-        public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, AcuerdoDTO? acuerdoAntiguo = null, string? responseBody = null)
+        public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, BandConsAcuerdoPorIDDTO? acuerdoAntiguo = null, string? responseBody = null)
         {
 
             logger.LogInformation($"[AcuerdosHandler] Procesando correo. Entidad={entidad}, TipoProceso={tipoProceso}");
@@ -42,7 +42,7 @@ namespace AppAPL.Api.Handlers
                     var reqCreacion = JsonSerializer.Deserialize<CrearAcuerdoGrupoDTO>(requestBody, jsonOptions);
                     if (reqCreacion == null)
                     {
-                        logger.LogWarning("⚠️ [FondosHandler] No se pudo deserializar body de Crear Acuerdo");
+                        logger.LogWarning("⚠️ [AcuerdosHandler] No se pudo deserializar body de Crear Acuerdo");
                         return;
                     }
 
@@ -96,35 +96,71 @@ namespace AppAPL.Api.Handlers
                     break;
 
                 case TipoProceso.Modificacion:
-                    /*
+                    var reqModificacion = JsonSerializer.Deserialize<ActualizarAcuerdoDTO>(requestBody, jsonOptions);
+                    if (reqModificacion == null)
+                    {
+                        logger.LogWarning("⚠️ [AcuerdosHandler] No se pudo deserializar body de Crear Acuerdo");
+                        return;
+                    }
+
+                    if (acuerdoAntiguo == null)
+                    {
+                        logger.LogWarning("⚠️ [AcuerdosHandler] No se pudo obtener acuerdo antiguo");
+                        return;
+                    }
+
+                    var fondoNuevo = await fondoRepo.ObtenerPorIdAsync(reqModificacion.IdFondo);
+                    if (fondoNuevo == null)
+                    {
+                        logger.LogWarning($"no se encontro el fondo con el id: {reqModificacion.IdFondo}");
+                        return;
+                    }
+
+                    var fondoAntiguo = await fondoRepo.ObtenerPorIdAsync(acuerdoAntiguo.cabecera.idfondo);
+                    if (fondoAntiguo == null)
+                    {
+                        logger.LogWarning($"no se encontro el fondo con el id: {acuerdoAntiguo.cabecera.idfondo}");
+                        return;
+                    }
+
+                    var proveedorAntiguo = await proveedorRepo.ObtenerPorIdAsync(fondoAntiguo.IdProveedor);
+                    var proveedorNuevo = await proveedorRepo.ObtenerPorIdAsync(fondoNuevo.IdProveedor);
+
+                    if (proveedorAntiguo == null || proveedorNuevo == null)
+                    {
+                        logger.LogWarning($"no se encontro proveedores, proveedorAntiguo: {fondoAntiguo.IdProveedor}, proveedorNuevo:  {fondoNuevo.IdProveedor}");
+                        return;
+                    }
+
+
                     camposPlantilla = new Dictionary<string, string>
                         {
                             { "Nombre", "" },
-                            { "IdAcuerdo", "" },
-                            { "NombreProveedor", "" },
-                            { "NuevoNombreProveedor", "" },
-                            { "ValorAcuerdo", "" },
-                            { "ValorAcuerdoLetras", "" },
-                            { "NuevoValorAcuerdo", "" },
-                            { "NuevoValorAcuerdoLetras", "" },
-                            { "FechaInicio", "" },
-                            { "NuevaFechaInicio", "" },
-                            { "FechaFin", "" },
-                            { "NuevaFechaFin", "" },
+                            { "IdAcuerdo", reqModificacion.IdAcuerdo.ToString() },
+                            { "NombreProveedor", proveedorAntiguo.Nombre },
+                            { "NuevoNombreProveedor", proveedorNuevo.Nombre },
+                            { "ValorAcuerdo", acuerdoAntiguo.cabecera.valor_total.ToString() },
+                            { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdoAntiguo.cabecera.valor_total) },
+                            { "NuevoValorAcuerdo", reqModificacion.ValorAporte.ToString() },
+                            { "NuevoValorAcuerdoLetras", this.ConvertirDecimalAPalabras(reqModificacion.ValorAporte) },
+                            { "FechaInicio", acuerdoAntiguo.cabecera.fecha_inicio.ToString() },
+                            { "NuevaFechaInicio", reqModificacion.FechaInicioVigencia.ToString() },
+                            { "FechaFin", acuerdoAntiguo.cabecera.fecha_fin.ToString() },
+                            { "NuevaFechaFin", reqModificacion.FechaFinVigencia.ToString() },
 
-                            { "ValorDisponible", "" },
-                            { "NuevoValorDisponible", "" },
-                            { "ValorComprometido", "" },
-                            { "NuevoValorComprometido", "" },
-                            { "ValorLiquidado", "" },
-                            { "NuevoValorLiquidado", "" },
+                            { "ValorDisponible", acuerdoAntiguo.cabecera.valor_disponible.ToString() },
+                            { "NuevoValorDisponible", reqModificacion.ValorAporte.ToString() },
+                            { "ValorComprometido", acuerdoAntiguo.cabecera.valor_comprometido.ToString() },
+                            { "NuevoValorComprometido", "0.00" },
+                            { "ValorLiquidado", acuerdoAntiguo.cabecera.valor_liquidado.ToString() },
+                            { "NuevoValorLiquidado", "0.00" },
 
-                            { "IdFondoAnterior", "" },
-                            { "IdFondoActual", "" },
+                            { "IdFondoAnterior", fondoAntiguo.IdFondo.ToString() },
+                            { "IdFondoActual", fondoNuevo.IdFondo.ToString() },
 
                             { "Firma", "" },
 
-                        };*/
+                        };
 
                     break;
 
@@ -132,7 +168,7 @@ namespace AppAPL.Api.Handlers
                     var reqAprobacion = JsonSerializer.Deserialize<AprobarAcuerdoRequest>(requestBody, jsonOptions);
                     if (reqAprobacion == null || reqAprobacion.Identidad == null)
                     {
-                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        logger.LogWarning("⚠️ [AcuerdosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
                         return;
                     }
 
@@ -189,7 +225,7 @@ namespace AppAPL.Api.Handlers
                     var reqInactivacion = JsonSerializer.Deserialize<InactivarAcuerdoRequest>(requestBody, jsonOptions);
                     if (reqInactivacion == null || reqInactivacion.IdAcuerdo == null)
                     {
-                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        logger.LogWarning("⚠️ [AcuerdosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
                         return;
                     }
 

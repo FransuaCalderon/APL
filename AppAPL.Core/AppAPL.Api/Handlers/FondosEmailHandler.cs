@@ -124,9 +124,9 @@ namespace AppAPL.Api.Handlers
                         { "ValorDisponible", fondoAntiguo.ValorDisponible?.ToString("N2") },
                         { "NuevoValorDisponible", reqModif.ValorFondo.ToString("N2") },
                         { "ValorComprometido", fondoAntiguo.ValorComprometido?.ToString("N2") },
-                        { "NuevoValorComprometido", "0" },
+                        { "NuevoValorComprometido", "0.00" },
                         { "ValorLiquidado", fondoAntiguo.ValorLiquidado?.ToString("N2") },
-                        { "NuevoValorLiquidado", "0" },
+                        { "NuevoValorLiquidado", "0.00" },
                         { "Firma", reqModif.NombreUsuarioModifica },
                     };
                     break;

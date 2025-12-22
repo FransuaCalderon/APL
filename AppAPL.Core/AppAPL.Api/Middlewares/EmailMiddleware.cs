@@ -28,6 +28,9 @@ namespace AppAPL.Api.Middlewares
             
             // 🔹 Obtener el atributo [Email] del endpoint
             var endpoint = context.GetEndpoint();
+
+            var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
             var emailAttr = endpoint?.Metadata.GetMetadata<EmailAttribute>();
             if (emailAttr == null)
             {
@@ -68,26 +71,30 @@ namespace AppAPL.Api.Middlewares
 
 
             FondoDTO fondoAntiguo = null;
-            AcuerdoDTO acuerdoAntiguo = null;
+            BandConsAcuerdoPorIDDTO acuerdoAntiguo = null;
             //logica para sacar el fondo antiguo antes de modificar
             if (emailAttr.Entidad == "ENTFONDO" && emailAttr.TipoProceso == TipoProceso.Modificacion)
             {
                 //context.Request.RouteValues
-                fondoAntiguo = await ConsultarEntidadAntiguaAsync<FondoDTO, IFondoServicio>(
-                    context.Request.RouteValues,
+                fondoAntiguo = await ConsultarEntidadAntiguaAsync<FondoDTO, IFondoServicio, object>(
+                    context,
                     "idFondo",
                     serviceProvider,
+                    null,
                     (svc, id) => svc.ObtenerPorIdAsync(id));
             }
-            /*
+            
             if (emailAttr.Entidad == "ENTACUERDO" && emailAttr.TipoProceso == TipoProceso.Modificacion)
             {
-                acuerdoAntiguo = await ConsultarEntidadAntiguaAsync<AcuerdoDTO, IAcuerdoServicio>(
-                context.Request.RouteValues,
+                //var reqModificacion = JsonSerializer.Deserialize<ActualizarAcuerdoDTO>(requestBody, jsonOptions);
+
+                acuerdoAntiguo = await ConsultarEntidadAntiguaAsync<BandConsAcuerdoPorIDDTO, IAcuerdoServicio, ActualizarAcuerdoDTO>(
+                context,
                 "idAcuerdo",
                 serviceProvider,
-                (svc, id) => svc.ObtenerPorIdAsync(id));
-            }*/
+                dto => dto.IdAcuerdo, // <--- Aquí le dices qué propiedad del DTO es el ID
+                (svc, id) => svc.ObtenerBandejaConsultaPorId(id));
+            }
 
 
 
@@ -183,6 +190,7 @@ namespace AppAPL.Api.Middlewares
             return null;
         }*/
 
+        /*
         private async Task<T?> ConsultarEntidadAntiguaAsync<T, TServicio>(
         RouteValueDictionary routeValues,
         string nombreParametro,
@@ -214,6 +222,49 @@ namespace AppAPL.Api.Middlewares
             else
             {
                 logger.LogInformation($"No se encontró el parámetro de ruta '{nombreParametro}'");
+            }
+
+            return null;
+        }*/
+
+        private async Task<T?> ConsultarEntidadAntiguaAsync<T, TServicio, TBody>(
+        HttpContext context,
+        string nombreParametro,
+        IServiceProvider serviceProvider,
+        Func<TBody, int>? obtenerIdDeDto, // Ahora es opcional (?)
+        Func<TServicio, int, Task<T?>> metodoBusqueda)
+        where T : class
+        where TBody : class
+        {
+            int? id = null;
+
+            // 1. Intentar obtener de la ruta primero
+            if (context.Request.RouteValues.TryGetValue(nombreParametro, out var routeVal) &&
+                int.TryParse(routeVal?.ToString(), out int routeId))
+            {
+                id = routeId;
+            }
+            // 2. Solo intentar leer el Body si NO se encontró en la ruta y tenemos una función para el DTO
+            else if (obtenerIdDeDto != null && context.Request.ContentLength > 0)
+            {
+                context.Request.EnableBuffering();
+                context.Request.Body.Position = 0;
+
+                try
+                {
+                    var dto = await JsonSerializer.DeserializeAsync<TBody>(context.Request.Body,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (dto != null) id = obtenerIdDeDto(dto);
+                }
+                catch { /* Falló la deserialización o body vacío */ }
+                finally { context.Request.Body.Position = 0; }
+            }
+
+            if (id.HasValue)
+            {
+                var servicio = serviceProvider.GetService<TServicio>();
+                return servicio != null ? await metodoBusqueda(servicio, id.Value) : null;
             }
 
             return null;
