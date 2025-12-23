@@ -531,14 +531,23 @@ namespace AppAPL.Dto.Acuerdo
     public class ActualizarAcuerdoDTO
     {
         public int IdAcuerdo { get; set; }
+        public string ClaseAcuerdo { get; set; } // 'CLAGENERAL' o 'CLAARTICULO'
         public int IdMotivoAcuerdo { get; set; }
         public string Descripcion { get; set; }
         public DateTime FechaInicioVigencia { get; set; }
         public DateTime FechaFinVigencia { get; set; }
         public string IdUsuarioModifica { get; set; }
-        public string NombreUsuarioModifica { get; set; }
+        //public string NombreUsuarioModifica { get; set; }
+        public int IdTipoProceso { get; set; }
+
+
+
+
         public int IdFondo { get; set; }
         public decimal ValorAporte { get; set; }
+        public decimal ValorDisponible { get; set; }
+        public decimal? ValorComprometido { get; set; }
+        public decimal? ValorLiquidado { get; set; }
 
         public int IdOpcion { get; set; }
         public string IdControlInterfaz { get; set; }
@@ -553,16 +562,16 @@ namespace AppAPL.Dto.Acuerdo
         [RegularExpression("[IUD]", ErrorMessage = "El campo {0} solo debe tener uno de estos caracteres {1}")]
         public string accion { get; set; }
 
-        public int idacuerdoarticulo { get; set; }
-        public string codigoarticulo { get; set; }
-        public decimal costoactual { get; set; }
-        public int unidadeslimite { get; set; }
-        public decimal preciocontado { get; set; }
-        public decimal preciotarjetacredito { get; set; }
-        public decimal preciocredito { get; set; }
-        public decimal valoraporte { get; set; }
-        public decimal margencontado { get; set; }
-        public decimal margentarjetacredito { get; set; }
+        public int idAcuerdoArticulo { get; set; }
+        public string codigoArticulo { get; set; }
+        public decimal costoActual { get; set; }
+        public int unidadesLimite { get; set; }
+        public decimal precioContado { get; set; }
+        public decimal precioTarjetaCredito { get; set; }
+        public decimal precioCredito { get; set; }
+        public decimal valorAporte { get; set; }
+        public decimal margenContado { get; set; }
+        public decimal margenTarjetaCredito { get; set; }
     }
 
     public class AprobarAcuerdoRequest

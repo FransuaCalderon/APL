@@ -242,18 +242,22 @@ namespace AppAPL.AccesoDatos.Repositorio
             var paramObject = new
             {
                 p_idacuerdo = actualizarAcuerdoDTO.IdAcuerdo,
+                p_claseacuerdo = actualizarAcuerdoDTO.ClaseAcuerdo,
                 p_idmotivoacuerdo = actualizarAcuerdoDTO.IdMotivoAcuerdo,
                 p_descripcion = actualizarAcuerdoDTO.Descripcion,
                 p_fechainiciovigencia = actualizarAcuerdoDTO.FechaInicioVigencia,
                 p_fechafinvigencia = actualizarAcuerdoDTO.FechaFinVigencia,
                 p_idusuariomodifica = actualizarAcuerdoDTO.IdUsuarioModifica,
-                p_nombreusuariomodifica = actualizarAcuerdoDTO.NombreUsuarioModifica,
+                //p_nombreusuariomodifica = actualizarAcuerdoDTO.NombreUsuarioModifica,
+                p_idtipoproceso = actualizarAcuerdoDTO.IdTipoProceso,
 
 
                 p_idfondo = actualizarAcuerdoDTO.IdFondo,
                 p_valoraporte = actualizarAcuerdoDTO.ValorAporte,
+                p_valordisponible = actualizarAcuerdoDTO.ValorDisponible,
+                p_valorcomprometido = actualizarAcuerdoDTO.ValorComprometido,
 
-                p_articulos_json = JsonSerializer.Serialize(actualizarAcuerdoDTO.articulos, options),
+                p_json_articulos = JsonSerializer.Serialize(actualizarAcuerdoDTO.articulos, options),
 
                 p_idopcion = actualizarAcuerdoDTO.IdOpcion,
                 p_idcontrolinterfaz = actualizarAcuerdoDTO.IdControlInterfaz,
