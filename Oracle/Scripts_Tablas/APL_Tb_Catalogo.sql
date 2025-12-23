@@ -182,3 +182,7 @@ VALUES ('Exceso Inventario', '', '', 15, 1, SYSDATE, NULL, NULL, 1, 'MTAEXCESO')
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Renovacion de Stock', '', '', 15, 1, SYSDATE, NULL, NULL, 1, 'MTARENOVACION');
+
+--Catalogos Varios General para el sistema 22/12/2025
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Ruc Propio', '1790895548001-Unicomer de Ecuador S.A.', '', 16, 1, SYSDATE, NULL, NULL, 1, 'RUCPROPIO');

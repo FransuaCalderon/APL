@@ -1,3 +1,4 @@
+
 create or replace PACKAGE APL_PKG_ACUERDOS AS  
     -- Declaración de tipos públicos
     TYPE t_cursor IS REF CURSOR;
@@ -85,30 +86,32 @@ create or replace PACKAGE APL_PKG_ACUERDOS AS
     );
     
     PROCEDURE sp_modificar_acuerdo (
-        -- Datos del Acuerdo
-        p_idacuerdo             IN  NUMBER,
-        p_idmotivoacuerdo       IN  NUMBER,
-        p_descripcion           IN  VARCHAR2,
-        p_fechainiciovigencia   IN  TIMESTAMP,
-        p_fechafinvigencia      IN  TIMESTAMP,
-        p_idusuariomodifica     IN  VARCHAR2,
-        p_nombreusuariomodifica IN  VARCHAR2,
+        -- Parámetros del acuerdo
+        p_idacuerdo             IN NUMBER,
+        p_claseacuerdo          IN VARCHAR2,        -- 'CLAGENERAL' o 'CLAARTICULO'
+        p_idmotivoacuerdo       IN NUMBER,
+        p_descripcion           IN VARCHAR2,
+        p_fechainiciovigencia   IN TIMESTAMP,
+        p_fechafinvigencia      IN TIMESTAMP,
+        p_idusuariomodifica     IN VARCHAR2,
+        p_idtipoproceso         IN NUMBER,
         
-        -- Datos del Fondo
-        p_idfondo               IN  NUMBER,
-        p_valoraporte           IN  NUMBER,
+        -- Parámetros del fondo
+        p_idfondo               IN NUMBER,
+        p_valoraporte           IN NUMBER,
+        p_valordisponible       IN NUMBER,
+        p_valorcomprometido     IN NUMBER DEFAULT NULL,
+        p_valorliquidado        IN NUMBER DEFAULT NULL,
         
-        -- Arreglo de Artículos (JSON) - Solo para ACARTICULO
-        p_articulos_json        IN  CLOB DEFAULT NULL,
+        -- JSON de artículos (solo para CLAARTICULO)
+        p_json_articulos        IN CLOB DEFAULT NULL,
         
-        -- Parámetros para el LOG
-        p_idopcion              IN  NUMBER,
-        p_idcontrolinterfaz     IN  VARCHAR2,
-        p_idevento_etiqueta     IN  VARCHAR2,
-        
-        -- Salida
-        p_codigo_salida         OUT NUMBER,
-        p_mensaje_salida        OUT VARCHAR2
+        --parametros para el log
+        p_idopcion                IN NUMBER,
+        p_idcontrolinterfaz       IN VARCHAR2,
+        p_idevento_etiqueta       IN VARCHAR2,
+        p_codigo_salida           OUT NUMBER,
+        p_mensaje_salida          OUT VARCHAR2
     );
     
     /*
@@ -2227,653 +2230,475 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     
     
     PROCEDURE sp_modificar_acuerdo (
-        -- Datos del Acuerdo
-        p_idacuerdo             IN  NUMBER,
-        p_idmotivoacuerdo       IN  NUMBER,
-        p_descripcion           IN  VARCHAR2,
-        p_fechainiciovigencia   IN  TIMESTAMP,
-        p_fechafinvigencia      IN  TIMESTAMP,
-        p_idusuariomodifica     IN  VARCHAR2,
-        p_nombreusuariomodifica IN  VARCHAR2,
+        -- Parámetros del acuerdo
+        p_idacuerdo             IN NUMBER,
+        p_claseacuerdo          IN VARCHAR2,        -- 'CLAGENERAL' o 'CLAARTICULO'
+        p_idmotivoacuerdo       IN NUMBER,
+        p_descripcion           IN VARCHAR2,
+        p_fechainiciovigencia   IN TIMESTAMP,
+        p_fechafinvigencia      IN TIMESTAMP,
+        p_idusuariomodifica     IN VARCHAR2,
+        p_idtipoproceso         IN NUMBER,
         
-        -- Datos del Fondo
-        p_idfondo               IN  NUMBER,
-        p_valoraporte           IN  NUMBER,
+        -- Parámetros del fondo
+        p_idfondo               IN NUMBER,
+        p_valoraporte           IN NUMBER,
+        p_valordisponible       IN NUMBER,
+        p_valorcomprometido     IN NUMBER DEFAULT NULL,
+        p_valorliquidado        IN NUMBER DEFAULT NULL,
         
-        -- Arreglo de Artículos (JSON) - Solo para ACARTICULO
-        p_articulos_json        IN  CLOB DEFAULT NULL,
+        -- JSON de artículos (solo para CLAARTICULO)
+        p_json_articulos        IN CLOB DEFAULT NULL,
         
         -- Parámetros para el LOG
-        p_idopcion              IN  NUMBER,
-        p_idcontrolinterfaz     IN  VARCHAR2,
-        p_idevento_etiqueta     IN  VARCHAR2,
+        p_idopcion              IN NUMBER,
+        p_idcontrolinterfaz     IN VARCHAR2,
+        p_idevento_etiqueta     IN VARCHAR2,
         
-        -- Salida
+        -- Parámetros de salida
         p_codigo_salida         OUT NUMBER,
         p_mensaje_salida        OUT VARCHAR2
-    ) AS
-        -- =========================================================================
-        -- VARIABLES DE CATÁLOGO
-        -- =========================================================================
-        v_entidad_acuerdo       NUMBER;
-        v_tipo_creacion         NUMBER;
-        v_tipo_modificacion     NUMBER;
-        v_estado_activo         NUMBER;
-        v_estado_nuevo          NUMBER;
-        v_estado_modificado     NUMBER;
-        v_estado_negado         NUMBER;
-        v_estado_aprobado       NUMBER;
-        v_estado_eliminado      NUMBER;
-        v_etiqueta_general      VARCHAR2(50);
-        v_etiqueta_articulo     VARCHAR2(50);
+    )
+    AS
+        -- Variables para etiquetas de clase
+        v_etiqueta_recibida         VARCHAR2(50);
+        v_etiqueta_general          VARCHAR2(50);
+        v_etiqueta_articulos        VARCHAR2(50);
         
-        -- =========================================================================
-        -- VARIABLES DE TRABAJO
-        -- =========================================================================
-        v_estado_actual         NUMBER;
-        v_tipo_acuerdo_actual   NUMBER;
-        v_etiqueta_tipo_actual  VARCHAR2(50);
-        v_nuevo_estado          NUMBER;
-        v_tiene_aprobadores     NUMBER;
-        v_numero_lote           NUMBER;
-        v_idacuerdofondo        NUMBER;
-        v_idfondo_actual        NUMBER;
-        v_proveedor_actual      VARCHAR2(100);
-        v_proveedor_nuevo       VARCHAR2(100);
-        v_valorcomprometido     NUMBER;
-        v_valorliquidado        NUMBER;
+        -- Variables para estados (IDs del catálogo)
+        v_estado_activo             NUMBER;
+        v_estado_nuevo              NUMBER;
+        v_estado_aprobado           NUMBER;
+        v_estado_negado             NUMBER;
+        v_estado_modificado         NUMBER;
+        v_estado_eliminado          NUMBER;
+        
+        -- Variable para entidad
+        v_entidad_acuerdo           NUMBER;
+        
+        -- Variables de control
+        v_estado_actual_acuerdo     NUMBER;
+        v_idacuerdofondo            NUMBER;
+        v_secuencial_lote           NUMBER;
+        v_count_aprobadores         NUMBER;
+        v_idtipoacuerdo             NUMBER;
         
         -- Variables para LOG
-        v_datos_json            CLOB;
-        v_articulos_json_log    CLOB;
-        v_id_control_interfaz   NUMBER;
-        v_idevento              NUMBER;
-        
-        -- =========================================================================
-        -- CURSOR PARA PROCESAR ARTÍCULOS DESDE JSON
-        -- =========================================================================
-        CURSOR c_articulos IS
-            SELECT 
-                jt.accion,
-                jt.idacuerdoarticulo,
-                jt.codigoarticulo,
-                jt.costoactual,
-                jt.unidadeslimite,
-                jt.preciocontado,
-                jt.preciotarjetacredito,
-                jt.preciocredito,
-                jt.valoraporte,
-                jt.margencontado,
-                jt.margentarjetacredito
-            FROM JSON_TABLE(
-                p_articulos_json,
-                '$[*]'
-                COLUMNS (
-                    accion              VARCHAR2(1)   PATH '$.accion',
-                    idacuerdoarticulo   NUMBER        PATH '$.idacuerdoarticulo',
-                    codigoarticulo      VARCHAR2(20)  PATH '$.codigoarticulo',
-                    costoactual         NUMBER        PATH '$.costoactual',
-                    unidadeslimite      NUMBER        PATH '$.unidadeslimite',
-                    preciocontado       NUMBER        PATH '$.preciocontado',
-                    preciotarjetacredito NUMBER       PATH '$.preciotarjetacredito',
-                    preciocredito       NUMBER        PATH '$.preciocredito',
-                    valoraporte         NUMBER        PATH '$.valoraporte',
-                    margencontado       NUMBER        PATH '$.margencontado',
-                    margentarjetacredito NUMBER       PATH '$.margentarjetacredito'
-                )
-            ) jt;
+        v_json_log                  CLOB;
+        v_id_controlinterfaz        NUMBER;
+        v_id_evento                 NUMBER;
         
     BEGIN
-        -- Inicializar salida
-        p_codigo_salida  := 0;
-        p_mensaje_salida := 'OK';
+        -- ========================================================================
+        -- PASO 0: Obtener etiquetas y estados desde el catálogo
+        -- ========================================================================
         
-        -- =========================================================================
-        -- 1) RESOLVER CATÁLOGOS
-        -- =========================================================================
-        SELECT idcatalogo INTO v_id_control_interfaz 
-        FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
+        -- Normalizar la etiqueta recibida
+        v_etiqueta_recibida := UPPER(TRIM(p_claseacuerdo));
         
-        SELECT idcatalogo INTO v_idevento 
-        FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
+        -- Etiquetas de clase de acuerdo
+        SELECT IDETIQUETA INTO v_etiqueta_general FROM APL_TB_CATALOGO WHERE IDETIQUETA = 'CLAGENERAL';
+        SELECT IDETIQUETA INTO v_etiqueta_articulos FROM APL_TB_CATALOGO WHERE IDETIQUETA = 'CLAARTICULO';
         
-        SELECT idcatalogo INTO v_entidad_acuerdo 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ENTACUERDO';
+        -- Estados
+        SELECT IDCATALOGO INTO v_estado_activo FROM APL_TB_CATALOGO WHERE IDETIQUETA = 'ESTADOACTIVO';
+        SELECT IDCATALOGO INTO v_estado_nuevo FROM APL_TB_CATALOGO WHERE IDETIQUETA = 'ESTADONUEVO';
+        SELECT IDCATALOGO INTO v_estado_aprobado FROM APL_TB_CATALOGO WHERE IDETIQUETA = 'ESTADOAPROBADO';
+        SELECT IDCATALOGO INTO v_estado_negado FROM APL_TB_CATALOGO WHERE IDETIQUETA = 'ESTADONEGADO';
+        SELECT IDCATALOGO INTO v_estado_modificado FROM APL_TB_CATALOGO WHERE IDETIQUETA = 'ESTADOMODIFICADO';
+        SELECT IDCATALOGO INTO v_estado_eliminado FROM APL_TB_CATALOGO WHERE IDETIQUETA = 'ESTADOELIMINADO';
         
-        SELECT idcatalogo INTO v_tipo_creacion 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'TPCREACION';
+        -- Entidad
+        SELECT IDCATALOGO INTO v_entidad_acuerdo FROM APL_TB_CATALOGO WHERE IDETIQUETA = 'ENTACUERDO';
         
-        SELECT idcatalogo INTO v_tipo_modificacion 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'TPMODIFICACION';
+        -- Para el LOG (convertir etiquetas a IDs)
+        SELECT IDCATALOGO INTO v_id_controlinterfaz FROM APL_TB_CATALOGO WHERE IDETIQUETA = p_idcontrolinterfaz;
+        SELECT IDCATALOGO INTO v_id_evento FROM APL_TB_CATALOGO WHERE IDETIQUETA = p_idevento_etiqueta;
+    
+        -- ========================================================================
+        -- VALIDACIONES
+        -- ========================================================================
         
-        SELECT idcatalogo INTO v_estado_activo 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOACTIVO';
-        
-        SELECT idcatalogo INTO v_estado_nuevo 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';
-        
-        SELECT idcatalogo INTO v_estado_modificado 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOMODIFICADO';
-        
-        SELECT idcatalogo INTO v_estado_negado 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONEGADO';
-        
-        SELECT idcatalogo INTO v_estado_aprobado 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOAPROBADO';
-        
-        SELECT idcatalogo INTO v_estado_eliminado 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOELIMINADO';
-        
-        SELECT idetiqueta INTO v_etiqueta_general 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ACGENERAL';
-        
-        SELECT idetiqueta INTO v_etiqueta_articulo 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'ACARTICULO';
-        
-        -- =========================================================================
-        -- 2) OBTENER DATOS ACTUALES DEL ACUERDO
-        -- =========================================================================
-        BEGIN
-            SELECT 
-                a.idestadoregistro,
-                a.idtipoacuerdo,
-                ct.idetiqueta
-            INTO 
-                v_estado_actual,
-                v_tipo_acuerdo_actual,
-                v_etiqueta_tipo_actual
-            FROM apl_tb_acuerdo a
-            INNER JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
-            WHERE a.idacuerdo = p_idacuerdo;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                p_codigo_salida  := 1;
-                p_mensaje_salida := 'El acuerdo con ID ' || p_idacuerdo || ' no existe.';
-                RETURN;
-        END;
-        
-        -- Obtener datos del fondo actual
-        BEGIN
-            SELECT 
-                idacuerdofondo,
-                idfondo,
-                NVL(valorcomprometido, 0),
-                NVL(valorliquidado, 0)
-            INTO 
-                v_idacuerdofondo,
-                v_idfondo_actual,
-                v_valorcomprometido,
-                v_valorliquidado
-            FROM apl_tb_acuerdofondo
-            WHERE idacuerdo = p_idacuerdo;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                v_valorcomprometido := 0;
-                v_valorliquidado := 0;
-        END;
-        
-        -- =========================================================================
-        -- 3) VALIDACIÓN: Si el acuerdo está APROBADO, no se puede modificar
-        -- =========================================================================
-        IF v_estado_actual = v_estado_aprobado THEN
-            p_codigo_salida  := 1;
-            p_mensaje_salida := 'El acuerdo ha sido aprobado y no se puede modificar.';
+        -- Validar clase de acuerdo
+        IF v_etiqueta_recibida NOT IN (v_etiqueta_general, v_etiqueta_articulos) THEN
+            p_codigo_salida := -2;
+            p_mensaje_salida := 'Error: La clase de acuerdo debe ser CLAGENERAL o CLAARTICULO. Recibido: ' || v_etiqueta_recibida;
             RETURN;
         END IF;
         
-        -- =========================================================================
-        -- 4) VALIDACIÓN PARA ACUERDO CON ARTÍCULOS: Fondo del mismo proveedor
-        -- =========================================================================
-        IF v_etiqueta_tipo_actual = v_etiqueta_articulo AND p_idfondo != v_idfondo_actual THEN
-            BEGIN
-                SELECT idproveedor INTO v_proveedor_actual 
-                FROM apl_tb_fondo WHERE idfondo = v_idfondo_actual;
-                
-                SELECT idproveedor INTO v_proveedor_nuevo 
-                FROM apl_tb_fondo WHERE idfondo = p_idfondo;
-                
-                IF v_proveedor_actual != v_proveedor_nuevo THEN
-                    p_codigo_salida  := 1;
-                    p_mensaje_salida := 'El nuevo fondo debe ser del mismo proveedor para acuerdos con artículos.';
-                    RETURN;
-                END IF;
-            EXCEPTION
-                WHEN NO_DATA_FOUND THEN
-                    p_codigo_salida  := 1;
-                    p_mensaje_salida := 'Fondo no encontrado.';
-                    RETURN;
-            END;
-        END IF;
+        -- Validar que el acuerdo exista
+        BEGIN
+            SELECT IDESTADOREGISTRO, IDTIPOACUERDO 
+            INTO v_estado_actual_acuerdo, v_idtipoacuerdo
+            FROM APL_TB_ACUERDO 
+            WHERE IDACUERDO = p_idacuerdo;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                p_codigo_salida := -3;
+                p_mensaje_salida := 'Error: El acuerdo con ID ' || p_idacuerdo || ' no existe.';
+                RETURN;
+        END;
         
-        -- =========================================================================
-        -- 5) VALIDACIÓN: Si el acuerdo está NEGADO
-        -- =========================================================================
-        IF v_estado_actual = v_estado_negado THEN
+        -- Validar que el fondo exista
+        BEGIN
+            SELECT IDACUERDOFONDO INTO v_idacuerdofondo
+            FROM APL_TB_ACUERDOFONDO
+            WHERE IDACUERDO = p_idacuerdo AND IDFONDO = p_idfondo AND ROWNUM = 1;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                p_codigo_salida := -4;
+                p_mensaje_salida := 'Error: No existe fondo con ID ' || p_idfondo || ' para el acuerdo ' || p_idacuerdo;
+                RETURN;
+        END;
+    
+        -- ========================================================================
+        -- PROCESAR SEGÚN CLASE DE ACUERDO
+        -- ========================================================================
+        
+        IF v_etiqueta_recibida = v_etiqueta_general THEN
+            -- ==================================================================
+            -- CLASE GENERAL: Modifica APL_TB_ACUERDO + APL_TB_ACUERDOFONDO
+            -- ==================================================================
             
-            -- Verificar si hay aprobadores configurados
-            SELECT COUNT(*) INTO v_tiene_aprobadores
-            FROM apl_tb_aprobador
-            WHERE entidad = v_entidad_acuerdo
-              AND idtipoproceso = v_tipo_creacion
-              AND idestadoregistro = v_estado_activo;
+            -- Modificar APL_TB_ACUERDO
+            UPDATE APL_TB_ACUERDO
+            SET IDMOTIVOACUERDO     = p_idmotivoacuerdo,
+                DESCRIPCION         = p_descripcion,
+                FECHAINICIOVIGENCIA = p_fechainiciovigencia,
+                FECHAFINVIGENCIA    = p_fechafinvigencia,
+                FECHAMODIFICA       = SYSTIMESTAMP,
+                IDUSUARIOMODIFICA   = p_idusuariomodifica,
+                IDESTADOREGISTRO    = v_estado_modificado
+            WHERE IDACUERDO = p_idacuerdo;
             
-            -- Determinar el nuevo estado
-            IF v_tiene_aprobadores > 0 THEN
-                v_nuevo_estado := v_estado_nuevo;
-            ELSE
-                v_nuevo_estado := v_estado_aprobado;
-            END IF;
+            -- Modificar APL_TB_ACUERDOFONDO
+            UPDATE APL_TB_ACUERDOFONDO
+            SET VALORAPORTE       = p_valoraporte,
+                VALORDISPONIBLE   = p_valordisponible,
+                VALORCOMPROMETIDO = NVL(p_valorcomprometido, VALORCOMPROMETIDO),
+                VALORLIQUIDADO    = NVL(p_valorliquidado, VALORLIQUIDADO)
+            WHERE IDACUERDOFONDO = v_idacuerdofondo;
             
-            -- Actualizar el acuerdo
-            UPDATE apl_tb_acuerdo
-            SET 
-                idmotivoacuerdo     = p_idmotivoacuerdo,
-                descripcion         = p_descripcion,
-                fechainiciovigencia = p_fechainiciovigencia,
-                fechafinvigencia    = p_fechafinvigencia,
-                fechamodifica       = SYSTIMESTAMP,
-                idusuariomodifica   = p_idusuariomodifica,
-                idestadoregistro    = v_nuevo_estado,
-                marcaprocesoaprobacion = ' '
-            WHERE idacuerdo = p_idacuerdo;
+        ELSIF v_etiqueta_recibida = v_etiqueta_articulos THEN
+            -- ==================================================================
+            -- CLASE ARTÍCULO: Modifica APL_TB_ACUERDO + APL_TB_ACUERDOFONDO + APL_TB_ACUERDOARTICULO
+            -- ==================================================================
             
-            -- Actualizar el fondo del acuerdo
-            UPDATE apl_tb_acuerdofondo
-            SET 
-                idfondo         = p_idfondo,
-                valoraporte     = p_valoraporte,
-                valordisponible = p_valoraporte - v_valorcomprometido - v_valorliquidado
-            WHERE idacuerdo = p_idacuerdo;
+            -- Modificar APL_TB_ACUERDO
+            UPDATE APL_TB_ACUERDO
+            SET IDMOTIVOACUERDO     = p_idmotivoacuerdo,
+                DESCRIPCION         = p_descripcion,
+                FECHAINICIOVIGENCIA = p_fechainiciovigencia,
+                FECHAFINVIGENCIA    = p_fechafinvigencia,
+                FECHAMODIFICA       = SYSTIMESTAMP,
+                IDUSUARIOMODIFICA   = p_idusuariomodifica,
+                IDESTADOREGISTRO    = v_estado_modificado
+            WHERE IDACUERDO = p_idacuerdo;
             
-            -- Procesar artículos si es tipo ACARTICULO
-            IF v_etiqueta_tipo_actual = v_etiqueta_articulo AND p_articulos_json IS NOT NULL THEN
-                FOR r_art IN c_articulos LOOP
-                    IF r_art.accion = 'I' THEN
-                        -- INSERTAR nuevo artículo
-                        INSERT INTO apl_tb_acuerdoarticulo (
-                            idacuerdo,
-                            codigoarticulo,
-                            costoactual,
-                            unidadeslimite,
-                            preciocontado,
-                            preciotarjetacredito,
-                            preciocredito,
-                            valoraporte,
-                            valorcomprometido,
-                            margencontado,
-                            margentarjetacredito,
-                            idestadoregistro
-                        ) VALUES (
-                            p_idacuerdo,
-                            r_art.codigoarticulo,
-                            r_art.costoactual,
-                            r_art.unidadeslimite,
-                            r_art.preciocontado,
-                            r_art.preciotarjetacredito,
-                            r_art.preciocredito,
-                            r_art.valoraporte,
-                            0,
-                            r_art.margencontado,
-                            r_art.margentarjetacredito,
-                            v_estado_activo
-                        );
-                        
-                    ELSIF r_art.accion = 'U' THEN
-                        -- ACTUALIZAR artículo existente
-                        UPDATE apl_tb_acuerdoarticulo
-                        SET 
-                            unidadeslimite       = r_art.unidadeslimite,
-                            preciocontado        = r_art.preciocontado,
-                            preciotarjetacredito = r_art.preciotarjetacredito,
-                            preciocredito        = r_art.preciocredito,
-                            valoraporte          = r_art.valoraporte,
-                            margencontado        = r_art.margencontado,
-                            margentarjetacredito = r_art.margentarjetacredito
-                        WHERE idacuerdoarticulo = r_art.idacuerdoarticulo;
-                        
-                    ELSIF r_art.accion = 'D' THEN
-                        -- ELIMINAR artículo (eliminación lógica)
-                        UPDATE apl_tb_acuerdoarticulo
-                        SET idestadoregistro = v_estado_eliminado
-                        WHERE idacuerdoarticulo = r_art.idacuerdoarticulo;
-                    END IF;
+            -- Modificar APL_TB_ACUERDOFONDO
+            UPDATE APL_TB_ACUERDOFONDO
+            SET VALORAPORTE       = p_valoraporte,
+                VALORDISPONIBLE   = p_valordisponible,
+                VALORCOMPROMETIDO = NVL(p_valorcomprometido, VALORCOMPROMETIDO),
+                VALORLIQUIDADO    = NVL(p_valorliquidado, VALORLIQUIDADO)
+            WHERE IDACUERDOFONDO = v_idacuerdofondo;
+            
+            -- Procesar artículos desde JSON
+            IF p_json_articulos IS NOT NULL AND LENGTH(p_json_articulos) > 2 THEN
+                
+                -- =============================================================
+                -- INSERTAR artículos nuevos (accion = 'I')
+                -- =============================================================
+                FOR r IN (
+                    SELECT *
+                    FROM JSON_TABLE(p_json_articulos, '$[*]' 
+                        COLUMNS (
+                            accion               VARCHAR2(1)   PATH '$.accion',
+                            codigoArticulo       VARCHAR2(20)  PATH '$.codigoArticulo',
+                            costoActual          NUMBER(18,2)  PATH '$.costoActual',
+                            unidadesLimite       NUMBER(10)    PATH '$.unidadesLimite',
+                            precioContado        NUMBER(18,2)  PATH '$.precioContado',
+                            precioTarjetaCredito NUMBER(18,2)  PATH '$.precioTarjetaCredito',
+                            precioCredito        NUMBER(18,2)  PATH '$.precioCredito',
+                            valorAporte          NUMBER(18,2)  PATH '$.valorAporte',
+                            margenContado        NUMBER(18,2)  PATH '$.margenContado',
+                            margenTarjetaCredito NUMBER(18,2)  PATH '$.margenTarjetaCredito'
+                        )
+                    )
+                    WHERE accion = 'I'
+                ) LOOP
+                    INSERT INTO APL_TB_ACUERDOARTICULO (
+                        IDACUERDO, CODIGOARTICULO, COSTOACTUAL, 
+                        UNIDADESLIMITE, PRECIOCONTADO, PRECIOTARJETACREDITO, PRECIOCREDITO,
+                        MARGENCONTADO, MARGENTARJETACREDITO, VALORAPORTE, VALORCOMPROMETIDO, IDESTADOREGISTRO
+                    ) VALUES (
+                        p_idacuerdo, r.codigoArticulo, r.costoActual,
+                        r.unidadesLimite, r.precioContado, r.precioTarjetaCredito, 
+                        r.precioCredito, r.margenContado, r.margenTarjetaCredito, 
+                        r.valorAporte, 0, v_estado_activo
+                    );
                 END LOOP;
+    
+                -- =============================================================
+                -- ACTUALIZAR artículos existentes (accion = 'U')
+                -- =============================================================
+                FOR r IN (
+                    SELECT *
+                    FROM JSON_TABLE(p_json_articulos, '$[*]' 
+                        COLUMNS (
+                            accion               VARCHAR2(1)   PATH '$.accion',
+                            idAcuerdoArticulo    NUMBER(18)    PATH '$.idAcuerdoArticulo',
+                            codigoArticulo       VARCHAR2(20)  PATH '$.codigoArticulo',
+                            costoActual          NUMBER(18,2)  PATH '$.costoActual',
+                            unidadesLimite       NUMBER(10)    PATH '$.unidadesLimite',
+                            precioContado        NUMBER(18,2)  PATH '$.precioContado',
+                            precioTarjetaCredito NUMBER(18,2)  PATH '$.precioTarjetaCredito',
+                            precioCredito        NUMBER(18,2)  PATH '$.precioCredito',
+                            valorAporte          NUMBER(18,2)  PATH '$.valorAporte',
+                            margenContado        NUMBER(18,2)  PATH '$.margenContado',
+                            margenTarjetaCredito NUMBER(18,2)  PATH '$.margenTarjetaCredito'
+                        )
+                    )
+                    WHERE accion = 'U'
+                ) LOOP
+                    UPDATE APL_TB_ACUERDOARTICULO
+                    SET CODIGOARTICULO       = r.codigoArticulo,
+                        COSTOACTUAL          = r.costoActual,
+                        UNIDADESLIMITE       = r.unidadesLimite,
+                        PRECIOCONTADO        = r.precioContado,
+                        PRECIOTARJETACREDITO = r.precioTarjetaCredito,
+                        PRECIOCREDITO        = r.precioCredito,
+                        VALORAPORTE          = r.valorAporte,
+                        MARGENCONTADO        = r.margenContado,
+                        MARGENTARJETACREDITO = r.margenTarjetaCredito
+                    WHERE IDACUERDOARTICULO = r.idAcuerdoArticulo 
+                      AND IDACUERDO = p_idacuerdo;
+                END LOOP;
+    
+                -- =============================================================
+                -- ELIMINAR artículos (accion = 'D') - Eliminación lógica
+                -- =============================================================
+                FOR r IN (
+                    SELECT *
+                    FROM JSON_TABLE(p_json_articulos, '$[*]' 
+                        COLUMNS (
+                            accion            VARCHAR2(1) PATH '$.accion',
+                            idAcuerdoArticulo NUMBER(18)  PATH '$.idAcuerdoArticulo'
+                        )
+                    )
+                    WHERE accion = 'D'
+                ) LOOP
+                    UPDATE APL_TB_ACUERDOARTICULO
+                    SET IDESTADOREGISTRO = v_estado_eliminado
+                    WHERE IDACUERDOARTICULO = r.idAcuerdoArticulo 
+                      AND IDACUERDO = p_idacuerdo;
+                END LOOP;
+                
             END IF;
             
-            -- Generar registros de aprobación si hay aprobadores
-            IF v_tiene_aprobadores > 0 THEN
-                -- Obtener número de lote
-                SELECT secuencial + 1 INTO v_numero_lote
-                FROM apl_tb_lote
-                WHERE entidad = v_entidad_acuerdo
+        END IF;
+    
+        -- ========================================================================
+        -- PASO 4: Si estaba NEGADO, crear proceso de aprobación
+        -- ========================================================================
+        IF v_estado_actual_acuerdo = v_estado_negado THEN
+            
+            -- Contar aprobadores asignados a esta entidad y tipo de proceso
+            SELECT COUNT(*) INTO v_count_aprobadores
+            FROM APL_TB_APROBADOR
+            WHERE ENTIDAD = v_entidad_acuerdo
+              AND IDTIPOPROCESO = p_idtipoproceso
+              AND IDESTADOREGISTRO = v_estado_activo;
+            
+            IF v_count_aprobadores > 0 THEN
+                -- ============================================================
+                -- SI EXISTEN APROBADORES: Crear registros de aprobación
+                -- ============================================================
+                
+                -- Obtener y actualizar el secuencial del lote
+                SELECT SECUENCIAL + 1 INTO v_secuencial_lote 
+                FROM APL_TB_LOTE 
+                WHERE ENTIDAD = v_entidad_acuerdo
                 FOR UPDATE;
                 
-                -- Actualizar secuencial en lote
-                UPDATE apl_tb_lote
-                SET secuencial = v_numero_lote
-                WHERE entidad = v_entidad_acuerdo;
+                -- Actualizar secuencial en tabla de lote
+                UPDATE APL_TB_LOTE 
+                SET SECUENCIAL = v_secuencial_lote 
+                WHERE ENTIDAD = v_entidad_acuerdo;
                 
-                -- Actualizar lote en acuerdo
-                UPDATE apl_tb_acuerdo
-                SET numeroloteaprobacion = v_numero_lote
-                WHERE idacuerdo = p_idacuerdo;
+                -- Actualizar acuerdo con el número de lote y estado nuevo
+                UPDATE APL_TB_ACUERDO
+                SET NUMEROLOTEAPROBACION = v_secuencial_lote,
+                    MARCAPROCESOAPROBACION = 'S',
+                    IDESTADOREGISTRO = v_estado_nuevo
+                WHERE IDACUERDO = p_idacuerdo;
                 
-                -- Crear registros de aprobación
-                INSERT INTO apl_tb_aprobacion (
-                    entidad,
-                    identidad,
-                    idtipoproceso,
-                    idusersolicitud,
-                    nombreusersolicitud,
-                    fechasolicitud,
-                    iduseraprobador,
-                    fechaaprobacion,
-                    comentario,
-                    nivelaprobacion,
-                    idestadoregistro,
-                    numeroloteaprobacion
-                )
-                SELECT
-                    v_entidad_acuerdo,
-                    p_idacuerdo,
-                    v_tipo_creacion,
-                    p_idusuariomodifica,
-                    p_nombreusuariomodifica,
-                    SYSTIMESTAMP,
-                    a.iduseraprobador,
-                    NULL,
-                    NULL,
-                    a.nivelaprobacion,
-                    v_estado_nuevo,
-                    v_numero_lote
-                FROM apl_tb_aprobador a
-                WHERE a.entidad = v_entidad_acuerdo
-                  AND a.idtipoproceso = v_tipo_creacion
-                  AND a.idestadoregistro = v_estado_activo;
-            END IF;
-            
-            -- Construir JSON para LOG (artículos)
-            IF v_etiqueta_tipo_actual = v_etiqueta_articulo THEN
-                SELECT JSON_ARRAYAGG(
-                    JSON_OBJECT(
-                        'idacuerdoarticulo' VALUE aa.idacuerdoarticulo,
-                        'codigoarticulo' VALUE aa.codigoarticulo,
-                        'costoactual' VALUE aa.costoactual,
-                        'unidadeslimite' VALUE aa.unidadeslimite,
-                        'preciocontado' VALUE aa.preciocontado,
-                        'preciotarjetacredito' VALUE aa.preciotarjetacredito,
-                        'preciocredito' VALUE aa.preciocredito,
-                        'valoraporte' VALUE aa.valoraporte,
-                        'margencontado' VALUE aa.margencontado,
-                        'margentarjetacredito' VALUE aa.margentarjetacredito
-                    )
-                ) INTO v_articulos_json_log
-                FROM apl_tb_acuerdoarticulo aa
-                WHERE aa.idacuerdo = p_idacuerdo
-                  AND aa.idestadoregistro != v_estado_eliminado;
-            END IF;
-            
-            -- Construir JSON principal para LOG
-            v_datos_json := JSON_OBJECT(
-                'idacuerdo' VALUE p_idacuerdo,
-                'idmotivoacuerdo' VALUE p_idmotivoacuerdo,
-                'descripcion' VALUE p_descripcion,
-                'fechainiciovigencia' VALUE TO_CHAR(p_fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
-                'fechafinvigencia' VALUE TO_CHAR(p_fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
-                'idfondo' VALUE p_idfondo,
-                'valoraporte' VALUE p_valoraporte,
-                'idusuariomodifica' VALUE p_idusuariomodifica,
-                'fechamodifica' VALUE TO_CHAR(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS'),
-                'idestadoregistro' VALUE v_nuevo_estado,
-                'estado_anterior' VALUE v_estado_actual,
-                'tipo_acuerdo' VALUE v_etiqueta_tipo_actual,
-                'accion' VALUE 'Modificación desde estado NEGADO'
-            );
-            
-            -- Insertar en LOG
-            INSERT INTO apl_tb_log (
-                fechahoratrx,
-                iduser,
-                idopcion,
-                idcontrolinterfaz,
-                idevento,
-                entidad,
-                identidad,
-                idtipoproceso,
-                datos
-            ) VALUES (
-                SYSTIMESTAMP,
-                p_idusuariomodifica,
-                p_idopcion,
-                v_id_control_interfaz,
-                v_idevento,
-                v_entidad_acuerdo,
-                p_idacuerdo,
-                v_tipo_modificacion,
-                v_datos_json
-            );
-            
-            p_codigo_salida  := 0;
-            p_mensaje_salida := 'Acuerdo actualizado correctamente desde estado NEGADO.';
-            COMMIT;
-            RETURN;
-        END IF;
-        
-        -- =========================================================================
-        -- 6) VALIDACIÓN: Si el acuerdo está NUEVO o MODIFICADO
-        -- =========================================================================
-        IF v_estado_actual IN (v_estado_nuevo, v_estado_modificado) THEN
-            
-            -- Re-verificar estado (por si fue aprobado en este instante)
-            SELECT idestadoregistro INTO v_estado_actual
-            FROM apl_tb_acuerdo
-            WHERE idacuerdo = p_idacuerdo
-            FOR UPDATE NOWAIT;
-            
-            IF v_estado_actual = v_estado_aprobado THEN
-                p_codigo_salida  := 1;
-                p_mensaje_salida := 'Acuerdo fue aprobado en este momento y no se puede Modificar.';
-                RETURN;
-            END IF;
-            
-            IF v_estado_actual = v_estado_negado THEN
-                p_codigo_salida  := 1;
-                p_mensaje_salida := 'El acuerdo fue negado en este momento. Por favor, intente nuevamente.';
-                RETURN;
-            END IF;
-            
-            -- Verificar si hay aprobadores configurados
-            SELECT COUNT(*) INTO v_tiene_aprobadores
-            FROM apl_tb_aprobador
-            WHERE entidad = v_entidad_acuerdo
-              AND idtipoproceso = v_tipo_modificacion
-              AND idestadoregistro = v_estado_activo;
-            
-            -- Determinar el nuevo estado
-            IF v_tiene_aprobadores > 0 THEN
-                v_nuevo_estado := v_estado_modificado;
-            ELSE
-                v_nuevo_estado := v_estado_aprobado;
-            END IF;
-            
-            -- Actualizar el acuerdo
-            UPDATE apl_tb_acuerdo
-            SET 
-                idmotivoacuerdo     = p_idmotivoacuerdo,
-                descripcion         = p_descripcion,
-                fechainiciovigencia = p_fechainiciovigencia,
-                fechafinvigencia    = p_fechafinvigencia,
-                fechamodifica       = SYSTIMESTAMP,
-                idusuariomodifica   = p_idusuariomodifica,
-                idestadoregistro    = v_nuevo_estado
-            WHERE idacuerdo = p_idacuerdo;
-            
-            -- Actualizar el fondo del acuerdo
-            UPDATE apl_tb_acuerdofondo
-            SET 
-                idfondo         = p_idfondo,
-                valoraporte     = p_valoraporte,
-                valordisponible = p_valoraporte - v_valorcomprometido - v_valorliquidado
-            WHERE idacuerdo = p_idacuerdo;
-            
-            -- Procesar artículos si es tipo ACARTICULO
-            IF v_etiqueta_tipo_actual = v_etiqueta_articulo AND p_articulos_json IS NOT NULL THEN
-                FOR r_art IN c_articulos LOOP
-                    IF r_art.accion = 'I' THEN
-                        INSERT INTO apl_tb_acuerdoarticulo (
-                            idacuerdo,
-                            codigoarticulo,
-                            costoactual,
-                            unidadeslimite,
-                            preciocontado,
-                            preciotarjetacredito,
-                            preciocredito,
-                            valoraporte,
-                            valorcomprometido,
-                            margencontado,
-                            margentarjetacredito,
-                            idestadoregistro
-                        ) VALUES (
-                            p_idacuerdo,
-                            r_art.codigoarticulo,
-                            r_art.costoactual,
-                            r_art.unidadeslimite,
-                            r_art.preciocontado,
-                            r_art.preciotarjetacredito,
-                            r_art.preciocredito,
-                            r_art.valoraporte,
-                            0,
-                            r_art.margencontado,
-                            r_art.margentarjetacredito,
-                            v_estado_activo
-                        );
-                        
-                    ELSIF r_art.accion = 'U' THEN
-                        UPDATE apl_tb_acuerdoarticulo
-                        SET 
-                            unidadeslimite       = r_art.unidadeslimite,
-                            preciocontado        = r_art.preciocontado,
-                            preciotarjetacredito = r_art.preciotarjetacredito,
-                            preciocredito        = r_art.preciocredito,
-                            valoraporte          = r_art.valoraporte,
-                            margencontado        = r_art.margencontado,
-                            margentarjetacredito = r_art.margentarjetacredito
-                        WHERE idacuerdoarticulo = r_art.idacuerdoarticulo;
-                        
-                    ELSIF r_art.accion = 'D' THEN
-                        UPDATE apl_tb_acuerdoarticulo
-                        SET idestadoregistro = v_estado_eliminado
-                        WHERE idacuerdoarticulo = r_art.idacuerdoarticulo;
-                    END IF;
+                -- Crear un registro de aprobación por cada aprobador encontrado
+                FOR r_aprobador IN (
+                    SELECT IDAPROBADOR, IDUSERAPROBADOR, NIVELAPROBACION
+                    FROM APL_TB_APROBADOR
+                    WHERE ENTIDAD = v_entidad_acuerdo
+                      AND IDTIPOPROCESO = p_idtipoproceso
+                      AND IDESTADOREGISTRO = v_estado_activo
+                    ORDER BY NIVELAPROBACION
+                ) LOOP
+                    
+                    INSERT INTO APL_TB_APROBACION (
+                        ENTIDAD,
+                        IDENTIDAD,
+                        IDTIPOPROCESO,
+                        IDUSERSOLICITUD,
+                        FECHASOLICITUD,
+                        IDUSERAPROBADOR,
+                        NIVELAPROBACION,
+                        IDESTADOREGISTRO,
+                        NUMEROLOTEAPROBACION
+                    ) VALUES (
+                        v_entidad_acuerdo,
+                        p_idacuerdo,
+                        p_idtipoproceso,
+                        p_idusuariomodifica,
+                        SYSTIMESTAMP,
+                        r_aprobador.IDUSERAPROBADOR,
+                        r_aprobador.NIVELAPROBACION,
+                        v_estado_nuevo,
+                        v_secuencial_lote
+                    );
+                    
                 END LOOP;
+                
+            ELSE
+                -- ============================================================
+                -- NO EXISTEN APROBADORES: El acuerdo nace aprobado
+                -- ============================================================
+                UPDATE APL_TB_ACUERDO
+                SET IDESTADOREGISTRO = v_estado_aprobado,
+                    MARCAPROCESOAPROBACION = 'N'
+                WHERE IDACUERDO = p_idacuerdo;
+                
             END IF;
             
-            -- Construir JSON para LOG (artículos)
-            IF v_etiqueta_tipo_actual = v_etiqueta_articulo THEN
-                SELECT JSON_ARRAYAGG(
-                    JSON_OBJECT(
-                        'idacuerdoarticulo' VALUE aa.idacuerdoarticulo,
-                        'codigoarticulo' VALUE aa.codigoarticulo,
-                        'costoactual' VALUE aa.costoactual,
-                        'unidadeslimite' VALUE aa.unidadeslimite,
-                        'preciocontado' VALUE aa.preciocontado,
-                        'preciotarjetacredito' VALUE aa.preciotarjetacredito,
-                        'preciocredito' VALUE aa.preciocredito,
-                        'valoraporte' VALUE aa.valoraporte,
-                        'margencontado' VALUE aa.margencontado,
-                        'margentarjetacredito' VALUE aa.margentarjetacredito
-                    )
-                ) INTO v_articulos_json_log
-                FROM apl_tb_acuerdoarticulo aa
-                WHERE aa.idacuerdo = p_idacuerdo
-                  AND aa.idestadoregistro != v_estado_eliminado;
-            END IF;
-            
-            -- Construir JSON principal para LOG
-            v_datos_json := JSON_OBJECT(
-                'idacuerdo' VALUE p_idacuerdo,
-                'idmotivoacuerdo' VALUE p_idmotivoacuerdo,
-                'descripcion' VALUE p_descripcion,
-                'fechainiciovigencia' VALUE TO_CHAR(p_fechainiciovigencia, 'YYYY-MM-DD HH24:MI:SS'),
-                'fechafinvigencia' VALUE TO_CHAR(p_fechafinvigencia, 'YYYY-MM-DD HH24:MI:SS'),
-                'idfondo' VALUE p_idfondo,
-                'valoraporte' VALUE p_valoraporte,
-                'idusuariomodifica' VALUE p_idusuariomodifica,
-                'fechamodifica' VALUE TO_CHAR(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS'),
-                'idestadoregistro' VALUE v_nuevo_estado,
-                'estado_anterior' VALUE v_estado_actual,
-                'tipo_acuerdo' VALUE v_etiqueta_tipo_actual,
-                'accion' VALUE CASE 
-                    WHEN v_estado_actual = v_estado_nuevo THEN 'Modificación desde estado NUEVO'
-                    ELSE 'Modificación desde estado MODIFICADO'
-                END
-            );
-            
-            -- Insertar en LOG
-            INSERT INTO apl_tb_log (
-                fechahoratrx,
-                iduser,
-                idopcion,
-                idcontrolinterfaz,
-                idevento,
-                entidad,
-                identidad,
-                idtipoproceso,
-                datos
-            ) VALUES (
-                SYSTIMESTAMP,
-                p_idusuariomodifica,
-                p_idopcion,
-                v_id_control_interfaz,
-                v_idevento,
-                v_entidad_acuerdo,
-                p_idacuerdo,
-                v_tipo_modificacion,
-                v_datos_json
-            );
-            
-            -- Gestionar aprobaciones
-            IF v_tiene_aprobadores > 0 THEN
-                IF v_estado_actual = v_estado_nuevo THEN
-                    UPDATE apl_tb_aprobacion
-                    SET idestadoregistro = v_estado_modificado,
-                        fechasolicitud = SYSTIMESTAMP
-                    WHERE entidad = v_entidad_acuerdo
-                      AND identidad = p_idacuerdo
-                      AND idtipoproceso = v_tipo_creacion
-                      AND idestadoregistro = v_estado_nuevo;
-                ELSE
-                    UPDATE apl_tb_aprobacion
-                    SET fechasolicitud = SYSTIMESTAMP
-                    WHERE entidad = v_entidad_acuerdo
-                      AND identidad = p_idacuerdo
-                      AND idestadoregistro = v_estado_modificado;
-                END IF;
-            END IF;
-            
-            p_codigo_salida  := 0;
-            p_mensaje_salida := 'Acuerdo actualizado correctamente.';
-            COMMIT;
-            RETURN;
         END IF;
+    
+        -- ========================================================================
+        -- PASO 5: Crear registro en APL_TB_LOG
+        -- ========================================================================
         
-        -- Si no cumple ninguna condición
-        p_codigo_salida  := 1;
-        p_mensaje_salida := 'Estado del acuerdo no válido para modificación.';
+        -- Construir JSON de datos según la clase de acuerdo
+        IF v_etiqueta_recibida = v_etiqueta_general THEN
+            -- JSON para CLAGENERAL (sin artículos)
+            SELECT JSON_OBJECT(
+                'acuerdo' VALUE (
+                    SELECT JSON_OBJECT(
+                        'idAcuerdo' VALUE IDACUERDO,
+                        'idTipoAcuerdo' VALUE IDTIPOACUERDO,
+                        'idMotivoAcuerdo' VALUE IDMOTIVOACUERDO,
+                        'descripcion' VALUE DESCRIPCION,
+                        'fechaInicioVigencia' VALUE TO_CHAR(FECHAINICIOVIGENCIA, 'YYYY-MM-DD HH24:MI:SS'),
+                        'fechaFinVigencia' VALUE TO_CHAR(FECHAFINVIGENCIA, 'YYYY-MM-DD HH24:MI:SS'),
+                        'idEstadoRegistro' VALUE IDESTADOREGISTRO,
+                        'marcaProcesoAprobacion' VALUE MARCAPROCESOAPROBACION,
+                        'numeroLoteAprobacion' VALUE NUMEROLOTEAPROBACION
+                    ) FROM APL_TB_ACUERDO WHERE IDACUERDO = p_idacuerdo
+                ),
+                'fondo' VALUE (
+                    SELECT JSON_OBJECT(
+                        'idAcuerdoFondo' VALUE IDACUERDOFONDO,
+                        'idFondo' VALUE IDFONDO,
+                        'valorAporte' VALUE VALORAPORTE,
+                        'valorDisponible' VALUE VALORDISPONIBLE,
+                        'valorComprometido' VALUE VALORCOMPROMETIDO,
+                        'valorLiquidado' VALUE VALORLIQUIDADO
+                    ) FROM APL_TB_ACUERDOFONDO WHERE IDACUERDOFONDO = v_idacuerdofondo
+                )
+            ) INTO v_json_log FROM DUAL;
+            
+        ELSIF v_etiqueta_recibida = v_etiqueta_articulos THEN
+            -- JSON para CLAARTICULO (con artículos)
+            SELECT JSON_OBJECT(
+                'acuerdo' VALUE (
+                    SELECT JSON_OBJECT(
+                        'idAcuerdo' VALUE IDACUERDO,
+                        'idTipoAcuerdo' VALUE IDTIPOACUERDO,
+                        'idMotivoAcuerdo' VALUE IDMOTIVOACUERDO,
+                        'descripcion' VALUE DESCRIPCION,
+                        'fechaInicioVigencia' VALUE TO_CHAR(FECHAINICIOVIGENCIA, 'YYYY-MM-DD HH24:MI:SS'),
+                        'fechaFinVigencia' VALUE TO_CHAR(FECHAFINVIGENCIA, 'YYYY-MM-DD HH24:MI:SS'),
+                        'idEstadoRegistro' VALUE IDESTADOREGISTRO,
+                        'marcaProcesoAprobacion' VALUE MARCAPROCESOAPROBACION,
+                        'numeroLoteAprobacion' VALUE NUMEROLOTEAPROBACION
+                    ) FROM APL_TB_ACUERDO WHERE IDACUERDO = p_idacuerdo
+                ),
+                'fondo' VALUE (
+                    SELECT JSON_OBJECT(
+                        'idAcuerdoFondo' VALUE IDACUERDOFONDO,
+                        'idFondo' VALUE IDFONDO,
+                        'valorAporte' VALUE VALORAPORTE,
+                        'valorDisponible' VALUE VALORDISPONIBLE,
+                        'valorComprometido' VALUE VALORCOMPROMETIDO,
+                        'valorLiquidado' VALUE VALORLIQUIDADO
+                    ) FROM APL_TB_ACUERDOFONDO WHERE IDACUERDOFONDO = v_idacuerdofondo
+                ),
+                'articulos' VALUE (
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'idAcuerdoArticulo' VALUE IDACUERDOARTICULO,
+                            'codigoArticulo' VALUE CODIGOARTICULO,
+                            'costoActual' VALUE COSTOACTUAL,
+                            'unidadesLimite' VALUE UNIDADESLIMITE,
+                            'precioContado' VALUE PRECIOCONTADO,
+                            'precioTarjetaCredito' VALUE PRECIOTARJETACREDITO,
+                            'precioCredito' VALUE PRECIOCREDITO,
+                            'margenContado' VALUE MARGENCONTADO,
+                            'margenTarjetaCredito' VALUE MARGENTARJETACREDITO,
+                            'valorAporte' VALUE VALORAPORTE,
+                            'valorComprometido' VALUE VALORCOMPROMETIDO
+                        )
+                    ) FROM APL_TB_ACUERDOARTICULO 
+                    WHERE IDACUERDO = p_idacuerdo 
+                      AND IDESTADOREGISTRO <> v_estado_eliminado
+                )
+            ) INTO v_json_log FROM DUAL;
+            
+        END IF;
+    
+        -- Insertar registro en APL_TB_LOG
+        INSERT INTO APL_TB_LOG (
+            FECHAHORATRX,
+            IDUSER,
+            IDOPCION,
+            IDCONTROLINTERFAZ,
+            IDEVENTO,
+            ENTIDAD,
+            IDENTIDAD,
+            IDTIPOPROCESO,
+            DATOS
+        ) VALUES (
+            SYSTIMESTAMP,
+            p_idusuariomodifica,
+            p_idopcion,
+            v_id_controlinterfaz,
+            v_id_evento,
+            v_entidad_acuerdo,
+            p_idacuerdo,
+            p_idtipoproceso,
+            v_json_log
+        );
+    
+        -- ========================================================================
+        -- COMMIT y resultado exitoso
+        -- ========================================================================
+        COMMIT;
+        p_codigo_salida := 0;
+        p_mensaje_salida := 'Acuerdo modificado exitosamente. ID: ' || p_idacuerdo;
     
     EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            ROLLBACK;
-            p_codigo_salida  := 1;
-            p_mensaje_salida := 'Falta configurar etiquetas en APL_TB_CATALOGO.';
-            
         WHEN OTHERS THEN
             ROLLBACK;
-            p_codigo_salida  := 1;
-            p_mensaje_salida := 'Error al modificar acuerdo: ' || SQLERRM;
-            
+            p_codigo_salida := -99;
+            p_mensaje_salida := 'Error inesperado: ' || SQLERRM;
     END sp_modificar_acuerdo;
-
+ 
     /*
     =========================================================
     Descripción: Bandeja Consulta / Inactivacion Acuerdo 
@@ -3123,7 +2948,6 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     END sp_consulta_bandeja_inactivacion_acuerdo_por_id;
 
 
-    
     PROCEDURE sp_proceso_inactivacion_acuerdo (
         p_idacuerdo             IN  NUMBER,
         p_nombreusuarioingreso  IN  VARCHAR2,
