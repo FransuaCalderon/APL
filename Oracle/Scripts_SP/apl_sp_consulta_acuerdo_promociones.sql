@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE apl_sp_consulta_acuerdo_promociones (
+create or replace PROCEDURE apl_sp_consulta_acuerdo_promociones (
     p_idacuerdo     IN  NUMBER DEFAULT NULL,
     p_cursor        OUT SYS_REFCURSOR
 )
@@ -39,8 +39,8 @@ BEGIN
             cat_clase.NOMBRE                                    AS CLASE_ACUERDO,
             NVL(art.cantidad_articulos, 0)                      AS cantidad_articulos,
             pa.VALORCOMPROMETIDO,
-            TO_CHAR(p.FECHAHORAINICIO, 'YYYY-Mon-DD')          AS FECHA_INICIO,
-            TO_CHAR(p.FECHAHORAFIN, 'YYYY-Mon-DD')             AS FECHA_FIN,
+            TO_CHAR(p.FECHAHORAINICIO, 'YYYY-MM-DD')          AS FECHA_INICIO,
+            TO_CHAR(p.FECHAHORAFIN, 'YYYY-MM-DD')             AS FECHA_FIN,
             CASE 
                 WHEN p.MARCAREGALO = '1' THEN pa.VALORCOMPROMETIDO 
                 ELSE NULL 
