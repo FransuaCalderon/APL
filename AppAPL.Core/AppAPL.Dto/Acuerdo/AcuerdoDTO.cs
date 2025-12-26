@@ -60,6 +60,7 @@ namespace AppAPL.Dto.Acuerdo
         public string IdProveedor { get; set; }
         public string Nombre { get; set; }
         public int IdTipoFondo { get; set; }
+        public string nombre_tipo_fondo { get; set; }
         public decimal ValorFondo { get; set; }
         public DateTime FechaInicioVigencia { get; set; }
         public DateTime FechaFinVigencia { get; set; }
@@ -68,7 +69,7 @@ namespace AppAPL.Dto.Acuerdo
         public decimal ValorLiquidado { get; set; }
         public int IdEstadoRegistro { get; set; }
         public int IndicadorCreacion { get; set; }
-        public string MarcaProcecsoAprobacion { get; set; }
+        public string MarcaProcesoAprobacion { get; set; }
 
     }
 
