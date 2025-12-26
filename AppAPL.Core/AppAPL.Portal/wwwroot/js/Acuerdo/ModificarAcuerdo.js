@@ -1836,7 +1836,7 @@ function crearListado(data) {
     if (tabla) tabla.destroy();
 
     let html = `
-        <table id='tabla-acuerdos' class='table table-bordered table-striped table-hover'>
+        <table id='tabla-principal' class='table table-bordered table-striped table-hover'>
             <thead>
                 <tr>
                     <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold;'>
@@ -1887,7 +1887,7 @@ function crearListado(data) {
     html += "</tbody></table>";
     $('#tabla').html(html);
 
-    tabla = $('#tabla-acuerdos').DataTable({
+    tabla = $('#tabla-principal').DataTable({
         pageLength: 10,
         order: [[1, 'desc']],
         language: { url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json" }

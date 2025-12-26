@@ -150,7 +150,7 @@ $(document).ready(function () {
             tabla.page(0).draw('page');
             ultimaFilaModificada = null;
             if (typeof limpiarSeleccion === 'function') {
-                limpiarSeleccion('#tabla-fondos');
+                limpiarSeleccion('#tabla-principal');
             }
         }
     });
@@ -198,17 +198,15 @@ function crearListado(data) {
     }
 
     var html = "";
-    html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
-
+    html += "<table id='tabla-principal' class='table table-bordered table-striped table-hover'>";
     html += "  <thead>";
 
     // Fila del Título ROJO
     html += "    <tr>";
     html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE FONDOS";
+    html += "          BANDEJA DE MODIFICACIÓN DE FONDOS";
     html += "      </th>";
     html += "    </tr>";
-
     // Fila de las Cabeceras
     html += "    <tr>";
     html += "      <th>Acción</th>";
@@ -263,7 +261,7 @@ function crearListado(data) {
     $('#tabla').html(html);
 
     // Inicializa DataTable
-    tabla = $('#tabla-fondos').DataTable({
+    tabla = $('#tabla-principal').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
         pagingType: 'full_numbers',
@@ -298,7 +296,7 @@ function crearListado(data) {
         drawCallback: function () {
             if (ultimaFilaModificada !== null) {
                 if (typeof marcarFilaPorId === 'function') {
-                    marcarFilaPorId('#tabla-fondos', ultimaFilaModificada);
+                    marcarFilaPorId('#tabla-principal', ultimaFilaModificada);
                 }
             }
         }
@@ -306,7 +304,7 @@ function crearListado(data) {
 
     console.log('Llamando a inicializarMarcadoFilas para Fondos');
     if (typeof inicializarMarcadoFilas === 'function') {
-        inicializarMarcadoFilas('#tabla-fondos');
+        inicializarMarcadoFilas('#tabla-principal');
     }
 }
 
@@ -316,7 +314,6 @@ function crearListado(data) {
 function abrirModalEditar(id) {
     // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
     const idOpcionActual = window.obtenerIdOpcionActual();
-
     if (!idOpcionActual) {
         Swal.fire({
             icon: 'error',
@@ -325,9 +322,7 @@ function abrirModalEditar(id) {
         });
         return;
     }
-
     const usuario = window.usuarioActual || "admin";
-
     console.log('Abriendo modal para editar fondo ID:', id, 'con idOpcion:', idOpcionActual);
 
     $.ajax({
@@ -343,11 +338,9 @@ function abrirModalEditar(id) {
             "idtipoproceso": "0"
         },
         success: function (data) {
-
             // Concatenación RUC/ID y Nombre
             const idProveedor = data.proveedor || '';
             const nombreProveedor = data.nombre || '';
-
             const proveedorCompleto = (idProveedor && nombreProveedor)
                 ? `${idProveedor} - ${nombreProveedor}`
                 : idProveedor || nombreProveedor || '';
@@ -358,11 +351,15 @@ function abrirModalEditar(id) {
                 proveedor: proveedorCompleto,
                 idproveedor: idProveedor,
                 tipo_fondo: data.tipo_fondo,
-                valor_fondo: data.valor_fondo,
+                valor_fondo: formatearMoneda(data.valor_fondo),                // ✅ AGREGADO
+                valor_disponible: formatearMoneda(data.valor_disponible),      // ✅ AGREGADO
+                valor_comprometido: formatearMoneda(data.valor_comprometido),  // ✅ AGREGADO
+                valor_liquidado: formatearMoneda(data.valor_liquidado),        // ✅ AGREGADO
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
                 fecha_fin: formatDateForInput(data.fecha_fin),
                 estado: data.estado
             };
+
             console.log("datosModal: ", datosModal);
             abrirModalFondo(datosModal);
         },
@@ -386,7 +383,6 @@ function abrirModalFondo(datos) {
 
     document.getElementById('modal-fondo-id').value = datos.idfondo || '';
     document.getElementById('modal-fondo-descripcion').value = datos.descripcion || '';
-
     document.getElementById('modal-fondo-proveedor').value = datos.proveedor || 'Seleccione...';
     document.getElementById('modal-fondo-idproveedor-hidden').value = datos.idproveedor || '';
 
@@ -404,6 +400,9 @@ function abrirModalFondo(datos) {
     document.getElementById('modal-fondo-fechafin').value = datos.fecha_fin || '';
     document.getElementById('modal-fondo-valor').value = datos.valor_fondo || '';
     document.getElementById('modal-fondo-estado').value = datos.estado || '';
+    document.getElementById('modal-fondo-disponible').value = datos.valor_disponible ?? '';
+    document.getElementById('modal-fondo-comprometido').value = datos.valor_comprometido ?? '';
+    document.getElementById('modal-fondo-liquidado').value = datos.valor_liquidado ?? '';
 
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';

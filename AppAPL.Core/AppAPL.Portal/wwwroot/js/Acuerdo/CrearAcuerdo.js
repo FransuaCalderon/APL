@@ -75,12 +75,35 @@
     function parseCurrencyToNumber(monedaStr) {
         if (!monedaStr) return 0;
 
-        let v = String(monedaStr)
-            .replace(/\$/g, "")
-            .replace(/\s/g, "")
-            .replace(/\./g, "");
+        let v = String(monedaStr).trim();
 
-        v = v.replace(",", ".");
+        // Eliminar símbolo de dólar y espacios
+        v = v.replace(/\$/g, "").replace(/\s/g, "");
+
+        // Si está vacío después de limpiar, retornar 0
+        if (!v) return 0;
+
+        // Detectar si usa formato español (coma como decimal)
+        const tieneComaDecimal = v.includes(',');
+        const tienePuntoDecimal = v.includes('.');
+
+        if (tieneComaDecimal) {
+            // Formato español: 1.234,56
+            // Eliminar puntos (miles) y reemplazar coma por punto
+            v = v.replace(/\./g, "").replace(",", ".");
+        } else if (tienePuntoDecimal) {
+            // Formato con punto decimal: 5.00
+            // Verificar si el punto es separador de miles o decimal
+            const partes = v.split('.');
+            if (partes.length === 2 && partes[1].length <= 2) {
+                // Es decimal (ejemplo: 5.00)
+                // No hacer nada, ya está correcto
+            } else {
+                // Es separador de miles (ejemplo: 1.234)
+                v = v.replace(/\./g, "");
+            }
+        }
+
         return parseFloat(v) || 0;
     }
 
@@ -864,36 +887,49 @@
         let totalProveedor = 0;
 
         $("#tablaItemsBody tr").each(function () {
-            const costoStr = $(this).find(".item-costo").val();
-            const costo = parseCurrencyToNumber(costoStr);
-            const unidades = parseInt($(this).find('input[name="unidadesLimite"]').val()) || 0;
-            const aporteStr = $(this).find(".item-aporte").val();
-            const aporte = parseCurrencyToNumber(aporteStr);
+            const $fila = $(this);
 
+            // 1. Obtener y limpiar valores
+            const costo = parseCurrencyToNumber($fila.find(".item-costo").val());
+            const unidades = parseInt($fila.find('input[name="unidadesLimite"]').val()) || 0;
+            const aporte = parseCurrencyToNumber($fila.find(".item-aporte").val());
+
+            // 2. Calcular Comprometido (Aporte * Unidades)
             const subtotal = aporte * unidades;
             totalProveedor += subtotal;
-            $(this).find(".item-comprometido").val(formatCurrencySpanish(subtotal));
+            $fila.find(".item-comprometido").val(formatCurrencySpanish(subtotal));
 
-            if (costo > 0) {
-                const precioContado = parseCurrencyToNumber($(this).find(".item-precio-contado").val());
-                const precioTC = parseCurrencyToNumber($(this).find(".item-precio-tc").val());
-                const precioCredito = parseCurrencyToNumber($(this).find(".item-precio-credito").val());
+            // 3. Obtener Precios de Venta
+            const precioContado = parseCurrencyToNumber($fila.find(".item-precio-contado").val());
+            const precioTC = parseCurrencyToNumber($fila.find(".item-precio-tc").val());
+            const precioCredito = parseCurrencyToNumber($fila.find(".item-precio-credito").val());
 
-                const margenContado = precioContado > 0
-                    ? (((precioContado - costo) / precioContado) * 100).toFixed(2)
-                    : "0.00";
-                const margenTC = precioTC > 0
-                    ? (((precioTC - costo) / precioTC) * 100).toFixed(2)
-                    : "0.00";
-                const margenCredito = precioCredito > 0
-                    ? (((precioCredito - costo) / precioCredito) * 100).toFixed(2)
-                    : "0.00";
+            // 4. Aplicar las fórmulas EXACTAS:
+            // Margen = (Precio + Aporte - Costo) / Precio * 100
 
-                $(this).find(".margen-contado").text(margenContado + "%");
-                $(this).find(".margen-tc").text(margenTC + "%");
-                $(this).find(".margen-credito").text(margenCredito + "%");
+            if (precioContado > 0) {
+                const mContado = ((precioContado + aporte - costo) / precioContado * 100).toFixed(2);
+                $fila.find(".margen-contado").text(mContado + "%");
             }
+
+            if (precioTC > 0) {
+                const mTC = ((precioTC + aporte - costo) / precioTC * 100).toFixed(2);
+                $fila.find(".margen-tc").text(mTC + "%");
+            }
+
+            if (precioCredito > 0) {
+                const mCredito = ((precioCredito + aporte - costo) / precioCredito * 100).toFixed(2);
+                $fila.find(".margen-credito").text(mCredito + "%");
+            }
+
+            // 5. Estética: Si el margen es negativo, ponerlo en rojo
+            $fila.find(".margen-contado, .margen-tc, .margen-credito").each(function () {
+                const valor = parseFloat($(this).text());
+                $(this).css("color", valor < 0 ? "#dc3545" : "#198754");
+            });
         });
+
+        // Actualizar el total del fondo
         $("#fondoValorTotalItems").val(formatCurrencySpanish(totalProveedor));
     }
 

@@ -379,7 +379,7 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
 }
 
 /* 2. CABECERAS DE COLUMNA MÁS PEQUEÑAS */
-#tabla-fondos thead tr:not(.tabla-titulo-rojo) th {
+#tabla-principal thead tr:not(.tabla-titulo-rojo) th {
     background-color: red; /* Azul oscuro */
     color: white;
     font-size: 0.60rem; /* <-- LETRA MÁS PEQUEÑA */
@@ -387,7 +387,7 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
     white-space: nowrap;
 }
 
-#tabla-fondos tbody td {
+#tabla-principal tbody td {
     font-size: 0.60rem; /* Mismo tamaño que los headers */
     padding: 0.60rem; /* Mismo relleno que los headers */
     white-space: nowrap;
@@ -578,15 +578,25 @@ body .modal-dialog .modal-content .modal-body .col-md-12 {
     font-size: 0.875rem;
 }
 
+/* Estilo base para todos los inputs (Blanco por defecto) */
 .custom-input {
     width: 100%;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     border: 1px solid #d1d5db;
     border-radius: 0.25rem;
-    background-color: #f3f4f6;
+    background-color: #ffffff;
     color: #1f2937;
-    transition: border-color 0.15s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Se activa automáticamente SOLO cuando el input tiene el atributo 'disabled' */
+.custom-input:disabled {
+    background-color: #e9ecef !important; /* Gris claro de bloqueo */
+    color: #6c757d !important; /* Texto atenuado */
+    cursor: not-allowed; /* Cambia el cursor para indicar bloqueo */
+    border-color: #dee2e6; /* Borde más suave */
+    opacity: 1; /* Asegura que no se vea semitransparente en algunos navegadores */
 }
 
 .custom-input:focus {
@@ -761,8 +771,8 @@ body .modal-dialog .modal-content .modal-body .col-md-12 {
 }
 
 #tabla,
-#tabla-fondos,
-#tabla-fondos_wrapper {
+#tabla-principal,
+#tabla-principal_wrapper {
     margin-top: 0 !important;
     padding-top: 0 !important;
 }
@@ -1246,6 +1256,50 @@ body .modal-dialog .modal-content .modal-body .col-md-12 {
     border-radius: 4px;
 }
 
-    .custom-btn-danger:hover {
-        background-color: #c82333;
-    }
+.custom-btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* === ESTILO UNIFICADO PARA TODAS LAS TABLAS DE BANDEJA === */
+
+/* Contenedor para evitar saltos de línea extraños */
+.table-responsive {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+/* Forzar que las tablas de bandeja tengan el mismo estilo de fuente y padding */
+.tabla-bandeja thead th {
+    background-color: #0d2d6d !important; /* Azul oscuro corporativo */
+    color: white !important;
+    font-size: 0.75rem !important; /* Tamaño equilibrado, no tan pequeño como 0.60 */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 8px !important;
+    white-space: nowrap;
+    text-align: center;
+    border: 1px solid #dee2e6 !important;
+}
+
+.tabla-bandeja tbody td {
+    font-size: 0.80rem !important;
+    padding: 8px 8px !important;
+    vertical-align: middle !important;
+    white-space: nowrap;
+}
+
+/* Estilo para el Título Rojo de la Bandeja (Global) */
+.header-titulo-rojo {
+    background-color: #CC0000 !important;
+    color: white !important;
+    text-align: center !important;
+    font-weight: bold !important;
+    padding: 10px !important;
+    font-size: 1rem !important;
+    border: none !important;
+}
+
+/* Hover suave para filas */
+.tabla-bandeja tbody tr:hover {
+    background-color: rgba(13, 45, 109, 0.05) !important;
+}

@@ -64,12 +64,11 @@ function cargarBandeja() {
 
 function crearListado(data) {
     if (tabla) tabla.destroy();
-
     let html = `
-        <table id='tabla-acuerdos' class='table table-bordered table-striped table-hover'>
+        <table id='tabla-principal' class='table table-bordered table-striped table-hover'>
             <thead>
                 <tr>
-                    <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold;'>
+                    <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>
                         BANDEJA DE CONSULTA DE ACUERDOS
                     </th>
                 </tr>
@@ -117,10 +116,46 @@ function crearListado(data) {
     html += "</tbody></table>";
     $('#tabla').html(html);
 
-    tabla = $('#tabla-acuerdos').DataTable({
+    // Inicializa DataTable
+    tabla = $('#tabla-principal').DataTable({
         pageLength: 10,
+        lengthMenu: [5, 10, 25, 50],
+        pagingType: 'full_numbers',
+        columnDefs: [
+            { targets: 0, width: "8%", className: "dt-center", orderable: false },
+            { targets: 1, width: "6%", className: "dt-center" },
+            { targets: [6, 9, 10, 11], className: "dt-right" },
+            { targets: [7, 8], className: "dt-center" },
+        ],
         order: [[1, 'desc']],
-        language: { url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json" }
+        language: {
+            emptyTable: "Sin datos",
+            decimal: "",
+            emptyTable: "No hay datos disponibles en la tabla",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            infoPostFix: "",
+            thousands: ",",
+            lengthMenu: "Mostrar _MENU_ registros",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "No se encontraron registros coincidentes",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            }
+        },
+        drawCallback: function () {
+            if (ultimaFilaModificada !== null) {
+                if (typeof marcarFilaPorId === 'function') {
+                    marcarFilaPorId('#tabla-principal', ultimaFilaModificada);
+                }
+            }
+        }
     });
 }
 

@@ -99,7 +99,7 @@ $(document).ready(function () {
             tabla.page(0).draw('page');
             ultimaFilaModificada = null;
             if (typeof limpiarSeleccion === 'function') {
-                limpiarSeleccion('#tabla-fondos');
+                limpiarSeleccion('#tabla-principal');
             }
         }
     });
@@ -117,16 +117,15 @@ function crearListado(data) {
     }
 
     var html = "";
-    html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
+    html += "<table id='tabla-principal' class='table table-bordered table-striped table-hover'>";
     html += "  <thead>";
 
     // Fila del Título ROJO
     html += "    <tr>";
     html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE FONDOS";
+    html += "          BANDEJA DE INACTIVACIÓN DE FONDOS";
     html += "      </th>";
     html += "    </tr>";
-
     // Fila de las Cabeceras
     html += "    <tr>";
     html += "      <th>Acción</th>";
@@ -180,7 +179,7 @@ function crearListado(data) {
     $('#tabla').html(html);
 
     // Inicializa DataTable
-    tabla = $('#tabla-fondos').DataTable({
+    tabla = $('#tabla-principal').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
         pagingType: 'full_numbers',
@@ -214,14 +213,14 @@ function crearListado(data) {
         },
         drawCallback: function () {
             if (ultimaFilaModificada !== null && typeof marcarFilaPorId === 'function') {
-                marcarFilaPorId('#tabla-fondos', ultimaFilaModificada);
+                marcarFilaPorId('#tabla-principal', ultimaFilaModificada);
             }
         }
     });
 
     console.log('Llamando a inicializarMarcadoFilas para Fondos');
     if (typeof inicializarMarcadoFilas === 'function') {
-        inicializarMarcadoFilas('#tabla-fondos');
+        inicializarMarcadoFilas('#tabla-principal');
     }
 }
 
@@ -235,7 +234,6 @@ function crearListado(data) {
 function abrirModalEditar(id) {
     // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
     const idOpcionActual = window.obtenerIdOpcionActual();
-
     if (!idOpcionActual) {
         Swal.fire({
             ...SwalConfig,
@@ -245,9 +243,7 @@ function abrirModalEditar(id) {
         });
         return;
     }
-
     const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
-
     console.log('Abriendo modal para visualizar fondo ID:', id, 'con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
     // 1. Cargar la tabla de acuerdos
@@ -274,7 +270,6 @@ function abrirModalEditar(id) {
             // CONCATENACIÓN RUC/ID y NOMBRE
             const idProveedor = data.proveedor || '';
             const nombreProveedor = data.nombre || '';
-
             const proveedorCompleto = (idProveedor && nombreProveedor)
                 ? `${idProveedor} - ${nombreProveedor}`
                 : idProveedor || nombreProveedor || '';
@@ -284,14 +279,17 @@ function abrirModalEditar(id) {
                 descripcion: data.descripcion,
                 proveedor: proveedorCompleto,
                 tipo_fondo: data.tipo_fondo,
-                valor_fondo: parseFloat(data.valor_fondo) || 0,
+                valor_disponible: formatearMoneda(data.valor_disponible),      // ✅ AGREGADO
+                valor_comprometido: formatearMoneda(data.valor_comprometido),  // ✅ AGREGADO
+                valor_liquidado: formatearMoneda(data.valor_liquidado),        // ✅ AGREGADO
+                valor_fondo: formatearMoneda(data.valor_fondo),                // ✅ CORREGIDO
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
                 fecha_fin: formatDateForInput(data.fecha_fin),
                 estado: data.estado,
                 estado_etiqueta: data.estado_etiqeuta
             };
-            console.log("datosModal: ", datosModal);
 
+            console.log("datosModal: ", datosModal);
             abrirModalFondo(datosModal);
         },
         error: function (xhr, status, error) {
@@ -321,6 +319,9 @@ function abrirModalFondo(datos) {
     document.getElementById('modal-fondo-fechafin').value = datos.fecha_fin || '';
     document.getElementById('modal-fondo-valor').value = datos.valor_fondo || '';
     document.getElementById('modal-fondo-estado').value = datos.estado || '';
+    document.getElementById('modal-fondo-disponible').value = datos.valor_disponible ?? '';
+    document.getElementById('modal-fondo-comprometido').value = datos.valor_comprometido ?? '';
+    document.getElementById('modal-fondo-liquidado').value = datos.valor_liquidado ?? '';
 
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -703,4 +704,8 @@ function recargarTablaFondos() {
             });
         }
     });
+}
+
+function formatearMoneda(v) {
+    return (v || 0).toLocaleString('es-EC', { style: 'currency', currency: 'USD' });
 }

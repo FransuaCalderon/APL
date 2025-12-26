@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Modificación de Acuerdos";
+    ViewData["Title"] = "Inactivación de Acuerdos";
     var usuarioActual = ViewBag.UsuarioActual as string;
 }
 
@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
 <h2>Inactivación - Acuerdo</h2>
-<hr>
+<hr class="separador-fondos" />
 
 <div id="vistaTabla" class="table-responsive">
     <div id="tabla"></div>
@@ -32,7 +32,7 @@
             <form id="formVisualizar" class="row g-1">
                 <div class="col-md-3">
                     <label class="form-label fw-bold col-form-label-sm">Proveedor</label>
-                    <input type="text" class="form-control form-control-sm" id="verNombreProveedor" readonly disabled>
+                    <input type="text" class="form-control form-control-sm" id="verProveedorNombre" readonly disabled>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label fw-bold col-form-label-sm">Tipo Fondo / Motivo</label>
@@ -63,10 +63,7 @@
                         <input id="verFechaFin" type="text" class="form-control form-control-sm" readonly disabled>
                         <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
                     </div>
-                </div>
-
-                <hr class="mt-3 mb-3" />
-
+                </div>                
                 <div class="col-md-3 mt-0">
                     <label class="form-label fw-bold col-form-label-sm">$ Valor Acuerdo</label>
                     <input type="text" class="form-control form-control-sm text-end fw-bold bg-light" id="verValorAcuerdo" readonly disabled>
@@ -83,6 +80,8 @@
                     <label class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
                     <input type="text" class="form-control form-control-sm text-end" id="verValorLiquidado" readonly disabled>
                 </div>
+
+                <hr class="mt-3 mb-3" />
 
                 <div class="col-12 mt-4" id="contenedor-tabla-articulos" style="display:none;"></div>
             </form>

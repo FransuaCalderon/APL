@@ -52,7 +52,7 @@ $(document).ready(function () {
             tabla.page(0).draw('page');
             ultimaFilaModificada = null;
             if (typeof limpiarSeleccion === 'function') {
-                limpiarSeleccion('#tabla-acuerdos');
+                limpiarSeleccion('#tabla-principal');
             }
         }
     });
@@ -143,7 +143,7 @@ function crearListado(data) {
     }
 
     var html = "";
-    html += "<table id='tabla-acuerdos' class='table table-bordered table-striped table-hover'>";
+    html += "<table id='tabla-principal' class='table table-bordered table-striped table-hover'>";
 
     html += "  <thead>";
     // Fila del Título ROJO
@@ -206,7 +206,7 @@ function crearListado(data) {
     $('#tabla').html(html);
 
     // Inicializa DataTable
-    tabla = $('#tabla-acuerdos').DataTable({
+    tabla = $('#tabla-principal').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
         pagingType: 'full_numbers',

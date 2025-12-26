@@ -82,7 +82,7 @@ $(document).ready(function () {
             tabla.page(0).draw('page');
             ultimaFilaModificada = null;
             if (typeof limpiarSeleccion === 'function') {
-                limpiarSeleccion('#tabla-fondos');
+                limpiarSeleccion('#tabla-principal');
             }
         }
     });
@@ -157,7 +157,6 @@ function cargarBandeja() {
     });
 }
 
-
 function crearListado(data) {
     if (tabla) {
         tabla.destroy();
@@ -172,17 +171,15 @@ function crearListado(data) {
     }
 
     var html = "";
-    html += "<table id='tabla-fondos' class='table table-bordered table-striped table-hover'>";
-
+    html += "<table id='tabla-principal' class='table table-bordered table-striped table-hover'>";
     html += "  <thead>";
 
-    // Fila del Título ROJO - Actualizado colspan a 12
+    // Fila del Título ROJO
     html += "    <tr>";
     html += "      <th colspan='12' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE APROBACIÓN - FONDOS";
+    html += "          BANDEJA DE APROBACIÓN DE FONDOS";
     html += "      </th>";
     html += "    </tr>";
-
     // Fila de las Cabeceras - Agregada columna Solicitud
     html += "    <tr>";
     html += "      <th>Acción</th>";
@@ -231,7 +228,7 @@ function crearListado(data) {
     $('#tabla').html(html);
 
     // Inicializa DataTable
-    tabla = $('#tabla-fondos').DataTable({
+    tabla = $('#tabla-principal').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
         pagingType: 'full_numbers',
@@ -266,7 +263,7 @@ function crearListado(data) {
         drawCallback: function () {
             if (ultimaFilaModificada !== null) {
                 if (typeof marcarFilaPorId === 'function') {
-                    marcarFilaPorId('#tabla-fondos', ultimaFilaModificada);
+                    marcarFilaPorId('#tabla-principal', ultimaFilaModificada);
                 }
             }
         }
@@ -274,7 +271,7 @@ function crearListado(data) {
 
     console.log('Llamando a inicializarMarcadoFilas para Fondos');
     if (typeof inicializarMarcadoFilas === 'function') {
-        inicializarMarcadoFilas('#tabla-fondos');
+        inicializarMarcadoFilas('#tabla-principal');
     }
 }
 
@@ -474,6 +471,10 @@ function formatearFecha(fechaString) {
 /**
  * Llama a la API para obtener las aprobaciones y crea la tabla.
  */
+/**
+ * Llama a la API para obtener las aprobaciones y crea la tabla.
+ * Se ha agregado un botón de popover al lado del estado para ver el comentario.
+ */
 function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
     // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
     const idOpcionActual = window.obtenerIdOpcionActual();
@@ -483,10 +484,9 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
         return;
     }
 
-    const usuario = obtenerUsuarioActual(); // ✅ USAR FUNCIÓN ROBUSTA
+    const usuario = obtenerUsuarioActual();
 
     console.log("=== CARGANDO APROBACIONES ===");
-    console.log('Con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
     // Destruir tabla anterior si existe
     if ($.fn.DataTable.isDataTable('#tabla-aprobaciones')) {
@@ -509,8 +509,8 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
         url: urlCompleta,
         method: "GET",
         headers: {
-            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-            "usuario": usuario,                  // ✅ DINÁMICO
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario,
             "idcontrolinterfaz": "0",
             "idevento": "0",
             "entidad": "0",
@@ -518,11 +518,11 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
             "idtipoproceso": "0"
         },
         success: function (data) {
-            console.log("Datos de aprobaciones:", data);
+            console.log("Datos de aprobaciones recibidos:", data);
 
             let aprobaciones = Array.isArray(data) ? data : [data];
 
-            if (aprobaciones.length === 0) {
+            if (aprobaciones.length === 0 || (aprobaciones.length === 1 && aprobaciones[0].idaprobacion === 0)) {
                 $('#tabla-aprobaciones-fondo').html(
                     '<p class="alert alert-info">No se encontraron aprobaciones para este fondo.</p>'
                 );
@@ -533,39 +533,56 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
             html += "<table id='tabla-aprobaciones' class='table table-bordered table-striped table-hover w-100'>";
             html += "  <thead>";
             html += "    <tr>";
-            html += "      <th>ID Aprobación</th>";
-            html += "      <th>Usuario Solicitante</th>";
-            html += "      <th>Usuario Aprobador</th>";
+            html += "      <th>ID</th>";
+            html += "      <th>Solicitante</th>";
+            html += "      <th>Aprobador</th>";
             html += "      <th>Estado</th>";
             html += "      <th>Fecha Solicitud</th>";
-            html += "      <th>Nivel Aprobación</th>";
+            html += "      <th>Nivel</th>";
             html += "      <th>Tipo Proceso</th>";
             html += "    </tr>";
             html += "  </thead>";
             html += "  <tbody>";
 
             aprobaciones.forEach((aprobacion) => {
-                let estadoClass = '';
-                let estadoEtiqueta = aprobacion.estado_etiqueta || '';
+                // Lógica para el comentario y Popover
+                let comentarioLimpio = (aprobacion.comentario && aprobacion.comentario !== "string")
+                    ? aprobacion.comentario
+                    : "Sin comentarios.";
 
-                if (estadoEtiqueta === 'ESTADONUEVO') {
-                    estadoClass = 'badge bg-primary';
-                } else if (estadoEtiqueta === 'ESTADOAPROBADO') {
-                    estadoClass = 'badge bg-success';
-                } else if (estadoEtiqueta === 'ESTADOINACTIVO') {
-                    estadoClass = 'badge bg-danger';
-                } else {
-                    estadoClass = 'badge bg-secondary';
-                }
+                // ✅ MOSTRAR POPOVER SOLO SI EL ESTADO ES "APROBADO" O "NEGADO"
+                let estadoNombre = aprobacion.estado_nombre || "N/A";
+                let estadoUpper = estadoNombre.toUpperCase();
+
+                let iconoPopover = "";
+                if (estadoUpper.includes("APROBADO") || estadoUpper.includes("NEGADO")) {
+                    // ✅ USAR SOLO EL ICONO SIN BORDE DE BOTÓN
+                    iconoPopover = `
+                    <i class="fa-solid fa-comment-dots text-warning ms-1"
+                       style="cursor: pointer; font-size: 0.9rem;"
+                       data-bs-toggle="popover" 
+                       data-bs-trigger="focus" 
+                       data-bs-placement="top"
+                       tabindex="0"
+                       title="Comentario" 
+                       data-bs-content="${comentarioLimpio}">
+                    </i>`;
+                        }
 
                 html += "<tr>";
                 html += "  <td class='text-center'>" + (aprobacion.idaprobacion ?? "") + "</td>";
                 html += "  <td>" + (aprobacion.idusersolicitud ?? "") + "</td>";
                 html += "  <td>" + (aprobacion.iduseraprobador ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.estado_nombre ?? "") + "</td>";
+
+                // ✅ Celda de Estado + Icono Popover (solo si corresponde)
+                html += "  <td class='text-nowrap'>" +
+                    estadoNombre +
+                    iconoPopover +
+                    "</td>";
+
                 html += "  <td class='text-center'>" + formatearFecha(aprobacion.fechasolicitud) + "</td>";
                 html += "  <td class='text-center'>" + (aprobacion.nivelaprobacion ?? "") + "</td>";
-                html += "  <td>" + (aprobacion.tipoproceso_nombre ?? "") + "</td>";
+                html += "  <td>" + (aprobacion.tipoproceso_nombre ?? "FONDO") + "</td>";
                 html += "</tr>";
             });
 
@@ -581,32 +598,22 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
                 pagingType: 'simple_numbers',
                 searching: false,
                 columnDefs: [
-                    { targets: [0, 4, 5], className: "dt-center" }
+                    { targets: [0, 4, 5], className: "dt-center" },
+                    { targets: 3, className: "dt-nowrap" } // Para que el botón no se baje de línea
                 ],
                 order: [[0, 'desc']],
                 language: {
-                    decimal: "",
-                    emptyTable: "No hay aprobaciones disponibles",
-                    info: "Mostrando _START_ a _END_ de _TOTAL_ aprobaciones",
-                    infoEmpty: "Mostrando 0 a 0 de 0 aprobaciones",
-                    infoFiltered: "(filtrado de _MAX_ aprobaciones totales)",
-                    lengthMenu: "Mostrar _MENU_ aprobaciones",
-                    loadingRecords: "Cargando...",
-                    processing: "Procesando...",
-                    search: "Buscar:",
-                    zeroRecords: "No se encontraron aprobaciones coincidentes",
-                    paginate: {
-                        first: "Primero",
-                        last: "Último",
-                        next: "Siguiente",
-                        previous: "Anterior"
-                    }
+                    url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+                },
+                // RE-INICIALIZAR POPOVERS CADA VEZ QUE SE DIBUJA LA TABLA (Cambio de página, etc)
+                drawCallback: function () {
+                    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+                    [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
                 }
             });
         },
         error: function (xhr, status, error) {
             console.error("Error al cargar aprobaciones:", error);
-            console.error("Detalles del error:", xhr.responseText);
             $('#tabla-aprobaciones-fondo').html(
                 '<p class="alert alert-danger">Error al cargar las aprobaciones: ' + error + '</p>'
             );
