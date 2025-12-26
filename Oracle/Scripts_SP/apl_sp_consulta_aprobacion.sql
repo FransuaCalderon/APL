@@ -70,8 +70,9 @@ BEGIN
             a.identidad = p_identidad
             AND a.entidad = v_id_entidad
             AND a.idtipoproceso = v_id_tipoproceso
+            AND a.numeroloteaprobacion = (SELECT numeroloteaprobacion FROM apl_tb_fondo WHERE idfondo = p_identidad)
         ORDER BY
-            a.nivelaprobacion ASC;
+            a.nivelaprobacion  ASC;
 
     p_codigo_salida := 0;
     p_mensaje_salida := 'OK';
