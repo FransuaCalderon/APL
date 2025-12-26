@@ -200,6 +200,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 f.IDPROVEEDOR,
                 arp.nombre,
                 f.IDTIPOFONDO,
+                c.NOMBRE,
                 f.VALORFONDO,
                 f.FECHAINICIOVIGENCIA,
                 f.FECHAFINVIGENCIA,
@@ -212,6 +213,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             FROM 
                 APL_TB_FONDO f 
                 INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                INNER JOIN apl_tb_catalogo c ON c.idcatalogo = f.idtipofondo
             WHERE
                 IDESTADOREGISTRO = v_estado_registro
                 AND VALORDISPONIBLE > 0;
