@@ -89,5 +89,41 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             return datos;
         }
+
+        public async Task<IEnumerable<AprobacionPorIdDTO>> ObtenerAprobacionesPorId(int entidad, int identidad)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new
+            {
+                p_entidad = entidad,
+                p_identidad = identidad
+            };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_error", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_error", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<AprobacionPorIdDTO>(
+                "apl_sp_consulta_aprobacion_id",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_error");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_error");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
     }
 }

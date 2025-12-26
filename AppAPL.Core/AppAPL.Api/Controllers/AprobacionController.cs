@@ -28,5 +28,14 @@ namespace AppAPL.Api.Controllers
 
             return listaAprobaciones.ToList();
         }
+
+        [HttpGet("consultar-aprobaciones-id/{entidad:int}/{identidad:int}")]
+
+        public async Task<ActionResult<List<AprobacionPorIdDTO>>> ObtenerTodos(int entidad, int identidad)
+        {
+            var listaAprobaciones = await servicio.ObtenerAprobacionesPorId(entidad, identidad);
+
+            return listaAprobaciones.ToList();
+        }
     }
 }

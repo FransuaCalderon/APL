@@ -42,7 +42,20 @@ namespace AppAPL.Dto.Aprobacion
         public int estado_id { get; set; }
         public string estado_nombre { get; set; }
         public string estado_etiqueta { get; set; }
+    }
 
-
+    public class AprobacionPorIdDTO
+    {
+        public int tipoproceso { get; set; }
+        public string nombre_tipo_proceso { get; set; }
+        public string idusariosolicitud { get; set; }
+        public string nombreusersolicitud { get; set; }
+        public DateTime fechasolicitud { get; set; }
+        public string iduseraprobador { get; set; }
+        public DateTime fechaaprobacion { get; set; }
+        public string comentario { get; set; }
+        public int nivelaprobacion { get; set; }
+        public int idestadoregistro { get; set; }
+        public string nombre_estado_registro { get; set; }
     }
 }
