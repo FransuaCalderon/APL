@@ -200,7 +200,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 f.IDPROVEEDOR,
                 arp.nombre,
                 f.IDTIPOFONDO,
-                c.NOMBRE,
+                c.NOMBRE AS nombre_tipo_fondo,,
                 f.VALORFONDO,
                 f.FECHAINICIOVIGENCIA,
                 f.FECHAFINVIGENCIA,
