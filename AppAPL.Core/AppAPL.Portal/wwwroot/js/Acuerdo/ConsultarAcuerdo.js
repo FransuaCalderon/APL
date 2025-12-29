@@ -167,10 +167,23 @@ function abrirModalEditar(idAcuerdo) {
     $('body').css('cursor', 'wait');
     const usuario = obtenerUsuarioActual();
 
+    // ✅ CREAR EL CONTENEDOR DINÁMICAMENTE SI NO EXISTE
+    if ($('#contenedor-tabla-promociones').length === 0) {
+        console.log('⚠️ Contenedor no existe, creándolo dinámicamente...');
+        $('#contenedor-tabla-articulos').after(`
+            <hr class="mt-3 mb-3" />
+            <div class="col-12 mt-4" id="contenedor-tabla-promociones" style="display:none;"></div>
+        `);
+        console.log('✅ Contenedor creado dinámicamente');
+    } else {
+        console.log('✅ Contenedor ya existe');
+    }
+
     // Limpiar campos
     $("#formVisualizar")[0].reset();
     $("#lblIdAcuerdo").text(idAcuerdo);
     $('#contenedor-tabla-articulos').hide().html('');
+    $('#contenedor-tabla-promociones').hide().html('');
 
     $.ajax({
         url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-modificacion-id/${idAcuerdo}`,
@@ -179,7 +192,7 @@ function abrirModalEditar(idAcuerdo) {
         success: function (data) {
             const cab = data.cabecera;
 
-            // Mapeo de Cabecera (Campos de AprobarAcuerdo.cshtml)
+            // Mapeo de Cabecera
             $("#verNombreProveedor").val(cab.nombre_proveedor);
             $("#verNombreTipoFondo").val(cab.motivo);
             $("#verClaseAcuerdo").val(cab.clase_acuerdo);
@@ -196,6 +209,9 @@ function abrirModalEditar(idAcuerdo) {
             if (data.articulos && data.articulos.length > 0) {
                 renderizarTablaArticulos(data.articulos);
             }
+
+            // ✅ CARGAR PROMOCIONES
+            cargarPromocionesAcuerdo(idAcuerdo);
 
             $("#vistaTabla").fadeOut(200, function () {
                 $("#vistaDetalle").fadeIn(200);
@@ -260,8 +276,234 @@ function renderizarTablaArticulos(articulos) {
 }
 
 function cerrarDetalle() {
-    $("#vistaDetalle").fadeOut(200, function () { $("#vistaTabla").fadeIn(200); });
+    $('#contenedor-tabla-promociones').hide().html(''); // ✅ LIMPIAR PROMOCIONES
+    $("#vistaDetalle").fadeOut(200, function () {
+        $("#vistaTabla").fadeIn(200);
+    });
 }
+
+// ===================================================================
+// ===== PROMOCIONES POR ACUERDO ====================================
+// ===================================================================
+
+/**
+ * Carga la tabla de promociones asociadas al acuerdo
+ */
+/**
+ * Carga la tabla de promociones asociadas al acuerdo
+ */
+function cargarPromocionesAcuerdo(idAcuerdo) {
+    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
+    const usuario = obtenerUsuarioActual();
+
+    console.log('🎯 === INICIO CARGA DE PROMOCIONES ===');
+    console.log('🎯 ID Acuerdo:', idAcuerdo);
+    console.log('🎯 ID Opción:', idOpcionActual);
+    console.log('🎯 Usuario:', usuario);
+    console.log('🎯 URL:', `${window.apiBaseUrl}/api/Acuerdo/consultar-acuerdo-promocion/${idAcuerdo}`);
+
+    // Verificar que el contenedor existe
+    const $contenedor = $('#contenedor-tabla-promociones');
+    console.log('🎯 Contenedor encontrado:', $contenedor.length > 0);
+
+    if ($contenedor.length === 0) {
+        console.error('❌ ERROR: No se encontró el contenedor #contenedor-tabla-promociones');
+        return;
+    }
+
+    // Destruir DataTable si ya existe
+    if ($.fn.DataTable.isDataTable('#tabla-promociones')) {
+        console.log('🎯 Destruyendo DataTable existente...');
+        $('#tabla-promociones').DataTable().destroy();
+    }
+
+    // Mostrar el contenedor con spinner
+    $contenedor.html(`
+        <div class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando promociones...</p>
+        </div>
+    `).show(); // ✅ IMPORTANTE: .show() para asegurar que se muestre
+
+    console.log('🎯 Spinner mostrado, iniciando petición AJAX...');
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Acuerdo/consultar-acuerdo-promocion/${idAcuerdo}`,
+        method: "GET",
+        dataType: "json",
+        headers: {
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario
+        },
+        success: function (data) {
+            console.log('✅ Respuesta recibida del servidor');
+            console.log('✅ Tipo de dato:', typeof data);
+            console.log('✅ Datos completos:', data);
+            console.log('✅ Es array:', Array.isArray(data));
+
+            // Si la respuesta es string, parsear a JSON
+            if (typeof data === "string") {
+                console.log('🔄 Parseando string a JSON...');
+                try {
+                    data = JSON.parse(data);
+                    console.log('✅ JSON parseado exitosamente:', data);
+                } catch (e) {
+                    console.error("❌ Error al parsear JSON:", e);
+                    $contenedor.html(
+                        '<p class="alert alert-danger text-center">Respuesta inválida del servidor.</p>'
+                    ).show();
+                    return;
+                }
+            }
+
+            // Convertir a array si es necesario
+            let promociones = Array.isArray(data) ? data : (data && data.idpromocion ? [data] : []);
+            console.log('🎯 Promociones procesadas:', promociones);
+            console.log('🎯 Cantidad de promociones:', promociones.length);
+
+            // Verificar si hay promociones
+            if (!promociones.length || promociones.length === 0) {
+                console.log('⚠️ No se encontraron promociones');
+                $contenedor.html(
+                    '<p class="alert alert-warning mb-0 text-center">No se encontraron promociones para este acuerdo.</p>'
+                ).show();
+                return;
+            }
+
+            // Renderizar la tabla de promociones
+            console.log('✅ Llamando a renderizarTablaPromociones...');
+            renderizarTablaPromociones(promociones);
+        },
+        error: function (xhr, status, error) {
+            console.error('❌ === ERROR EN LA PETICIÓN ===');
+            console.error('❌ Status:', status);
+            console.error('❌ Error:', error);
+            console.error('❌ Status Code:', xhr.status);
+            console.error('❌ Response Text:', xhr.responseText);
+            console.error('❌ Response JSON:', xhr.responseJSON);
+
+            $contenedor.html(
+                `<p class="alert alert-danger text-center">
+                    Error al cargar las promociones.<br>
+                    <small>Status: ${xhr.status} - ${error}</small>
+                </p>`
+            ).show();
+        }
+    });
+}
+
+/**
+ * Renderiza la tabla HTML de promociones con DataTable
+ */
+/**
+ * Renderiza la tabla HTML de promociones con DataTable
+ */
+/**
+ * Renderiza la tabla HTML de promociones con DataTable
+ */
+function renderizarTablaPromociones(promociones) {
+    console.log('🎨 === RENDERIZANDO TABLA DE PROMOCIONES ===');
+    console.log('🎨 Cantidad de promociones a renderizar:', promociones.length);
+    console.log('🎨 Primera promoción:', promociones[0]);
+
+    let htmlPromociones = `
+        <h6 class="fw-bold mb-2"><i class="fa fa-gift"></i> Promociones Asociadas</h6>
+        <div class="table-responsive">
+            <table id="tabla-promociones" class="table table-bordered table-striped table-hover table-sm w-100">
+                <thead>
+                    <tr class="text-center">
+                        <th>ID Promoción</th>
+                        <th>Descripción</th>
+                        <th>Motivo</th>
+                        <th>Clase Acuerdo</th>
+                        <th>Valor Comprometido</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Marca Regalo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+    promociones.forEach((promo, index) => {
+        console.log(`🎨 Renderizando promoción ${index + 1}:`, promo);
+
+        // ✅ LÓGICA PARA CLASE ACUERDO CON BADGE
+        let claseHTML = promo.clase_acuerdo ?? '';
+
+        // Si tiene cantidad_articulos > 0, agregar badge
+        if (promo.cantidad_articulos && promo.cantidad_articulos > 0) {
+            claseHTML += `<sup class="fw-bold"> ${promo.cantidad_articulos}</sup>`;
+        }
+
+        htmlPromociones += `
+            <tr>
+                <td class="text-center fw-bold">${promo.idpromocion ?? ''}</td>
+                <td>${promo.descripcion ?? ''}</td>
+                <td>${promo.motivo_nombre ?? ''}</td>
+                <td>${claseHTML}</td>
+                <td class="text-end">${formatearMoneda(promo.valor_comprometido)}</td>
+                <td class="text-center">${formatearFecha(promo.fecha_inicio)}</td>
+                <td class="text-center">${formatearFecha(promo.fecha_fin)}</td>
+                <td>${promo.marca_regalo ?? ''}</td>
+                <td>${promo.estado ?? ''}</td>
+            </tr>`;
+    });
+
+    htmlPromociones += `
+                </tbody>
+            </table>
+        </div>`;
+
+    console.log('🎨 HTML generado, insertando en contenedor...');
+    const $contenedor = $('#contenedor-tabla-promociones');
+    $contenedor.html(htmlPromociones).show();
+
+    console.log('🎨 HTML insertado, inicializando DataTable...');
+
+    // Inicializar DataTable
+    try {
+        $('#tabla-promociones').DataTable({
+            pageLength: 5,
+            lengthMenu: [5, 10, 25],
+            pagingType: 'simple_numbers',
+            searching: false,
+            columnDefs: [
+                { targets: [0], className: "dt-center", width: "8%" },
+                { targets: [4], className: "dt-right" },
+                { targets: [5, 6], className: "dt-center" }
+            ],
+            order: [[0, 'desc']],
+            language: {
+                decimal: "",
+                emptyTable: "No hay promociones disponibles",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ promociones",
+                infoEmpty: "Mostrando 0 a 0 de 0 promociones",
+                infoFiltered: "(filtrado de _MAX_ promociones totales)",
+                lengthMenu: "Mostrar _MENU_ promociones",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                search: "Buscar:",
+                zeroRecords: "No se encontraron promociones coincidentes",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                }
+            }
+        });
+        console.log('✅ DataTable inicializado correctamente');
+    } catch (e) {
+        console.error('❌ Error al inicializar DataTable:', e);
+    }
+}
+
+// ===================================================================
+// ===== UTILIDADES ==================================================
+// ===================================================================
 
 // Utilidades
 function formatearMoneda(v) {

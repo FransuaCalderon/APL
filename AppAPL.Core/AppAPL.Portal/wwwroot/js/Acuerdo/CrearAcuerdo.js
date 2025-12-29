@@ -429,7 +429,7 @@
                     const tipoFondo = pick(
                         x,
                         ["tipoFondo", "tipoFondoDescripcion", "descTipoFondo"],
-                        pick(x, ["idtipofondo", "idTipoFondo"])
+                        pick(x, ["nombre_tipo_fondo", "nombre_tipo_fondo"])
                     );
 
                     const valorFondo = fmtMoney(pick(x, ["valorfondo", "valorFondo", "montoFondo"], 0));
@@ -510,6 +510,7 @@
                 disponible: $selected.data("disponible"),
                 comprometido: $selected.data("comprometido"),
                 liquidado: $selected.data("liquidado"),
+                tipoFondo: $selected.data("tipofondo") // ✅ AGREGADO
             };
 
             console.log("✓ Proveedor seleccionado (temporal):", proveedorTemporal.idFondo);
@@ -1632,6 +1633,21 @@
     }
 
     // -----------------------------
+    // Actualizar encabezado dinámico de Comprometido
+    // -----------------------------
+    function actualizarEncabezadoComprometido(tipoFondo) {
+        const nuevoTexto = `Comprometido ${tipoFondo}`;
+
+        // Actualizar el encabezado de la tabla de items
+        $("#tablaItemsBody").closest("table")
+            .find("thead th.custom-header-calc-bg")
+            .first()
+            .text(nuevoTexto);
+
+        console.log(`✅ Encabezado actualizado a: "${nuevoTexto}"`);
+    }
+
+    // -----------------------------
     // ✅ Init principal - MODIFICADO
     // -----------------------------
     $(document).ready(function () {
@@ -1707,6 +1723,7 @@
             console.log("✅ Proveedor confirmado:", {
                 idFondo: proveedorTemporal.idFondo,
                 proveedor: proveedorTemporal.proveedor,
+                tipoFondo: proveedorTemporal.tipoFondo, // ✅ AGREGADO
                 disponible: proveedorTemporal.disponible,
             });
 
@@ -1717,7 +1734,13 @@
                 disponible: proveedorTemporal.disponible,
                 comprometido: proveedorTemporal.comprometido,
                 liquidado: proveedorTemporal.liquidado,
+                tipoFondo: proveedorTemporal.tipoFondo // ✅ AGREGADO
             });
+
+            // ✅ ACTUALIZAR EL ENCABEZADO DE LA TABLA SI ESTAMOS EN MODO ITEMS
+            if (getTipoAcuerdo() === "Items" && proveedorTemporal.tipoFondo) {
+                actualizarEncabezadoComprometido(proveedorTemporal.tipoFondo);
+            }
 
             Swal.fire({
                 toast: true,
@@ -1910,6 +1933,7 @@
                 cancelButtonText: 'No, Continuar'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Limpiar campos
                     $("#fondoTipoItems").val("");
                     $("#fondoProveedorItems").val("Seleccione...");
                     $("#fondoProveedorIdItems").val("");
@@ -1918,6 +1942,9 @@
                     $("#fondoFechaFinItems").val("");
                     $("#fondoValorTotalItems").val("");
                     $("#tablaItemsBody").empty();
+
+                    // ✅ RESTABLECER ENCABEZADO
+                    $("#thComprometido").text("Comprometido Proveedor");
 
                     $("#acuerdoTipo").val("General").trigger("change");
 

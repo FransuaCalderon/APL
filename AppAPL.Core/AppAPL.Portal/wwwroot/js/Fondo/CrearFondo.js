@@ -1,12 +1,10 @@
-﻿    /**
+﻿/**
 * Carga el combo (select) de Tipos de Fondo desde la API.
 * @param {function} [callback] - Una función opcional a ejecutar cuando la carga sea exitosa.
 */
 function cargarTipoFondo(callback) {
-    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
     const idOpcionActual = window.obtenerIdOpcionActual();
 
-    // Validar que exista el idOpcion
     if (!idOpcionActual) {
         Swal.fire({
             icon: 'error',
@@ -18,14 +16,10 @@ function cargarTipoFondo(callback) {
 
     console.log('Cargando tipos de fondo con idOpcion:', idOpcionActual);
 
-    // ✅ OBTENER EL USUARIO DINÁMICAMENTE
     const usuario = window.usuarioActual || "admin";
-
-    // Definimos la etiqueta que quieres enviar
     const etiqueta = "TIPOFONDO";
 
     $.ajax({
-        // 1. URL actualizada para incluir la etiqueta en la ruta
         url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`,
         method: "GET",
         headers: {
@@ -35,32 +29,27 @@ function cargarTipoFondo(callback) {
         success: function (data) {
             console.log("Tipos de fondo cargados:", data);
 
-            // Seleccionamos el <select> por su ID
             const $selectFondoTipo = $("#fondoTipo");
-
-            // Limpiar el select
             $selectFondoTipo.empty();
 
-            // Agregar una opción por defecto
             $selectFondoTipo.append(
                 $('<option></option>')
-                    .val("") // Valor vacío para la opción por defecto
+                    .val("")
                     .text("Seleccione...")
             );
 
-            // Agregar las opciones dinámicamente desde la API
             if (data && data.length > 0) {
                 data.forEach(function (item) {
                     $selectFondoTipo.append(
                         $('<option></option>')
-                            // 2. Nombres de propiedades (idcatalogo, nombre_catalogo)
                             .val(item.idcatalogo)
                             .text(item.nombre_catalogo)
+                            // ✅ NUEVO: Guardamos el nombre como data attribute
+                            .attr('data-nombre', item.nombre_catalogo)
                     );
                 });
             }
 
-            // Ejecutar callback si existe
             if (callback && typeof callback === 'function') {
                 callback();
             }
@@ -79,13 +68,11 @@ function cargarTipoFondo(callback) {
 
 /**
  * Carga la tabla de proveedores desde la API en el modal.
- * VERSIÓN CORREGIDA - Captura idopcion dinámicamente y maneja valores null/vacíos
+ * ✅ MODIFICADO: Filtra el proveedor de Fondo Propio cuando NO está seleccionado Fondo Propio
  */
 function consultarProveedor() {
-    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
     const idOpcionActual = window.obtenerIdOpcionActual();
 
-    // Validar que exista el idOpcion
     if (!idOpcionActual) {
         Swal.fire({
             icon: 'error',
@@ -97,33 +84,28 @@ function consultarProveedor() {
 
     console.log('Consultando proveedores con idOpcion:', idOpcionActual);
 
-    // Usuario actual (dinámico)
     const usuario = window.usuarioActual || "admin";
-
-    // Selector del cuerpo de la tabla
     const $tbody = $("#tablaProveedores tbody");
 
-    // Verificación del selector
     if ($tbody.length === 0) {
         console.error("¡ERROR DE JAVASCRIPT!");
         console.error("No se pudo encontrar el elemento '#tablaProveedores tbody'.");
-        console.error("Asegúrate de que tu <table> tenga el ID 'tablaProveedores' y que tenga una etiqueta <tbody>.");
         return;
     }
 
-    // *** FUNCIÓN AUXILIAR PARA OBTENER EL PRIMER VALOR NO VACÍO ***
-    // (Movida aquí para estar disponible en todo el scope de la función)
     function obtenerPrimerValorValido(...valores) {
         for (let valor of valores) {
-            // Verifica que no sea null, undefined, y que después de trim no esté vacío
             if (valor != null && String(valor).trim() !== '') {
                 return String(valor).trim();
             }
         }
-        return ''; // Retorna cadena vacía si todos están vacíos
+        return '';
     }
 
-    // Muestra "Cargando..."
+    // ✅ NUEVO: Verificar si está seleccionado Fondo Propio
+    const esFondoPropio = verificarSiFondoPropio();
+    const RUC_FONDO_PROPIO = "1790895548001";
+
     $tbody.empty().append('<tr><td colspan="7" class="text-center">Cargando proveedores...</td></tr>');
 
     $.ajax({
@@ -136,19 +118,21 @@ function consultarProveedor() {
         success: function (data) {
             console.log("Proveedores cargados:", data);
 
-            // Limpia el "Cargando..."
             $tbody.empty();
 
             if (data && data.length > 0) {
 
                 data.forEach(function (proveedor) {
-                    // Mapeo de campos básicos
                     const codigo = proveedor.codigo ?? '';
                     const ruc = proveedor.identificacion ?? '';
                     const nombre = proveedor.nombre ?? '';
 
-                    // *** CORRECCIÓN: Los campos del API están en MINÚSCULAS ***
-                    // Contacto: nombrecontacto1, nombrecontacto2, nombrecontacto3, nombrecontacto4
+                    // ✅ NUEVO: Filtrar el proveedor de Fondo Propio cuando NO está seleccionado Fondo Propio
+                    if (!esFondoPropio && ruc === RUC_FONDO_PROPIO) {
+                        console.log(`Proveedor ${ruc} (Fondo Propio) ocultado porque no está seleccionado Fondo Propio`);
+                        return; // Saltar este proveedor
+                    }
+
                     const contacto = obtenerPrimerValorValido(
                         proveedor.nombrecontacto1,
                         proveedor.nombrecontacto2,
@@ -156,7 +140,6 @@ function consultarProveedor() {
                         proveedor.nombrecontacto4
                     );
 
-                    // Mail: mailcontacto1, mailcontacto2, mailcontacto3, mailcontacto4
                     const mail = obtenerPrimerValorValido(
                         proveedor.mailcontacto1,
                         proveedor.mailcontacto2,
@@ -164,15 +147,12 @@ function consultarProveedor() {
                         proveedor.mailcontacto4
                     );
 
-                    // Teléfono: NO existe en el API, dejamos vacío
                     const telefono = '';
 
-                    // *** DEBUGGING: Imprimir en consola para verificar ***
                     console.log(`Proveedor ${codigo}:`, {
                         contacto,
                         mail,
                         telefono,
-                        // Ver valores originales completos
                         datosOriginales: {
                             nombrecontacto1: proveedor.nombrecontacto1,
                             nombrecontacto2: proveedor.nombrecontacto2,
@@ -217,13 +197,63 @@ function consultarProveedor() {
     });
 }
 
+// ✅ NUEVA FUNCIÓN: Verifica si el tipo de fondo seleccionado es "Fondo Propio"
+function verificarSiFondoPropio() {
+    const $selectFondoTipo = $("#fondoTipo");
+    const valorSeleccionado = $selectFondoTipo.val();
+
+    if (!valorSeleccionado) {
+        return false;
+    }
+
+    // Obtener el texto de la opción seleccionada
+    const textoSeleccionado = $selectFondoTipo.find('option:selected').attr('data-nombre') ||
+        $selectFondoTipo.find('option:selected').text();
+
+    // Verificar si contiene "FONDO PROPIO" o "PROPIO" (case insensitive)
+    const esFondoPropio = /fondo\s*propio|propio/i.test(textoSeleccionado);
+
+    console.log('Verificando si es Fondo Propio:', {
+        valorSeleccionado,
+        textoSeleccionado,
+        esFondoPropio
+    });
+
+    return esFondoPropio;
+}
+
+// ✅ NUEVA FUNCIÓN: Selecciona automáticamente el proveedor de Fondo Propio
+function seleccionarProveedorFondoPropio() {
+    const RUC_FONDO_PROPIO = "1790895548001";
+    const NOMBRE_PROVEEDOR_PROPIO = "Unicomer de Ecuador S.A.";
+
+    // Establecer el proveedor en los campos
+    $("#fondoProveedorId").val(RUC_FONDO_PROPIO);
+    $("#fondoProveedor").val(NOMBRE_PROVEEDOR_PROPIO);
+
+    // Deshabilitar el botón de búsqueda
+    $("#btnBuscarProveedorModal").prop('disabled', true).addClass('disabled');
+
+    console.log('Proveedor de Fondo Propio seleccionado automáticamente');
+}
+
+// ✅ NUEVA FUNCIÓN: Limpia y habilita la selección de proveedor
+function habilitarSeleccionProveedor() {
+    // Limpiar los campos de proveedor
+    $("#fondoProveedorId").val("");
+    $("#fondoProveedor").val("Seleccione...");
+
+    // Habilitar el botón de búsqueda
+    $("#btnBuscarProveedorModal").prop('disabled', false).removeClass('disabled');
+
+    console.log('Selección de proveedor habilitada');
+}
+
 $(document).ready(function () {
     console.log("=== INICIO DE CARGA DE PÁGINA - CrearFondo ===");
 
-    // ✅ LOGS DE VERIFICACIÓN AL INICIAR LA PÁGINA
     console.log("Usuario actual capturado:", window.usuarioActual);
 
-    // Obtener información completa de la opción actual
     const infoOpcion = window.obtenerInfoOpcionActual();
     console.log("Información de la opción actual:", {
         idOpcion: infoOpcion.idOpcion,
@@ -231,7 +261,6 @@ $(document).ready(function () {
         ruta: infoOpcion.ruta
     });
 
-    // Verificación adicional
     if (!infoOpcion.idOpcion) {
         console.warn("⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
         console.warn("Esto es normal si accediste directamente a la URL sin pasar por el menú.");
@@ -249,81 +278,66 @@ $(document).ready(function () {
 
         console.log("API Base URL configurada:", apiBaseUrl);
 
-        // *** ¡NUEVO! ***
-        // Llamamos a la función para cargar los tipos de fondo
         cargarTipoFondo();
-
-        //console.log("apiBaseUrl ",apiBaseUrl);
     });
 
-    // *** ¡NUEVO! ***
-    // Disparador para cargar los proveedores cuando se abre el modal.
+    // ✅ NUEVO: Evento change para el select de Tipo Fondo
+    $("#fondoTipo").on("change", function () {
+        const esFondoPropio = verificarSiFondoPropio();
+
+        if (esFondoPropio) {
+            // Si es Fondo Propio, seleccionar automáticamente el proveedor
+            seleccionarProveedorFondoPropio();
+        } else {
+            // Si no es Fondo Propio, habilitar la selección normal
+            habilitarSeleccionProveedor();
+        }
+    });
+
     $('#modalConsultaProveedor').on('show.bs.modal', function (event) {
-        consultarProveedor(); // ✅ Sin parámetros, se obtienen dinámicamente
+        consultarProveedor();
     });
 
-    // --- INICIO: CÓDIGO NUEVO PARA FORMATEAR MONEDA ---
-
-    /**
-     * Función auxiliar para formatear un número al formato "$ 1.000,00"
-     * (punto para miles, coma para decimales)
-     */
     function formatCurrencySpanish(value) {
         let number = parseFloat(value);
         if (isNaN(number)) {
             number = 0.0;
         }
 
-        // Usamos 'es-ES' (España) que usa el formato 1.000,00
         const formatter = new Intl.NumberFormat('es-ES', {
-            style: 'decimal', // Usamos 'decimal' para controlar el símbolo
+            style: 'decimal',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
 
-        // formatter.format(number) produce "1.000,00"
-        // Añadimos el signo $
         return `$ ${formatter.format(number)}`;
     }
 
-    // 1. Restringir entrada en 'Valor Total' a solo números y UNA coma decimal
     $("#fondoValorTotal").on("keypress", function (event) {
         const char = event.key;
         const currentValue = $(this).val();
 
-        // Permitir números (0-9)
         if (char >= '0' && char <= '9') {
             return true;
         }
 
-        // Permitir UNA SOLA coma decimal
         if (char === ',' && currentValue.indexOf(',') === -1) {
             return true;
         }
 
-        // Bloquear todo lo demás
         event.preventDefault();
         return false;
     });
 
-    // 2. Formatear y duplicar el valor cuando el usuario deje el campo 'Valor Total'
     $("#fondoValorTotal").on("blur", function () {
-        // Reemplazamos la coma por un punto SÓLO para que parseFloat funcione
         const rawValue = $(this).val().replace(',', '.');
 
-        // Formatear el valor (ej: "1000" -> "$ 1.000,00")
         const formattedValue = formatCurrencySpanish(rawValue);
 
-        // Aplicar el valor formateado a ambos campos
         $(this).val(formattedValue);
         $("#fondoDisponible").val(formattedValue);
     });
 
-    // --- FIN: CÓDIGO NUEVO PARA FORMATEAR MONEDA ---
-
-
-    // *** ¡NUEVO! ***
-    // Lógica para el botón 'Aceptar' del modal de proveedores
     $("#btnAceptarProveedor").on("click", function () {
         const $selected = $("#tablaProveedores tbody input[name='selectProveedor']:checked");
 
@@ -334,9 +348,7 @@ $(document).ready(function () {
 
             console.log("Proveedor seleccionado:", { id: proveedorId, nombre: proveedorNombre, ruc: proveedorRuc });
 
-            // 3. ¡ACCIÓN CLAVE! - CORREGIDO
-            // Guardamos el RUC en lugar del código
-            $("#fondoProveedorId").val(proveedorRuc); // ✅ CAMBIO: Ahora guarda el RUC
+            $("#fondoProveedorId").val(proveedorRuc);
             $("#fondoProveedor").val(proveedorNombre);
 
             $('#modalConsultaProveedor').modal('hide');
@@ -346,7 +358,6 @@ $(document).ready(function () {
         }
     });
 
-    // ✅ ===== MODIFICADO: CAPTURA DINÁMICA DEL IDOPCION ===== ✅
     $("#btnGuardarFondos").on("click", function (e) {
         e.preventDefault();
         console.log("Guardando fondos");
@@ -363,10 +374,8 @@ $(document).ready(function () {
         }).then((result) => {
             if (result.isConfirmed) {
 
-                // ✅ OBTENER EL IDOPCION DINÁMICAMENTE DESDE SESSIONSTORAGE
                 const idOpcionActual = window.obtenerIdOpcionActual();
 
-                // Validar que exista el idOpcion
                 if (!idOpcionActual) {
                     Swal.fire({
                         icon: 'error',
@@ -378,88 +387,53 @@ $(document).ready(function () {
 
                 console.log('ID Opción capturado dinámicamente:', idOpcionActual);
 
-                // --- INICIO DE CAMBIOS ---
-
-                /**
-                 * Función auxiliar para convertir "dd/mm/aaaa" a formato ISO (UTC).
-                 * El endpoint espera un formato como "2025-11-07T17:53:30.355Z".
-                 */
                 function convertirFechaAISO(fechaStr) {
-                    // Valida que la fecha tenga el formato "dd/mm/aaaa"
                     if (!fechaStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(fechaStr)) {
-                        return null; // Retorna null si el formato es inválido
+                        return null;
                     }
 
-                    const partes = fechaStr.split('/'); // ["dd", "mm", "aaaa"]
-                    // new Date(año, mes (0-11), dia)
+                    const partes = fechaStr.split('/');
                     const fecha = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
 
-                    // .toISOString() convierte la fecha a formato UTC (ej: "2025-11-07T05:00:00.000Z")
                     return fecha.toISOString();
                 }
 
-                // --- INICIO: FUNCIÓN MODIFICADA ---
-                /**
-                 * Función auxiliar para limpiar y convertir valores monetarios a número.
-                 * Entiende el formato "$ 1.000,00" (punto-miles, coma-decimal).
-                 */
                 function convertirMonedaANumero(monedaStr) {
                     if (!monedaStr) {
                         return 0;
                     }
 
-                    // 1. Quitar el signo de dólar, los espacios, y los puntos (separadores de miles)
-                    // ej: "$ 1.000,00" -> "1000,00"
                     let valorLimpio = String(monedaStr)
-                        .replace(/\$/g, '')  // Quita el $
-                        .replace(/\s/g, '')  // Quita espacios
-                        .replace(/\./g, ''); // Quita los puntos (miles)
+                        .replace(/\$/g, '')
+                        .replace(/\s/g, '')
+                        .replace(/\./g, '');
 
-                    // 2. Reemplazar la coma decimal por un punto (para que parseFloat funcione)
-                    // ej: "1000,00" -> "1000.00"
                     valorLimpio = valorLimpio.replace(',', '.');
 
-                    // 3. Convertir a número
                     return parseFloat(valorLimpio) || 0;
                 }
-                // --- FIN: FUNCIÓN MODIFICADA ---
 
-                // ✅ OBJETO DATA CON IDOPCION DINÁMICO
                 const data = {
-                    // --- Campos que coinciden ---
                     descripcion: $("#fondoDescripcion").val(),
                     idproveedor: $("#fondoProveedorId").val(),
-
-                    // --- Campos con nombre y tipo corregidos ---
                     idtipofondo: parseInt($("#fondoTipo").val(), 10) || 0,
                     valorfondo: convertirMonedaANumero($("#fondoValorTotal").val()),
-
-                    // --- Fechas convertidas a formato ISO ---
                     fechainiciovigencia: convertirFechaAISO($("#fondoFechaInicio").val()),
                     fechafinvigencia: convertirFechaAISO($("#fondoFechaFin").val()),
-
-                    // --- Usuario ingreso ---
                     idusuarioingreso: window.usuarioActual,
                     nombreusuarioingreso: window.usuarioActual,
-
-                    // --- ✅ IDOPCION DINÁMICO EN LUGAR DE HARDCODED ---
                     idopcion: idOpcionActual,
                     idcontrolinterfaz: "BTNGRABAR",
                     idevento: "EVCLICK",
                     nombreusuario: window.usuarioActual
                 };
 
-                // --- FIN DE CAMBIOS ---
-
                 console.log("data antes de enviar", data);
 
-                // --- NUEVA VALIDACIÓN ---
-                // Validar que las fechas se hayan podido convertir
                 if (!data.fechainiciovigencia || !data.fechafinvigencia) {
                     Swal.fire('Error de Formato', 'La fecha de inicio o fin no es válida. Asegúrese de usar el formato dd/mm/aaaa.', 'error');
-                    return; // Detener el envío AJAX
+                    return;
                 }
-
 
                 const url = `${window.apiBaseUrl}/api/Fondo/insertar`;
                 const method = "POST";
@@ -470,7 +444,7 @@ $(document).ready(function () {
                     contentType: "application/json",
                     data: JSON.stringify(data),
                     headers: {
-                        "idopcion": String(idOpcionActual), // ✅ También usar dinámicamente en el header
+                        "idopcion": String(idOpcionActual),
                         "usuario": window.usuarioActual
                     },
                     success: function (response) {
@@ -482,16 +456,17 @@ $(document).ready(function () {
                             timer: 1500
                         });
 
-                        // --- INICIO: CÓDIGO NUEVO PARA LIMPIAR EL FORMULARIO ---
-                        $("#fondoTipo").val(""); // Resetea el select a "Seleccione..."
-                        $("#fondoProveedor").val("Seleccione..."); // Resetea el texto visible
-                        $("#fondoProveedorId").val(""); // Limpia el ID oculto
+                        $("#fondoTipo").val("");
+                        $("#fondoProveedor").val("Seleccione...");
+                        $("#fondoProveedorId").val("");
                         $("#fondoDescripcion").val("");
                         $("#fondoFechaInicio").val("");
                         $("#fondoFechaFin").val("");
                         $("#fondoValorTotal").val("");
                         $("#fondoDisponible").val("");
-                        // --- FIN: CÓDIGO NUEVO PARA LIMPIAR EL FORMULARIO ---
+
+                        // ✅ NUEVO: Habilitar el botón de búsqueda después de limpiar
+                        habilitarSeleccionProveedor();
                     },
                     error: function (xhr, status, error) {
                         const mensaje = "guardar";
@@ -507,5 +482,4 @@ $(document).ready(function () {
             }
         });
     });
-    // ✅ ===== FIN MODIFICACIÓN ===== ✅
 });

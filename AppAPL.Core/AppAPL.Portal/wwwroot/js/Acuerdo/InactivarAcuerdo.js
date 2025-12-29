@@ -60,7 +60,7 @@ function cargarBandeja() {
         url: `${window.apiBaseUrl}/api/Acuerdo/consultar-bandeja-inactivacion`,
         method: "GET",
         headers: {
-            "idopcion": String(idOpcionActual), // Agregado para consistencia
+            "idopcion": String(idOpcionActual),
             "usuario": usuario
         },
         success: function (data) {
@@ -146,10 +146,21 @@ function abrirModalEditar(idAcuerdo) {
     $("body").css("cursor", "wait");
     const usuario = obtenerUsuarioActual();
 
+    // ✅ CREAR EL CONTENEDOR DINÁMICAMENTE SI NO EXISTE
+    if ($('#contenedor-tabla-promociones').length === 0) {
+        console.log('⚠️ Contenedor no existe, creándolo dinámicamente...');
+        $('#contenedor-tabla-articulos').after(`
+            <hr class="mt-3 mb-3" />
+            <div class="col-12 mt-4" id="contenedor-tabla-promociones" style="display:none;"></div>
+        `);
+        console.log('✅ Contenedor creado dinámicamente');
+    }
+
     // Limpiar campos
     $("#formVisualizar")[0].reset();
     $("#lblIdAcuerdo").text(idAcuerdo);
     $("#contenedor-tabla-articulos").hide().html("");
+    $('#contenedor-tabla-promociones').hide().html(''); // ✅ LIMPIAR PROMOCIONES
 
     $.ajax({
         url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-inactivacion-id/${idAcuerdo}`,
@@ -175,6 +186,9 @@ function abrirModalEditar(idAcuerdo) {
             if (data?.articulos && data.articulos.length > 0) {
                 renderizarTablaArticulos(data.articulos);
             }
+
+            // ✅ CARGAR PROMOCIONES
+            cargarPromocionesAcuerdo(idAcuerdo);
 
             $("#vistaTabla").fadeOut(200, function () {
                 $("#vistaDetalle").fadeIn(200);
@@ -239,9 +253,186 @@ function renderizarTablaArticulos(articulos) {
 }
 
 function cerrarDetalle() {
+    $('#contenedor-tabla-promociones').hide().html(''); // ✅ LIMPIAR PROMOCIONES
     $("#vistaDetalle").fadeOut(200, function () {
         $("#vistaTabla").fadeIn(200);
     });
+}
+
+// ===================================================================
+// ===== PROMOCIONES POR ACUERDO ====================================
+// ===================================================================
+
+/**
+ * Carga la tabla de promociones asociadas al acuerdo
+ */
+function cargarPromocionesAcuerdo(idAcuerdo) {
+    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
+    const usuario = obtenerUsuarioActual();
+
+    console.log('🎯 Cargando promociones para acuerdo ID:', idAcuerdo);
+
+    // Verificar que el contenedor existe
+    const $contenedor = $('#contenedor-tabla-promociones');
+    if ($contenedor.length === 0) {
+        console.error('❌ ERROR: No se encontró el contenedor #contenedor-tabla-promociones');
+        return;
+    }
+
+    // Destruir DataTable si ya existe
+    if ($.fn.DataTable.isDataTable('#tabla-promociones')) {
+        $('#tabla-promociones').DataTable().destroy();
+    }
+
+    // Mostrar el contenedor con spinner
+    $contenedor.html(`
+        <div class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando promociones...</p>
+        </div>
+    `).show();
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Acuerdo/consultar-acuerdo-promocion/${idAcuerdo}`,
+        method: "GET",
+        dataType: "json",
+        headers: {
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario
+        },
+        success: function (data) {
+            console.log('✅ Promociones recibidas:', data);
+
+            // Si la respuesta es string, parsear a JSON
+            if (typeof data === "string") {
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    console.error("❌ Error al parsear JSON:", e);
+                    $contenedor.html(
+                        '<p class="alert alert-danger text-center">Respuesta inválida del servidor.</p>'
+                    ).show();
+                    return;
+                }
+            }
+
+            // Convertir a array si es necesario
+            let promociones = Array.isArray(data) ? data : (data && data.idpromocion ? [data] : []);
+
+            // Verificar si hay promociones
+            if (!promociones.length || promociones.length === 0) {
+                $contenedor.html(
+                    '<p class="alert alert-warning mb-0 text-center">No se encontraron promociones para este acuerdo.</p>'
+                ).show();
+                return;
+            }
+
+            // Renderizar la tabla de promociones
+            renderizarTablaPromociones(promociones);
+        },
+        error: function (xhr, status, error) {
+            console.error('❌ Error al obtener promociones:', error);
+            $contenedor.html(
+                '<p class="alert alert-danger text-center">Error al cargar las promociones.</p>'
+            ).show();
+        }
+    });
+}
+
+/**
+ * Renderiza la tabla HTML de promociones con DataTable
+ */
+function renderizarTablaPromociones(promociones) {
+    console.log('🎨 Renderizando tabla de promociones:', promociones.length);
+
+    let htmlPromociones = `
+        <h6 class="fw-bold mb-2"><i class="fa fa-gift"></i> Promociones Asociadas</h6>
+        <div class="table-responsive">
+            <table id="tabla-promociones" class="table table-bordered table-striped table-hover table-sm w-100">
+                <thead>
+                    <tr class="text-center">
+                        <th>ID Promoción</th>
+                        <th>Descripción</th>
+                        <th>Motivo</th>
+                        <th>Clase Acuerdo</th>
+                        <th>Valor Comprometido</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Marca Regalo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+    promociones.forEach((promo) => {
+        // ✅ LÓGICA PARA CLASE ACUERDO CON BADGE
+        let claseHTML = promo.clase_acuerdo ?? '';
+
+        // Si tiene cantidad_articulos > 0, agregar badge
+        if (promo.cantidad_articulos && promo.cantidad_articulos > 0) {
+            claseHTML += `<sup class="fw-bold"> ${promo.cantidad_articulos}</sup>`;
+        }
+
+        htmlPromociones += `
+            <tr>
+                <td class="text-center fw-bold">${promo.idpromocion ?? ''}</td>
+                <td>${promo.descripcion ?? ''}</td>
+                <td>${promo.motivo_nombre ?? ''}</td>
+                <td>${claseHTML}</td>
+                <td class="text-end">${formatearMoneda(promo.valor_comprometido)}</td>
+                <td class="text-center">${formatearFecha(promo.fecha_inicio)}</td>
+                <td class="text-center">${formatearFecha(promo.fecha_fin)}</td>
+                <td>${promo.marca_regalo ?? ''}</td>
+                <td>${promo.estado ?? ''}</td>
+            </tr>`;
+    });
+
+    htmlPromociones += `
+                </tbody>
+            </table>
+        </div>`;
+
+    const $contenedor = $('#contenedor-tabla-promociones');
+    $contenedor.html(htmlPromociones).show();
+
+    // Inicializar DataTable
+    try {
+        $('#tabla-promociones').DataTable({
+            pageLength: 5,
+            lengthMenu: [5, 10, 25],
+            pagingType: 'simple_numbers',
+            searching: false,
+            columnDefs: [
+                { targets: [0], className: "dt-center", width: "8%" },
+                { targets: [4], className: "dt-right" },
+                { targets: [5, 6], className: "dt-center" }
+            ],
+            order: [[0, 'desc']],
+            language: {
+                decimal: "",
+                emptyTable: "No hay promociones disponibles",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ promociones",
+                infoEmpty: "Mostrando 0 a 0 de 0 promociones",
+                infoFiltered: "(filtrado de _MAX_ promociones totales)",
+                lengthMenu: "Mostrar _MENU_ promociones",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                search: "Buscar:",
+                zeroRecords: "No se encontraron promociones coincidentes",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                }
+            }
+        });
+        console.log('✅ DataTable inicializado correctamente');
+    } catch (e) {
+        console.error('❌ Error al inicializar DataTable:', e);
+    }
 }
 
 // ===================================================================
@@ -272,7 +463,7 @@ function inactivarAcuerdo() {
     const payload = {
         idacuerdo: idAcuerdo,
         nombreusuarioingreso: usuario,
-        idopcion: idOpcionActual,           // ✅ DINÁMICO
+        idopcion: idOpcionActual,
         idcontrolinterfaz: "BTNINACTIVAR",
         idevento: "EVCLICK",
         nombreusuario: usuario
@@ -296,8 +487,8 @@ function inactivarAcuerdo() {
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(payload),
             headers: {
-                "idopcion": String(idOpcionActual), // ✅ DINÁMICO en Header
-                "usuario": usuario                  // ✅ DINÁMICO en Header
+                "idopcion": String(idOpcionActual),
+                "usuario": usuario
             },
             success: function (response) {
                 $("body").css("cursor", "default");
