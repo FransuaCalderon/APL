@@ -17,11 +17,12 @@ namespace AppAPL.AccesoDatos.Repositorio
 {
     public class ProveedorRepositorio(OracleConnectionFactory factory, ILogger<ProveedorRepositorio> logger) : IProveedorRepositorio
     {
-        public async Task<IEnumerable<ProveedorDTO>> ListarAsync()
+        public async Task<IEnumerable<ProveedorDTO>> ListarAsync(string? etiqueta = "")
         {
             using var connection = factory.CreateOpenConnection();
 
-            var parameters = new OracleDynamicParameters();
+            var paramObject = new { p_etiqueta = etiqueta };
+            var parameters = new OracleDynamicParameters(paramObject);
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);

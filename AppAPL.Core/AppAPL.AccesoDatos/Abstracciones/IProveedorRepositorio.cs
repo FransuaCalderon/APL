@@ -9,7 +9,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
 {
     public interface IProveedorRepositorio
     {
-        Task<IEnumerable<ProveedorDTO>> ListarAsync();
+        Task<IEnumerable<ProveedorDTO>> ListarAsync(string? etiqueta = "");
         Task<ProveedorDTO?> ObtenerPorIdAsync(string identificacion);
     }
 }

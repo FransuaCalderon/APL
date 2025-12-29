@@ -2,6 +2,7 @@
 using AppAPL.Dto.Proveedor;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace AppAPL.Api.Controllers
 {
@@ -9,17 +10,16 @@ namespace AppAPL.Api.Controllers
     [Route("api/[controller]")]
     public class ProveedorController(IProveedorServicio servicio, ILogger<ProveedorController> logger) : ControllerBase
     {
-        [HttpGet("listar")]
-        //[Aprobacion]
-        public async Task<ActionResult<List<ProveedorDTO>>> listar()
+        [HttpGet("listar/{etiqueta?}")]
+        public async Task<ActionResult<List<ProveedorDTO>>> listar([SwaggerParameter(Description = "Parámetro opcional", Required = false)]  string? etiqueta = "")
         {
-            var listaProveedores = await servicio.ListarAsync();
+            logger.LogInformation($"etiqueta: {etiqueta}");
+            var listaProveedores = await servicio.ListarAsync(etiqueta);
 
             return listaProveedores.ToList();
         }
 
         [HttpGet("obtener/{identificacion}")]
-        //[Aprobacion]
         public async Task<ActionResult<ProveedorDTO>> ObtenerPorIdAsync(string identificacion)
         {
             var item = await servicio.ObtenerPorIdAsync(identificacion);

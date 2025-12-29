@@ -11,8 +11,8 @@ namespace AppAPL.Negocio.Servicios
 {
     public class ProveedorServicio (IProveedorRepositorio repo) : IProveedorServicio
     {
-        public Task<IEnumerable<ProveedorDTO>> ListarAsync()
-            => repo.ListarAsync();
+        public Task<IEnumerable<ProveedorDTO>> ListarAsync(string? etiqueta = "")
+            => repo.ListarAsync(etiqueta);
 
         public Task<ProveedorDTO?> ObtenerPorIdAsync(string identificacion)
             => repo.ObtenerPorIdAsync(identificacion);
