@@ -20,33 +20,27 @@ builder.Logging.AddConsole();
 
 builder.Logging.AddLog4Net("log4net.config");
 
-// Swagger (Swashbuckle)
-builder.Services.AddEndpointsApiExplorer();
+var swaggerEnabled = builder.Configuration.GetValue<bool>("SwaggerSettings:Enabled");
 
 
-// Leer el valor del appsettings.json
-//bool enableHeaderFilter = builder.Configuration.GetValue<bool>("MiddlewareSettings:EnableAuditoria");
-
-
-builder.Services.AddSwaggerGen(c =>
+if (swaggerEnabled)
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    // Swagger (Swashbuckle)
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
     {
-        Title = "API AppAPL",
-        Version = "v1"
+        c.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "API AppAPL",
+            Version = "v1"
+        });
+
+        c.EnableAnnotations();
     });
+}
 
 
-    //c.OperationFilter<OptionalRouteParamFilter>();
-    // Solo agregar el filtro si está habilitado en appsettings
-    /*
-    if (enableHeaderFilter)
-    {
-        c.OperationFilter<AgregarHeadersAuditoriaOperationFilter>();
-    }*/
 
-    c.EnableAnnotations();
-});
 
 // IoC propios
 builder.Services.AddDataAccess(builder.Configuration)
@@ -118,9 +112,17 @@ var enableEmail = builder.Configuration.GetValue<bool>("MiddlewareSettings:Enabl
 
 var app = builder.Build();
 
-// Swagger UI
-app.UseSwagger();
-app.UseSwaggerUI();
+
+
+if (swaggerEnabled)
+{
+    // Swagger UI
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
