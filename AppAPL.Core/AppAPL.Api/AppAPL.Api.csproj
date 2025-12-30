@@ -20,6 +20,15 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
   </ItemGroup>
 
+
+	<ItemGroup>
+		<Content Update="appsettings*.json">
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\AppAPL.Dto\AppAPL.Dto.csproj" />
     <ProjectReference Include="..\AppAPL.Negocio\AppAPL.Negocio.csproj" />
