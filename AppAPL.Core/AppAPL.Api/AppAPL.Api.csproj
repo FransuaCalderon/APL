@@ -34,4 +34,11 @@
     <ProjectReference Include="..\AppAPL.Negocio\AppAPL.Negocio.csproj" />
   </ItemGroup>
 
+    <ItemGroup>
+	    <Content Update="appsettings*.json">
+		    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    </Content>
+    </ItemGroup>
 </Project>

@@ -2203,13 +2203,19 @@ function abrirModalEditar(idAcuerdo) {
                 case "CLAARTICULO":
                     $select.val("Items");
                     marcarProveedorEnTablaExistente(cab.idfondo);
-                    
+
                     $("#acuerdoTipoItems").val(cab.idmotivoacuerdo);
                     $("#modalAcuerdoIdArticulo").val(cab.idacuerdo);
                     $("#acuerdoDescripcionItems").val(cab.descripcion);
                     $("#acuerdoFechaInicioItems").val(formatearFecha(cab.fecha_inicio));
                     $("#acuerdoFechaFinItems").val(formatearFecha(cab.fecha_fin));
+                    // ✅ CORREGIDO: Usar los IDs correctos del HTML
                     $("#acuerdoValorTotalItems").val(formatearMoneda(cab.valor_total));
+                    $("#verValorAcuerdo").val(formatearMoneda(cab.valor_total));      // Campo adicional
+                    $("#verValorDisponible").val(formatearMoneda(cab.valor_disponible));
+                    $("#verValorComprometido").val(formatearMoneda(cab.valor_comprometido));
+                    $("#verValorLiquidado").val(formatearMoneda(cab.valor_liquidado));
+
                     agregarItemsExistenteATabla(data.articulos);
                     break;
             }
