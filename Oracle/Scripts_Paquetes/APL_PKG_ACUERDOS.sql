@@ -999,6 +999,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     ) AS
         -- Variables para IDs de catálogo
         v_estado_nuevo          NUMBER;
+        v_id_eliminado          NUMBER;
     
     BEGIN
         -- =========================================================================
@@ -1009,6 +1010,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         INTO v_estado_nuevo 
         FROM apl_tb_catalogo 
         WHERE idetiqueta = 'ESTADONUEVO';
+        
+        SELECT idcatalogo INTO v_id_eliminado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOELIMINADO';
               
         -- =========================================================================
         -- PASO 2: Abrir cursor con la consulta principal
@@ -1094,9 +1097,10 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                                 ON arp.identificacion = f.idproveedor
                             -- Subquery para contar artículos
                             LEFT JOIN (
-                                SELECT idacuerdo, COUNT(*) AS cantidad_articulos 
-                                FROM apl_tb_acuerdoarticulo 
-                                GROUP BY idacuerdo
+                                SELECT aa.idacuerdo, COUNT(*) AS cantidad_articulos 
+                                FROM apl_tb_acuerdoarticulo aa
+                                WHERE aa.idestadoregistro != v_id_eliminado
+                                GROUP BY aa.idacuerdo
                             ) art ON art.idacuerdo = ac.idacuerdo
                             -- JOINs con catálogos
                             LEFT JOIN apl_tb_catalogo cp 
@@ -1162,6 +1166,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         
         v_etiqueta_general      VARCHAR2(50);
         v_etiqueta_articulos    VARCHAR2(50);
+        v_id_eliminado          NUMBER;
     
     BEGIN
         -- Inicializar salida exitosa
@@ -1213,6 +1218,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         SELECT idetiqueta INTO v_etiqueta_articulos 
         FROM apl_tb_catalogo 
         WHERE idetiqueta = 'CLAARTICULO';
+        
+        SELECT idcatalogo INTO v_id_eliminado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOELIMINADO';
     
         -- =========================================================================
         -- Obtener el tipo de acuerdo del registro consultado
@@ -1309,10 +1316,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     ac.idtipoacuerdo                                AS id_tipo_clase_acuerdo,
                     ct.nombre                                       AS nombre_clase_acuerdo,
                     ct.idetiqueta                                   AS etiqueta_clase_acuerdo,
-                    -- Cantidad total de artículos
-                    (SELECT COUNT(*) 
-                     FROM apl_tb_acuerdoarticulo 
-                     WHERE idacuerdo = ac.idacuerdo)                AS cantidad_articulos,
+                    NVL(art.cantidad_articulos, 0)                  AS cantidad_articulos,
                     NVL(acf.valoraporte, 0)                         AS valor_acuerdo,
                     TO_CHAR(ac.fechainiciovigencia, 'YYYY-MM-DD')   AS fecha_inicio,
                     TO_CHAR(ac.fechafinvigencia, 'YYYY-MM-DD')      AS fecha_fin,
@@ -1353,6 +1357,12 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     ON a.idestadoregistro = ea.idcatalogo
                 LEFT JOIN apl_tb_catalogo tf 
                     ON f.idtipofondo = tf.idcatalogo
+                LEFT JOIN (
+                    SELECT aa.idacuerdo, COUNT(*) AS cantidad_articulos 
+                    FROM apl_tb_acuerdoarticulo aa
+                    WHERE aa.idestadoregistro != v_id_eliminado
+                    GROUP BY aa.idacuerdo
+                ) art ON art.idacuerdo = ac.idacuerdo
                 WHERE
                     ac.idacuerdo = p_idacuerdo 
                     AND a.idaprobacion = p_idaprobacion;
@@ -1377,6 +1387,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     apl_tb_acuerdoarticulo aa
                 WHERE 
                     aa.idacuerdo = p_idacuerdo
+                    AND aa.idestadoregistro != v_id_eliminado
                 ORDER BY 
                     aa.idacuerdoarticulo;
     
@@ -1955,6 +1966,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_estado_nuevo       NUMBER;
         v_estado_modificado  NUMBER;
         v_contador_registro  NUMBER;
+        v_id_eliminado       NUMBER;
         
     BEGIN
         -- Inicializar salida exitosa
@@ -1967,6 +1979,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         SELECT idcatalogo INTO v_estado_nuevo FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADONUEVO';
         
         SELECT idcatalogo INTO v_estado_modificado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOMODIFICADO';
+        
+        SELECT idcatalogo INTO v_id_eliminado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOELIMINADO';
         
         -- Validar que existan registros
         SELECT COUNT(*) INTO v_contador_registro
@@ -2005,7 +2019,12 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     INNER JOIN apl_tb_acuerdofondo af ON a.idacuerdo = af.idacuerdo
                     LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
                     LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
-                    LEFT JOIN (SELECT idacuerdo, COUNT(*) AS cantidad_articulos FROM apl_tb_acuerdoarticulo GROUP BY idacuerdo) art ON art.idacuerdo = a.idacuerdo
+                    LEFT JOIN (
+                        SELECT aa.idacuerdo, COUNT(*) AS cantidad_articulos 
+                        FROM apl_tb_acuerdoarticulo aa
+                        WHERE aa.idestadoregistro != v_id_eliminado
+                        GROUP BY aa.idacuerdo
+                    ) art ON art.idacuerdo = a.idacuerdo
                     INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
                     INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
                     LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
@@ -2045,6 +2064,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         
         v_etiqueta_general      VARCHAR2(50);
         v_etiqueta_articulos    VARCHAR2(50);
+        v_id_eliminado          NUMBER;
         
     BEGIN
         -- Inicializar salida exitosa
@@ -2077,6 +2097,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         SELECT idetiqueta INTO v_etiqueta_articulos 
         FROM apl_tb_catalogo 
         WHERE idetiqueta = 'CLAARTICULO';
+        
+        SELECT idcatalogo INTO v_id_eliminado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOELIMINADO';
         
         -- =====================================================
         -- OBTENER EL TIPO DE ACUERDO DEL REGISTRO CONSULTADO
@@ -2123,7 +2145,12 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
                     LEFT JOIN apl_tb_catalogo cm ON a.idmotivoacuerdo = cm.idcatalogo
                     LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
-                     LEFT JOIN (SELECT idacuerdo, COUNT(*) AS cantidad_articulos FROM apl_tb_acuerdoarticulo GROUP BY idacuerdo) art ON art.idacuerdo = a.idacuerdo
+                    LEFT JOIN (
+                        SELECT aa.idacuerdo, COUNT(*) AS cantidad_articulos 
+                        FROM apl_tb_acuerdoarticulo aa
+                        WHERE aa.idestadoregistro != v_id_eliminado
+                        GROUP BY aa.idacuerdo
+                    ) art ON art.idacuerdo = a.idacuerdo
                     INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
                     INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
                     LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
@@ -2168,7 +2195,12 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
                     LEFT JOIN apl_tb_catalogo cm ON a.idmotivoacuerdo = cm.idcatalogo
                     LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
-                    LEFT JOIN (SELECT idacuerdo, COUNT(*) AS cantidad_articulos FROM apl_tb_acuerdoarticulo GROUP BY idacuerdo) art ON art.idacuerdo = a.idacuerdo
+                    LEFT JOIN (
+                        SELECT aa.idacuerdo, COUNT(*) AS cantidad_articulos 
+                        FROM apl_tb_acuerdoarticulo aa
+                        WHERE aa.idestadoregistro != v_id_eliminado
+                        GROUP BY aa.idacuerdo
+                    ) art ON art.idacuerdo = a.idacuerdo
                     INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
                     INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
                     LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
@@ -2194,7 +2226,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 FROM 
                     apl_tb_acuerdoarticulo aa
                 WHERE 
-                    aa.idacuerdo = p_idacuerdo
+                    aa.idacuerdo = p_idacuerdo AND aa.idestadoregistro != v_id_eliminado
                 ORDER BY 
                     aa.idacuerdoarticulo;
         
@@ -2709,8 +2741,11 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     PROCEDURE sp_consulta_bandeja_inactivacion_acuerdo (
         p_cursor OUT SYS_REFCURSOR
     ) AS
-        
+        v_id_eliminado NUMBER;
     BEGIN
+    
+        -- Obtener el ID del estado eliminado
+        SELECT idcatalogo INTO v_id_eliminado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOELIMINADO';
         
         OPEN p_cursor FOR 
             SELECT
@@ -2737,7 +2772,16 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
                 LEFT JOIN apl_tb_catalogo tf ON f.idtipofondo = tf.idcatalogo
                 LEFT JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
-                LEFT JOIN (SELECT idacuerdo, COUNT(*) AS cantidad_articulos FROM apl_tb_acuerdoarticulo GROUP BY idacuerdo) art ON art.idacuerdo = a.idacuerdo
+                LEFT JOIN (
+                    SELECT aa.idacuerdo, COUNT(*) AS cantidad_articulos 
+                    FROM apl_tb_acuerdoarticulo aa
+                    WHERE aa.idestadoregistro != (
+                        SELECT idcatalogo 
+                        FROM apl_tb_catalogo 
+                        WHERE idetiqueta = 'ESTADOELIMINADO'
+                    )
+                    GROUP BY aa.idacuerdo
+                ) art ON art.idacuerdo = a.idacuerdo
             WHERE 
                 ce.idetiqueta IN ('ESTADOAPROBADO', 'ESTADOVIGENTE')
             GROUP BY
@@ -2770,6 +2814,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_contador_registro     NUMBER;
         v_etiqueta_general      VARCHAR2(50);
         v_etiqueta_articulos    VARCHAR2(50);
+        v_id_eliminado          NUMBER;
         
     BEGIN
         p_codigo_salida  := 0;
@@ -2793,11 +2838,11 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         END IF;
         
         -- Obtener etiquetas de catálogo
-        SELECT idetiqueta INTO v_etiqueta_general 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'CLAGENERAL';
+        SELECT idetiqueta INTO v_etiqueta_general FROM apl_tb_catalogo WHERE idetiqueta = 'CLAGENERAL';
         
-        SELECT idetiqueta INTO v_etiqueta_articulos 
-        FROM apl_tb_catalogo WHERE idetiqueta = 'CLAARTICULO';
+        SELECT idetiqueta INTO v_etiqueta_articulos FROM apl_tb_catalogo WHERE idetiqueta = 'CLAARTICULO';
+        
+        SELECT idcatalogo INTO v_id_eliminado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOELIMINADO';
         
         -- Obtener tipo de acuerdo
         SELECT ct.idetiqueta INTO v_etiqueta_tipo
@@ -2883,9 +2928,14 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     LEFT JOIN apl_tb_catalogo cm ON a.idmotivoacuerdo = cm.idcatalogo
                     LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
                     LEFT JOIN (
-                        SELECT idacuerdo, COUNT(*) AS cantidad_articulos 
-                        FROM apl_tb_acuerdoarticulo 
-                        GROUP BY idacuerdo
+                        SELECT aa.idacuerdo, COUNT(*) AS cantidad_articulos 
+                        FROM apl_tb_acuerdoarticulo aa
+                        WHERE aa.idestadoregistro != (
+                            SELECT idcatalogo 
+                            FROM apl_tb_catalogo 
+                            WHERE idetiqueta = 'ESTADOELIMINADO'
+                        )
+                        GROUP BY aa.idacuerdo
                     ) art ON art.idacuerdo = a.idacuerdo
                     INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
                     INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
@@ -2912,7 +2962,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 FROM 
                     apl_tb_acuerdoarticulo aa
                 WHERE 
-                    aa.idacuerdo = p_idacuerdo
+                    aa.idacuerdo = p_idacuerdo AND aa.idestadoregistro != v_id_eliminado
                 ORDER BY 
                     aa.idacuerdoarticulo;
         
@@ -3270,10 +3320,14 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     ) AS
     
         v_contador_registro NUMBER;
+        v_id_eliminado      NUMBER;
         
     BEGIN
         p_codigo_salida  := 0;
         p_mensaje_salida := 'OK';
+        
+        --Catalogo
+        SELECT idcatalogo INTO v_id_eliminado FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOELIMINADO';
         
         -- Validar que existan registros
         SELECT COUNT(*) INTO v_contador_registro
@@ -3310,9 +3364,14 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     LEFT JOIN apl_tb_catalogo ct ON a.idtipoacuerdo = ct.idcatalogo
                     LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
                     LEFT JOIN (
-                        SELECT idacuerdo, COUNT(*) AS cantidad_articulos 
-                        FROM apl_tb_acuerdoarticulo 
-                        GROUP BY idacuerdo
+                        SELECT aa.idacuerdo, COUNT(*) AS cantidad_articulos 
+                        FROM apl_tb_acuerdoarticulo aa
+                        WHERE aa.idestadoregistro != (
+                            SELECT idcatalogo 
+                            FROM apl_tb_catalogo 
+                            WHERE idetiqueta = 'ESTADOELIMINADO'
+                        )
+                        GROUP BY aa.idacuerdo
                     ) art ON art.idacuerdo = a.idacuerdo
                     INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
                     INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
@@ -3349,6 +3408,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         v_contador_registro     NUMBER;
         v_etiqueta_general      VARCHAR2(50);
         v_etiqueta_articulos    VARCHAR2(50);
+        v_etiqueta_eliminado    NUMBER;
         
     BEGIN
         p_codigo_salida  := 0;
@@ -3377,6 +3437,9 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         
         SELECT idetiqueta INTO v_etiqueta_articulos 
         FROM apl_tb_catalogo WHERE idetiqueta = 'CLAARTICULO';
+        
+        SELECT idcatalogo INTO v_etiqueta_eliminado 
+        FROM apl_tb_catalogo WHERE idetiqueta = 'ESTADOELIMINADO';
         
         -- Obtener tipo de acuerdo
         SELECT ct.idetiqueta INTO v_etiqueta_tipo
@@ -3433,7 +3496,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
         -- CASO 2: ACUERDO CON ARTÍCULOS
         -- =====================================================
         ELSIF v_etiqueta_tipo = v_etiqueta_articulos THEN
-            
+              
             -- Cursor cabecera ARTÍCULO
             OPEN p_cursor_cabecera FOR
                 SELECT 
@@ -3464,9 +3527,14 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                     LEFT JOIN apl_tb_catalogo cm ON a.idmotivoacuerdo = cm.idcatalogo
                     LEFT JOIN apl_tb_catalogo ce ON a.idestadoregistro = ce.idcatalogo
                     LEFT JOIN (
-                        SELECT idacuerdo, COUNT(*) AS cantidad_articulos 
-                        FROM apl_tb_acuerdoarticulo 
-                        GROUP BY idacuerdo
+                            SELECT aa.idacuerdo, COUNT(*) AS cantidad_articulos 
+                            FROM apl_tb_acuerdoarticulo aa
+                            WHERE aa.idestadoregistro != (
+                                SELECT idcatalogo 
+                                FROM apl_tb_catalogo 
+                                WHERE idetiqueta = 'ESTADOELIMINADO'
+                            )
+                            GROUP BY aa.idacuerdo
                     ) art ON art.idacuerdo = a.idacuerdo
                     INNER JOIN apl_tb_fondo f ON f.idfondo = af.idfondo
                     INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
@@ -3493,7 +3561,7 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 FROM 
                     apl_tb_acuerdoarticulo aa
                 WHERE 
-                    aa.idacuerdo = p_idacuerdo
+                    aa.idacuerdo = p_idacuerdo AND aa.idestadoregistro != v_etiqueta_eliminado
                 ORDER BY 
                     aa.idacuerdoarticulo;
         
