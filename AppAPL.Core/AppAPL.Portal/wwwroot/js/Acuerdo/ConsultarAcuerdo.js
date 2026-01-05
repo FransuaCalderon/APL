@@ -186,14 +186,14 @@ function abrirModalEditar(idAcuerdo) {
     $('#contenedor-tabla-promociones').hide().html('');
 
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-modificacion-id/${idAcuerdo}`,
+        url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-general-id/${idAcuerdo}`,
         method: "GET",
         headers: { "usuario": usuario },
         success: function (data) {
             const cab = data.cabecera;
 
             // Mapeo de Cabecera
-            $("#verNombreProveedor").val(cab.nombre_proveedor);
+            $("#verNombreProveedor").val(cab.fondo_proveedor);
             $("#verNombreTipoFondo").val(cab.motivo);
             $("#verClaseAcuerdo").val(cab.clase_acuerdo);
             $("#verEstado").val(cab.estado);
