@@ -2241,10 +2241,11 @@ function abrirModalEditar(idAcuerdo) {
 
             toggleAcuerdoForm();
 
+            /*
             // Renderizado de Artículos
             if (data.articulos && data.articulos.length > 0) {
                 renderizarTablaArticulos(data.articulos);
-            }
+            }*/
 
             $("#vistaTabla").fadeOut(200, function () {
                 $("#vistaDetalle").fadeIn(200);
@@ -2316,8 +2317,20 @@ function cerrarDetalle() {
 function formatearMoneda(v) {
     return (v || 0).toLocaleString('es-EC', { style: 'currency', currency: 'USD' });
 }
-function formatearFecha(f) {
-    if (!f) return "";
-    let d = new Date(f);
-    return d.toLocaleDateString('es-EC');
+function formatearFecha(fechaString) {
+    if (!fechaString) return "";
+
+    // Creamos el objeto fecha
+    const fecha = new Date(fechaString);
+
+    // Validamos que sea una fecha válida
+    if (isNaN(fecha.getTime())) return "Fecha inválida";
+
+    // Usamos métodos UTC para evitar que la zona horaria del servidor
+    // o del cliente nos cambie el día por la diferencia de horas.
+    const dia = fecha.getUTCDate().toString().padStart(2, '0');
+    const mes = (fecha.getUTCMonth() + 1).toString().padStart(2, '0');
+    const anio = fecha.getUTCFullYear();
+
+    return `${dia}/${mes}/${anio}`;
 }
