@@ -488,6 +488,10 @@ function cargarAprobaciones(valorEntidad, valorIdentidad, valorIdTipoProceso) {
 
     console.log("=== CARGANDO APROBACIONES ===");
 
+    console.log("valorEntidad: ", valorEntidad);
+    console.log("valorIdentidad: ", valorIdentidad);
+    console.log("valorIdTipoProceso: ", valorIdTipoProceso);
+
     // Destruir tabla anterior si existe
     if ($.fn.DataTable.isDataTable('#tabla-aprobaciones')) {
         $('#tabla-aprobaciones').DataTable().destroy();

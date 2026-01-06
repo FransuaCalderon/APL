@@ -1491,19 +1491,9 @@ async function guardarItems() {
                     `,
                     showConfirmButton: false,
                     timer: 2000,
-                }).then(() => {
-                    /*
-                    $("#acuerdoTipoItems").val("");
-                    $("#fondoProveedorItems").val("Seleccione...");
-                    $("#fondoProveedorIdItems").val("");
-                    $("#acuerdoDescripcionItems").val("");
-                    $("#acuerdoFechaInicioItems").val("");
-                    $("#acuerdoFechaFinItems").val("");
-                    $("#acuerdoValorTotalItems").val("");
-                    $("#tablaItemsBody").empty();
-                    */
                 });
                 cargarBandeja();
+                cerrarDetalle();
             },
             error: function (xhr, status, error) {
                 console.error("❌ Error guardado items:", xhr.status, xhr.responseText);
@@ -1658,6 +1648,8 @@ async function guardarGeneral() {
     console.log("📤 Enviando JSON General:", data);
     console.log("acuerdoTemporal: ",acuerdoTemporal);
 
+
+   
     Swal.fire({
         title: "Confirmar Guardado",
         text: "¿Desea guardar el acuerdo GENERAL?",
@@ -1686,16 +1678,7 @@ async function guardarGeneral() {
                     timer: 1400,
                 });
                 cargarBandeja();
-                
-                /*
-                $("#acuerdoTipoGeneral").val("");
-                $("#fondoProveedorGeneral").val("Seleccione...");
-                $("#fondoProveedorIdGeneral").val("");
-                $("#acuerdoDescripcionGeneral").val("");
-                $("#acuerdoFechaInicioGeneral").val("");
-                $("#acuerdoFechaFinGeneral").val("");
-                $("#acuerdoValorTotalGeneral").val("");
-                $("#acuerdoDisponibleGeneral").val("");*/
+                cerrarDetalle();
             },
             error: function (xhr) {
                 console.error("❌ Error guardado general:", xhr.status, xhr.responseText);

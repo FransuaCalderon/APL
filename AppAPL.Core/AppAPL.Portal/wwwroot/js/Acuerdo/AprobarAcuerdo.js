@@ -331,7 +331,7 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
             $("#verNombreTipoFondo").val(data.cabecera.nombre_tipo_fondo);
             $("#verDescripcion").val(data.cabecera.descripcion);
             $("#verClaseAcuerdo").val(data.cabecera.nombre_clase_acuerdo);
-            $("#verEstado").val(data.cabecera.nombre_estado_fondo);
+            $("#verEstado").val(data.cabecera.nombre_estado_acuerdo);
             $("#verFechaInicio").val(formatearFecha(data.cabecera.fecha_inicio));
             $("#verFechaFin").val(formatearFecha(data.cabecera.fecha_fin));
             $("#verValorAcuerdo").val(formatearMoneda(data.cabecera.valor_acuerdo));
@@ -405,7 +405,7 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
 
             // 3. CARGAR TABLA DE HISTORIAL DE APROBACIONES
             if (data.cabecera.entidad_etiqueta && data.cabecera.tipo_proceso_etiqueta) {
-                cargarAprobaciones(
+                cargarAprobacionesAcuerdo(
                     data.cabecera.entidad_etiqueta,
                     idAcuerdo,
                     data.cabecera.tipo_proceso_etiqueta
@@ -447,12 +447,16 @@ function cerrarDetalle() {
  * Consume el servicio de Aprobaciones y dibuja la tabla en el detalle
  * Reutiliza el ID '#tabla-aprobaciones-fondo' que pusiste en el HTML
  */
-function cargarAprobaciones(entidad, idEntidad, tipoProceso) {
+function cargarAprobacionesAcuerdo(entidad, idEntidad, tipoProceso) {
     const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
     const usuario = obtenerUsuarioActual();
 
     console.log("=== CARGANDO APROBACIONES DE ACUERDO ===");
     console.log('Con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+
+    console.log("entidad: ", entidad);
+    console.log("idEntidad: ", idEntidad);
+    console.log("tipoProceso: ", tipoProceso);
 
     // Destruir tabla anterior si existe
     if ($.fn.DataTable.isDataTable('#dt-historial')) {
