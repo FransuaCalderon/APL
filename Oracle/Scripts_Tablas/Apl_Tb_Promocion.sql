@@ -1,6 +1,6 @@
 
 CREATE TABLE Apl_Tb_Promocion (
-    IdPromocion             NUMBER(18,0)    GENERATED ALWAYS AS IDENTITY NOT NULL,
+    IdPromocion             NUMBER(18,0)    GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
     Descripcion             VARCHAR2(100)   NOT NULL,
     Motivo                  NUMBER(10)      NOT NULL,
     ClasePromocion          NUMBER(10)      NOT NULL,

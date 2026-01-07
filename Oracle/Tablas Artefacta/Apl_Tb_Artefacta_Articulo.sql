@@ -1,4 +1,4 @@
-CREATE TABLE Apl_Tb_Artefacta_Articulo(
+CREATE TABLE APL_TB_ARTEFACTA_ARTICULO(
     CODIGO                      VARCHAR2(50)    NOT NULL,
     DESCRIPCION                 VARCHAR2(255),
     COSTO                       NUMBER(16,2),

@@ -1,5 +1,5 @@
 CREATE TABLE Apl_Tb_PromocionAcuerdo (
-    IdPromocionAcuerdo      NUMBER(18,0)    GENERATED ALWAYS AS IDENTITY NOT NULL,
+    IdPromocionAcuerdo      NUMBER(18,0)    GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
     IdPromocion             NUMBER(18,0)    NOT NULL,
     IdAcuerdo               NUMBER(18,0)    NOT NULL,
     PorcentajeDescuento     NUMBER(18,2)    NOT NULL,
