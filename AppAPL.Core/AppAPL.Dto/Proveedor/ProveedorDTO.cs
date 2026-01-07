@@ -8,7 +8,7 @@ namespace AppAPL.Dto.Proveedor
 {
     public class ProveedorDTO
     {
-        public int Codigo { get; set; }
+        public string Codigo { get; set; }
         public string? Identificacion { get; set; }
         public string? Nombre { get; set; }
         public string? NombreContacto1 { get; set; }
