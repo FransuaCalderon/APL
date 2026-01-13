@@ -1,4 +1,3 @@
-
 create or replace PACKAGE APL_PKG_ACUERDOS AS  
     -- Declaración de tipos públicos
     TYPE t_cursor IS REF CURSOR;
@@ -550,8 +549,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             -- JSON completo para el log (GENERAL)
             v_json_log := JSON_OBJECT(
                 'tipoAcuerdo'   VALUE 'GENERAL',
-                'acuerdo'       VALUE JSON(v_json_acuerdo),
-                'fondo'         VALUE JSON(v_json_fondo_log)
+                'acuerdo'       VALUE v_json_acuerdo   FORMAT JSON,
+                'fondo'         VALUE v_json_fondo_log FORMAT JSON
             );
             
              -- INSERT en APL_TB_LOG
@@ -895,9 +894,9 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
             -- JSON completo para el log (ARTICULO)
             v_json_log := JSON_OBJECT(
                 'tipoAcuerdo'   VALUE 'ARTICULO',
-                'acuerdo'       VALUE JSON(v_json_acuerdo),
-                'fondo'         VALUE JSON(v_json_fondo_log),
-                'articulos'     VALUE JSON(v_json_articulos_log)
+                'acuerdo'       VALUE v_json_acuerdo       FORMAT JSON,
+                'fondo'         VALUE v_json_fondo_log      FORMAT JSON,
+                'articulos'     VALUE v_json_articulos_log FORMAT JSON
             );
             
             -- INSERT en APL_TB_LOG
