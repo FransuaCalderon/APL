@@ -1,9 +1,9 @@
-CREATE TABLE APL_Tb_CatalogoTipo(
-  IDCATALOGOTIPO               NUMBER(10) GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+CREATE TABLE APL_Tb_CatalogoTipo (
+  IDCATALOGOTIPO               NUMBER(10) GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 NOCACHE ORDER) NOT NULL,
   NOMBRE                       VARCHAR2(100 CHAR)     NOT NULL,
   DESCRIPCION                  VARCHAR2(350 CHAR)     NULL,
   IDUSUARIOCREACION            NUMBER(10)             NOT NULL,
-  FECHACREACION                DATE                   NOT NULL,  -- DATE en Oracle ya incluye fecha y hora
+  FECHACREACION                DATE                   NOT NULL,
   IDUSUARIOMODIFICACION        NUMBER(10)             NULL,
   FECHAMODIFICACION            DATE                   NULL,
   IDESTADO                     NUMBER(10)             NOT NULL,

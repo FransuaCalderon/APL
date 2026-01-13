@@ -1,5 +1,5 @@
 CREATE TABLE Apl_Tb_PromocionArticulo (
-    IdPromocionArticulo     NUMBER(18,0)    GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    IdPromocionArticulo     NUMBER(18,0)    GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 NOCACHE ORDER) NOT NULL,
     IdPromocion             NUMBER(18,0)    NOT NULL,
     IdPromocionCombo        NUMBER(18,0)    NOT NULL,
     CodigoItem              VARCHAR2(10)    NOT NULL,
