@@ -511,17 +511,35 @@ function cargarAprobacionesAcuerdo(entidad, idEntidad, tipoProceso) {
                 <tbody>`;
 
             lista.forEach(item => {
-                // Badges para el estado
-                let badgeClass = 'bg-secondary';
-                if (item.estado_etiqueta === 'ESTADONUEVO') badgeClass = 'bg-primary';
-                if (item.estado_etiqueta === 'ESTADOAPROBADO') badgeClass = 'bg-success';
-                if (item.estado_etiqueta === 'ESTADOINACTIVO' || item.estado_etiqueta === 'ESTADONEGADO') badgeClass = 'bg-danger';
+                // Lógica para el comentario y Popover
+                let comentarioLimpio = (item.comentario && item.comentario !== "string")
+                    ? item.comentario
+                    : "Sin comentarios.";
+
+                // ✅ MOSTRAR POPOVER SOLO SI EL ESTADO ES "APROBADO" O "NEGADO"
+                let estadoNombre = item.estado_nombre || item.estado_etiqueta || "N/A";
+                let estadoUpper = estadoNombre.toUpperCase();
+
+                let iconoPopover = "";
+                if (estadoUpper.includes("APROBADO") || estadoUpper.includes("NEGADO")) {
+                    // ✅ USAR SOLO EL ICONO SIN BORDE DE BOTÓN
+                    iconoPopover = `
+                    <i class="fa-solid fa-comment-dots text-warning ms-1"
+                       style="cursor: pointer; font-size: 0.9rem;"
+                       data-bs-toggle="popover" 
+                       data-bs-trigger="focus" 
+                       data-bs-placement="top"
+                       tabindex="0"
+                       title="Comentario" 
+                       data-bs-content="${comentarioLimpio}">
+                    </i>`;
+                }
 
                 html += `<tr>
                     <td class="text-center">${item.idaprobacion || ""}</td>
                     <td>${item.idusersolicitud || ""}</td>
                     <td>${item.iduseraprobador || ""}</td>
-                    <td class="text-center"><span class="badge ${badgeClass}">${item.estado_nombre || item.estado_etiqueta}</span></td>
+                    <td class="text-nowrap">${estadoNombre}${iconoPopover}</td>
                     <td class="text-center">${formatearFecha(item.fechasolicitud)}</td>
                     <td class="text-center">${item.nivelaprobacion || 0}</td>
                     <td>${item.tipoproceso_nombre || ""}</td>
@@ -538,7 +556,8 @@ function cargarAprobacionesAcuerdo(entidad, idEntidad, tipoProceso) {
                 pagingType: 'simple_numbers',
                 searching: false,
                 columnDefs: [
-                    { targets: [0, 4, 5], className: "dt-center" }
+                    { targets: [0, 4, 5], className: "dt-center" },
+                    { targets: 3, className: "dt-nowrap" } // Para que el icono no se baje de línea
                 ],
                 order: [[0, 'desc']],
                 language: {
@@ -553,6 +572,11 @@ function cargarAprobacionesAcuerdo(entidad, idEntidad, tipoProceso) {
                     search: "Buscar:",
                     zeroRecords: "No se encontraron aprobaciones coincidentes",
                     paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+                },
+                // RE-INICIALIZAR POPOVERS CADA VEZ QUE SE DIBUJA LA TABLA (Cambio de página, etc)
+                drawCallback: function () {
+                    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+                    [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
                 }
             });
         },
