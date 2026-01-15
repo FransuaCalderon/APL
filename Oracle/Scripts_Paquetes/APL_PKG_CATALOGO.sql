@@ -48,6 +48,13 @@ CREATE OR REPLACE PACKAGE APL_PKG_CATALOGO AS
     o_cur            OUT t_cursor,
     o_total          OUT PLS_INTEGER
   );
+  
+  PROCEDURE SP_FILTRAR_CATALOGO_POR_TIPO(
+        p_idcatalogotipo    IN  NUMBER,
+        p_cursor            OUT t_cursor,
+        p_codigo_error      OUT NUMBER,
+        p_mensaje_error     OUT VARCHAR2
+  );
 END APL_PKG_CATALOGO;
 /
 
@@ -230,6 +237,40 @@ CREATE OR REPLACE PACKAGE BODY APL_PKG_CATALOGO AS
       RAISE_APPLICATION_ERROR(-20107,
         'Error en listar: '||SQLERRM);
   END listar;
+  
+  PROCEDURE SP_FILTRAR_CATALOGO_POR_TIPO(
+        p_idcatalogotipo    IN  NUMBER,
+        p_cursor            OUT t_cursor,
+        p_codigo_error      OUT NUMBER,
+        p_mensaje_error     OUT VARCHAR2
+   ) AS
+  BEGIN
+        -- Inicializar variables de error
+        p_codigo_error  := 0;
+        p_mensaje_error := 'OK';
+        
+        -- Abrir cursor con el filtro por IDCATALOGOTIPO
+        OPEN p_cursor FOR
+            SELECT  IDCATALOGO,
+                    NOMBRE,
+                    ADICIONAL,
+                    ABREVIATURA,
+                    IDCATALOGOTIPO,
+                    IDUSUARIOCREACION,
+                    FECHACREACION,
+                    IDUSUARIOMODIFICACION,
+                    FECHAMODIFICACION,
+                    IDESTADO,
+                    IDETIQUETA
+            FROM    APL_TB_CATALOGO
+            WHERE   IDCATALOGOTIPO = p_idcatalogotipo
+            ORDER BY IDCATALOGO;
+            
+    EXCEPTION
+        WHEN OTHERS THEN
+            p_codigo_error  := SQLCODE;
+            p_mensaje_error := 'Error: ' || SQLERRM;
+    END SP_FILTRAR_CATALOGO_POR_TIPO;
 
 END APL_PKG_CATALOGO;
 /
