@@ -1,19 +1,20 @@
-﻿using System;
+﻿using AppAPL.AccesoDatos.Abstracciones;
+using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto.Catalogo;
+using Dapper;
+using Microsoft.Extensions.Logging;
+using Oracle.ManagedDataAccess.Client;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AppAPL.AccesoDatos.Abstracciones;
-using AppAPL.AccesoDatos.Oracle;
-using AppAPL.Dto.Catalogo;
-using Dapper;
-using Oracle.ManagedDataAccess.Client;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
-    public class CatalogoRepositorio (OracleConnectionFactory factory) : ICatalogoRepositorio
+    public class CatalogoRepositorio (OracleConnectionFactory factory, ILogger<CatalogoRepositorio> logger) : ICatalogoRepositorio
     {
         public async Task<IEnumerable<CatalogoDTO>> ListarAsync(
             string? nombre = null,
@@ -52,7 +53,35 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
-        
+        public async Task<IEnumerable<CatalogoDTO>> FiltrarPorTipo(int idCatalogoTipo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idcatalogotipo = idCatalogoTipo
+            };
+
+            var parameters = new OracleDynamicParameters(paramObject);
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_error", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_error", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            var datos = await connection.QueryAsync<CatalogoDTO>(
+                "APL_PKG_CATALOGO.SP_FILTRAR_CATALOGO_POR_TIPO",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_error");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_error");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
+
 
         public async Task<CatalogoDTO?> ObtenerPorIdAsync(int idCatalogo)
         {

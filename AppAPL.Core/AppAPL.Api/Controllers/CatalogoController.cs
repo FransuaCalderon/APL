@@ -24,6 +24,16 @@ namespace AppAPL.Api.Controllers
             return listaCatalogo.ToList();
         }
 
+
+        [HttpGet("FiltrarPorTipo/{idCatalogoTipo:int}")]
+        public async Task<ActionResult<List<CatalogoDTO>>> FiltrarPorTipo(int idCatalogoTipo)
+        {
+
+            var listaCatalogo = await servicio.FiltrarPorTipo(idCatalogoTipo);
+
+            return listaCatalogo.ToList();
+        }
+
         [HttpGet("obtener/{id:int}")]
         public async Task<ActionResult<CatalogoDTO>> ObtenerPorId(int id)
         {

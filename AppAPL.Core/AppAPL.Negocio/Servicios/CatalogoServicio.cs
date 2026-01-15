@@ -29,6 +29,9 @@ namespace AppAPL.Negocio.Servicios
         public Task<CatalogoDTO?> ObtenerPorIdAsync(int idCatalogo)
             => repo.ObtenerPorIdAsync(idCatalogo);
 
-        
+        public Task<IEnumerable<CatalogoDTO>> FiltrarPorTipo(int idCatalogoTipo)
+            => repo.FiltrarPorTipo(idCatalogoTipo);
+
+
     }
 }

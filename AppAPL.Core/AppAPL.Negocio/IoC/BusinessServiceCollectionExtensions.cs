@@ -19,6 +19,7 @@ namespace AppAPL.Negocio.IoC
             services.AddScoped<IProveedorServicio, ProveedorServicio>();
             services.AddScoped<IAprobacionServicio, AprobacionServicio>();
             services.AddScoped<IAcuerdoServicio, AcuerdoServicio>();
+            services.AddScoped<IPromocionServicio, PromocionServicio>();
             services.AddAutoMapper(typeof(BusinessServiceCollectionExtensions));
             return services;
         }
