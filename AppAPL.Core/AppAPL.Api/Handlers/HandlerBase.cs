@@ -60,14 +60,17 @@ namespace AppAPL.Api.Handlers
 
             // ... (Tu lógica para toList y ccList no cambia) ...
             var toList = destinatarios
-                .Select(d => d.para)
-                .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Distinct()
+                .Where(d => !string.IsNullOrWhiteSpace(d.para)) // Filtramos nulos primero
+                .SelectMany(d => d.para.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                .Select(email => email.Trim()) // Quitamos espacios en blanco extra
+                .Distinct() // Ahora sí elimina correos duplicados reales
                 .ToList();
 
             var ccList = destinatarios
                 .Select(d => d.cc)
                 .Where(p => !string.IsNullOrWhiteSpace(p))
+                // Separamos por coma, punto y coma o espacio, y limpiamos espacios sobrantes
+                .SelectMany(p => p.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                 .Distinct()
                 .ToList();
 
