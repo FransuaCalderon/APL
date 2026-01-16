@@ -5,6 +5,8 @@
 // ===============================================================
 let tabla; // GLOBAL
 let ultimaFilaModificada = null; // Para recordar la última fila editada/eliminada
+let tiposCatalogo = []; // Almacena los tipos de catálogo
+let tipoCatalogoSeleccionado = null; // ID del tipo de catálogo seleccionado actualmente
 
 // ===============================================================
 // FUNCIÓN HELPER PARA OBTENER USUARIO (Busca en múltiples lugares)
@@ -85,33 +87,42 @@ $(document).ready(function () {
             return;
         }
 
-        console.log('Cargando catálogo con idOpcion:', idOpcionActual, 'y usuario:', usuario);
+        // ===== CARGAR TIPOS DE CATÁLOGO EN EL SELECT =====
+        cargarTiposCatalogo(idOpcionActual, usuario);
+    });
 
-        $.ajax({
-            url: `${apiBaseUrl}/api/Catalogo/listar`,
-            method: "GET",
-            headers: {
-                "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                "usuario": usuario                   // ✅ DINÁMICO
-            },
-            success: function (data) {
-                console.log("Datos de catálogo cargados:", data);
-                crearListado(data);
-            },
-            error: function (xhr, status, error) {
-                console.error("Error al obtener catálogo:", error);
-                console.error("Detalles del error:", xhr.responseText);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar los catálogos'
-                });
-            }
-        });
+    // ===== EVENTO CHANGE DEL SELECT TIPO CATÁLOGO =====
+    $('#selectTipoCatalogo').on('change', function () {
+        const idTipoCatalogo = $(this).val();
+
+        if (!idTipoCatalogo) {
+            // Si no hay selección, limpiar la tabla
+            tipoCatalogoSeleccionado = null;
+            limpiarTabla();
+            return;
+        }
+
+        tipoCatalogoSeleccionado = idTipoCatalogo;
+
+        const idOpcionActual = window.obtenerIdOpcionActual();
+        const usuario = obtenerUsuarioActual();
+
+        console.log('Tipo Catálogo seleccionado:', idTipoCatalogo);
+
+        // Cargar catálogos del tipo seleccionado
+        cargarCatalogosPorTipo(idTipoCatalogo, idOpcionActual, usuario);
     });
 
     // Delegación para el botón "Agregar Nuevo"
     $('body').on('click', '#btnAgregarNuevo', function () {
+        if (!tipoCatalogoSeleccionado) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Por favor, seleccione un Tipo de Catálogo primero.'
+            });
+            return;
+        }
         abrirModalCrear();
     });
 
@@ -153,6 +164,15 @@ $(document).ready(function () {
             return;
         }
 
+        if (!tipoCatalogoSeleccionado) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Por favor, seleccione un Tipo de Catálogo primero.'
+            });
+            return;
+        }
+
         const id = $("#modal-idCatalogo").val();
         const isCrear = !id;
 
@@ -162,7 +182,7 @@ $(document).ready(function () {
             nombre: $("#modal-nombre").val(),
             adicional: $("#modal-adicional").val(),
             abreviatura: $("#modal-abreviatura").val(),
-            idcatalogotipo: 3, // Asignar el ID de tipo de catálogo correspondiente
+            idcatalogotipo: parseInt(tipoCatalogoSeleccionado), // ✅ USA EL TIPO SELECCIONADO
             idusuariocreacion: 1,
             fechacreacion: new Date().toISOString(),
             idusuariomodificacion: 1,
@@ -187,8 +207,8 @@ $(document).ready(function () {
             contentType: "application/json",
             data: JSON.stringify(data),
             headers: {
-                "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                "usuario": usuario                   // ✅ DINÁMICO
+                "idopcion": String(idOpcionActual),
+                "usuario": usuario
             },
             success: function (response) {
                 $("#editarModal").modal("hide");
@@ -205,22 +225,8 @@ $(document).ready(function () {
                     ultimaFilaModificada = id;
                 }
 
-                // ✅ RECARGAR CON HEADERS DINÁMICOS
-                $.ajax({
-                    url: `${window.apiBaseUrl}/api/Catalogo/listar`,
-                    method: "GET",
-                    headers: {
-                        "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                        "usuario": usuario                   // ✅ DINÁMICO
-                    },
-                    success: function (data) {
-                        crearListado(data);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error al recargar catálogo:", error);
-                        console.error("Detalles del error:", xhr.responseText);
-                    }
-                });
+                // ✅ RECARGAR CATÁLOGOS DEL TIPO SELECCIONADO
+                cargarCatalogosPorTipo(tipoCatalogoSeleccionado, idOpcionActual, usuario);
             },
             error: function (xhr, status, error) {
                 const mensaje = id ? "actualizar" : "guardar";
@@ -262,6 +268,170 @@ $(document).ready(function () {
 
 }); // FIN document.ready
 
+
+// ===================================================================
+// ===== FUNCIONES PARA TIPO CATÁLOGO =====
+// ===================================================================
+
+/**
+ * Cargar los tipos de catálogo en el select
+ */
+function cargarTiposCatalogo(idOpcionActual, usuario) {
+    console.log('Cargando tipos de catálogo...');
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/CatalogoTipo/listar`,
+        method: "GET",
+        headers: {
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario
+        },
+        success: function (data) {
+            console.log("Tipos de catálogo cargados:", data);
+
+            // ✅ ORDENAR de menor a mayor por idcatalogotipo (Estado primero)
+            tiposCatalogo = data.sort((a, b) => a.idcatalogotipo - b.idcatalogotipo);
+
+            // Llenar el select
+            const $select = $('#selectTipoCatalogo');
+            $select.empty();
+            $select.append('<option value="">-- Seleccione --</option>');
+
+            tiposCatalogo.forEach(function (tipo) {
+                $select.append(
+                    `<option value="${tipo.idcatalogotipo}">${tipo.nombre}</option>`
+                );
+            });
+
+            console.log('Select de tipos de catálogo poblado correctamente (ordenado ascendente)');
+
+            // ✅ Mostrar tabla vacía inicial con mensaje
+            mostrarTablaVaciaInicial();
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al obtener tipos de catálogo:", error);
+            console.error("Detalles del error:", xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar los tipos de catálogo'
+            });
+        }
+    });
+}
+
+/**
+ * Cargar catálogos filtrados por tipo
+ */
+function cargarCatalogosPorTipo(idTipoCatalogo, idOpcionActual, usuario) {
+    console.log('Cargando catálogos del tipo:', idTipoCatalogo);
+
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Catalogo/FiltrarPorTipo/${idTipoCatalogo}`,
+        method: "GET",
+        headers: {
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario
+        },
+        success: function (data) {
+            console.log("Catálogos del tipo cargados:", data);
+
+            // Si la respuesta es un objeto único, convertirlo a array
+            const dataArray = Array.isArray(data) ? data : [data];
+
+            crearListado(dataArray);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al obtener catálogos por tipo:", error);
+            console.error("Detalles del error:", xhr.responseText);
+
+            // Si no hay datos, mostrar tabla vacía
+            if (xhr.status === 404) {
+                crearListado([]);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudieron cargar los catálogos'
+                });
+            }
+        }
+    });
+}
+
+/**
+ * Mostrar tabla vacía inicial con mensaje de selección
+ */
+function mostrarTablaVaciaInicial() {
+    if (tabla) {
+        tabla.destroy();
+        tabla = null;
+    }
+
+    var html = "";
+    html += "<table id='tabla-curso' class='table table-striped display'>";
+    html += "  <thead><tr><th>ID</th><th>Nombre</th><th>Adicional</th><th>Abreviatura</th><th>Opciones</th></tr></thead>";
+    html += "  <tbody>";
+    html += "  </tbody>";
+    html += "</table>";
+
+    $('#tabla').html(html);
+
+    // Inicializar DataTable con mensaje personalizado para tabla vacía
+    tabla = $('#tabla-curso').DataTable({
+        pageLength: 5,
+        lengthMenu: [5, 10, 50],
+        pagingType: 'full_numbers',
+        columnDefs: [
+            { targets: 0, width: "5%", className: "dt-left" },
+            { targets: 4, width: "10%", className: "dt-center", orderable: false },
+            { targets: 2, width: "30%" }
+        ],
+        language: {
+            decimal: "",
+            emptyTable: "Seleccione un Tipo de Catálogo para ver los registros",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            infoPostFix: "",
+            thousands: ",",
+            lengthMenu: "Mostrar _MENU_ registros",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "No se encontraron registros coincidentes",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            },
+            aria: {
+                sortAscending: ": activar para ordenar la columna de manera ascendente",
+                sortDescending: ": activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
+
+    // Agregar botón
+    const addButtonHtml = `
+        <button type="button" class="btn btn-primary ms-2" id="btnAgregarNuevo" title="Agregar Nuevo" style="height: 38px;">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    `;
+    const lengthContainer = $('#tabla-curso_length');
+    lengthContainer.find('#btnAgregarNuevo').remove();
+    lengthContainer.prepend(addButtonHtml);
+    lengthContainer.css('display', 'flex').css('align-items', 'center');
+}
+
+/**
+ * Limpiar la tabla cuando no hay tipo seleccionado
+ */
+function limpiarTabla() {
+    tipoCatalogoSeleccionado = null;
+    mostrarTablaVaciaInicial();
+}
 
 // ===================================================================
 // ===== FUNCIONES GLOBALES =====
@@ -397,12 +567,13 @@ function abrirModalEditar(id) {
         .removeClass('btn-success')
         .addClass('btn-primary');
 
+    // Usar el endpoint individual para obtener un catálogo específico
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Catalogo/obtener/${id}`,
+        url: `${window.apiBaseUrl}/api/Catalogo/obtenerPorId/${id}`,
         method: "GET",
         headers: {
-            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-            "usuario": usuario                   // ✅ DINÁMICO
+            "idopcion": String(idOpcionActual),
+            "usuario": usuario
         },
         success: function (data) {
             console.log("Datos del catálogo cargados:", data);
@@ -435,6 +606,7 @@ function abrirModalCrear() {
     console.log('Abriendo modal para crear nuevo catálogo');
 
     $('#formEditar')[0].reset();
+    $('#modal-idCatalogo').val('');
     $('#modal-id').val('');
     $('#editarModalLabel').text('Crear Nuevo Catálogo');
     $('#btnGuardarCambios')
@@ -480,8 +652,8 @@ function confirmDelete(id) {
                 url: `${window.apiBaseUrl}/api/Catalogo/eliminar/${id}`,
                 type: "DELETE",
                 headers: {
-                    "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                    "usuario": usuario                   // ✅ DINÁMICO
+                    "idopcion": String(idOpcionActual),
+                    "usuario": usuario
                 },
                 success: function () {
                     Swal.fire({
@@ -497,22 +669,10 @@ function confirmDelete(id) {
                         limpiarSeleccion('#tabla-curso');
                     }
 
-                    // ✅ RECARGAR CON HEADERS DINÁMICOS
-                    $.ajax({
-                        url: `${window.apiBaseUrl}/api/Catalogo/listar`,
-                        method: "GET",
-                        headers: {
-                            "idopcion": String(idOpcionActual), // ✅ DINÁMICO
-                            "usuario": usuario                   // ✅ DINÁMICO
-                        },
-                        success: function (data) {
-                            crearListado(data);
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error al recargar catálogo:", error);
-                            console.error("Detalles del error:", xhr.responseText);
-                        }
-                    });
+                    // ✅ RECARGAR CATÁLOGOS DEL TIPO SELECCIONADO
+                    if (tipoCatalogoSeleccionado) {
+                        cargarCatalogosPorTipo(tipoCatalogoSeleccionado, idOpcionActual, usuario);
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.error("Error al eliminar:", error);

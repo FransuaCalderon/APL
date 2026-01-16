@@ -39,9 +39,39 @@
             color: #6c757d !important;
             background: rgba(108, 117, 125, 0.1) !important;
         }
+
+    /* Estilos para el filtro de Tipo Catálogo */
+    .filtro-container {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+    }
+
+        .filtro-container label {
+            font-weight: 600;
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+
+        .filtro-container select {
+            width: 200px;
+        }
 </style>
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
+
+@* ===== FILTRO DE TIPO CATÁLOGO ===== *@
+<div class="filtro-container">
+    <label for="selectTipoCatalogo">Tipo Catálogo</label>
+    <select class="form-select" id="selectTipoCatalogo" name="tipoCatalogo">
+        <option value="">-- Seleccione --</option>
+    </select>
+</div>
 
 <div id="tabla"></div>
 
