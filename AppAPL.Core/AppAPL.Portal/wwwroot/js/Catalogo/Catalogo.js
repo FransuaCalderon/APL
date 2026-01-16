@@ -567,9 +567,9 @@ function abrirModalEditar(id) {
         .removeClass('btn-success')
         .addClass('btn-primary');
 
-    // Usar el endpoint individual para obtener un catálogo específico
+    // Usar el endpoint para obtener un catálogo específico
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Catalogo/obtenerPorId/${id}`,
+        url: `${window.apiBaseUrl}/api/Catalogo/obtener/${id}`,
         method: "GET",
         headers: {
             "idopcion": String(idOpcionActual),
