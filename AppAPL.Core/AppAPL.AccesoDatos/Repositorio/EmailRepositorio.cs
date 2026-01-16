@@ -78,10 +78,11 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             //Enviar el correo
             using var smtp = new SmtpClient();
+            smtp.Timeout = 30000; // 30 segundos
             await smtp.ConnectAsync(
             config["EmailSettings:SmtpServer"],
             int.Parse(config["EmailSettings:Port"]),
-            SecureSocketOptions.StartTls
+            SecureSocketOptions.SslOnConnect
             );
             await smtp.AuthenticateAsync(
             config["EmailSettings:Username"],
