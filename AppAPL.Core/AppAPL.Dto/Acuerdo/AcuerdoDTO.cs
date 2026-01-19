@@ -68,6 +68,7 @@ namespace AppAPL.Dto.Acuerdo
         public decimal ValorComprometido { get; set; }
         public decimal ValorLiquidado { get; set; }
         public int IdEstadoRegistro { get; set; }
+        public string Nombre_registro { get; set; }
         public int IndicadorCreacion { get; set; }
         public string MarcaProcesoAprobacion { get; set; }
 
