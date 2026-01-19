@@ -177,7 +177,8 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
     Descripción: Lista los fondos con estado VIGENTE y valor disponible mayor a 0
     =========================================================
     */
-    PROCEDURE sp_listar_consulta_fondo(
+	
+	PROCEDURE sp_listar_consulta_fondo(
         p_cursor    OUT t_cursor,
         p_codigo    OUT NUMBER,
         p_mensaje   OUT VARCHAR2
@@ -207,12 +208,14 @@ create or replace PACKAGE BODY APL_PKG_ACUERDOS AS
                 f.VALORCOMPROMETIDO,
                 f.VALORLIQUIDADO,
                 f.IDESTADOREGISTRO,
+                ca.NOMBRE as Nombre_registro,
                 f.INDICADORCREACION,
                 f.MARCAPROCESOAPROBACION
             FROM 
                 APL_TB_FONDO f 
                 INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
                 INNER JOIN apl_tb_catalogo c ON c.idcatalogo = f.idtipofondo
+                INNER JOIN apl_tb_catalogo ca on ca.idcatalogo = f.idestadoregistro
             WHERE
                 IDESTADOREGISTRO = v_estado_registro
                 AND VALORDISPONIBLE > 0;
