@@ -44,39 +44,67 @@
             // 1. Cargar la configuración regional en español
             $.datepicker.setDefaults($.datepicker.regional['es']);
 
-            // 2. Inicializa los datepickers
-            $("#fondoFechaInicio, #fondoFechaFin").datepicker({
-                dateFormat: "dd/mm/yy", // Formato que coincide con tu placeholder
+            // 2. Configuración base común para ambos datepickers
+            const commonOptions = {
+                dateFormat: "dd/mm/yy",
                 changeMonth: true,
                 changeYear: true,
-                showButtonPanel: true, // Muestra el panel de botones
-                // 'beforeShow' se usa para modificar los botones antes de que se muestren
+                showButtonPanel: true,
                 beforeShow: function(input, inst) {
-                    // Retrasar la modificación para asegurar que el panel de botones exista
                     setTimeout(function() {
                         let buttonPane = $(inst.dpDiv).find(".ui-datepicker-buttonpane");
 
-                        // 1. Cambiar el texto del botón "Done" (Cerrar) a "Borrar"
+                        // Botón Borrar
                         let doneButton = buttonPane.find(".ui-datepicker-close");
                         doneButton.text("Borrar");
-
-                        // 2. Reasignar el evento 'click' del botón "Borrar" para que limpie el campo
                         doneButton.off("click").on("click", function () {
-                            // Limpiar el valor del input
                             $(input).val("");
-                            // Esconder el datepicker
+                            // Si borramos fecha inicio, resetear restricción de fecha fin
+                            if (input.id === "fondoFechaInicio") {
+                                $("#fondoFechaFin").datepicker("option", "minDate", 1);
+                            }
                             $.datepicker._hideDatepicker();
                         });
 
-                        // 3. (Opcional) Asegurarse que el botón "Hoy" esté correcto
+                        // Botón Hoy
                         let todayButton = buttonPane.find(".ui-datepicker-current");
                         todayButton.text("Hoy");
-
                     }, 1);
+                }
+            };
+
+            // 3. ✅ Inicializar Fecha Inicio con minDate: 0 (hoy, no permite días anteriores)
+            $("#fondoFechaInicio").datepicker({
+                ...commonOptions,
+                minDate: 0, // ✅ CLAVE: 0 = hoy, no permite fechas anteriores
+                onSelect: function(dateText, inst) {
+                    // Obtener la fecha seleccionada como objeto Date
+                    const startDate = $(this).datepicker("getDate");
+
+                    if (startDate) {
+                        // Crear una nueva fecha para el Fin (Inicio + 1 día)
+                        const minEndDate = new Date(startDate.getTime());
+                        minEndDate.setDate(minEndDate.getDate() + 1);
+
+                        // ✅ Actualizar el minDate del campo Fecha Fin
+                        $("#fondoFechaFin").datepicker("option", "minDate", minEndDate);
+
+                        // Si la fecha fin actual es menor o igual a la nueva fecha inicio, limpiarla
+                        const currentEndDate = $("#fondoFechaFin").datepicker("getDate");
+                        if (currentEndDate && currentEndDate <= startDate) {
+                            $("#fondoFechaFin").val("");
+                        }
+                    }
                 }
             });
 
-            // 3. Asigna el clic del *botón* para que abra el datepicker del *input*
+            // 4. ✅ Inicializar Fecha Fin con minDate: 1 (mañana por defecto)
+            $("#fondoFechaFin").datepicker({
+                ...commonOptions,
+                minDate: 1 // Por defecto mañana, se actualiza dinámicamente cuando se selecciona fecha inicio
+            });
+
+            // 5. Asignar el clic del *botón* para que abra el datepicker del *input*
             $("#btnFechaInicio").on("click", function () {
                 $("#fondoFechaInicio").datepicker("show");
             });

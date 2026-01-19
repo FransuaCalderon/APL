@@ -249,6 +249,16 @@ function habilitarSeleccionProveedor() {
     console.log('Selección de proveedor habilitada');
 }
 
+// ✅ NUEVA FUNCIÓN: Obtiene la fecha actual en formato dd/mm/yyyy
+function obtenerFechaActualFormateada() {
+    const hoy = new Date();
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0'); // Los meses van de 0-11
+    const anio = hoy.getFullYear();
+
+    return `${dia}/${mes}/${anio}`;
+}
+
 $(document).ready(function () {
     console.log("=== INICIO DE CARGA DE PÁGINA - CrearFondo ===");
 
@@ -358,6 +368,11 @@ $(document).ready(function () {
         }
     });
 
+    // ✅ NUEVO: Setear la fecha de inicio a la fecha actual al cargar la página
+    const fechaActual = obtenerFechaActualFormateada();
+    $("#fondoFechaInicio").val(fechaActual);
+    console.log("✅ Fecha de inicio seteada a:", fechaActual);
+
     $("#btnGuardarFondos").on("click", function (e) {
         e.preventDefault();
         console.log("Guardando fondos");
@@ -438,6 +453,17 @@ $(document).ready(function () {
                 const url = `${window.apiBaseUrl}/api/Fondo/insertar`;
                 const method = "POST";
 
+                // ✅ NUEVO: Mostrar spinner de carga
+                Swal.fire({
+                    title: 'Guardando...',
+                    text: 'Por favor espere',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 $.ajax({
                     url: url,
                     type: method,
@@ -460,7 +486,8 @@ $(document).ready(function () {
                         $("#fondoProveedor").val("Seleccione...");
                         $("#fondoProveedorId").val("");
                         $("#fondoDescripcion").val("");
-                        $("#fondoFechaInicio").val("");
+                        // ✅ MODIFICADO: Restablecer fecha inicio a fecha actual después de limpiar
+                        $("#fondoFechaInicio").val(obtenerFechaActualFormateada());
                         $("#fondoFechaFin").val("");
                         $("#fondoValorTotal").val("");
                         $("#fondoDisponible").val("");
