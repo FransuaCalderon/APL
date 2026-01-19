@@ -33,6 +33,7 @@ namespace AppAPL.Api.Handlers
             // 1. Declaramos las variables que llenará el switch
             string IdProveedor = "";
             Dictionary<string, string> camposPlantilla = null;
+            string notificacion = "";
 
             logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
 
@@ -91,8 +92,8 @@ namespace AppAPL.Api.Handlers
                         { "Firma", "" },
                         // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                     };
+                    notificacion = $"apl solicitud acuerdo {tipoProceso}".ToUpper();
 
-                    
                     break;
 
                 case TipoProceso.Modificacion:
@@ -162,6 +163,7 @@ namespace AppAPL.Api.Handlers
 
                         };
 
+                    notificacion = $"apl solicitud acuerdo {tipoProceso}".ToUpper();
                     break;
 
                 case TipoProceso.Aprobacion:
@@ -219,6 +221,8 @@ namespace AppAPL.Api.Handlers
                             { "Firma", "" },
                             
                         };
+
+                    notificacion = $"apl solicitud acuerdo {tipoProceso}".ToUpper();
                     break;
 
                 case TipoProceso.Inactivacion:
@@ -263,7 +267,9 @@ namespace AppAPL.Api.Handlers
                             { "Firma", "" },
 
                         };
-                    
+
+                    notificacion = $"apl solicitud acuerdo {tipoProceso}".ToUpper();
+
                     break;
 
                 default:
@@ -273,7 +279,7 @@ namespace AppAPL.Api.Handlers
 
             if (camposPlantilla != null)
             {
-                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, "Acuerdos");
+                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, notificacion);
             }
             else
             {

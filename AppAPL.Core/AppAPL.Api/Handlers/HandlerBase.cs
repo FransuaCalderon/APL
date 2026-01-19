@@ -39,8 +39,11 @@ namespace AppAPL.Api.Handlers
         }
 
         protected async Task EnviarCorreo(string entidad, string tipoProcEtiqueta, string IdProveedor, TipoProceso tipoProceso,
-            Dictionary<string, string>? camposPlantilla, string? nombreEntidad = null)
+            Dictionary<string, string>? camposPlantilla, string? notificacion = null)
         {
+            logger.LogInformation("Parametros para enviar correo");
+            logger.LogInformation($"entidad: {entidad}, tipoProcEtiqueta: {tipoProcEtiqueta}, IdProveedor: {IdProveedor}, tipoProceso: {tipoProceso}");
+
             // 🔹 Consultar SP y enviar correo
             var datos = await emailRepo.ObtenerDatosCorreo(new ConsultarDatosCorreoRequest
             {
@@ -89,9 +92,11 @@ namespace AppAPL.Api.Handlers
 
             //string? nombreEntidad = await this.RetornarNombreEntidad(entidad);
 
+            logger.LogInformation($"Plantilla usada: {plantilla.nombrearchivo}");
+
             await emailRepo.SendEmailAsync(
                 toList,
-                $"Notificación {nombreEntidad}: {tipoProceso}",
+                notificacion,
                 plantilla.nombrearchivo,
                 camposPlantilla, // Usamos el diccionario llenado en el switch
                 ccList

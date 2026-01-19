@@ -33,6 +33,7 @@ namespace AppAPL.Api.Handlers
             // 1. Declaramos las variables que llenará el switch
             string IdProveedor;
             Dictionary<string, string> camposPlantilla = null;
+            string notificacion = "";
 
             // 2. Aplicamos el "Strategy Pattern". 
             // Cada 'case' es una estrategia completa: deserializa el DTO correcto
@@ -77,6 +78,8 @@ namespace AppAPL.Api.Handlers
                         { "Firma", reqCreacion.NombreUsuarioIngreso },
                         // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                     };
+
+                    notificacion = $"apl solicitud fondo {tipoProceso}".ToUpper();
                     break;
 
                 case TipoProceso.Modificacion: 
@@ -129,6 +132,8 @@ namespace AppAPL.Api.Handlers
                         { "NuevoValorLiquidado", "0.00" },
                         { "Firma", reqModif.NombreUsuarioModifica },
                     };
+
+                    notificacion = $"apl solicitud fondo {tipoProceso}".ToUpper();
                     break;
 
 
@@ -162,19 +167,21 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                        camposPlantilla = new Dictionary<string, string>
-                        {
-                            { "Nombre", fondo.IdUsuarioIngreso },
-                            { "IdFondo", fondo.IdFondo.ToString() },
-                            { "NombreProveedor", proveedor3.Nombre },
-                            { "IdProveedor", proveedor3.Identificacion },
-                            { "ValorFondo", fondo.ValorFondo?.ToString("N2") },
-                            { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo.ValorFondo) },
-                            { "FechaInicio", fondo.FechaInicioVigencia.ToString() },
-                            { "FechaFin", fondo.FechaFinVigencia.ToString() },
-                            { "Firma", reqAprobacion.UsuarioAprobador },
-                            { "Estado", estadoCorreo },
-                        };
+                    camposPlantilla = new Dictionary<string, string>
+                      {
+                        { "Nombre", fondo.IdUsuarioIngreso },
+                        { "IdFondo", fondo.IdFondo.ToString() },
+                        { "NombreProveedor", proveedor3.Nombre },
+                        { "IdProveedor", proveedor3.Identificacion },
+                        { "ValorFondo", fondo.ValorFondo?.ToString("N2") },
+                        { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo.ValorFondo) },
+                        { "FechaInicio", fondo.FechaInicioVigencia.ToString() },
+                        { "FechaFin", fondo.FechaFinVigencia.ToString() },
+                        { "Firma", reqAprobacion.UsuarioAprobador },
+                        { "Estado", estadoCorreo },
+                      };
+
+                    notificacion = $"apl solicitud fondo {tipoProceso}".ToUpper();
                     break;
 
                     
@@ -219,7 +226,9 @@ namespace AppAPL.Api.Handlers
                             { "Firma", reqInactivacion.NombreUsuarioIngreso },
                             // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                         };
-                    
+
+                    notificacion = $"apl solicitud fondo {tipoProceso}".ToUpper();
+
                     break;
 
                 default:
@@ -232,7 +241,7 @@ namespace AppAPL.Api.Handlers
 
             if (camposPlantilla != null)
             {
-                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, "Fondos");
+                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, notificacion);
             }
             else
             {
