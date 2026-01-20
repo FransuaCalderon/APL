@@ -444,11 +444,7 @@
                     const comprometido = fmtMoney(pick(x, ["valorcomprometido", "valorComprometido"], 0));
                     const liquidado = fmtMoney(pick(x, ["valorliquidado", "valorLiquidado"], 0));
 
-                    const estado = pick(
-                        x,
-                        ["estado", "descEstado"],
-                        pick(x, ["idestadoregistro", "idEstadoRegistro"])
-                    );
+                    const estado = pick(x, ["nombre_registro", "nombreRegistro"], "");
 
                     const fila = `
           <tr class="text-nowrap">
