@@ -151,6 +151,12 @@ namespace AppAPL.Api.Handlers
                         "ESTADONEGADO" => "NEGADO"
                     };
 
+                    string etiquetaTipoProceso = reqAprobacion.IdEtiquetaTipoProceso switch
+                    {
+                        "TPCREACION" => "CREACION",
+                        "TPINACTIVACION" => "INACTIVACION"
+                    };
+
                     var fondo = await fondoRepo.ObtenerPorIdAsync((int)reqAprobacion.Identidad);
 
                     if (fondo == null)
@@ -179,6 +185,7 @@ namespace AppAPL.Api.Handlers
                         { "FechaFin", fondo.FechaFinVigencia.ToString() },
                         { "Firma", reqAprobacion.UsuarioAprobador },
                         { "Estado", estadoCorreo },
+                        { "TipoProceso", etiquetaTipoProceso },
                       };
 
                     notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();

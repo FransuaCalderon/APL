@@ -180,6 +180,12 @@ namespace AppAPL.Api.Handlers
                         "ESTADONEGADO" => "NEGADO"
                     };
 
+                    string etiquetaTipoProceso = reqAprobacion.IdEtiquetaTipoProceso switch
+                    {
+                        "TPCREACION" => "CREACION",
+                        "TPINACTIVACION" => "INACTIVACION"
+                    };
+
                     var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)reqAprobacion.Identidad);
                     if (acuerdo == null)
                     {
@@ -209,6 +215,7 @@ namespace AppAPL.Api.Handlers
                         {
                             { "Nombre", "" },
                             { "Estado", estadoCorreo },
+                            { "TipoProceso", etiquetaTipoProceso },
                             { "IdAcuerdo", reqAprobacion.Identidad.ToString() },
                             { "NombreProveedor", acuerdo.cabecera.fondo_proveedor },
                             

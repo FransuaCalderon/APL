@@ -127,7 +127,6 @@ namespace AppAPL.Api.Controllers
         [Email("ENTFONDO", TipoProceso.Aprobacion)]
         public async Task<ActionResult<ControlErroresDTO>> AprobarFondo(AprobarFondoRequest fondo)
         {
-            
             var retorno = await servicio.AprobarFondo(fondo);
 
             if (retorno.codigoRetorno == 0)
