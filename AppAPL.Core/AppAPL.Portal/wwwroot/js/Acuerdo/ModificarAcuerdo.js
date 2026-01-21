@@ -1347,7 +1347,7 @@ function validarGeneral() {
     if (total > disponibleFondo) {
         Swal.fire({
             icon: "warning",
-            title: "Valor Insuficiente",
+            title: "Fondo Insuficiente",
             html: `El valor total ingresado (<strong>${formatCurrencySpanish(total)}</strong>) excede el disponible del fondo (<strong>${formatCurrencySpanish(disponibleFondo)}</strong>).`,
         });
         return false;
