@@ -519,6 +519,7 @@
         if (tipo === "General") {
             $("#fondoProveedorGeneral").val(f.display);
             $("#fondoProveedorIdGeneral").val(f.idFondo);
+            $("#fondoDisponibleHiddenGeneral").val(f.disponible); // ✅ NUEVO: Guardar disponible
 
         } else {
             $("#fondoProveedorItems").val(f.display);
@@ -1118,6 +1119,9 @@
         const fin = $("#fondoFechaFinGeneral").val();
         const total = parseCurrencyToNumber($("#fondoValorTotalGeneral").val());
 
+        // ✅ NUEVO: Obtener el disponible del fondo
+        const disponibleFondo = parseCurrencyToNumber($("#fondoDisponibleHiddenGeneral").val());
+
         if (!idFondo || String(idFondo).trim() === "") {
             Swal.fire("Validación", "Debe seleccionar un fondo del proveedor.", "warning");
             return false;
@@ -1142,6 +1146,17 @@
             Swal.fire("Validación", "El valor total debe ser mayor a 0.", "warning");
             return false;
         }
+
+        // ✅ NUEVO: Validar que el valor total no exceda el disponible del fondo
+        if (total > disponibleFondo) {
+            Swal.fire({
+                icon: "warning",
+                title: "Validación",
+                html: `El valor total ingresado (<strong>${formatCurrencySpanish(total)}</strong>) excede el disponible del fondo (<strong>${formatCurrencySpanish(disponibleFondo)}</strong>).`,
+            });
+            return false;
+        }
+
         return true;
     }
 
