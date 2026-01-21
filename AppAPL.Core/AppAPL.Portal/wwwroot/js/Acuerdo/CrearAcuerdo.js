@@ -1151,7 +1151,7 @@
         if (total > disponibleFondo) {
             Swal.fire({
                 icon: "warning",
-                title: "Validación",
+                title: "Valor Insuficiente",
                 html: `El valor total ingresado (<strong>${formatCurrencySpanish(total)}</strong>) excede el disponible del fondo (<strong>${formatCurrencySpanish(disponibleFondo)}</strong>).`,
             });
             return false;
