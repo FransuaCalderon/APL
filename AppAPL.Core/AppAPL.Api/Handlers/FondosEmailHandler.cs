@@ -71,7 +71,7 @@ namespace AppAPL.Api.Handlers
                         { "IdFondo", retorno.Id.ToString() },
                         { "IdProveedor", proveedor.Identificacion },
                         { "NombreProveedor", proveedor.Nombre }, 
-                        { "ValorFondo", reqCreacion.ValorFondo.ToString("N2") },
+                        { "ValorFondo", this.FormatearAMoneda(reqCreacion.ValorFondo) },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras(reqCreacion.ValorFondo) },
                         { "FechaInicio", reqCreacion.FechaInicioVigencia.ToString() },
                         { "FechaFin", reqCreacion.FechaFinVigencia.ToString() },
@@ -79,7 +79,7 @@ namespace AppAPL.Api.Handlers
                         // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                     };
 
-                    notificacion = $"apl solicitud fondo {tipoProceso}".ToUpper();
+                    notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
                     break;
 
                 case TipoProceso.Modificacion: 
@@ -116,24 +116,24 @@ namespace AppAPL.Api.Handlers
                         { "IdProveedor", proveedorAntiguo.Identificacion },
                         { "NuevoNombreProveedor", proveedorNuevo.Nombre },
                         { "NuevoIdProveedor", proveedorNuevo.Identificacion },
-                        { "ValorFondo", fondoAntiguo.ValorFondo?.ToString("N2") },
+                        { "ValorFondo", this.FormatearAMoneda((decimal)fondoAntiguo.ValorFondo) },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondoAntiguo.ValorFondo) },
-                        { "NuevoValorFondo", reqModif.ValorFondo.ToString("N2") },
+                        { "NuevoValorFondo", this.FormatearAMoneda(reqModif.ValorFondo) },
                         { "NuevoValorFondoLetras", this.ConvertirDecimalAPalabras(reqModif.ValorFondo) },
                         { "FechaInicio", fondoAntiguo.FechaInicioVigencia.ToString() },
                         { "NuevaFechaInicio", reqModif.FechaInicioVigencia.ToString() },
                         { "FechaFin", fondoAntiguo.FechaFinVigencia.ToString() },
                         { "NuevaFechaFin", reqModif.FechaFinVigencia.ToString() },
-                        { "ValorDisponible", fondoAntiguo.ValorDisponible?.ToString("N2") },
-                        { "NuevoValorDisponible", reqModif.ValorFondo.ToString("N2") },
-                        { "ValorComprometido", fondoAntiguo.ValorComprometido?.ToString("N2") },
+                        { "ValorDisponible", this.FormatearAMoneda((decimal)fondoAntiguo.ValorDisponible) },
+                        { "NuevoValorDisponible", this.FormatearAMoneda(reqModif.ValorFondo) },
+                        { "ValorComprometido", this.FormatearAMoneda((decimal)fondoAntiguo.ValorComprometido) },
                         { "NuevoValorComprometido", "0.00" },
-                        { "ValorLiquidado", fondoAntiguo.ValorLiquidado?.ToString("N2") },
+                        { "ValorLiquidado", this.FormatearAMoneda((decimal)fondoAntiguo.ValorLiquidado) },
                         { "NuevoValorLiquidado", "0.00" },
                         { "Firma", reqModif.NombreUsuarioModifica },
                     };
 
-                    notificacion = $"apl solicitud fondo {tipoProceso}".ToUpper();
+                    notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
                     break;
 
 
@@ -173,7 +173,7 @@ namespace AppAPL.Api.Handlers
                         { "IdFondo", fondo.IdFondo.ToString() },
                         { "NombreProveedor", proveedor3.Nombre },
                         { "IdProveedor", proveedor3.Identificacion },
-                        { "ValorFondo", fondo.ValorFondo?.ToString("N2") },
+                        { "ValorFondo", this.FormatearAMoneda((decimal)fondo.ValorFondo) },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo.ValorFondo) },
                         { "FechaInicio", fondo.FechaInicioVigencia.ToString() },
                         { "FechaFin", fondo.FechaFinVigencia.ToString() },
@@ -181,7 +181,7 @@ namespace AppAPL.Api.Handlers
                         { "Estado", estadoCorreo },
                       };
 
-                    notificacion = $"apl solicitud fondo {tipoProceso}".ToUpper();
+                    notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
                     break;
 
                     
@@ -216,18 +216,18 @@ namespace AppAPL.Api.Handlers
                             { "IdFondo", fondo2.IdProveedor },
                             { "NombreProveedor", proveedor4.Nombre },
                             { "IdProveedor", proveedor4.Identificacion },
-                            { "ValorFondo", fondo2.ValorFondo?.ToString("N2") },
+                            { "ValorFondo", this.FormatearAMoneda((decimal)fondo2.ValorFondo) },
                             { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo2.ValorFondo) },
                             { "FechaInicio", fondo2.FechaInicioVigencia.ToString() },
                             { "FechaFin", fondo2.FechaFinVigencia.ToString() },
-                            { "ValorDisponible", fondo2.ValorDisponible?.ToString("N2") },
-                            { "ValorComprometido", fondo2.ValorComprometido?.ToString("N2") },
-                            { "ValorLiquidado", fondo2.ValorLiquidado?.ToString("N2") },
+                            { "ValorDisponible", this.FormatearAMoneda((decimal)fondo2.ValorDisponible) },
+                            { "ValorComprometido", this.FormatearAMoneda((decimal)fondo2.ValorComprometido) },
+                            { "ValorLiquidado", this.FormatearAMoneda((decimal)fondo2.ValorLiquidado) },
                             { "Firma", reqInactivacion.NombreUsuarioIngreso },
                             // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                         };
 
-                    notificacion = $"apl solicitud fondo {tipoProceso}".ToUpper();
+                    notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
 
                     break;
 

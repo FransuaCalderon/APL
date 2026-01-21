@@ -8,6 +8,15 @@ namespace AppAPL.Api.Handlers
 {
     public class HandlerBase(IEmailRepositorio emailRepo, ILogger logger)
     {
+        protected string FormatearAMoneda(decimal valor)
+        {
+            // Usamos la cultura de Estados Unidos (en-US) para asegurar:
+            // 1. El símbolo $
+            // 2. Coma para miles
+            // 3. Punto para decimales
+            return valor.ToString("C", new CultureInfo("en-US"));
+        }
+
         protected string ConvertirDecimalAPalabras(decimal valor)
         {
             // 1. Redondeamos a 2 decimales (estándar para moneda)

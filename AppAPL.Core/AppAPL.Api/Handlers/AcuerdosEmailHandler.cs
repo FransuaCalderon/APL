@@ -83,7 +83,7 @@ namespace AppAPL.Api.Handlers
                         { "Nombre", "" },
                         { "IdAcuerdo", retorno.Id.ToString() },
                         { "NombreProveedor", proveedor.Nombre },
-                        { "ValorAcuerdo", reqCreacion.Fondo.ValorAporte.ToString() },
+                        { "ValorAcuerdo", this.FormatearAMoneda(reqCreacion.Fondo.ValorAporte) },
                         { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(reqCreacion.Fondo.ValorAporte) },
                         { "FechaInicio", reqCreacion.Acuerdo.FechaInicioVigencia.ToString() },
                         { "FechaFin", reqCreacion.Acuerdo.FechaFinVigencia.ToString() },
@@ -92,7 +92,7 @@ namespace AppAPL.Api.Handlers
                         { "Firma", "" },
                         // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                     };
-                    notificacion = $"apl solicitud acuerdo {tipoProceso}".ToUpper();
+                    notificacion = $"apl solicitud {tipoProceso} acuerdo".ToUpper();
 
                     break;
 
@@ -140,20 +140,20 @@ namespace AppAPL.Api.Handlers
                             { "IdAcuerdo", reqModificacion.IdAcuerdo.ToString() },
                             { "NombreProveedor", proveedorAntiguo.Nombre },
                             { "NuevoNombreProveedor", proveedorNuevo.Nombre },
-                            { "ValorAcuerdo", acuerdoAntiguo.cabecera.valor_total.ToString() },
+                            { "ValorAcuerdo", this.FormatearAMoneda(acuerdoAntiguo.cabecera.valor_total) },
                             { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdoAntiguo.cabecera.valor_total) },
-                            { "NuevoValorAcuerdo", reqModificacion.ValorAporte.ToString() },
+                            { "NuevoValorAcuerdo", this.FormatearAMoneda(reqModificacion.ValorAporte) },
                             { "NuevoValorAcuerdoLetras", this.ConvertirDecimalAPalabras(reqModificacion.ValorAporte) },
                             { "FechaInicio", acuerdoAntiguo.cabecera.fecha_inicio.ToString() },
                             { "NuevaFechaInicio", reqModificacion.FechaInicioVigencia.ToString() },
                             { "FechaFin", acuerdoAntiguo.cabecera.fecha_fin.ToString() },
                             { "NuevaFechaFin", reqModificacion.FechaFinVigencia.ToString() },
 
-                            { "ValorDisponible", acuerdoAntiguo.cabecera.valor_disponible.ToString() },
-                            { "NuevoValorDisponible", reqModificacion.ValorAporte.ToString() },
-                            { "ValorComprometido", acuerdoAntiguo.cabecera.valor_comprometido.ToString() },
+                            { "ValorDisponible", this.FormatearAMoneda(acuerdoAntiguo.cabecera.valor_disponible) },
+                            { "NuevoValorDisponible", this.FormatearAMoneda(reqModificacion.ValorAporte) },
+                            { "ValorComprometido", this.FormatearAMoneda(acuerdoAntiguo.cabecera.valor_comprometido) },
                             { "NuevoValorComprometido", "0.00" },
-                            { "ValorLiquidado", acuerdoAntiguo.cabecera.valor_liquidado.ToString() },
+                            { "ValorLiquidado", this.FormatearAMoneda(acuerdoAntiguo.cabecera.valor_liquidado) },
                             { "NuevoValorLiquidado", "0.00" },
 
                             { "IdFondoAnterior", fondoAntiguo.IdFondo.ToString() },
@@ -163,7 +163,7 @@ namespace AppAPL.Api.Handlers
 
                         };
 
-                    notificacion = $"apl solicitud acuerdo {tipoProceso}".ToUpper();
+                    notificacion = $"apl solicitud {tipoProceso} acuerdo".ToUpper();
                     break;
 
                 case TipoProceso.Aprobacion:
@@ -212,7 +212,7 @@ namespace AppAPL.Api.Handlers
                             { "IdAcuerdo", reqAprobacion.Identidad.ToString() },
                             { "NombreProveedor", acuerdo.cabecera.fondo_proveedor },
                             
-                            { "ValorAcuerdo", acuerdo.cabecera.valor_total.ToString() },
+                            { "ValorAcuerdo", this.FormatearAMoneda(acuerdo.cabecera.valor_total) },
                             { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdo.cabecera.valor_total) },
                             { "FechaInicio", acuerdo.cabecera.fecha_inicio.ToString() },
                             { "FechaFin", acuerdo.cabecera.fecha_fin.ToString() },
@@ -222,7 +222,7 @@ namespace AppAPL.Api.Handlers
                             
                         };
 
-                    notificacion = $"apl solicitud acuerdo {tipoProceso}".ToUpper();
+                    notificacion = $"apl solicitud {tipoProceso} acuerdo".ToUpper();
                     break;
 
                 case TipoProceso.Inactivacion:
@@ -256,19 +256,19 @@ namespace AppAPL.Api.Handlers
                             { "IdAcuerdo", acuerdo2.cabecera.idacuerdo.ToString() },
                             { "NombreProveedor", acuerdo2.cabecera.fondo_proveedor },
 
-                            { "ValorAcuerdo", acuerdo2.cabecera.valor_total.ToString() },
+                            { "ValorAcuerdo", this.FormatearAMoneda(acuerdo2.cabecera.valor_total) },
                             { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdo2.cabecera.valor_total) },
-                            { "ValorDisponibleAcuerdo", acuerdo2.cabecera.valor_disponible.ToString() },
+                            { "ValorDisponibleAcuerdo", this.FormatearAMoneda(acuerdo2.cabecera.valor_disponible) },
                             { "ValorDisponibleAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdo2.cabecera.valor_disponible) },
                             { "FechaInicio", acuerdo2.cabecera.fecha_inicio.ToString() },
                             { "FechaFin", acuerdo2.cabecera.fecha_fin.ToString() },
                             { "IdFondo", acuerdo2.cabecera.idfondo.ToString() },
-                            { "ValorDisponibleFondo", fondo3.ValorFondo.ToString() },
+                            { "ValorDisponibleFondo", this.FormatearAMoneda((decimal)fondo3.ValorFondo) },
                             { "Firma", "" },
 
                         };
 
-                    notificacion = $"apl solicitud acuerdo {tipoProceso}".ToUpper();
+                    notificacion = $"apl solicitud {tipoProceso} acuerdo".ToUpper();
 
                     break;
 
