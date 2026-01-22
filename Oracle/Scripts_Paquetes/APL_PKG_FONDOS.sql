@@ -899,7 +899,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
     END actualizar_fondo;
 
 
-    PROCEDURE sp_listar_fondos (
+	    PROCEDURE sp_listar_fondos (
         p_cursor               OUT SYS_REFCURSOR,
         --p_nombreusuario        IN VARCHAR2, 
         --p_idopcion             IN NUMBER, 
@@ -911,16 +911,20 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
         --v_id_control_interfaz    NUMBER;
         --v_idevento               NUMBER;
         BEGIN
-        
+
             -- Obtener IDs de catálogo
             --SELECT idcatalogo INTO v_id_control_interfaz FROM apl_tb_catalogo WHERE idetiqueta = p_idcontrolinterfaz;
             --SELECT idcatalogo INTO v_idevento FROM apl_tb_catalogo WHERE idetiqueta = p_idevento_etiqueta;
-            
+
             OPEN p_cursor FOR SELECT
                     f.idfondo,
                     f.descripcion,
                     f.idproveedor,
-                    arp.nombre,
+                    COALESCE(
+                        arp.nombre,
+                        -- Extraer nombre después del guión del campo adicional
+                        TRIM(SUBSTR(cat_prov.adicional, INSTR(cat_prov.adicional, '-') + 1))
+                    ) AS nombre_proveedor,
                     f.idtipofondo,
                     f.valorfondo,
                     f.fechainiciovigencia,
@@ -942,12 +946,14 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     apl_tb_fondo f
                     LEFT JOIN apl_tb_catalogo c ON c.idcatalogo = f.idestadoregistro
                     LEFT JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
-															 OR arp.identificacion LIKE f.idproveedor || '-%'
+                    -- JOIN con catálogo para RUC propio
+                    LEFT JOIN apl_tb_catalogo cat_prov 
+                        ON cat_prov.adicional LIKE f.idproveedor || '-%'
+                        AND cat_prov.idetiqueta = 'RUCPROPIO' 
+                        
                     ORDER BY
                     fechaingreso DESC;
-                    
-          
-    
+
         EXCEPTION
             WHEN OTHERS THEN
                 p_codigo_salida := -20001;
@@ -1283,7 +1289,11 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     f.idfondo,
                     f.descripcion,
                     f.idproveedor,
-                    arp.nombre,
+                    COALESCE(
+                        arp.nombre,
+                        -- Extraer nombre después del guión del campo adicional
+                        TRIM(SUBSTR(cat_prov.adicional, INSTR(cat_prov.adicional, '-') + 1))
+                    ) AS nombre_proveedor,
                     f.idtipofondo,
                     f.valorfondo,
                     f.fechainiciovigencia,
@@ -1296,10 +1306,18 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                     f.idusuariomodifica,
                     f.fechamodifica,
                     f.idestadoregistro,
-                    f.indicadorcreacion
+                    f.indicadorcreacion,
+                    c.idcatalogo    AS estado_id,
+                    c.nombre        AS estado_nombre,
+                    c.idetiqueta    AS estado_etiqueta
          FROM
                  apl_tb_fondo f
-                 INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                 LEFT JOIN apl_tb_catalogo c ON c.idcatalogo = f.idestadoregistro
+                 LEFT JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                    -- JOIN con catálogo para RUC propio
+                 LEFT JOIN apl_tb_catalogo cat_prov 
+                 ON cat_prov.adicional LIKE f.idproveedor || '-%'
+                 AND cat_prov.idetiqueta = 'RUCPROPIO'
         WHERE
                 idfondo = p_idfondo;
 
