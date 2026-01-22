@@ -262,7 +262,7 @@ function crearListado(data) {
             html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
             html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
             html += "  <td>" + (fondo.idproveedor ?? "") + "</td>";
-            html += "  <td>" + (fondo.nombre ?? "") + "</td>";
+            html += "  <td>" + (fondo.nombre_proveedor ?? "") + "</td>";
             html += "  <td>" + (fondo.idtipofondo ?? "") + "</td>";
             html += "  <td class='text-end'>" + formatearMoneda(fondo.valorfondo) + "</td>";
             html += "  <td class='text-center'>" + formatearFecha(fondo.fechainiciovigencia) + "</td>";
@@ -353,7 +353,7 @@ function abrirModalEditar(id) {
 
     // 2. Llama a la API para obtener los datos del fondo por ID
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Fondo/bandeja-modificacion-id/${id}`,
+        url: `${window.apiBaseUrl}/api/Fondo/obtener/${id}`,
         method: "GET",
         headers: {
             "idopcion": String(idOpcionActual), // ✅ DINÁMICO
@@ -367,7 +367,7 @@ function abrirModalEditar(id) {
         success: function (data) {
             // Concatenación RUC/ID y NOMBRE
             const idProveedor = data.proveedor || '';
-            const nombreProveedor = data.nombre || '';
+            const nombreProveedor = data.nombre_proveedor || '';
             const proveedorCompleto = (idProveedor && nombreProveedor)
                 ? `${idProveedor} - ${nombreProveedor}`
                 : idProveedor || nombreProveedor || '';
@@ -379,14 +379,14 @@ function abrirModalEditar(id) {
                 proveedor: proveedorCompleto,
                 idproveedor: idProveedor,
                 nombre_proveedor: nombreProveedor,
-                tipo_fondo: data.tipo_fondo,
+                tipo_fondo: data.idtipofondo,
                 valor_disponible: formatearMoneda(data.valor_disponible),
                 valor_comprometido: formatearMoneda(data.valor_comprometido),
                 valor_liquidado: formatearMoneda(data.valor_liquidado),
                 valor_fondo: formatearMoneda(data.valor_fondo),  // ✅ CAMBIO AQUÍ
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
                 fecha_fin: formatDateForInput(data.fecha_fin),
-                estado: data.estado
+                estado: data.estado_nombre
             };
 
             console.log("datosModal:", datosModal);

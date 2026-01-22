@@ -11,7 +11,7 @@ namespace AppAPL.Dto.Fondos
         public long IdFondo { get; set; }
         public string? Descripcion { get; set; }
         public string? IdProveedor { get; set; }
-        public string? Nombre { get; set; }
+        public string? nombre_proveedor { get; set; }
         public int? IdTipoFondo { get; set; }
         public decimal? ValorFondo { get; set; }
         public DateTime? FechaInicioVigencia { get; set; }
