@@ -941,7 +941,8 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
             FROM
                     apl_tb_fondo f
                     LEFT JOIN apl_tb_catalogo c ON c.idcatalogo = f.idestadoregistro
-                    INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                    LEFT JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+															 OR arp.identificacion LIKE f.idproveedor || '-%'
                     ORDER BY
                     fechaingreso DESC;
                     
