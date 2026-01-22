@@ -37,6 +37,17 @@ namespace AppAPL.Api.Controllers
             return listaFondos.ToList();
         }
 
+        // 🔹 GET: Obtener por ID
+        [HttpGet("bandeja-modificacion-id/{id:int}")]
+        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaModificacionPorId(int id)
+        {
+
+            var item = await servicio.ObtenerBandejaModificacionPorId(id);
+            if (item == null)
+                return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
+            return item;
+        }
+
         [HttpGet("bandeja-aprobacion/{usuarioAprobador}")]
         public async Task<ActionResult<List<BandejaAprobacionDTO>>> ObtenerBandejaAprobacion(string usuarioAprobador)
         {
@@ -91,16 +102,7 @@ namespace AppAPL.Api.Controllers
             return item;
         }            
 
-        // 🔹 GET: Obtener por ID
-        [HttpGet("bandeja-modificacion-id/{id:int}")]
-        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaModificacionPorId(int id)
-        {
-            
-            var item = await servicio.ObtenerBandejaModificacionPorId(id);
-            if (item == null)
-                return NotFound(new { mensaje = $"No se encontró el fondo con ese id {id}" });
-            return item;
-        }
+        
 
         
 

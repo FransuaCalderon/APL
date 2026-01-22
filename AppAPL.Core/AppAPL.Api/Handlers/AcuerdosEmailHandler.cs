@@ -280,7 +280,7 @@ namespace AppAPL.Api.Handlers
                     break;
 
                 default:
-                    
+                    logger.LogWarning($"[AcuerdosHandler] TipoProceso no reconocido o sin estrategia definida: {tipoProceso}.");
                     return;
             }
 

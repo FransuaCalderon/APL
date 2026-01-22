@@ -13,6 +13,7 @@ namespace AppAPL.Dto.Fondos
         public string? IdProveedor { get; set; }
         public string? nombre_proveedor { get; set; }
         public int? IdTipoFondo { get; set; }
+        public string nombre_tipo_fondo { get; set; }
         public decimal? ValorFondo { get; set; }
         public DateTime? FechaInicioVigencia { get; set; }
         public DateTime? FechaFinVigencia { get; set; }
@@ -39,7 +40,8 @@ namespace AppAPL.Dto.Fondos
         public int idfondo { get; set; }
         public string descripcion { get; set; }
         public string proveedor { get; set; }
-        public string? Nombre { get; set; }
+        public string nombre_tipo_fondo { get; set; }
+        public string nombre_proveedor { get; set; }
         public string tipo_fondo { get; set; }
         public decimal valor_fondo { get; set; }
         public DateTime fecha_inicio { get; set; }
@@ -64,8 +66,10 @@ namespace AppAPL.Dto.Fondos
         public int IdFondo { get; set; }
         public string? Descripcion { get; set; }
         public string? Proveedor { get; set; }
-        public string? Nombre { get; set; }
-        public string? Tipo_Fondo { get; set; }
+        public string? nombre_proveedor { get; set; }
+
+        public int IdTipoFondo { get; set; }
+        public string? nombre_tipo_fondo { get; set; }
         public decimal? Valor_Fondo { get; set; }
         public DateTime? Fecha_Inicio { get; set; }
         public DateTime? Fecha_Fin { get; set; }

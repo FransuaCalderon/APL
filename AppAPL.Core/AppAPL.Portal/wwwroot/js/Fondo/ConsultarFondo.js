@@ -379,7 +379,7 @@ function abrirModalEditar(id) {
                 proveedor: proveedorCompleto,
                 idproveedor: idProveedor,
                 nombre_proveedor: nombreProveedor,
-                tipo_fondo: data.idtipofondo,
+                tipo_fondo: data.nombre_tipo_fondo,
                 valor_disponible: formatearMoneda(data.valor_disponible),
                 valor_comprometido: formatearMoneda(data.valor_comprometido),
                 valor_liquidado: formatearMoneda(data.valor_liquidado),

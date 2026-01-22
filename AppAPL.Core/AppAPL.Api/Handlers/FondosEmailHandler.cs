@@ -162,6 +162,7 @@ namespace AppAPL.Api.Handlers
                     if (fondo == null)
                     {
                         logger.LogWarning($"no se encontro el fondo con el id: {reqAprobacion.Identidad}");
+                        return;
                     }
 
                     IdProveedor = fondo.IdProveedor;
@@ -206,6 +207,7 @@ namespace AppAPL.Api.Handlers
                     if (fondo2 == null)
                     {
                         logger.LogWarning($"no se encontro el fondo con el id: {reqInactivacion.IdFondo}");
+                        return;
                     }
 
                     IdProveedor = fondo2.IdProveedor;

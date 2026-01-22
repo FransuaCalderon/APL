@@ -212,8 +212,8 @@ function crearListado(data) {
         html += "  <td>" + (fondo.idfondo ?? "") + "</td>";
         html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
         html += "  <td>" + (fondo.proveedor ?? "") + "</td>";
-        html += "  <td>" + (fondo.nombre ?? "") + "</td>";
-        html += "  <td>" + (fondo.tipo_fondo ?? "") + "</td>";
+        html += "  <td>" + (fondo.nombre_proveedor ?? "") + "</td>";
+        html += "  <td>" + (fondo.nombre_tipo_fondo ?? "") + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_inicio) + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(fondo.fecha_fin) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(fondo.valor_disponible) + "</td>";
@@ -320,7 +320,7 @@ function abrirModalEditar(idFondo, idAprobacion) {
 
             // CONCATENACIÓN RUC/ID y NOMBRE
             const idProveedor = data.proveedor || '';
-            const nombreProveedor = data.nombre || '';
+            const nombreProveedor = data.nombre_proveedor || '';
 
             const proveedorCompleto = (idProveedor && nombreProveedor)
                 ? `${idProveedor} - ${nombreProveedor}`
@@ -343,7 +343,7 @@ function abrirModalEditar(idFondo, idAprobacion) {
                 idfondo: data.idfondo,
                 descripcion: data.descripcion,
                 proveedor: proveedorCompleto,
-                tipo_fondo: data.tipo_fondo,
+                tipo_fondo: data.nombre_tipo_fondo,
                 valor_fondo: formatearMoneda(data.valor_fondo),
                 fecha_inicio: formatDateForInput(data.fecha_inicio),
                 fecha_fin: formatDateForInput(data.fecha_fin),
