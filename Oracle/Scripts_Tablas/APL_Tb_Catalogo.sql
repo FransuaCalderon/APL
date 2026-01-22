@@ -169,6 +169,10 @@ VALUES ('General', '', '', 13, 1, SYSDATE, NULL, NULL, 1, 'PRGENERAL');
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Por Articulo', '', '', 13, 1, SYSDATE, NULL, NULL, 1, 'PRARTICULO');
 
+--Se agrego 22/01/2026
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Por Combo', '', '', 13, 1, SYSDATE, NULL, NULL, 1, 'PRCOMBO');
+
 --Acuerdos
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
@@ -186,3 +190,45 @@ VALUES ('Renovacion de Stock', '', '', 15, 1, SYSDATE, NULL, NULL, 1, 'MTARENOVA
 --Catalogos Varios General para el sistema 22/12/2025
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Ruc Propio', '1790895548001-Unicomer de Ecuador S.A.', '', 16, 1, SYSDATE, NULL, NULL, 1, 'RUCPROPIO');
+
+
+--Motivos de Promociones 22/01/2026
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Excedente', '', '', 17, 1, SYSDATE, NULL, NULL, 1, 'MTPEXCEDENTE');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Por Caducar', '', '', 17, 1, SYSDATE, NULL, NULL, 1, 'MTPCADUCA');
+
+--Promociones - Tipo de Segmentos 22/01/2026
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Marca', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGMARCA');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('División', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGDIVISION');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Departamento', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGDEPARTAMENTO');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Clase', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGCLASE');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Articulo', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGARTICULO');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Canal', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGCANAL');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Grupo', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGGRUPOALMACEN');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Almacen', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGALMACEN');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Tipo Cliente', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGTIPOCLIENTE');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Medio Pago', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGMEDIOPAGO');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Lista Clientes', '', '', 18, 1, SYSDATE, NULL, NULL, 1, 'SEGLISTACLIENTE');
