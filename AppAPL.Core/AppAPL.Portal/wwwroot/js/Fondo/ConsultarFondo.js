@@ -263,7 +263,7 @@ function crearListado(data) {
             html += "  <td>" + (fondo.descripcion ?? "") + "</td>";
             html += "  <td>" + (fondo.idproveedor ?? "") + "</td>";
             html += "  <td>" + (fondo.nombre_proveedor ?? "") + "</td>";
-            html += "  <td>" + (fondo.idtipofondo ?? "") + "</td>";
+            html += "  <td>" + (fondo.nombre_tipo_fondo ?? "") + "</td>";
             html += "  <td class='text-end'>" + formatearMoneda(fondo.valorfondo) + "</td>";
             html += "  <td class='text-center'>" + formatearFecha(fondo.fechainiciovigencia) + "</td>";
             html += "  <td class='text-center'>" + formatearFecha(fondo.fechafinvigencia) + "</td>";
