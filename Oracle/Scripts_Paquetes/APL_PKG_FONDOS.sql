@@ -127,9 +127,9 @@ create or replace PACKAGE apl_pkg_fondos AS
     
 END apl_pkg_fondos;
 ==========================================================================================================BODY===========================
-
-
-  PROCEDURE crear_fondo (
+create or replace PACKAGE BODY apl_pkg_fondos AS
+    
+    PROCEDURE crear_fondo (
         p_descripcion          IN VARCHAR2,
         p_idproveedor          IN VARCHAR2,
         p_idtipofondo          IN NUMBER,
@@ -1923,5 +1923,6 @@ END apl_pkg_fondos;
 
 
     END sp_proceso_aprobacion_fondo;
-	
+
+
 end apl_pkg_fondos;
