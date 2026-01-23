@@ -70,7 +70,10 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaAprobacionPorId(idAcuerdo, idAprobacion);
-            if (item == null)
+            if (item is null ||
+                item.cabecera is null ||
+                item.articulos == null || !item.articulos.Any() ||
+                string.IsNullOrWhiteSpace(item.TipoAcuerdo))
                 return NotFound(new { mensaje = $"No se encontró el aprobacion con ese idAcuerdo: {idAcuerdo}, idAprobacion: {idAprobacion}" });
 
             return item;
@@ -92,7 +95,10 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaModificacionPorId(idAcuerdo);
-            if (item == null)
+            if (item is null ||
+                item.cabecera is null ||
+                item.articulos == null || !item.articulos.Any() ||
+                string.IsNullOrWhiteSpace(item.TipoAcuerdo))
                 return NotFound(new { mensaje = $"No se encontró la bandeja modificacion con ese idAcuerdo: {idAcuerdo}" });
 
             return item;
@@ -112,7 +118,10 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaInactivacionPorId(idAcuerdo);
-            if (item == null)
+            if (item is null ||
+                item.cabecera is null ||
+                item.articulos == null || !item.articulos.Any() ||
+                string.IsNullOrWhiteSpace(item.TipoAcuerdo))
                 return NotFound(new { mensaje = $"No se encontró la bandeja general con ese idAcuerdo: {idAcuerdo}" });
 
             return item;
