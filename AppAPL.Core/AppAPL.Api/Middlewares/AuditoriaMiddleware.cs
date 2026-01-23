@@ -50,7 +50,7 @@ namespace AppAPL.Api.Middlewares
             //--------leer body del request
             //------------------------------------------------------
             string requestBody = "";
-            if (context.Request.Method is "POST" or "PUT" or "PATCH" &&
+            if (context.Request.Method is "POST" &&
                     context.Request.ContentType?.Contains("application/json") == true)
             {
                 context.Request.EnableBuffering();
@@ -112,34 +112,7 @@ namespace AppAPL.Api.Middlewares
             logger.LogInformation("Request => {Metodo} {Path}", metodo, path);
             /*
             logger.LogInformation($"idopcion:{idopcion}, usuario: {usuario}");
-            
-            if (esExitoso)
-            {
-                //aqui aplicar la logica si la respuesta fuera todo ok en rango de 200
-                logger.LogInformation($"Request exitoso: {status}");
-
-                using var scope = serviceProvider.CreateScope();
-                var logServicio = scope.ServiceProvider.GetRequiredService<ILogServicio>();
-
-                var log = new CrearActualizarLogRequest()
-                {
-                    IdUser = usuario,
-                    IdOpcion = Convert.ToInt32(idopcion),
-                    IdControlInterfaz = Convert.ToInt32(idcontrolinterfaz),
-                    IdEvento = Convert.ToInt32(idevento),
-                    Entidad = Convert.ToInt32(entidad), // todos los campos que viene del front por headers
-                    IdEntidad = Convert.ToInt32(identidad),
-                    IdTipoProceso = Convert.ToInt32(idtipoproceso),
-                    Datos = metodo is "POST" or "PUT" or "PATCH" ? requestBody : "{}"
-                };
-                
-                await logServicio.RegistrarLogOpcionAsync(log);
-
-            }
-            else
-            {
-                logger.LogError($"Request con error: {status}");
-            }
+           
             */
 
             logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE AUDITORIA [hilo: {processId}] ------------------");

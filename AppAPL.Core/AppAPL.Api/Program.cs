@@ -49,12 +49,18 @@ builder.Services.AddDataAccess(builder.Configuration)
 //agregamos contenedor de inyeccion de dependencias
 builder.Services.AddInforcloudScopedDependencies();
 
-
+bool UsarFormatoRespuestaGlobal = builder.Configuration.GetValue<bool>("RouterConfig:UsarFormatoGlobal");
 // MVC
 builder.Services.AddControllers(opciones =>
 {
     opciones.Filters.Add<FiltroDeExcepcion>();
     opciones.Filters.Add<FiltroAccion>();
+
+
+    if (UsarFormatoRespuestaGlobal)
+    {
+        opciones.Filters.Add<FormatoRouterFilter>();
+    }
     //opciones.Filters.Add<EmailActionFilter>();
 }).AddJsonOptions(options =>
 {

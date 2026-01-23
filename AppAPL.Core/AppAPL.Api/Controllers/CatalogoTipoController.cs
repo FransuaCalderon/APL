@@ -50,7 +50,7 @@ namespace AppAPL.Api.Controllers
         }
 
         // 🔹 PUT: Actualizar
-        [HttpPut("actualizar/{idCatalogoTipo:int}")]
+        [HttpPost("actualizar/{idCatalogoTipo:int}")]
         public async Task<ActionResult> Actualizar(CrearActualizarCatalogoTipoRequest dto, int idCatalogoTipo)
         {
             /*
@@ -62,7 +62,7 @@ namespace AppAPL.Api.Controllers
         }
 
         // 🔹 DELETE: Eliminar
-        [HttpDelete("eliminar/{id}")]
+        [HttpPost("eliminar/{id}")]
         public async Task<ActionResult> Eliminar(int id)
         {
             await servicio.EliminarAsync(id);

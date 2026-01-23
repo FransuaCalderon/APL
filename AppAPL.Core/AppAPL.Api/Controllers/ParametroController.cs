@@ -45,7 +45,7 @@ namespace AppAPL.Api.Controllers
             });
         }
 
-        [HttpPut("actualizar/{idCatalogo:int}")]
+        [HttpPost("actualizar/{idCatalogo:int}")]
         public async Task<ActionResult> Actualizar(CrearActualizarParametroRequest dto, int idParametro)
         {
             /*
@@ -56,7 +56,7 @@ namespace AppAPL.Api.Controllers
             return Ok(new { mensaje = "Actualizado correctamente" });
         }
 
-        [HttpDelete("eliminar/{idParametro}")]
+        [HttpPost("eliminar/{idParametro}")]
         public async Task<ActionResult> Eliminar(int idParametro)
         {
             await servicio.EliminarAsync(idParametro);

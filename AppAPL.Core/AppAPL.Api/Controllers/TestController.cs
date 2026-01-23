@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AppAPL.Api.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using Oracle.ManagedDataAccess.Client;
 using System.Runtime.InteropServices;
 
@@ -6,6 +7,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [SinFormatoRouter]
     public class TestController (ILogger<TestController> logger, IConfiguration configuration) : ControllerBase
     {
         private readonly string connectionString = configuration.GetConnectionString("Oracle")!;
@@ -35,8 +37,7 @@ namespace AppAPL.Api.Controllers
         [HttpGet("check-connection-bd")]
         public IActionResult CheckConnection()
         {
-            try
-            {
+           
                 using (var connection = new OracleConnection(connectionString))
                 {
                     connection.Open();
@@ -53,17 +54,7 @@ namespace AppAPL.Api.Controllers
                         });
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                // Si falla, te dirá exactamente por qué (timeout, login, etc.)
-                return StatusCode(500, new
-                {
-                    status = "Error",
-                    message = ex.Message,
-                    detail = ex.InnerException?.Message
-                });
-            }
+      
         }
     }
 }

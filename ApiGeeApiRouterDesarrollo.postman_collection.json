@@ -1,0 +1,161 @@
+{
+  "info": {
+    "_postman_id": "b741c0bc-af66-4232-a1ff-24499f76029c",
+    "name": "ApiGeeApiRouterDesarrollo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "7591943"
+  },
+  "item": [
+    {
+      "name": "Apigee - Auth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const body = pm.response.json();\r",
+              "const newAccessToken = body.access_token;\r",
+              "pm.globals.set(\"tokenAPIGee\",newAccessToken);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "GJQ5eBayieeMv1jdZA62WslrbQQ9zuxFDYpkOQ8LBfyNuY4aFai5QRd0gz1T0bBX",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "9vXKdzwBjNAfTcARluOyoXnRsz2gH0lx0dmFqV12L1YpW00S",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "client_credentials",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://apigee-dev.unicomer.com/oauth2/token",
+          "protocol": "https",
+          "host": [
+            "apigee-dev",
+            "unicomer",
+            "com"
+          ],
+          "path": [
+            "oauth2",
+            "token"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getProgramas Copy",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenAPIGee}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"code_app\": \"APP20240604085559\",\r\n    \"http_method\": \"GET\",\r\n    \"endpoint_path\": \"api/access/getPrograms\",\r\n    \"client\": \"talleres\",\r\n    \"endpoint_query_params\": \"?uid=2427&idmodule=53\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://apigee-dev.unicomer.com/ops/poslegados/v1/api-router",
+          "protocol": "https",
+          "host": [
+            "apigee-dev",
+            "unicomer",
+            "com"
+          ],
+          "path": [
+            "ops",
+            "poslegados",
+            "v1",
+            "api-router"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "credits/sales-quotations post",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenAPIGee}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"code_app\": \"APP202207171128220\",\n    \"http_method\": \"POST\",\n    \"endpoint_path\": \"ConsultarEstado\",\n    \"client\": \"ApiConnect\",\n    \"body_request\": {\n        \"storeId\": \"4\",\n        \"countryISOCode\": \"EC\",\n        \"salesOrderId\": [\n            11401,\n            16299,\n            16292,\n            16295,\n            16288\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://apigee-dev.unicomer.com/ops/poslegados/v1/api-router",
+          "protocol": "https",
+          "host": [
+            "apigee-dev",
+            "unicomer",
+            "com"
+          ],
+          "path": [
+            "ops",
+            "poslegados",
+            "v1",
+            "api-router"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

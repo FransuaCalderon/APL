@@ -165,7 +165,7 @@ namespace AppAPL.Api.Controllers
         }
 
         // 🔹 PUT: Actualizar
-        [HttpPut("actualizar/{idFondo:int}")]
+        [HttpPost("actualizar/{idFondo:int}")]
         [Email("ENTFONDO", TipoProceso.Modificacion)]
 
         public async Task<ActionResult<ControlErroresDTO>> Actualizar(ActualizarFondoRequest fondo, int idFondo)

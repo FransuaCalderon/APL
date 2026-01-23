@@ -132,7 +132,10 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaConsultaPorId(idAcuerdo);
-            if (item == null)
+            if (item is null ||
+                item.cabecera is null ||
+                item.articulos == null || !item.articulos.Any() ||
+                string.IsNullOrWhiteSpace(item.TipoAcuerdo))
                 return NotFound(new { mensaje = $"No se encontró la bandeja general con ese idAcuerdo: {idAcuerdo}" });
 
             return item;
@@ -204,7 +207,7 @@ namespace AppAPL.Api.Controllers
         }
 
 
-        [HttpPut("actualizar-acuerdo")]
+        [HttpPost("actualizar-acuerdo")]
         [Email("ENTACUERDO", TipoProceso.Modificacion)]
         public async Task<ActionResult<ControlErroresDTO>> ActualizarAcuerdo(ActualizarAcuerdoDTO actualizarAcuerdoDTO)
         {

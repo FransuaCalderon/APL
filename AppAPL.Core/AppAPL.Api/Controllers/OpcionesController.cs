@@ -68,7 +68,7 @@ namespace AppAPL.Api.Controllers
             });
         }
 
-        [HttpPut("actualizar/{idOpcion:int}")]
+        [HttpPost("actualizar/{idOpcion:int}")]
         public async Task<ActionResult> Actualizar(CrearActualizarOpcionRequest dto, int idOpcion)
         {
             /*
@@ -79,7 +79,7 @@ namespace AppAPL.Api.Controllers
             return Ok(new { mensaje = "Actualizado correctamente" });
         }
 
-        [HttpDelete("eliminar/{id}")]
+        [HttpPost("eliminar/{id}")]
         public async Task<ActionResult> Eliminar(int id)
         {
             await servicio.EliminarAsync(id);
