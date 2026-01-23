@@ -1552,7 +1552,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                                               LEFT JOIN apl_tb_catalogo   ce ON f.idestadoregistro = ce.idcatalogo
                                               LEFT JOIN apl_tb_catalogo   en ON a.entidad = en.idcatalogo
                                               LEFT JOIN apl_tb_catalogo   ea ON a.idestadoregistro = ea.idcatalogo
-                                              INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                                              LEFT JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
                                               LEFT JOIN apl_tb_catalogo cat_prov 
                                                   ON cat_prov.adicional LIKE f.idproveedor || '-%'
                                                   AND cat_prov.idetiqueta = 'RUCPROPIO' 
@@ -1632,7 +1632,7 @@ create or replace PACKAGE BODY apl_pkg_fondos AS
                             LEFT JOIN apl_tb_catalogo   ce ON f.idestadoregistro = ce.idcatalogo
                             LEFT JOIN apl_tb_catalogo   en ON a.entidad = en.idcatalogo
                             LEFT JOIN apl_tb_catalogo   ea ON a.idestadoregistro = ea.idcatalogo
-                            INNER JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
+                            LEFT JOIN apl_tb_artefacta_proveedor arp ON arp.identificacion = f.idproveedor
                             LEFT JOIN apl_tb_catalogo cat_prov 
                                 ON cat_prov.adicional LIKE f.idproveedor || '-%'
                                 AND cat_prov.idetiqueta = 'RUCPROPIO'

@@ -55,6 +55,7 @@ VALUES ('Tipo de Proceso', 'Tipo de Proceso', 1,  SYSDATE, NULL, TO_DATE('2024-1
   INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
 VALUES ('Clase de Promocion', 'Clase de Promocion', 1,  SYSDATE, NULL, TO_DATE('2024-10-06 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'CLASEPROMOCION');
 
+
 --Acuerdo 27/11/2025
   INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
 VALUES ('Clase de Acuerdo', 'Clases de Acuerdo', 1,  SYSDATE, NULL, TO_DATE('2025-11-27 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'CLASEACUERDO');
@@ -65,3 +66,12 @@ VALUES ('Motivos Acuerdo', 'Motivo de Creacion de Acuerdo', 1,  SYSDATE, NULL, T
 --Catalogos Varios General para el sistema 22/12/2025
   INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
 VALUES ('Varios', 'Varios', 1,  SYSDATE, NULL, TO_DATE('2025-11-27 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'PARMVARIOS');
+
+--Promociones 22/01/2026
+  INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
+VALUES ('Motivo Promocion', 'Motivo de Creacion de Promociones', 1,  SYSDATE, NULL, TO_DATE('2025-11-27 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'PRMOTIVOS');
+
+
+--Promociones - Tipo de Segmentos 22/01/2026
+  INSERT INTO APL_TB_CATALOGOTIPO (Nombre, Descripcion, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdMarcaAbreviaturaAutomatica, IdEtiqueta) 
+VALUES ('Tipo Segmento', 'Tipo de segmentacion de Criterio de Seleccion', 1,  SYSDATE, NULL, TO_DATE('2025-11-27 13:35:05', 'YYYY-MM-DD HH24:MI:SS'), 1, 0, 'SEGMENTO');
