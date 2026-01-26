@@ -1,18 +1,13 @@
 ﻿// wwwroot/js/site.js
 $(document).ready(function () {
-    // ✅ LOGS DE VERIFICACIÓN AL INICIAR LA PÁGINA
-    console.log("Usuario actual capturado:", window.usuarioActual);
+    console.log("🚀 Usuario actual capturado:", window.usuarioActual);
 
-    // ----- ELIMINADO -----
-    // const rutasMapeo = { ... };
-    // function obtenerRutaReal(rutaApi) { ... }
-    // Ya no son necesarios, usaremos la "vista" directamente.
-    // Función para resaltar la opción activa (MEJORADA)
+    /**
+     * Resalta la opción activa basándose en la URL actual.
+     */
     function resaltarOpcionActiva() {
-        // 1. Obtener la ruta actual normalizada
         const rutaActual = window.location.pathname.toLowerCase();
-
-        console.log("🔍 Intentando resaltar opción para ruta:", rutaActual);
+        console.log("🔍 Analizando ruta activa:", rutaActual);
 
         let encontrada = false;
 
@@ -20,42 +15,24 @@ $(document).ready(function () {
             const $link = $(this);
             const href = $link.attr('href');
 
-            // Limpiar estados previos
-            $link.removeClass('active');
-
-            // Si ya encontramos la activa, no seguimos marcando otras (opcional)
-            // pero mejor dejamos que corra por si hay sub-rutas.
-
             if (href && href !== '#') {
                 const hrefMinusculas = href.toLowerCase();
 
-                // Lógica de comparación:
-                // 1. Coincidencia Exacta (Ej: /Home/Index)
-                // 2. Coincidencia de Inicio (Ej: /Opciones/Index vs /Opciones/Index?id=1)
-
-                // Verificamos que no sea solo un "/" para evitar marcar todo en el home
+                // Lógica de coincidencia: Exacta o si la ruta empieza por el href (evitando root)
                 const esCoincidencia = (hrefMinusculas === rutaActual) ||
                     (hrefMinusculas !== '/' && rutaActual.startsWith(hrefMinusculas));
 
                 if (esCoincidencia) {
-                    console.log("✅ Opción activa encontrada:", href);
-
-                    // Aplicar clase activa
                     $link.addClass('active');
                     encontrada = true;
 
-                    // ABRIR EL ACORDEÓN (COLLAPSE) PADRE
+                    // Expandir ancestros (acordeón)
                     const $collapsePadre = $link.closest('.collapse');
                     if ($collapsePadre.length > 0) {
-                        // Agrega la clase show para mostrarlo
                         $collapsePadre.addClass('show');
-
-                        // Ajustar el botón flecha del grupo
                         const $btnGrupo = $collapsePadre.prev('button');
                         if ($btnGrupo.length > 0) {
-                            $btnGrupo.removeClass('collapsed');
-                            $btnGrupo.attr('aria-expanded', 'true');
-                            // Opcional: Resaltar también el grupo padre
+                            $btnGrupo.removeClass('collapsed').attr('aria-expanded', 'true');
                             $btnGrupo.addClass('fw-bold text-primary');
                         }
                     }
@@ -63,49 +40,37 @@ $(document).ready(function () {
             }
         });
 
-        if (!encontrada) {
-            console.log("⚠️ No se encontró ninguna opción de menú que coincida con la ruta actual.");
-        }
+        if (!encontrada) console.warn("⚠️ No se encontró coincidencia en el menú para esta ruta.");
     }
-
 
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
-        const apiBaseUrl = config.apiBaseUrl;
-        const idUsuario = 1; // O tómalo de la configuración según tu lógica
-
-        window.apiBaseUrl = apiBaseUrl;
+        window.apiBaseUrl = config.apiBaseUrl;
 
         $.ajax({
-            url: `${apiBaseUrl}/api/Opciones/listarOpcionesAutorizadasInternas/${window.usuarioActual}`,
+            url: `${window.apiBaseUrl}/api/Opciones/listarOpcionesAutorizadasInternas/${window.usuarioActual}`,
             method: "GET",
-            headers: {
-                // Tus headers
-                "idopcion": "1",
-                "usuario": "admin"
-            },
-            success: function (data) {
-                console.log("data de opciones listar por rol", data);
+            success: function (response) {
+                // Validación de integridad del nuevo JSON
+                if (!response || response.code_status !== 200 || !response.json_response.data) {
+                    console.error("QA Report: Error en la estructura del servidor.");
+                    return;
+                }
+
+                const dataInterior = response.json_response.data;
+                const grupos = dataInterior.grupos || [];
+                const todasLasOpciones = dataInterior.opciones || [];
 
                 const $menu = $("#menu-dinamico");
-                $menu.empty(); // Limpiar menú existente
+                $menu.empty();
 
-                // ----- INICIO DE LÓGICA MODIFICADA -----
-
-                // 1. Obtener las listas principales del JSON
-                const grupos = data.grupos;
-                const todasLasOpciones = data.opciones;
-
-                // 2. Iterar sobre la lista de GRUPOS para crear las secciones
+                // --- CONSTRUCCIÓN DEL MENÚ ---
                 grupos.forEach(grupo => {
                     const idGrupo = grupo.idgrupo;
                     const nombreGrupo = grupo.grupo;
                     const collapseId = `collapse-${idGrupo}`;
 
-                    // Crear el botón del grupo
-                    // NOTA: Tu nueva API no parece incluir un campo para ícono (como 'adicional' antes).
-                    // Si lo necesitas, debes agregarlo a la respuesta de 'grupos' en tu API.
-                    // Por ahora, lo creo sin ícono.
+                    // Botón del Grupo (Acordeón)
                     const $button = $(`
                         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
                                 data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false">
@@ -113,188 +78,84 @@ $(document).ready(function () {
                         </button>
                     `);
 
-                    // Crear la lista de opciones (subopciones)
                     const $ulOpciones = $('<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"></ul>');
 
-                    // 3. Filtrar las opciones que pertenecen a ESTE grupo
-                    const opcionesDelGrupo = todasLasOpciones.filter(opcion => opcion.idgrupo === idGrupo);
-
-                    // 4. Ordenar y agregar cada opción a la lista
-                    opcionesDelGrupo.sort((a, b) => a.idopcion - b.idopcion); // Ordenar por idopcion
+                    // Filtrar opciones por grupo y ordenar por idopcion (o nombre)
+                    const opcionesDelGrupo = todasLasOpciones
+                        .filter(op => op.idgrupo === idGrupo)
+                        .sort((a, b) => a.idopcion - b.idopcion);
 
                     opcionesDelGrupo.forEach(opcion => {
-                        // Usar la ruta 'vista' directamente
                         const rutaReal = opcion.vista || '#';
-                        const nombreOpcion = opcion.nombre; // Campo 'nombre' de la nueva API
-
                         const $li = $(`
                             <li>
-                                <a href="${rutaReal}"
+                                <a href="${rutaReal}" 
                                    class="link-body-emphasis d-inline-flex text-decoration-none rounded"
                                    data-id-opcion="${opcion.idopcion}"
                                    data-ruta-original="${opcion.vista}">
-                                   ${nombreOpcion}
+                                   ${opcion.nombre}
                                 </a>
                             </li>
                         `);
                         $ulOpciones.append($li);
                     });
 
-                    // 5. Crear el contenedor colapsable
-                    const $collapseDiv = $(`
-                        <div class="collapse" id="${collapseId}"></div>
-                    `).append($ulOpciones);
+                    // Ensamblado
+                    const $collapseDiv = $(`<div class="collapse" id="${collapseId}"></div>`).append($ulOpciones);
+                    const $liGrupo = $('<li class="mb-1"></li>').append($button).append($collapseDiv);
 
-                    // 6. Agrupar todo dentro del <li> principal
-                    const $liGrupo = $('<li class="mb-1"></li>')
-                        .append($button)
-                        .append($collapseDiv);
-
-                    // 7. Agregarlo al menú principal
                     $menu.append($liGrupo);
                 });
 
-                // ----- FIN DE LÓGICA MODIFICADA -----
-
-                // Resaltar la opción activa después de cargar el menú
                 resaltarOpcionActiva();
-
-                // ✅ ===== CÓDIGO NUEVO: CAPTURAR IDOPCION AL HACER CLIC ===== ✅
-                // Capturar clicks en opciones del menú para guardar el idopcion en sessionStorage
-                $(document).on('click', '#menu-dinamico a[data-id-opcion]', function (e) {
-                    const idOpcion = $(this).data('id-opcion');
-                    const rutaOriginal = $(this).data('ruta-original');
-                    const nombreOpcion = $(this).text().trim();
-
-                    // Guardar en sessionStorage para uso en otras páginas
-                    sessionStorage.setItem('idOpcionActual', idOpcion);
-                    sessionStorage.setItem('rutaOpcionActual', rutaOriginal);
-                    sessionStorage.setItem('nombreOpcionActual', nombreOpcion);
-
-                    console.log('Opción del menú seleccionada:', {
-                        id: idOpcion,
-                        nombre: nombreOpcion,
-                        ruta: rutaOriginal
-                    });
-                });
-                // ✅ ===== FIN CÓDIGO NUEVO ===== ✅
-
-                console.log("Menú cargado exitosamente con nueva estructura");
+                console.log("✅ Menú renderizado correctamente.");
             },
-            error: function (xhr, status, error) {
-                console.error("Error al obtener el menú:", error);
-                console.error("Detalles:", xhr.responseText);
-                $("#menu-dinamico").html("<p class='text-danger'>Error al cargar el menú</p>");
+            error: function (xhr) {
+                console.error("Critical Error al obtener el menú:", xhr.responseText);
+                $("#menu-dinamico").html("<p class='text-danger p-3'>Error de conexión al cargar menú.</p>");
             }
         });
+    });
 
-
-        /*
-        // Llamar a la API correcta
-        $.get(`${apiBaseUrl}/api/Opciones/listarPorRol/${usuarioRol}`, function (data) {
-            
-        })
-            .fail(function (xhr, status, error) {
-                console.error("Error al obtener el menú:", error);
-                console.error("Detalles:", xhr.responseText);
-                $("#menu-dinamico").html("<p class='text-danger'>Error al cargar el menú</p>");
-            });*/
+    // Event Delegator para persistencia de opción seleccionada
+    $(document).on('click', '#menu-dinamico a[data-id-opcion]', function () {
+        const info = {
+            id: $(this).data('id-opcion'),
+            nombre: $(this).text().trim(),
+            ruta: $(this).data('ruta-original')
+        };
+        sessionStorage.setItem('idOpcionActual', info.id);
+        sessionStorage.setItem('rutaOpcionActual', info.ruta);
+        sessionStorage.setItem('nombreOpcionActual', info.nombre);
     });
 });
 
-// ✅ ===== FUNCIÓN HELPER GLOBAL ===== ✅
-// Función global para obtener el idOpcion actual desde sessionStorage
-window.obtenerIdOpcionActual = function () {
-    const idOpcion = parseInt(sessionStorage.getItem('idOpcionActual'), 10);
-    if (!idOpcion) {
-        console.warn('No se encontró idOpcionActual en sessionStorage');
-        return null;
-    }
-    return idOpcion;
-};
+// --- FUNCIONES GLOBALES (DataTable Helpers) ---
 
-// Función global para obtener toda la información de la opción actual
-window.obtenerInfoOpcionActual = function () {
-    return {
-        idOpcion: parseInt(sessionStorage.getItem('idOpcionActual'), 10) || null,
-        ruta: sessionStorage.getItem('rutaOpcionActual') || null,
-        nombre: sessionStorage.getItem('nombreOpcionActual') || null
-    };
-};
-// ✅ ===== FIN FUNCIÓN HELPER GLOBAL ===== ✅
+window.obtenerIdOpcionActual = () => parseInt(sessionStorage.getItem('idOpcionActual'), 10) || null;
 
+window.obtenerInfoOpcionActual = () => ({
+    idOpcion: window.obtenerIdOpcionActual(),
+    ruta: sessionStorage.getItem('rutaOpcionActual'),
+    nombre: sessionStorage.getItem('nombreOpcionActual')
+});
 
-// Función para inicializar el marcado de filas en cualquier DataTable
 function inicializarMarcadoFilas(tablaSelector) {
-    console.log('Inicializando marcado de filas para:', tablaSelector);
-
-    // Click en la fila completa
     $(document).on('click', `${tablaSelector} tbody tr`, function (e) {
-        // Evitar que se active si se hizo clic en un botón o dentro de action-buttons
-        if ($(e.target).closest('.action-buttons, .btn-action').length > 0) {
-            console.log('Click en botón, ignorando marcado de fila');
-            return;
-        }
+        if ($(e.target).closest('.action-buttons, .btn-action').length > 0) return;
 
         const $fila = $(this);
-        console.log('Click en fila detectado');
+        const yaSeleccionada = $fila.hasClass('fila-seleccionada') || $fila.hasClass('fila-accion');
 
-        // Si la fila ya está seleccionada (con cualquier clase), la deseleccionamos
-        if ($fila.hasClass('fila-seleccionada') || $fila.hasClass('fila-accion')) {
-            $fila.removeClass('fila-seleccionada fila-accion');
-            console.log('Fila deseleccionada');
-        } else {
-            // Remover ambas clases de todas las filas
-            $(`${tablaSelector} tbody tr`).removeClass('fila-seleccionada fila-accion');
-            // Agregar la clase GRIS solo a la fila clickeada
-            $fila.addClass('fila-seleccionada');
-            console.log('Fila seleccionada con GRIS');
-        }
+        $(`${tablaSelector} tbody tr`).removeClass('fila-seleccionada fila-accion');
+        if (!yaSeleccionada) $fila.addClass('fila-seleccionada');
     });
 
-    // Efecto hover solo si NO está seleccionada
     $(document).on('mouseenter', `${tablaSelector} tbody tr`, function () {
-        if (!$(this).hasClass('fila-seleccionada') && !$(this).hasClass('fila-accion')) {
-            $(this).addClass('fila-marcada');
-        }
-    });
-
-    $(document).on('mouseleave', `${tablaSelector} tbody tr`, function () {
+        if (!$(this).is('.fila-seleccionada, .fila-accion')) $(this).addClass('fila-marcada');
+    }).on('mouseleave', `${tablaSelector} tbody tr`, function () {
         $(this).removeClass('fila-marcada');
     });
 }
 
-// Función global para obtener los datos de la fila seleccionada
-function obtenerFilaSeleccionada(tablaSelector) {
-    const tabla = $(tablaSelector).DataTable();
-    const $filaSeleccionada = $(`${tablaSelector} tbody tr.fila-seleccionada`);
-
-    if ($filaSeleccionada.length > 0) {
-        return tabla.row($filaSeleccionada).data();
-    }
-
-    return null;
-}
-
-// Función para limpiar selección
-function limpiarSeleccion(tablaSelector) {
-    $(`${tablaSelector} tbody tr`).removeClass('fila-seleccionada fila-accion');
-    console.log('Selección limpiada para:', tablaSelector);
-}
-
-// Función para marcar una fila por ID (compatible con tu código existente)
-// Esta función es SOLO para cuando se hace clic en botones de ACCIÓN
-function marcarFilaPorId(tablaSelector, id) {
-    console.log('Marcando fila por ID (acción):', id);
-    // Quita ambas clases de todas las filas
-    $(`${tablaSelector} tbody tr`).removeClass('fila-seleccionada fila-accion');
-
-    // Busca la fila con ese ID y márcala con el estilo AMARILLO
-    $(`${tablaSelector} tbody tr`).each(function () {
-        const filaId = $(this).find('td:first').text().trim();
-        if (filaId == id) {
-            $(this).addClass('fila-accion'); // AMARILLO para acciones
-            console.log('Fila marcada con AMARILLO (acción) - ID:', id);
-        }
-    });
-}
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
