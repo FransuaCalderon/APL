@@ -114,7 +114,9 @@ function cargarBandeja() {
             "identidad": "0",
             "idtipoproceso": "0"
         },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             console.log("Datos recibidos de bandeja-aprobacion acuerdos:", data);
             crearListado(data);
         },
@@ -311,7 +313,9 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
             "identidad": "0",
             "idtipoproceso": "0"
         },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             console.log(`Datos del acuerdo (${idAcuerdo}):`, data);
 
             // Guardar datos para los botones de aprobación/rechazo
@@ -485,7 +489,9 @@ function cargarAprobacionesAcuerdo(entidad, idEntidad, tipoProceso) {
             "identidad": "0",
             "idtipoproceso": "0"
         },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             console.log("Datos de aprobaciones del acuerdo:", data);
 
             let lista = Array.isArray(data) ? data : [data];

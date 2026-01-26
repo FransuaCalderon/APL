@@ -63,7 +63,9 @@ function cargarBandeja() {
             "idopcion": String(idOpcionActual),
             "usuario": usuario
         },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             crearListado(data || []);
         },
         error: function () {
@@ -166,11 +168,13 @@ function abrirModalEditar(idAcuerdo) {
         url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-inactivacion-id/${idAcuerdo}`,
         method: "GET",
         headers: { usuario: usuario },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             const cab = data?.cabecera || {};
 
             // Mapeo de Cabecera            
-            $("#verProveedorNombre").val(cab.proveedor_nombre || cab.nombre_proveedor || "");
+            $("#verProveedorNombre").val(cab.fondo_proveedor);
             $("#verNombreTipoFondo").val(cab.motivo ?? "");
             $("#verClaseAcuerdo").val(cab.clase_acuerdo ?? "");
             $("#verEstado").val(cab.estado ?? "");
@@ -302,7 +306,9 @@ function cargarPromocionesAcuerdo(idAcuerdo) {
             "idopcion": String(idOpcionActual),
             "usuario": usuario
         },
-        success: function (data) {
+        success: function (response) {
+            const data = response.json_response.data;
+
             console.log('✅ Promociones recibidas:', data);
 
             // Si la respuesta es string, parsear a JSON

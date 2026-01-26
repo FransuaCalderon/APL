@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace AppAPL.Dto.Acuerdo
 {
@@ -163,6 +164,10 @@ namespace AppAPL.Dto.Acuerdo
         public BandejaAprobacionAcuerdoDTO? cabecera { get; set; }
         public IEnumerable<AcuerdoArticuloDTO>? articulos { get; set; }
         public string? TipoAcuerdo { get; set; }
+        [JsonIgnore]
+        public int? codigoSalida { get; set; }
+        [JsonIgnore]
+        public string? mensajeSalida { get; set; }
     }
 
     public class BandejaConsultaAcuerdoDTO
@@ -250,6 +255,11 @@ namespace AppAPL.Dto.Acuerdo
         public IEnumerable<ArticuloBandConsDTO>? articulos { get; set; }
         //public IEnumerable<PromocionBandConsDTO>? promociones { get; set; }
         public string? TipoAcuerdo { get; set; }
+
+        [JsonIgnore]
+        public int? codigoSalida { get; set; }
+        [JsonIgnore]
+        public string? mensajeSalida { get; set; }
     }
 
     public class AcuerdoPromocionDTO
@@ -353,6 +363,11 @@ namespace AppAPL.Dto.Acuerdo
         public BandModAcuerdoCabeceraDTO? cabecera { get; set; }
         public IEnumerable<ArticuloBandModDTO>? articulos { get; set; }
         public string? TipoAcuerdo { get; set; }
+        [JsonIgnore]
+        public int? codigoSalida { get; set; }
+        [JsonIgnore]
+        public string? mensajeSalida { get; set; }
+
     }
 
     //bandeja inactivacion por id
@@ -422,6 +437,10 @@ namespace AppAPL.Dto.Acuerdo
         public IEnumerable<ArticuloBandInacDTO>? articulos { get; set; }
         //public IEnumerable<PromocionBandInacDTO>? promociones { get; set; }
         public string? TipoAcuerdo { get; set; }
+        [JsonIgnore]
+        public int? codigoSalida { get; set; }
+        [JsonIgnore]
+        public string? mensajeSalida { get; set; }
     }
 
     //--------------------------------------

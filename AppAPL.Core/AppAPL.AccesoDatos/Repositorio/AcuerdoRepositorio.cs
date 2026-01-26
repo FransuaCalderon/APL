@@ -456,7 +456,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             {
                 cabecera = cabecera,
                 articulos = articulos,
-                TipoAcuerdo = tipoAcuerdo
+                TipoAcuerdo = tipoAcuerdo,
+                codigoSalida = codigoSalida,
+                mensajeSalida = mensajeSalida
             };
 
             return resultado;
@@ -504,7 +506,9 @@ namespace AppAPL.AccesoDatos.Repositorio
                 cabecera = cabecera,
                 articulos = articulos,
                 //promociones = promociones,
-                TipoAcuerdo = tipoAcuerdo
+                TipoAcuerdo = tipoAcuerdo,
+                codigoSalida = codigoSalida,
+                mensajeSalida = mensajeSalida
             };
 
             return resultado;
@@ -551,8 +555,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             {
                 cabecera = cabecera,
                 articulos = articulos,
-                //promociones = promociones,
-                TipoAcuerdo = tipoAcuerdo
+                TipoAcuerdo = tipoAcuerdo,
+                codigoSalida = codigoSalida,
+                mensajeSalida = mensajeSalida
             };
 
             return resultado;
@@ -597,7 +602,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             {
                 cabecera = cabecera,
                 articulos = articulos,
-                TipoAcuerdo = tipoAcuerdo
+                TipoAcuerdo = tipoAcuerdo,
+                codigoSalida = codigoSalida,
+                mensajeSalida = mensajeSalida
             };
 
             return resultado;

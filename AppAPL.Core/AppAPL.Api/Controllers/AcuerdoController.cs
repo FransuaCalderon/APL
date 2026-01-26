@@ -70,13 +70,16 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaAprobacionPorId(idAcuerdo, idAprobacion);
-            if (item is null ||
-                item.cabecera is null ||
-                item.articulos == null || !item.articulos.Any() ||
-                string.IsNullOrWhiteSpace(item.TipoAcuerdo))
-                return NotFound(new { mensaje = $"No se encontró el aprobacion con ese idAcuerdo: {idAcuerdo}, idAprobacion: {idAprobacion}" });
-
-            return item;
+            if (item.codigoSalida == 0)
+            {
+                logger.LogInformation(item.mensajeSalida);
+                return item;
+            }
+            else
+            {
+                logger.LogError(item.mensajeSalida);
+                return BadRequest(new { mensaje = item.mensajeSalida });
+            }
         }
 
         
@@ -95,13 +98,16 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaModificacionPorId(idAcuerdo);
-            if (item is null ||
-                item.cabecera is null ||
-                item.articulos == null || !item.articulos.Any() ||
-                string.IsNullOrWhiteSpace(item.TipoAcuerdo))
-                return NotFound(new { mensaje = $"No se encontró la bandeja modificacion con ese idAcuerdo: {idAcuerdo}" });
-
-            return item;
+            if (item.codigoSalida == 0)
+            {
+                logger.LogInformation(item.mensajeSalida);
+                return item;
+            }
+            else
+            {
+                logger.LogError(item.mensajeSalida);
+                return BadRequest(new { mensaje = item.mensajeSalida });
+            }
         }
 
         [HttpGet("consultar-bandeja-inactivacion")]
@@ -118,13 +124,16 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaInactivacionPorId(idAcuerdo);
-            if (item is null ||
-                item.cabecera is null ||
-                item.articulos == null || !item.articulos.Any() ||
-                string.IsNullOrWhiteSpace(item.TipoAcuerdo))
-                return NotFound(new { mensaje = $"No se encontró la bandeja general con ese idAcuerdo: {idAcuerdo}" });
-
-            return item;
+            if (item.codigoSalida == 0)
+            {
+                logger.LogInformation(item.mensajeSalida);
+                return item;
+            }
+            else
+            {
+                logger.LogError(item.mensajeSalida);
+                return BadRequest(new { mensaje = item.mensajeSalida });
+            }
         }
 
         [HttpGet("consultar-bandeja-general")]
@@ -141,13 +150,17 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaConsultaPorId(idAcuerdo);
-            if (item is null ||
-                item.cabecera is null ||
-                item.articulos == null || !item.articulos.Any() ||
-                string.IsNullOrWhiteSpace(item.TipoAcuerdo))
-                return NotFound(new { mensaje = $"No se encontró la bandeja general con ese idAcuerdo: {idAcuerdo}" });
 
-            return item;
+            if (item.codigoSalida == 0 )
+            {
+                logger.LogInformation(item.mensajeSalida);
+                return item;
+            }
+            else
+            {
+                logger.LogError(item.mensajeSalida);
+                return BadRequest(new { mensaje = item.mensajeSalida});
+            }
         }
 
         

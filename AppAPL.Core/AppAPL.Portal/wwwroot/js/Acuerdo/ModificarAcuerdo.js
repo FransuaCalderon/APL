@@ -430,7 +430,9 @@ function consultarProveedor() {
             idopcion: String(idOpcionActual),
             usuario: usuario,
         },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             console.log("Datos fondo-acuerdo:", data);
             $tbody.empty();
 
@@ -697,7 +699,9 @@ function cargarFiltrosItems() {
             idopcion: String(idOpcionActual),
             usuario: usuario,
         },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             console.log("✅ Datos de combos recibidos:", data);
 
             $("#filtroMarca").empty();
@@ -1491,7 +1495,7 @@ async function guardarItems() {
 
         $.ajax({
             url: `${window.apiBaseUrl}/api/Acuerdo/actualizar-acuerdo`,
-            type: "PUT",
+            type: "POST",
             contentType: "application/json",
             data: JSON.stringify(data),
             success: function (response) {
@@ -1679,7 +1683,7 @@ async function guardarGeneral() {
 
         $.ajax({
             url: `${window.apiBaseUrl}/api/Acuerdo/actualizar-acuerdo`,
-            type: "PUT",
+            type: "POST",
             contentType: "application/json",
             data: JSON.stringify(data),
             
@@ -1804,7 +1808,9 @@ function cargarBandeja() {
             "idopcion": String(idOpcionActual),
             "usuario": usuario
         },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             crearListado(data);
             cargarTiposAcuerdo();
         },
@@ -1817,12 +1823,13 @@ function cargarBandeja() {
 async function consultarCombos(etiqueta) {
     try {
         // Retornamos el resultado del AJAX usando await
-        const data = await $.ajax({
+        const response = await $.ajax({
             url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`,
             method: "GET"
         });
 
         //console.log(data);
+        const data = response.json_response.data;
         return data; // Ahora la función devuelve los datos directamente
     } catch (error) {
         Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar datos' });
@@ -1910,7 +1917,8 @@ function cargarTiposAcuerdo(callback) {
     $.ajax({
         url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/CLASEACUERDO`,
         method: "GET",
-        success: function (data) {
+        success: function (response) {
+            const data = response.json_response.data;
             console.log("✅ Datos recibidos:", data);
 
             if (!Array.isArray(data) || data.length === 0) {
@@ -2025,7 +2033,9 @@ function cargarTipoMotivoIntoSelect($select, callback) {
         url: urlCompleta,
         method: "GET",
         headers: headersAjax,
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             console.log("✅ SUCCESS - Respuesta recibida del servidor");
             $select.empty().append($("<option>").val("").text("Seleccione..."));
 
@@ -2175,7 +2185,9 @@ function abrirModalEditar(idAcuerdo) {
         url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-modificacion-id/${idAcuerdo}`,
         method: "GET",
         headers: { "usuario": usuario },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
             acuerdoTemporal = data;
             console.log("acuerdo a modificar: ", data);
             const cab = data.cabecera;

@@ -89,7 +89,10 @@ function crearListado(data) {
             </thead>
             <tbody>`;
 
-    data.forEach(acuerdo => {
+
+    const datos = data.json_response.data;
+
+    datos.forEach(acuerdo => {
         let fondoCompleto = [acuerdo.idfondo, acuerdo.nombre_tipo_fondo, acuerdo.nombre_proveedor].filter(Boolean).join(" - ");
         let claseHTML = (acuerdo.clase_acuerdo ?? "") + (acuerdo.cantidad_articulos > 0 ? `<sup class="fw-bold"> ${acuerdo.cantidad_articulos}</sup>` : "");
 
@@ -189,7 +192,10 @@ function abrirModalEditar(idAcuerdo) {
         url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-general-id/${idAcuerdo}`,
         method: "GET",
         headers: { "usuario": usuario },
-        success: function (data) {
+        success: function (response) {
+
+            const data = response.json_response.data;
+
             const cab = data.cabecera;
 
             // Mapeo de Cabecera
@@ -337,7 +343,9 @@ function cargarPromocionesAcuerdo(idAcuerdo) {
             "idopcion": String(idOpcionActual),
             "usuario": usuario
         },
-        success: function (data) {
+        success: function (response) {
+            const data = response.json_response.data;
+
             console.log('✅ Respuesta recibida del servidor');
             console.log('✅ Tipo de dato:', typeof data);
             console.log('✅ Datos completos:', data);

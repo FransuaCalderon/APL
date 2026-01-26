@@ -164,7 +164,9 @@
                 idopcion: String(idOpcionActual),
                 usuario: usuario,
             },
-            success: function (dataGeneral) {
+            success: function (response) {
+                const dataGeneral = response.json_response.data;
+
                 console.log("✅ CLAGENERAL cargado:", dataGeneral);
 
                 // ✅ Cargar CLAARTICULO
@@ -175,7 +177,9 @@
                         idopcion: String(idOpcionActual),
                         usuario: usuario,
                     },
-                    success: function (dataArticulo) {
+                    success: function (response2) {
+
+                        const dataArticulo = response2.json_response.data;
                         console.log("✅ CLAARTICULO cargado:", dataArticulo);
 
                         // ✅ Limpiar el select
@@ -310,7 +314,8 @@
             url: urlCompleta,
             method: "GET",
             headers: headersAjax,
-            success: function (data) {
+            success: function (response) {
+                const data = response.json_response.data;
                 console.log("✅ SUCCESS - Respuesta recibida del servidor");
                 $select.empty().append($("<option>").val("").text("Seleccione..."));
 
@@ -412,7 +417,9 @@
                 idopcion: String(idOpcionActual),
                 usuario: usuario,
             },
-            success: function (data) {
+            success: function (response) {
+                const data = response.json_response.data;
+
                 console.log("Datos fondo-acuerdo:", data);
                 $tbody.empty();
 
@@ -654,7 +661,9 @@
                 idopcion: String(idOpcionActual),
                 usuario: usuario,
             },
-            success: function (data) {
+            success: function (response) {
+                const data = response.json_response.data;
+
                 console.log("✅ Datos de combos recibidos:", data);
 
                 $("#filtroMarca").empty();
