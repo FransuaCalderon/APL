@@ -497,6 +497,7 @@ function inactivarAcuerdo() {
                 "usuario": usuario
             },
             success: function (response) {
+                const data = response.json_response.data;
                 $("body").css("cursor", "default");
                 Swal.fire({
                     icon: "success",

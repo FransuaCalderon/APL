@@ -615,7 +615,9 @@ function consultarItems(filtros = {}) {
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify(filtros),
-        success: function (data) {
+        success: function (response) {
+            const data = response.json_response.data;
+
             console.log("Datos items:", data);
             $tbody.empty();
 
@@ -1499,7 +1501,9 @@ async function guardarItems() {
             contentType: "application/json",
             data: JSON.stringify(data),
             success: function (response) {
-                console.log("✅ Respuesta exitosa Items:", response);
+
+                const data = response.json_response.data;
+                console.log("✅ Respuesta exitosa Items:", data);
 
                 Swal.fire({
                     icon: "success",
@@ -1688,7 +1692,8 @@ async function guardarGeneral() {
             data: JSON.stringify(data),
             
             success: function (response) {
-                console.log("✅ Respuesta exitosa:", response);
+                const data = response.json_response.data;
+                console.log("✅ Respuesta exitosa:", data);
                 Swal.fire({
                     icon: "success",
                     title: "¡Guardado!",

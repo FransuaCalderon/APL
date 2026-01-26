@@ -577,7 +577,9 @@
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify(filtros),
-            success: function (data) {
+            success: function (response) {
+                const data = response.json_response.data;
+
                 console.log("Datos items:", data);
                 $tbody.empty();
 
@@ -1307,7 +1309,9 @@
                     usuario: getUsuario(),
                 },
                 success: function (response) {
-                    console.log("✅ Respuesta exitosa Items:", response);
+
+                    const data = response.json_response.data;
+                    console.log("✅ Respuesta exitosa Items:", data);
 
                     Swal.fire({
                         icon: "success",

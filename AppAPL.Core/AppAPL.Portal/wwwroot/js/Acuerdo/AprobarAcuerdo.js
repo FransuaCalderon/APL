@@ -689,7 +689,8 @@ function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
             "identidad": "0",
             "idtipoproceso": "0"
         },
-        success: function (response) {
+        success: function (response2) {
+            const response = response2.json_response.data;
             cerrarDetalle();
 
             Swal.fire({
