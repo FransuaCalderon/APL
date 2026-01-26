@@ -1,1458 +1,1302 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Creación de Promoción";
+    var usuarioActual = ViewBag.UsuarioActual as string;
 }
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-	<h1 class="h4">Promociones - Creación</h1>
-	<!--<div class="btn-toolbar mb-2 mb-md-0">
-		<div class="btn-group me-2">
-			<button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-			<button type="button" class="btn btn-sm btn-outline-secondary">Exportar</button>
-		</div>
-		<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1">
-			<img class="bi d-block mx-auto" src="~/img/ico/calendar3.svg" alt="Bootstrap">This week
-		</button>
-	</div> -->
+@section Scripts {
+    <script>
+        window.usuarioActual = '@usuarioActual';
+    </script>
+
+    <!-- jQuery -->
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+
+    <!-- jQuery UI (Datepicker) -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
+    <!-- Localización Datepicker ES -->
+    <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
+
+    <!-- DataTables -->
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Script principal -->
+    <script src="~/js/Promocion/CrearPromocion.js" asp-append-version="true"></script>
+
+    <style>
+        .ui-datepicker {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 0.9rem;
+            z-index: 1056 !important;
+        }
+
+        .detalle-header {
+            background-color: #343a40;
+            color: white;
+            padding: 8px 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .tabla-items-header th {
+            background-color: #a4c995;
+            color: #343a40;
+            font-weight: bold;
+            vertical-align: middle;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Cabeceras Consulta/Solo Lectura - Verde */
+        .custom-header-cons-bg {
+            background-color: #a4c995 !important;
+            color: #343a40 !important;
+        }
+
+        /* Cabeceras Editables - Amarillo */
+        .custom-header-ingr-bg {
+            background-color: #FFEC99 !important;
+            color: #343a40 !important;
+        }
+
+        /* Cabeceras de Cálculos - Naranja */
+        .custom-header-calc-bg {
+            background-color: #FFBF47 !important;
+            color: #343a40 !important;
+        }
+
+        .tabla-items-body input[type="text"],
+        .tabla-items-body input[type="number"] {
+            text-align: right;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            height: 28px;
+            border: 1px solid #ced4da;
+            border-radius: 0.2rem;
+        }
+
+        .custom-celda-bg {
+            background-color: rgba(140, 140, 140, 0.15) !important;
+        }
+
+        /* Estilos para select múltiple */
+        .filtro-container {
+            cursor: pointer;
+        }
+
+        .form-select option:checked {
+            background-color: #198754 !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        /* Modal ajustes */
+        #modalConsultaItems .modal-body {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        #modalConsultaItems .table-responsive {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        /* Tabla sticky column */
+        .table-sticky-col {
+            position: sticky;
+            left: 0;
+            background-color: #fff;
+            z-index: 1;
+        }
+
+        thead .table-sticky-col {
+            z-index: 2;
+        }
+    </style>
+}
+
+<!-- Encabezado -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-1 mb-2 border-bottom">
+    <h1 class="h4">Promoción - Creación</h1>
 </div>
 
-<div class="row scrollarea" style="height: 500px;">
-	<div class="row m-0 p-0">
-		<div class="col">
-			<div class="accordion accordion-flush" id="accordionExample">
-				<div class="accordion-item">
-					<h2 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-							Promoción General
-						</button>
-					</h2>
-					<div id="collapseTwo" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-						<div class="accordion-body">
-							<!-- Promociones Generales -->
-							<form class="row g-2">
-
-								<!-- linea 1 -->
-								<div class="col-md-2">
-									<label for="inputDescripcion" class="form-label fw-bold col-form-label-sm">Descripción</label>
-									<input type="text" class="form-control form-control-sm" id="inputDescripcion" placeholder="Ingrese Descripción">
-								</div>
-								<div class="col-md-2">
-									<label for="inputMotivo" class="form-label fw-bold col-form-label-sm">Motivo</label>
-									<select id="inputMotivo" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Excedente</option>
-										<option>Lenta Rotacion</option>
-										<option>Dia de la Madre</option>
-										<option>Dia del Padre</option>
-										<option>Black Friday</option>
-
-									</select>
-								</div>
-								<div class="col-md-2">
-									<label for="inputFecha1" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
-									<div class="input-group mb-3">
-										<input type="text" class="form-control form-control-sm" placeholder="aaaa-mm-dd hh:mm:ss" aria-label="Recipient’s username" aria-describedby="button-fecha1">
-										<button class="btn btn-outline-secondary btn-sm" type="button" id="button-fecha1">
-											<img src="~/img/ico/calendar2-week.svg" alt="Bootstrap">
-										</button>
-									</div>
-								</div>
-								<div class="col-md-2">
-									<label for="inputFecha2" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
-									<div class="input-group mb-3">
-										<input type="text" class="form-control form-control-sm" placeholder="aaaa-mm-dd hh:mm:ss" aria-label="Recipient’s username" aria-describedby="button-fecha2">
-										<button class="btn btn-outline-secondary btn-sm" type="button" id="button-fecha2">
-											<img src="~/img/ico/calendar2-week.svg" alt="Bootstrap">
-										</button>
-									</div>
-								</div>
-								<div class="col-md-1">
-									<label for="inputSubLinea" class="form-label fw-bold col-form-label-sm">Marca</label>
-									<select id="inputSubLinea" class="form-select form-select-sm" multiple>
-										<option selected>Seleccione...</option>
-										<option>Marca 1</option>
-										<option>Marca 2</option>
-										<option>Marca 3</option>
-									</select>
-								</div>
-								<div class="col-md-1">
-									<label for="inputGrupo" class="form-label fw-bold col-form-label-sm">Division</label>
-									<select id="inputGrupo" class="form-select form-select-sm" multiple>
-										<option selected>Seleccione...</option>
-										<option>Division 1</option>
-										<option>Division 2</option>
-										<option>Division 3</option>
-									</select>
-								</div>
-								<div class="col-md-1">
-									<label for="inputSubGrupo" class="form-label fw-bold col-form-label-sm">Departamento</label>
-									<select id="inputSubGrupo" class="form-select form-select-sm" multiple>
-										<option selected>Seleccione...</option>
-										<option>Departamento 1</option>
-										<option>Departamento 2</option>
-										<option>Departamento 3</option>
-									</select>
-								</div>
-								<div class="col-md-1">
-									<label for="inputLinea" class="form-label fw-bold col-form-label-sm">Clase</label>
-									<select id="inputLinea" class="form-select form-select-sm" multiple>
-										<option selected>Seleccione...</option>
-										<option>Clase 1</option>
-										<option>Clase 2</option>
-										<option>Clase 3</option>
-									</select>
-								</div>
-
-								<!-- Linea 2 -->
-								<div class="col-md-2">
-									<label for="inputCanal" class="form-label fw-bold col-form-label-sm">Canal</label>
-									<select id="inputCanal" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Tienda Local</option>
-										<option>Tienda Virtual</option>
-										<option>Movil</option>
-									</select>
-								</div>
-
-								<div class="col-md-2">
-									<label for="inputGrupoAlmacen" class="form-label fw-bold col-form-label-sm">Grupo</label>
-									<select id="inputGrupoAlmacen" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Todos</option>
-										<option>Grupo Almacen 1</option>
-										<option>Grupo Almacen 2</option>
-									</select>
-								</div>
-								<div class="col-md-3">
-									<label for="inputAlmacen" class="form-label fw-bold col-form-label-sm">Almacen</label>
-									<select id="inputAlmacen" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Todos</option>
-										<option>Almacen 1</option>
-										<option>Almacen 2</option>
-									</select>
-								</div>
-
-								<div class="col-md-2">
-									<label for="inputSegmentoCliente" class="form-label fw-bold col-form-label-sm">Cliente</label>
-									<select id="inputSegmentoCliente" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Todos</option>
-										<option>Especiales</option>
-										<option>Frecuentes</option>
-									</select>
-								</div>
-
-								<div class="col-1">
-									<label for="inputTotalDescuento" class="form-label fw-bold col-form-label-sm">&#37; Tot. Dscto</label>
-									<input type="text" class="form-control form-control-sm" id="inputTotalDescuento" placeholder="99.99&#37;">
-								</div>
-								<div class="col-1">
-									<label for="inputDescuentoProveedor" class="form-label fw-bold col-form-label-sm">&#37; Dscto Prov.</label>
-									<input type="text" class="form-control form-control-sm" id="inputDescuentoProveedor" placeholder=" 99.99&#37;">
-								</div>
-								<div class="col-1">
-									<label for="inputDescuentoPropio" class="form-label fw-bold col-form-label-sm">&#37; Dscto Prop</label>
-									<input type="text" class="form-control form-control-sm" id="inputDescuentoPropio" placeholder=" 99.99&#37;">
-								</div>
-
-								<!-- linea 3 -->
-								<div class="col-md-2">
-									<label for="inputComprometivoProveedor" class="form-label fw-bold col-form-label-sm">$ Compr. Prov </label>
-									<input type="text" class="form-control form-control-sm" id="inputComprometivoProveedor" placeholder="99,999.99">
-								</div>
-								<div class="col-md-1">
-									<label for="inputComprometivoProveedor" class="form-label fw-bold col-form-label-sm">Ac. Prov </label>
-									<input type="text" class="form-control form-control-sm" id="inputComprometivoProveedor" placeholder="APR999">
-								</div>
-								<div class="col-md-2">
-									<label for="inputComprometivoProveedor" class="form-label fw-bold col-form-label-sm">$ Compr. Rebate </label>
-									<input type="text" class="form-control form-control-sm" id="inputComprometivoProveedor" placeholder="99,999.99">
-								</div>
-								<div class="col-md-1">
-									<label for="inputComprometivoProveedor" class="form-label fw-bold col-form-label-sm">Ac. Rebate </label>
-									<input type="text" class="form-control form-control-sm" id="inputComprometivoProveedor" placeholder="APR999">
-								</div>
-								<div class="col-md-2">
-									<label for="inputComprometivoProveedor" class="form-label fw-bold col-form-label-sm">$ Compr. Propio </label>
-									<input type="text" class="form-control form-control-sm" id="inputComprometivoProveedor" placeholder="99,999.99">
-								</div>
-								<div class="col-md-1">
-									<label for="inputComprometivoProveedor" class="form-label fw-bold col-form-label-sm">Ac. Propio </label>
-									<input type="text" class="form-control form-control-sm" id="inputComprometivoProveedor" placeholder="APR999">
-								</div>
-
-								<div class="col-md-1">
-									<label for="checkChecked1" class="form-label fw-bold col-form-label-sm">Regalo</label>
-									<div class="form-check">
-										<input class="form-check-input" type="checkbox" value="" id="checkChecked1" checked>
-										<label class="form-check-label col-form-label-sm" for="checkChecked1"></label>
-									</div>
-								</div>
-
-								<div class="col-12 mt-4">
-									<button type="submit" class="btn btn-primary">Procesar</button>
-								</div>
-							</form>
-
-							<!-- Modal -->
-							<div class="modal fade" id="ModalConsultaProveedores" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-								<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-									<div class="modal-content">
-										<div class="modal-header">
-											<h1 class="modal-title fs-5" id="staticBackdropLabel">Consulta de Proveedores</h1>
-											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-										</div>
-										<div class="modal-body">
-											<div class="row mb-1">
-												<div class="d-flex align-items-cente mt-2">
-													<div class="p-0">
-														<label class="form-control text-dark">Seleccione un Proveedor</label>
-													</div>
-													<div class="p-0">
-													</div>
-													<div class="p-0 flex-grow-1 text-center"></div>
-													<div class="p-0">
-														<input type="text" class="form-control lign-self-end" placeholder="Buscar...">
-													</div>
-												</div>
-											</div>
-
-											<div class="row mb-1">
-												<div class="col">
-													<div class="table-responsive small border" style="height: 300px">
-														<table class="table table-hover table-bordered table-sm w-100">
-															<thead class="sticky-top table-success text-white text-nowrap">
-																<tr>
-																	<th scope="col" class="table-sticky-col text-center">Seleccionar</th>
-																	<th scope="col">Codigo</th>
-																	<th scope="col">Ruc</th>
-																	<th scope="col">Nombre Proveedor</th>
-																	<th scope="col">Contacto</th>
-																	<th scope="col">Mail</th>
-																	<th scope="col">Teléfono</th>
-																</tr>
-															</thead>
-															<tbody class="text-nowrap">
-																<tr>
-																	<td class="align-middle text-center"><img src="~/img/ico/check-lg.svg" alt="Bootstrap" fill="text-success"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0992864435001</td>
-																	<td class="align-middle">Industrias MABE S.A</td>
-																	<td class="align-middle">Ali Macias</td>
-																	<td class="align-middle">amacias@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04218478</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-																<tr>
-																	<td class="align-middle text-center"></td>
-																	<td class="align-middle">102030</td>
-																	<td class="align-middle">0999999999001</td>
-																	<td class="align-middle">Proveedor XXXXXXXXXX</td>
-																	<td class="align-middle">Contacto XXXXXX</td>
-																	<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-																	<td class="align-middle">(593) 04299999</td>
-																</tr>
-															</tbody>
-														</table>
-													</div>
-												</div>
-											</div>
-
-											<div class="row mb-2">
-												<nav aria-label="Page navigation example">
-													<ul class="pagination justify-content-center">
-														<li class="page-item disabled">
-															<a class="page-link" href="#" aria-label="Previous">
-																<span aria-hidden="true">&laquo;</span>
-															</a>
-														</li>
-														<li class="page-item"><a class="page-link" href="#">1</a></li>
-														<li class="page-item active"><a class="page-link" href="#">2</a></li>
-														<li class="page-item"><a class="page-link" href="#">3</a></li>
-														<li class="page-item">
-															<a class="page-link" href="#" aria-label="Next">
-																<span aria-hidden="true">&raquo;</span>
-															</a>
-														</li>
-													</ul>
-												</nav>
-											</div>
-										</div>
-										<div class="modal-footer">
-											<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-											<button type="button" class="btn btn-primary">Aceptar</button>
-										</div>
-									</div>
-								</div>
-							</div>
-							<!-- Fin Modal -->
-						</div>
-					</div>
-				</div>
-				<div class="accordion-item">
-					<h2 class="accordion-header">
-						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-							Promocion por Items
-						</button>
-					</h2>
-					<div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-						<div class="accordion-body">
-
-							<!-- Promociones por Items y Combos -->
-							<form class="row g-2">
-
-								<!-- linea 1 -->
-								<div class="col-md-2">
-									<label for="inputDescripcion" class="form-label fw-bold col-form-label-sm">Descripción</label>
-									<input type="text" class="form-control form-control-sm" id="inputDescripcion" placeholder="Ingrese Descripción">
-								</div>
-								<div class="col-md-2">
-									<label for="inputMotivo" class="form-label fw-bold col-form-label-sm">Motivo</label>
-									<select id="inputMotivo" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Excedente</option>
-										<option>Lenta Rotacion</option>
-										<option>Dia de la Madre</option>
-										<option>Dia del Padre</option>
-										<option>Black Friday</option>
-									</select>
-								</div>
-								<div class="col-md-2">
-									<label for="inputFecha1" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
-									<div class="input-group mb-3">
-										<input type="text" class="form-control form-control-sm" placeholder="aaaa-mm-dd hh:mm:ss" aria-label="Recipient’s username" aria-describedby="button-fecha1">
-										<button class="btn btn-outline-secondary btn-sm" type="button" id="button-fecha1">
-											<img src="~/img/ico/calendar2-week.svg" alt="Bootstrap">
-										</button>
-									</div>
-								</div>
-								<div class="col-md-2">
-									<label for="inputFecha2" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
-									<div class="input-group mb-3">
-										<input type="text" class="form-control form-control-sm" placeholder="aaaa-mm-dd hh:mm:ss" aria-label="Recipient’s username" aria-describedby="button-fecha2">
-										<button class="btn btn-outline-secondary btn-sm" type="button" id="button-fecha2">
-											<img src="~/img/ico/calendar2-week.svg" alt="Bootstrap">
-										</button>
-									</div>
-								</div>
-
-								<div class="col-md-1">
-									<label for="inputCanal" class="form-label fw-bold col-form-label-sm">Canal</label>
-									<select id="inputCanal" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Tienda Local</option>
-										<option>Tienda Virtual</option>
-										<option>Movil</option>
-									</select>
-								</div>
-
-								<div class="col-md-1">
-									<label for="inputGrupoAlmacen" class="form-label fw-bold col-form-label-sm">Grupo</label>
-									<select id="inputGrupoAlmacen" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Todos</option>
-										<option>Grupo Almacen 1</option>
-										<option>Grupo Almacen 2</option>
-									</select>
-								</div>
-								<div class="col-md-1">
-									<label for="inputAlmacen" class="form-label fw-bold col-form-label-sm">Almacen</label>
-									<select id="inputAlmacen" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Todos</option>
-										<option>Almacen 1</option>
-										<option>Almacen 2</option>
-									</select>
-								</div>
-
-								<div class="col-md-1">
-									<label for="inputSegmentoCliente" class="form-label fw-bold col-form-label-sm">Cliente</label>
-									<select id="inputSegmentoCliente" class="form-select form-select-sm">
-										<option selected>Seleccione...</option>
-										<option>Todos</option>
-										<option>Especiales</option>
-										<option>Frecuentes</option>
-									</select>
-								</div>
-
-								<!-- linea 3 Ingreso de Items -->
-								<div class="col-12">
-									<div class="d-flex align-items-center mt-3">
-										<div class="p-0">
-										</div>
-										<div class="p-0"></div>
-										<div class="p-0">
-										</div>
-									</div>
-								</div>
-
-								<div class="col-12">
-									<div class="row mb-1">
-										<div class="d-flex align-items-cente  ">
-											<div class="p-0">
-												<label class="form-control text-bold border-0"></label>
-											</div>
-											<div class="p-0">
-												<button id="btnIngresoItemPromocion" type="button" class="btn btn-outline-primary border-0" data-bs-toggle="modal" data-bs-target="#modalConsultaItem"><img src="~/img/ico/plus-square.svg" alt="Bootstrap"> Añadir Item</button>
-												<button id="btnIngresoItemPromocion1" type="button" class="btn btn-outline-warning border-0" data-bs-toggle="collapse" data-bs-target="#seccion-ocultable" aria-expanded="false" aria-controls="seccion-ocultable"><img src="~/img/ico/plus-square.svg" alt="Bootstrap"> Añadir Combo</button>
-												<button id="btnEliminarItemPromocion" type="button" class="btn btn-outline-danger border-0"><img src="~/img/ico/trash.svg" alt="Bootstrap"> Eliminar</button>
-												<button id="btnIConsultaItemPromocion1" type="button" class="btn btn-outline-secondary border-0" data-bs-toggle="modal" data-bs-target="#staticBackdrop2"><img src="~/img/ico/search.svg" alt="Bootstrap"> Equivalentes</button>
-												<button id="btnIConsultaItemPromocion2" type="button" class="btn btn-outline-secondary border-0" data-bs-toggle="modal" data-bs-target="#staticBackdrop3"><img src="~/img/ico/search.svg" alt="Bootstrap"> Precios Competencia</button>
-												<button id="btnIConsultaItemPromocion3" type="button" class="btn btn-outline-secondary border-0" data-bs-toggle="modal" data-bs-target="#staticBackdrop4"><img src="~/img/ico/search.svg" alt="Bootstrap"> Otros Costos</button>
-												<button id="btnIConsultaItemPromocion4" type="button" class="btn btn-outline-primary  border-0" data-bs-toggle="collapse" data-bs-target="#seccion-ocultable" aria-expanded="false" aria-controls="seccion-ocultable"><img src="~/img/ico/list.svg" alt="Bootstrap"> Componentes</button>
-											</div>
-											<div class="p-0 flex-grow-1 text-center"></div>
-											<div class="p-0">
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<div class="col-12">
-									<div class="row  p-0">
-										<div class="col">
-											<div class="table-responsive small border" style="height: 300px;">
-												<table class="table table-bordered table-sm">
-													<thead class="sticky-top  text-white text-nowrap">
-														<tr class="text-center">
-															<th scope="col" class="table-sticky-col table-dark bg-opacity-50">Item</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Costo</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Stock Bodega</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Stock Tienda</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Inv.  Optimo</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Excedente U</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Excedente $</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">M-0 U</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">M-0 $</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">M-1 U</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">M-1 $</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">M-2 U</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">M-2 $</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Marg.Mi Efe</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Marg.Mi Cre</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Marg.Mi Igualar</th>
-															<th scope="col" class="table-warning">U. Limite</th>
-															<th scope="col" class="table-warning">Proy Ventas</th>
-															<th scope="col" class="table-warning">Medio Pago</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">PVP Actual</th>
-															<th scope="col" class="table-warning">P. Prom Contado</th>
-															<th scope="col" class="table-warning">P. Prom Credito</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Descto Actual</th>
-															<th scope="col" class="table-warning">Descto Promo</th>
-															<th scope="col" class="table-warning">Ap.Proveedor</th>
-															<th scope="col" class="table-warning">Ac.Proveedor</th>
-															<th scope="col" class="table-warning">Ap. Propio</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Marg Actual</th>
-															<th scope="col" class="table-warning">Marg Promo</th>
-															<th scope="col" class="table-success" style="opacity: 0.60;">Util Actual</th>
-															<th scope="col" class="table-warning">Util Promo</th>
-															<th scope="col" class="table-warning">V.Compr.Prov</th>
-															<th scope="col" class="table-warning">V.Compr.Propio</th>
-															<th scope="col" class="table-warning">Sustituye</th>
-
-														</tr>
-													</thead>
-													<tbody class="text-nowrap">
-														<tr>
-															<td class="table-sticky-col d-flex justify-content-center align-items-center"><input style="width: 15rem;" type="text" class="form-control form-control-sm bg-light fw-semibold " readonly placeholder="" value="126-TV 55 SAMSUNG 4K"></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" value="999,999.99" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-														</tr>
-
-														<tr>
-															<td class="table-sticky-col d-flex justify-content-center align-items-center"><input style="width: 15rem;" type="text" class="form-control form-control-sm bg-light fw-semibold " readonly placeholder="" value="CO567-Cine en Casa 4K"></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" value="999,999.99" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-															<td class="align-middle"><input type="text" style="width: 6rem;" class="form-control form-control-sm" placeholder=""></td>
-														</tr>
-													</tbody>
-												</table>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<!-- linea 3 Ingreso de Componentes Combo -->
-								<div class="collapse mb-5" id="seccion-ocultable">
-									<div class="col-12 mt-5">
-										<div class="col-12 text-center g-2 border bg-dark bg-opacity-75 text-white fw-bold"> Detalle de Componentes </div>
-										<div class="col-12 border">
-											<div class="row mt-1 p-1">
-												<div class="col-9">
-													<button type="button" class="btn btn-outline-primary border-0" data-bs-toggle="modal" data-bs-target="#staticBackdrop1"><img src="~/img/ico/plus-square.svg" alt="Bootstrap"> Añadir Item</button>
-													<button type="button" class="btn btn-outline-danger border-0"><img src="~/img/ico/trash.svg" alt="Bootstrap"> Eliminar</button>
-													<button type="button" class="btn btn-outline-secondary border-0" data-bs-toggle="modal" data-bs-target="#staticBackdrop2"><img src="~/img/ico/search.svg" alt="Bootstrap"> Equivalentes Artefacta</button>
-													<button type="button" class="btn btn-outline-secondary border-0" data-bs-toggle="modal" data-bs-target="#staticBackdrop3"><img src="~/img/ico/search.svg" alt="Bootstrap"> Precios de Competencia</button>
-													<button type="button" class="btn btn-outline-secondary border-0" data-bs-toggle="modal" data-bs-target="#staticBackdrop4"><img src="~/img/ico/search.svg" alt="Bootstrap"> Otros Costos</button>
-												</div>
-
-												<div class="col-3">
-													<div class="input-group mb1 mr-4 input-group-sm ">
-														<span class="input-group-text">Nombre</span>
-														<span class="input-group-text">CO567</span>
-														<input type="text" class="form-control" value="Cine en Casa 4K" aria-label="Dollar amount (with dot and two decimal places)">
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="col-12 border">
-											<div class="row m-1 p-0">
-												<div class="col">
-													<div class="table-responsive small border" style="height: 450px">
-														<table class="table table-hover table-bordered table-sm w-auto">
-
-															<thead class="sticky-top text-white text-nowrap">
-																<tr class="text-center">
-																	<th scope="col" class="table-sticky-col text-center fw-semibold">Campos</th>
-																	<th scope="col" class="table-dark" style="opacity: 0.60;"> CO567-Cine en Casa 4K</th>
-																	<th scope="col" class="table-dark" style="opacity: 0.60;">123-TV 65 SAMSUNG 4K</th>
-																	<th scope="col" class="table-dark" style="opacity: 0.60;">988-Barra de sonido BT</th>
-																</tr>
-															</thead>
-															<tbody class="text-nowrap">
-
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">Costo</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25 text-danger" placeholder="" value="999999999"></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder="" value="999999999"></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder="" value="999999999"></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col  align-middle table-success" style="opacity: 0.60;">Stock Bodega</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder="" value="999999999"></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder="" value="999999999"></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col  align-middle table-success" style="opacity: 0.60;">Stock Tienda</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder="" value="999999999"></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" readonly placeholder="" value="999999999"></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">Inventario Optimo</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder="" value="999999999"></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder="" value="999999999"></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">Excedente U</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">Excedente $</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">M-0 U</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">M-0 $</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">M-1 U</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">M-1 $</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">M-2 U</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">M-2 $</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">Margen Min Efe</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">Margen Min Cre</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">Margen Min Igualar</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Unidades Limite</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder="" value=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder="" value=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Proyeccion Ventas</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Medio Pago</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">PVP Actual</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">PVP Promo Contado</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">PVP Promo Credito</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-syccess" style="opacity: 0.60;">Descuento Actual</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Descuento Promocion</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Aporte Proveedor</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Acuerdo Proveedor</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder="" readonly></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-
-																</tr>
-
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Aporte Propio</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder="" readonly></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder="" readonly></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">Margen Actual</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Margen Promocion</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-success" style="opacity: 0.60;">Utilidad Actual</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Utilidad Promocion</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Valor Comprometido Proveedor</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-																<tr>
-																	<td class="table-sticky-col align-middle table-warning">Valor Comprometido Propio</td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm  bg-dark bg-opacity-25" placeholder=""></td>
-																	<td class="align-middle"><input type="text" class="form-control form-control-sm  bg-dark bg-opacity-25" placeholder=""></td>
-																</tr>
-															</tbody>
-														</table>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<!-- linea 4 Vacia -->
-								<div class="col-12">
-									<div class="row">
-									</div>
-								</div>
-
-								<!-- linea 5 Area de Botones para procesar promociones -->
-								<div class="col-12">
-									<button type="submit" class="btn btn-primary mb-3">Procesar</button>
-								</div>
-							</form>
-
-							<!-- Modal -->
-							<div class="modal fade" id="staticBackdrop1" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-								<div class="modal-dialog">
-									<div class="modal-content">
-										<div class="modal-header">
-											<h1 class="modal-title fs-5" id="staticBackdropLabel">Consulta de Items</h1>
-											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-										</div>
-										<div class="modal-body">
-											...
-										</div>
-										<div class="modal-footer">
-											<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-											<button type="button" class="btn btn-primary">Seleccionar</button>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Modal de Consulta de items y combos de la promocion seleccionada	-->
-	<div class="modal fade" id="ModalConsultaItemsCombos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel20" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="staticBackdropLabel20">Consulta de Items/Combos de la Promoción </h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-
-					<div class="row mb-1">
-						<div class="d-flex align-items-cente mt-2">
-							<div class="p-0">
-							</div>
-							<div class="p-0">
-							</div>
-							<div class="p-0 flex-grow-1 text-center"></div>
-							<div class="p-0">
-								<input type="text" class="form-control lign-self-end" placeholder="Buscar...">
-							</div>
-						</div>
-					</div>
-
-					<div class="row mb-1">
-						<div class="col">
-							<div class="table-responsive small border" style="height: 300px">
-								<table class="table table-hover table-bordered table-sm w-auto">
-									<thead class="sticky-top table-success text-white text-nowrap">
-										<tr>
-											<th scope="col" class="table-sticky-col">Codigo</th>
-											<th scope="col" class="table-sticky-col">Descripcion</th>
-											<th scope="col">Costo</th>
-											<th scope="col">Stock Disponible</th>
-											<th scope="col">Inventario Optimo</th>
-											<th scope="col">Excedente Unidades</th>
-											<th scope="col">Excedente Monto</th>
-											<th scope="col">Venta M-1 Uni</th>
-											<th scope="col">Venta M-1 Monto</th>
-											<th scope="col">Venta M-2 Uni</th>
-											<th scope="col">Venta M-2 Monto</th>
-											<th scope="col">Venta M-3 Uni</th>
-											<th scope="col">Venta M-3 Monto</th>
-											<th scope="col">&#37; Margen Min</th>
-											<th scope="col">Uni.Limite</th>
-											<th scope="col">Proyeccion Venta Uni. </th>
-											<th scope="col">Medio de Pago</th>
-											<th scope="col">PVP Actual</th>
-											<th scope="col">PVP Promoción Contado</th>
-											<th scope="col">PVP Promoción Credito</th>
-											<th scope="col">Descuento Actual</th>
-											<th scope="col">Descuento Promoción</th>
-											<th scope="col">Aporte Proveedor</th>
-											<th scope="col">Aporte Propio</th>
-											<th scope="col">&#37; Margen Precio</th>
-											<th scope="col">&#37; Margen Promoción</th>
-											<th scope="col">Utilidad Precio</th>
-											<th scope="col">Utilidad Promoción</th>
-											<th scope="col">&#37; Comision</th>
-											<th scope="col">Monto Comision</th>
-											<th scope="col">Val.Comprometido Proveedor</th>
-											<th scope="col">Val.Comprometido Propio</th>
-										</tr>
-									</thead>
-									<tbody class="text-nowrap">
-										<tr>
-											<td class="align-middle text-end table-sticky-col">123</td>
-											<td class="align-middle table-sticky-col">TV 65 Samsung 4K</td>
-											<td class="align-middle text-end">&#36; 1.400.00</td>
-											<td class="align-middle text-end">500</td>
-											<td class="align-middle text-end">150</td>
-											<td class="align-middle text-end">200</td>
-											<td class="align-middle text-end">&#36; 300,000.00</td>
-											<td class="align-middle text-end">75</td>
-											<td class="align-middle text-end">&#36; 2,000.00 </td>
-											<td class="align-middle text-end">50</td>
-											<td class="align-middle text-end">&#36; 2,100.00</td>
-											<td class="align-middle text-end">40</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">12&#37;</td>
-											<td class="align-middle text-end">100</td>
-											<td class="align-middle text-end"></td>
-											<td class="align-middle text-end">MP999</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">&#36; 1,850.00</td>
-											<td class="align-middle text-end">&#36; 1,870.00</td>
-											<td class="align-middle text-end">&#36; 200.00</td>
-											<td class="align-middle text-end">&#36; 350.00</td>
-											<td class="align-middle text-end">&#36; 210.00</td>
-											<td class="align-middle text-end">&#36; 140.00</td>
-											<td class="align-middle text-end">36&#37; </td>
-											<td class="align-middle text-end">24&#37; </td>
-											<td class="align-middle text-end">&#36; 800.00</td>
-											<td class="align-middle text-end">&#36; 450.00</td>
-											<td class="align-middle text-end">2&#37; </td>
-											<td class="align-middle text-end">&#36; 37.00</td>
-											<td class="align-middle text-end">&#36; 21,000.00</td>
-											<td class="align-middle text-end">&#36; 14,000.00</td>
-										</tr>
-
-										<tr>
-											<td class="align-middle text-end table-sticky-col">126</td>
-											<td class="align-middle table-sticky-col">TV 55 Samsung 4K</td>
-											<td class="align-middle text-end">&#36; 1.400.00</td>
-											<td class="align-middle text-end">500</td>
-											<td class="align-middle text-end">150</td>
-											<td class="align-middle text-end">200</td>
-											<td class="align-middle text-end">&#36; 300,000.00</td>
-											<td class="align-middle text-end">75</td>
-											<td class="align-middle text-end">&#36; 2,000.00 </td>
-											<td class="align-middle text-end">50</td>
-											<td class="align-middle text-end">&#36; 2,100.00</td>
-											<td class="align-middle text-end">40</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">12&#37;</td>
-											<td class="align-middle text-end">100</td>
-											<td class="align-middle text-end"></td>
-											<td class="align-middle text-end">MP999</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">&#36; 1,850.00</td>
-											<td class="align-middle text-end">&#36; 1,870.00</td>
-											<td class="align-middle text-end">&#36; 200.00</td>
-											<td class="align-middle text-end">&#36; 350.00</td>
-											<td class="align-middle text-end">&#36; 210.00</td>
-											<td class="align-middle text-end">&#36; 140.00</td>
-											<td class="align-middle text-end">36&#37; </td>
-											<td class="align-middle text-end">24&#37; </td>
-											<td class="align-middle text-end">&#36; 800.00</td>
-											<td class="align-middle text-end">&#36; 450.00</td>
-											<td class="align-middle text-end">2&#37; </td>
-											<td class="align-middle text-end">&#36; 37.00</td>
-											<td class="align-middle text-end">&#36; 21,000.00</td>
-											<td class="align-middle text-end">&#36; 14,000.00</td>
-
-										</tr>
-
-										<tr>
-
-											<td class="align-middle text-end table-sticky-col">128</td>
-											<td class="align-middle table-sticky-col">TV 70 Samsung 4K</td>
-											<td class="align-middle text-end">&#36; 1.400.00</td>
-											<td class="align-middle text-end">500</td>
-											<td class="align-middle text-end">150</td>
-											<td class="align-middle text-end">200</td>
-											<td class="align-middle text-end">&#36; 300,000.00</td>
-											<td class="align-middle text-end">75</td>
-											<td class="align-middle text-end">&#36; 2,000.00 </td>
-											<td class="align-middle text-end">50</td>
-											<td class="align-middle text-end">&#36; 2,100.00</td>
-											<td class="align-middle text-end">40</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">12&#37;</td>
-											<td class="align-middle text-end">100</td>
-											<td class="align-middle text-end"></td>
-											<td class="align-middle text-end">MP999</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">&#36; 1,850.00</td>
-											<td class="align-middle text-end">&#36; 1,870.00</td>
-											<td class="align-middle text-end">&#36; 200.00</td>
-											<td class="align-middle text-end">&#36; 350.00</td>
-											<td class="align-middle text-end">&#36; 210.00</td>
-											<td class="align-middle text-end">&#36; 140.00</td>
-											<td class="align-middle text-end">36&#37; </td>
-											<td class="align-middle text-end">24&#37; </td>
-											<td class="align-middle text-end">&#36; 800.00</td>
-											<td class="align-middle text-end">&#36; 450.00</td>
-											<td class="align-middle text-end">2&#37; </td>
-											<td class="align-middle text-end">&#36; 37.00</td>
-											<td class="align-middle text-end">&#36; 21,000.00</td>
-											<td class="align-middle text-end">&#36; 14,000.00</td>
-
-										</tr>
-										<tr>
-											<td class="align-middle text-end table-sticky-col">129</td>
-											<td class="align-middle table-sticky-col">TV 75 Samsung 4K</td>
-											<td class="align-middle text-end">&#36; 1.400.00</td>
-											<td class="align-middle text-end">500</td>
-											<td class="align-middle text-end">150</td>
-											<td class="align-middle text-end">200</td>
-											<td class="align-middle text-end">&#36; 300,000.00</td>
-											<td class="align-middle text-end">75</td>
-											<td class="align-middle text-end">&#36; 2,000.00 </td>
-											<td class="align-middle text-end">50</td>
-											<td class="align-middle text-end">&#36; 2,100.00</td>
-											<td class="align-middle text-end">40</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">12&#37;</td>
-											<td class="align-middle text-end">100</td>
-											<td class="align-middle text-end"></td>
-											<td class="align-middle text-end">MP999</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">&#36; 1,850.00</td>
-											<td class="align-middle text-end">&#36; 1,870.00</td>
-											<td class="align-middle text-end">&#36; 200.00</td>
-											<td class="align-middle text-end">&#36; 350.00</td>
-											<td class="align-middle text-end">&#36; 210.00</td>
-											<td class="align-middle text-end">&#36; 140.00</td>
-											<td class="align-middle text-end">36&#37; </td>
-											<td class="align-middle text-end">24&#37; </td>
-											<td class="align-middle text-end">&#36; 800.00</td>
-											<td class="align-middle text-end">&#36; 450.00</td>
-											<td class="align-middle text-end">2&#37; </td>
-											<td class="align-middle text-end">&#36; 37.00</td>
-											<td class="align-middle text-end">&#36; 21,000.00</td>
-											<td class="align-middle text-end">&#36; 14,000.00</td>
-										</tr>
-
-										<tr>
-											<td class="align-middle table-sticky-col">CO567</td>
-											<td class="align-middle table-sticky-col">TV 65 SAMSUNG 4K + BS</td>
-											<td class="align-middle text-end">&#36; 1.400.00</td>
-											<td class="align-middle text-end">500</td>
-											<td class="align-middle text-end">150</td>
-											<td class="align-middle text-end">200</td>
-											<td class="align-middle text-end">&#36; 300,000.00</td>
-											<td class="align-middle text-end">75</td>
-											<td class="align-middle text-end">&#36; 2,000.00 </td>
-											<td class="align-middle text-end">50</td>
-											<td class="align-middle text-end">&#36; 2,100.00</td>
-											<td class="align-middle text-end">40</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">12&#37;</td>
-											<td class="align-middle text-end">100</td>
-											<td class="align-middle text-end"></td>
-											<td class="align-middle text-end">MP999</td>
-											<td class="align-middle text-end">&#36; 2,200.00</td>
-											<td class="align-middle text-end">&#36; 1,850.00</td>
-											<td class="align-middle text-end">&#36; 1,870.00</td>
-											<td class="align-middle text-end">&#36; 200.00</td>
-											<td class="align-middle text-end">&#36; 350.00</td>
-											<td class="align-middle text-end">&#36; 210.00</td>
-											<td class="align-middle text-end">&#36; 140.00</td>
-											<td class="align-middle text-end">36&#37; </td>
-											<td class="align-middle text-end">24&#37; </td>
-											<td class="align-middle text-end">&#36; 800.00</td>
-											<td class="align-middle text-end">&#36; 450.00</td>
-											<td class="align-middle text-end">2&#37; </td>
-											<td class="align-middle text-end">&#36; 37.00</td>
-											<td class="align-middle text-end">&#36; 21,000.00</td>
-											<td class="align-middle text-end">&#36; 14,000.00</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-
-					<div class="row mb-2">
-						<nav aria-label="Page navigation example">
-							<ul class="pagination justify-content-center">
-								<li class="page-item disabled">
-									<a class="page-link" href="#" aria-label="Previous">
-										<span aria-hidden="true">&laquo;</span>
-									</a>
-								</li>
-								<li class="page-item"><a class="page-link" href="#">1</a></li>
-								<li class="page-item active"><a class="page-link" href="#">2</a></li>
-								<li class="page-item"><a class="page-link" href="#">3</a></li>
-								<li class="page-item">
-									<a class="page-link" href="#" aria-label="Next">
-										<span aria-hidden="true">&raquo;</span>
-									</a>
-								</li>
-							</ul>
-						</nav>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					<button type="button" class="btn btn-primary">Aceptar</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Fin Modal -->
-	<!-- Modal -->
-	<div class="modal fade" id="ModalConsultaProveedores1" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="staticBackdropLabel">Consulta de Proveedores</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<div class="row mb-1">
-						<div class="d-flex align-items-cente mt-2">
-							<div class="p-0">
-								<label class="form-control text-dark">Seleccione un Proveedor</label>
-							</div>
-							<div class="p-0">
-							</div>
-							<div class="p-0 flex-grow-1 text-center"></div>
-							<div class="p-0">
-								<input type="text" class="form-control lign-self-end" placeholder="Buscar...">
-							</div>
-						</div>
-					</div>
-
-					<div class="row mb-1">
-						<div class="col">
-							<div class="table-responsive small border" style="height: 300px">
-								<table class="table table-hover table-bordered table-sm w-100">
-
-									<thead class="sticky-top table-success text-white text-nowrap">
-										<tr>
-											<th scope="col" class="table-sticky-col text-center">Seleccionar</th>
-											<th scope="col">Codigo</th>
-											<th scope="col">Ruc</th>
-											<th scope="col">Nombre Proveedor</th>
-											<th scope="col">Contacto</th>
-											<th scope="col">Mail</th>
-											<th scope="col">Teléfono</th>
-										</tr>
-									</thead>
-									<tbody class="text-nowrap">
-										<tr>
-											<td class="align-middle text-center"><img src="~/img/ico/check-lg.svg" alt="Bootstrap" fill="text-success"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0992864435001</td>
-											<td class="align-middle">Industrias MABE S.A</td>
-											<td class="align-middle">Ali Macias</td>
-											<td class="align-middle">amacias@mabe.com.ec</td>
-											<td class="align-middle">(593) 04218478</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-										<tr>
-											<td class="align-middle text-center"></td>
-											<td class="align-middle">102030</td>
-											<td class="align-middle">0999999999001</td>
-											<td class="align-middle">Proveedor XXXXXXXXXX</td>
-											<td class="align-middle">Contacto XXXXXX</td>
-											<td class="align-middle">xxxxxxxxxx@mabe.com.ec</td>
-											<td class="align-middle">(593) 04299999</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-
-					<div class="row mb-2">
-						<nav aria-label="Page navigation example">
-							<ul class="pagination justify-content-center">
-								<li class="page-item disabled">
-									<a class="page-link" href="#" aria-label="Previous">
-										<span aria-hidden="true">&laquo;</span>
-									</a>
-								</li>
-								<li class="page-item"><a class="page-link" href="#">1</a></li>
-								<li class="page-item active"><a class="page-link" href="#">2</a></li>
-								<li class="page-item"><a class="page-link" href="#">3</a></li>
-								<li class="page-item">
-									<a class="page-link" href="#" aria-label="Next">
-										<span aria-hidden="true">&raquo;</span>
-									</a>
-								</li>
-							</ul>
-						</nav>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					<button type="button" class="btn btn-primary">Aceptar</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Fin Modal -->
-	<!-- Modal -->
-	<div class="modal fade" id="modalConsultaItem" tabindex="-1" aria-labelledby="modalConsultaItemLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="modalConsultaItemLabel">Consulta de Items</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					...
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					<button type="button" class="btn btn-primary">Seleccionar</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Modal -->
-	<div class="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="staticBackdropLabel">Equivalentes Artefacta</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					...
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Modal -->
-	<div class="modal fade" id="staticBackdrop3" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="staticBackdropLabel">Precios de Competencia</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					...
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Modal -->
-	<div class="modal fade" id="staticBackdrop4" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="staticBackdropLabel">Considerar Otros Costos</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" value="" id="checkDefault">
-						<label class="form-check-label" for="checkDefault">
-							Ensamble  $60
-
-						</label>
-					</div>
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" value="" id="checkChecked" checked>
-						<label class="form-check-label" for="checkChecked">
-							Matrícula $ 50
-						</label>
-					</div>
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" value="" id="checkChecked1" checked>
-						<label class="form-check-label" for="checkChecked1">
-							.....
-						</label>
-					</div>
-
-
-
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-
-				</div>
-			</div>
-		</div>
-	</div>
+<!-- Selector tipo promoción -->
+<div class="col-md-13">
+    <label for="promocionTipo" class="form-label fw-bold col-form-label-sm">Clase de Promoción</label>
+    <select id="promocionTipo" class="form-select form-select-sm">
+        <option value="General">General</option>
+        <option value="Articulos">Con Artículos</option>
+        <option value="Combos">Con Combos</option>
+    </select>
 </div>
+
+<hr />
+
+<!-- ========================================================= -->
+<!-- FORM PROMOCIÓN GENERAL -->
+<!-- ========================================================= -->
+<form id="formGeneral" class="row g-1 mb-1 pb-1">
+
+    <!-- Línea 1 -->
+    <div class="col-md-2">
+        <label for="descripcionGeneral" class="form-label fw-bold col-form-label-sm">Descripción</label>
+        <input type="text" class="form-control form-control-sm" id="descripcionGeneral" placeholder="Ingrese Descripción">
+    </div>
+
+    <div class="col-md-2">
+        <label for="motivoGeneral" class="form-label fw-bold col-form-label-sm">Motivo</label>
+        <select id="motivoGeneral" class="form-select form-select-sm">
+            <option value="">Seleccione...</option>
+            <option value="1">Excedente</option>
+            <option value="2">Lenta Rotación</option>
+            <option value="3">Día de la Madre</option>
+            <option value="4">Día del Padre</option>
+            <option value="5">Black Friday</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label for="fechaInicioGeneral" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
+        <div class="input-group input-group-sm">
+            <input id="fechaInicioGeneral" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicioGeneral">
+                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <label for="fechaFinGeneral" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
+        <div class="input-group input-group-sm">
+            <input id="fechaFinGeneral" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaFinGeneral">
+                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-1">
+        <label class="form-label fw-bold col-form-label-sm text-center d-block">Marca</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroMarcaGeneral">
+            <option selected>Todas</option>
+            <option>Marca 1</option>
+            <option>Marca 2</option>
+            <option>Marca 3</option>
+        </select>
+    </div>
+
+    <div class="col-md-1">
+        <label class="form-label fw-bold col-form-label-sm text-center d-block">División</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroDivisionGeneral">
+            <option selected>Todas</option>
+            <option>División 1</option>
+            <option>División 2</option>
+            <option>División 3</option>
+        </select>
+    </div>
+
+    <div class="col-md-1">
+        <label class="form-label fw-bold col-form-label-sm text-center d-block">Departamento</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroDepartamentoGeneral">
+            <option selected>Todos</option>
+            <option>Depto 1</option>
+            <option>Depto 2</option>
+            <option>Depto 3</option>
+        </select>
+    </div>
+
+    <div class="col-md-1">
+        <label class="form-label fw-bold col-form-label-sm text-center d-block">Clase</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroClaseGeneral">
+            <option selected>Todas</option>
+            <option>Clase 1</option>
+            <option>Clase 2</option>
+            <option>Clase 3</option>
+        </select>
+    </div>
+
+    <!-- Línea 2 -->
+    <div class="col-md-1 mt-2">
+        <label for="articuloGeneral" class="form-label fw-bold col-form-label-sm">Artículo</label>
+        <div class="input-group input-group-sm">
+            <div class="input-group-text">
+                <input class="form-check-input mt-0" type="checkbox" id="chkArticuloGeneral">
+            </div>
+            <input type="text" class="form-control" id="articuloGeneral" disabled>
+        </div>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm text-center d-block">Canal</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroCanalGeneral">
+            <option selected>Todos</option>
+            <option>Tienda Local</option>
+            <option>Tienda Virtual</option>
+            <option>Móvil</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm text-center d-block">Grupo Almacén</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroGrupoAlmacenGeneral">
+            <option selected>Todos</option>
+            <option>Grupo 1</option>
+            <option>Grupo 2</option>
+            <option>Grupo 3</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm text-center d-block">Almacén</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroAlmacenGeneral">
+            <option selected>Todos</option>
+            <option>Almacén 1</option>
+            <option>Almacén 2</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+        <div class="input-group input-group-sm">
+            <button id="btnListaClienteGeneral" class="btn btn-outline-secondary d-none" type="button"
+                    data-bs-toggle="modal" data-bs-target="#modalClientesEspecificos">
+                <img src="~/img/ico/list-check.svg" alt="Lista">
+            </button>
+            <select class="form-select" id="tipoClienteGeneral">
+                <option selected>Todos</option>
+                <option value="1">Especiales</option>
+                <option value="2">Frecuentes</option>
+                <option value="3">Lista Específica</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-3 mt-2">
+        <label class="form-label fw-bold col-form-label-sm text-center d-block">Medio Pago</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroMedioPagoGeneral">
+            <option selected>Todos</option>
+            <option>Efectivo</option>
+            <option>Visa Platinium</option>
+            <option>Mastercard Pacificard</option>
+            <option>Crédito Directo</option>
+            <option>Diners</option>
+            <option>American Express</option>
+        </select>
+    </div>
+
+    <!-- Línea 3 - Descuentos y Aportes -->
+    <div class="col-md-1 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">% Dscto Prov.</label>
+        <input type="text" class="form-control form-control-sm text-end" id="descuentoProveedorGeneral" placeholder="99.99%">
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">ID Acuerdo Proveedor</label>
+        <div class="input-group input-group-sm">
+            <input type="text" class="form-control" id="acuerdoProveedorGeneral" placeholder="APR999 - MABE" readonly>
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdos">
+                <img src="~/img/ico/search.svg" alt="Buscar">
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">$ Comprometido Prov.</label>
+        <input type="text" class="form-control form-control-sm text-end" id="comprometidoProveedorGeneral" placeholder="$ 0,00" disabled>
+    </div>
+
+    <div class="col-md-1 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">% Dscto Prop.</label>
+        <input type="text" class="form-control form-control-sm text-end" id="descuentoPropioGeneral" placeholder="99.99%">
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">ID Acuerdo Propio</label>
+        <div class="input-group input-group-sm">
+            <input type="text" class="form-control" id="acuerdoPropioGeneral" placeholder="APR999 - Artefacta" readonly>
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdos">
+                <img src="~/img/ico/search.svg" alt="Buscar">
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">$ Comprometido Propio</label>
+        <input type="text" class="form-control form-control-sm text-end" id="comprometidoPropioGeneral" placeholder="$ 0,00" disabled>
+    </div>
+
+    <div class="col-md-1 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">% Dscto Total</label>
+        <input type="text" class="form-control form-control-sm text-end" id="descuentoTotalGeneral" placeholder="99.99%" disabled>
+    </div>
+
+    <div class="col-md-1 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">Regalo</label>
+        <div class="form-check d-flex justify-content-center align-items-center mt-1">
+            <input class="form-check-input" type="checkbox" id="regaloGeneral">
+        </div>
+    </div>
+
+    <hr class="mt-3 mb-1" />
+
+    <div class="col-12">
+        <button type="button" class="btn btn-secondary" id="btnCancelarGeneral">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnGuardarPromocionGeneral">Grabar</button>
+    </div>
+</form>
+
+<!-- ========================================================= -->
+<!-- FORM PROMOCIÓN CON ARTÍCULOS -->
+<!-- ========================================================= -->
+<form id="formArticulos" class="row g-1 mb-1 pb-1" style="display:none;">
+
+    <!-- Línea 1 -->
+    <div class="col-md-3">
+        <label for="descripcionArticulos" class="form-label fw-bold col-form-label-sm">Descripción de la Promoción</label>
+        <input type="text" class="form-control form-control-sm" id="descripcionArticulos" placeholder="Ingrese Descripción">
+    </div>
+
+    <div class="col-md-2">
+        <label for="motivoArticulos" class="form-label fw-bold col-form-label-sm">Motivo</label>
+        <select id="motivoArticulos" class="form-select form-select-sm">
+            <option value="">Seleccione...</option>
+            <option value="1">Excedente</option>
+            <option value="2">Lenta Rotación</option>
+            <option value="3">Día de la Madre</option>
+            <option value="4">Día del Padre</option>
+            <option value="5">Black Friday</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label for="fechaInicioArticulos" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
+        <div class="input-group input-group-sm">
+            <input id="fechaInicioArticulos" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicioArticulos">
+                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <label for="fechaFinArticulos" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
+        <div class="input-group input-group-sm">
+            <input id="fechaFinArticulos" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaFinArticulos">
+                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label fw-bold col-form-label-sm">Canal</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroCanalArticulos">
+            <option selected>Todos</option>
+            <option>Tienda Local</option>
+            <option>Tienda Virtual</option>
+            <option>Móvil</option>
+        </select>
+    </div>
+
+    <!-- Línea 2 -->
+    <div class="col-md-3 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">Grupo Almacenes</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroGrupoAlmacenArticulos">
+            <option selected>Todos</option>
+            <option>Grupo 1</option>
+            <option>Grupo 2</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">Almacén</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroAlmacenArticulos">
+            <option selected>Todos</option>
+            <option>Almacén 1</option>
+            <option>Almacén 2</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+        <div class="input-group input-group-sm">
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalClientesEspecificos">
+                <img src="~/img/ico/list-check.svg" alt="Lista">
+            </button>
+            <select class="form-select" id="tipoClienteArticulos">
+                <option selected>Todos</option>
+                <option value="1">Especiales</option>
+                <option value="2">Frecuentes</option>
+                <option value="3">Lista Específica</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Detalle de Artículos -->
+    <div class="col-12 mt-3">
+        <div class="detalle-header">Detalle de los Artículos</div>
+
+        <div class="d-flex align-items-center gap-3 pt-2 pb-1">
+            <button id="btnAddItemArticulos" type="button" class="btn btn-outline-primary border-0 d-flex align-items-center gap-1"
+                    data-bs-toggle="modal" data-bs-target="#modalConsultaItems">
+                <i class="fa-regular fa-square-plus"></i> Añadir Item
+            </button>
+            <button id="btnDeleteItemArticulos" type="button" class="btn btn-outline-danger border-0 d-flex align-items-center gap-1">
+                <i class="fa-regular fa-trash-can"></i> Eliminar
+            </button>
+            <button type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1"
+                    data-bs-toggle="modal" data-bs-target="#modalEquivalentes">
+                <i class="fa-solid fa-arrows-left-right"></i> Equivalentes
+            </button>
+            <button type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1"
+                    data-bs-toggle="modal" data-bs-target="#modalPreciosCompetencia">
+                <i class="fa-solid fa-tags"></i> Precios Competencia
+            </button>
+            <button type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1"
+                    data-bs-toggle="modal" data-bs-target="#modalOtrosCostos">
+                <i class="fa-solid fa-coins"></i> Otros Costos
+            </button>
+        </div>
+
+        <div class="col-12">
+            <div class="table-responsive small border" style="height: 300px; overflow-x: auto;">
+                <table class="table table-bordered table-sm">
+                    <thead class="sticky-top text-nowrap">
+                        <tr class="text-center tabla-items-header">
+                            <th scope="col" class="table-sticky-col" style="min-width: 200px; background-color: #a4c995;">Artículo</th>
+                            <th scope="col" class="custom-header-cons-bg">Costo</th>
+                            <th scope="col" class="custom-header-cons-bg">Stock Bodega</th>
+                            <th scope="col" class="custom-header-cons-bg">Stock Tienda</th>
+                            <th scope="col" class="custom-header-cons-bg">Inv. Óptimo</th>
+                            <th scope="col" class="custom-header-cons-bg">Excedente(u)</th>
+                            <th scope="col" class="custom-header-cons-bg">Excedente($)</th>
+                            <th scope="col" class="custom-header-cons-bg">Vta M-0(u)</th>
+                            <th scope="col" class="custom-header-cons-bg">Vta M-0($)</th>
+                            <th scope="col" class="custom-header-cons-bg">Vta M-1(u)</th>
+                            <th scope="col" class="custom-header-cons-bg">Vta M-1($)</th>
+                            <th scope="col" class="custom-header-cons-bg">Vta M-2(u)</th>
+                            <th scope="col" class="custom-header-cons-bg">Vta M-2($)</th>
+                            <th scope="col" class="custom-header-cons-bg">Vta Igualar</th>
+                            <th scope="col" class="custom-header-cons-bg">Marg.Min Contado</th>
+                            <th scope="col" class="custom-header-cons-bg">Marg.Min TC</th>
+                            <th scope="col" class="custom-header-cons-bg">Marg.Min Crédito</th>
+                            <th scope="col" class="custom-header-cons-bg">Marg.Min Igualar</th>
+                            <th scope="col" class="custom-header-ingr-bg">Unidades Límite</th>
+                            <th scope="col" class="custom-header-ingr-bg">Proyección Vtas(u)</th>
+                            <th scope="col" class="custom-header-ingr-bg">Medio de Pago</th>
+                            <th scope="col" class="custom-header-cons-bg">Precio Lista</th>
+                            <th scope="col" class="custom-header-ingr-bg">Precio Promo Contado</th>
+                            <th scope="col" class="custom-header-ingr-bg">Precio Promo TC</th>
+                            <th scope="col" class="custom-header-ingr-bg">Precio Promo Crédito</th>
+                            <th scope="col" class="custom-header-ingr-bg">Precio Igualar</th>
+                            <th scope="col" class="custom-header-calc-bg">Dscto Promo Contado</th>
+                            <th scope="col" class="custom-header-calc-bg">Dscto Promo TC</th>
+                            <th scope="col" class="custom-header-calc-bg">Dscto Promo Crédito</th>
+                            <th scope="col" class="custom-header-calc-bg">Dscto Igualar</th>
+                            <th scope="col" class="custom-header-ingr-bg">Aporte Proveedor</th>
+                            <th scope="col" class="custom-header-ingr-bg">Aporte Prov. ID Acuerdo</th>
+                            <th scope="col" class="custom-header-ingr-bg">Aporte Rebate</th>
+                            <th scope="col" class="custom-header-ingr-bg">Aporte Rebate ID Acuerdo</th>
+                            <th scope="col" class="custom-header-ingr-bg">Aporte Propio</th>
+                            <th scope="col" class="custom-header-ingr-bg">Aporte Propio ID Acuerdo</th>
+                            <th scope="col" class="custom-header-cons-bg">Margen Precio Lista</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Promo Contado</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Promo TC</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Promo Crédito</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Igualar</th>
+                            <th scope="col" class="custom-header-calc-bg">Comp. Proveedor</th>
+                            <th scope="col" class="custom-header-calc-bg">Comp. Rebate</th>
+                            <th scope="col" class="custom-header-calc-bg">Comp. Propio</th>
+                            <th scope="col" class="custom-header-calc-bg">Regalo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaArticulosBody" class="text-nowrap tabla-items-body">
+                        <!-- Se llenará dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mt-3 mb-1" />
+
+    <div class="col-12">
+        <button type="button" class="btn btn-secondary" id="btnCancelarArticulos">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnGuardarPromocionArticulos">Grabar</button>
+    </div>
+</form>
+
+<!-- ========================================================= -->
+<!-- FORM PROMOCIÓN CON COMBOS -->
+<!-- ========================================================= -->
+<form id="formCombos" class="row g-1 mb-1 pb-1" style="display:none;">
+
+    <!-- Línea 1 -->
+    <div class="col-md-3">
+        <label for="descripcionCombos" class="form-label fw-bold col-form-label-sm">Descripción de la Promoción</label>
+        <input type="text" class="form-control form-control-sm" id="descripcionCombos" placeholder="Ingrese Descripción">
+    </div>
+
+    <div class="col-md-2">
+        <label for="motivoCombos" class="form-label fw-bold col-form-label-sm">Motivo</label>
+        <select id="motivoCombos" class="form-select form-select-sm">
+            <option value="">Seleccione...</option>
+            <option value="1">Excedente</option>
+            <option value="2">Lenta Rotación</option>
+            <option value="3">Día de la Madre</option>
+            <option value="4">Día del Padre</option>
+            <option value="5">Black Friday</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label for="fechaInicioCombos" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
+        <div class="input-group input-group-sm">
+            <input id="fechaInicioCombos" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicioCombos">
+                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <label for="fechaFinCombos" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
+        <div class="input-group input-group-sm">
+            <input id="fechaFinCombos" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
+            <button class="btn btn-outline-secondary" type="button" id="btnFechaFinCombos">
+                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label fw-bold col-form-label-sm">Canal</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroCanalCombos">
+            <option selected>Todos</option>
+            <option>Tienda Local</option>
+            <option>Tienda Virtual</option>
+            <option>Móvil</option>
+        </select>
+    </div>
+
+    <!-- Línea 2 -->
+    <div class="col-md-3 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">Grupo Almacenes</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroGrupoAlmacenCombos">
+            <option selected>Todos</option>
+            <option>Grupo 1</option>
+            <option>Grupo 2</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">Almacén</label>
+        <select class="form-select form-select-sm" size="3" multiple id="filtroAlmacenCombos">
+            <option selected>Todos</option>
+            <option>Almacén 1</option>
+            <option>Almacén 2</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 mt-2">
+        <label class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+        <div class="input-group input-group-sm">
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalClientesEspecificos">
+                <img src="~/img/ico/list-check.svg" alt="Lista">
+            </button>
+            <select class="form-select" id="tipoClienteCombos">
+                <option selected>Todos</option>
+                <option value="1">Especiales</option>
+                <option value="2">Frecuentes</option>
+                <option value="3">Lista Específica</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Detalle de Combos -->
+    <div class="col-12 mt-3">
+        <div class="detalle-header">Detalle de los Combos</div>
+
+        <div class="d-flex align-items-center gap-3 pt-2 pb-1">
+            <button id="btnNuevoCombo" type="button" class="btn btn-outline-dark border-0 d-flex align-items-center gap-1">
+                <i class="fa-regular fa-file"></i> Nuevo Combo
+            </button>
+            <button id="btnEliminarCombo" type="button" class="btn btn-outline-danger border-0 d-flex align-items-center gap-1">
+                <i class="fa-regular fa-trash-can"></i> Eliminar Combo
+            </button>
+            <button id="btnModificarCombo" type="button" class="btn btn-outline-warning border-0 d-flex align-items-center gap-1">
+                <i class="fa-regular fa-pen-to-square"></i> Modificar Combo
+            </button>
+        </div>
+
+        <div class="col-12">
+            <div class="table-responsive small border" style="height: 250px; overflow-x: auto;">
+                <table class="table table-bordered table-sm">
+                    <thead class="sticky-top text-nowrap">
+                        <tr class="text-center tabla-items-header">
+                            <th scope="col" class="table-sticky-col" style="min-width: 220px; background-color: #a4c995;">Combo</th>
+                            <th scope="col" class="custom-header-cons-bg">Costo</th>
+                            <th scope="col" class="custom-header-cons-bg">Stock Bodega</th>
+                            <th scope="col" class="custom-header-cons-bg">Stock Tienda</th>
+                            <th scope="col" class="custom-header-cons-bg">Inv. Óptimo</th>
+                            <th scope="col" class="custom-header-cons-bg">Excedente(u)</th>
+                            <th scope="col" class="custom-header-cons-bg">Excedente($)</th>
+                            <th scope="col" class="custom-header-ingr-bg">Unidades Límite</th>
+                            <th scope="col" class="custom-header-ingr-bg">Proyección Vtas(u)</th>
+                            <th scope="col" class="custom-header-ingr-bg">Medio de Pago</th>
+                            <th scope="col" class="custom-header-cons-bg">Precio Lista</th>
+                            <th scope="col" class="custom-header-ingr-bg">Precio Promo Contado</th>
+                            <th scope="col" class="custom-header-ingr-bg">Precio Promo TC</th>
+                            <th scope="col" class="custom-header-ingr-bg">Precio Promo Crédito</th>
+                            <th scope="col" class="custom-header-calc-bg">Dscto Promo Contado</th>
+                            <th scope="col" class="custom-header-calc-bg">Dscto Promo TC</th>
+                            <th scope="col" class="custom-header-calc-bg">Dscto Promo Crédito</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Promo Contado</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Promo TC</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Promo Crédito</th>
+                            <th scope="col" class="custom-header-calc-bg">Comp. Proveedor</th>
+                            <th scope="col" class="custom-header-calc-bg">Comp. Rebate</th>
+                            <th scope="col" class="custom-header-calc-bg">Comp. Propio</th>
+                            <th scope="col" class="custom-header-calc-bg">Regalo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaCombosBody" class="text-nowrap tabla-items-body">
+                        <!-- Se llenará dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección Creación de Combo (Colapsable) -->
+    <div class="collapse mt-3" id="seccionCrearCombo">
+        <div class="col-12 text-center border bg-dark bg-opacity-75 text-white fw-bold py-2">
+            Creación del Combo
+        </div>
+
+        <div class="col-12 border mt-1 p-2">
+            <div class="row mb-2">
+                <div class="col-2">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">Código</span>
+                        <input type="text" class="form-control" id="codigoCombo" value="" readonly>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">Nombre</span>
+                        <input type="text" class="form-control" id="nombreCombo" placeholder="Nombre del combo">
+                    </div>
+                </div>
+                <div class="col-3">
+                    <button type="button" class="btn btn-outline-success btn-sm border-0" id="btnAceptarCombo">
+                        <i class="fa-solid fa-check"></i> Aceptar
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm border-0" id="btnRechazarCombo" data-bs-toggle="collapse" data-bs-target="#seccionCrearCombo">
+                        <i class="fa-solid fa-xmark"></i> Rechazar
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive small border" style="height: 350px; overflow-x: auto;">
+                <table class="table table-bordered table-sm">
+                    <thead class="sticky-top text-nowrap">
+                        <tr class="text-center">
+                            <th scope="col" class="table-sticky-col custom-header-cons-bg border-1" style="min-width: 180px;">Artículo</th>
+                            <th scope="col" class="table-dark" style="min-width: 180px;">
+                                <div class="dropdown">
+                                    <button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown">
+                                        [Combo]
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                                    </ul>
+                                </div>
+                            </th>
+                            <th scope="col" class="table-dark" style="min-width: 180px;">
+                                <div class="dropdown">
+                                    <button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown">
+                                        Artículo 1
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
+                                    </ul>
+                                </div>
+                            </th>
+                            <th scope="col" class="table-dark" style="min-width: 180px;">
+                                <div class="dropdown">
+                                    <button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown">
+                                        Artículo 2
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
+                                    </ul>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaComboDetalleBody" class="text-nowrap">
+                        <tr>
+                            <td class="table-sticky-col custom-header-cons-bg border-1">Costo</td>
+                            <td><input type="text" class="form-control form-control-sm" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="$ 999.99"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="$ 999.99"></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-cons-bg border-1">Stock Bodega</td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="999"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="999"></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-cons-bg border-1">Stock Tienda</td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="999"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="999"></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-ingr-bg border-1">Unidades Límite</td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="999"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-ingr-bg border-1">Proyección Ventas(u)</td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="999"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-ingr-bg border-1">Medio de Pago</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalMediosPago">
+                                    Medios Pago
+                                </button>
+                            </td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-cons-bg border-1">Precio Lista</td>
+                            <td><input type="text" class="form-control form-control-sm" readonly value="$ 999.99"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="$ 999.99"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="$ 999.99"></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-ingr-bg border-1">Precio Promo Contado</td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-ingr-bg border-1">Precio Promo TC</td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-ingr-bg border-1">Precio Promo Crédito</td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-calc-bg border-1">Descuento Contado</td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 99.99"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-calc-bg border-1">Descuento TC</td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 99.99"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-calc-bg border-1">Descuento Crédito</td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 99.99"></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-ingr-bg border-1">Aporte Proveedor</td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
+                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-ingr-bg border-1">Aporte Prov. ID Acuerdo</td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control" placeholder="PROV999">
+                                    <button class="btn btn-outline-secondary" type="button"><img src="~/img/ico/search.svg" alt="Buscar"></button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control" placeholder="PROV999">
+                                    <button class="btn btn-outline-secondary" type="button"><img src="~/img/ico/search.svg" alt="Buscar"></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-sticky-col custom-header-calc-bg border-1">Regalo</td>
+                            <td class="text-center">
+                                <input class="form-check-input" type="checkbox">
+                            </td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mt-3 mb-1" />
+
+    <div class="col-12">
+        <button type="button" class="btn btn-secondary" id="btnCancelarCombos">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnGuardarPromocionCombos">Grabar</button>
+    </div>
+</form>
+
+<!-- ========================================================= -->
+<!-- MODAL CONSULTA ITEMS -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-labelledby="modalConsultaItemsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalConsultaItemsLabel">Consulta de Items</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Criterios de Selección -->
+                <div class="row m-2">
+                    <div class="card border-secondary p-0">
+                        <div class="card-header">Criterios de Selección</div>
+                        <div class="card-body">
+                            <form class="row g-2">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Marca</label>
+                                    <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="todasMarcasModal" checked>
+                                            <label class="form-check-label fw-bold" for="todasMarcasModal">Todas</label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroMarcaModal">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Marca 1"><label class="form-check-label">Marca 1</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Marca 2"><label class="form-check-label">Marca 2</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Marca 3"><label class="form-check-label">Marca 3</label></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">División</label>
+                                    <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="todasDivisionesModal" checked>
+                                            <label class="form-check-label fw-bold" for="todasDivisionesModal">Todas</label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroDivisionModal">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="División 1"><label class="form-check-label">División 1</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="División 2"><label class="form-check-label">División 2</label></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Departamento</label>
+                                    <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="todosDeptosModal" checked>
+                                            <label class="form-check-label fw-bold" for="todosDeptosModal">Todos</label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroDepartamentoModal">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Depto 1"><label class="form-check-label">Depto 1</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Depto 2"><label class="form-check-label">Depto 2</label></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Clase</label>
+                                    <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="todasClasesModal" checked>
+                                            <label class="form-check-label fw-bold" for="todasClasesModal">Todas</label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroClaseModal">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Clase 1"><label class="form-check-label">Clase 1</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Clase 2"><label class="form-check-label">Clase 2</label></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Artículo</label>
+                                    <input type="text" id="filtroArticuloModal" class="form-control form-control-sm" placeholder="Buscar...">
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <button type="button" id="btnProcesarFiltrosModal" class="btn btn-secondary btn-sm w-100">
+                                        <i class="fa-solid fa-filter"></i> Procesar Selección
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkbox Todos + Buscar -->
+                <div class="row m-2">
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="form-check form-check-sm">
+                            <input class="form-check-input" type="checkbox" id="checkTodosItemsModal" checked>
+                            <label class="form-check-label" for="checkTodosItemsModal">Todos</label>
+                        </div>
+                        <div class="flex-grow-1"></div>
+                        <input type="text" class="form-control w-25" id="buscarItemModal" placeholder="Buscar...">
+                    </div>
+                </div>
+
+                <!-- Tabla Items -->
+                <div class="row m-2">
+                    <div class="table-responsive small p-1 border border-secondary" style="max-height: 300px; overflow-y: auto;">
+                        <table id="tablaItemsModal" class="table table-hover table-bordered w-100">
+                            <thead class="sticky-top table-success text-nowrap">
+                                <tr>
+                                    <th>Sel</th>
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Costo</th>
+                                    <th>Stock</th>
+                                    <th>Óptimo</th>
+                                    <th>Excedente(u)</th>
+                                    <th>Excedente($)</th>
+                                    <th>M-0(u)</th>
+                                    <th>M-0($)</th>
+                                    <th>M-1(u)</th>
+                                    <th>M-1($)</th>
+                                    <th>M-2(u)</th>
+                                    <th>M-2($)</th>
+                                    <th>Marg.Efe</th>
+                                    <th>Marg.Cre</th>
+                                    <th>Marg.Igu</th>
+                                    <th>Precio</th>
+                                    <th>Marg.Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center"><input type="checkbox" class="form-check-input item-checkbox-modal" checked></td>
+                                    <td>123</td>
+                                    <td>TV 65 Samsung 4K</td>
+                                    <td class="text-end">$ 1,400.00</td>
+                                    <td class="text-center">400</td>
+                                    <td class="text-center">300</td>
+                                    <td class="text-center">100</td>
+                                    <td class="text-end">$ 140,000.00</td>
+                                    <td class="text-center">75</td>
+                                    <td class="text-end">$ 2,000.00</td>
+                                    <td class="text-center">50</td>
+                                    <td class="text-end">$ 2,100.00</td>
+                                    <td class="text-center">40</td>
+                                    <td class="text-end">$ 2,200.00</td>
+                                    <td class="text-center">15%</td>
+                                    <td class="text-center">16%</td>
+                                    <td class="text-center">14%</td>
+                                    <td class="text-end">$ 2,200.00</td>
+                                    <td class="text-center">36%</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center"><input type="checkbox" class="form-check-input item-checkbox-modal" checked></td>
+                                    <td>126</td>
+                                    <td>TV 55 Samsung 4K</td>
+                                    <td class="text-end">$ 1,200.00</td>
+                                    <td class="text-center">350</td>
+                                    <td class="text-center">250</td>
+                                    <td class="text-center">100</td>
+                                    <td class="text-end">$ 120,000.00</td>
+                                    <td class="text-center">60</td>
+                                    <td class="text-end">$ 1,800.00</td>
+                                    <td class="text-center">45</td>
+                                    <td class="text-end">$ 1,900.00</td>
+                                    <td class="text-center">35</td>
+                                    <td class="text-end">$ 2,000.00</td>
+                                    <td class="text-center">18%</td>
+                                    <td class="text-center">19%</td>
+                                    <td class="text-center">17%</td>
+                                    <td class="text-end">$ 1,999.00</td>
+                                    <td class="text-center">38%</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center"><input type="checkbox" class="form-check-input item-checkbox-modal"></td>
+                                    <td>128</td>
+                                    <td>TV 70 Samsung 4K</td>
+                                    <td class="text-end">$ 1,800.00</td>
+                                    <td class="text-center">200</td>
+                                    <td class="text-center">150</td>
+                                    <td class="text-center">50</td>
+                                    <td class="text-end">$ 90,000.00</td>
+                                    <td class="text-center">30</td>
+                                    <td class="text-end">$ 2,500.00</td>
+                                    <td class="text-center">25</td>
+                                    <td class="text-end">$ 2,600.00</td>
+                                    <td class="text-center">20</td>
+                                    <td class="text-end">$ 2,700.00</td>
+                                    <td class="text-center">12%</td>
+                                    <td class="text-center">13%</td>
+                                    <td class="text-center">11%</td>
+                                    <td class="text-end">$ 2,799.00</td>
+                                    <td class="text-center">32%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnSeleccionarItemsModal">Seleccionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- MODAL CONSULTA ACUERDOS -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalConsultaAcuerdos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Consulta de Acuerdos</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">Seleccione un Acuerdo</span>
+                    <input type="text" class="form-control form-control-sm" placeholder="Buscar..." style="width: 250px;">
+                </div>
+                <div class="table-responsive border rounded" style="max-height: 350px; overflow-y: auto;">
+                    <table class="table table-hover table-sm table-bordered mb-0">
+                        <thead class="table-success sticky-top">
+                            <tr class="text-nowrap">
+                                <th class="text-center">Sel.</th>
+                                <th>ID Acuerdo</th>
+                                <th>Descripción</th>
+                                <th>Proveedor</th>
+                                <th class="text-end">$ Disponible</th>
+                                <th>Fecha Inicio</th>
+                                <th>Fecha Fin</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center"><input type="radio" class="form-check-input" name="selectAcuerdo"></td>
+                                <td>APR001</td>
+                                <td>Acuerdo Promocional MABE</td>
+                                <td>Industrias MABE S.A</td>
+                                <td class="text-end">$ 50,000.00</td>
+                                <td>01/01/2025</td>
+                                <td>31/12/2025</td>
+                                <td>Activo</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><input type="radio" class="form-check-input" name="selectAcuerdo"></td>
+                                <td>APR002</td>
+                                <td>Acuerdo Samsung 2025</td>
+                                <td>Samsung Electronics</td>
+                                <td class="text-end">$ 75,000.00</td>
+                                <td>15/01/2025</td>
+                                <td>15/06/2025</td>
+                                <td>Activo</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- MODAL CLIENTES ESPECÍFICOS -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalClientesEspecificos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Lista Específica de Clientes</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row m-2">
+                    <div class="col-1 p-0">
+                        <input class="form-check-input" type="checkbox" id="chkSeleccionaFile">
+                    </div>
+                    <div class="col-10 p-0">
+                        <div class="input-group input-group-sm">
+                            <label class="btn btn-secondary" for="inputFileClientes">Buscar Archivo</label>
+                            <input type="file" class="form-control d-none" id="inputFileClientes" disabled>
+                            <span class="form-control" id="fileNameClientes">Ningún archivo seleccionado</span>
+                        </div>
+                    </div>
+                    <div class="col-1 p-0">
+                        <button type="button" class="btn btn-outline-dark btn-sm border-0" id="btnUploadClientes" disabled>
+                            <img src="~/img/ico/upload.svg" alt="Upload">
+                        </button>
+                    </div>
+                </div>
+                <div class="input-group mt-2">
+                    <textarea class="form-control" style="height: 250px" id="txtListaClientes" placeholder="Ingrese los códigos de cliente separados por coma o salto de línea..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- MODAL MEDIOS DE PAGO -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalMediosPago" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Medios de Pago</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="mpEfectivo" checked>
+                    <label class="form-check-label" for="mpEfectivo">Efectivo</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="mpCreditoDirecto" checked>
+                    <label class="form-check-label" for="mpCreditoDirecto">Crédito Directo</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="mpVisaPlatinium" checked>
+                    <label class="form-check-label" for="mpVisaPlatinium">Visa Platinium</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="mpMastercardBlack" checked>
+                    <label class="form-check-label" for="mpMastercardBlack">Mastercard Black</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="mpDiners">
+                    <label class="form-check-label" for="mpDiners">Diners</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="mpAmex">
+                    <label class="form-check-label" for="mpAmex">American Express</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- MODAL EQUIVALENTES -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalEquivalentes" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Equivalentes Artefacta</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Listado de productos equivalentes...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- MODAL PRECIOS COMPETENCIA -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalPreciosCompetencia" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Precios de Competencia</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Comparativa de precios con la competencia...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- MODAL OTROS COSTOS -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalOtrosCostos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Considerar Otros Costos</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="costoEnsamble">
+                    <label class="form-check-label" for="costoEnsamble">Ensamble $60</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="costoMatricula" checked>
+                    <label class="form-check-label" for="costoMatricula">Matrícula $50</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="costoInstalacion">
+                    <label class="form-check-label" for="costoInstalacion">Instalación $30</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->
