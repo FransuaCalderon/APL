@@ -1,108 +1,56 @@
-﻿/**
-* Carga el combo (select) de Tipos de Fondo desde la API.
-* @param {function} [callback] - Una función opcional a ejecutar cuando la carga sea exitosa.
-*/
+﻿// ~/js/Fondo/CrearFondo.js
+
+// ===============================================================
+// FUNCIONES DE CARGA Y API
+// ===============================================================
+
+/**
+ * Carga el combo de Tipos de Fondo.
+ */
 function cargarTipoFondo(callback) {
     const idOpcionActual = window.obtenerIdOpcionActual();
-
-    if (!idOpcionActual) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
-        });
-        return;
-    }
-
-    console.log('Cargando tipos de fondo con idOpcion:', idOpcionActual);
-
     const usuario = window.usuarioActual || "admin";
-    const etiqueta = "TIPOFONDO";
+
+    if (!idOpcionActual) return manejarErrorContexto();
 
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`,
+        url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/TIPOFONDO`,
         method: "GET",
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario,
-        },
-        success: function (data) {
-            console.log("Tipos de fondo cargados:", data);
+        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+        success: function (response) {
+            // ✅ Adaptación al nuevo response body
+            if (response && response.code_status === 200) {
+                const data = response.json_response.data || [];
+                const $selectFondoTipo = $("#fondoTipo");
 
-            const $selectFondoTipo = $("#fondoTipo");
-            $selectFondoTipo.empty();
+                $selectFondoTipo.empty().append('<option value="">Seleccione...</option>');
 
-            $selectFondoTipo.append(
-                $('<option></option>')
-                    .val("")
-                    .text("Seleccione...")
-            );
-
-            if (data && data.length > 0) {
-                data.forEach(function (item) {
+                data.forEach(item => {
                     $selectFondoTipo.append(
                         $('<option></option>')
                             .val(item.idcatalogo)
                             .text(item.nombre_catalogo)
-                            // ✅ NUEVO: Guardamos el nombre como data attribute
                             .attr('data-nombre', item.nombre_catalogo)
                     );
                 });
-            }
 
-            if (callback && typeof callback === 'function') {
-                callback();
+                if (callback) callback();
             }
         },
-        error: function (xhr, status, error) {
-            console.error("Error al cargar tipos de fondo:", error);
-            console.error("Detalles del error:", xhr.responseText);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudieron cargar los tipos de fondo'
-            });
-        }
+        error: (xhr) => manejarErrorGlobal(xhr, "cargar tipos de fondo")
     });
 }
 
 /**
- * Carga la tabla de proveedores desde la API en el modal.
- * ✅ MODIFICADO: Filtra el proveedor de Fondo Propio cuando NO está seleccionado Fondo Propio
+ * Consulta la lista de proveedores para el modal.
  */
 function consultarProveedor() {
     const idOpcionActual = window.obtenerIdOpcionActual();
-
-    if (!idOpcionActual) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
-        });
-        return;
-    }
-
-    console.log('Consultando proveedores con idOpcion:', idOpcionActual);
-
     const usuario = window.usuarioActual || "admin";
     const $tbody = $("#tablaProveedores tbody");
 
-    if ($tbody.length === 0) {
-        console.error("¡ERROR DE JAVASCRIPT!");
-        console.error("No se pudo encontrar el elemento '#tablaProveedores tbody'.");
-        return;
-    }
+    if (!idOpcionActual) return;
 
-    function obtenerPrimerValorValido(...valores) {
-        for (let valor of valores) {
-            if (valor != null && String(valor).trim() !== '') {
-                return String(valor).trim();
-            }
-        }
-        return '';
-    }
-
-    // ✅ NUEVO: Verificar si está seleccionado Fondo Propio
     const esFondoPropio = verificarSiFondoPropio();
     const RUC_FONDO_PROPIO = "1790895548001";
 
@@ -111,402 +59,176 @@ function consultarProveedor() {
     $.ajax({
         url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
         method: "GET",
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario,
-        },
-        success: function (data) {
-            console.log("Proveedores cargados:", data);
-
+        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+        success: function (response) {
+            // ✅ Unwrapping del nuevo formato
+            const data = response.json_response ? response.json_response.data : [];
             $tbody.empty();
 
             if (data && data.length > 0) {
-
-                data.forEach(function (proveedor) {
-                    const codigo = proveedor.codigo ?? '';
+                data.forEach(proveedor => {
                     const ruc = proveedor.identificacion ?? '';
-                    const nombre = proveedor.nombre ?? '';
 
-                    // ✅ NUEVO: Filtrar el proveedor de Fondo Propio cuando NO está seleccionado Fondo Propio
-                    if (!esFondoPropio && ruc === RUC_FONDO_PROPIO) {
-                        console.log(`Proveedor ${ruc} (Fondo Propio) ocultado porque no está seleccionado Fondo Propio`);
-                        return; // Saltar este proveedor
-                    }
+                    // Lógica de filtrado de negocio
+                    if (!esFondoPropio && ruc === RUC_FONDO_PROPIO) return;
 
-                    const contacto = obtenerPrimerValorValido(
-                        proveedor.nombrecontacto1,
-                        proveedor.nombrecontacto2,
-                        proveedor.nombrecontacto3,
-                        proveedor.nombrecontacto4
-                    );
-
-                    const mail = obtenerPrimerValorValido(
-                        proveedor.mailcontacto1,
-                        proveedor.mailcontacto2,
-                        proveedor.mailcontacto3,
-                        proveedor.mailcontacto4
-                    );
-
-                    const telefono = '';
-
-                    console.log(`Proveedor ${codigo}:`, {
-                        contacto,
-                        mail,
-                        telefono,
-                        datosOriginales: {
-                            nombrecontacto1: proveedor.nombrecontacto1,
-                            nombrecontacto2: proveedor.nombrecontacto2,
-                            nombrecontacto3: proveedor.nombrecontacto3,
-                            nombrecontacto4: proveedor.nombrecontacto4,
-                            mailcontacto1: proveedor.mailcontacto1,
-                            mailcontacto2: proveedor.mailcontacto2,
-                            mailcontacto3: proveedor.mailcontacto3,
-                            mailcontacto4: proveedor.mailcontacto4
-                        }
-                    });
+                    const contacto = proveedor.nombrecontacto1 || proveedor.nombrecontacto2 || '';
+                    const mail = proveedor.mailcontacto1 || proveedor.mailcontacto2 || '';
 
                     const fila = `
                         <tr>
-                            <td class="align-middle text-center">
-                                <input class="form-check-input" type="radio" name="selectProveedor" 
-                                       data-id="${codigo}" 
-                                       data-nombre="${nombre}"
-                                       data-ruc="${ruc}">
-                            </td>
-                            <td class="align-middle">${codigo}</td>
-                            <td class="align-middle">${ruc}</td>
-                            <td class="align-middle">${nombre}</td>
-                            <td class="align-middle">${contacto}</td>
-                            <td class="align-middle">${mail}</td>
-                            <td class="align-middle">${telefono}</td>
-                        </tr>
-                    `;
-
+                            <td class="text-center"><input type="radio" name="selectProveedor" 
+                                data-id="${proveedor.codigo}" data-nombre="${proveedor.nombre}" data-ruc="${ruc}"></td>
+                            <td>${proveedor.codigo}</td>
+                            <td>${ruc}</td>
+                            <td>${proveedor.nombre}</td>
+                            <td>${contacto}</td>
+                            <td>${mail}</td>
+                            <td>-</td>
+                        </tr>`;
                     $tbody.append(fila);
                 });
-
             } else {
-                $tbody.append('<tr><td colspan="7" class="text-center">No se encontraron proveedores.</td></tr>');
+                $tbody.append('<tr><td colspan="7" class="text-center">No hay proveedores disponibles.</td></tr>');
             }
         },
-        error: function (xhr, status, error) {
-            console.error("Error en la llamada AJAX a /api/Proveedor/Listar:", error);
-            console.error("Detalles del error:", xhr.responseText);
-            $tbody.empty().append(`<tr><td colspan="7" class="text-center text-danger">Error al cargar datos.</td></tr>`);
-        }
+        error: (xhr) => $tbody.html(`<tr><td colspan="7" class="text-danger">Error al cargar datos.</td></tr>`)
     });
 }
 
-// ✅ NUEVA FUNCIÓN: Verifica si el tipo de fondo seleccionado es "Fondo Propio"
-function verificarSiFondoPropio() {
-    const $selectFondoTipo = $("#fondoTipo");
-    const valorSeleccionado = $selectFondoTipo.val();
+// ===============================================================
+// LÓGICA DE NEGOCIO Y EVENTOS
+// ===============================================================
 
-    if (!valorSeleccionado) {
-        return false;
+function ejecutarGuardadoFondo() {
+    const idOpcionActual = window.obtenerIdOpcionActual();
+    const usuario = window.usuarioActual || "admin";
+
+    // Helpers de conversión
+    const toISO = (f) => {
+        if (!f) return null;
+        const p = f.split('/');
+        return new Date(p[2], p[1] - 1, p[0]).toISOString();
+    };
+
+    const toNum = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+
+    const data = {
+        descripcion: $("#fondoDescripcion").val(),
+        idproveedor: $("#fondoProveedorId").val(),
+        idtipofondo: parseInt($("#fondoTipo").val()) || 0,
+        valorfondo: toNum($("#fondoValorTotal").val()),
+        fechainiciovigencia: toISO($("#fondoFechaInicio").val()),
+        fechafinvigencia: toISO($("#fondoFechaFin").val()),
+        idusuarioingreso: usuario,
+        nombreusuario: usuario,
+        idopcion: idOpcionActual,
+        idcontrolinterfaz: "BTNGRABAR",
+        idevento: "EVCLICK"
+    };
+
+    if (!data.fechainiciovigencia || !data.fechafinvigencia) {
+        return Swal.fire('Error', 'Las fechas no son válidas.', 'error');
     }
 
-    // Obtener el texto de la opción seleccionada
-    const textoSeleccionado = $selectFondoTipo.find('option:selected').attr('data-nombre') ||
-        $selectFondoTipo.find('option:selected').text();
-
-    // Verificar si contiene "FONDO PROPIO" o "PROPIO" (case insensitive)
-    const esFondoPropio = /fondo\s*propio|propio/i.test(textoSeleccionado);
-
-    console.log('Verificando si es Fondo Propio:', {
-        valorSeleccionado,
-        textoSeleccionado,
-        esFondoPropio
+    Swal.fire({
+        title: 'Guardando...',
+        didOpen: () => Swal.showLoading(),
+        allowOutsideClick: false
     });
 
-    return esFondoPropio;
+    $.ajax({
+        url: `${window.apiBaseUrl}/api/Fondo/insertar`,
+        type: "POST", // ✅ Mantener POST para inserción
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+        success: function (response) {
+            // ✅ Validación del response body nuevo
+            if (response && response.code_status === 200) {
+                Swal.fire('¡Éxito!', response.json_response.data.mensaje || 'Fondo guardado.', 'success');
+                limpiarFormularioFondo();
+            }
+        },
+        error: (xhr) => manejarErrorGlobal(xhr, "guardar el fondo")
+    });
 }
 
-// ✅ NUEVA FUNCIÓN: Selecciona automáticamente el proveedor de Fondo Propio
-function seleccionarProveedorFondoPropio() {
-    const RUC_FONDO_PROPIO = "1790895548001";
-    const NOMBRE_PROVEEDOR_PROPIO = "Unicomer de Ecuador S.A.";
-
-    // Establecer el proveedor en los campos
-    $("#fondoProveedorId").val(RUC_FONDO_PROPIO);
-    $("#fondoProveedor").val(NOMBRE_PROVEEDOR_PROPIO);
-
-    // Deshabilitar el botón de búsqueda
-    $("#btnBuscarProveedorModal").prop('disabled', true).addClass('disabled');
-
-    console.log('Proveedor de Fondo Propio seleccionado automáticamente');
-}
-
-// ✅ NUEVA FUNCIÓN: Limpia y habilita la selección de proveedor
-function habilitarSeleccionProveedor() {
-    // Limpiar los campos de proveedor
-    $("#fondoProveedorId").val("");
-    $("#fondoProveedor").val("Seleccione...");
-
-    // Habilitar el botón de búsqueda
-    $("#btnBuscarProveedorModal").prop('disabled', false).removeClass('disabled');
-
-    console.log('Selección de proveedor habilitada');
-}
-
-// ✅ NUEVA FUNCIÓN: Obtiene la fecha actual en formato dd/mm/yyyy
-function obtenerFechaActualFormateada() {
-    const hoy = new Date();
-    const dia = String(hoy.getDate()).padStart(2, '0');
-    const mes = String(hoy.getMonth() + 1).padStart(2, '0'); // Los meses van de 0-11
-    const anio = hoy.getFullYear();
-
-    return `${dia}/${mes}/${anio}`;
-}
+// ===============================================================
+// INITIALIZATION
+// ===============================================================
 
 $(document).ready(function () {
-    console.log("=== INICIO DE CARGA DE PÁGINA - CrearFondo ===");
-
-    console.log("Usuario actual capturado:", window.usuarioActual);
-
-    const infoOpcion = window.obtenerInfoOpcionActual();
-    console.log("Información de la opción actual:", {
-        idOpcion: infoOpcion.idOpcion,
-        nombre: infoOpcion.nombre,
-        ruta: infoOpcion.ruta
-    });
-
-    if (!infoOpcion.idOpcion) {
-        console.warn("⚠️ ADVERTENCIA: No se detectó un idOpcion al cargar la página.");
-        console.warn("Esto es normal si accediste directamente a la URL sin pasar por el menú.");
-        console.warn("Para que funcione correctamente, accede a esta página desde el menú.");
-    } else {
-        console.log("✅ idOpcion capturado correctamente:", infoOpcion.idOpcion);
-    }
-
-    console.log("=== FIN DE VERIFICACIÓN INICIAL ===");
-    console.log("");
-
     $.get("/config", function (config) {
-        const apiBaseUrl = config.apiBaseUrl;
-        window.apiBaseUrl = apiBaseUrl;
-
-        console.log("API Base URL configurada:", apiBaseUrl);
-
+        window.apiBaseUrl = config.apiBaseUrl;
         cargarTipoFondo();
     });
 
-    // ✅ NUEVO: Evento change para el select de Tipo Fondo
+    // Eventos de UI
     $("#fondoTipo").on("change", function () {
-        const esFondoPropio = verificarSiFondoPropio();
-
-        if (esFondoPropio) {
-            // Si es Fondo Propio, seleccionar automáticamente el proveedor
-            seleccionarProveedorFondoPropio();
-        } else {
-            // Si no es Fondo Propio, habilitar la selección normal
-            habilitarSeleccionProveedor();
-        }
+        verificarSiFondoPropio() ? seleccionarProveedorFondoPropio() : habilitarSeleccionProveedor();
     });
 
-    $('#modalConsultaProveedor').on('show.bs.modal', function (event) {
-        consultarProveedor();
-    });
+    $('#modalConsultaProveedor').on('show.bs.modal', () => consultarProveedor());
 
-    function formatCurrencySpanish(value) {
-        let number = parseFloat(value);
-        if (isNaN(number)) {
-            number = 0.0;
-        }
-
-        const formatter = new Intl.NumberFormat('es-ES', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-
-        return `$ ${formatter.format(number)}`;
-    }
-
-    $("#fondoValorTotal").on("keypress", function (event) {
-        const char = event.key;
-        const currentValue = $(this).val();
-
-        if (char >= '0' && char <= '9') {
-            return true;
-        }
-
-        if (char === ',' && currentValue.indexOf(',') === -1) {
-            return true;
-        }
-
-        event.preventDefault();
-        return false;
-    });
-
-    $("#fondoValorTotal").on("blur", function () {
-        const rawValue = $(this).val().replace(',', '.');
-
-        const formattedValue = formatCurrencySpanish(rawValue);
-
-        $(this).val(formattedValue);
-        $("#fondoDisponible").val(formattedValue);
-    });
-
-    $("#btnAceptarProveedor").on("click", function () {
-        const $selected = $("#tablaProveedores tbody input[name='selectProveedor']:checked");
-
-        if ($selected.length > 0) {
-            const proveedorId = $selected.data("id");
-            const proveedorNombre = $selected.data("nombre");
-            const proveedorRuc = $selected.data("ruc");
-
-            console.log("Proveedor seleccionado:", { id: proveedorId, nombre: proveedorNombre, ruc: proveedorRuc });
-
-            $("#fondoProveedorId").val(proveedorRuc);
-            $("#fondoProveedor").val(proveedorNombre);
-
-            $('#modalConsultaProveedor').modal('hide');
-
-        } else {
-            Swal.fire('Atención', 'Por favor, seleccione un proveedor de la lista.', 'info');
-        }
-    });
-
-    // ✅ NUEVO: Setear la fecha de inicio a la fecha actual al cargar la página
-    const fechaActual = obtenerFechaActualFormateada();
-    $("#fondoFechaInicio").val(fechaActual);
-    console.log("✅ Fecha de inicio seteada a:", fechaActual);
-
-    $("#btnGuardarFondos").on("click", function (e) {
+    $("#btnGuardarFondos").on("click", (e) => {
         e.preventDefault();
-        console.log("Guardando fondos");
-
         Swal.fire({
-            title: 'Confirmar Guardado de fondos',
-            text: "¿Estás seguro de que deseas guardar el fondo?",
-            icon: 'warning',
+            title: '¿Confirmar guardado?',
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#009845',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, Guardar',
-            cancelButtonText: 'Cancelar',
-        }).then((result) => {
-            if (result.isConfirmed) {
-
-                const idOpcionActual = window.obtenerIdOpcionActual();
-
-                if (!idOpcionActual) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'No se pudo obtener el ID de la opción. Por favor, acceda nuevamente desde el menú.'
-                    });
-                    return;
-                }
-
-                console.log('ID Opción capturado dinámicamente:', idOpcionActual);
-
-                function convertirFechaAISO(fechaStr) {
-                    if (!fechaStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(fechaStr)) {
-                        return null;
-                    }
-
-                    const partes = fechaStr.split('/');
-                    const fecha = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
-
-                    return fecha.toISOString();
-                }
-
-                function convertirMonedaANumero(monedaStr) {
-                    if (!monedaStr) {
-                        return 0;
-                    }
-
-                    let valorLimpio = String(monedaStr)
-                        .replace(/\$/g, '')
-                        .replace(/\s/g, '')
-                        .replace(/\./g, '');
-
-                    valorLimpio = valorLimpio.replace(',', '.');
-
-                    return parseFloat(valorLimpio) || 0;
-                }
-
-                const data = {
-                    descripcion: $("#fondoDescripcion").val(),
-                    idproveedor: $("#fondoProveedorId").val(),
-                    idtipofondo: parseInt($("#fondoTipo").val(), 10) || 0,
-                    valorfondo: convertirMonedaANumero($("#fondoValorTotal").val()),
-                    fechainiciovigencia: convertirFechaAISO($("#fondoFechaInicio").val()),
-                    fechafinvigencia: convertirFechaAISO($("#fondoFechaFin").val()),
-                    idusuarioingreso: window.usuarioActual,
-                    nombreusuarioingreso: window.usuarioActual,
-                    idopcion: idOpcionActual,
-                    idcontrolinterfaz: "BTNGRABAR",
-                    idevento: "EVCLICK",
-                    nombreusuario: window.usuarioActual
-                };
-
-                console.log("data antes de enviar", data);
-
-                if (!data.fechainiciovigencia || !data.fechafinvigencia) {
-                    Swal.fire('Error de Formato', 'La fecha de inicio o fin no es válida. Asegúrese de usar el formato dd/mm/aaaa.', 'error');
-                    return;
-                }
-
-                const url = `${window.apiBaseUrl}/api/Fondo/insertar`;
-                const method = "POST";
-
-                // ✅ NUEVO: Mostrar spinner de carga
-                Swal.fire({
-                    title: 'Guardando...',
-                    text: 'Por favor espere',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                $.ajax({
-                    url: url,
-                    type: method,
-                    contentType: "application/json",
-                    data: JSON.stringify(data),
-                    headers: {
-                        "idopcion": String(idOpcionActual),
-                        "usuario": window.usuarioActual
-                    },
-                    success: function (response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Guardado!',
-                            text: 'El registro se ha guardado correctamente.',
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-
-                        $("#fondoTipo").val("");
-                        $("#fondoProveedor").val("Seleccione...");
-                        $("#fondoProveedorId").val("");
-                        $("#fondoDescripcion").val("");
-                        // ✅ MODIFICADO: Restablecer fecha inicio a fecha actual después de limpiar
-                        $("#fondoFechaInicio").val(obtenerFechaActualFormateada());
-                        $("#fondoFechaFin").val("");
-                        $("#fondoValorTotal").val("");
-                        $("#fondoDisponible").val("");
-
-                        // ✅ NUEVO: Habilitar el botón de búsqueda después de limpiar
-                        habilitarSeleccionProveedor();
-                    },
-                    error: function (xhr, status, error) {
-                        const mensaje = "guardar";
-                        console.error("Error en el guardado:", xhr.responseText);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: `¡Algo salió mal al ${mensaje} el registro!`,
-                            footer: xhr.responseText ? `Detalle: ${xhr.responseText}` : ''
-                        });
-                    }
-                });
-            }
-        });
+            confirmButtonText: 'Sí, Guardar'
+        }).then((r) => { if (r.isConfirmed) ejecutarGuardadoFondo(); });
     });
+
+    // Formateo de moneda
+    $("#fondoValorTotal").on("blur", function () {
+        const val = $(this).val().replace(',', '.');
+        const formatted = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(parseFloat(val) || 0);
+        $(this).val(formatted);
+        $("#fondoDisponible").val(formatted);
+    });
+
+    // Init fechas
+    $("#fondoFechaInicio").val(obtenerFechaActualFormateada());
 });
+
+// Helpers de Utilidad
+function limpiarFormularioFondo() {
+    $("#fondoTipo").val("");
+    $("#fondoDescripcion").val("");
+    $("#fondoValorTotal, #fondoDisponible, #fondoFechaFin").val("");
+    $("#fondoFechaInicio").val(obtenerFechaActualFormateada());
+    habilitarSeleccionProveedor();
+}
+
+function manejarErrorGlobal(xhr, msj) {
+    Swal.fire('Error', `No se pudo ${msj}. Detalle: ${xhr.responseText || 'Error de servidor'}`, 'error');
+}
+
+function manejarErrorContexto() {
+    Swal.fire('Error de Contexto', 'ID de opción no encontrado.', 'error');
+}
+
+function verificarSiFondoPropio() {
+    const text = $("#fondoTipo option:selected").attr('data-nombre') || "";
+    return /fondo\s*propio|propio/i.test(text);
+}
+
+function seleccionarProveedorFondoPropio() {
+    $("#fondoProveedorId").val("1790895548001");
+    $("#fondoProveedor").val("Unicomer de Ecuador S.A.");
+    $("#btnBuscarProveedorModal").prop('disabled', true).addClass('disabled');
+}
+
+function habilitarSeleccionProveedor() {
+    $("#fondoProveedorId, #fondoProveedor").val("");
+    $("#btnBuscarProveedorModal").prop('disabled', false).removeClass('disabled');
+}
+
+function obtenerFechaActualFormateada() {
+    const h = new Date();
+    return `${String(h.getDate()).padStart(2, '0')}/${String(h.getMonth() + 1).padStart(2, '0')}/${h.getFullYear()}`;
+}
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
