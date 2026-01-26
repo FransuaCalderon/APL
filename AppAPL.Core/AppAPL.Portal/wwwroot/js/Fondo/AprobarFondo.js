@@ -275,12 +275,107 @@ function cargarAprobaciones(entidad, identidad, proceso) {
         method: "GET",
         headers: { "idopcion": String(idOpcion), "usuario": usuario },
         success: function (response) {
+            console.log("data ", response.json_response.data);
             if (response && response.code_status === 200) {
                 const lista = response.json_response.data || [];
                 renderizarTablaAprobaciones(lista);
             }
         },
         error: (xhr) => $('#tabla-aprobaciones-fondo').html('<p class="text-danger">Error al cargar historial.</p>')
+    });
+}
+
+function renderizarTablaAprobaciones(data) {
+    let lista = Array.isArray(data) ? data : [data];
+
+    if (!lista || lista.length === 0) {
+        $('#tabla-aprobaciones-fondo').html('<div class="alert alert-light text-center border">No hay historial de aprobaciones.</div>');
+        return;
+    }
+
+    let html = `
+            <table id='dt-historial' class='table table-sm table-bordered table-hover w-100'>
+                <thead class="table-light">
+                    <tr>
+                        <th>ID Aprobación</th>
+                        <th>Usuario Solicitante</th>
+                        <th>Usuario Aprobador</th>
+                        <th>Estado</th>
+                        <th>Fecha Solicitud</th>
+                        <th>Nivel Aprobación</th>
+                        <th>Tipo Proceso</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+    lista.forEach(item => {
+        // Lógica para el comentario y Popover
+        let comentarioLimpio = (item.comentario && item.comentario !== "string")
+            ? item.comentario
+            : "Sin comentarios.";
+
+        // ✅ MOSTRAR POPOVER SOLO SI EL ESTADO ES "APROBADO" O "NEGADO"
+        let estadoNombre = item.estado_nombre || item.estado_etiqueta || "N/A";
+        let estadoUpper = estadoNombre.toUpperCase();
+
+        let iconoPopover = "";
+        if (estadoUpper.includes("APROBADO") || estadoUpper.includes("NEGADO")) {
+            // ✅ USAR SOLO EL ICONO SIN BORDE DE BOTÓN
+            iconoPopover = `
+                    <i class="fa-solid fa-comment-dots text-warning ms-1"
+                       style="cursor: pointer; font-size: 0.9rem;"
+                       data-bs-toggle="popover" 
+                       data-bs-trigger="focus" 
+                       data-bs-placement="top"
+                       tabindex="0"
+                       title="Comentario" 
+                       data-bs-content="${comentarioLimpio}">
+                    </i>`;
+        }
+
+        html += `<tr>
+                    <td class="text-center">${item.idaprobacion || ""}</td>
+                    <td>${item.idusersolicitud || ""}</td>
+                    <td>${item.iduseraprobador || ""}</td>
+                    <td class="text-nowrap">${estadoNombre}${iconoPopover}</td>
+                    <td class="text-center">${formatearFecha(item.fechasolicitud)}</td>
+                    <td class="text-center">${item.nivelaprobacion || 0}</td>
+                    <td>${item.tipoproceso_nombre || ""}</td>
+                </tr>`;
+    });
+
+    html += `</tbody></table>`;
+    $('#tabla-aprobaciones-fondo').html(html);
+
+    // Convertir a DataTable
+    tablaHistorial = $('#dt-historial').DataTable({
+        pageLength: 5,
+        lengthMenu: [5, 10, 25],
+        pagingType: 'simple_numbers',
+        searching: false,
+        columnDefs: [
+            { targets: [0, 4, 5], className: "dt-center" },
+            { targets: 3, className: "dt-nowrap" } // Para que el icono no se baje de línea
+        ],
+        order: [[0, 'desc']],
+        language: {
+            decimal: "",
+            emptyTable: "No hay aprobaciones disponibles",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ aprobaciones",
+            infoEmpty: "Mostrando 0 a 0 de 0 aprobaciones",
+            infoFiltered: "(filtrado de _MAX_ aprobaciones totales)",
+            lengthMenu: "Mostrar _MENU_ aprobaciones",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "No se encontraron aprobaciones coincidentes",
+            paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+        },
+        // RE-INICIALIZAR POPOVERS CADA VEZ QUE SE DIBUJA LA TABLA (Cambio de página, etc)
+        drawCallback: function () {
+            const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+            [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+        }
     });
 }
 
