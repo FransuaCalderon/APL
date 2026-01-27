@@ -137,6 +137,8 @@ function ejecutarGuardadoFondo() {
         allowOutsideClick: false
     });
 
+   // console.log("data a guardar fondo: ", data);
+
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/insertar`,
         type: "POST", // ✅ Mantener POST para inserción
@@ -191,6 +193,35 @@ $(document).ready(function () {
 
     // Init fechas
     $("#fondoFechaInicio").val(obtenerFechaActualFormateada());
+
+    $("#btnAceptarProveedor").on("click", () => {
+        // 1. Buscamos el radio button que esté marcado dentro de la tabla
+        const seleccionado = $('input[name="selectProveedor"]:checked');
+
+        if (seleccionado.length > 0) {
+            // 2. Extraemos los datos usando la función .data() de jQuery
+            // Esto lee automáticamente los atributos data-id, data-nombre, etc.
+            const proveedor = {
+                id: seleccionado.data("id"),
+                nombre: seleccionado.data("nombre"),
+                ruc: seleccionado.data("ruc")
+            };
+
+            console.log("Proveedor seleccionado:", proveedor);
+
+            // 3. AQUÍ es donde asignas los valores a tus inputs de la pantalla principal
+            // Ejemplo:
+            $("#fondoProveedor").val(proveedor.nombre);
+            $("#fondoProveedorId").val(proveedor.ruc);
+
+            // 4. Cerramos el modal
+            $("#modalConsultaProveedor").modal("hide");
+
+        } else {
+            // Usamos un alert simple o una notificación de tu preferencia
+            alert("Debes seleccionar un proveedor de la lista.");
+        }
+    });
 });
 
 // Helpers de Utilidad
@@ -222,6 +253,7 @@ function seleccionarProveedorFondoPropio() {
 }
 
 function habilitarSeleccionProveedor() {
+    console.log("habilitando seleccion proveedor");
     $("#fondoProveedorId, #fondoProveedor").val("");
     $("#btnBuscarProveedorModal").prop('disabled', false).removeClass('disabled');
 }
