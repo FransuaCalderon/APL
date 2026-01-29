@@ -4,6 +4,8 @@ CREATE TABLE Apl_Tb_PromocionAcuerdo (
     IdAcuerdo               NUMBER(18,0)    NOT NULL,
     PorcentajeDescuento     NUMBER(18,2)    NOT NULL,
     ValorComprometido       NUMBER(18,2)    NOT NULL,
+	ValorDisponible         NUMBER(18,2)    NOT NULL,
+	ValorLiquidado          NUMBER(18,2)    NOT NULL,
     EstadoRegistro          NUMBER(10)      NOT NULL,
     
     CONSTRAINT PK_Apl_Tb_PromocionesAcuerdos PRIMARY KEY (IdPromocionAcuerdo)
