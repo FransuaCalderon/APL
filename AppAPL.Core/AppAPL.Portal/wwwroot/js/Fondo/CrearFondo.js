@@ -137,8 +137,8 @@ function ejecutarGuardadoFondo() {
         allowOutsideClick: false
     });
 
-   // console.log("data a guardar fondo: ", data);
-
+    console.log("data a guardar fondo: ", data);
+    return;
     $.ajax({
         url: `${window.apiBaseUrl}/api/Fondo/insertar`,
         type: "POST", // ✅ Mantener POST para inserción

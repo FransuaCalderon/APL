@@ -6,10 +6,51 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    //[ApiExplorerSettings(IgnoreApi = true)]
 
     public class PromocionController(ILogger<PromocionController> logger, IPromocionServicio servicio) : ControllerBase
     {
+
+        [HttpGet("consultar-promocion")]
+        public async Task<ActionResult<List<PromocionDTO>>> ConsultarPromocion()
+        {
+            var listaPromocion = await servicio.ConsultarPromocion();
+
+            return listaPromocion.ToList();
+        }
+
+        [HttpGet("consultar-promocion-acuerdo")]
+        public async Task<ActionResult<List<PromocionAcuerdoDTO>>> ConsultarPromocionAcuerdo()
+        {
+            var listaPromocionAcuerdo = await servicio.ConsultarPromocionAcuerdo();
+
+            return listaPromocionAcuerdo.ToList();
+        }
+
+        [HttpGet("consultar-promocion-articulo")]
+        public async Task<ActionResult<List<PromocionArticuloDTO>>> ConsultarPromocionArticulo()
+        {
+            var listaPromocionArticulo = await servicio.ConsultarPromocionArticulo();
+
+            return listaPromocionArticulo.ToList();
+        }
+
+        [HttpGet("consultar-promocion-segmento")]
+        public async Task<ActionResult<List<PromocionSegmentoDTO>>> ConsultarPromocionSegmento()
+        {
+            var listaPromocionSegmento = await servicio.ConsultarPromocionSegmento();
+
+            return listaPromocionSegmento.ToList();
+        }
+
+        [HttpGet("consultar-promocion-segmento-detalle")]
+        public async Task<ActionResult<List<PromocionSegmentoDetalleDTO>>> ConsultarPromocionSegmentoDetalle()
+        {
+            var listaPromSegDetalle = await servicio.ConsultarPromocionSegmentoDetalle();
+
+            return listaPromSegDetalle.ToList();
+        }
+
 
         [HttpGet("consultar-almacen")]
         public async Task<ActionResult<List<AlmacenDTO>>> ConsultarAlmacen()

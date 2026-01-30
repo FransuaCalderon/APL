@@ -31,5 +31,20 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<TipoClienteDTO>> ConsultarTipoCliente()
             => repo.ConsultarTipoCliente();
+
+        public Task<IEnumerable<PromocionDTO>> ConsultarPromocion()
+            => repo.ConsultarPromocion();
+
+        public Task<IEnumerable<PromocionAcuerdoDTO>> ConsultarPromocionAcuerdo()
+            => repo.ConsultarPromocionAcuerdo();
+
+        public Task<IEnumerable<PromocionArticuloDTO>> ConsultarPromocionArticulo()
+            => repo.ConsultarPromocionArticulo();
+
+        public Task<IEnumerable<PromocionSegmentoDTO>> ConsultarPromocionSegmento()
+            => repo.ConsultarPromocionSegmento();
+
+        public Task<IEnumerable<PromocionSegmentoDetalleDTO>> ConsultarPromocionSegmentoDetalle()
+            => repo.ConsultarPromocionSegmentoDetalle();
     }
 }
