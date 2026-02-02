@@ -1,39 +1,58 @@
-CREATE TABLE Apl_Tb_PromocionArticulo (
-    IdPromocionArticulo     NUMBER(18,0)    GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 NOCACHE ORDER) NOT NULL,
-    IdPromocion             NUMBER(18,0)    NOT NULL,
-    IdPromocionCombo        NUMBER(18,0)    NOT NULL,
-    CodigoItem              VARCHAR2(10)    NOT NULL,
-    Descripcion             VARCHAR2(100)   NOT NULL,
-    Costo                   NUMBER(18,2)    NOT NULL,
-    StockDisponible         NUMBER(10)      NOT NULL,
-    InventarioOptimo        NUMBER(10)      NOT NULL,
-    ExcedenteUnidad         NUMBER(10)      NOT NULL,
-    ExcedenteValor          NUMBER(18,2)    NOT NULL,
-    CantidadVendidaPeriodo1 NUMBER(10)      NOT NULL,
-    CantidadVendidaPeriodo2 NUMBER(10)      NOT NULL,
-    CantidadVendidaPeriodo3 NUMBER(10)      NOT NULL,
-    PrecioMinimo            NUMBER(18,2)    NOT NULL,
-    UnidadesLimite          NUMBER(10)      NOT NULL,
-    UnidadesProyeccionVentas NUMBER(10)     NOT NULL,
-    PrecioActual            NUMBER(18,2)    NOT NULL,
-    PrecioPromocion         NUMBER(18,2)    NOT NULL,
-    DescuentoActual         NUMBER(18,2)    NOT NULL,
-    DescuentoPromocion      NUMBER(18,2)    NOT NULL,
-    MargenActual            NUMBER(18,2)    NOT NULL,
-    MargenPromocion         NUMBER(18,2)    NOT NULL,
-    UtilidadActual          NUMBER(18,2)    NOT NULL,
-    UtilidadPromocion       NUMBER(18,2)    NOT NULL,
-    PorcentajeComision      NUMBER(18,2)    NOT NULL,
-    ValorComision           NUMBER(18,2)    NOT NULL,
-    EstadoRegistro          NUMBER(10)      NOT NULL,
+CREATE TABLE APL_TB_PROMOCIONARTICULO (
+    IdPromocionArticulo         NUMBER(18,0)  GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 NOCACHE ORDER) NOT NULL,
+    IdPromocion                 NUMBER(18,0) NOT NULL,
+    IdPromocionCombo            NUMBER(18,0) NOT NULL,
+    CodigoItem                  VARCHAR2(10) NOT NULL,
+    Descripcion                 VARCHAR2(100) NOT NULL,
+    Costo                       NUMBER(18,2) NOT NULL,
+    StockBodega                 NUMBER(10) NOT NULL,
+    StockTienda                 NUMBER(10) NOT NULL,
+    InventarioOptimo            NUMBER(10) NOT NULL,
+    ExcedenteUnidad             NUMBER(10) NOT NULL,
+    ExcedenteValor              NUMBER(18,2) NOT NULL,
+    M0Unidades                  NUMBER(10) NOT NULL,
+    M0Precio                    NUMBER(18,2) NOT NULL,
+    M1Unidades                  NUMBER(10) NOT NULL,
+    M1Precio                    NUMBER(18,2) NOT NULL,
+    M2Unidades                  NUMBER(10) NOT NULL,
+    M2Precio                    NUMBER(18,2) NOT NULL,
+    IgualarPrecio               NUMBER(18,2) NOT NULL,
+    DiasAntinguedad             NUMBER(10) NOT NULL,
+    MargenMinimoContado         NUMBER(18,2) NOT NULL,
+    MargenMinimoTarjetaCredito  NUMBER(18,2) NOT NULL,
+    MargenMinimoCredito         NUMBER(18,2) NOT NULL,
+    MargenMinimoIgualar         NUMBER(18,2) NOT NULL,
+    UnidadesLimite              NUMBER(10) NOT NULL,
+    UnidadesProyeccionVentas    NUMBER(10) NOT NULL,
+    PrecioListaContado          NUMBER(18,2) NOT NULL,
+    PrecioListaCredito          NUMBER(18,2) NOT NULL,
+    PrecioPromocionContado      NUMBER(18,2) NOT NULL,
+    PrecioPromocionTarjetaCredito NUMBER(18,2) NOT NULL,
+    PrecioPromocionCredito      NUMBER(18,2) NOT NULL,
+    PrecioIgualarPrecio         NUMBER(18,2) NOT NULL,
+    DescuentoPromocionContado   NUMBER(18,2) NOT NULL,
+    DescuentoPromocionTarjetaCredito NUMBER(18,2) NOT NULL,
+    DescuentoPromocionCredito   NUMBER(18,2) NOT NULL,
+    DescuentoIgualarPrecio      NUMBER(18,2) NOT NULL,
+    MargenPrecioListaContado    NUMBER(18,2) NOT NULL,
+    MargenPrecioListaCredito    NUMBER(18,2) NOT NULL,
+    MargenPromocionContado      NUMBER(18,2) NOT NULL,
+    MargenPromocionTarjetaCredito NUMBER(18,2) NOT NULL,
+    MargenPromocionCredito      NUMBER(18,2) NOT NULL,
+    MargenIgualarPrecio         NUMBER(18,2) NOT NULL,
+    MarcaRegalo                 CHAR(1) NOT NULL,
+    EstadoRegistro              NUMBER(10) NOT NULL,
     
-    CONSTRAINT PK_Apl_Tb_PromocionesItems PRIMARY KEY (IdPromocionArticulo)
+    -- Primary Key
+    CONSTRAINT PK_APL_TB_PROMOCIONARTICULO PRIMARY KEY (IdPromocionArticulo)
 );
 
-ALTER TABLE Apl_Tb_PromocionArticulo
-ADD CONSTRAINT FK_Apl_Tb_PromocItems_Promocion
-    FOREIGN KEY (IdPromocion)
-    REFERENCES Apl_Tb_Promocion (IdPromocion);
+
+ALTER TABLE APL_TB_PROMOCIONARTICULO 
+ADD CONSTRAINT FK_PROMOART_PROMOCION 
+FOREIGN KEY (IdPromocion) 
+REFERENCES APL_TB_PROMOCION (IdPromocion);
+
 	
 
 -- =============================================
