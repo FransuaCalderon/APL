@@ -11,6 +11,7 @@ namespace AppAPL.Portal.Extension
             services.AddScoped<OpcionesApiClient>();
             services.AddScoped<CatalogoApiClient>();
             services.AddScoped<CatalogoTipoApiCliente>();
+            services.AddScoped<ApigeeTokenService>();
         }
     }
 }

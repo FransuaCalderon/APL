@@ -2,6 +2,8 @@
 using AppAPL.Portal.Extension;
 using AppAPL.Portal.Services;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,5 +103,45 @@ app.MapControllerRoute(
     name: "default",
     // MODIFICADO: Apunta al LoginController y la acción Login
     pattern: "{controller=Login}/{action=Login}/{id?}"); // ✅ Cambié Home por Login
+
+
+
+// Endpoint del Proxy
+app.MapPost("/api/apigee-router-proxy", async (
+    ApigeeTokenService tokenService,
+    IHttpClientFactory clientFactory,
+    IConfiguration config, // <--- Inyectamos la configuración
+    HttpContext context) =>
+{
+    try
+    {
+        // 1. Obtener el token
+        var token = await tokenService.GetTokenAsync();
+
+        // 2. Leer el cuerpo de la petición (payload del JS)
+        using var reader = new StreamReader(context.Request.Body);
+        var requestBody = await reader.ReadToEndAsync();
+
+        // 3. Configurar el cliente HTTP
+        var client = clientFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // 4. Leer la URL desde appsettings.json
+        var urlUnicomer = config["ApiSettings:BaseUrl"];
+
+        var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+
+        // 5. Llamar a Unicomer usando la URL de la configuración
+        var response = await client.PostAsync(urlUnicomer, content);
+
+        // 6. Retornar respuesta al navegador
+        var responseData = await response.Content.ReadAsStringAsync();
+        return Results.Content(responseData, "application/json", statusCode: (int)response.StatusCode);
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { error = "Error en el servidor proxy", message = ex.Message }, statusCode: 500);
+    }
+});
 
 app.Run();

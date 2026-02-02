@@ -24,25 +24,47 @@ $(document).ready(function () {
     /* ======================================================
      * 2. OBTENER TOKEN APIGEE (DESDE BACKEND)
      * ====================================================== */
+
+    /*
     function obtenerTokenApigee() {
-        return $.get("/apigee/token")
-            .then(resp => {
 
-                if (!resp || !resp.access_token) {
-                    console.error("❌ Token inválido recibido", resp);
-                    throw "Token inválido";
-                }
+        return $.ajax({
+            url: "/api/router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(datosParaRouter),
+            success: function (resp) {
+                console.log("✅ Respuesta exitosa:", resp);
+            },
+            error: function (err) {
+                console.error("❌ Error validación:", err.responseJSON);
+            }
+        });
+    }*/
 
-                apigeeToken = resp.access_token;
-                console.log("🔐 Token Apigee OK");
-            });
+    function llamarApiUnicomer(datosDeNegocio) {
+        /* 'datosDeNegocio' debe ser un objeto con:
+           client, code_app, http_method, endpoint_path
+        */
+
+        return $.ajax({
+            url: "/api/apigee-router-proxy", // Llamamos a nuestro servidor, no a Apigee
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(datosDeNegocio),
+            success: function (resp) {
+                console.log("✅ Respuesta desde Unicomer:", resp);
+            },
+            error: function (err) {
+                console.error("❌ Error en la llamada:", err.responseText);
+            }
+        });
     }
 
     /* ======================================================
      * 3. CONSUMIR APIGEE API ROUTER (POST)
      * ====================================================== */
     function consumirApigeeMenu() {
-
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "GET",
@@ -52,13 +74,25 @@ $(document).ready(function () {
         };
 
         return $.ajax({
-            url: apiBaseUrl,
+            url: "/api/apigee-router-proxy",
             method: "POST",
             contentType: "application/json",
-            headers: {
-                "Authorization": `Bearer ${apigeeToken}`
+            data: JSON.stringify(payload),
+            success: function (resp) {
+                console.log("✅ Menú cargado correctamente");
+                // Aquí puedes llamar a tu función que renderiza el menú
             },
-            data: JSON.stringify(payload)
+            error: function (xhr) {
+                // Validamos si el código de estado es 500 o superior (errores de servidor)
+                if (xhr.status >= 500) {
+                    console.error("❌ Error Crítico en el Servidor:", xhr.status);
+                    alert("El servicio de Apigee no está disponible actualmente. Por favor, contacte a soporte.");
+                } else if (xhr.status === 400) {
+                    console.warn("⚠️ Error de Validación (400): Revise los parámetros enviados.");
+                } else {
+                    console.error("❌ Error inesperado:", xhr.status, xhr.responseText);
+                }
+            }
         });
     }
 
@@ -169,7 +203,7 @@ $(document).ready(function () {
      * 7. FLUJO PRINCIPAL
      * ====================================================== */
     obtenerConfig()
-        .then(obtenerTokenApigee)
+        //.then(obtenerTokenApigee)
         .then(consumirApigeeMenu)
         .then(renderizarMenu)
         .catch(err => {
