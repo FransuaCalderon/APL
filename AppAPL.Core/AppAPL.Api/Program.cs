@@ -12,13 +12,17 @@ using AppAPL.Negocio.IoC;
 using AppAPL.Negocio.Servicios;
 using Microsoft.OpenApi.Models;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ✅ Logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-
 builder.Logging.AddLog4Net("log4net.config");
+
+// ✅ HTTP + Apigee
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<ApigeeTokenService>();
 
 var swaggerEnabled = builder.Configuration.GetValue<bool>("SwaggerSettings:Enabled");
 
