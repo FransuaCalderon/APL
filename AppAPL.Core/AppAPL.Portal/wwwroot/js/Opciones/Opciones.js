@@ -63,22 +63,33 @@ $(document).ready(function () {
 function cargarOpcionesLista(usuario) {
     const idOpcionActual = window.obtenerIdOpcionActual();
 
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: `api/Opciones/listar`,
+        client: "APL",
+        endpoint_query_params: `/${usuario}`
+    };
+
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Opciones/listar/${usuario}`,
-        method: "GET",
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario
-        },
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
             // Adaptación al nuevo esquema: response.json_response.data es el array
             if (response && response.code_status === 200) {
-                console.log("Datos recibidos:", response.json_response.data);
-                crearListado(response.json_response.data);
+                console.log("Datos recibidos:", response.json_response);
+                crearListado(response.json_response);
             }
         },
-        error: (xhr) => manejarErrorGlobal(xhr, "cargar la lista")
+        error: function (xhr) {
+            manejarErrorGlobal(xhr, "cargar la lista")
+        }
     });
+    
 }
 
 function ejecutarGuardado() {
@@ -86,8 +97,24 @@ function ejecutarGuardado() {
     const idOpcionActual = window.obtenerIdOpcionActual();
     const usuario = obtenerUsuarioActual();
 
+    
+
     // Construcción del objeto según tu esquema de BD
-    const payload = {
+    const body = {
+        nombre: $("#modal-nombre").val().toUpperCase(),
+        descripcion: $("#modal-descripcion").val(),
+        idgrupo: parseInt($("#modal-tipo-grupo").val()),
+        vista: $("#modal-vista").val() || "sin vista",
+        idusuariocreacion: 1, // Ajustar según lógica de sesión
+        fechacreacion: new Date().toISOString(),
+        idusuariomodificacion: 1, // Ajustar según lógica de sesión
+        fechamodificacion: new Date().toISOString(),
+        idestado: $("#modal-activo").is(":checked") ? 1 : 0,
+        idtiposervicio: parseInt($("#modal-tipo-servicio").val()),
+    };
+
+    /*
+    const body = {
         idopcion: id ? parseInt(id) : 0,
         nombre: $("#modal-nombre").val().toUpperCase(),
         descripcion: $("#modal-descripcion").val(),
@@ -97,36 +124,49 @@ function ejecutarGuardado() {
         idtiposervicio: parseInt($("#modal-tipo-servicio").val()),
         idUsuarioModificacion: 1, // Ajustar según lógica de sesión
         fechaModificacion: new Date().toISOString()
-    };
+    };*/
 
     // NUEVA REGLA: Tanto insertar como actualizar usan POST
     const url = id
-        ? `${window.apiBaseUrl}/api/Opciones/actualizar/${id}`
-        : `${window.apiBaseUrl}/api/Opciones/insertar`;
+        ? `api/Opciones/actualizar`
+        : `api/Opciones/insertar`;
+
+
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: url,
+        client: "APL",
+        body_request: body
+    };
+
+    if (id) {
+        payload.endpoint_query_params = `/${id}`;
+    }
 
     $.ajax({
-        url: url,
-        type: "POST", // <--- Cambio a POST obligatorio
+        url: "/api/apigee-router-proxy",
+        method: "POST",
         contentType: "application/json",
         data: JSON.stringify(payload),
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario
-        },
         success: function (response) {
             if (response.code_status === 200) {
                 $("#editarModal").modal("hide");
                 Swal.fire({
                     icon: 'success',
                     title: '¡Operación Exitosa!',
-                    text: response.json_response.data.mensaje || 'Registro procesado',
+                    text: response.json_response.mensaje || 'Registro procesado',
                     showConfirmButton: false,
                     timer: 1500
                 }).then(() => window.location.reload());
             }
         },
-        error: (xhr) => manejarErrorGlobal(xhr, "guardar cambios")
+        error: function (xhr) {
+            manejarErrorGlobal(xhr, "guardar cambios")
+        }
     });
+
 }
 
 function confirmDelete(id) {
@@ -142,21 +182,32 @@ function confirmDelete(id) {
         confirmButtonText: 'Sí, Eliminar'
     }).then((result) => {
         if (result.isConfirmed) {
+
+            const payload = {
+                code_app: "APP20260128155212346",
+                http_method: "POST",
+                endpoint_path: "api/Opciones/eliminar",
+                client: "APL",
+                endpoint_query_params: `/${id}`
+            };
+
+
             $.ajax({
-                url: `${window.apiBaseUrl}/api/Opciones/eliminar/${id}`,
-                type: "POST", // <--- Cambio a POST obligatorio según tu nuevo backend
-                headers: {
-                    "idopcion": String(idOpcionActual),
-                    "usuario": usuario
-                },
+                url: "/api/apigee-router-proxy",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
                 success: function (response) {
                     if (response.code_status === 200) {
-                        Swal.fire('¡Eliminado!', response.json_response.data.mensaje, 'success');
+                        Swal.fire('¡Eliminado!', response.json_response.mensaje, 'success');
                         cargarOpcionesLista(usuario);
                     }
                 },
-                error: (xhr) => manejarErrorGlobal(xhr, "eliminar")
+                error: function (xhr) {
+                    manejarErrorGlobal(xhr, "eliminar")
+                }
             });
+
         }
     });
 }
@@ -227,7 +278,7 @@ function crearListado(data) {
 function abrirModalEditar(id) {
     const idOpcionActual = window.obtenerIdOpcionActual();
     const usuario = obtenerUsuarioActual();
-
+    console.log("ejecutando abrirModalEditar");
     // Reset UI
     $('#formEditar')[0].reset();
     $('#modal-idOpcion').val(id);
@@ -237,13 +288,24 @@ function abrirModalEditar(id) {
     // Cargar combos secuencialmente (Promesas o callbacks)
     cargarTiposServicio(() => {
         cargarTipoGrupo(() => {
+
+            const payload = {
+                code_app: "APP20260128155212346",
+                http_method: "GET",
+                endpoint_path: "api/Opciones/obtener",
+                client: "APL",
+                endpoint_query_params: `/${id}`
+            };
+            console.log("cargarTipoGrupo");
+
             $.ajax({
-                url: `${window.apiBaseUrl}/api/Opciones/obtener/${id}`,
-                method: "GET",
-                headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+                url: "/api/apigee-router-proxy",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
                 success: function (response) {
                     // Nota: 'obtener' suele devolver el objeto directo o dentro de data
-                    const d = response.json_response.data;
+                    const d = response.json_response;
                     $("#modal-nombre").val(d.nombre);
                     $("#modal-descripcion").val(d.descripcion);
                     $("#modal-activo").prop("checked", d.idestado === 1);
@@ -252,8 +314,12 @@ function abrirModalEditar(id) {
                     $("#modal-tipo-grupo").val(d.idgrupo);
 
                     new bootstrap.Modal(document.getElementById('editarModal')).show();
+                },
+                error: function (xhr) {
+                    manejarErrorGlobal(xhr, "cargar la lista")
                 }
             });
+
         });
     });
 }
@@ -277,11 +343,22 @@ function abrirModalCrear() {
 
 function cargarTiposServicio(callback) {
     const idOpcion = window.obtenerIdOpcionActual();
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Opciones/ConsultarCombos",
+        client: "APL",
+        endpoint_query_params: '/TIPOSERVICIO'
+    };
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/TIPOSERVICIO`,
-        headers: { "idopcion": String(idOpcion), "usuario": obtenerUsuarioActual() },
-        success: (res) => {
-            const data = res.json_response.data; // Ajustado al nuevo formato
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (res) {
+            const data = res.json_response; // Ajustado al nuevo formato
             const $select = $("#modal-tipo-servicio").empty();
             data.forEach(item => $select.append(new Option(item.nombre_catalogo, item.idcatalogo)));
             if (callback) callback();
@@ -291,16 +368,28 @@ function cargarTiposServicio(callback) {
 
 function cargarTipoGrupo(callback) {
     const idOpcion = window.obtenerIdOpcionActual();
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Opciones/ConsultarCombos",
+        client: "APL",
+        endpoint_query_params: `/GRUPOOPCION`
+    };
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/GRUPOOPCION`,
-        headers: { "idopcion": String(idOpcion), "usuario": obtenerUsuarioActual() },
-        success: (res) => {
-            const data = res.json_response.data; // Ajustado al nuevo formato
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (res) {
+            const data = res.json_response; // Ajustado al nuevo formato
             const $select = $("#modal-tipo-grupo").empty();
             data.forEach(item => $select.append(new Option(item.nombre_catalogo, item.idcatalogo)));
             if (callback) callback();
         }
     });
+
 }
 
 function manejarErrorGlobal(xhr, accion) {
