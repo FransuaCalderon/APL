@@ -111,29 +111,34 @@ app.MapPost("/api/apigee-router-proxy", async (
     ApigeeTokenService tokenService,
     IHttpClientFactory clientFactory,
     IConfiguration config, // <--- Inyectamos la configuración
-    HttpContext context) =>
+    HttpContext context
+    ) =>
 {
     try
     {
         // 1. Obtener el token
         var token = await tokenService.GetTokenAsync();
+        Console.WriteLine($"token: {token}");
+
 
         // 2. Leer el cuerpo de la petición (payload del JS)
         using var reader = new StreamReader(context.Request.Body);
         var requestBody = await reader.ReadToEndAsync();
 
+        //Console.WriteLine($"requestBody: {requestBody}");
+
         // 3. Configurar el cliente HTTP
-        var client = clientFactory.CreateClient();
+        var client = clientFactory.CreateClient("ApiClient");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         // 4. Leer la URL desde appsettings.json
         var urlUnicomer = config["ApiSettings:BaseUrl"];
-
+        Console.WriteLine($"urlUnicomer: {urlUnicomer}");
         var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
         // 5. Llamar a Unicomer usando la URL de la configuración
         var response = await client.PostAsync(urlUnicomer, content);
-
+        Console.WriteLine($"response: {response}");
         // 6. Retornar respuesta al navegador
         var responseData = await response.Content.ReadAsStringAsync();
         return Results.Content(responseData, "application/json", statusCode: (int)response.StatusCode);
@@ -141,6 +146,33 @@ app.MapPost("/api/apigee-router-proxy", async (
     catch (Exception ex)
     {
         return Results.Json(new { error = "Error en el servidor proxy", message = ex.Message }, statusCode: 500);
+    }
+});
+
+// Endpoint para simular u obtener el token de Apigee
+app.MapPost("/api/Apigee/token", async (
+    ApigeeTokenService tokenService,
+    IConfiguration config) =>
+{
+    // Si la configuración dice que simulemos, devolvemos el JSON directamente
+    if (config.GetValue<bool>("Apigee:Simulate"))
+    {
+        return Results.Ok(new
+        {
+            access_token = "token-simulado-2026",
+            expires_in = 3600
+        });
+    }
+
+    // Si no es simulación, usamos el servicio real
+    try
+    {
+        var token = await tokenService.GetTokenAsync();
+        return Results.Ok(new { access_token = token });
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { error = "Auth Error", message = ex.Message }, statusCode: 500);
     }
 });
 

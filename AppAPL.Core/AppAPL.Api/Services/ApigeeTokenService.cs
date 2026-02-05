@@ -38,6 +38,8 @@ public class ApigeeTokenService
         var clientId = _config["Apigee:ClientId"];
         var clientSecret = _config["Apigee:ClientSecret"];
 
+        logger.LogInformation($"tokenUrl: {tokenUrl}");
+
         var request = new HttpRequestMessage(HttpMethod.Post, tokenUrl);
 
         // 3. Configurar Auth Básica (ClientId:ClientSecret en Base64)
