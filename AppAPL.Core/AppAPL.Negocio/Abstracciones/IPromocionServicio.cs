@@ -1,4 +1,5 @@
-﻿using AppAPL.Dto.Promocion;
+﻿using AppAPL.Dto;
+using AppAPL.Dto.Promocion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,5 +22,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<PromocionArticuloDTO>> ConsultarPromocionArticulo();
         Task<IEnumerable<PromocionSegmentoDTO>> ConsultarPromocionSegmento();
         Task<IEnumerable<PromocionSegmentoDetalleDTO>> ConsultarPromocionSegmentoDetalle();
+        Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion);
     }
 }

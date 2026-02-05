@@ -1,4 +1,5 @@
 ﻿using AppAPL.AccesoDatos.Abstracciones;
+using AppAPL.Dto;
 using AppAPL.Dto.Promocion;
 using AppAPL.Negocio.Abstracciones;
 using System;
@@ -46,5 +47,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<PromocionSegmentoDetalleDTO>> ConsultarPromocionSegmentoDetalle()
             => repo.ConsultarPromocionSegmentoDetalle();
+
+        public Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion)
+            => repo.CrearAsync(promocion);
     }
 }

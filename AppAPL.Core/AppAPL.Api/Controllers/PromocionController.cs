@@ -1,4 +1,7 @@
-﻿using AppAPL.Dto.Promocion;
+﻿using AppAPL.Api.Attributes;
+using AppAPL.Dto;
+using AppAPL.Dto.Acuerdo;
+using AppAPL.Dto.Promocion;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
 
@@ -106,6 +109,26 @@ namespace AppAPL.Api.Controllers
             var listaTiCl = await servicio.ConsultarTipoCliente();
 
             return listaTiCl.ToList();
+        }
+
+        [HttpPost("insertar")]
+        //[Email("ENTACUERDO", TipoProceso.Creacion)]
+        public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearPromocionRequestDTO promocion)
+        {
+
+            var retorno = await servicio.CrearAsync(promocion);
+
+            if (retorno.Id > 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
         }
     }
 }

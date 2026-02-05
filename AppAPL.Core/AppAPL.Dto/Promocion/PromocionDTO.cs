@@ -1,4 +1,5 @@
 ﻿
+using AppAPL.Dto.Acuerdo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,5 +128,47 @@ namespace AppAPL.Dto.Promocion
     {
         public string CODIGO { get; set; }
         public string NOMBRE { get; set; }
+    }
+
+    public class CrearPromocionRequestDTO
+    {
+        // Parámetros directos
+        public string TipoClaseEtiqueta { get; set; } = string.Empty;
+        public long IdOpcion { get; set; }
+        public string IdControlInterfaz { get; set; } = string.Empty;
+        public string IdEventoEtiqueta { get; set; } = string.Empty;
+
+        // Objetos que se enviarán como JSON (CLOB) al SP
+        public PromocionDataDTO Promocion { get; set; } = new();
+        public List<AcuerdoDTO>? Acuerdos { get; set; }
+        public List<SegmentoDTO>? Segmentos { get; set; }
+    }
+
+    public class PromocionDataDTO
+    {
+        public string Descripcion { get; set; } = string.Empty;
+        public int Motivo { get; set; }
+        public int ClasePromocion { get; set; }
+        // Importante: El SP espera formato ISO 8601 (YYYY-MM-DDTHH:MM:SS.mmmZ)
+        public DateTime FechaHoraInicio { get; set; }
+        public DateTime FechaHoraFin { get; set; }
+        public string MarcaRegalo { get; set; } = "N"; // 'S' o 'N'
+        public string MarcaProcesoAprobacion { get; set; } = " ";
+        public string IdUsuarioIngreso { get; set; } = string.Empty;
+        public string NombreUsuario { get; set; } = string.Empty;
+    }
+
+    public class AcuerdoDTO
+    {
+        public long IdAcuerdo { get; set; }
+        public decimal PorcentajeDescuento { get; set; }
+        public decimal ValorComprometido { get; set; }
+    }
+
+    public class SegmentoDTO
+    {
+        public string TipoSegmento { get; set; } = string.Empty; // Ej: "SEGMARCA"
+        public string TipoAsignacion { get; set; } = "T";        // 'T' (Todos) o 'C' (Codigos)
+        public List<string> Codigos { get; set; } = new();       // Array de strings ["001", "002"]
     }
 }

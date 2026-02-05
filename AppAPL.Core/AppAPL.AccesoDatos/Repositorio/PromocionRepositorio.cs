@@ -1,7 +1,9 @@
 ﻿using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
+using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Promocion;
+using Dapper;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -9,8 +11,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Dapper;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
@@ -424,6 +427,55 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             return datos;
 
+        }
+
+        public async Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion)
+        {
+            using var connection = factory.CreateOpenConnection();
+            var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+            var paramObject = new
+            {
+                p_tipo_clase_etiqueta = promocion.TipoClaseEtiqueta,
+                p_json_promocion = JsonSerializer.Serialize(promocion.Promocion, options),
+                p_json_acuerdos = JsonSerializer.Serialize(promocion.Acuerdos, options),
+                p_json_segmentos = JsonSerializer.Serialize(promocion.Segmentos, options),
+                
+                p_idopcion = promocion.IdOpcion,
+                p_idcontrolinterfaz = promocion.IdControlInterfaz,
+                p_idevento_etiqueta = promocion.IdEventoEtiqueta,
+            };
+
+            //logger.LogInformation($"parametros a enviar para el sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            parameters.Add("p_idpromocion_out", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            //parameters.Add("p_resultado", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "APL_PKG_PROMOCIONES.sp_crear_promocion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? idPromocion = parameters.Get<int>("p_idpromocion_out");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}, idPromocion: {idPromocion}");
+
+            //return parameters.Get<int>("p_idfondo_out");
+            var retorno = new ControlErroresDTO()
+            {
+                Id = idPromocion,
+                filasAfectadas = filasAfectadas,
+                mensaje = mensajeSalida,
+                codigoRetorno = codigoSalida
+            };
+            return retorno;
         }
 
 
