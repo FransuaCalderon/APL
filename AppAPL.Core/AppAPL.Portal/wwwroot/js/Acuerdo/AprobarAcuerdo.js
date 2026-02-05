@@ -9,18 +9,45 @@ let datosAprobacionActual = null; // Para almacenar los datos de la aprobación 
 let tablaHistorial; // Para la tabla de historial de aprobaciones
 
 // ===============================================================
-// FUNCIÓN HELPER PARA OBTENER USUARIO (Busca en múltiples lugares)
+// FUNCIÓN HELPER PARA OBTENER USUARIO
 // ===============================================================
 function obtenerUsuarioActual() {
-    // Buscar en múltiples ubicaciones posibles
     const usuario = window.usuarioActual
         || sessionStorage.getItem('usuarioActual')
         || sessionStorage.getItem('usuario')
         || localStorage.getItem('usuarioActual')
         || localStorage.getItem('usuario')
-        || "admin"; // Fallback final
+        || "admin";
 
     return usuario;
+}
+
+// ===============================================================
+// FUNCIÓN HELPER PARA OBTENER IDOPCION
+// ===============================================================
+function obtenerIdOpcionSeguro() {
+    try {
+        return (
+            (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) ||
+            (window.obtenerInfoOpcionActual && window.obtenerInfoOpcionActual().idOpcion) ||
+            "0"
+        );
+    } catch (e) {
+        console.error("Error obteniendo idOpcion:", e);
+        return "0";
+    }
+}
+
+// ===============================================================
+// FUNCIÓN HELPER PARA MANEJO DE ERRORES
+// ===============================================================
+function manejarErrorGlobal(xhr, accion) {
+    console.error(`Error al ${accion}:`, xhr.responseText);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error de Comunicación',
+        text: `No se pudo completar la acción: ${accion}.`
+    });
 }
 
 // ===============================================================
@@ -28,20 +55,15 @@ function obtenerUsuarioActual() {
 // ===============================================================
 $(document).ready(function () {
 
-    console.log("=== INICIO DE CARGA DE PÁGINA - AprobarAcuerdo ===");
-    console.log("");
+    console.log("=== INICIO DE CARGA DE PÁGINA - AprobarAcuerdo (Estructura Post-REST) ===");
 
-    // 🔍 ===== DIAGNÓSTICO COMPLETO DEL USUARIO ===== 🔍
     const usuarioFinal = obtenerUsuarioActual();
-    console.log("  ✅ Usuario final obtenido:", usuarioFinal);
+    console.log("Usuario final obtenido:", usuarioFinal);
 
     // Configuración inicial y carga de datos
     $.get("/config", function (config) {
-        const apiBaseUrl = config.apiBaseUrl;
-        window.apiBaseUrl = apiBaseUrl;
-
-        console.log("API Base URL configurada:", apiBaseUrl);
-
+        window.apiBaseUrl = config.apiBaseUrl;
+        console.log("API Base URL configurada:", config.apiBaseUrl);
         cargarBandeja();
     });
 
@@ -58,25 +80,25 @@ $(document).ready(function () {
     });
 
     // ===============================================================
-    // ✅ EVENTOS PARA VOLVER A LA TABLA (CERRAR DETALLE)
+    // EVENTOS PARA VOLVER A LA TABLA (CERRAR DETALLE)
     // ===============================================================
     $('#btnVolverTabla, #btnVolverAbajo').on('click', function () {
         cerrarDetalle();
     });
 
     // ===============================================================
-    // ✅ EVENTOS PARA APROBAR Y RECHAZAR ACUERDO
+    // EVENTOS PARA APROBAR Y RECHAZAR ACUERDO
     // ===============================================================
     $('#btnAprobarFondo').on('click', function () {
         let comentario = $("#modal-acuerdo-comentario").val();
-        console.log('comentario: ', comentario);
+        console.log('comentario:', comentario);
         console.log('boton de aprobar acuerdo');
         procesarAprobacionAcuerdo("APROBAR", comentario);
     });
 
     $('#btnRechazarFondo').on('click', function () {
         let comentario = $("#modal-acuerdo-comentario").val();
-        console.log('comentario: ', comentario);
+        console.log('comentario:', comentario);
         console.log('boton de rechazar acuerdo');
         procesarAprobacionAcuerdo("RECHAZAR", comentario);
     });
@@ -88,12 +110,8 @@ $(document).ready(function () {
 // ===================================================================
 
 function cargarBandeja() {
-    // ✅ OBTENER EL IDOPCION DINÁMICAMENTE
-    // Nota: Asegúrate de que esta función exista en tu layout o script global, 
-    // si no, usa un valor fijo o "0" como fallback.
-    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
+    const idOpcionActual = obtenerIdOpcionSeguro();
     const usuario = obtenerUsuarioActual();
-    const apiBaseUrl = window.apiBaseUrl;
 
     if (!usuario) {
         console.error('No hay usuario en sesión, no se puede cargar la bandeja.');
@@ -102,32 +120,34 @@ function cargarBandeja() {
 
     console.log('Cargando bandeja de acuerdos para usuario:', usuario, 'con idOpcion:', idOpcionActual);
 
-    $.ajax({
-        url: `${apiBaseUrl}/api/Acuerdo/consultar-bandeja-aprobacion/${usuario}`,
-        method: "GET",
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario,
-            "idcontrolinterfaz": "0",
-            "idevento": "0",
-            "entidad": "0",
-            "identidad": "0",
-            "idtipoproceso": "0"
-        },
-        success: function (response) {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/consultar-bandeja-aprobacion",
+        client: "APL",
+        endpoint_query_params: `/${usuario}`
+    };
 
-            const data = response.json_response.data;
-            console.log("Datos recibidos de bandeja-aprobacion acuerdos:", data);
-            crearListado(data);
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                const data = response.json_response || [];
+                console.log("Datos recibidos de bandeja-aprobacion acuerdos:", data);
+                crearListado(data);
+            } else {
+                console.error("Error en respuesta:", response);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudieron cargar los acuerdos para aprobación'
+                });
+            }
         },
-        error: function (xhr, status, error) {
-            console.error("Error al obtener datos de acuerdos:", error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudieron cargar los acuerdos para aprobación'
-            });
-        }
+        error: (xhr) => manejarErrorGlobal(xhr, "cargar la bandeja de aprobación de acuerdos")
     });
 }
 
@@ -273,7 +293,7 @@ function formatearFecha(fechaString) {
 }
 
 // ===================================================================
-// ✅ FUNCIONES: LOGICA DE DETALLE (VISUALIZAR)
+// FUNCIONES: LOGICA DE DETALLE (VISUALIZAR)
 // ===================================================================
 
 /**
@@ -282,9 +302,6 @@ function formatearFecha(fechaString) {
 function abrirModalEditar(idAcuerdo, idAprobacion) {
     console.log("Consultando detalle idAcuerdo:", idAcuerdo, "idAprobacion:", idAprobacion);
     $('body').css('cursor', 'wait');
-
-    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
-    const usuario = obtenerUsuarioActual();
 
     // Limpiar datos previos
     datosAprobacionActual = null;
@@ -296,138 +313,134 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
     $('#tabla-aprobaciones-fondo').html('');
     $('#contenedor-tabla-articulos').html('').hide();
 
-    // ========================================================================
-    // 🔴 CORRECCIÓN AQUÍ: Se agregó /${idAprobacion} al final de la URL
-    // ========================================================================
-    const urlConsulta = `${window.apiBaseUrl}/api/Acuerdo/bandeja-aprobacion-id/${idAcuerdo}/${idAprobacion}`;
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/bandeja-aprobacion-id",
+        client: "APL",
+        endpoint_query_params: `/${idAcuerdo}/${idAprobacion}`
+    };
 
     $.ajax({
-        url: urlConsulta, // Usamos la URL corregida
-        method: "GET",
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario,
-            "idcontrolinterfaz": "0",
-            "idevento": "0",
-            "entidad": "0",
-            "identidad": "0",
-            "idtipoproceso": "0"
-        },
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
+            if (response && response.code_status === 200) {
+                const data = response.json_response || {};
+                console.log(`Datos del acuerdo (${idAcuerdo}):`, data);
 
-            const data = response.json_response.data;
-            console.log(`Datos del acuerdo (${idAcuerdo}):`, data);
+                // Guardar datos para los botones de aprobación/rechazo
+                datosAprobacionActual = {
+                    entidad: data.cabecera?.id_entidad || 0,
+                    identidad: data.cabecera?.idacuerdo || 0,
+                    idtipoproceso: data.cabecera?.id_tipo_proceso || 0,
+                    idetiquetatipoproceso: data.cabecera?.tipo_proceso_etiqueta || "",
+                    idaprobacion: idAprobacion,
+                    entidad_etiqueta: data.cabecera?.entidad_etiqueta,
+                    idetiquetatestado: data.cabecera?.estado_etiqueta || "",
+                    comentario: ""
+                };
 
-            // Guardar datos para los botones de aprobación/rechazo
-            datosAprobacionActual = {
-                entidad: data.cabecera.id_entidad || 0,
-                identidad: data.cabecera.idacuerdo || 0,
-                idtipoproceso: data.cabecera.id_tipo_proceso || 0,
-                idetiquetatipoproceso: data.cabecera.tipo_proceso_etiqueta || "",
-                idaprobacion: idAprobacion,
-                entidad_etiqueta: data.cabecera.entidad_etiqueta,
-                idetiquetatestado: data.cabecera.estado_etiqueta || "",
-                comentario: ""
-            };
+                // 1. Llenar Formulario
+                $("#verNombreProveedor").val(data.cabecera?.nombre_proveedor || "");
+                $("#verNombreTipoFondo").val(data.cabecera?.nombre_tipo_fondo || "");
+                $("#verDescripcion").val(data.cabecera?.descripcion || "");
+                $("#verClaseAcuerdo").val(data.cabecera?.nombre_clase_acuerdo || "");
+                $("#verEstado").val(data.cabecera?.nombre_estado_acuerdo || "");
+                $("#verFechaInicio").val(formatearFecha(data.cabecera?.fecha_inicio));
+                $("#verFechaFin").val(formatearFecha(data.cabecera?.fecha_fin));
+                $("#verValorAcuerdo").val(formatearMoneda(data.cabecera?.valor_acuerdo));
+                $("#verValorDisponible").val(formatearMoneda(data.cabecera?.valor_disponible));
+                $("#verValorComprometido").val(formatearMoneda(data.cabecera?.valor_comprometido));
+                $("#verValorLiquidado").val(formatearMoneda(data.cabecera?.valor_liquidado));
 
-            // 1. Llenar Formulario
-            $("#verNombreProveedor").val(data.cabecera.nombre_proveedor);
-            $("#verNombreTipoFondo").val(data.cabecera.nombre_tipo_fondo);
-            $("#verDescripcion").val(data.cabecera.descripcion);
-            $("#verClaseAcuerdo").val(data.cabecera.nombre_clase_acuerdo);
-            $("#verEstado").val(data.cabecera.nombre_estado_acuerdo);
-            $("#verFechaInicio").val(formatearFecha(data.cabecera.fecha_inicio));
-            $("#verFechaFin").val(formatearFecha(data.cabecera.fecha_fin));
-            $("#verValorAcuerdo").val(formatearMoneda(data.cabecera.valor_acuerdo));
-            $("#verValorDisponible").val(formatearMoneda(data.cabecera.valor_disponible));
-            $("#verValorComprometido").val(formatearMoneda(data.cabecera.valor_comprometido));
-            $("#verValorLiquidado").val(formatearMoneda(data.cabecera.valor_liquidado));
+                // =================================================================
+                // LOGICA DE ARTÍCULOS
+                // =================================================================
+                if (data.articulos && data.articulos.length > 0) {
+                    console.log("Acuerdo por artículos detectado. Renderizando tabla...");
 
-            // =================================================================
-            // ✅ LOGICA DE ARTÍCULOS (CON TU ESTRUCTURA DE COLORES)
-            // =================================================================
-            if (data.articulos && data.articulos.length > 0) {
-                console.log("Acuerdo por artículos detectado. Renderizando tabla...");
+                    let htmlArticulos = `
+                        <h6 class="fw-bold mb-2"><i class="fa fa-list"></i> Detalle de Artículos</h6>
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-bordered table-sm mb-0">
+                                <thead class="sticky-top text-nowrap">
+                                    <tr class="text-center tabla-items-header">                                    
+                                        <th scope="col" class="custom-header-cons-bg">Item</th>
+                                        <th scope="col" class="custom-header-cons-bg">Costo</th>
+                                        <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
+                                        <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
+                                        <th scope="col" class="custom-header-ingr-bg">Precio - TC</th>
+                                        <th scope="col" class="custom-header-ingr-bg">Precio - Crédito</th>
+                                        <th scope="col" class="custom-header-ingr-bg">Aporte x Unidad</th>
+                                        <th scope="col" class="custom-header-calc-bg">Comprometido Prov.</th>
+                                        <th scope="col" class="custom-header-calc-bg">Margen Contado</th>
+                                        <th scope="col" class="custom-header-calc-bg">Margen TC</th>
+                                        <th scope="col" class="custom-header-calc-bg">Margen Crédito</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-nowrap tabla-items-body bg-white">`;
 
-                let htmlArticulos = `
-                    <h6 class="fw-bold mb-2"><i class="fa fa-list"></i> Detalle de Artículos</h6>
-                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-bordered table-sm mb-0">
-                            <thead class="sticky-top text-nowrap">
-                                <tr class="text-center tabla-items-header">                                    
-                                    <th scope="col" class="custom-header-cons-bg">Item</th>
-                                    <th scope="col" class="custom-header-cons-bg">Costo</th>
-                                    <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
-                                    <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
-                                    <th scope="col" class="custom-header-ingr-bg">Precio - TC</th>
-                                    <th scope="col" class="custom-header-ingr-bg">Precio - Crédito</th>
-                                    <th scope="col" class="custom-header-ingr-bg">Aporte x Unidad</th>
-                                    <th scope="col" class="custom-header-calc-bg">Comprometido Prov.</th>
-                                    <th scope="col" class="custom-header-calc-bg">Margen Contado</th>
-                                    <th scope="col" class="custom-header-calc-bg">Margen TC</th>
-                                    <th scope="col" class="custom-header-calc-bg">Margen Crédito</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-nowrap tabla-items-body bg-white">`;
+                    data.articulos.forEach(art => {
+                        let margenCredito = (art.preciocredito || 0) - (art.costoactual || 0);
 
-                data.articulos.forEach(art => {
-                    // Calculamos margen crédito visualmente si no viene del back
-                    let margenCredito = (art.preciocredito || 0) - (art.costoactual || 0);
+                        htmlArticulos += `
+                            <tr>
+                                <td class="fw-bold text-center">${art.codigoarticulo || ''}</td>
+                                <td class="text-end">${formatearMoneda(art.costoactual)}</td>
+                                <td class="text-center fw-bold text-primary">${art.unidadeslimite}</td>
+                                <td class="text-end">${formatearMoneda(art.preciocontado)}</td>
+                                <td class="text-end">${formatearMoneda(art.preciotarjetacredito)}</td>
+                                <td class="text-end">${formatearMoneda(art.preciocredito)}</td>
+                                <td class="text-end fw-bold">${formatearMoneda(art.valoraporte)}</td>
+                                <td class="text-end fw-bold">${formatearMoneda(art.valorcomprometido)}</td>
+                                <td class="text-end">${formatearMoneda(art.margencontado)}</td>
+                                <td class="text-end">${formatearMoneda(art.margentarjetacredito)}</td>
+                                <td class="text-end">${formatearMoneda(margenCredito)}</td>
+                            </tr>`;
+                    });
 
                     htmlArticulos += `
-                        <tr>
-                           
-                            <td class="fw-bold text-center">${art.codigoarticulo || ''}</td>
-                            <td class="text-end">${formatearMoneda(art.costoactual)}</td>
+                                </tbody>
+                            </table>
+                        </div>`;
 
-                            <td class="text-center fw-bold text-primary">${art.unidadeslimite}</td>
-                            <td class="text-end">${formatearMoneda(art.preciocontado)}</td>
-                            <td class="text-end">${formatearMoneda(art.preciotarjetacredito)}</td>
-                            <td class="text-end">${formatearMoneda(art.preciocredito)}</td>
-                            <td class="text-end fw-bold">${formatearMoneda(art.valoraporte)}</td>
+                    $('#contenedor-tabla-articulos').html(htmlArticulos).fadeIn();
+                }
 
-                            <td class="text-end fw-bold">${formatearMoneda(art.valorcomprometido)}</td>
-                            <td class="text-end">${formatearMoneda(art.margencontado)}</td>
-                            <td class="text-end">${formatearMoneda(art.margentarjetacredito)}</td>
-                            <td class="text-end">${formatearMoneda(margenCredito)}</td>
-                        </tr>`;
+                // 2. LOGICA VISUAL
+                $("#vistaTabla").fadeOut(200, function () {
+                    $("#vistaDetalle").fadeIn(200);
                 });
+                $('body').css('cursor', 'default');
 
-                htmlArticulos += `
-                            </tbody>
-                        </table>
-                    </div>`;
-
-                $('#contenedor-tabla-articulos').html(htmlArticulos).fadeIn();
-            }
-
-            // 2. LOGICA VISUAL
-            $("#vistaTabla").fadeOut(200, function () {
-                $("#vistaDetalle").fadeIn(200);
-            });
-            $('body').css('cursor', 'default');
-
-            // 3. CARGAR TABLA DE HISTORIAL DE APROBACIONES
-            if (data.cabecera.entidad_etiqueta && data.cabecera.tipo_proceso_etiqueta) {
-                cargarAprobacionesAcuerdo(
-                    data.cabecera.entidad_etiqueta,
-                    idAcuerdo,
-                    data.cabecera.tipo_proceso_etiqueta
-                );
+                // 3. CARGAR TABLA DE HISTORIAL DE APROBACIONES
+                if (data.cabecera?.entidad_etiqueta && data.cabecera?.tipo_proceso_etiqueta) {
+                    cargarAprobacionesAcuerdo(
+                        data.cabecera.entidad_etiqueta,
+                        idAcuerdo,
+                        data.cabecera.tipo_proceso_etiqueta
+                    );
+                } else {
+                    $('#tabla-aprobaciones-fondo').html(
+                        '<p class="alert alert-warning">No se encontraron los parámetros necesarios para cargar aprobaciones.</p>'
+                    );
+                }
             } else {
-                $('#tabla-aprobaciones-fondo').html(
-                    '<p class="alert alert-warning">No se encontraron los parámetros necesarios para cargar aprobaciones.</p>'
-                );
+                $('body').css('cursor', 'default');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudieron cargar los datos del acuerdo.'
+                });
             }
         },
         error: function (xhr) {
             $('body').css('cursor', 'default');
             console.error("Error detalle:", xhr);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudieron cargar los datos del acuerdo. Verifique la conexión.'
-            });
+            manejarErrorGlobal(xhr, "cargar los datos del acuerdo");
         }
     });
 }
@@ -438,29 +451,21 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
 function cerrarDetalle() {
     $("#vistaDetalle").fadeOut(200, function () {
         $("#vistaTabla").fadeIn(200);
-        // Si necesitas ajustar columnas de DataTables al volver a mostrar:
         if (tabla) {
             tabla.columns.adjust();
         }
     });
-    // Limpiar datos de aprobación
     datosAprobacionActual = null;
 }
 
 /**
  * Consume el servicio de Aprobaciones y dibuja la tabla en el detalle
- * Reutiliza el ID '#tabla-aprobaciones-fondo' que pusiste en el HTML
  */
 function cargarAprobacionesAcuerdo(entidad, idEntidad, tipoProceso) {
-    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
-    const usuario = obtenerUsuarioActual();
-
     console.log("=== CARGANDO APROBACIONES DE ACUERDO ===");
-    console.log('Con idOpcion:', idOpcionActual, 'y usuario:', usuario);
-
-    console.log("entidad: ", entidad);
-    console.log("idEntidad: ", idEntidad);
-    console.log("tipoProceso: ", tipoProceso);
+    console.log("entidad:", entidad);
+    console.log("idEntidad:", idEntidad);
+    console.log("tipoProceso:", tipoProceso);
 
     // Destruir tabla anterior si existe
     if ($.fn.DataTable.isDataTable('#dt-historial')) {
@@ -475,128 +480,126 @@ function cargarAprobacionesAcuerdo(entidad, idEntidad, tipoProceso) {
         </div>
     `);
 
-    const urlCompleta = `${window.apiBaseUrl}/api/Aprobacion/consultar-aprobaciones/${entidad}/${idEntidad}/${tipoProceso}`;
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Aprobacion/consultar-aprobaciones",
+        client: "APL",
+        endpoint_query_params: `/${entidad}/${idEntidad}/${tipoProceso}`
+    };
 
     $.ajax({
-        url: urlCompleta,
-        method: "GET",
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario,
-            "idcontrolinterfaz": "0",
-            "idevento": "0",
-            "entidad": "0",
-            "identidad": "0",
-            "idtipoproceso": "0"
-        },
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
+            if (response && response.code_status === 200) {
+                const data = response.json_response || [];
+                console.log("Datos de aprobaciones del acuerdo:", data);
 
-            const data = response.json_response.data;
-            console.log("Datos de aprobaciones del acuerdo:", data);
+                let lista = Array.isArray(data) ? data : [data];
 
-            let lista = Array.isArray(data) ? data : [data];
+                if (!lista || lista.length === 0) {
+                    $('#tabla-aprobaciones-fondo').html('<div class="alert alert-light text-center border">No hay historial de aprobaciones.</div>');
+                    return;
+                }
 
-            if (!lista || lista.length === 0) {
-                $('#tabla-aprobaciones-fondo').html('<div class="alert alert-light text-center border">No hay historial de aprobaciones.</div>');
-                return;
+                let html = `
+                <table id='dt-historial' class='table table-sm table-bordered table-hover w-100'>
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID Aprobación</th>
+                            <th>Usuario Solicitante</th>
+                            <th>Usuario Aprobador</th>
+                            <th>Estado</th>
+                            <th>Fecha Solicitud</th>
+                            <th>Nivel Aprobación</th>
+                            <th>Tipo Proceso</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                lista.forEach(item => {
+                    let comentarioLimpio = (item.comentario && item.comentario !== "string")
+                        ? item.comentario
+                        : "Sin comentarios.";
+
+                    let estadoNombre = item.estado_nombre || item.estado_etiqueta || "N/A";
+                    let estadoUpper = estadoNombre.toUpperCase();
+
+                    let iconoPopover = "";
+                    if (estadoUpper.includes("APROBADO") || estadoUpper.includes("NEGADO")) {
+                        iconoPopover = `
+                        <i class="fa-solid fa-comment-dots text-warning ms-1"
+                           style="cursor: pointer; font-size: 0.9rem;"
+                           data-bs-toggle="popover" 
+                           data-bs-trigger="focus" 
+                           data-bs-placement="top"
+                           tabindex="0"
+                           title="Comentario" 
+                           data-bs-content="${comentarioLimpio}">
+                        </i>`;
+                    }
+
+                    html += `<tr>
+                        <td class="text-center">${item.idaprobacion || ""}</td>
+                        <td>${item.idusersolicitud || ""}</td>
+                        <td>${item.iduseraprobador || ""}</td>
+                        <td class="text-nowrap">${estadoNombre}${iconoPopover}</td>
+                        <td class="text-center">${formatearFecha(item.fechasolicitud)}</td>
+                        <td class="text-center">${item.nivelaprobacion || 0}</td>
+                        <td>${item.tipoproceso_nombre || ""}</td>
+                    </tr>`;
+                });
+
+                html += `</tbody></table>`;
+                $('#tabla-aprobaciones-fondo').html(html);
+
+                // Convertir a DataTable
+                tablaHistorial = $('#dt-historial').DataTable({
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 25],
+                    pagingType: 'simple_numbers',
+                    searching: false,
+                    columnDefs: [
+                        { targets: [0, 4, 5], className: "dt-center" },
+                        { targets: 3, className: "dt-nowrap" }
+                    ],
+                    order: [[0, 'desc']],
+                    language: {
+                        decimal: "",
+                        emptyTable: "No hay aprobaciones disponibles",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ aprobaciones",
+                        infoEmpty: "Mostrando 0 a 0 de 0 aprobaciones",
+                        infoFiltered: "(filtrado de _MAX_ aprobaciones totales)",
+                        lengthMenu: "Mostrar _MENU_ aprobaciones",
+                        loadingRecords: "Cargando...",
+                        processing: "Procesando...",
+                        search: "Buscar:",
+                        zeroRecords: "No se encontraron aprobaciones coincidentes",
+                        paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+                    },
+                    drawCallback: function () {
+                        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+                        [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+                    }
+                });
+            } else {
+                $('#tabla-aprobaciones-fondo').html('<div class="text-danger small">Error al cargar historial.</div>');
             }
-
-            let html = `
-            <table id='dt-historial' class='table table-sm table-bordered table-hover w-100'>
-                <thead class="table-light">
-                    <tr>
-                        <th>ID Aprobación</th>
-                        <th>Usuario Solicitante</th>
-                        <th>Usuario Aprobador</th>
-                        <th>Estado</th>
-                        <th>Fecha Solicitud</th>
-                        <th>Nivel Aprobación</th>
-                        <th>Tipo Proceso</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-            lista.forEach(item => {
-                // Lógica para el comentario y Popover
-                let comentarioLimpio = (item.comentario && item.comentario !== "string")
-                    ? item.comentario
-                    : "Sin comentarios.";
-
-                // ✅ MOSTRAR POPOVER SOLO SI EL ESTADO ES "APROBADO" O "NEGADO"
-                let estadoNombre = item.estado_nombre || item.estado_etiqueta || "N/A";
-                let estadoUpper = estadoNombre.toUpperCase();
-
-                let iconoPopover = "";
-                if (estadoUpper.includes("APROBADO") || estadoUpper.includes("NEGADO")) {
-                    // ✅ USAR SOLO EL ICONO SIN BORDE DE BOTÓN
-                    iconoPopover = `
-                    <i class="fa-solid fa-comment-dots text-warning ms-1"
-                       style="cursor: pointer; font-size: 0.9rem;"
-                       data-bs-toggle="popover" 
-                       data-bs-trigger="focus" 
-                       data-bs-placement="top"
-                       tabindex="0"
-                       title="Comentario" 
-                       data-bs-content="${comentarioLimpio}">
-                    </i>`;
-                }
-
-                html += `<tr>
-                    <td class="text-center">${item.idaprobacion || ""}</td>
-                    <td>${item.idusersolicitud || ""}</td>
-                    <td>${item.iduseraprobador || ""}</td>
-                    <td class="text-nowrap">${estadoNombre}${iconoPopover}</td>
-                    <td class="text-center">${formatearFecha(item.fechasolicitud)}</td>
-                    <td class="text-center">${item.nivelaprobacion || 0}</td>
-                    <td>${item.tipoproceso_nombre || ""}</td>
-                </tr>`;
-            });
-
-            html += `</tbody></table>`;
-            $('#tabla-aprobaciones-fondo').html(html);
-
-            // Convertir a DataTable
-            tablaHistorial = $('#dt-historial').DataTable({
-                pageLength: 5,
-                lengthMenu: [5, 10, 25],
-                pagingType: 'simple_numbers',
-                searching: false,
-                columnDefs: [
-                    { targets: [0, 4, 5], className: "dt-center" },
-                    { targets: 3, className: "dt-nowrap" } // Para que el icono no se baje de línea
-                ],
-                order: [[0, 'desc']],
-                language: {
-                    decimal: "",
-                    emptyTable: "No hay aprobaciones disponibles",
-                    info: "Mostrando _START_ a _END_ de _TOTAL_ aprobaciones",
-                    infoEmpty: "Mostrando 0 a 0 de 0 aprobaciones",
-                    infoFiltered: "(filtrado de _MAX_ aprobaciones totales)",
-                    lengthMenu: "Mostrar _MENU_ aprobaciones",
-                    loadingRecords: "Cargando...",
-                    processing: "Procesando...",
-                    search: "Buscar:",
-                    zeroRecords: "No se encontraron aprobaciones coincidentes",
-                    paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
-                },
-                // RE-INICIALIZAR POPOVERS CADA VEZ QUE SE DIBUJA LA TABLA (Cambio de página, etc)
-                drawCallback: function () {
-                    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
-                    [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
-                }
-            });
         },
         error: function (xhr) {
             console.error("Error historial:", xhr);
-            console.error("Detalles del error:", xhr.responseText);
             $('#tabla-aprobaciones-fondo').html('<div class="text-danger small">Error al cargar historial.</div>');
         }
     });
 }
 
 // ===================================================================
-// ✅ FUNCIONES PARA APROBAR/RECHAZAR ACUERDOS
+// FUNCIONES PARA APROBAR/RECHAZAR ACUERDOS
 // ===================================================================
+
 /**
  * Procesa la aprobación o rechazo de un acuerdo
  */
@@ -644,13 +647,14 @@ function procesarAprobacionAcuerdo(accion, comentario) {
  * Ejecuta el POST al API para aprobar o rechazar
  */
 function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
-    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
+    const idOpcionActual = obtenerIdOpcionSeguro();
     const usuarioActual = obtenerUsuarioActual();
-    console.log("accion: ", accion);
-    console.log("datosAprobacionActual: ", datosAprobacionActual);
+
+    console.log("accion:", accion);
+    console.log("datosAprobacionActual:", datosAprobacionActual);
     console.log('Ejecutando aprobación/rechazo con idOpcion:', idOpcionActual, 'y usuario:', usuarioActual);
 
-    const datosPost = {
+    const body = {
         entidad: datosAprobacionActual.entidad,
         identidad: datosAprobacionActual.identidad,
         idtipoproceso: datosAprobacionActual.idtipoproceso,
@@ -664,55 +668,58 @@ function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
         idevento: "EVCLICK",
         nombreusuario: usuarioActual
     };
-    console.log("Enviando aprobación/rechazo:", datosPost);
+
+    console.log("Enviando aprobación/rechazo:", body);
 
     Swal.fire({
         title: 'Procesando...',
         text: 'Por favor espere',
         allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
+        didOpen: () => Swal.showLoading()
     });
 
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Acuerdo/aprobar-acuerdo",
+        client: "APL",
+        body_request: body
+    };
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Acuerdo/aprobar-acuerdo`,
+        url: "/api/apigee-router-proxy",
         method: "POST",
         contentType: "application/json",
-        data: JSON.stringify(datosPost),
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuarioActual,
-            "idcontrolinterfaz": "0",
-            "idevento": "0",
-            "entidad": "0",
-            "identidad": "0",
-            "idtipoproceso": "0"
-        },
-        success: function (response2) {
-            const response = response2.json_response.data;
-            cerrarDetalle();
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                const data = response.json_response || {};
+                cerrarDetalle();
 
-            Swal.fire({
-                icon: 'success',
-                title: '¡Éxito!',
-                text: response.respuesta || `Acuerdo ${accion === "APROBAR" ? "aprobado" : "rechazado"} correctamente`,
-                confirmButtonText: 'Aceptar',
-                timer: 2000,
-                timerProgressBar: true
-            }).then(() => {
-                // Limpiar datos de la aprobación actual
-                datosAprobacionActual = null;
-                ultimaFilaModificada = null;
-
-                // Recargar la bandeja para reflejar los cambios
-                cargarBandeja();
-            });
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Operación Exitosa!',
+                    text: data.respuesta || `Acuerdo ${accion === "APROBAR" ? "aprobado" : "rechazado"} correctamente`,
+                    confirmButtonText: 'Aceptar',
+                    timer: 2000,
+                    timerProgressBar: true
+                }).then(() => {
+                    datosAprobacionActual = null;
+                    ultimaFilaModificada = null;
+                    cargarBandeja();
+                });
+            } else {
+                const mensajeError = response.json_response?.mensaje || 'Error al procesar la aprobación';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: mensajeError
+                });
+            }
         },
-        error: function (xhr, status, error) {
-            const mensajeError = xhr.responseJSON?.mensaje || error || 'Error desconocido';
+        error: function (xhr) {
+            const mensajeError = xhr.responseJSON?.mensaje || 'Error desconocido';
             console.error("Error al procesar aprobación:", mensajeError);
-            console.error("Detalles del error:", xhr.responseText);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -721,3 +728,5 @@ function ejecutarAprobacionAcuerdo(accion, nuevoEstado, comentario) {
         }
     });
 }
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

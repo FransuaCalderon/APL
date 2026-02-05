@@ -8,19 +8,23 @@
  * Carga el combo de Tipos de Fondo.
  */
 function cargarTipoFondo(callback) {
-    const idOpcionActual = window.obtenerIdOpcionActual();
-    const usuario = window.usuarioActual || "admin";
-
-    if (!idOpcionActual) return manejarErrorContexto();
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Opciones/ConsultarCombos",
+        client: "APL",
+        endpoint_query_params: "/TIPOFONDO"
+    };
 
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/TIPOFONDO`,
-        method: "GET",
-        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
-            // ✅ Adaptación al nuevo response body
             if (response && response.code_status === 200) {
-                const data = response.json_response.data || [];
+                console.log("Tipos de fondo recibidos:", response.json_response);
+                const data = response.json_response || [];
                 const $selectFondoTipo = $("#fondoTipo");
 
                 $selectFondoTipo.empty().append('<option value="">Seleccione...</option>');
@@ -45,24 +49,28 @@ function cargarTipoFondo(callback) {
  * Consulta la lista de proveedores para el modal.
  */
 function consultarProveedor() {
-    const idOpcionActual = window.obtenerIdOpcionActual();
-    const usuario = window.usuarioActual || "admin";
     const $tbody = $("#tablaProveedores tbody");
-
-    if (!idOpcionActual) return;
-
     const esFondoPropio = verificarSiFondoPropio();
     const RUC_FONDO_PROPIO = "1790895548001";
 
     $tbody.empty().append('<tr><td colspan="7" class="text-center">Cargando proveedores...</td></tr>');
 
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Proveedor/Listar",
+        client: "APL",
+        endpoint_query_params: ""
+    };
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Proveedor/Listar`,
-        method: "GET",
-        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
-            // ✅ Unwrapping del nuevo formato
-            const data = response.json_response ? response.json_response.data : [];
+            console.log("Proveedores recibidos:", response.json_response);
+            const data = response.json_response || [];
             $tbody.empty();
 
             if (data && data.length > 0) {
@@ -113,7 +121,7 @@ function ejecutarGuardadoFondo() {
 
     const toNum = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
 
-    const data = {
+    const body = {
         descripcion: $("#fondoDescripcion").val(),
         idproveedor: $("#fondoProveedorId").val(),
         idtipofondo: parseInt($("#fondoTipo").val()) || 0,
@@ -127,7 +135,7 @@ function ejecutarGuardadoFondo() {
         idevento: "EVCLICK"
     };
 
-    if (!data.fechainiciovigencia || !data.fechafinvigencia) {
+    if (!body.fechainiciovigencia || !body.fechafinvigencia) {
         return Swal.fire('Error', 'Las fechas no son válidas.', 'error');
     }
 
@@ -137,19 +145,32 @@ function ejecutarGuardadoFondo() {
         allowOutsideClick: false
     });
 
-    console.log("data a guardar fondo: ", data);
-    return;
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Fondo/insertar",
+        client: "APL",
+        body_request: body
+    };
+
+    console.log("Payload a enviar:", payload);
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Fondo/insertar`,
-        type: "POST", // ✅ Mantener POST para inserción
+        url: "/api/apigee-router-proxy",
+        method: "POST",
         contentType: "application/json",
-        data: JSON.stringify(data),
-        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+        data: JSON.stringify(payload),
         success: function (response) {
-            // ✅ Validación del response body nuevo
             if (response && response.code_status === 200) {
-                Swal.fire('¡Éxito!', response.json_response.data.mensaje || 'Fondo guardado.', 'success');
-                limpiarFormularioFondo();
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Operación Exitosa!',
+                    text: response.json_response.mensaje || 'Fondo guardado correctamente.',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    limpiarFormularioFondo();
+                });
             }
         },
         error: (xhr) => manejarErrorGlobal(xhr, "guardar el fondo")
@@ -200,7 +221,6 @@ $(document).ready(function () {
 
         if (seleccionado.length > 0) {
             // 2. Extraemos los datos usando la función .data() de jQuery
-            // Esto lee automáticamente los atributos data-id, data-nombre, etc.
             const proveedor = {
                 id: seleccionado.data("id"),
                 nombre: seleccionado.data("nombre"),
@@ -209,8 +229,7 @@ $(document).ready(function () {
 
             console.log("Proveedor seleccionado:", proveedor);
 
-            // 3. AQUÍ es donde asignas los valores a tus inputs de la pantalla principal
-            // Ejemplo:
+            // 3. Asignamos los valores a los inputs de la pantalla principal
             $("#fondoProveedor").val(proveedor.nombre);
             $("#fondoProveedorId").val(proveedor.ruc);
 
@@ -218,13 +237,15 @@ $(document).ready(function () {
             $("#modalConsultaProveedor").modal("hide");
 
         } else {
-            // Usamos un alert simple o una notificación de tu preferencia
-            alert("Debes seleccionar un proveedor de la lista.");
+            Swal.fire('Atención', 'Debes seleccionar un proveedor de la lista.', 'warning');
         }
     });
 });
 
-// Helpers de Utilidad
+// ===============================================================
+// HELPERS DE UTILIDAD
+// ===============================================================
+
 function limpiarFormularioFondo() {
     $("#fondoTipo").val("");
     $("#fondoDescripcion").val("");
@@ -233,8 +254,13 @@ function limpiarFormularioFondo() {
     habilitarSeleccionProveedor();
 }
 
-function manejarErrorGlobal(xhr, msj) {
-    Swal.fire('Error', `No se pudo ${msj}. Detalle: ${xhr.responseText || 'Error de servidor'}`, 'error');
+function manejarErrorGlobal(xhr, accion) {
+    console.error(`QA Report - Error al ${accion}:`, xhr.responseText);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error de Comunicación',
+        text: `No se pudo completar la acción: ${accion}.`
+    });
 }
 
 function manejarErrorContexto() {
@@ -253,7 +279,7 @@ function seleccionarProveedorFondoPropio() {
 }
 
 function habilitarSeleccionProveedor() {
-    console.log("habilitando seleccion proveedor");
+    console.log("Habilitando selección de proveedor");
     $("#fondoProveedorId, #fondoProveedor").val("");
     $("#btnBuscarProveedorModal").prop('disabled', false).removeClass('disabled');
 }

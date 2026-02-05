@@ -1,14 +1,4 @@
-﻿/**
-* CrearAcuerdo.js - VERSIÓN CON FILTROS CHECKBOX Y VALIDACIÓN DE PROVEEDOR
-* Lógica completa para la vista CrearAcuerdo.cshtml
-* - Diferencia General vs Items
-* - Carga combos Motivo (ACMOTIVO)
-* - Modal Proveedores (Fondos) con validación de selección
-* - Modal Items (Consulta y Selección con CHECKBOXES)
-* - Validaciones por formulario
-* - Datepickers separados
-* - ✅ CARGA DINÁMICA DE TIPOS DE ACUERDO (CLAGENERAL / CLAARTICULO)
-*/
+﻿// ~/js/Acuerdo/CrearAcuerdo.js
 
 (function () {
     "use strict";
@@ -40,19 +30,6 @@
         }
     }
 
-    function ensureApiBaseUrl() {
-        if (!window.apiBaseUrl) {
-            console.error("apiBaseUrl no está configurado. /config falló o no se ejecutó.");
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "No se pudo configurar la URL del API (apiBaseUrl).",
-            });
-            return false;
-        }
-        return true;
-    }
-
     function isValidDateDDMMYYYY(s) {
         if (!s || !/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return false;
         const [dd, mm, yyyy] = s.split("/").map(Number);
@@ -76,30 +53,20 @@
         if (!monedaStr) return 0;
 
         let v = String(monedaStr).trim();
-
-        // Eliminar símbolo de dólar y espacios
         v = v.replace(/\$/g, "").replace(/\s/g, "");
 
-        // Si está vacío después de limpiar, retornar 0
         if (!v) return 0;
 
-        // Detectar si usa formato español (coma como decimal)
         const tieneComaDecimal = v.includes(',');
         const tienePuntoDecimal = v.includes('.');
 
         if (tieneComaDecimal) {
-            // Formato español: 1.234,56
-            // Eliminar puntos (miles) y reemplazar coma por punto
             v = v.replace(/\./g, "").replace(",", ".");
         } else if (tienePuntoDecimal) {
-            // Formato con punto decimal: 5.00
-            // Verificar si el punto es separador de miles o decimal
             const partes = v.split('.');
             if (partes.length === 2 && partes[1].length <= 2) {
-                // Es decimal (ejemplo: 5.00)
-                // No hacer nada, ya está correcto
+                // Es decimal
             } else {
-                // Es separador de miles (ejemplo: 1.234)
                 v = v.replace(/\./g, "");
             }
         }
@@ -129,19 +96,22 @@
         $("#formItems").toggle(tipo === "Items");
     }
 
+    function manejarErrorGlobal(xhr, accion) {
+        console.error(`QA Report - Error al ${accion}:`, xhr.responseText);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de Comunicación',
+            text: `No se pudo completar la acción: ${accion}.`
+        });
+    }
+
     // -----------------------------
-    // ✅ NUEVA FUNCIÓN: Cargar Tipos de Acuerdo desde API
+    // ✅ Cargar Tipos de Acuerdo desde API
     // -----------------------------
     function cargarTiposAcuerdo(callback) {
         console.log("=== INICIO cargarTiposAcuerdo ===");
 
         const idOpcionActual = getIdOpcionSeguro();
-        const usuario = getUsuario();
-
-        if (!ensureApiBaseUrl()) {
-            console.error("❌ apiBaseUrl no está configurado");
-            return;
-        }
 
         if (!idOpcionActual) {
             console.error("❌ No se pudo obtener idOpcion para cargar tipos de acuerdo");
@@ -157,32 +127,41 @@
         $select.empty().append($("<option>").val("").text("Cargando..."));
 
         // ✅ Cargar CLAGENERAL
-        $.ajax({
-            url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/CLAGENERAL`,
-            method: "GET",
-            headers: {
-                idopcion: String(idOpcionActual),
-                usuario: usuario,
-            },
-            success: function (response) {
-                const dataGeneral = response.json_response.data;
+        const payloadGeneral = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Opciones/ConsultarCombos",
+            client: "APL",
+            endpoint_query_params: "/CLAGENERAL"
+        };
 
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payloadGeneral),
+            success: function (response) {
+                const dataGeneral = response.json_response || [];
                 console.log("✅ CLAGENERAL cargado:", dataGeneral);
 
                 // ✅ Cargar CLAARTICULO
-                $.ajax({
-                    url: `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/CLAARTICULO`,
-                    method: "GET",
-                    headers: {
-                        idopcion: String(idOpcionActual),
-                        usuario: usuario,
-                    },
-                    success: function (response2) {
+                const payloadArticulo = {
+                    code_app: "APP20260128155212346",
+                    http_method: "GET",
+                    endpoint_path: "api/Opciones/ConsultarCombos",
+                    client: "APL",
+                    endpoint_query_params: "/CLAARTICULO"
+                };
 
-                        const dataArticulo = response2.json_response.data;
+                $.ajax({
+                    url: "/api/apigee-router-proxy",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(payloadArticulo),
+                    success: function (response2) {
+                        const dataArticulo = response2.json_response || [];
                         console.log("✅ CLAARTICULO cargado:", dataArticulo);
 
-                        // ✅ Limpiar el select
                         $select.empty();
 
                         // ✅ Agregar opción General
@@ -215,42 +194,26 @@
                             console.log(`📌 Artículo - ID Catálogo: ${idCatalogoArticulo}`);
                         }
 
-                        // ✅ Seleccionar General por defecto
                         $select.val("General");
-
-                        // ✅ MOSTRAR FORMULARIO GENERAL POR DEFECTO
                         toggleAcuerdoForm();
 
-                        // ✅ Ejecutar callback si existe
                         if (typeof callback === "function") {
                             callback();
                         }
 
                         console.log("✅ Tipos de acuerdo cargados correctamente");
                     },
-                    error: function (xhr, status, error) {
-                        console.error("❌ Error cargando CLAARTICULO:", error);
-                        $select.empty().append(
-                            $("<option>").val("").text("Error al cargar")
-                        );
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error",
-                            text: "No se pudieron cargar los tipos de acuerdo (Artículo).",
-                        });
+                    error: function (xhr) {
+                        console.error("❌ Error cargando CLAARTICULO:", xhr.responseText);
+                        $select.empty().append($("<option>").val("").text("Error al cargar"));
+                        manejarErrorGlobal(xhr, "cargar tipos de acuerdo (Artículo)");
                     },
                 });
             },
-            error: function (xhr, status, error) {
-                console.error("❌ Error cargando CLAGENERAL:", error);
-                $select.empty().append(
-                    $("<option>").val("").text("Error al cargar")
-                );
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "No se pudieron cargar los tipos de acuerdo (General).",
-                });
+            error: function (xhr) {
+                console.error("❌ Error cargando CLAGENERAL:", xhr.responseText);
+                $select.empty().append($("<option>").val("").text("Error al cargar"));
+                manejarErrorGlobal(xhr, "cargar tipos de acuerdo (General)");
             },
         });
     }
@@ -278,15 +241,9 @@
         console.log("=== INICIO cargarTipoMotivoIntoSelect ===");
 
         const idOpcionActual = getIdOpcionSeguro();
-        const usuario = getUsuario();
 
         if (!$select || $select.length === 0) {
             console.error("❌ Select no existe para cargar motivos.");
-            return;
-        }
-
-        if (!ensureApiBaseUrl()) {
-            console.error("❌ apiBaseUrl no está configurado");
             return;
         }
 
@@ -300,23 +257,24 @@
             return;
         }
 
-        const etiqueta = "ACMOTIVOS";
-        const urlCompleta = `${window.apiBaseUrl}/api/Opciones/ConsultarCombos/${etiqueta}`;
-
         $select.empty().append($("<option>").val("").text("Cargando..."));
 
-        const headersAjax = {
-            idopcion: String(idOpcionActual),
-            usuario: usuario,
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Opciones/ConsultarCombos",
+            client: "APL",
+            endpoint_query_params: "/ACMOTIVOS"
         };
 
         $.ajax({
-            url: urlCompleta,
-            method: "GET",
-            headers: headersAjax,
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
             success: function (response) {
-                const data = response.json_response.data;
-                console.log("✅ SUCCESS - Respuesta recibida del servidor");
+                const data = response.json_response || [];
+                console.log("✅ SUCCESS - Motivos recibidos:", data);
                 $select.empty().append($("<option>").val("").text("Seleccione..."));
 
                 if (Array.isArray(data) && data.length > 0) {
@@ -333,14 +291,10 @@
                     callback();
                 }
             },
-            error: function (xhr, status, error) {
+            error: function (xhr) {
                 console.error("❌ ERROR en petición AJAX");
                 $select.empty().append($("<option>").val("").text("No se pudo cargar"));
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "No se pudieron cargar los motivos de acuerdo.",
-                });
+                manejarErrorGlobal(xhr, "cargar motivos de acuerdo");
             },
         });
     }
@@ -358,9 +312,6 @@
     // -----------------------------
     function consultarProveedor() {
         const idOpcionActual = getIdOpcionSeguro();
-        const usuario = getUsuario();
-
-        if (!ensureApiBaseUrl()) return;
 
         if (!idOpcionActual) {
             Swal.fire({
@@ -410,15 +361,21 @@
 
         $tbody.empty().append('<tr><td colspan="13" class="text-center">Cargando...</td></tr>');
 
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Acuerdo/consultar-fondo-acuerdo",
+            client: "APL",
+            endpoint_query_params: ""
+        };
+
         $.ajax({
-            url: `${window.apiBaseUrl}/api/Acuerdo/consultar-fondo-acuerdo`,
-            method: "GET",
-            headers: {
-                idopcion: String(idOpcionActual),
-                usuario: usuario,
-            },
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
             success: function (response) {
-                const data = response.json_response.data;
+                const data = response.json_response || [];
 
                 console.log("Datos fondo-acuerdo:", data);
                 $tbody.empty();
@@ -490,8 +447,8 @@
 
                 initProveedorRowSelection();
             },
-            error: function (xhr, status, error) {
-                console.error("Error fondo-acuerdo:", error);
+            error: function (xhr) {
+                console.error("Error fondo-acuerdo:", xhr.responseText);
                 $tbody.empty().append(
                     '<tr><td colspan="13" class="text-center text-danger">Error al cargar datos.</td></tr>'
                 );
@@ -513,7 +470,7 @@
                 disponible: $selected.data("disponible"),
                 comprometido: $selected.data("comprometido"),
                 liquidado: $selected.data("liquidado"),
-                tipoFondo: $selected.data("tipofondo") // ✅ AGREGADO
+                tipoFondo: $selected.data("tipofondo")
             };
 
             console.log("✓ Proveedor seleccionado (temporal):", proveedorTemporal.idFondo);
@@ -526,8 +483,7 @@
         if (tipo === "General") {
             $("#fondoProveedorGeneral").val(f.display);
             $("#fondoProveedorIdGeneral").val(f.idFondo);
-            $("#fondoDisponibleHiddenGeneral").val(f.disponible); // ✅ NUEVO: Guardar disponible
-
+            $("#fondoDisponibleHiddenGeneral").val(f.disponible);
         } else {
             $("#fondoProveedorItems").val(f.display);
             $("#fondoProveedorIdItems").val(f.idFondo);
@@ -539,9 +495,6 @@
     // -----------------------------
     function consultarItems(filtros = {}) {
         const idOpcionActual = getIdOpcionSeguro();
-        const usuario = getUsuario();
-
-        if (!ensureApiBaseUrl()) return;
 
         if (!idOpcionActual) {
             Swal.fire({
@@ -568,17 +521,23 @@
 
         $tbody.empty().append('<tr><td colspan="14" class="text-center">Cargando...</td></tr>');
 
-        let url = `${window.apiBaseUrl}/api/Acuerdo/consultar-articulos`;
-
         console.log("filtros: ", filtros);
 
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "POST",
+            endpoint_path: "api/Acuerdo/consultar-articulos",
+            client: "APL",
+            body_request: filtros
+        };
+
         $.ajax({
-            url: url,
+            url: "/api/apigee-router-proxy",
             method: "POST",
             contentType: "application/json",
-            data: JSON.stringify(filtros),
+            data: JSON.stringify(payload),
             success: function (response) {
-                const data = response.json_response.data;
+                const data = response.json_response || [];
 
                 console.log("Datos items:", data);
                 $tbody.empty();
@@ -634,8 +593,8 @@
 
                 initBusquedaItems();
             },
-            error: function (xhr, status, error) {
-                console.error("Error consultando items:", error);
+            error: function (xhr) {
+                console.error("Error consultando items:", xhr.responseText);
                 $tbody.empty().append(
                     '<tr><td colspan="14" class="text-center text-danger">Error al cargar items.</td></tr>'
                 );
@@ -645,9 +604,8 @@
 
     function cargarFiltrosItems() {
         const idOpcionActual = getIdOpcionSeguro();
-        const usuario = getUsuario();
 
-        if (!ensureApiBaseUrl() || !idOpcionActual) return;
+        if (!idOpcionActual) return;
 
         console.log("📥 Cargando filtros desde consultar-combos...");
 
@@ -656,15 +614,21 @@
         $("#filtroDepartamento").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
         $("#filtroClase").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
 
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Acuerdo/consultar-combos",
+            client: "APL",
+            endpoint_query_params: ""
+        };
+
         $.ajax({
-            url: `${window.apiBaseUrl}/api/Acuerdo/consultar-combos`,
-            method: "GET",
-            headers: {
-                idopcion: String(idOpcionActual),
-                usuario: usuario,
-            },
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
             success: function (response) {
-                const data = response.json_response.data;
+                const data = response.json_response || {};
 
                 console.log("✅ Datos de combos recibidos:", data);
 
@@ -747,9 +711,8 @@
 
                 initMultiSelectFilters();
             },
-            error: function (xhr, status, error) {
-                console.error("❌ Error cargando combos:", error);
-                console.error("Respuesta:", xhr.responseText);
+            error: function (xhr) {
+                console.error("❌ Error cargando combos:", xhr.responseText);
 
                 const errorMsg = '<small class="text-danger">Error al cargar</small>';
                 $("#filtroMarca").html(errorMsg);
@@ -757,11 +720,7 @@
                 $("#filtroDepartamento").html(errorMsg);
                 $("#filtroClase").html(errorMsg);
 
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "No se pudieron cargar los filtros de búsqueda.",
-                });
+                manejarErrorGlobal(xhr, "cargar filtros de búsqueda");
             },
         });
     }
@@ -800,10 +759,6 @@
             valores.push($(this).val());
         });
         return valores;
-    }
-
-    function isTodasSelected(checkboxTodasId) {
-        return $(`#${checkboxTodasId}`).is(":checked");
     }
 
     function limpiarFiltros() {
@@ -898,23 +853,17 @@
         $("#tablaItemsBody tr").each(function () {
             const $fila = $(this);
 
-            // 1. Obtener y limpiar valores
             const costo = parseCurrencyToNumber($fila.find(".item-costo").val());
             const unidades = parseInt($fila.find('input[name="unidadesLimite"]').val()) || 0;
             const aporte = parseCurrencyToNumber($fila.find(".item-aporte").val());
 
-            // 2. Calcular Comprometido (Aporte * Unidades)
             const subtotal = aporte * unidades;
             totalProveedor += subtotal;
             $fila.find(".item-comprometido").val(formatCurrencySpanish(subtotal));
 
-            // 3. Obtener Precios de Venta
             const precioContado = parseCurrencyToNumber($fila.find(".item-precio-contado").val());
             const precioTC = parseCurrencyToNumber($fila.find(".item-precio-tc").val());
             const precioCredito = parseCurrencyToNumber($fila.find(".item-precio-credito").val());
-
-            // 4. Aplicar las fórmulas EXACTAS:
-            // Margen = (Precio + Aporte - Costo) / Precio * 100
 
             if (precioContado > 0) {
                 const mContado = ((precioContado + aporte - costo) / precioContado * 100).toFixed(2);
@@ -931,48 +880,17 @@
                 $fila.find(".margen-credito").text(mCredito + "%");
             }
 
-            // 5. Estética: Si el margen es negativo, ponerlo en rojo
             $fila.find(".margen-contado, .margen-tc, .margen-credito").each(function () {
                 const valor = parseFloat($(this).text());
                 $(this).css("color", valor < 0 ? "#dc3545" : "#198754");
             });
         });
 
-        // Actualizar el total del fondo
         $("#fondoValorTotalItems").val(formatCurrencySpanish(totalProveedor));
-    }
-
-    function eliminarItemsSeleccionados() {
-        const $checkboxes = $("#tablaItemsBody .item-row-checkbox:checked");
-
-        if ($checkboxes.length === 0) {
-            Swal.fire("Atención", "Seleccione al menos un item para eliminar.", "info");
-            return;
-        }
-
-        Swal.fire({
-            title: "¿Está seguro?",
-            text: `Se eliminarán ${$checkboxes.length} item(s) seleccionado(s).`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Sí, eliminar",
-            cancelButtonText: "Cancelar",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $checkboxes.closest("tr").remove();
-                calcularTotalesItems();
-                Swal.fire("Eliminado", "Los items han sido eliminados.", "success");
-            }
-        });
     }
 
     // -----------------------------
     // Datepickers
-    // -----------------------------
-    // -----------------------------
-    // Datepickers (MODIFICADO CON VALIDACIÓN DE FECHAS)
     // -----------------------------
     function initDatepickers() {
         if (!$.datepicker) {
@@ -982,7 +900,6 @@
 
         $.datepicker.setDefaults($.datepicker.regional["es"] || {});
 
-        // Configuración base con tus botones personalizados (Borrar/Hoy)
         const commonOptions = {
             dateFormat: "dd/mm/yy",
             changeMonth: true,
@@ -992,12 +909,10 @@
                 setTimeout(function () {
                     let buttonPane = $(inst.dpDiv).find(".ui-datepicker-buttonpane");
 
-                    // Botón Borrar
                     let doneButton = buttonPane.find(".ui-datepicker-close");
                     doneButton.text("Borrar");
                     doneButton.off("click").on("click", function () {
                         $(input).val("");
-                        // Si borramos inicio, reseteamos la restricción del fin
                         if (input.id.includes("Inicio")) {
                             const endId = input.id.replace("Inicio", "Fin");
                             $("#" + endId).datepicker("option", "minDate", null);
@@ -1005,32 +920,25 @@
                         $.datepicker._hideDatepicker();
                     });
 
-                    // Botón Hoy
                     let todayButton = buttonPane.find(".ui-datepicker-current");
                     todayButton.text("Hoy");
                 }, 1);
             }
         };
 
-        // Función auxiliar para vincular Inicio -> Fin
         function setupDatePair(startId, endId) {
-            // 1. Configurar Fecha Inicio
             $(startId).datepicker({
                 ...commonOptions,
-                minDate: 0, // ✅ REGLA 1: No permite fechas anteriores a hoy
+                minDate: 0,
                 onSelect: function (dateText, inst) {
-                    // Obtener la fecha seleccionada como objeto Date
                     const startDate = $(this).datepicker("getDate");
 
                     if (startDate) {
-                        // Crear una nueva fecha para el Fin (Inicio + 1 día)
                         const minEndDate = new Date(startDate.getTime());
                         minEndDate.setDate(minEndDate.getDate() + 1);
 
-                        // ✅ REGLA 2: Actualizar el minDate del campo Fin
                         $(endId).datepicker("option", "minDate", minEndDate);
 
-                        // Opcional: Si la fecha fin actual es menor o igual a la nueva fecha inicio, limpiarla
                         const currentEndDate = $(endId).datepicker("getDate");
                         if (currentEndDate && currentEndDate <= startDate) {
                             $(endId).val("");
@@ -1039,22 +947,15 @@
                 }
             });
 
-            // 2. Configurar Fecha Fin
             $(endId).datepicker({
                 ...commonOptions,
-                minDate: 1 // Por defecto mañana (se actualiza dinámicamente)
+                minDate: 1
             });
         }
 
-        // --- Aplicar la lógica a los pares de inputs ---
-
-        // Par 1: Formulario General
         setupDatePair("#fondoFechaInicioGeneral", "#fondoFechaFinGeneral");
-
-        // Par 2: Formulario Items
         setupDatePair("#fondoFechaInicioItems", "#fondoFechaFinItems");
 
-        // --- Eventos de los botones de calendario (íconos) ---
         $("#btnFechaInicioGeneral").on("click", function () {
             $("#fondoFechaInicioGeneral").datepicker("show");
         });
@@ -1130,7 +1031,6 @@
         const fin = $("#fondoFechaFinGeneral").val();
         const total = parseCurrencyToNumber($("#fondoValorTotalGeneral").val());
 
-        // ✅ NUEVO: Obtener el disponible del fondo
         const disponibleFondo = parseCurrencyToNumber($("#fondoDisponibleHiddenGeneral").val());
 
         if (!idFondo || String(idFondo).trim() === "") {
@@ -1158,7 +1058,6 @@
             return false;
         }
 
-        // ✅ NUEVO: Validar que el valor total no exceda el disponible del fondo
         if (total > disponibleFondo) {
             Swal.fire({
                 icon: "warning",
@@ -1169,199 +1068,6 @@
         }
 
         return true;
-    }
-
-    // -----------------------------
-    // Leer Detalle Items
-    // -----------------------------
-    function leerDetalleItemsDesdeTabla() {
-        const articulos = [];
-        $("#tablaItemsBody tr").each(function () {
-            const $tr = $(this);
-            const codigo = $tr.data("codigo");
-
-            const costoStr = $tr.find(".item-costo").val();
-            const costo = parseCurrencyToNumber(costoStr);
-            const unidades = parseInt($tr.find('input[name="unidadesLimite"]').val()) || 0;
-            const precioContado = parseCurrencyToNumber($tr.find(".item-precio-contado").val());
-            const precioTC = parseCurrencyToNumber($tr.find(".item-precio-tc").val());
-            const precioCredito = parseCurrencyToNumber($tr.find(".item-precio-credito").val());
-            const aporte = parseCurrencyToNumber($tr.find(".item-aporte").val());
-            const margenContadoStr = $tr.find(".margen-contado").text().replace("%", "").trim();
-            const margenTCStr = $tr.find(".margen-tc").text().replace("%", "").trim();
-            const margenCreditoStr = $tr.find(".margen-credito").text().replace("%", "").trim();
-            const margenContado = parseFloat(margenContadoStr) || 0;
-            const margenTC = parseFloat(margenTCStr) || 0;
-            const margenCredito = parseFloat(margenCreditoStr) || 0;
-            const comprometido = aporte * unidades;
-
-            articulos.push({
-                codigoArticulo: codigo,
-                costoActual: costo,
-                unidadesLimite: unidades,
-                precioContado: precioContado,
-                precioTarjetaCredito: precioTC,
-                precioCredito: precioCredito,
-                valorAporte: aporte,
-                valorComprometido: comprometido,
-                margenContado: margenContado,
-                margenTarjetaCredito: margenTC,
-            });
-        });
-        return articulos;
-    }
-
-    // -----------------------------
-    // ✅ Guardar (Items) - MODIFICADO
-    // -----------------------------
-    function guardarItems() {
-        console.log("ejecutar guardarItems actual");
-        if (!ensureApiBaseUrl()) return;
-        if (!validarItems()) return;
-
-        const idOpcionActual = getIdOpcionSeguro();
-        if (!idOpcionActual) {
-            Swal.fire("Error", "No se pudo obtener idOpcion.", "error");
-            return;
-        }
-
-        // ✅ OBTENER ID CATÁLOGO DINÁMICAMENTE
-        const idTipoAcuerdoDinamico = getIdCatalogoActual();
-
-        if (!idTipoAcuerdoDinamico) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "No se pudo determinar el tipo de acuerdo. Recargue la página.",
-            });
-            return;
-        }
-
-        console.log(`📌 Guardando Items con ID Tipo Acuerdo: ${idTipoAcuerdoDinamico}`);
-
-        const idFondo = parseInt($("#fondoProveedorIdItems").val(), 10) || 0;
-        const idMotivo = parseInt($("#fondoTipoItems").val(), 10) || 0;
-        const descripcion = $("#fondoDescripcionItems").val().trim();
-        const fechaInicio = toISOFromDDMMYYYY($("#fondoFechaInicioItems").val());
-        const fechaFin = toISOFromDDMMYYYY($("#fondoFechaFinItems").val());
-        const valorTotal = parseCurrencyToNumber($("#fondoValorTotalItems").val());
-        const articulos = leerDetalleItemsDesdeTabla();
-
-        const data = {
-            tipoclaseetiqueta: "CLAARTICULO",
-            idopcion: idOpcionActual,
-            idcontrolinterfaz: "BTNGRABAR",
-            idevento: "EVCLICK",
-            acuerdo: {
-                idTipoAcuerdo: idTipoAcuerdoDinamico, // ✅ DINÁMICO
-                idMotivoAcuerdo: idMotivo,
-                descripcion: descripcion,
-                fechaInicioVigencia: fechaInicio,
-                fechaFinVigencia: fechaFin,
-                idUsuarioIngreso: getUsuario(),
-                idEstadoRegistro: 1,
-                marcaProcesoAprobacion: " "
-            },
-            fondo: {
-                idFondo: idFondo,
-                valorAporte: valorTotal,
-                valorDisponible: valorTotal,
-                valorComprometido: 0,
-                valorLiquidado: 0
-            },
-            articulos: articulos
-        };
-
-        console.log("📤 Enviando JSON Items:", JSON.stringify(data, null, 2));
-
-        Swal.fire({
-            title: "Confirmar Guardado",
-            html: `
-            <p>¿Desea guardar el acuerdo POR ÍTEMS?</p>
-            <p class="text-muted small">Se guardarán ${articulos.length} artículo(s)</p>
-        `,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#009845",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, Guardar",
-            cancelButtonText: "Cancelar",
-        }).then((result) => {
-            if (!result.isConfirmed) return;
-
-            Swal.fire({
-                title: 'Guardando...',
-                text: 'Por favor espere',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            $.ajax({
-                url: `${window.apiBaseUrl}/api/Acuerdo/insertar`,
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(data),
-                headers: {
-                    idopcion: String(idOpcionActual),
-                    usuario: getUsuario(),
-                },
-                success: function (response) {
-
-                    const data = response.json_response.data;
-                    console.log("✅ Respuesta exitosa Items:", data);
-
-                    Swal.fire({
-                        icon: "success",
-                        title: "¡Guardado!",
-                        html: `
-                        El acuerdo POR ÍTEMS se guardó correctamente.
-                        <br><small class="text-muted">${articulos.length} artículo(s) registrado(s)</small>
-                    `,
-                        showConfirmButton: false,
-                        timer: 2000,
-                    }).then(() => {
-                        $("#fondoTipoItems").val("");
-                        $("#fondoProveedorItems").val("Seleccione...");
-                        $("#fondoProveedorIdItems").val("");
-                        $("#fondoDescripcionItems").val("");
-                        $("#fondoFechaInicioItems").val("");
-                        $("#fondoFechaFinItems").val("");
-                        $("#fondoValorTotalItems").val("");
-                        $("#tablaItemsBody").empty();
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error("❌ Error guardado items:", xhr.status, xhr.responseText);
-
-                    let mensajeError = "Algo salió mal al guardar el acuerdo POR ÍTEMS.";
-
-                    try {
-                        const errorResponse = JSON.parse(xhr.responseText);
-                        if (errorResponse.message) {
-                            mensajeError = errorResponse.message;
-                        } else if (errorResponse.errors) {
-                            const errores = Object.values(errorResponse.errors).flat();
-                            mensajeError = errores.join('<br>');
-                        }
-                    } catch (e) {
-                        if (xhr.responseText) {
-                            mensajeError = xhr.responseText;
-                        }
-                    }
-
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error al Guardar",
-                        html: mensajeError,
-                        footer: `<small>Código: ${xhr.status}</small>`,
-                        confirmButtonColor: "#d33"
-                    });
-                },
-            });
-        });
     }
 
     function validarItems() {
@@ -1421,10 +1127,187 @@
     }
 
     // -----------------------------
-    // ✅ Guardar (General) - MODIFICADO
+    // Leer Detalle Items
+    // -----------------------------
+    function leerDetalleItemsDesdeTabla() {
+        const articulos = [];
+        $("#tablaItemsBody tr").each(function () {
+            const $tr = $(this);
+            const codigo = $tr.data("codigo");
+
+            const costoStr = $tr.find(".item-costo").val();
+            const costo = parseCurrencyToNumber(costoStr);
+            const unidades = parseInt($tr.find('input[name="unidadesLimite"]').val()) || 0;
+            const precioContado = parseCurrencyToNumber($tr.find(".item-precio-contado").val());
+            const precioTC = parseCurrencyToNumber($tr.find(".item-precio-tc").val());
+            const precioCredito = parseCurrencyToNumber($tr.find(".item-precio-credito").val());
+            const aporte = parseCurrencyToNumber($tr.find(".item-aporte").val());
+            const margenContadoStr = $tr.find(".margen-contado").text().replace("%", "").trim();
+            const margenTCStr = $tr.find(".margen-tc").text().replace("%", "").trim();
+            const margenCreditoStr = $tr.find(".margen-credito").text().replace("%", "").trim();
+            const margenContado = parseFloat(margenContadoStr) || 0;
+            const margenTC = parseFloat(margenTCStr) || 0;
+            const margenCredito = parseFloat(margenCreditoStr) || 0;
+            const comprometido = aporte * unidades;
+
+            articulos.push({
+                codigoArticulo: codigo,
+                costoActual: costo,
+                unidadesLimite: unidades,
+                precioContado: precioContado,
+                precioTarjetaCredito: precioTC,
+                precioCredito: precioCredito,
+                valorAporte: aporte,
+                valorComprometido: comprometido,
+                margenContado: margenContado,
+                margenTarjetaCredito: margenTC,
+            });
+        });
+        return articulos;
+    }
+
+    // -----------------------------
+    // ✅ Guardar (Items)
+    // -----------------------------
+    function guardarItems() {
+        console.log("ejecutar guardarItems actual");
+        if (!validarItems()) return;
+
+        const idOpcionActual = getIdOpcionSeguro();
+        if (!idOpcionActual) {
+            Swal.fire("Error", "No se pudo obtener idOpcion.", "error");
+            return;
+        }
+
+        const idTipoAcuerdoDinamico = getIdCatalogoActual();
+
+        if (!idTipoAcuerdoDinamico) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo determinar el tipo de acuerdo. Recargue la página.",
+            });
+            return;
+        }
+
+        console.log(`📌 Guardando Items con ID Tipo Acuerdo: ${idTipoAcuerdoDinamico}`);
+
+        const idFondo = parseInt($("#fondoProveedorIdItems").val(), 10) || 0;
+        const idMotivo = parseInt($("#fondoTipoItems").val(), 10) || 0;
+        const descripcion = $("#fondoDescripcionItems").val().trim();
+        const fechaInicio = toISOFromDDMMYYYY($("#fondoFechaInicioItems").val());
+        const fechaFin = toISOFromDDMMYYYY($("#fondoFechaFinItems").val());
+        const valorTotal = parseCurrencyToNumber($("#fondoValorTotalItems").val());
+        const articulos = leerDetalleItemsDesdeTabla();
+
+        const body = {
+            tipoclaseetiqueta: "CLAARTICULO",
+            idopcion: idOpcionActual,
+            idcontrolinterfaz: "BTNGRABAR",
+            idevento: "EVCLICK",
+            acuerdo: {
+                idTipoAcuerdo: idTipoAcuerdoDinamico,
+                idMotivoAcuerdo: idMotivo,
+                descripcion: descripcion,
+                fechaInicioVigencia: fechaInicio,
+                fechaFinVigencia: fechaFin,
+                idUsuarioIngreso: getUsuario(),
+                idEstadoRegistro: 1,
+                marcaProcesoAprobacion: " "
+            },
+            fondo: {
+                idFondo: idFondo,
+                valorAporte: valorTotal,
+                valorDisponible: valorTotal,
+                valorComprometido: 0,
+                valorLiquidado: 0
+            },
+            articulos: articulos
+        };
+
+        console.log("📤 Enviando JSON Items:", JSON.stringify(body, null, 2));
+
+        Swal.fire({
+            title: "Confirmar Guardado",
+            html: `
+            <p>¿Desea guardar el acuerdo POR ÍTEMS?</p>
+            <p class="text-muted small">Se guardarán ${articulos.length} artículo(s)</p>
+        `,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#009845",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, Guardar",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            Swal.fire({
+                title: 'Guardando...',
+                text: 'Por favor espere',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            const payload = {
+                code_app: "APP20260128155212346",
+                http_method: "POST",
+                endpoint_path: "api/Acuerdo/insertar",
+                client: "APL",
+                body_request: body
+            };
+
+            $.ajax({
+                url: "/api/apigee-router-proxy",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
+                success: function (response) {
+                    console.log("✅ Respuesta exitosa Items:", response);
+
+                    if (response && response.code_status === 200) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "¡Operación Exitosa!",
+                            html: `
+                            El acuerdo POR ÍTEMS se guardó correctamente.
+                            <br><small class="text-muted">${articulos.length} artículo(s) registrado(s)</small>
+                        `,
+                            showConfirmButton: false,
+                            timer: 2000,
+                        }).then(() => {
+                            $("#fondoTipoItems").val("");
+                            $("#fondoProveedorItems").val("Seleccione...");
+                            $("#fondoProveedorIdItems").val("");
+                            $("#fondoDescripcionItems").val("");
+                            $("#fondoFechaInicioItems").val("");
+                            $("#fondoFechaFinItems").val("");
+                            $("#fondoValorTotalItems").val("");
+                            $("#tablaItemsBody").empty();
+                        });
+                    } else {
+                        const mensajeError = response.json_response?.mensaje || 'Error al guardar el acuerdo';
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error al Guardar",
+                            text: mensajeError,
+                            confirmButtonColor: "#d33"
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    console.error("❌ Error guardado items:", xhr.status, xhr.responseText);
+                    manejarErrorGlobal(xhr, "guardar el acuerdo POR ÍTEMS");
+                },
+            });
+        });
+    }
+
+    // -----------------------------
+    // ✅ Guardar (General)
     // -----------------------------
     function guardarGeneral() {
-        if (!ensureApiBaseUrl()) return;
         if (!validarGeneral()) return;
 
         const idOpcionActual = getIdOpcionSeguro();
@@ -1433,7 +1316,6 @@
             return;
         }
 
-        // ✅ OBTENER ID CATÁLOGO DINÁMICAMENTE
         const idTipoAcuerdoDinamico = getIdCatalogoActual();
 
         if (!idTipoAcuerdoDinamico) {
@@ -1450,13 +1332,13 @@
         const valorTotal = parseCurrencyToNumber($("#fondoValorTotalGeneral").val());
         const valorDisponible = parseCurrencyToNumber($("#fondoDisponibleGeneral").val());
 
-        const data = {
+        const body = {
             tipoclaseetiqueta: "CLAGENERAL",
             idopcion: idOpcionActual,
             idcontrolinterfaz: "BTNGRABAR",
             idevento: "EVCLICK",
             acuerdo: {
-                idTipoAcuerdo: idTipoAcuerdoDinamico, // ✅ DINÁMICO
+                idTipoAcuerdo: idTipoAcuerdoDinamico,
                 idMotivoAcuerdo: parseInt($("#fondoTipoGeneral").val(), 10) || 0,
                 descripcion: $("#fondoDescripcionGeneral").val().trim(),
                 fechaInicioVigencia: toISOFromDDMMYYYY($("#fondoFechaInicioGeneral").val()),
@@ -1475,7 +1357,7 @@
             articulos: []
         };
 
-        console.log("📤 Enviando JSON General:", JSON.stringify(data, null, 2));
+        console.log("📤 Enviando JSON General:", JSON.stringify(body, null, 2));
 
         Swal.fire({
             title: "Confirmar Guardado",
@@ -1489,70 +1371,58 @@
         }).then((result) => {
             if (!result.isConfirmed) return;
 
+            Swal.fire({
+                title: 'Guardando...',
+                text: 'Por favor espere',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            const payload = {
+                code_app: "APP20260128155212346",
+                http_method: "POST",
+                endpoint_path: "api/Acuerdo/insertar",
+                client: "APL",
+                body_request: body
+            };
+
             $.ajax({
-                url: `${window.apiBaseUrl}/api/Acuerdo/insertar`,
-                type: "POST",
+                url: "/api/apigee-router-proxy",
+                method: "POST",
                 contentType: "application/json",
-                data: JSON.stringify(data),
-                headers: {
-                    idopcion: String(idOpcionActual),
-                    usuario: getUsuario(),
-                },
+                data: JSON.stringify(payload),
                 success: function (response) {
                     console.log("✅ Respuesta exitosa:", response);
-                    Swal.fire({
-                        icon: "success",
-                        title: "¡Guardado!",
-                        text: "El acuerdo GENERAL se guardó correctamente.",
-                        showConfirmButton: false,
-                        timer: 1400,
-                    });
 
-                    $("#fondoTipoGeneral").val("");
-                    $("#fondoProveedorGeneral").val("Seleccione...");
-                    $("#fondoProveedorIdGeneral").val("");
-                    $("#fondoDescripcionGeneral").val("");
-                    $("#fondoFechaInicioGeneral").val("");
-                    $("#fondoFechaFinGeneral").val("");
-                    $("#fondoValorTotalGeneral").val("");
-                    $("#fondoDisponibleGeneral").val("");
-                },
-                error: function (xhr) {
-                    console.error("❌ Error guardado general:", xhr.status, xhr.responseText);
-                    let mensajeError = "Algo salió mal al guardar el acuerdo GENERAL.";
-
-                    try {
-                        const errorResponse = JSON.parse(xhr.responseText);
-                        if (errorResponse.message) {
-                            mensajeError = errorResponse.message;
-                        }
-                    } catch (e) {
-                        if (xhr.responseText) {
-                            mensajeError = xhr.responseText;
-                        }
-                    }
-
-
-                    if (xhr.status >= 400 && xhr.status < 500) {
-                        mensajeError = xhr.responseJSON?.mensaje || error || 'Error desconocido';
-
+                    if (response && response.code_status === 200) {
                         Swal.fire({
-                            icon: "warning",
-                            title: "Error al Guardar, validacion de lado del cliente",
-                            text: mensajeError,
-                            footer: `<small>Código: ${xhr.status}</small>`,
+                            icon: "success",
+                            title: "¡Operación Exitosa!",
+                            text: "El acuerdo GENERAL se guardó correctamente.",
+                            showConfirmButton: false,
+                            timer: 1500,
                         });
+
+                        $("#fondoTipoGeneral").val("");
+                        $("#fondoProveedorGeneral").val("Seleccione...");
+                        $("#fondoProveedorIdGeneral").val("");
+                        $("#fondoDescripcionGeneral").val("");
+                        $("#fondoFechaInicioGeneral").val("");
+                        $("#fondoFechaFinGeneral").val("");
+                        $("#fondoValorTotalGeneral").val("");
+                        $("#fondoDisponibleGeneral").val("");
                     } else {
+                        const mensajeError = response.json_response?.mensaje || 'Error al guardar el acuerdo';
                         Swal.fire({
                             icon: "error",
                             title: "Error al Guardar",
                             text: mensajeError,
-                            footer: `<small>Código: ${xhr.status}</small>`,
                         });
                     }
-
-
-                    
+                },
+                error: function (xhr) {
+                    console.error("❌ Error guardado general:", xhr.status, xhr.responseText);
+                    manejarErrorGlobal(xhr, "guardar el acuerdo GENERAL");
                 },
             });
         });
@@ -1662,7 +1532,6 @@
     function actualizarEncabezadoComprometido(tipoFondo) {
         const nuevoTexto = `Comprometido ${tipoFondo}`;
 
-        // Actualizar el encabezado de la tabla de items
         $("#tablaItemsBody").closest("table")
             .find("thead th.custom-header-calc-bg")
             .first()
@@ -1672,10 +1541,10 @@
     }
 
     // -----------------------------
-    // ✅ Init principal - MODIFICADO
+    // ✅ Init principal
     // -----------------------------
     $(document).ready(function () {
-        console.log("=== CrearAcuerdo INIT (CON CARGA DINÁMICA DE TIPOS) ===");
+        console.log("=== CrearAcuerdo INIT (Estructura Post-REST) ===");
 
         toggleAcuerdoForm();
         $("#acuerdoTipo").on("change", function () {
@@ -1692,9 +1561,7 @@
                 window.apiBaseUrl = config.apiBaseUrl;
                 console.log("apiBaseUrl:", window.apiBaseUrl);
 
-                // ✅ CARGAR TIPOS DE ACUERDO PRIMERO
                 cargarTiposAcuerdo(function () {
-                    // ✅ Después cargar motivos
                     cargarMotivosGeneral();
                     cargarMotivosItems();
                 });
@@ -1747,7 +1614,7 @@
             console.log("✅ Proveedor confirmado:", {
                 idFondo: proveedorTemporal.idFondo,
                 proveedor: proveedorTemporal.proveedor,
-                tipoFondo: proveedorTemporal.tipoFondo, // ✅ AGREGADO
+                tipoFondo: proveedorTemporal.tipoFondo,
                 disponible: proveedorTemporal.disponible,
             });
 
@@ -1758,10 +1625,9 @@
                 disponible: proveedorTemporal.disponible,
                 comprometido: proveedorTemporal.comprometido,
                 liquidado: proveedorTemporal.liquidado,
-                tipoFondo: proveedorTemporal.tipoFondo // ✅ AGREGADO
+                tipoFondo: proveedorTemporal.tipoFondo
             });
 
-            // ✅ ACTUALIZAR EL ENCABEZADO DE LA TABLA SI ESTAMOS EN MODO ITEMS
             if (getTipoAcuerdo() === "Items" && proveedorTemporal.tipoFondo) {
                 actualizarEncabezadoComprometido(proveedorTemporal.tipoFondo);
             }
@@ -1957,7 +1823,6 @@
                 cancelButtonText: 'No, Continuar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Limpiar campos
                     $("#fondoTipoItems").val("");
                     $("#fondoProveedorItems").val("Seleccione...");
                     $("#fondoProveedorIdItems").val("");
@@ -1967,7 +1832,6 @@
                     $("#fondoValorTotalItems").val("");
                     $("#tablaItemsBody").empty();
 
-                    // ✅ RESTABLECER ENCABEZADO
                     $("#thComprometido").text("Comprometido Proveedor");
 
                     $("#acuerdoTipo").val("General").trigger("change");
@@ -1985,3 +1849,5 @@
         });
     });
 })();
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

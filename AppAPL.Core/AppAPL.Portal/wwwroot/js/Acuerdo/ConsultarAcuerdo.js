@@ -7,17 +7,49 @@ let tabla;
 let ultimaFilaModificada = null;
 
 // ===============================================================
-// FUNCIÓN HELPER PARA OBTENER USUARIO
+// FUNCIONES HELPER
 // ===============================================================
 function obtenerUsuarioActual() {
     return window.usuarioActual || sessionStorage.getItem('usuarioActual') || "admin";
+}
+
+function getIdOpcionSeguro() {
+    try {
+        return (
+            (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) ||
+            (window.obtenerInfoOpcionActual && window.obtenerInfoOpcionActual().idOpcion) ||
+            "0"
+        );
+    } catch (e) {
+        console.error("Error obteniendo idOpcion:", e);
+        return "0";
+    }
+}
+
+function manejarErrorGlobal(xhr, accion) {
+    console.error(`Error al ${accion}:`, xhr.responseText);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error de Comunicación',
+        text: `No se pudo completar la acción: ${accion}.`
+    });
+}
+
+function formatearMoneda(v) {
+    return (v || 0).toLocaleString('es-EC', { style: 'currency', currency: 'USD' });
+}
+
+function formatearFecha(f) {
+    if (!f) return "";
+    let d = new Date(f);
+    return d.toLocaleDateString('es-EC');
 }
 
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
 $(document).ready(function () {
-    console.log("=== INICIO - ModificarAcuerdo ===");
+    console.log("=== INICIO - ConsultarAcuerdo (Estructura Post-REST) ===");
 
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
@@ -35,35 +67,44 @@ $(document).ready(function () {
             tabla.search('').draw();
         }
     });
-
 });
 
 // ===================================================================
-// ===== FUNCIONES DE CARGA =====
+// FUNCIONES DE CARGA - MIGRADAS A APIGEE PROXY
 // ===================================================================
 
 function cargarBandeja() {
-    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
+    const idOpcionActual = getIdOpcionSeguro();
     const usuario = obtenerUsuarioActual();
 
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/consultar-bandeja-general",
+        client: "APL",
+        endpoint_query_params: ""
+    };
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Acuerdo/consultar-bandeja-general`,
-        method: "GET",
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                const data = response.json_response || [];
+                crearListado(data);
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar la bandeja' });
+            }
         },
-        success: function (data) {
-            crearListado(data);
-        },
-        error: function () {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar la bandeja' });
-        }
+        error: (xhr) => manejarErrorGlobal(xhr, "cargar la bandeja de consulta")
     });
 }
 
 function crearListado(data) {
     if (tabla) tabla.destroy();
+
     let html = `
         <table id='tabla-principal' class='table table-bordered table-striped table-hover'>
             <thead>
@@ -89,8 +130,8 @@ function crearListado(data) {
             </thead>
             <tbody>`;
 
-
-    const datos = data.json_response.data;
+    // Manejar tanto array directo como objeto con datos
+    const datos = Array.isArray(data) ? data : (data.data || []);
 
     datos.forEach(acuerdo => {
         let fondoCompleto = [acuerdo.idfondo, acuerdo.nombre_tipo_fondo, acuerdo.nombre_proveedor].filter(Boolean).join(" - ");
@@ -132,7 +173,6 @@ function crearListado(data) {
         ],
         order: [[1, 'desc']],
         language: {
-            emptyTable: "Sin datos",
             decimal: "",
             emptyTable: "No hay datos disponibles en la tabla",
             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
@@ -163,14 +203,13 @@ function crearListado(data) {
 }
 
 // ===================================================================
-// ===== LÓGICA DE DETALLE (EL NÚCLEO QUE BUSCABAS) =====
+// LÓGICA DE DETALLE
 // ===================================================================
 
 function abrirModalEditar(idAcuerdo) {
     $('body').css('cursor', 'wait');
-    const usuario = obtenerUsuarioActual();
 
-    // ✅ CREAR EL CONTENEDOR DINÁMICAMENTE SI NO EXISTE
+    // Crear el contenedor dinámicamente si no existe
     if ($('#contenedor-tabla-promociones').length === 0) {
         console.log('⚠️ Contenedor no existe, creándolo dinámicamente...');
         $('#contenedor-tabla-articulos').after(`
@@ -188,45 +227,57 @@ function abrirModalEditar(idAcuerdo) {
     $('#contenedor-tabla-articulos').hide().html('');
     $('#contenedor-tabla-promociones').hide().html('');
 
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/bandeja-general-id",
+        client: "APL",
+        endpoint_query_params: `/${idAcuerdo}`
+    };
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Acuerdo/bandeja-general-id/${idAcuerdo}`,
-        method: "GET",
-        headers: { "usuario": usuario },
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
+            if (response && response.code_status === 200) {
+                const data = response.json_response || {};
+                const cab = data.cabecera || {};
 
-            const data = response.json_response.data;
+                // Mapeo de Cabecera
+                $("#verNombreProveedor").val(cab.fondo_proveedor || "");
+                $("#verNombreTipoFondo").val(cab.motivo || "");
+                $("#verClaseAcuerdo").val(cab.clase_acuerdo || "");
+                $("#verEstado").val(cab.estado || "");
+                $("#verDescripcion").val(cab.descripcion || "");
+                $("#verFechaInicio").val(formatearFecha(cab.fecha_inicio));
+                $("#verFechaFin").val(formatearFecha(cab.fecha_fin));
+                $("#verValorAcuerdo").val(formatearMoneda(cab.valor_total));
+                $("#verValorDisponible").val(formatearMoneda(cab.valor_disponible));
+                $("#verValorComprometido").val(formatearMoneda(cab.valor_comprometido));
+                $("#verValorLiquidado").val(formatearMoneda(cab.valor_liquidado));
 
-            const cab = data.cabecera;
+                // Renderizado de Artículos
+                if (data.articulos && data.articulos.length > 0) {
+                    renderizarTablaArticulos(data.articulos);
+                }
 
-            // Mapeo de Cabecera
-            $("#verNombreProveedor").val(cab.fondo_proveedor);
-            $("#verNombreTipoFondo").val(cab.motivo);
-            $("#verClaseAcuerdo").val(cab.clase_acuerdo);
-            $("#verEstado").val(cab.estado);
-            $("#verDescripcion").val(cab.descripcion);
-            $("#verFechaInicio").val(formatearFecha(cab.fecha_inicio));
-            $("#verFechaFin").val(formatearFecha(cab.fecha_fin));
-            $("#verValorAcuerdo").val(formatearMoneda(cab.valor_total));
-            $("#verValorDisponible").val(formatearMoneda(cab.valor_disponible));
-            $("#verValorComprometido").val(formatearMoneda(cab.valor_comprometido));
-            $("#verValorLiquidado").val(formatearMoneda(cab.valor_liquidado));
+                // Cargar Promociones
+                cargarPromocionesAcuerdo(idAcuerdo);
 
-            // Renderizado de Artículos
-            if (data.articulos && data.articulos.length > 0) {
-                renderizarTablaArticulos(data.articulos);
+                $("#vistaTabla").fadeOut(200, function () {
+                    $("#vistaDetalle").fadeIn(200);
+                });
+                $('body').css('cursor', 'default');
+            } else {
+                $('body').css('cursor', 'default');
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo obtener el detalle' });
             }
-
-            // ✅ CARGAR PROMOCIONES
-            cargarPromocionesAcuerdo(idAcuerdo);
-
-            $("#vistaTabla").fadeOut(200, function () {
-                $("#vistaDetalle").fadeIn(200);
-            });
-            $('body').css('cursor', 'default');
         },
-        error: function () {
+        error: function (xhr) {
             $('body').css('cursor', 'default');
-            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo obtener el detalle' });
+            manejarErrorGlobal(xhr, "obtener el detalle del acuerdo");
         }
     });
 }
@@ -254,7 +305,6 @@ function renderizarTablaArticulos(articulos) {
                 <tbody class="text-nowrap tabla-items-body bg-white">`;
 
     articulos.forEach(art => {
-        // Cálculo del margen de crédito (Costo - Precio Crédito) si no viene en el JSON
         let margenCredito = (art.precio_credito || 0) - (art.costo || 0);
 
         htmlArticulos += `
@@ -282,31 +332,19 @@ function renderizarTablaArticulos(articulos) {
 }
 
 function cerrarDetalle() {
-    $('#contenedor-tabla-promociones').hide().html(''); // ✅ LIMPIAR PROMOCIONES
+    $('#contenedor-tabla-promociones').hide().html('');
     $("#vistaDetalle").fadeOut(200, function () {
         $("#vistaTabla").fadeIn(200);
     });
 }
 
 // ===================================================================
-// ===== PROMOCIONES POR ACUERDO ====================================
+// PROMOCIONES POR ACUERDO
 // ===================================================================
 
-/**
- * Carga la tabla de promociones asociadas al acuerdo
- */
-/**
- * Carga la tabla de promociones asociadas al acuerdo
- */
 function cargarPromocionesAcuerdo(idAcuerdo) {
-    const idOpcionActual = (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0";
-    const usuario = obtenerUsuarioActual();
-
     console.log('🎯 === INICIO CARGA DE PROMOCIONES ===');
     console.log('🎯 ID Acuerdo:', idAcuerdo);
-    console.log('🎯 ID Opción:', idOpcionActual);
-    console.log('🎯 Usuario:', usuario);
-    console.log('🎯 URL:', `${window.apiBaseUrl}/api/Acuerdo/consultar-acuerdo-promocion/${idAcuerdo}`);
 
     // Verificar que el contenedor existe
     const $contenedor = $('#contenedor-tabla-promociones');
@@ -331,66 +369,73 @@ function cargarPromocionesAcuerdo(idAcuerdo) {
             </div>
             <p class="mt-2">Cargando promociones...</p>
         </div>
-    `).show(); // ✅ IMPORTANTE: .show() para asegurar que se muestre
+    `).show();
 
     console.log('🎯 Spinner mostrado, iniciando petición AJAX...');
 
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/consultar-acuerdo-promocion",
+        client: "APL",
+        endpoint_query_params: `/${idAcuerdo}`
+    };
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Acuerdo/consultar-acuerdo-promocion/${idAcuerdo}`,
-        method: "GET",
-        dataType: "json",
-        headers: {
-            "idopcion": String(idOpcionActual),
-            "usuario": usuario
-        },
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
-            const data = response.json_response.data;
+            if (response && response.code_status === 200) {
+                let data = response.json_response || [];
 
-            console.log('✅ Respuesta recibida del servidor');
-            console.log('✅ Tipo de dato:', typeof data);
-            console.log('✅ Datos completos:', data);
-            console.log('✅ Es array:', Array.isArray(data));
+                console.log('✅ Respuesta recibida del servidor');
+                console.log('✅ Tipo de dato:', typeof data);
+                console.log('✅ Datos completos:', data);
 
-            // Si la respuesta es string, parsear a JSON
-            if (typeof data === "string") {
-                console.log('🔄 Parseando string a JSON...');
-                try {
-                    data = JSON.parse(data);
-                    console.log('✅ JSON parseado exitosamente:', data);
-                } catch (e) {
-                    console.error("❌ Error al parsear JSON:", e);
+                // Si la respuesta es string, parsear a JSON
+                if (typeof data === "string") {
+                    console.log('🔄 Parseando string a JSON...');
+                    try {
+                        data = JSON.parse(data);
+                        console.log('✅ JSON parseado exitosamente:', data);
+                    } catch (e) {
+                        console.error("❌ Error al parsear JSON:", e);
+                        $contenedor.html(
+                            '<p class="alert alert-danger text-center">Respuesta inválida del servidor.</p>'
+                        ).show();
+                        return;
+                    }
+                }
+
+                // Convertir a array si es necesario
+                let promociones = Array.isArray(data) ? data : (data && data.idpromocion ? [data] : []);
+                console.log('🎯 Promociones procesadas:', promociones);
+                console.log('🎯 Cantidad de promociones:', promociones.length);
+
+                // Verificar si hay promociones
+                if (!promociones.length || promociones.length === 0) {
+                    console.log('⚠️ No se encontraron promociones');
                     $contenedor.html(
-                        '<p class="alert alert-danger text-center">Respuesta inválida del servidor.</p>'
+                        '<p class="alert alert-warning mb-0 text-center">No se encontraron promociones para este acuerdo.</p>'
                     ).show();
                     return;
                 }
-            }
 
-            // Convertir a array si es necesario
-            let promociones = Array.isArray(data) ? data : (data && data.idpromocion ? [data] : []);
-            console.log('🎯 Promociones procesadas:', promociones);
-            console.log('🎯 Cantidad de promociones:', promociones.length);
-
-            // Verificar si hay promociones
-            if (!promociones.length || promociones.length === 0) {
-                console.log('⚠️ No se encontraron promociones');
+                // Renderizar la tabla de promociones
+                console.log('✅ Llamando a renderizarTablaPromociones...');
+                renderizarTablaPromociones(promociones);
+            } else {
                 $contenedor.html(
                     '<p class="alert alert-warning mb-0 text-center">No se encontraron promociones para este acuerdo.</p>'
                 ).show();
-                return;
             }
-
-            // Renderizar la tabla de promociones
-            console.log('✅ Llamando a renderizarTablaPromociones...');
-            renderizarTablaPromociones(promociones);
         },
         error: function (xhr, status, error) {
             console.error('❌ === ERROR EN LA PETICIÓN ===');
             console.error('❌ Status:', status);
             console.error('❌ Error:', error);
-            console.error('❌ Status Code:', xhr.status);
-            console.error('❌ Response Text:', xhr.responseText);
-            console.error('❌ Response JSON:', xhr.responseJSON);
 
             $contenedor.html(
                 `<p class="alert alert-danger text-center">
@@ -402,19 +447,9 @@ function cargarPromocionesAcuerdo(idAcuerdo) {
     });
 }
 
-/**
- * Renderiza la tabla HTML de promociones con DataTable
- */
-/**
- * Renderiza la tabla HTML de promociones con DataTable
- */
-/**
- * Renderiza la tabla HTML de promociones con DataTable
- */
 function renderizarTablaPromociones(promociones) {
     console.log('🎨 === RENDERIZANDO TABLA DE PROMOCIONES ===');
     console.log('🎨 Cantidad de promociones a renderizar:', promociones.length);
-    console.log('🎨 Primera promoción:', promociones[0]);
 
     let htmlPromociones = `
         <h6 class="fw-bold mb-2"><i class="fa fa-gift"></i> Promociones Asociadas</h6>
@@ -438,10 +473,8 @@ function renderizarTablaPromociones(promociones) {
     promociones.forEach((promo, index) => {
         console.log(`🎨 Renderizando promoción ${index + 1}:`, promo);
 
-        // ✅ LÓGICA PARA CLASE ACUERDO CON BADGE
         let claseHTML = promo.clase_acuerdo ?? '';
 
-        // Si tiene cantidad_articulos > 0, agregar badge
         if (promo.cantidad_articulos && promo.cantidad_articulos > 0) {
             claseHTML += `<sup class="fw-bold"> ${promo.cantidad_articulos}</sup>`;
         }
@@ -509,16 +542,4 @@ function renderizarTablaPromociones(promociones) {
     }
 }
 
-// ===================================================================
-// ===== UTILIDADES ==================================================
-// ===================================================================
-
-// Utilidades
-function formatearMoneda(v) {
-    return (v || 0).toLocaleString('es-EC', { style: 'currency', currency: 'USD' });
-}
-function formatearFecha(f) {
-    if (!f) return "";
-    let d = new Date(f);
-    return d.toLocaleDateString('es-EC');
-}
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

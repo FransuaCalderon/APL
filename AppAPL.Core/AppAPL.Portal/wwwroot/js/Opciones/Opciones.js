@@ -400,3 +400,5 @@ function manejarErrorGlobal(xhr, accion) {
         text: `No se pudo completar la acción: ${accion}.`
     });
 }
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

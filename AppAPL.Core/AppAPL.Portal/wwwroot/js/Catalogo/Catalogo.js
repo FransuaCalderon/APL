@@ -19,7 +19,7 @@ function obtenerUsuarioActual() {
 // DOCUMENT READY
 // ===============================================================
 $(document).ready(function () {
-    console.log("=== INICIO DE CARGA - Catalogo (Post-REST Schema) ===");
+    console.log("=== INICIO DE CARGA - Catalogo (Estructura Post-REST) ===");
 
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
@@ -32,7 +32,7 @@ $(document).ready(function () {
         }
 
         // Carga inicial del combo de tipos
-        cargarTiposCatalogo(idOpcionActual, usuario);
+        cargarTiposCatalogo();
     });
 
     // Evento al cambiar el tipo de catálogo
@@ -75,15 +75,24 @@ $(document).ready(function () {
 /**
  * Carga los tipos de catálogo para el combo inicial.
  */
-function cargarTiposCatalogo(idOpcionActual, usuario) {
+function cargarTiposCatalogo() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/CatalogoTipo/listar",
+        client: "APL",
+        endpoint_query_params: ""
+    };
+
     $.ajax({
-        url: `${window.apiBaseUrl}/api/CatalogoTipo/listar`,
-        method: "GET",
-        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
-            // Acceso al nuevo esquema: response.json_response.data
             if (response && response.code_status === 200) {
-                const data = response.json_response.data || [];
+                console.log("Tipos de catálogo recibidos:", response.json_response);
+                const data = response.json_response || [];
                 tiposCatalogo = data.sort((a, b) => a.idcatalogotipo - b.idcatalogotipo);
 
                 const $select = $('#selectTipoCatalogo');
@@ -103,71 +112,87 @@ function cargarTiposCatalogo(idOpcionActual, usuario) {
  * Carga los catálogos pertenecientes al tipo seleccionado.
  */
 function cargarCatalogosPorTipo(idTipoCatalogo) {
-    const idOpcionActual = window.obtenerIdOpcionActual();
-    const usuario = obtenerUsuarioActual();
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Catalogo/FiltrarPorTipo",
+        client: "APL",
+        endpoint_query_params: `/${idTipoCatalogo}`
+    };
 
     $.ajax({
-        url: `${window.apiBaseUrl}/api/Catalogo/FiltrarPorTipo/${idTipoCatalogo}`,
-        method: "GET",
-        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
             if (response && response.code_status === 200) {
-                const lista = response.json_response.data || [];
+                console.log("Catálogos recibidos:", response.json_response);
+                const lista = response.json_response || [];
                 const dataArray = Array.isArray(lista) ? lista : [lista];
                 crearListado(dataArray);
             }
         },
         error: function (xhr) {
-            if (xhr.status === 404) crearListado([]);
-            else manejarErrorGlobal(xhr, "filtrar catálogos");
+            if (xhr.status === 404) {
+                crearListado([]);
+            } else {
+                manejarErrorGlobal(xhr, "filtrar catálogos");
+            }
         }
     });
 }
 
 function ejecutarGuardado() {
-    const idOpcionActual = window.obtenerIdOpcionActual();
-    const usuario = obtenerUsuarioActual();
     const id = $("#modal-idCatalogo").val();
 
-    const payload = {
-        idcatalogo: id ? parseInt(id) : 0,
+    const body = {
         nombre: $("#modal-nombre").val().toUpperCase(),
         adicional: $("#modal-adicional").val(),
         abreviatura: $("#modal-abreviatura").val(),
         idcatalogotipo: parseInt(tipoCatalogoSeleccionado),
+        idusuariocreacion: 1,
+        fechacreacion: new Date().toISOString(),
         idusuariomodificacion: 1,
         fechamodificacion: new Date().toISOString(),
         idestado: $("#modal-activo").is(":checked") ? 1 : 0,
         idetiqueta: $("#modal-etiqueta").val()
     };
 
-    if (!id) { // Es Crear
-        payload.idusuariocreacion = 1;
-        payload.fechacreacion = new Date().toISOString();
+    const url = id
+        ? "api/Catalogo/actualizar"
+        : "api/Catalogo/insertar";
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: url,
+        client: "APL",
+        body_request: body
+    };
+
+    if (id) {
+        payload.endpoint_query_params = `/${id}`;
     }
 
-    const url = id
-        ? `${window.apiBaseUrl}/api/Catalogo/actualizar/${id}`
-        : `${window.apiBaseUrl}/api/Catalogo/insertar`;
-
     $.ajax({
-        url: url,
-        type: "POST", // <--- Migrado a POST
+        url: "/api/apigee-router-proxy",
+        method: "POST",
         contentType: "application/json",
         data: JSON.stringify(payload),
-        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
         success: function (response) {
             if (response.code_status === 200) {
                 $("#editarModal").modal("hide");
                 Swal.fire({
                     icon: 'success',
-                    title: '¡Éxito!',
-                    text: response.json_response.data.mensaje || 'Registro guardado.',
-                    timer: 1500,
-                    showConfirmButton: false
+                    title: '¡Operación Exitosa!',
+                    text: response.json_response.mensaje || 'Registro procesado',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    if (id) ultimaFilaModificada = id;
+                    cargarCatalogosPorTipo(tipoCatalogoSeleccionado);
                 });
-                if (id) ultimaFilaModificada = id;
-                cargarCatalogosPorTipo(tipoCatalogoSeleccionado);
             }
         },
         error: (xhr) => manejarErrorGlobal(xhr, "guardar catálogo")
@@ -175,24 +200,31 @@ function ejecutarGuardado() {
 }
 
 function confirmDelete(id) {
-    const idOpcionActual = window.obtenerIdOpcionActual();
-    const usuario = obtenerUsuarioActual();
-
     Swal.fire({
-        title: '¿Eliminar registro?',
-        text: `ID: ${id}`,
+        title: '¿Confirmar eliminación?',
+        text: `Se eliminará el registro con ID: ${id}`,
         icon: 'warning',
         showCancelButton: true,
+        confirmButtonColor: '#009845',
         confirmButtonText: 'Sí, Eliminar'
     }).then((result) => {
         if (result.isConfirmed) {
+            const payload = {
+                code_app: "APP20260128155212346",
+                http_method: "POST",
+                endpoint_path: "api/Catalogo/eliminar",
+                client: "APL",
+                endpoint_query_params: `/${id}`
+            };
+
             $.ajax({
-                url: `${window.apiBaseUrl}/api/Catalogo/eliminar/${id}`,
-                type: "POST", // <--- Migrado a POST
-                headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
+                url: "/api/apigee-router-proxy",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
                 success: function (response) {
                     if (response.code_status === 200) {
-                        Swal.fire('¡Eliminado!', response.json_response.data.mensaje, 'success');
+                        Swal.fire('¡Eliminado!', response.json_response.mensaje, 'success');
                         cargarCatalogosPorTipo(tipoCatalogoSeleccionado);
                     }
                 },
@@ -219,10 +251,10 @@ function crearListado(data) {
                 <td>${c.abreviatura || ''}</td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn-action edit-btn" onclick="abrirModalEditar(${c.idcatalogo})">
+                        <button class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(${c.idcatalogo})">
                             <i class="fa-regular fa-pen-to-square"></i>
                         </button>
-                        <button class="btn-action delete-btn" onclick="confirmDelete(${c.idcatalogo})">
+                        <button class="btn-action delete-btn" title="Eliminar" onclick="confirmDelete(${c.idcatalogo})">
                             <i class="fa-regular fa-trash-can"></i>
                         </button>
                     </div>
@@ -232,7 +264,7 @@ function crearListado(data) {
 
     $('#tabla').html(`
         <table id='tabla-curso' class='table table-striped display'>
-            <thead><tr><th>ID</th><th>Nombre</th><th>Adicional</th><th>Abreviatura</th><th>Opciones</th></tr></thead>
+            <thead><tr><th>ID</th><th>Nombre</th><th>Adicional</th><th>Abreviatura</th><th>Acciones</th></tr></thead>
             <tbody>${rows}</tbody>
         </table>
     `);
@@ -251,8 +283,11 @@ function crearListado(data) {
         }
     });
 
-    const addButton = `<button type="button" class="btn btn-primary ms-2" id="btnAgregarNuevo" style="height: 38px;"><i class="fa-solid fa-plus"></i></button>`;
-    $('#tabla-curso_length').prepend(addButton).css('display', 'flex').css('align-items', 'center');
+    const addButtonHtml = `
+        <button type="button" class="btn btn-primary ms-2" id="btnAgregarNuevo" style="height: 38px;">
+            <i class="fa-solid fa-plus"></i>
+        </button>`;
+    $('#tabla-curso_length').prepend(addButtonHtml).css('display', 'flex').css('align-items', 'center');
 
     if (typeof inicializarMarcadoFilas === 'function') inicializarMarcadoFilas('#tabla-curso');
 }
@@ -265,29 +300,39 @@ function mostrarTablaVaciaInicial() {
 }
 
 function abrirModalEditar(id) {
-    const idOpcionActual = window.obtenerIdOpcionActual();
-    const usuario = obtenerUsuarioActual();
+    console.log("Ejecutando abrirModalEditar para ID:", id);
 
     $('#formEditar')[0].reset();
     $('#modal-idCatalogo').val(id);
     $('#editarModalLabel').text('Editar Catálogo');
     $('#btnGuardarCambios').html('<i class="fa-solid fa-save me-2"></i> Modificar').addClass('btn-primary').removeClass('btn-success');
 
-    $.ajax({
-        url: `${window.apiBaseUrl}/api/Catalogo/obtener/${id}`,
-        method: "GET",
-        headers: { "idopcion": String(idOpcionActual), "usuario": usuario },
-        success: function (response) {
-            const d = response.json_response.data;
-            $("#modal-nombre").val(d.nombre);
-            $("#modal-adicional").val(d.adicional);
-            $("#modal-abreviatura").val(d.abreviatura);
-            $("#modal-activo").prop("checked", d.idestado === 1);
-            $("#modal-etiqueta").val(d.idetiqueta);
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Catalogo/obtener",
+        client: "APL",
+        endpoint_query_params: `/${id}`
+    };
 
-            new bootstrap.Modal(document.getElementById('editarModal')).show();
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                const d = response.json_response;
+                $("#modal-nombre").val(d.nombre);
+                $("#modal-adicional").val(d.adicional);
+                $("#modal-abreviatura").val(d.abreviatura);
+                $("#modal-activo").prop("checked", d.idestado === 1);
+                $("#modal-etiqueta").val(d.idetiqueta);
+
+                new bootstrap.Modal(document.getElementById('editarModal')).show();
+            }
         },
-        error: (xhr) => manejarErrorGlobal(xhr, "obtener datos")
+        error: (xhr) => manejarErrorGlobal(xhr, "obtener datos del catálogo")
     });
 }
 
@@ -300,8 +345,12 @@ function abrirModalCrear() {
 }
 
 function manejarErrorGlobal(xhr, accion) {
-    console.error(`Error al ${accion}:`, xhr.responseText);
-    Swal.fire('Error', `No se pudo completar la acción: ${accion}.`, 'error');
+    console.error(`QA Report - Error al ${accion}:`, xhr.responseText);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error de Comunicación',
+        text: `No se pudo completar la acción: ${accion}.`
+    });
 }
 
 // Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
