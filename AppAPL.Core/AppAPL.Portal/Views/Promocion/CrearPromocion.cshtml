@@ -8,24 +8,18 @@
         window.usuarioActual = '@usuarioActual';
     </script>
 
-    <!-- jQuery -->
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
 
-    <!-- jQuery UI (Datepicker) -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
 
-    <!-- Localización Datepicker ES -->
     <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
 
-    <!-- DataTables -->
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
           crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Script principal -->
     <script src="~/js/Promocion/CrearPromocion.js" asp-append-version="true"></script>
 
     <style>
@@ -123,155 +117,143 @@
     </style>
 }
 
-<!-- Encabezado -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-1 mb-2 border-bottom">
     <h1 class="h4">Promoción - Creación</h1>
 </div>
 
-<!-- Selector tipo promoción -->
-<div class="col-md-13">
+<div class="col-md-12 mb-3">
     <label for="promocionTipo" class="form-label fw-bold col-form-label-sm">Clase de Promoción</label>
     <select id="promocionTipo" class="form-select form-select-sm">
-        <option value="General">General</option>
-        <option value="Articulos">Con Artículos</option>
-        <option value="Combos">Con Combos</option>
+        <option value="">Cargando...</option>
     </select>
 </div>
 
 <hr />
 
-<!-- ========================================================= -->
-<!-- FORM PROMOCIÓN GENERAL -->
-<!-- ========================================================= -->
-<form id="formGeneral" class="row g-1 mb-1 pb-1">
+<form id="formGeneral" class="row g-2">
 
-    <!-- Línea 1 -->
-    <div class="col-md-2">
+    <input type="hidden" id="fondoProveedorIdGeneral">
+    <input type="hidden" id="fondoDisponibleHiddenGeneral">
+    <input type="hidden" id="fondoDisponibleGeneral">
+
+    <div class="col-md-3 text-center">
         <label for="descripcionGeneral" class="form-label fw-bold col-form-label-sm">Descripción</label>
         <input type="text" class="form-control form-control-sm" id="descripcionGeneral" placeholder="Ingrese Descripción">
     </div>
 
-    <div class="col-md-2">
+    <div class="col-md-3 text-center">
         <label for="motivoGeneral" class="form-label fw-bold col-form-label-sm">Motivo</label>
         <select id="motivoGeneral" class="form-select form-select-sm">
-            <option value="">Seleccione...</option>
-            <option value="1">Excedente</option>
-            <option value="2">Lenta Rotación</option>
-            <option value="3">Día de la Madre</option>
-            <option value="4">Día del Padre</option>
-            <option value="5">Black Friday</option>
+            <option value="">Cargando...</option>
         </select>
     </div>
 
-    <div class="col-md-2">
-        <label for="fechaInicioGeneral" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
+    <div class="col-md-3 text-center">
+        <label class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
         <div class="input-group input-group-sm">
-            <input id="fechaInicioGeneral" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicioGeneral">
-                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
-            </button>
+            <input type="text" class="form-control form-control-sm" id="fechaInicioGeneral" placeholder="dd/mm/aaaa" style="max-width: 55%;">
+            <input type="time" class="form-control form-control-sm" id="timeInicioGeneral" value="00:00">
+            <button class="btn btn-outline-secondary" type="button"><i class="fa-regular fa-calendar"></i></button>
         </div>
     </div>
 
-    <div class="col-md-2">
-        <label for="fechaFinGeneral" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
+    <div class="col-md-3 text-center">
+        <label class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
         <div class="input-group input-group-sm">
-            <input id="fechaFinGeneral" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaFinGeneral">
-                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
-            </button>
+            <input type="text" class="form-control form-control-sm" id="fechaFinGeneral" placeholder="dd/mm/aaaa" style="max-width: 55%;">
+            <input type="time" class="form-control form-control-sm" id="timeFinGeneral" value="23:59">
+            <button class="btn btn-outline-secondary" type="button"><i class="fa-regular fa-calendar"></i></button>
         </div>
     </div>
 
-    <div class="col-md-1">
-        <label class="form-label fw-bold col-form-label-sm text-center d-block">Marca</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroMarcaGeneral">
-            <option selected>Todas</option>
-            <option>Marca 1</option>
-            <option>Marca 2</option>
-            <option>Marca 3</option>
+    <div class="col-md-3 text-center">
+        <label for="filtroMarcaGeneral" class="form-label fw-bold col-form-label-sm">Marca</label>
+        <select id="filtroMarcaGeneral" class="form-select form-select-sm" size="3" multiple>
+            <option selected>Cargando...</option>
+        </select>
+    </div>
+    <div class="col-md-3 text-center">
+        <label for="filtroDivisionGeneral" class="form-label fw-bold col-form-label-sm">División</label>
+        <select id="filtroDivisionGeneral" class="form-select form-select-sm" size="3" multiple>
+            <option selected>Cargando...</option>
+        </select>
+    </div>
+    <div class="col-md-3 text-center">
+        <label for="filtroDepartamentoGeneral" class="form-label fw-bold col-form-label-sm">Departamento</label>
+        <select id="filtroDepartamentoGeneral" class="form-select form-select-sm" size="3" multiple>
+            <option selected>Cargando...</option>
+        </select>
+    </div>
+    <div class="col-md-3 text-center">
+        <label for="filtroClaseGeneral" class="form-label fw-bold col-form-label-sm">Clase</label>
+        <select id="filtroClaseGeneral" class="form-select form-select-sm" size="3" multiple>
+            <option selected>Cargando...</option>
         </select>
     </div>
 
-    <div class="col-md-1">
-        <label class="form-label fw-bold col-form-label-sm text-center d-block">División</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroDivisionGeneral">
-            <option selected>Todas</option>
-            <option>División 1</option>
-            <option>División 2</option>
-            <option>División 3</option>
-        </select>
-    </div>
-
-    <div class="col-md-1">
-        <label class="form-label fw-bold col-form-label-sm text-center d-block">Departamento</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroDepartamentoGeneral">
-            <option selected>Todos</option>
-            <option>Depto 1</option>
-            <option>Depto 2</option>
-            <option>Depto 3</option>
-        </select>
-    </div>
-
-    <div class="col-md-1">
-        <label class="form-label fw-bold col-form-label-sm text-center d-block">Clase</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroClaseGeneral">
-            <option selected>Todas</option>
-            <option>Clase 1</option>
-            <option>Clase 2</option>
-            <option>Clase 3</option>
-        </select>
-    </div>
-
-    <!-- Línea 2 -->
-    <div class="col-md-1 mt-2">
+    <div class="col-md-2 text-center">
         <label for="articuloGeneral" class="form-label fw-bold col-form-label-sm">Artículo</label>
         <div class="input-group input-group-sm">
             <div class="input-group-text">
                 <input class="form-check-input mt-0" type="checkbox" id="chkArticuloGeneral">
             </div>
-            <input type="text" class="form-control" id="articuloGeneral" disabled>
+            <input type="text" class="form-control" id="articuloGeneral" disabled placeholder="Cod. Artículo">
         </div>
     </div>
 
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm text-center d-block">Canal</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroCanalGeneral">
-            <option selected>Todos</option>
-            <option>Tienda Local</option>
-            <option>Tienda Virtual</option>
-            <option>Móvil</option>
-        </select>
-    </div>
-
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm text-center d-block">Grupo Almacén</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroGrupoAlmacenGeneral">
-            <option selected>Todos</option>
-            <option>Grupo 1</option>
-            <option>Grupo 2</option>
-            <option>Grupo 3</option>
-        </select>
-    </div>
-
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm text-center d-block">Almacén</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroAlmacenGeneral">
-            <option selected>Todos</option>
-            <option>Almacén 1</option>
-            <option>Almacén 2</option>
-        </select>
-    </div>
-
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+    <div class="col-md-2 text-center">
+        <label for="filtroCanalGeneral" class="form-label fw-bold col-form-label-sm">Canal</label>
         <div class="input-group input-group-sm">
-            <button id="btnListaClienteGeneral" class="btn btn-outline-secondary d-none" type="button"
-                    data-bs-toggle="modal" data-bs-target="#modalClientesEspecificos">
-                <img src="~/img/ico/list-check.svg" alt="Lista">
+            <button id="btnCanalGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalCanal">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroCanalGeneral">
+                <option value="0" selected>Todos</option>
+                <option value="1">Tienda Local</option>
+                <option value="2">Tienda Virtual</option>
+                <option value="3">Varios</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-2 text-center">
+        <label for="filtroGrupoAlmacenGeneral" class="form-label fw-bold col-form-label-sm">Grupo Almacén</label>
+        <div class="input-group input-group-sm">
+            <button id="btnGrupoAlmacenGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalGrupoAlmacen">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroGrupoAlmacenGeneral">
+                <option value="0" selected>Todos</option>
+                <option value="1">Grupo 1</option>
+                <option value="2">Grupo 2</option>
+                <option value="3">Varios</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-2 text-center">
+        <label for="filtroAlmacenGeneral" class="form-label fw-bold col-form-label-sm">Almacén</label>
+        <div class="input-group input-group-sm">
+            <button id="btnAlmacenGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalAlmacen">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroAlmacenGeneral">
+                <option value="0" selected>Todos</option>
+                <option value="1">Almacén 1</option>
+                <option value="2">Almacén 2</option>
+                <option value="3">Varios</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-2 text-center">
+        <label for="tipoClienteGeneral" class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+        <div class="input-group input-group-sm">
+            <button id="btnListaClienteGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClientesEspecificos">
+                <i class="fa-solid fa-list-check"></i>
             </button>
             <select class="form-select" id="tipoClienteGeneral">
-                <option selected>Todos</option>
+                <option value="0" selected>Todos</option>
                 <option value="1">Especiales</option>
                 <option value="2">Frecuentes</option>
                 <option value="3">Lista Específica</option>
@@ -279,86 +261,170 @@
         </div>
     </div>
 
-    <div class="col-md-3 mt-2">
-        <label class="form-label fw-bold col-form-label-sm text-center d-block">Medio Pago</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroMedioPagoGeneral">
-            <option selected>Todos</option>
-            <option>Efectivo</option>
-            <option>Visa Platinium</option>
-            <option>Mastercard Pacificard</option>
-            <option>Crédito Directo</option>
-            <option>Diners</option>
-            <option>American Express</option>
-        </select>
-    </div>
-
-    <!-- Línea 3 - Descuentos y Aportes -->
-    <div class="col-md-1 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">% Dscto Prov.</label>
-        <input type="text" class="form-control form-control-sm text-end" id="descuentoProveedorGeneral" placeholder="99.99%">
-    </div>
-
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">ID Acuerdo Proveedor</label>
+    <div class="col-md-2 text-center">
+        <label for="filtroMedioPagoGeneral" class="form-label fw-bold col-form-label-sm">Medio Pago</label>
         <div class="input-group input-group-sm">
-            <input type="text" class="form-control" id="acuerdoProveedorGeneral" placeholder="APR999 - MABE" readonly>
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdos">
-                <img src="~/img/ico/search.svg" alt="Buscar">
+            <button id="btnMedioPagoGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalMedioPago">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroMedioPagoGeneral">
+                <option value="0" selected>Todos</option>
+                <option value="1">Efectivo</option>
+                <option value="2">Visa Platinium</option>
+                <option value="3">Mastercard Pacificard</option>
+                <option value="4">Crédito Directo</option>
+                <option value="5">Diners</option>
+                <option value="6">American Express</option>
+                <option value="7">Varios</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-1 text-center">
+        <label for="descuentoProveedorGeneral" class="form-label fw-bold col-form-label-sm">% Dscto Prov.</label>
+        <input type="text" class="form-control form-control-sm text-end" id="descuentoProveedorGeneral" placeholder="0.00%">
+    </div>
+
+    <div class="col-md-2 text-center">
+        <label for="fondoProveedorGeneral" class="form-label fw-bold col-form-label-sm">ID Acuerdo Proveedor</label>
+        <div class="input-group input-group-sm">
+            <input type="text" class="form-control" id="fondoProveedorGeneral" placeholder="Seleccione..." readonly>
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
+                <i class="fa-solid fa-magnifying-glass"></i>
             </button>
         </div>
     </div>
 
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">$ Comprometido Prov.</label>
-        <input type="text" class="form-control form-control-sm text-end" id="comprometidoProveedorGeneral" placeholder="$ 0,00" disabled>
+    <div class="col-md-2 text-center">
+        <label for="fondoValorTotalGeneral" class="form-label fw-bold col-form-label-sm">$ Comprometido Prov.</label>
+        <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotalGeneral" placeholder="0.00">
     </div>
 
-    <div class="col-md-1 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">% Dscto Prop.</label>
-        <input type="text" class="form-control form-control-sm text-end" id="descuentoPropioGeneral" placeholder="99.99%">
+    <div class="col-md-1 text-center">
+        <label for="descuentoPropioGeneral" class="form-label fw-bold col-form-label-sm">% Dscto Prop</label>
+        <input type="text" class="form-control form-control-sm text-end" id="descuentoPropioGeneral" placeholder="0.00%">
     </div>
 
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">ID Acuerdo Propio</label>
+    <div class="col-md-2 text-center">
+        <label for="acuerdoPropioGeneral" class="form-label fw-bold col-form-label-sm">ID Acuerdo Propio</label>
         <div class="input-group input-group-sm">
-            <input type="text" class="form-control" id="acuerdoPropioGeneral" placeholder="APR999 - Artefacta" readonly>
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdos">
-                <img src="~/img/ico/search.svg" alt="Buscar">
+            <input type="text" class="form-control" id="acuerdoPropioGeneral" placeholder="APR999 - Propio" readonly>
+            <button class="btn btn-outline-secondary" type="button">
+                <i class="fa-solid fa-magnifying-glass"></i>
             </button>
         </div>
     </div>
 
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">$ Comprometido Propio</label>
-        <input type="text" class="form-control form-control-sm text-end" id="comprometidoPropioGeneral" placeholder="$ 0,00" disabled>
+    <div class="col-md-2 text-center">
+        <label for="comprometidoPropioGeneral" class="form-label fw-bold col-form-label-sm">$ Comprometido Propio</label>
+        <input type="text" class="form-control form-control-sm text-end" id="comprometidoPropioGeneral" placeholder="0.00">
     </div>
 
-    <div class="col-md-1 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">% Dscto Total</label>
-        <input type="text" class="form-control form-control-sm text-end" id="descuentoTotalGeneral" placeholder="99.99%" disabled>
+    <div class="col-md-1 text-center">
+        <label for="descuentoTotalGeneral" class="form-label fw-bold col-form-label-sm">% Dscto Total</label>
+        <input type="text" class="form-control form-control-sm text-end" id="descuentoTotalGeneral" placeholder="0.00%" disabled>
     </div>
 
-    <div class="col-md-1 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">Regalo</label>
-        <div class="form-check d-flex justify-content-center align-items-center mt-1">
+    <div class="col-md-1 text-center">
+        <label for="regaloGeneral" class="form-label fw-bold col-form-label-sm">Regalo</label>
+        <div class="form-check d-flex justify-content-center align-items-center">
             <input class="form-check-input" type="checkbox" id="regaloGeneral">
         </div>
     </div>
 
-    <hr class="mt-3 mb-1" />
+    <div class="col-md-12 text-center mt-3">
+        <label for="inputGroupFile24" class="form-label fw-bold col-form-label-sm">Adjuntar Documento Soporte</label>
+        <div class="col-12 p-0">
+            <div class="input-group input-group-sm">
+                <label class="btn btn-secondary" for="inputGroupFile24">Buscar Archivo</label>
+                <input type="file" class="form-control d-none" id="inputGroupFile24" onchange="document.getElementById('fileName').textContent = this.files[0] ? this.files[0].name : 'Ningún archivo seleccionado'">
+                <span class="form-control" id="fileName">Ningún archivo seleccionado</span>
+            </div>
+        </div>
+    </div>
 
-    <div class="col-12">
-        <button type="button" class="btn btn-secondary" id="btnCancelarGeneral">Cancelar</button>
+    <div class="col-12 mt-4 border-top pt-3">
         <button type="button" class="btn btn-primary" id="btnGuardarPromocionGeneral">Grabar</button>
+        <button type="button" class="btn btn-secondary" id="btnCancelarGeneral">Cancelar</button>
     </div>
 </form>
 
-<!-- ========================================================= -->
-<!-- FORM PROMOCIÓN CON ARTÍCULOS -->
-<!-- ========================================================= -->
-<form id="formArticulos" class="row g-1 mb-1 pb-1" style="display:none;">
+<div class="modal fade" id="ModalCanal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Lista de Canales</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="row m-2">
+                    <ul class="list-group">
+                        <li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Tienda Local</label></li>
+                        <li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Tienda Virtual</label></li>
+                        <li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Tienda Móvil</label></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary">Aceptar</button></div>
+        </div>
+    </div>
+</div>
 
-    <!-- Línea 1 -->
+<div class="modal fade" id="ModalClientesEspecificos" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Lista Específica de Clientes</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row m-2 align-items-center">
+                    <div class="col-1 p-0">
+                        <input class="form-check-input" type="checkbox" id="chkSeleccionaFile">
+                    </div>
+                    <div class="col-10 p-0">
+                        <div class="input-group input-group-sm">
+                            <label class="btn btn-secondary" for="inputFileClientes">Buscar Archivo</label>
+                            <input type="file" class="form-control d-none" id="inputFileClientes" disabled>
+                            <span class="form-control" id="fileNameClientes">Ningún archivo seleccionado</span>
+                        </div>
+                    </div>
+                    <div class="col-1 p-0 text-end">
+                        <button type="button" class="btn btn-outline-dark btn-sm border-0" id="btnUploadClientes" disabled>
+                            <i class="fa-solid fa-upload"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-group mt-2">
+                    <textarea class="form-control" style="height: 300px" id="txtListaClientes" placeholder="Ingrese códigos de cliente..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalGrupoAlmacen" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Grupos Almacenes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><div class="row m-2"><ul class="list-group"><li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Grupo 1</label></li><li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Grupo 2</label></li></ul></div></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary">Aceptar</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalAlmacen" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Almacenes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><div class="row m-2"><ul class="list-group"><li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Almacen 1</label></li><li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Almacen 2</label></li></ul></div></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary">Aceptar</button></div>
+        </div>
+    </div>
+</div>
+
+<form id="formArticulos" class="row g-1 mb-1 pb-1" style="display:none;">
     <div class="col-md-3">
         <label for="descripcionArticulos" class="form-label fw-bold col-form-label-sm">Descripción de la Promoción</label>
         <input type="text" class="form-control form-control-sm" id="descripcionArticulos" placeholder="Ingrese Descripción">
@@ -406,7 +472,6 @@
         </select>
     </div>
 
-    <!-- Línea 2 -->
     <div class="col-md-3 mt-2">
         <label class="form-label fw-bold col-form-label-sm">Grupo Almacenes</label>
         <select class="form-select form-select-sm" size="3" multiple id="filtroGrupoAlmacenArticulos">
@@ -440,7 +505,6 @@
         </div>
     </div>
 
-    <!-- Detalle de Artículos -->
     <div class="col-12 mt-3">
         <div class="detalle-header">Detalle de los Artículos</div>
 
@@ -519,7 +583,6 @@
                         </tr>
                     </thead>
                     <tbody id="tablaArticulosBody" class="text-nowrap tabla-items-body">
-                        <!-- Se llenará dinámicamente -->
                     </tbody>
                 </table>
             </div>
@@ -534,12 +597,8 @@
     </div>
 </form>
 
-<!-- ========================================================= -->
-<!-- FORM PROMOCIÓN CON COMBOS -->
-<!-- ========================================================= -->
 <form id="formCombos" class="row g-1 mb-1 pb-1" style="display:none;">
 
-    <!-- Línea 1 -->
     <div class="col-md-3">
         <label for="descripcionCombos" class="form-label fw-bold col-form-label-sm">Descripción de la Promoción</label>
         <input type="text" class="form-control form-control-sm" id="descripcionCombos" placeholder="Ingrese Descripción">
@@ -587,7 +646,6 @@
         </select>
     </div>
 
-    <!-- Línea 2 -->
     <div class="col-md-3 mt-2">
         <label class="form-label fw-bold col-form-label-sm">Grupo Almacenes</label>
         <select class="form-select form-select-sm" size="3" multiple id="filtroGrupoAlmacenCombos">
@@ -621,7 +679,6 @@
         </div>
     </div>
 
-    <!-- Detalle de Combos -->
     <div class="col-12 mt-3">
         <div class="detalle-header">Detalle de los Combos</div>
 
@@ -669,14 +726,12 @@
                         </tr>
                     </thead>
                     <tbody id="tablaCombosBody" class="text-nowrap tabla-items-body">
-                        <!-- Se llenará dinámicamente -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Sección Creación de Combo (Colapsable) -->
     <div class="collapse mt-3" id="seccionCrearCombo">
         <div class="col-12 text-center border bg-dark bg-opacity-75 text-white fw-bold py-2">
             Creación del Combo
@@ -878,18 +933,14 @@
     </div>
 </form>
 
-<!-- ========================================================= -->
-<!-- MODAL CONSULTA ITEMS -->
-<!-- ========================================================= -->
-<div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-labelledby="modalConsultaItemsLabel" aria-hidden="true">
+<div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="modalConsultaItemsLabel">Consulta de Items</h1>
+                <h1 class="modal-title fs-5">Consulta de Items</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Criterios de Selección -->
                 <div class="row m-2">
                     <div class="card border-secondary p-0">
                         <div class="card-header">Criterios de Selección</div>
@@ -899,57 +950,44 @@
                                     <label class="form-label fw-bold col-form-label-sm text-center d-block">Marca</label>
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="todasMarcasModal" checked>
-                                            <label class="form-check-label fw-bold" for="todasMarcasModal">Todas</label>
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroMarcaModal" checked>
+                                            <label class="form-check-label fw-bold">Todas</label>
                                         </div>
                                         <hr class="my-1">
-                                        <div id="filtroMarcaModal">
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Marca 1"><label class="form-check-label">Marca 1</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Marca 2"><label class="form-check-label">Marca 2</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Marca 3"><label class="form-check-label">Marca 3</label></div>
-                                        </div>
+                                        <div id="filtroMarcaModal"></div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold col-form-label-sm text-center d-block">División</label>
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="todasDivisionesModal" checked>
-                                            <label class="form-check-label fw-bold" for="todasDivisionesModal">Todas</label>
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDivisionModal" checked>
+                                            <label class="form-check-label fw-bold">Todas</label>
                                         </div>
                                         <hr class="my-1">
-                                        <div id="filtroDivisionModal">
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="División 1"><label class="form-check-label">División 1</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="División 2"><label class="form-check-label">División 2</label></div>
-                                        </div>
+                                        <div id="filtroDivisionModal"></div>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold col-form-label-sm text-center d-block">Departamento</label>
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="todosDeptosModal" checked>
-                                            <label class="form-check-label fw-bold" for="todosDeptosModal">Todos</label>
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDepartamentoModal" checked>
+                                            <label class="form-check-label fw-bold">Todos</label>
                                         </div>
                                         <hr class="my-1">
-                                        <div id="filtroDepartamentoModal">
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Depto 1"><label class="form-check-label">Depto 1</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Depto 2"><label class="form-check-label">Depto 2</label></div>
-                                        </div>
+                                        <div id="filtroDepartamentoModal"></div>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold col-form-label-sm text-center d-block">Clase</label>
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="todasClasesModal" checked>
-                                            <label class="form-check-label fw-bold" for="todasClasesModal">Todas</label>
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroClaseModal" checked>
+                                            <label class="form-check-label fw-bold">Todas</label>
                                         </div>
                                         <hr class="my-1">
-                                        <div id="filtroClaseModal">
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Clase 1"><label class="form-check-label">Clase 1</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="checkbox" value="Clase 2"><label class="form-check-label">Clase 2</label></div>
-                                        </div>
+                                        <div id="filtroClaseModal"></div>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
@@ -957,7 +995,7 @@
                                     <input type="text" id="filtroArticuloModal" class="form-control form-control-sm" placeholder="Buscar...">
                                 </div>
                                 <div class="col-12 mt-2">
-                                    <button type="button" id="btnProcesarFiltrosModal" class="btn btn-secondary btn-sm w-100">
+                                    <button type="button" id="btnProcesarFiltros" class="btn btn-secondary btn-sm w-100">
                                         <i class="fa-solid fa-filter"></i> Procesar Selección
                                     </button>
                                 </div>
@@ -966,22 +1004,20 @@
                     </div>
                 </div>
 
-                <!-- Checkbox Todos + Buscar -->
                 <div class="row m-2">
                     <div class="d-flex align-items-center mt-2">
                         <div class="form-check form-check-sm">
-                            <input class="form-check-input" type="checkbox" id="checkTodosItemsModal" checked>
-                            <label class="form-check-label" for="checkTodosItemsModal">Todos</label>
+                            <input class="form-check-input" type="checkbox" id="checkTodosItems">
+                            <label class="form-check-label" for="checkTodosItems">Todos</label>
                         </div>
                         <div class="flex-grow-1"></div>
-                        <input type="text" class="form-control w-25" id="buscarItemModal" placeholder="Buscar...">
+                        <input type="text" class="form-control w-25" id="buscarItemModal" placeholder="Buscar en tabla...">
                     </div>
                 </div>
 
-                <!-- Tabla Items -->
                 <div class="row m-2">
                     <div class="table-responsive small p-1 border border-secondary" style="max-height: 300px; overflow-y: auto;">
-                        <table id="tablaItemsModal" class="table table-hover table-bordered w-100">
+                        <table id="tablaItemsConsulta" class="table table-hover table-bordered w-100">
                             <thead class="sticky-top table-success text-nowrap">
                                 <tr>
                                     <th>Sel</th>
@@ -998,77 +1034,9 @@
                                     <th>M-1($)</th>
                                     <th>M-2(u)</th>
                                     <th>M-2($)</th>
-                                    <th>Marg.Efe</th>
-                                    <th>Marg.Cre</th>
-                                    <th>Marg.Igu</th>
-                                    <th>Precio</th>
-                                    <th>Marg.Precio</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="text-center"><input type="checkbox" class="form-check-input item-checkbox-modal" checked></td>
-                                    <td>123</td>
-                                    <td>TV 65 Samsung 4K</td>
-                                    <td class="text-end">$ 1,400.00</td>
-                                    <td class="text-center">400</td>
-                                    <td class="text-center">300</td>
-                                    <td class="text-center">100</td>
-                                    <td class="text-end">$ 140,000.00</td>
-                                    <td class="text-center">75</td>
-                                    <td class="text-end">$ 2,000.00</td>
-                                    <td class="text-center">50</td>
-                                    <td class="text-end">$ 2,100.00</td>
-                                    <td class="text-center">40</td>
-                                    <td class="text-end">$ 2,200.00</td>
-                                    <td class="text-center">15%</td>
-                                    <td class="text-center">16%</td>
-                                    <td class="text-center">14%</td>
-                                    <td class="text-end">$ 2,200.00</td>
-                                    <td class="text-center">36%</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center"><input type="checkbox" class="form-check-input item-checkbox-modal" checked></td>
-                                    <td>126</td>
-                                    <td>TV 55 Samsung 4K</td>
-                                    <td class="text-end">$ 1,200.00</td>
-                                    <td class="text-center">350</td>
-                                    <td class="text-center">250</td>
-                                    <td class="text-center">100</td>
-                                    <td class="text-end">$ 120,000.00</td>
-                                    <td class="text-center">60</td>
-                                    <td class="text-end">$ 1,800.00</td>
-                                    <td class="text-center">45</td>
-                                    <td class="text-end">$ 1,900.00</td>
-                                    <td class="text-center">35</td>
-                                    <td class="text-end">$ 2,000.00</td>
-                                    <td class="text-center">18%</td>
-                                    <td class="text-center">19%</td>
-                                    <td class="text-center">17%</td>
-                                    <td class="text-end">$ 1,999.00</td>
-                                    <td class="text-center">38%</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center"><input type="checkbox" class="form-check-input item-checkbox-modal"></td>
-                                    <td>128</td>
-                                    <td>TV 70 Samsung 4K</td>
-                                    <td class="text-end">$ 1,800.00</td>
-                                    <td class="text-center">200</td>
-                                    <td class="text-center">150</td>
-                                    <td class="text-center">50</td>
-                                    <td class="text-end">$ 90,000.00</td>
-                                    <td class="text-center">30</td>
-                                    <td class="text-end">$ 2,500.00</td>
-                                    <td class="text-center">25</td>
-                                    <td class="text-end">$ 2,600.00</td>
-                                    <td class="text-center">20</td>
-                                    <td class="text-end">$ 2,700.00</td>
-                                    <td class="text-center">12%</td>
-                                    <td class="text-center">13%</td>
-                                    <td class="text-center">11%</td>
-                                    <td class="text-end">$ 2,799.00</td>
-                                    <td class="text-center">32%</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -1076,16 +1044,52 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="btnSeleccionarItemsModal">Seleccionar</button>
+                <button type="button" class="btn btn-primary" id="btnSeleccionarItems">Seleccionar</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ========================================================= -->
-<!-- MODAL CONSULTA ACUERDOS -->
-<!-- ========================================================= -->
-<div class="modal fade" id="modalConsultaAcuerdos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Consulta de Fondos/Proveedores</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive border rounded" style="max-height: 350px; overflow-y: auto;">
+                    <table id="tablaProveedores" class="table table-hover table-sm table-bordered mb-0">
+                        <thead class="table-success sticky-top">
+                            <tr class="text-nowrap">
+                                <th class="text-center">Sel.</th>
+                                <th>ID Fondo</th>
+                                <th>Descripción</th>
+                                <th>RUC</th>
+                                <th>Proveedor</th>
+                                <th>Tipo Fondo</th>
+                                <th class="text-end">Valor Fondo</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th class="text-end">Disponible</th>
+                                <th class="text-end">Comprometido</th>
+                                <th class="text-end">Liquidado</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarProveedor">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConsultaAcuerdos" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -1093,61 +1097,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-semibold">Seleccione un Acuerdo</span>
-                    <input type="text" class="form-control form-control-sm" placeholder="Buscar..." style="width: 250px;">
-                </div>
-                <div class="table-responsive border rounded" style="max-height: 350px; overflow-y: auto;">
-                    <table class="table table-hover table-sm table-bordered mb-0">
-                        <thead class="table-success sticky-top">
-                            <tr class="text-nowrap">
-                                <th class="text-center">Sel.</th>
-                                <th>ID Acuerdo</th>
-                                <th>Descripción</th>
-                                <th>Proveedor</th>
-                                <th class="text-end">$ Disponible</th>
-                                <th>Fecha Inicio</th>
-                                <th>Fecha Fin</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-center"><input type="radio" class="form-check-input" name="selectAcuerdo"></td>
-                                <td>APR001</td>
-                                <td>Acuerdo Promocional MABE</td>
-                                <td>Industrias MABE S.A</td>
-                                <td class="text-end">$ 50,000.00</td>
-                                <td>01/01/2025</td>
-                                <td>31/12/2025</td>
-                                <td>Activo</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center"><input type="radio" class="form-check-input" name="selectAcuerdo"></td>
-                                <td>APR002</td>
-                                <td>Acuerdo Samsung 2025</td>
-                                <td>Samsung Electronics</td>
-                                <td class="text-end">$ 75,000.00</td>
-                                <td>15/01/2025</td>
-                                <td>15/06/2025</td>
-                                <td>Activo</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <p>Funcionalidad pendiente de implementar...</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary">Aceptar</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ========================================================= -->
-<!-- MODAL CLIENTES ESPECÍFICOS -->
-<!-- ========================================================= -->
-<div class="modal fade" id="modalClientesEspecificos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalClientesEspecificos" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
@@ -1168,12 +1127,12 @@
                     </div>
                     <div class="col-1 p-0">
                         <button type="button" class="btn btn-outline-dark btn-sm border-0" id="btnUploadClientes" disabled>
-                            <img src="~/img/ico/upload.svg" alt="Upload">
+                            <i class="fa-solid fa-upload"></i>
                         </button>
                     </div>
                 </div>
                 <div class="input-group mt-2">
-                    <textarea class="form-control" style="height: 250px" id="txtListaClientes" placeholder="Ingrese los códigos de cliente separados por coma o salto de línea..."></textarea>
+                    <textarea class="form-control" style="height: 250px" id="txtListaClientes" placeholder="Ingrese los códigos de cliente..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1184,10 +1143,7 @@
     </div>
 </div>
 
-<!-- ========================================================= -->
-<!-- MODAL MEDIOS DE PAGO -->
-<!-- ========================================================= -->
-<div class="modal fade" id="modalMediosPago" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalMediosPago" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -1195,30 +1151,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="mpEfectivo" checked>
-                    <label class="form-check-label" for="mpEfectivo">Efectivo</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="mpCreditoDirecto" checked>
-                    <label class="form-check-label" for="mpCreditoDirecto">Crédito Directo</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="mpVisaPlatinium" checked>
-                    <label class="form-check-label" for="mpVisaPlatinium">Visa Platinium</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="mpMastercardBlack" checked>
-                    <label class="form-check-label" for="mpMastercardBlack">Mastercard Black</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="mpDiners">
-                    <label class="form-check-label" for="mpDiners">Diners</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="mpAmex">
-                    <label class="form-check-label" for="mpAmex">American Express</label>
-                </div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="mpEfectivo" checked><label class="form-check-label" for="mpEfectivo">Efectivo</label></div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="mpCreditoDirecto" checked><label class="form-check-label" for="mpCreditoDirecto">Crédito Directo</label></div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="mpVisaPlatinium" checked><label class="form-check-label" for="mpVisaPlatinium">Visa Platinium</label></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -1228,75 +1163,12 @@
     </div>
 </div>
 
-<!-- ========================================================= -->
-<!-- MODAL EQUIVALENTES -->
-<!-- ========================================================= -->
-<div class="modal fade" id="modalEquivalentes" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Equivalentes Artefacta</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">Listado de productos equivalentes...</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
+<div class="modal fade" id="modalEquivalentes" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h1 class="modal-title fs-5">Equivalentes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Contenido...</div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div></div></div>
 </div>
-
-<!-- ========================================================= -->
-<!-- MODAL PRECIOS COMPETENCIA -->
-<!-- ========================================================= -->
-<div class="modal fade" id="modalPreciosCompetencia" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Precios de Competencia</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">Comparativa de precios con la competencia...</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
+<div class="modal fade" id="modalPreciosCompetencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h1 class="modal-title fs-5">Precios Competencia</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Contenido...</div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div></div></div>
 </div>
-
-<!-- ========================================================= -->
-<!-- MODAL OTROS COSTOS -->
-<!-- ========================================================= -->
-<div class="modal fade" id="modalOtrosCostos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Considerar Otros Costos</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="costoEnsamble">
-                    <label class="form-check-label" for="costoEnsamble">Ensamble $60</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="costoMatricula" checked>
-                    <label class="form-check-label" for="costoMatricula">Matrícula $50</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="costoInstalacion">
-                    <label class="form-check-label" for="costoInstalacion">Instalación $30</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
+<div class="modal fade" id="modalOtrosCostos" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h1 class="modal-title fs-5">Otros Costos</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Contenido...</div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div></div></div>
 </div>
-
-<!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->
