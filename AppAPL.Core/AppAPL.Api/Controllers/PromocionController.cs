@@ -111,6 +111,14 @@ namespace AppAPL.Api.Controllers
             return listaTiCl.ToList();
         }
 
+        [HttpPost("consultar-combos-promociones")]
+        public async Task<ActionResult<GruposPromocionesDTO>> ConsultarTipoCliente(ConsultarCombosPromocionesDTO consultar)
+        {
+            var combosPromociones = await servicio.CargarCombosPromociones(consultar);
+
+            return combosPromociones;
+        }
+
         [HttpPost("insertar")]
         //[Email("ENTACUERDO", TipoProceso.Creacion)]
         public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearPromocionRequestDTO promocion)

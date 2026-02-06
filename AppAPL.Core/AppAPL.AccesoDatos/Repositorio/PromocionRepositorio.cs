@@ -2,6 +2,7 @@
 using AppAPL.AccesoDatos.Oracle;
 using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
+using AppAPL.Dto.Opciones;
 using AppAPL.Dto.Promocion;
 using Dapper;
 using Microsoft.Extensions.Logging;
@@ -427,6 +428,54 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             return datos;
 
+        }
+
+        public async Task<GruposPromocionesDTO> CargarCombosPromociones(ConsultarCombosPromocionesDTO consultar)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Parámetros de Salida (RefCursors)
+            var parameters = new OracleDynamicParameters();
+
+            // Agregar los 4 RefCursors como parámetros de salida
+            parameters.Add("p_rc_canal", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_rc_grupo", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_rc_almacen", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_rc_tipocliente", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_rc_mediopago", OracleDbType.RefCursor, ParameterDirection.Output);
+
+            // 2. REGISTRO DE PARÁMETROS DE ENTRADA (OPCIONALES)
+            // Solo los agregamos si tienen valor. Si son null, el SP usará sus DEFAULTS.
+
+            if (!string.IsNullOrWhiteSpace(consultar.codigoAlmacen))
+            {
+                parameters.Add("p_codigo_almacen", OracleDbType.Varchar2, ParameterDirection.Input, consultar.codigoAlmacen);
+            }
+
+            if (consultar.incluirTodos.HasValue)
+            {
+                parameters.Add("p_incluir_todos", OracleDbType.Int32, ParameterDirection.Input, consultar.incluirTodos.HasValue);
+            }
+
+            // 🔹 Ejecutar el SP con QueryMultiple
+            using var multi = await connection.QueryMultipleAsync(
+                "grupo_select_artefacta_promociones",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            // 🔹 Leer cada conjunto de resultados en el ORDEN en que están definidos en el SP
+            var resultado = new GruposPromocionesDTO
+            {
+                Canales = await multi.ReadAsync<CanalDTO>(),
+                GruposAlmacenes = await multi.ReadAsync<GrupoAlmacenDTO>(),
+                Almacenes = await multi.ReadAsync<AlmacenDTO>(),
+                TiposClientes = await multi.ReadAsync<TipoClienteDTO>(),
+                
+                //MediosPago = (await multi.ReadAsync<ComboDTO>()).ToList()
+            };
+
+            return resultado;
         }
 
         public async Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion)

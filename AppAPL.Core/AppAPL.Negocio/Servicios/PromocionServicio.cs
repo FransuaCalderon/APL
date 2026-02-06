@@ -50,5 +50,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion)
             => repo.CrearAsync(promocion);
+
+        public Task<GruposPromocionesDTO> CargarCombosPromociones(ConsultarCombosPromocionesDTO consultar)
+            => repo.CargarCombosPromociones(consultar);
     }
 }

@@ -130,6 +130,21 @@ namespace AppAPL.Dto.Promocion
         public string NOMBRE { get; set; }
     }
 
+
+    public class GruposPromocionesDTO
+    {
+        public IEnumerable<CanalDTO> Canales { get; set; } = Enumerable.Empty<CanalDTO>();
+        public IEnumerable<AlmacenDTO> Almacenes { get; set; } = Enumerable.Empty<AlmacenDTO>();
+        public IEnumerable<GrupoAlmacenDTO> GruposAlmacenes { get; set; } = Enumerable.Empty<GrupoAlmacenDTO>();
+        public IEnumerable<TipoClienteDTO> TiposClientes { get; set; } = Enumerable.Empty<TipoClienteDTO>();
+    }
+
+    public class ConsultarCombosPromocionesDTO
+    {
+        public string? codigoAlmacen { get; set; }
+        public int? incluirTodos { get; set; }
+    }
+
     public class CrearPromocionRequestDTO
     {
         // Parámetros directos
