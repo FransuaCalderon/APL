@@ -23,6 +23,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<PromocionSegmentoDTO>> ConsultarPromocionSegmento();
         Task<IEnumerable<PromocionSegmentoDetalleDTO>> ConsultarPromocionSegmentoDetalle();
         Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion);
-        Task<GruposPromocionesDTO> CargarCombosPromociones(ConsultarCombosPromocionesDTO consultar);
+        Task<GruposPromocionesDTO> CargarCombosPromociones();
     }
 }

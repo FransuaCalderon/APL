@@ -430,7 +430,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
         }
 
-        public async Task<GruposPromocionesDTO> CargarCombosPromociones(ConsultarCombosPromocionesDTO consultar)
+        public async Task<GruposPromocionesDTO> CargarCombosPromociones()
         {
             using var connection = factory.CreateOpenConnection();
 
@@ -446,7 +446,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             // 2. REGISTRO DE PARÁMETROS DE ENTRADA (OPCIONALES)
             // Solo los agregamos si tienen valor. Si son null, el SP usará sus DEFAULTS.
-
+            /*
             if (!string.IsNullOrWhiteSpace(consultar.codigoAlmacen))
             {
                 parameters.Add("p_codigo_almacen", OracleDbType.Varchar2, ParameterDirection.Input, consultar.codigoAlmacen);
@@ -455,11 +455,11 @@ namespace AppAPL.AccesoDatos.Repositorio
             if (consultar.incluirTodos.HasValue)
             {
                 parameters.Add("p_incluir_todos", OracleDbType.Int32, ParameterDirection.Input, consultar.incluirTodos.HasValue);
-            }
+            }*/
 
             // 🔹 Ejecutar el SP con QueryMultiple
             using var multi = await connection.QueryMultipleAsync(
-                "grupo_select_artefacta_promociones",
+                "APL_SP_GRUPO_SELECT_ARTEFACTA_PROMOCIONES",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
@@ -471,8 +471,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 GruposAlmacenes = await multi.ReadAsync<GrupoAlmacenDTO>(),
                 Almacenes = await multi.ReadAsync<AlmacenDTO>(),
                 TiposClientes = await multi.ReadAsync<TipoClienteDTO>(),
-                
-                //MediosPago = (await multi.ReadAsync<ComboDTO>()).ToList()
+                MediosPagos = await multi.ReadAsync<MedioPagoDTO>()
             };
 
             return resultado;
