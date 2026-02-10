@@ -35,26 +35,26 @@ namespace AppAPL.Api.Controllers
 
 
         [HttpGet("check-connection-bd")]
-        public IActionResult CheckConnection()
+        public async Task<ActionResult> CheckConnection()
         {
-           
-                using (var connection = new OracleConnection(connectionString))
-                {
-                    connection.Open();
+            // Usamos el 'await' para liberar el hilo mientras Oracle responde
+            using (var connection = new OracleConnection(connectionString))
+            {
+                await connection.OpenAsync();
 
-                    // Una consulta simple que no requiere tablas del usuario
-                    using (var command = new OracleCommand("SELECT 'Conexión Exitosa' FROM DUAL", connection))
+                // Consulta liviana a DUAL para validar salud de la instancia
+                using (var command = new OracleCommand("SELECT 'Conexión Exitosa' FROM DUAL", connection))
+                {
+                    var result = await command.ExecuteScalarAsync();
+
+                    return Ok(new
                     {
-                        var result = command.ExecuteScalar();
-                        return Ok(new
-                        {
-                            status = "Success",
-                            message = result?.ToString(),
-                            timestamp = DateTime.Now
-                        });
-                    }
+                        status = "Success",
+                        message = result?.ToString(),
+                        timestamp = DateTime.Now
+                    });
                 }
-      
+            }
         }
     }
 }

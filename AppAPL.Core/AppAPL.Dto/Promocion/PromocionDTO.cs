@@ -1,5 +1,6 @@
 ﻿
 using AppAPL.Dto.Acuerdo;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -133,7 +134,7 @@ namespace AppAPL.Dto.Promocion
     public class MedioPagoDTO
     {
         public string CODIGO { get; set; }
-        public string NOMBRE { get; set; }
+        public string DESCRIPCION { get; set; }
     }
 
 
@@ -159,6 +160,8 @@ namespace AppAPL.Dto.Promocion
         public long IdOpcion { get; set; }
         public string IdControlInterfaz { get; set; } = string.Empty;
         public string IdEventoEtiqueta { get; set; } = string.Empty;
+        // Agregamos el archivo aquí para que todo viaje en un solo objeto
+        public IFormFile? ArchivoSoporte { get; set; }
 
         // Objetos que se enviarán como JSON (CLOB) al SP
         public PromocionDataDTO Promocion { get; set; } = new();

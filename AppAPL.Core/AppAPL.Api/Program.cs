@@ -10,6 +10,7 @@ using AppAPL.Api.Utilidades;
 using AppAPL.Negocio.Abstracciones;
 using AppAPL.Negocio.IoC;
 using AppAPL.Negocio.Servicios;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 
@@ -40,6 +41,14 @@ if (swaggerEnabled)
         });
 
         c.EnableAnnotations();
+
+        // Esto soluciona el error de generación de parámetros con IFormFile
+        c.MapType<IFormFile>(() => new OpenApiSchema
+        {
+            Type = "string",
+            Format = "binary"
+        });
+
     });
 }
 

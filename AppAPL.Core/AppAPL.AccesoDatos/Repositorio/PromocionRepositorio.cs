@@ -5,6 +5,7 @@ using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Opciones;
 using AppAPL.Dto.Promocion;
 using Dapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -18,7 +19,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
-    public class PromocionRepositorio (OracleConnectionFactory factory, ILogger<PromocionRepositorio> logger) : IPromocionRepositorio
+    public class PromocionRepositorio (OracleConnectionFactory factory, ILogger<PromocionRepositorio> logger, IConfiguration configuration) : IPromocionRepositorio
     {
         public async Task<IEnumerable<PromocionDTO>> ConsultarPromocion()
         {
@@ -479,8 +480,36 @@ namespace AppAPL.AccesoDatos.Repositorio
 
         public async Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion)
         {
+
             using var connection = factory.CreateOpenConnection();
             var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+            // 1. Obtener la ruta desde el appsettings
+            string folderPath = configuration["Rutas:CarpetaSoportes"];
+                                //?? Path.Combine(AppContext.BaseDirectory, "Soportes");
+
+            string rutaFisicaFinal = string.Empty;
+
+            // 2. Lógica de guardado físico
+            if (promocion.ArchivoSoporte != null && promocion.ArchivoSoporte.Length > 0)
+            {
+                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                //string fileName = $"{Guid.NewGuid()}{Path.GetExtension(promocion.ArchivoSoporte.FileName)}";
+                string fileName = $"{Guid.NewGuid()}_{promocion.ArchivoSoporte.FileName}";
+                rutaFisicaFinal = Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(rutaFisicaFinal, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    await promocion.ArchivoSoporte.CopyToAsync(stream);
+                    // Fuerza a que los bytes se escriban físicamente antes de cerrar
+                    await stream.FlushAsync();
+                }
+
+                logger.LogInformation($"Archivo guardado exitosamente. Tamaño: {promocion.ArchivoSoporte.Length} bytes");
+            }
+
+            logger.LogInformation($"rutaFinalParaOracle: {rutaFisicaFinal}");
 
             var paramObject = new
             {
@@ -492,9 +521,10 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_idopcion = promocion.IdOpcion,
                 p_idcontrolinterfaz = promocion.IdControlInterfaz,
                 p_idevento_etiqueta = promocion.IdEventoEtiqueta,
+                p_archivosoporte = rutaFisicaFinal
             };
 
-            //logger.LogInformation($"parametros a enviar para el sp: {paramObject.ToString()}");
+            logger.LogInformation($"parametros a enviar para el sp: {paramObject.ToString()}");
 
             var parameters = new OracleDynamicParameters(paramObject);
 
@@ -503,6 +533,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
+            //int filasAfectadas = 1;
+            
             int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_PROMOCIONES.sp_crear_promocion",
                 parameters,
@@ -514,6 +546,13 @@ namespace AppAPL.AccesoDatos.Repositorio
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}, idPromocion: {idPromocion}");
+
+            
+            // 4. Si Oracle dice que hubo error, borramos el archivo físico (Rollback manual)
+            if (codigoSalida == 0 && !string.IsNullOrEmpty(rutaFisicaFinal))
+            {
+                if (File.Exists(rutaFisicaFinal)) File.Delete(rutaFisicaFinal);
+            }
 
             //return parameters.Get<int>("p_idfondo_out");
             var retorno = new ControlErroresDTO()

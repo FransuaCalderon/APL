@@ -4,6 +4,7 @@ using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Promocion;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace AppAPL.Api.Controllers
 {
@@ -120,23 +121,46 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("insertar")]
-        //[Email("ENTACUERDO", TipoProceso.Creacion)]
-        public async Task<ActionResult<ControlErroresDTO>> Insertar(CrearPromocionRequestDTO promocion)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ControlErroresDTO>> Insertar(
+            IFormFile ArchivoSoporte,
+            [FromForm] string promocionJson)     // Todo el resto de datos como un string JSON
         {
+            // 1. Validar que el archivo no sea nulo
+            if (ArchivoSoporte == null || ArchivoSoporte.Length == 0)
+                return BadRequest("El archivo de soporte es obligatorio.");
 
-            var retorno = await servicio.CrearAsync(promocion);
+            // 2. Validar extensión
+            var extensionesPermitidas = new[] { ".pdf", ".xls", ".xlsx" };
+            var extension = Path.GetExtension(ArchivoSoporte.FileName).ToLower();
 
-            if (retorno.Id > 0)
+            if (!extensionesPermitidas.Contains(extension))
             {
-                logger.LogInformation(retorno.mensaje);
-                return retorno;
+                return BadRequest(new ControlErroresDTO
+                {
+                    mensaje = $"Extensión {extension} no permitida. Use: PDF, JPG o PNG.",
+                    codigoRetorno = 0
+                });
             }
-            else
-            {
 
-                logger.LogError(retorno.mensaje);
-                return BadRequest(retorno);
-            }
+            // 2. Deserializar el JSON que contiene el resto de los campos
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            var promocionDto = JsonSerializer.Deserialize<CrearPromocionRequestDTO>(promocionJson, options);
+
+            if (promocionDto == null)
+                return BadRequest("El formato del JSON de datos es incorrecto.");
+
+            logger.LogInformation($"ArchivoSoporte.FileName: {ArchivoSoporte.FileName}");
+            logger.LogInformation($"TipoClaseEtiqueta: {promocionDto.TipoClaseEtiqueta}");
+           
+
+            // 3. Inyectar el archivo al DTO para que el servicio siga funcionando igual
+            promocionDto.ArchivoSoporte = ArchivoSoporte;
+
+            // 4. Llamar al servicio
+            var retorno = await servicio.CrearAsync(promocionDto);
+
+            return retorno.codigoRetorno == 1 ? Ok(retorno) : BadRequest(retorno);
         }
     }
 }

@@ -41,4 +41,8 @@
 		    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    </Content>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Soportes\" />
+    </ItemGroup>
 </Project>

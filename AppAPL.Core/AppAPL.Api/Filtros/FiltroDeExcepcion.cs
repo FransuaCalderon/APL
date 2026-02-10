@@ -49,13 +49,20 @@ namespace AppAPL.Api.Filtros
         // Método para errores generales
         private ObjectResult GenerarObjectResult(int statusCode, string mensaje, string detalle)
         {
+            /*
             // Usamos el Helper de tu carpeta de utilidades
             var respuesta = RouterHelper.Formatear(
                 data: new { detalle_error = detalle },
                 httpCode: statusCode,
                 mensaje: mensaje,
                 esError: true
-            );
+            );*/
+
+            var respuesta = new
+            {
+                mensaje = mensaje,
+                detalle = detalle
+            };
 
             return new ObjectResult(respuesta) { StatusCode = statusCode };
         }
@@ -73,13 +80,20 @@ namespace AppAPL.Api.Filtros
 
             logger.LogError($"⚠️ Error Oracle {codigoError}: {mensajeError}");
 
+            /*
             // Usamos el Helper indicando que es un error
             var respuesta = RouterHelper.Formatear(
                 data: new { oracle_code = codigoError },
                 httpCode: 400,
                 mensaje: mensajeError,
                 esError: true
-            );
+            );*/
+
+            var respuesta = new
+            {
+                mensaje = mensajeError
+                
+            };
 
             return new ObjectResult(respuesta) { StatusCode = 400 };
         }
