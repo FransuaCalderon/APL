@@ -162,10 +162,24 @@
         // 5. Tipo Cliente (Lista Específica = 3) -> Abre ModalClientesEspecificos
         $("#tipoClienteGeneral").off("change").on("change", function () {
             const val = $(this).val();
-            if (val === "3") {
+
+            // Si selecciona "Lista Específica" o "Varios"
+            if (val === "3" || val === "4") {
                 $("#btnListaClienteGeneral").removeClass("d-none");
+
                 // ✅ ABRIR MODAL AUTOMÁTICAMENTE
                 $("#ModalClientesEspecificos").modal("show");
+
+                // Lógica visual opcional para el modal:
+                // Si es Lista Específica (3), activamos el modo archivo automáticamente
+                if (val === "3") {
+                    $("#chkSeleccionaFile").prop("checked", true).trigger("change");
+                }
+                // Si es Varios (4), desactivamos el modo archivo (para mostrar lista/texto)
+                else if (val === "4") {
+                    $("#chkSeleccionaFile").prop("checked", false).trigger("change");
+                }
+
             } else {
                 $("#btnListaClienteGeneral").addClass("d-none");
             }
