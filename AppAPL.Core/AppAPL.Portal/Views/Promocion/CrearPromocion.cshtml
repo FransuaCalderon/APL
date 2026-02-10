@@ -664,17 +664,18 @@
         </select>
     </div>
 
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+    <div class="col-md-2 text-center">
+        <label for="tipoClienteGeneral" class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
         <div class="input-group input-group-sm">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalClientesEspecificos">
-                <img src="~/img/ico/list-check.svg" alt="Lista">
+            <button id="btnListaClienteGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClientesEspecificos">
+                <i class="fa-solid fa-list-check"></i>
             </button>
-            <select class="form-select" id="tipoClienteCombos">
-                <option selected>Todos</option>
+            <select class="form-select" id="tipoClienteGeneral">
+                <option value="0" selected>Todos</option>
                 <option value="1">Especiales</option>
-                <option value="2">Frecuentes</option>
-                <option value="3">Lista Específica</option>
+                <option value="2">Frecuentes</option>                
+                <option value="3">Varios</option>
+                <option value="4">Lista Específica</option>
             </select>
         </div>
     </div>
