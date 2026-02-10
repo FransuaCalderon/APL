@@ -31,8 +31,8 @@
     }
 
     function getFullISOString(dateInputId, timeInputId) {
-        const dateVal = $(dateInputId).val(); // dd/mm/yyyy
-        const timeVal = $(timeInputId).val(); // HH:mm
+        const dateVal = $(dateInputId).val();
+        const timeVal = $(timeInputId).val();
 
         if (!dateVal) return null;
 
@@ -129,17 +129,14 @@
     }
 
     // -----------------------------
-    // ✅ NUEVA LÓGICA: Varios y Lista Específica (Auto-apertura)
+    // ✅ LÓGICA MODALES (Varios y Lista Específica)
     // -----------------------------
     function initLogicaVariosYArchivos() {
-        // Helper actualizado: Acepta modalId para abrirlo automáticamente
         const setupToggleBtn = (selectId, btnId, triggerVal, modalId) => {
             $(selectId).off("change").on("change", function () {
                 const val = $(this).val();
-
                 if (val === triggerVal) {
                     $(btnId).removeClass("d-none");
-                    // ✅ ABRIR MODAL AUTOMÁTICAMENTE
                     if (modalId) $(modalId).modal("show");
                 } else {
                     $(btnId).addClass("d-none");
@@ -147,48 +144,37 @@
             });
         };
 
-        // 1. Canal (Varios = 3) -> Abre ModalCanal
+        // 1. Canal (Varios = 3)
         setupToggleBtn("#filtroCanalGeneral", "#btnCanalGeneral", "3", "#ModalCanal");
 
-        // 2. Grupo Almacén (Varios = 3) -> Abre ModalGrupoAlmacen
+        // 2. Grupo Almacén (Varios = 3)
         setupToggleBtn("#filtroGrupoAlmacenGeneral", "#btnGrupoAlmacenGeneral", "3", "#ModalGrupoAlmacen");
 
-        // 3. Almacén (Varios = 3) -> Abre ModalAlmacen
+        // 3. Almacén (Varios = 3)
         setupToggleBtn("#filtroAlmacenGeneral", "#btnAlmacenGeneral", "3", "#ModalAlmacen");
 
-        // 4. Medio Pago (Varios = 7) -> Abre ModalMedioPago
+        // 4. Medio Pago (Varios = 7)
         setupToggleBtn("#filtroMedioPagoGeneral", "#btnMedioPagoGeneral", "7", "#ModalMedioPago");
 
-        // 5. Tipo Cliente (Lista Específica = 3) -> Abre ModalClientesEspecificos
+        // 5. Tipo Cliente (3=Lista, 4=Varios)
         $("#tipoClienteGeneral").off("change").on("change", function () {
             const val = $(this).val();
-
-            // Si selecciona "Lista Específica" o "Varios"
             if (val === "3" || val === "4") {
                 $("#btnListaClienteGeneral").removeClass("d-none");
-
-                // ✅ ABRIR MODAL AUTOMÁTICAMENTE
                 $("#ModalClientesEspecificos").modal("show");
 
-                // Lógica visual opcional para el modal:
-                // Si es Lista Específica (3), activamos el modo archivo automáticamente
-                if (val === "3") {
-                    $("#chkSeleccionaFile").prop("checked", true).trigger("change");
-                }
-                // Si es Varios (4), desactivamos el modo archivo (para mostrar lista/texto)
-                else if (val === "4") {
-                    $("#chkSeleccionaFile").prop("checked", false).trigger("change");
-                }
+                // Auto-check para archivo si es Lista Específica
+                if (val === "3") $("#chkSeleccionaFile").prop("checked", true).trigger("change");
+                else if (val === "4") $("#chkSeleccionaFile").prop("checked", false).trigger("change");
 
             } else {
                 $("#btnListaClienteGeneral").addClass("d-none");
             }
         });
 
-        // 6. Lógica interna del Modal Clientes (Checkbox Archivo vs Texto)
+        // 6. Lógica interna Modal Clientes
         $("#chkSeleccionaFile").on("change", function () {
             const isFileMode = $(this).is(":checked");
-
             if (isFileMode) {
                 $("#txtListaClientes").val("").prop("disabled", true);
                 $("#inputFileClientes").prop("disabled", false);
@@ -208,7 +194,7 @@
     }
 
     // -----------------------------
-    // Carga API (Sin cambios lógicos, solo estructura)
+    // CARGA DE DATOS (APIS)
     // -----------------------------
     function cargarTiposPromocion(callback) {
         const idOpcion = getIdOpcionSeguro();
@@ -231,6 +217,7 @@
             success: function (res) {
                 const data = res.json_response || [];
                 $select.empty();
+
                 if (!data.length) { $select.append("<option>Sin datos</option>"); return; }
 
                 data.forEach(function (item) {
@@ -329,6 +316,91 @@
         });
     }
 
+    // -----------------------------
+    // ✅ CARGAR COMBOS (Canal, Grupo, Almacén, Cliente, Pago)
+    // -----------------------------
+    function cargarCombosPromociones() {
+        const idOpcion = getIdOpcionSeguro();
+        if (!idOpcion) return;
+
+        // Selectores
+        const $canal = $("#filtroCanalGeneral");
+        const $grupo = $("#filtroGrupoAlmacenGeneral");
+        const $almacen = $("#filtroAlmacenGeneral");
+        const $cliente = $("#tipoClienteGeneral");
+        const $medio = $("#filtroMedioPagoGeneral");
+
+        // Loading visual
+        const loading = '<option selected>Cargando...</option>';
+        $canal.html(loading); $grupo.html(loading);
+        $almacen.html(loading); $cliente.html(loading); $medio.html(loading);
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Promocion/consultar-combos-promociones",
+            client: "APL",
+            endpoint_query_params: ""
+        };
+
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (response) {
+                const data = response.json_response || {};
+
+                // Helper mejorado: Detecta automáticamente 'nombre' o 'descripcion'
+                const llenar = ($el, items, opcionesExtra = []) => {
+                    $el.empty();
+                    if (Array.isArray(items)) {
+                        items.forEach(i => {
+                            // ✅ CORRECCIÓN: Busca nombre, si no existe usa descripcion, sino codigo
+                            const text = i.nombre || i.descripcion || i.codigo;
+                            $el.append($("<option>", { value: i.codigo, text: text }));
+                        });
+                    }
+                    // Agrega las opciones manuales (Varios, Lista Específica, etc.)
+                    opcionesExtra.forEach(opt => {
+                        $el.append($("<option>", { value: opt.val, text: opt.text }));
+                    });
+                };
+
+                // 1. Canales
+                llenar($canal, data.canales, [{ val: "3", text: "Varios" }]);
+
+                // 2. Grupos
+                llenar($grupo, data.gruposalmacenes, [{ val: "3", text: "Varios" }]);
+
+                // 3. Almacenes
+                llenar($almacen, data.almacenes, [{ val: "3", text: "Varios" }]);
+
+                // 4. Clientes - ✅ CORRECCIÓN: Agregada "Lista Específica" (3) y "Varios" (4)
+                llenar($cliente, data.tiposclientes, [
+                    { val: "3", text: "Lista Específica" },
+                    { val: "4", text: "Varios" }
+                ]);
+
+                // 5. Medios Pago - ✅ CORRECCIÓN: El helper ahora detectará 'descripcion' automáticamente
+                llenar($medio, data.mediospagos, [{ val: "7", text: "Varios" }]);
+
+                // Disparar change para que la lógica de mostrar/ocultar botones se refresque
+                $canal.trigger("change");
+                $grupo.trigger("change");
+                $almacen.trigger("change");
+                $cliente.trigger("change");
+                $medio.trigger("change");
+            },
+            error: function (xhr) {
+                console.error("Error combos promos", xhr);
+                const err = '<option>Error</option>';
+                $canal.html(err); $grupo.html(err);
+                $almacen.html(err); $cliente.html(err); $medio.html(err);
+            }
+        });
+    }
+
     function consultarProveedor() {
         const $tbody = $("#tablaProveedores tbody");
         $tbody.html('<tr><td colspan="13" class="text-center">Cargando...</td></tr>');
@@ -383,6 +455,21 @@
             },
             error: function () { $tbody.html('<tr><td colspan="13" class="text-center text-danger">Error.</td></tr>'); }
         });
+    }
+
+    function setFondoEnFormActivo(f) {
+        const tipo = getTipoPromocion();
+        if (tipo === "General") {
+            $("#fondoProveedorGeneral").val(f.display);
+            $("#fondoProveedorIdGeneral").val(f.idFondo);
+            $("#fondoDisponibleHiddenGeneral").val(f.disponible);
+        } else if (tipo === "Articulos") {
+            $("#fondoProveedorArticulos").val(f.display);
+            $("#fondoProveedorIdArticulos").val(f.idFondo);
+        } else if (tipo === "Combos") {
+            $("#fondoProveedorCombos").val(f.display);
+            $("#fondoProveedorIdCombos").val(f.idFondo);
+        }
     }
 
     function initDatepickers() {
@@ -454,13 +541,11 @@
     // ✅ INIT PRINCIPAL
     // -----------------------------
     $(document).ready(function () {
-        console.log("=== CrearPromocion INIT ===");
+        console.log("=== CrearPromocion INIT Completo ===");
 
         togglePromocionForm();
         initLogicaArticuloGeneral();
-
-        // ✅ Inicializar lógica nueva de Varios/Archivos
-        initLogicaVariosYArchivos();
+        initLogicaVariosYArchivos(); // Activa botones/modales
 
         $("#promocionTipo").change(function () {
             togglePromocionForm();
@@ -469,16 +554,20 @@
             if (tipo === "Combos" && $("#motivoCombos option").length <= 1) cargarMotivosPromociones("#motivoCombos");
         });
 
+        // Carga Inicial en Cadena
         $.get("/config").done(function (config) {
             window.apiBaseUrl = config.apiBaseUrl;
+
             cargarTiposPromocion(function () {
                 cargarMotivosPromociones("#motivoGeneral");
-                cargarFiltrosGeneral();
+                cargarFiltrosGeneral();        // Carga Marca/Div/Depto/Clase
+                cargarCombosPromociones();     // ✅ Carga Canal/Almacen/Cliente/Pago
             });
         }).fail(function () {
             cargarTiposPromocion(function () {
                 cargarMotivosPromociones("#motivoGeneral");
                 cargarFiltrosGeneral();
+                cargarCombosPromociones();
             });
         });
 
@@ -486,16 +575,18 @@
         initCurrencyItems();
 
         $("#btnGuardarPromocionGeneral").click(() => guardarPromocion("General"));
-        // ... (otros botones guardar) ...
 
         $("#modalConsultaProveedor").on("show.bs.modal", () => { proveedorTemporal = null; consultarProveedor(); });
         $("#btnAceptarProveedor").click(() => {
             if (!proveedorTemporal) return;
-            const sufijo = getTipoPromocion();
-            // Ajustar mapeo simple para demo
-            $(`#fondoProveedor${sufijo}`).val(proveedorTemporal.idFondo + " - " + proveedorTemporal.proveedor);
-            $(`#fondoProveedorId${sufijo}`).val(proveedorTemporal.idFondo);
+            const display = `${proveedorTemporal.idFondo} - ${proveedorTemporal.proveedor}`;
+            setFondoEnFormActivo({ ...proveedorTemporal, display });
             $("#modalConsultaProveedor").modal("hide");
+        });
+
+        $("#btnAddItemArticulos, #btnAddItemCombos").click((e) => {
+            e.preventDefault();
+            $("#modalConsultaItems").modal("show");
         });
 
         $(".btn-secondary[id^='btnCancelar']").click(() => location.reload());
