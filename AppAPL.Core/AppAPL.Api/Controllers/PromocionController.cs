@@ -120,6 +120,24 @@ namespace AppAPL.Api.Controllers
             return combosPromociones;
         }
 
+        [HttpGet("consultar-bandeja-aprobacion/{usuarioAprobador}")]
+        public async Task<ActionResult<List<BandAproPromocionDTO>>> ConsultarBandAprobPromocion(string usuarioAprobador)
+        {
+
+            var listaBandeja = await servicio.ConsultarBandAprobPromocion(usuarioAprobador);
+
+            return listaBandeja.ToList();
+        }
+
+        [HttpGet("consultar-bandeja-inactivacion")]
+        public async Task<ActionResult<List<BandInacPromocionDTO>>> ConsultarBandInacAcuerdo()
+        {
+
+            var listaBandeja = await servicio.ConsultarBandInacPromocion();
+
+            return listaBandeja.ToList();
+        }
+
         [HttpPost("insertar")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<ControlErroresDTO>> Insertar(

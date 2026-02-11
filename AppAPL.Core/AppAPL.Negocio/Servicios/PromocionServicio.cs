@@ -53,5 +53,11 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<GruposPromocionesDTO> CargarCombosPromociones()
             => repo.CargarCombosPromociones();
+
+        public Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion()
+            => repo.ConsultarBandInacPromocion();
+
+        public Task<IEnumerable<BandAproPromocionDTO>> ConsultarBandAprobPromocion(string usuarioAprobador)
+            => repo.ConsultarBandAprobPromocion(usuarioAprobador);
     }
 }

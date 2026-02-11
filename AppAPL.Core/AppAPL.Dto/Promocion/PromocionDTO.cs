@@ -153,6 +153,60 @@ namespace AppAPL.Dto.Promocion
         public int? incluirTodos { get; set; }
     }
 
+    public class BandInacPromocionDTO
+    {
+        public int IDAPROBACION { get; set; }
+        public int ENTIDAD { get; set; }
+        public int IDENTIDAD { get; set; }
+        public int IDTIPOPROCESO { get; set; }
+        public string IDUSERSOLICITUD { get; set; }
+        public string NOMBREUSERSOLICITUD { get; set; }
+        public DateTime FECHASOLICITUD { get; set; }
+        public string IDUSERAPROBADOR { get; set; }
+        public DateTime FECHAAPROBACION { get; set; }
+        public string COMENTARIO { get; set; }
+        public int NIVELAPROBACION { get; set; }
+        public int IDESTADOREGISTRO { get; set; }
+        public int NUMEROLOTEAPROBACION { get; set; }
+
+        public int IDPROMOCION { get; set; }
+        public string DESCRIPCION { get; set; }
+        public int MOTIVO { get; set; }
+        public int CLASEPROMOCION { get; set; }
+        public DateTime FECHAHORAINICIO { get; set; }
+        public DateTime FECHAHORAFIN { get; set; }
+        public string MARCAREGALO { get; set; }
+        public int ESTADOREGISTRO_PROMO { get; set; }
+        public string MARCAPROCESOAPROBACION { get; set; }
+        public int NUMEROLOTE_PROMO { get; set; }
+        public string ARCHIVOSOPORTE { get; set; }
+    }
+
+    public class BandAproPromocionDTO
+    {
+        public int IDAPROBACION { get; set; }
+        public int IDPROMOCION { get; set; }
+        public int SOLICITUD { get; set; }
+        public string NOMBRE_SOLICITUD { get; set; }
+        public int IDUSERSOLICITUD { get; set; }
+        public string USUARIOSOLICITA { get; set; }
+        public DateTime FECHASOLICITUD { get; set; }
+        public string IDUSERAPROBADOR { get; set; }
+        public int NIVELAPROBACION { get; set; }
+        public int ESTADOAPROBACION { get; set; }
+        public int NUMEROLOTEAPROBACION { get; set; }
+
+        public string DESCRIPCION { get; set; }
+        public int MOTIVO { get; set; }
+        public int CLASEPROMOCION { get; set; }
+        public string NOMBRE_CLASE_PROMOCION { get; set; } //cc
+        public DateTime FECHAHORAINICIO { get; set; }
+        public DateTime FECHAHORAFIN { get; set; }
+        public string MARCAREGALO { get; set; }
+        public int ESTADOPROMOCION { get; set; }
+        public string NOMBRE_ESTADO { get; set; }
+    }
+
     public class CrearPromocionRequestDTO
     {
         // Parámetros directos

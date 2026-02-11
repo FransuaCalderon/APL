@@ -478,6 +478,68 @@ namespace AppAPL.AccesoDatos.Repositorio
             return resultado;
         }
 
+        public async Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+
+            var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            //parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            //parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<BandInacPromocionDTO>(
+                "APL_PKG_PROMOCIONES.sp_bandeja_inactivacion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+
+            //string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            //int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
+        public async Task<IEnumerable<BandAproPromocionDTO>> ConsultarBandAprobPromocion(string usuarioAprobador)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new
+            {
+                p_usuario = usuarioAprobador
+            };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            /*
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            */
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<BandAproPromocionDTO>(
+                "APL_PKG_PROMOCIONES.sp_bandeja_aprobacion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            /*
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+            */
+            return datos;
+        }
+
         public async Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion)
         {
 

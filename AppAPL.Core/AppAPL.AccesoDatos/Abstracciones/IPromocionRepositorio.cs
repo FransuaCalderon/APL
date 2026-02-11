@@ -14,6 +14,8 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen();
         Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente();
         Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia();
+        Task<IEnumerable<BandAproPromocionDTO>> ConsultarBandAprobPromocion(string usuarioAprobador);
+        Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion();
         Task<IEnumerable<CanalDTO>> ConsultarCanal();
         Task<IEnumerable<GrupoAlmacenDTO>> ConsultarGrupoAlmacen();
         Task<IEnumerable<OtrosCostosDTO>> ConsultarOtrosCostos();
