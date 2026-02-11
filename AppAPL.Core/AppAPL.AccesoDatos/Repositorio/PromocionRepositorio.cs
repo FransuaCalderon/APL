@@ -547,7 +547,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
             // 1. Obtener la ruta desde el appsettings
-            string folderPath = configuration["Rutas:CarpetaSoportes"];
+            string folderPath = configuration["ConfiguracionArchivos:CarpetaSoportes"];
                                 //?? Path.Combine(AppContext.BaseDirectory, "Soportes");
 
             string rutaFisicaFinal = string.Empty;

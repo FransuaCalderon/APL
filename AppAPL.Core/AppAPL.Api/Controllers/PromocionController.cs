@@ -4,6 +4,7 @@ using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Promocion;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
+using System.Configuration;
 using System.Text.Json;
 
 namespace AppAPL.Api.Controllers
@@ -12,7 +13,7 @@ namespace AppAPL.Api.Controllers
     [Route("api/[controller]")]
     //[ApiExplorerSettings(IgnoreApi = true)]
 
-    public class PromocionController(ILogger<PromocionController> logger, IPromocionServicio servicio) : ControllerBase
+    public class PromocionController(ILogger<PromocionController> logger, IPromocionServicio servicio, IConfiguration configuration) : ControllerBase
     {
 
         [HttpGet("consultar-promocion")]
@@ -148,8 +149,20 @@ namespace AppAPL.Api.Controllers
             if (ArchivoSoporte == null || ArchivoSoporte.Length == 0)
                 return BadRequest("El archivo de soporte es obligatorio.");
 
+            // --- NUEVA VALIDACIÓN DE TAMAÑO ---
+            var maxMB = configuration.GetValue<int>("ConfiguracionArchivos:MaximoTamanoMB");
+            long maximoBytes = maxMB * 1024 * 1024;
+            if (ArchivoSoporte.Length > maximoBytes)
+            {
+                return BadRequest(new ControlErroresDTO
+                {
+                    mensaje = $"El archivo excede el límite permitido de 5MB. Tamaño actual: {(ArchivoSoporte.Length / 1024.0 / 1024.0):F2}MB",
+                    codigoRetorno = 0
+                });
+            }
+
             // 2. Validar extensión
-            var extensionesPermitidas = new[] { ".pdf", ".xls", ".xlsx" };
+            var extensionesPermitidas = configuration.GetSection("ConfiguracionArchivos:ExtensionesPermitidas").Get<string[]>();
             var extension = Path.GetExtension(ArchivoSoporte.FileName).ToLower();
 
             if (!extensionesPermitidas.Contains(extension))

@@ -494,47 +494,99 @@
 
         const fechaInicio = getFullISOString(`#fechaInicio${sufijo}`, `#timeInicio${sufijo}`);
         const fechaFin = getFullISOString(`#fechaFin${sufijo}`, `#timeFin${sufijo}`);
-
+        
         if (!motivo || !desc) { Swal.fire("Error", "Faltan datos", "warning"); return; }
         if (!fechaInicio || !fechaFin) { Swal.fire("Error", "Fechas inválidas", "warning"); return; }
 
+
         const body = {
-            tipoclaseetiqueta: tipo === "General" ? "PRGENERAL" : (tipo === "Combos" ? "PRCOMBO" : "PRARTICULO"),
-            idopcion: getIdOpcionSeguro(),
-            promocion: {
-                idTipoPromocion: (tipo === "General" ? idCatalogoGeneral : (tipo === "Combos" ? idCatalogoCombos : idCatalogoArticulo)),
-                idMotivoPromocion: parseInt(motivo),
-                descripcion: desc,
-                fechaInicioVigencia: fechaInicio,
-                fechaFinVigencia: fechaFin,
-                idUsuarioIngreso: getUsuario()
+            "tipoclaseetiqueta": "PRGENERAL", // modificar segun el parametro
+            "idopcion": getIdOpcionSeguro(),
+            "idcontrolinterfaz": "BTNGRABAR",
+            "ideventoetiqueta": "EVCLICK",
+            "promocion": {
+                "descripcion": $("#descripcionGeneral").val(),
+                "motivo": parseInt($("#motivoGeneral").val(), 10) || 0,
+                "clasepromocion": 1,
+                "fechahorainicio": fechaInicio,
+                "fechahorafin": fechaFin,
+                "marcaregalo": $("#regaloGeneral").val(),
+                "marcaprocesoaprobacion": "",
+                "idusuarioingreso": getUsuario(),
+                "nombreusuario": getUsuario(),
             },
-            fondo: {
-                idFondo: parseInt($(`#fondoProveedorId${sufijo}`).val()) || 0,
-                valorAporte: parseCurrencyToNumber($(`#fondoValorTotal${sufijo}`).val())
-            },
-            articulos: []
+            "acuerdos": [
+                { "idacuerdo": 6, "porcentajedescuento": 15.00, "valorcomprometido": 10000.00 },
+                { "idacuerdo": 8, "porcentajedescuento": 5.00, "valorcomprometido": 2500.00 }
+            ],
+            "segmentos": [
+                { "tiposegmento": "SEGMARCA", "tipoasignacion": "T", "codigos": [] },
+                { "tiposegmento": "SEGDIVISION", "tipoasignacion": "C", "codigos": ["DIV01", "DIV02"] }
+            ]
         };
 
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "POST",
+            endpoint_path: "/api/promocion/insertar",
+            //endpoint_query_params: "",
+            client: "APL",
+            body_request: body
+        }
+
+        var formData = new FormData();
+        var fileInput = $('#inputGroupFile24')[0].files[0];
+
+
+        formData.append("ArchivoSoporte", fileInput);
+        formData.append("RouterRequestJson", JSON.stringify(payload));
+
+        console.log('body: ', payload);
+
         Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
+
 
         $.ajax({
             url: "/api/apigee-router-proxy",
             method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify({
-                code_app: "APP20260128155212346",
-                http_method: "POST",
-                endpoint_path: "api/Promocion/insertar",
-                client: "APL",
-                body_request: body
-            }),
+            processData: false,
+            contentType: false,
+            data: formData,
             success: function (res) {
                 if (res?.code_status === 200) Swal.fire("Éxito", "Guardado", "success");
                 else Swal.fire("Error", res?.json_response?.mensaje || "Fallo", "error");
             },
             error: function () { Swal.fire("Error", "Error de comunicación", "error"); }
         });
+    }
+
+    function gestionarCambioArchivo(input) {
+        const fileNameSpan = document.getElementById('fileName');
+
+        // 1. Validar si hay un archivo seleccionado
+        if (!input.files || input.files.length === 0) {
+            fileNameSpan.textContent = "Ningún archivo seleccionado";
+            return;
+        }
+
+        const archivo = input.files[0];
+        const maxMB = parseFloat(input.getAttribute('data-max-mb')) || 5;
+        const maxBytes = maxMB * 1024 * 1024;
+
+        // 2. Validar Tamaño
+        if (archivo.size > maxBytes) {
+            alert(`El archivo "${archivo.name}" es muy pesado. El límite es de ${maxMB}MB.`);
+
+            // Resetear el input y el texto
+            input.value = "";
+            fileNameSpan.textContent = "Ningún archivo seleccionado";
+            return;
+        }
+
+        // 3. Si todo está bien, actualizar el nombre (tu lógica original)
+        fileNameSpan.textContent = archivo.name;
+
+        console.log("Archivo validado y listo:", archivo.name);
     }
 
     // -----------------------------
@@ -590,5 +642,10 @@
         });
 
         $(".btn-secondary[id^='btnCancelar']").click(() => location.reload());
+
+        // Conectamos el evento change a nuestra función externa
+        $('#inputGroupFile24').on('change', function () {
+            gestionarCambioArchivo(this); // 'this' le pasa el elemento del input a la función
+        });
     });
 })();

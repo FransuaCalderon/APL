@@ -318,7 +318,7 @@
         <div class="col-12 p-0">
             <div class="input-group input-group-sm">
                 <label class="btn btn-secondary" for="inputGroupFile24">Buscar Archivo</label>
-                <input type="file" class="form-control d-none" id="inputGroupFile24" onchange="document.getElementById('fileName').textContent = this.files[0] ? this.files[0].name : 'Ningún archivo seleccionado'">
+                <input type="file" class="form-control d-none" id="inputGroupFile24" data-max-mb="@ViewBag.MaximoTamanoMB" accept="@ViewBag.ExtensionesPermitidas">
                 <span class="form-control" id="fileName">Ningún archivo seleccionado</span>
             </div>
         </div>

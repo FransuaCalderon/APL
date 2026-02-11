@@ -1,6 +1,8 @@
 ﻿using AppAPL.Dto.Router;
 using Microsoft.AspNetCore.Mvc;
+using MimeKit;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -25,47 +27,103 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("execute")]
-        public async Task<IActionResult> Execute([FromBody] RouterRequest request)
+        //[Consumes("multipart/form-data", "application/json")]
+        public async Task<ActionResult> Execute([FromForm] RouterExecuteRequest form)
         {
-            // 1. Configurar cliente interno
+            RouterRequest? request = null;
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+            // 1. DETERMINAR EL ORIGEN DE LA PETICIÓN
+            // Caso A: Viene como Form-Data (probablemente desde el Front con archivos)
+            if (!string.IsNullOrEmpty(form.RouterRequestJson))
+            {
+                request = JsonSerializer.Deserialize<RouterRequest>(form.RouterRequestJson, options);
+            }
+            // Caso B: Viene como JSON puro en el Body (Retrocompatibilidad)
+            else
+            {
+                Request.EnableBuffering(); // Permite leer el body múltiples veces en .NET 9
+                using var reader = new StreamReader(Request.Body, Encoding.UTF8, leaveOpen: true);
+                var body = await reader.ReadToEndAsync();
+                Request.Body.Position = 0; // Reset por si otro middleware lo necesita
+
+                if (!string.IsNullOrEmpty(body))
+                {
+                    request = JsonSerializer.Deserialize<RouterRequest>(body, options);
+                }
+            }
+
+            if (request == null)
+                return BadRequest(new { status = "error", message = "No se pudo procesar la estructura RouterRequest" });
+
+            // 2. CONFIGURAR CLIENTE HTTP INTERNO
             var baseUrl = $"{Request.Scheme}://{Request.Host}/";
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(baseUrl);
 
-            // Reenviar el token que el front mandó (sea el real o el simulado)
+            // Reenviar el token de autorización
             if (Request.Headers.TryGetValue("Authorization", out var authHeader))
-                client.DefaultRequestHeaders.Add("Authorization", authHeader.ToString());
+                client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(authHeader.ToString().Replace("Bearer ", ""));
 
-            // 2. Preparar el cuerpo (Body_Request)
-            HttpContent? content = null;
-            if (request.Body_Request.HasValue && request.Body_Request.Value.ValueKind != JsonValueKind.Null)
+            // 3. PREPARAR EL CONTENIDO PARA EL REENVÍO (PAYLOAD)
+            HttpContent? contentToSend = null;
+
+            if (form.ArchivoSoporte != null)
             {
-                content = new StringContent(request.Body_Request.Value.GetRawText(), Encoding.UTF8, "application/json");
+                // REENVÍO MULTIPART (CON ARCHIVO)
+                var multipart = new MultipartFormDataContent();
+
+                // Agregar Archivo
+                var fileStreamContent = new StreamContent(form.ArchivoSoporte.OpenReadStream());
+                fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue(form.ArchivoSoporte.ContentType);
+                multipart.Add(fileStreamContent, "ArchivoSoporte", form.ArchivoSoporte.FileName);
+
+                // Agregar el JSON de negocio que viene en Body_Request
+                if (request.Body_Request.HasValue && request.Body_Request.Value.ValueKind != JsonValueKind.Null)
+                {
+                    // Lo mandamos como 'promocionJson' para que coincida con tu endpoint real
+                    var jsonContent = request.Body_Request.Value.GetRawText();
+                    multipart.Add(new StringContent(jsonContent, Encoding.UTF8, "application/json"), "promocionJson");
+                }
+                contentToSend = multipart;
+            }
+            else if (request.Body_Request.HasValue && request.Body_Request.Value.ValueKind != JsonValueKind.Null)
+            {
+                // REENVÍO JSON SIMPLE
+                var jsonBody = request.Body_Request.Value.GetRawText();
+                contentToSend = new StringContent(jsonBody, Encoding.UTF8, "application/json");
             }
 
-            // 3. Ejecutar la llamada dinámica
+            // 4. EJECUTAR LLAMADA AL ENDPOINT FINAL
             string fullPath = $"{request.Endpoint_Path}{request.Endpoint_Query_Params ?? ""}";
+            HttpResponseMessage response;
 
-            var response = request.Http_Method.ToUpper() switch
+            try
             {
-                "GET" => await client.GetAsync(fullPath),
-                "POST" => await client.PostAsync(fullPath, content),
-                //"PUT" => await client.PutAsync(fullPath, content),
-                //"DELETE" => await client.DeleteAsync(fullPath),
-                _ => new HttpResponseMessage(System.Net.HttpStatusCode.MethodNotAllowed)
-            };
+                response = request.Http_Method.ToUpper() switch
+                {
+                    "GET" => await client.GetAsync(fullPath),
+                    "POST" => await client.PostAsync(fullPath, contentToSend),
+                    "PUT" => await client.PutAsync(fullPath, contentToSend),
+                    _ => new HttpResponseMessage(System.Net.HttpStatusCode.MethodNotAllowed)
+                };
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { status = "error", message = $"Error interno al llamar al endpoint: {ex.Message}" });
+            }
 
-            // 4. Formatear respuesta igual al API Router
+            // 5. PROCESAR Y RETORNAR RESPUESTA ESTÁNDAR
             var resString = await response.Content.ReadAsStringAsync();
-            object? jsonBody;
-            try { jsonBody = JsonSerializer.Deserialize<JsonElement>(resString); }
-            catch { jsonBody = resString; }
+            object? jsonBodyRes;
+            try { jsonBodyRes = JsonSerializer.Deserialize<JsonElement>(resString); }
+            catch { jsonBodyRes = resString; }
 
             return Ok(new RouterResponse
             {
                 Status = response.IsSuccessStatusCode ? "ok" : "error",
                 Code_Status = (int)response.StatusCode,
-                Json_Response = jsonBody,
+                Json_Response = jsonBodyRes,
                 UniTransac = DateTime.Now.ToString("yyyyMMddHHmmssffff")
             });
         }

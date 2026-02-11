@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,5 +25,11 @@ namespace AppAPL.Dto.Router
         public int Code_Status { get; set; } = 200;
         public object? Json_Response { get; set; }
         public string UniTransac { get; set; } = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+    }
+
+    public class RouterExecuteRequest
+    {
+        public IFormFile? ArchivoSoporte { get; set; }
+        public string? RouterRequestJson { get; set; }
     }
 }

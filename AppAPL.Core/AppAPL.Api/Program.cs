@@ -42,6 +42,7 @@ if (swaggerEnabled)
 
         c.EnableAnnotations();
 
+        c.CustomSchemaIds(type => type.FullName);
         // Esto soluciona el error de generación de parámetros con IFormFile
         c.MapType<IFormFile>(() => new OpenApiSchema
         {
@@ -61,6 +62,27 @@ builder.Services.AddDataAccess(builder.Configuration)
 
 //agregamos contenedor de inyeccion de dependencias
 builder.Services.AddInforcloudScopedDependencies();
+
+
+// --- 1. LEER LA CONFIGURACIÓN DEL JSON ---
+// Obtenemos el valor de MB para usarlo en las configuraciones
+var maxMB = builder.Configuration.GetValue<int>("ConfiguracionArchivos:MaximoTamanoMB");
+if (maxMB <= 0) maxMB = 30; // Un valor por defecto por seguridad si el JSON falla
+
+// --- 2. CONFIGURAR LÍMITES DE KESTREL (Servidor) ---
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    // Límite para formularios multipart (subida de archivos)
+    options.MultipartBodyLengthLimit = maxMB * 1024 * 1024;
+});
+
+// --- 3. CONFIGURAR LÍMITES DE IIS (Si usas IIS en el servidor) ---
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = maxMB * 1024 * 1024;
+});
+
+
 
 bool UsarFormatoRespuestaGlobal = builder.Configuration.GetValue<bool>("RouterConfig:UsarFormatoGlobal");
 // MVC

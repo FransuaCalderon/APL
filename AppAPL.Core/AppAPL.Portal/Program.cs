@@ -110,43 +110,47 @@ app.MapControllerRoute(
 app.MapPost("/api/apigee-router-proxy", async (
     ApigeeTokenService tokenService,
     IHttpClientFactory clientFactory,
-    IConfiguration config, // <--- Inyectamos la configuración
+    IConfiguration config,
     HttpContext context
     ) =>
 {
-    try
+    var token = await tokenService.GetTokenAsync();
+    var client = clientFactory.CreateClient("ApiClient");
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    var urlUnicomer = config["ApiSettings:BaseUrl"];
+
+    HttpContent contentToSend;
+
+    // 1. DETECTAR EL CONTENT-TYPE
+    if (context.Request.ContentType?.StartsWith("multipart/form-data") == true)
     {
-        // 1. Obtener el token
-        var token = await tokenService.GetTokenAsync();
-        Console.WriteLine($"token: {token}");
+        // Lógica para ARCHIVOS (la que hicimos antes)
+        var multipartContent = new MultipartFormDataContent();
+        var form = await context.Request.ReadFormAsync();
 
-
-        // 2. Leer el cuerpo de la petición (payload del JS)
+        foreach (var file in form.Files)
+        {
+            var fileStreamContent = new StreamContent(file.OpenReadStream());
+            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+            multipartContent.Add(fileStreamContent, file.Name, file.FileName);
+        }
+        foreach (var key in form.Keys)
+        {
+            multipartContent.Add(new StringContent(form[key]), key);
+        }
+        contentToSend = multipartContent;
+    }
+    else
+    {
+        // Lógica para JSON NORMAL (la que tenías antes)
         using var reader = new StreamReader(context.Request.Body);
         var requestBody = await reader.ReadToEndAsync();
-
-        //Console.WriteLine($"requestBody: {requestBody}");
-
-        // 3. Configurar el cliente HTTP
-        var client = clientFactory.CreateClient("ApiClient");
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        // 4. Leer la URL desde appsettings.json
-        var urlUnicomer = config["ApiSettings:BaseUrl"];
-        Console.WriteLine($"urlUnicomer: {urlUnicomer}");
-        var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
-
-        // 5. Llamar a Unicomer usando la URL de la configuración
-        var response = await client.PostAsync(urlUnicomer, content);
-        Console.WriteLine($"response: {response}");
-        // 6. Retornar respuesta al navegador
-        var responseData = await response.Content.ReadAsStringAsync();
-        return Results.Content(responseData, "application/json", statusCode: (int)response.StatusCode);
+        contentToSend = new StringContent(requestBody, Encoding.UTF8, "application/json");
     }
-    catch (Exception ex)
-    {
-        return Results.Json(new { error = "Error en el servidor proxy", message = ex.Message }, statusCode: 500);
-    }
+
+    var response = await client.PostAsync(urlUnicomer, contentToSend);
+    var responseData = await response.Content.ReadAsStringAsync();
+    return Results.Content(responseData, "application/json", statusCode: (int)response.StatusCode);
 });
 
 // Endpoint para simular u obtener el token de Apigee

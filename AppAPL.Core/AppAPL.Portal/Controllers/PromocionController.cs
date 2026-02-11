@@ -2,7 +2,7 @@
 
 namespace AppWebAPL.Controllers
 {
-    public class PromocionController : Controller
+    public class PromocionController(IConfiguration configuration) : Controller
     {
         public IActionResult CrearPromocion()
         {
@@ -17,6 +17,18 @@ namespace AppWebAPL.Controllers
 
             // 3️⃣ Lo pasas a la vista
             ViewBag.UsuarioActual = usuario;
+
+            // Leemos el valor del appsettings.json
+            var maxMB = configuration.GetValue<int>("ConfiguracionArchivos:MaximoTamanoMB");
+
+            // Lo pasamos a la vista
+            ViewBag.MaximoTamanoMB = maxMB;
+
+
+            // Leer extensiones y unirlas: ".pdf,.xls,.xlsx"
+            var extensiones = configuration.GetSection("ConfiguracionArchivos:ExtensionesPermitidas").Get<string[]>();
+            ViewBag.ExtensionesPermitidas = string.Join(",", extensiones);
+
             return View();
         }
     }
