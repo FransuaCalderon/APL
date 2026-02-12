@@ -26,5 +26,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<GruposPromocionesDTO> CargarCombosPromociones();
         Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion();
         Task<IEnumerable<BandAproPromocionDTO>> ConsultarBandAprobPromocion(string usuarioAprobador);
+        Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo);
     }
 }

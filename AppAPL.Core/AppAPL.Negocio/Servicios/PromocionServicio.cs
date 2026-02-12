@@ -59,5 +59,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<BandAproPromocionDTO>> ConsultarBandAprobPromocion(string usuarioAprobador)
             => repo.ConsultarBandAprobPromocion(usuarioAprobador);
+
+        public Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo)
+            => repo.ConsultarAcuerdo(tipoFondo, claseAcuerdo);
     }
 }

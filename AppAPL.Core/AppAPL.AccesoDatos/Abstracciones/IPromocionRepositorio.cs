@@ -11,6 +11,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
     public interface IPromocionRepositorio
     {
         Task<GruposPromocionesDTO> CargarCombosPromociones();
+        Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo);
         Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen();
         Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente();
         Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia();

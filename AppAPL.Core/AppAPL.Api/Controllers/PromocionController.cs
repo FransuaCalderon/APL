@@ -121,6 +121,15 @@ namespace AppAPL.Api.Controllers
             return combosPromociones;
         }
 
+        [HttpGet("consultar-acuerdo/{tipoFondo}/{claseAcuerdo}")]
+        public async Task<ActionResult<List<AcuerdoPromoDTO>>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo)
+        {
+
+            var listaBandeja = await servicio.ConsultarAcuerdo(tipoFondo.Trim(), claseAcuerdo.Trim());
+
+            return listaBandeja.ToList();
+        }
+
         [HttpGet("consultar-bandeja-aprobacion/{usuarioAprobador}")]
         public async Task<ActionResult<List<BandAproPromocionDTO>>> ConsultarBandAprobPromocion(string usuarioAprobador)
         {
@@ -157,7 +166,7 @@ namespace AppAPL.Api.Controllers
                 return BadRequest(new ControlErroresDTO
                 {
                     mensaje = $"El archivo excede el límite permitido de 5MB. Tamaño actual: {(ArchivoSoporte.Length / 1024.0 / 1024.0):F2}MB",
-                    codigoRetorno = 0
+                    codigoRetorno = 1
                 });
             }
 
@@ -167,10 +176,11 @@ namespace AppAPL.Api.Controllers
 
             if (!extensionesPermitidas.Contains(extension))
             {
+                var extensionesJoin = string.Join(",", extensionesPermitidas);
                 return BadRequest(new ControlErroresDTO
                 {
-                    mensaje = $"Extensión {extension} no permitida. Use: PDF, JPG o PNG.",
-                    codigoRetorno = 0
+                    mensaje = $"Extensión {extension} no permitida. Use las extensiones permitidas: {extensionesJoin}",
+                    codigoRetorno = 1
                 });
             }
 

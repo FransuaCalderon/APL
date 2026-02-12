@@ -478,6 +478,40 @@ namespace AppAPL.AccesoDatos.Repositorio
             return resultado;
         }
 
+        public async Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new
+            {
+                p_etiqueta_tipo_fondo = tipoFondo,
+                p_etiqueta_clase_acuerdo = claseAcuerdo
+            };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            
+            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<AcuerdoPromoDTO>(
+                "APL_PKG_PROMOCIONES.sp_consulta_acuerdo",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            
+            string? mensajeSalida = parameters.Get<string>("p_mensaje");
+            int? codigoSalida = parameters.Get<int>("p_codigo");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+            
+            return datos;
+        }
+
         public async Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion()
         {
             using var connection = factory.CreateOpenConnection();
