@@ -1,6 +1,141 @@
-﻿namespace AppAPL.Portal.Views.Promocion
-{
-    public class AprobarPromocion
-    {
-    }
+﻿@{
+    ViewData["Title"] = "Aprobación de Promociones";
+    var usuarioActual = ViewBag.UsuarioActual as string;
 }
+
+@section Scripts {
+    <script>
+        window.usuarioActual = '@usuarioActual';
+    </script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <script src="~/js/Promocion/AprobarPromocion.js" asp-append-version="true"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+}
+
+<h2>Aprobar - Promociones</h2>
+<hr class="separador-fondos" />
+
+<link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
+
+<div id="vistaTabla" class="table-responsive">
+    <div id="tabla">
+    </div>
+</div>
+
+<div id="vistaDetalle" style="display:none;">
+
+    <div class="card border-secondary mb-3">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-dark">Detalle de la Promoción #<span id="lblIdPromocion"></span></h5>
+
+            <button type="button" class="btn btn-sm btn-outline-dark" id="btnVolverTabla">
+                <i class="fa-solid fa-arrow-left"></i> Volver a la Bandeja
+            </button>
+        </div>
+
+        <div class="card-body">
+            <form id="formVisualizar" class="row g-1">
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Solicitud</label>
+                    <input type="text" class="form-control form-control-sm" id="verSolicitud" readonly disabled>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Motivo</label>
+                    <input type="text" class="form-control form-control-sm" id="verMotivo" readonly disabled>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Clase de Promoción</label>
+                    <input type="text" class="form-control form-control-sm" id="verClasePromocion" readonly disabled>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Estado</label>
+                    <input type="text" class="form-control form-control-sm" id="verEstado" readonly disabled>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold col-form-label-sm">Descripción</label>
+                    <input type="text" class="form-control form-control-sm" id="verDescripcion" readonly disabled>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Usuario Solicita</label>
+                    <input type="text" class="form-control form-control-sm" id="verUsuarioSolicita" readonly disabled>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Fecha Solicitud</label>
+                    <div class="input-group input-group-sm">
+                        <input id="verFechaSolicitud" type="text" class="form-control form-control-sm" readonly disabled>
+                        <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Fecha Inicio</label>
+                    <div class="input-group input-group-sm">
+                        <input id="verFechaInicio" type="text" class="form-control form-control-sm" readonly disabled>
+                        <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Fecha Fin</label>
+                    <div class="input-group input-group-sm">
+                        <input id="verFechaFin" type="text" class="form-control form-control-sm" readonly disabled>
+                        <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Regalo</label>
+                    <input type="text" class="form-control form-control-sm" id="verRegalo" readonly disabled>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold col-form-label-sm">Soporte</label>
+                    <input type="text" class="form-control form-control-sm" id="verSoporte" readonly disabled>
+                </div>
+
+                <hr class="mt-3 mb-3" />
+
+                <div class="col-12 mt-2" id="contenedor-tabla-articulos" style="display:none;">
+                </div>
+
+                <div class="col-12 mt-2" id="contenedor-tabla-combos" style="display:none;">
+                </div>
+
+                <div class="custom-form-row mt-3">
+                    <div class="custom-form-col w-100">
+                        <label class="form-label fw-bold col-form-label-sm" for="modal-promocion-comentario">Comentario de Aprobación/Rechazo:</label>
+                        <textarea class="form-control" rows="3" maxlength="200" id="modal-promocion-comentario" name="comentario"></textarea>
+                    </div>
+                </div>
+            </form>
+
+            <hr class="custom-divider mt-4">
+
+            <h5 class="custom-section-title mt-3 mb-3">
+                <i class="fa-solid fa-list-check"></i> Historial de Aprobaciones
+            </h5>
+            <div class="custom-table-container">
+                <div id="tabla-aprobaciones-promocion"></div>
+            </div>
+        </div>
+
+        <div class="card-footer text-end">
+            <button type="button" class="btn btn-secondary" id="btnVolverAbajo">Cancelar</button>
+            <button type="button" class="custom-btn-danger" id="btnRechazarPromocion">
+                <i class="fa-solid fa-circle-xmark custom-btn-icon"></i>
+                Rechazar
+            </button>
+            <button type="button" class="custom-btn-primary" id="btnAprobarPromocion">
+                <i class="fa-solid fa-circle-check custom-btn-icon"></i>
+                Aprobar
+            </button>
+        </div>
+    </div>
+</div>
