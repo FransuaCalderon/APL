@@ -1,18 +1,36 @@
-﻿// ~/js/Promocion/CrearPromocion.js
+﻿//Path: ~/js/Promocion/CrearPromocion.js
 
 (function () {
     "use strict";
 
-    // ✅ VARIABLES GLOBALES
+    // ==========================================
+    // VARIABLES GLOBALES
+    // ==========================================
     let idCatalogoGeneral = null;
     let idCatalogoArticulo = null;
     let idCatalogoCombos = null;
 
     let proveedorTemporal = null;
+    let propioTemporal = null;
 
-    // -----------------------------
-    // Helpers base
-    // -----------------------------
+    // Configuración para el manejo unificado de "Varios"
+    // Mapea: Select -> Botón Apertura -> Modal Body -> Botón Aceptar Modal -> Valor Trigger "Varios"
+    const CONFIG_MULTIPLE = [
+        // Jerarquía
+        { id: "marca", select: "#filtroMarcaGeneral", btnOpen: "#btnMarcaGeneral", body: "#bodyModalMarca", btnAccept: "#btnAceptarMarca", triggerVal: "3" },
+        { id: "division", select: "#filtroDivisionGeneral", btnOpen: "#btnDivisionGeneral", body: "#bodyModalDivision", btnAccept: "#btnAceptarDivision", triggerVal: "3" },
+        { id: "depto", select: "#filtroDepartamentoGeneral", btnOpen: "#btnDepartamentoGeneral", body: "#bodyModalDepartamento", btnAccept: "#btnAceptarDepartamento", triggerVal: "3" },
+        { id: "clase", select: "#filtroClaseGeneral", btnOpen: "#btnClaseGeneral", body: "#bodyModalClase", btnAccept: "#btnAceptarClase", triggerVal: "3" },
+        // Otros Filtros
+        { id: "canal", select: "#filtroCanalGeneral", btnOpen: "#btnCanalGeneral", body: "#bodyModalCanal", btnAccept: "#btnAceptarCanal", triggerVal: "3" },
+        { id: "grupo", select: "#filtroGrupoAlmacenGeneral", btnOpen: "#btnGrupoAlmacenGeneral", body: "#bodyModalGrupoAlmacen", btnAccept: "#btnAceptarGrupoAlmacen", triggerVal: "3" },
+        { id: "almacen", select: "#filtroAlmacenGeneral", btnOpen: "#btnAlmacenGeneral", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" },
+        { id: "mediopago", select: "#filtroMedioPagoGeneral", btnOpen: "#btnMedioPagoGeneral", body: "#bodyModalMedioPago", btnAccept: "#btnAceptarMedioPago", triggerVal: "7" } // Ojo: Medio pago suele usar 7 u otro valor
+    ];
+
+    // ==========================================
+    // HELPERS & UTILS
+    // ==========================================
     function getUsuario() {
         return window.usuarioActual || "admin";
     }
@@ -33,49 +51,16 @@
     function getFullISOString(dateInputId, timeInputId) {
         const dateVal = $(dateInputId).val();
         const timeVal = $(timeInputId).val();
-
         if (!dateVal) return null;
-
         const [dd, mm, yyyy] = dateVal.split("/").map(Number);
         const fecha = new Date(yyyy, mm - 1, dd);
-
         if (timeVal) {
             const [hh, min] = timeVal.split(":").map(Number);
             fecha.setHours(hh || 0);
             fecha.setMinutes(min || 0);
         }
-
         const offset = fecha.getTimezoneOffset() * 60000;
         return (new Date(fecha - offset)).toISOString().slice(0, -1);
-    }
-
-    function isValidDateDDMMYYYY(s) {
-        if (!s || !/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return false;
-        const [dd, mm, yyyy] = s.split("/").map(Number);
-        const d = new Date(yyyy, mm - 1, dd);
-        return d.getFullYear() === yyyy && d.getMonth() === mm - 1 && d.getDate() === dd;
-    }
-
-    function parseCurrencyToNumber(monedaStr) {
-        if (!monedaStr) return 0;
-        let v = String(monedaStr).trim();
-        v = v.replace(/\$/g, "").replace(/\s/g, "");
-        if (!v) return 0;
-
-        const tieneComaDecimal = v.includes(',');
-        const tienePuntoDecimal = v.includes('.');
-
-        if (tieneComaDecimal) {
-            v = v.replace(/\./g, "").replace(",", ".");
-        } else if (tienePuntoDecimal) {
-            const partes = v.split('.');
-            if (partes.length === 2 && partes[1].length <= 2) {
-                // Es decimal
-            } else {
-                v = v.replace(/\./g, "");
-            }
-        }
-        return parseFloat(v) || 0;
     }
 
     function formatCurrencySpanish(value) {
@@ -89,8 +74,27 @@
         return `$ ${formatter.format(number)}`;
     }
 
+    function parseCurrency(str) {
+        if (!str) return 0;
+        // Elimina todo lo que no sea número o punto (asumiendo formato guardado o crudo)
+        // Si viene con formato español (1.000,00), hay que normalizar.
+        // Estrategia simple: limpiar no numéricos excepto coma y punto.
+        let clean = str.toString().replace(/[^0-9.,-]/g, '');
+        // Si tiene coma como decimal, reemplazar.
+        if (clean.includes(',') && !clean.includes('.')) clean = clean.replace(',', '.');
+        else if (clean.includes(',') && clean.includes('.')) clean = clean.replace(/\./g, '').replace(',', '.');
+        return parseFloat(clean) || 0;
+    }
+
     function getTipoPromocion() {
         return $("#promocionTipo").val();
+    }
+
+    function getClaseAcuerdo() {
+        const tipo = getTipoPromocion();
+        if (tipo === "Articulos") return "CLAARTICULO";
+        if (tipo === "Combos") return "CLACOMBO";
+        return "CLAGENERAL";
     }
 
     function togglePromocionForm() {
@@ -100,102 +104,215 @@
         $("#formCombos").toggle(tipo === "Combos");
     }
 
-    function manejarErrorGlobal(xhr, accion) {
-        console.error(`QA Report - Error al ${accion}:`, xhr.responseText);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error de Comunicación',
-            text: `No se pudo completar la acción: ${accion}.`
-        });
-    }
+    // Helper para llenar Select y Modal simultáneamente
+    const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo) => {
+        // 1. Llenar Select
+        $select.empty();
+        $select.append(`<option selected value="">${labelDefault}</option>`);
+        // Opción Varios
+        $select.append(`<option value="${valorVarios}" class="fw-bold text-success">-- VARIOS --</option>`);
 
-    // -----------------------------
-    // Lógica Específica: Checkbox Artículo vs Jerarquía
-    // -----------------------------
-    function initLogicaArticuloGeneral() {
-        $("#chkArticuloGeneral").on("change", function () {
-            const isChecked = $(this).is(":checked");
+        // 2. Llenar Modal con Checkboxes
+        $modalBody.empty();
+        const $ul = $('<ul class="list-group w-100"></ul>');
 
-            $("#articuloGeneral").prop("disabled", !isChecked);
-            if (!isChecked) $("#articuloGeneral").val("");
+        if (Array.isArray(items)) {
+            items.forEach(i => {
+                const codigo = i.codigo || i.id || i.valor;
+                const texto = i.nombre || i.descripcion || i.codigo;
 
-            const $jerarquia = $("#filtroMarcaGeneral, #filtroDivisionGeneral, #filtroDepartamentoGeneral, #filtroClaseGeneral");
-            $jerarquia.prop("disabled", isChecked);
+                // Opción simple en select
+                $select.append($("<option>", { value: codigo, text: texto }));
 
-            if (isChecked) {
-                $jerarquia.val([]);
+                // Checkbox en modal
+                const chkId = `chk_${idPrefijo}_${codigo}`;
+                const li = `
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1 chk-seleccion-multiple" type="checkbox" value="${codigo}" id="${chkId}" data-target="${idPrefijo}">
+                        <label class="form-check-label stretched-link" for="${chkId}">${texto}</label>
+                    </li>`;
+                $ul.append(li);
+            });
+        }
+        $modalBody.append($ul);
+    };
+
+    // ==========================================
+    // LÓGICA DE NEGOCIO Y VALIDACIONES
+    // ==========================================
+
+    function initValidacionesFinancieras() {
+
+        // --- 1. VALIDACIÓN PRESUPUESTO PROVEEDOR ---
+        $("#fondoValorTotalGeneral").on("blur", function () {
+            // Limpieza: solo números y puntos
+            let valStr = $(this).val().replace(/[^0-9.]/g, '');
+            let valorIngresado = parseFloat(valStr) || 0;
+
+            // Obtener disponible del hidden (se setea al elegir proveedor)
+            let disponibleStr = $("#fondoDisponibleHiddenGeneral").val();
+            // Limpiar disponible por si viene con formato
+            let disponible = parseCurrency(disponibleStr);
+
+            // Validar
+            if (valorIngresado > disponible) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Presupuesto Excedido',
+                    text: `El valor comprometido ($${valorIngresado}) es mayor al disponible del acuerdo ($${disponible}).`
+                });
+                $(this).val("");
+                $(this).addClass("is-invalid");
+            } else {
+                $(this).removeClass("is-invalid");
+                // Formatear visualmente
+                $(this).val(formatCurrencySpanish(valorIngresado));
             }
         });
-    }
 
-    // -----------------------------
-    // ✅ LÓGICA MODALES (Varios y Lista Específica)
-    // -----------------------------
-    function initLogicaVariosYArchivos() {
-        const setupToggleBtn = (selectId, btnId, triggerVal, modalId) => {
-            $(selectId).off("change").on("change", function () {
-                const val = $(this).val();
-                if (val === triggerVal) {
-                    $(btnId).removeClass("d-none");
-                    if (modalId) $(modalId).modal("show");
-                } else {
-                    $(btnId).addClass("d-none");
-                }
-            });
+        // --- 2. VALIDACIÓN PRESUPUESTO PROPIO ---
+        $("#comprometidoPropioGeneral").on("blur", function () {
+            let valStr = $(this).val().replace(/[^0-9.]/g, '');
+            let valorIngresado = parseFloat(valStr) || 0;
+
+            let disponibleStr = $("#acuerdoPropioDisponibleHiddenGeneral").val();
+            let disponible = parseCurrency(disponibleStr);
+
+            if (valorIngresado > disponible) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Presupuesto Excedido',
+                    text: `El valor propio ($${valorIngresado}) excede el disponible del acuerdo propio ($${disponible}).`
+                });
+                $(this).val("");
+                $(this).addClass("is-invalid");
+            } else {
+                $(this).removeClass("is-invalid");
+                $(this).val(formatCurrencySpanish(valorIngresado));
+            }
+        });
+
+        // --- 3. CÁLCULO DE PORCENTAJES ---
+        const soloNumeros = function (e) {
+            // Reemplaza cualquier cosa que no sea número o punto
+            this.value = this.value.replace(/[^0-9.]/g, '');
+            calcularTotalDescuento();
         };
 
-        // 1. Canal (Varios = 3)
-        setupToggleBtn("#filtroCanalGeneral", "#btnCanalGeneral", "3", "#ModalCanal");
+        $("#descuentoProveedorGeneral").on("input", soloNumeros);
+        $("#descuentoPropioGeneral").on("input", soloNumeros);
 
-        // 2. Grupo Almacén (Varios = 3)
-        setupToggleBtn("#filtroGrupoAlmacenGeneral", "#btnGrupoAlmacenGeneral", "3", "#ModalGrupoAlmacen");
+        function calcularTotalDescuento() {
+            let descProv = parseFloat($("#descuentoProveedorGeneral").val()) || 0;
+            let descProp = parseFloat($("#descuentoPropioGeneral").val()) || 0;
+            let total = descProv + descProp;
 
-        // 3. Almacén (Varios = 3)
-        setupToggleBtn("#filtroAlmacenGeneral", "#btnAlmacenGeneral", "3", "#ModalAlmacen");
+            $("#descuentoTotalGeneral").val(total.toFixed(2) + "%");
+        }
 
-        // 4. Medio Pago (Varios = 7)
-        setupToggleBtn("#filtroMedioPagoGeneral", "#btnMedioPagoGeneral", "7", "#ModalMedioPago");
-
-        // 5. Tipo Cliente (3=Lista, 4=Varios)
-        $("#tipoClienteGeneral").off("change").on("change", function () {
-            const val = $(this).val();
-            if (val === "3" || val === "4") {
-                $("#btnListaClienteGeneral").removeClass("d-none");
-                $("#ModalClientesEspecificos").modal("show");
-
-                // Auto-check para archivo si es Lista Específica
-                if (val === "3") $("#chkSeleccionaFile").prop("checked", true).trigger("change");
-                else if (val === "4") $("#chkSeleccionaFile").prop("checked", false).trigger("change");
-
-            } else {
-                $("#btnListaClienteGeneral").addClass("d-none");
-            }
+        // Formato visual al salir (% al final)
+        $("#descuentoProveedorGeneral, #descuentoPropioGeneral").on("blur", function () {
+            let val = parseFloat($(this).val()) || 0;
+            if (val > 0) $(this).val(val.toFixed(2) + "%");
         });
 
-        // 6. Lógica interna Modal Clientes
-        $("#chkSeleccionaFile").on("change", function () {
-            const isFileMode = $(this).is(":checked");
-            if (isFileMode) {
-                $("#txtListaClientes").val("").prop("disabled", true);
-                $("#inputFileClientes").prop("disabled", false);
-                $("#btnUploadClientes").prop("disabled", false);
-            } else {
-                $("#txtListaClientes").prop("disabled", false);
-                $("#inputFileClientes").val("").prop("disabled", true);
-                $("#fileNameClientes").text("Ningún archivo seleccionado");
-                $("#btnUploadClientes").prop("disabled", true);
-            }
-        });
-
-        $("#inputFileClientes").on("change", function () {
-            const name = this.files[0] ? this.files[0].name : "Ningún archivo seleccionado";
-            $("#fileNameClientes").text(name);
+        // Limpiar % al entrar para editar
+        $("#descuentoProveedorGeneral, #descuentoPropioGeneral").on("focus", function () {
+            let val = $(this).val().replace("%", "");
+            $(this).val(val);
         });
     }
 
-    // -----------------------------
+    // Lógica para manejar la selección múltiple en todos los filtros
+    function initLogicaSeleccionMultiple() {
+        CONFIG_MULTIPLE.forEach(conf => {
+            // 1. Listener en el Select (Change)
+            $(conf.select).off("change").on("change", function () {
+                const val = $(this).val();
+
+                // Si selecciona "Varios", mostrar botón y abrir modal
+                if (val === conf.triggerVal) {
+                    $(conf.btnOpen).removeClass("d-none");
+                    // Opcional: abrir modal automáticamente al seleccionar
+                    // const modalId = $(conf.btnOpen).attr("data-bs-target");
+                    // $(modalId).modal("show");
+                } else {
+                    $(conf.btnOpen).addClass("d-none");
+                    // Limpiar data guardada si cambia a selección simple
+                    $(conf.btnOpen).removeData("seleccionados");
+                    $(conf.btnOpen).html(`<i class="fa-solid fa-list-check"></i>`);
+                    $(conf.btnOpen).removeClass("btn-success").addClass("btn-outline-secondary");
+                }
+
+                // VALIDACIÓN ESPECÍFICA MARCA: 
+                // Si cambia en el select principal a algo que NO es Varios (1 sola marca)
+                if (conf.id === "marca") {
+                    if (val !== conf.triggerVal && val !== "") {
+                        validarBloqueoProveedor(1); // 1 marca -> Desbloqueado
+                    } else if (val === "") {
+                        validarBloqueoProveedor(0); // Nada -> Desbloqueado (o bloqueado según regla negocio, asumo desbloqueado para elegir)
+                    }
+                }
+            });
+
+            // 2. Listener en el Botón "Aceptar" del Modal
+            $(conf.btnAccept).off("click").on("click", function () {
+                // Obtener checkboxes marcados en el body correspondiente
+                const seleccionados = [];
+                $(`${conf.body} input[type='checkbox']:checked`).each(function () {
+                    seleccionados.push($(this).val());
+                });
+
+                // Guardar array en el botón de apertura
+                const $btnTrigger = $(conf.btnOpen);
+                $btnTrigger.data("seleccionados", seleccionados);
+
+                // Feedback Visual
+                if (seleccionados.length > 0) {
+                    $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success");
+                    $btnTrigger.html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+                } else {
+                    $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary");
+                    $btnTrigger.html(`<i class="fa-solid fa-list-check"></i>`);
+                }
+
+                // VALIDACIÓN ESPECÍFICA MARCA:
+                if (conf.id === "marca") {
+                    validarBloqueoProveedor(seleccionados.length);
+                }
+
+                console.log(`Guardado ${conf.id}:`, seleccionados);
+            });
+        });
+    }
+
+    function validarBloqueoProveedor(cantidad) {
+        const $inputProv = $("#fondoProveedorGeneral");
+        const $btnProv = $inputProv.next("button"); // El botón de la lupa
+        const $idProv = $("#fondoProveedorIdGeneral");
+        const $idHidden = $("#fondoDisponibleHiddenGeneral");
+
+        if (cantidad > 1) {
+            // Bloquear
+            $inputProv.val("").prop("disabled", true).attr("placeholder", "Bloqueado por múltiples marcas");
+            $idProv.val("");
+            $idHidden.val("0");
+            $btnProv.prop("disabled", true);
+            // Limpiar valores dependientes
+            $("#fondoValorTotalGeneral").val("");
+            $("#descuentoProveedorGeneral").val("");
+            $("#descuentoTotalGeneral").val("");
+        } else {
+            // Desbloquear
+            $inputProv.prop("disabled", false).attr("placeholder", "Seleccione...");
+            $btnProv.prop("disabled", false);
+        }
+    }
+
+    // ==========================================
     // CARGA DE DATOS (APIS)
-    // -----------------------------
+    // ==========================================
+
     function cargarTiposPromocion(callback) {
         const idOpcion = getIdOpcionSeguro();
         if (!idOpcion) return;
@@ -217,7 +334,6 @@
             success: function (res) {
                 const data = res.json_response || [];
                 $select.empty();
-
                 if (!data.length) { $select.append("<option>Sin datos</option>"); return; }
 
                 data.forEach(function (item) {
@@ -236,16 +352,12 @@
                 $select.val("General");
                 togglePromocionForm();
                 if (callback) callback();
-            },
-            error: function () { $select.html("<option>Error</option>"); }
+            }
         });
     }
 
-    function cargarMotivosPromociones(selectId, callback) {
-        const idOpcion = getIdOpcionSeguro();
-        if (!idOpcion) return;
+    function cargarMotivosPromociones(selectId) {
         const $select = $(selectId);
-
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "GET",
@@ -253,7 +365,6 @@
             client: "APL",
             endpoint_query_params: "/PRMOTIVOS"
         };
-
         $.ajax({
             url: "/api/apigee-router-proxy",
             method: "POST",
@@ -263,24 +374,11 @@
                 const data = res.json_response || [];
                 $select.empty().append('<option value="">Seleccione...</option>');
                 data.forEach(item => $select.append($("<option>").val(item.idcatalogo).text(item.nombre_catalogo)));
-                if (callback) callback();
-            },
-            error: function () { $select.html("<option>Error</option>"); }
+            }
         });
     }
 
-    function cargarFiltrosGeneral() {
-        const idOpcion = getIdOpcionSeguro();
-        if (!idOpcion) return;
-
-        const $marca = $("#filtroMarcaGeneral");
-        const $division = $("#filtroDivisionGeneral");
-        const $depto = $("#filtroDepartamentoGeneral");
-        const $clase = $("#filtroClaseGeneral");
-
-        const loading = '<option selected>Cargando...</option>';
-        $marca.html(loading); $division.html(loading); $depto.html(loading); $clase.html(loading);
-
+    function cargarFiltrosJerarquia() {
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "GET",
@@ -297,44 +395,16 @@
             success: function (res) {
                 const data = res.json_response || {};
 
-                const llenar = ($el, items, label) => {
-                    $el.empty().append(`<option selected value="">${label}</option>`);
-                    if (Array.isArray(items)) {
-                        items.forEach(i => $el.append($("<option>", { value: i.codigo, text: i.nombre })));
-                    }
-                };
-
-                llenar($marca, data.marcas, "Todas");
-                llenar($division, data.divisiones, "Todas");
-                llenar($depto, data.departamentos, "Todos");
-                llenar($clase, data.clases, "Todas");
-            },
-            error: function () {
-                const err = '<option>Error</option>';
-                $marca.html(err); $division.html(err); $depto.html(err); $clase.html(err);
+                // Usamos el helper para llenar Select y Modal
+                llenarComboYModal($("#filtroMarcaGeneral"), $("#bodyModalMarca"), data.marcas, "Todas", "3", "marca");
+                llenarComboYModal($("#filtroDivisionGeneral"), $("#bodyModalDivision"), data.divisiones, "Todas", "3", "division");
+                llenarComboYModal($("#filtroDepartamentoGeneral"), $("#bodyModalDepartamento"), data.departamentos, "Todos", "3", "depto");
+                llenarComboYModal($("#filtroClaseGeneral"), $("#bodyModalClase"), data.clases, "Todas", "3", "clase");
             }
         });
     }
 
-    // -----------------------------
-    // ✅ CARGAR COMBOS (Canal, Grupo, Almacén, Cliente, Pago)
-    // -----------------------------
     function cargarCombosPromociones() {
-        const idOpcion = getIdOpcionSeguro();
-        if (!idOpcion) return;
-
-        // Selectores
-        const $canal = $("#filtroCanalGeneral");
-        const $grupo = $("#filtroGrupoAlmacenGeneral");
-        const $almacen = $("#filtroAlmacenGeneral");
-        const $cliente = $("#tipoClienteGeneral");
-        const $medio = $("#filtroMedioPagoGeneral");
-
-        // Loading visual
-        const loading = '<option selected>Cargando...</option>';
-        $canal.html(loading); $grupo.html(loading);
-        $almacen.html(loading); $cliente.html(loading); $medio.html(loading);
-
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "GET",
@@ -351,200 +421,210 @@
             success: function (response) {
                 const data = response.json_response || {};
 
-                // Helper mejorado: Detecta automáticamente 'nombre' o 'descripcion'
-                const llenar = ($el, items, opcionesExtra = []) => {
-                    $el.empty();
-                    if (Array.isArray(items)) {
-                        items.forEach(i => {
-                            // ✅ CORRECCIÓN: Busca nombre, si no existe usa descripcion, sino codigo
-                            const text = i.nombre || i.descripcion || i.codigo;
-                            $el.append($("<option>", { value: i.codigo, text: text }));
-                        });
-                    }
-                    // Agrega las opciones manuales (Varios, Lista Específica, etc.)
-                    opcionesExtra.forEach(opt => {
-                        $el.append($("<option>", { value: opt.val, text: opt.text }));
-                    });
-                };
+                llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Cargando...", "3", "canal");
+                llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Cargando...", "3", "grupo");
+                llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Cargando...", "3", "almacen");
+                llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), data.mediospagos, "Cargando...", "7", "mediopago");
 
-                // 1. Canales
-                llenar($canal, data.canales, [{ val: "3", text: "Varios" }]);
-
-                // 2. Grupos
-                llenar($grupo, data.gruposalmacenes, [{ val: "3", text: "Varios" }]);
-
-                // 3. Almacenes
-                llenar($almacen, data.almacenes, [{ val: "3", text: "Varios" }]);
-
-                // 4. Clientes - ✅ CORRECCIÓN: Agregada "Lista Específica" (3) y "Varios" (4)
-                llenar($cliente, data.tiposclientes, [
-                    { val: "3", text: "Lista Específica" },
-                    { val: "4", text: "Varios" }
-                ]);
-
-                // 5. Medios Pago - ✅ CORRECCIÓN: El helper ahora detectará 'descripcion' automáticamente
-                llenar($medio, data.mediospagos, [{ val: "7", text: "Varios" }]);
-
-                // Disparar change para que la lógica de mostrar/ocultar botones se refresque
-                $canal.trigger("change");
-                $grupo.trigger("change");
-                $almacen.trigger("change");
-                $cliente.trigger("change");
-                $medio.trigger("change");
-            },
-            error: function (xhr) {
-                console.error("Error combos promos", xhr);
-                const err = '<option>Error</option>';
-                $canal.html(err); $grupo.html(err);
-                $almacen.html(err); $cliente.html(err); $medio.html(err);
+                // Tipo Cliente (Manejo especial o similar)
+                const $cli = $("#tipoClienteGeneral");
+                $cli.empty().append('<option selected value="">Todos</option>');
+                if (data.tiposclientes) data.tiposclientes.forEach(c => $cli.append(`<option value="${c.codigo}">${c.nombre}</option>`));
+                $cli.append('<option value="3">Lista Específica</option><option value="4">Varios</option>'); // Ajustar valores según backend
             }
         });
     }
 
-    function consultarProveedor() {
-        const $tbody = $("#tablaProveedores tbody");
+    // ==========================================
+    // CONSULTA ACUERDOS (PROVEEDOR / PROPIO)
+    // ==========================================
+    function consultarAcuerdos(tipoFondo, tablaId, onSeleccion) {
+        const $tbody = $(`#${tablaId} tbody`);
         $tbody.html('<tr><td colspan="13" class="text-center">Cargando...</td></tr>');
+        const claseAcuerdo = getClaseAcuerdo();
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Promocion/consultar-acuerdo",
+            client: "APL",
+            endpoint_query_params: "/" + tipoFondo + "/" + claseAcuerdo
+        };
 
         $.ajax({
             url: "/api/apigee-router-proxy",
             method: "POST",
             contentType: "application/json",
-            data: JSON.stringify({
-                code_app: "APP20260128155212346",
-                http_method: "GET",
-                endpoint_path: "api/Acuerdo/consultar-fondo-acuerdo",
-                client: "APL",
-                endpoint_query_params: ""
-            }),
+            data: JSON.stringify(payload),
             success: function (res) {
                 const data = res.json_response || [];
                 $tbody.empty();
-                if (!data.length) { $tbody.html('<tr><td colspan="13" class="text-center">No hay datos.</td></tr>'); return; }
-
-                const pick = (o, k) => { for (let i of k) if (o[i]) return String(o[i]).trim(); return ""; };
+                if (!data.length) {
+                    $tbody.html('<tr><td colspan="13" class="text-center">No hay datos.</td></tr>');
+                    return;
+                }
                 const fmtDate = (s) => s ? new Date(s).toLocaleDateString("es-EC") : "";
 
                 data.forEach(x => {
-                    const idF = pick(x, ["idfondo", "idFondo"]);
                     const row = `<tr class="text-nowrap">
-                        <td class="text-center"><input class="form-check-input proveedor-radio" type="radio" name="sp" 
-                            data-id="${idF}" data-desc="${pick(x, ["descripcion"])}" data-prov="${pick(x, ["nombre", "proveedor"])}"
-                            data-tipo="${pick(x, ["nombre_tipo_fondo"])}" data-disp="${pick(x, ["valordisponible"])}"></td>
-                        <td>${idF}</td>
-                        <td>${pick(x, ["descripcion", "descripcionFondo"])}</td>
-                        <td>${pick(x, ["idproveedor", "ruc"])}</td>
-                        <td>${pick(x, ["nombre", "proveedor"])}</td>
-                        <td>${pick(x, ["nombre_tipo_fondo", "tipoFondo"])}</td>
-                        <td class="text-end">${formatCurrencySpanish(pick(x, ["valorfondo"], 0))}</td>
-                        <td>${fmtDate(pick(x, ["fechainidovigencia"]))}</td>
-                        <td>${fmtDate(pick(x, ["fechafinvigencia"]))}</td>
-                        <td class="text-end">${formatCurrencySpanish(pick(x, ["valordisponible"], 0))}</td>
-                        <td class="text-end">${formatCurrencySpanish(pick(x, ["valorcomprometido"], 0))}</td>
-                        <td class="text-end">${formatCurrencySpanish(pick(x, ["valorliquidado"], 0))}</td>
-                        <td>${pick(x, ["nombre_registro"], "")}</td>
+                        <td class="text-center">
+                            <input class="form-check-input acuerdo-radio" type="radio" name="acuerdo_${tipoFondo}"
+                                data-idacuerdo="${x.idacuerdo || ''}"
+                                data-desc="${x.descripcion || ''}"
+                                data-prov="${x.nombre_proveedor || ''}"
+                                data-disp="${x.valor_disponible || 0}"
+                                data-estado="${x.estado || ''}">
+                        </td>
+                        <td>${x.idacuerdo}</td>
+                        <td>${x.descripcion}</td>
+                        <td>${x.idfondo}</td>
+                        <td>${x.nombre_proveedor}</td>
+                        <td>${x.nombre_tipo_fondo}</td>
+                        <td class="text-end">${formatCurrencySpanish(x.valor_acuerdo)}</td>
+                        <td>${fmtDate(x.fecha_inicio)}</td>
+                        <td>${fmtDate(x.fecha_fin)}</td>
+                        <td class="text-end">${formatCurrencySpanish(x.valor_disponible)}</td>
+                        <td class="text-end">${formatCurrencySpanish(x.valor_comprometido)}</td>
+                        <td class="text-end">${formatCurrencySpanish(x.valor_liquidado)}</td>
+                        <td>${x.estado}</td>
                     </tr>`;
                     $tbody.append(row);
                 });
 
-                $(".proveedor-radio").change(function () {
-                    $("#tablaProveedores tr").removeClass("table-active");
+                $(`#${tablaId} .acuerdo-radio`).change(function () {
+                    $(`#${tablaId} tr`).removeClass("table-active");
                     $(this).closest("tr").addClass("table-active");
                     const d = $(this).data();
-                    proveedorTemporal = { idFondo: d.id, descripcion: d.desc, proveedor: d.prov, disponible: d.disp, tipoFondo: d.tipo };
+                    if (onSeleccion) onSeleccion({
+                        idAcuerdo: d.idacuerdo,
+                        display: `${d.idacuerdo} - ${d.prov}`,
+                        disponible: d.disp
+                    });
                 });
-            },
-            error: function () { $tbody.html('<tr><td colspan="13" class="text-center text-danger">Error.</td></tr>'); }
+            }
         });
     }
 
-    function setFondoEnFormActivo(f) {
-        const tipo = getTipoPromocion();
-        if (tipo === "General") {
-            $("#fondoProveedorGeneral").val(f.display);
-            $("#fondoProveedorIdGeneral").val(f.idFondo);
-            $("#fondoDisponibleHiddenGeneral").val(f.disponible);
-        } else if (tipo === "Articulos") {
-            $("#fondoProveedorArticulos").val(f.display);
-            $("#fondoProveedorIdArticulos").val(f.idFondo);
-        } else if (tipo === "Combos") {
-            $("#fondoProveedorCombos").val(f.display);
-            $("#fondoProveedorIdCombos").val(f.idFondo);
-        }
+    function setFondoProveedorEnForm(f) {
+        $("#fondoProveedorGeneral").val(f.display);
+        $("#fondoProveedorIdGeneral").val(f.idAcuerdo);
+        $("#fondoDisponibleHiddenGeneral").val(f.disponible);
+    }
+
+    function setFondoPropioEnForm(f) {
+        $("#acuerdoPropioGeneral").val(f.display);
+        $("#acuerdoPropioIdGeneral").val(f.idAcuerdo);
+        $("#acuerdoPropioDisponibleHiddenGeneral").val(f.disponible);
+    }
+
+    // ==========================================
+    // LOGICA GUARDAR Y ARTICULOS
+    // ==========================================
+
+    function initLogicaArticuloGeneral() {
+        $("#chkArticuloGeneral").on("change", function () {
+            const isChecked = $(this).is(":checked");
+            $("#articuloGeneral").prop("disabled", !isChecked);
+            if (!isChecked) $("#articuloGeneral").val("");
+            const $jerarquia = $("#filtroMarcaGeneral, #filtroDivisionGeneral, #filtroDepartamentoGeneral, #filtroClaseGeneral");
+            // Botones de modal tambien
+            const $btns = $("#btnMarcaGeneral, #btnDivisionGeneral, #btnDepartamentoGeneral, #btnClaseGeneral");
+
+            $jerarquia.prop("disabled", isChecked);
+            if (isChecked) {
+                $jerarquia.val([]);
+                $btns.addClass("d-none");
+            }
+        });
     }
 
     function initDatepickers() {
         if (!$.datepicker) return;
         const opts = { dateFormat: "dd/mm/yy", changeMonth: true, changeYear: true };
         $("#fechaInicioGeneral, #fechaFinGeneral").datepicker(opts);
-        $("#fechaInicioArticulos, #fechaFinArticulos").datepicker(opts);
-        $("#fechaInicioCombos, #fechaFinCombos").datepicker(opts);
         $(".btn-outline-secondary:has(.fa-calendar)").click(function () { $(this).parent().find("input[type='text']").datepicker("show"); });
     }
 
-    function initCurrencyItems() {
-        $("#fondoValorTotalGeneral").blur(function () {
-            $(this).val(formatCurrencySpanish($(this).val().replace(",", ".")));
-        });
+    // Función auxiliar para obtener datos de un campo (Simple o Múltiple)
+    function obtenerValorCampo(configId, selectId, triggerVal) {
+        const valSelect = $(selectId).val();
+
+        // Si es selección múltiple (Varios)
+        if (valSelect === triggerVal) {
+            // Buscamos la configuración para obtener el botón
+            const conf = CONFIG_MULTIPLE.find(c => c.id === configId);
+            if (conf) {
+                const seleccionados = $(conf.btnOpen).data("seleccionados");
+                return seleccionados || []; // Retorna Array
+            }
+        }
+
+        // Si es selección simple y tiene valor
+        if (valSelect && valSelect !== "") {
+            return [valSelect]; // Retorna Array con 1 elemento
+        }
+
+        return []; // Retorna Array vacío
     }
 
     function guardarPromocion(tipo) {
         const sufijo = tipo;
         const motivo = $(`#motivo${sufijo}`).val();
         const desc = $(`#descripcion${sufijo}`).val();
-
         const fechaInicio = getFullISOString(`#fechaInicio${sufijo}`, `#timeInicio${sufijo}`);
         const fechaFin = getFullISOString(`#fechaFin${sufijo}`, `#timeFin${sufijo}`);
-        
-        if (!motivo || !desc) { Swal.fire("Error", "Faltan datos", "warning"); return; }
-        if (!fechaInicio || !fechaFin) { Swal.fire("Error", "Fechas inválidas", "warning"); return; }
 
+        if (!motivo || !desc || !fechaInicio || !fechaFin) {
+            Swal.fire("Error", "Faltan datos obligatorios (Motivo, Descripción, Fechas)", "warning"); return;
+        }
+
+        // Recolección dinámica de datos generales
+        const marcas = obtenerValorCampo("marca", "#filtroMarcaGeneral", "3");
+        const divisiones = obtenerValorCampo("division", "#filtroDivisionGeneral", "3");
+        const canales = obtenerValorCampo("canal", "#filtroCanalGeneral", "3");
+        // ... agregar el resto según necesidad del backend
 
         const body = {
-            "tipoclaseetiqueta": "PRGENERAL", // modificar segun el parametro
+            "tipoclaseetiqueta": "PRGENERAL",
             "idopcion": getIdOpcionSeguro(),
-            "idcontrolinterfaz": "BTNGRABAR",
-            "ideventoetiqueta": "EVCLICK",
             "promocion": {
-                "descripcion": $("#descripcionGeneral").val(),
-                "motivo": parseInt($("#motivoGeneral").val(), 10) || 0,
+                "descripcion": desc,
+                "motivo": parseInt(motivo, 10) || 0,
                 "clasepromocion": 1,
                 "fechahorainicio": fechaInicio,
                 "fechahorafin": fechaFin,
-                "marcaregalo": $("#regaloGeneral").val(),
-                "marcaprocesoaprobacion": "",
+                "marcaregalo": $("#regaloGeneral").is(":checked") ? "S" : "N",
                 "idusuarioingreso": getUsuario(),
-                "nombreusuario": getUsuario(),
             },
-            "acuerdos": [
-                { "idacuerdo": 6, "porcentajedescuento": 15.00, "valorcomprometido": 10000.00 },
-                { "idacuerdo": 8, "porcentajedescuento": 5.00, "valorcomprometido": 2500.00 }
-            ],
+            // Ejemplo de cómo se mandan los segmentos seleccionados
             "segmentos": [
-                { "tiposegmento": "SEGMARCA", "tipoasignacion": "T", "codigos": [] },
-                { "tiposegmento": "SEGDIVISION", "tipoasignacion": "C", "codigos": ["DIV01", "DIV02"] }
-            ]
+                { "tiposegmento": "SEGMARCA", "codigos": marcas },
+                { "tiposegmento": "SEGDIVISION", "codigos": divisiones },
+                { "tiposegmento": "SEGCANAL", "codigos": canales }
+            ],
+            // Valores financieros limpios
+            "finanzas": {
+                "comprometido_proveedor": parseCurrency($("#fondoValorTotalGeneral").val()),
+                "dscto_proveedor": parseFloat($("#descuentoProveedorGeneral").val()) || 0,
+                "comprometido_propio": parseCurrency($("#comprometidoPropioGeneral").val()),
+                "dscto_propio": parseFloat($("#descuentoPropioGeneral").val()) || 0
+            }
         };
 
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "POST",
             endpoint_path: "/api/promocion/insertar",
-            //endpoint_query_params: "",
             client: "APL",
             body_request: body
-        }
+        };
 
         var formData = new FormData();
         var fileInput = $('#inputGroupFile24')[0].files[0];
-
-
-        formData.append("ArchivoSoporte", fileInput);
+        if (fileInput) formData.append("ArchivoSoporte", fileInput);
         formData.append("RouterRequestJson", JSON.stringify(payload));
 
-        console.log('body: ', payload);
-
         Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
-
 
         $.ajax({
             url: "/api/apigee-router-proxy",
@@ -553,99 +633,83 @@
             contentType: false,
             data: formData,
             success: function (res) {
-                if (res?.code_status === 200) Swal.fire("Éxito", "Guardado", "success");
-                else Swal.fire("Error", res?.json_response?.mensaje || "Fallo", "error");
+                if (res?.code_status === 200) Swal.fire("Éxito", "Promoción Guardada", "success");
+                else Swal.fire("Error", res?.json_response?.mensaje || "Error al guardar", "error");
             },
             error: function () { Swal.fire("Error", "Error de comunicación", "error"); }
         });
     }
 
-    function gestionarCambioArchivo(input) {
-        const fileNameSpan = document.getElementById('fileName');
-
-        // 1. Validar si hay un archivo seleccionado
-        if (!input.files || input.files.length === 0) {
-            fileNameSpan.textContent = "Ningún archivo seleccionado";
-            return;
-        }
-
-        const archivo = input.files[0];
-        const maxMB = parseFloat(input.getAttribute('data-max-mb')) || 5;
-        const maxBytes = maxMB * 1024 * 1024;
-
-        // 2. Validar Tamaño
-        if (archivo.size > maxBytes) {
-            alert(`El archivo "${archivo.name}" es muy pesado. El límite es de ${maxMB}MB.`);
-
-            // Resetear el input y el texto
-            input.value = "";
-            fileNameSpan.textContent = "Ningún archivo seleccionado";
-            return;
-        }
-
-        // 3. Si todo está bien, actualizar el nombre (tu lógica original)
-        fileNameSpan.textContent = archivo.name;
-
-        console.log("Archivo validado y listo:", archivo.name);
-    }
-
-    // -----------------------------
-    // ✅ INIT PRINCIPAL
-    // -----------------------------
+    // ==========================================
+    // INIT
+    // ==========================================
     $(document).ready(function () {
-        console.log("=== CrearPromocion INIT Completo ===");
+        console.log("=== CrearPromocion JS Loaded ===");
 
         togglePromocionForm();
         initLogicaArticuloGeneral();
-        initLogicaVariosYArchivos(); // Activa botones/modales
+        initLogicaSeleccionMultiple(); // ✅ Inicia listeners para TODOS los selects (Jerarquía + Combos)
+        initValidacionesFinancieras(); // ✅ Inicia validaciones $, Presupuesto y %
+        initDatepickers();
 
         $("#promocionTipo").change(function () {
             togglePromocionForm();
             const tipo = getTipoPromocion();
-            if (tipo === "Articulos" && $("#motivoArticulos option").length <= 1) cargarMotivosPromociones("#motivoArticulos");
-            if (tipo === "Combos" && $("#motivoCombos option").length <= 1) cargarMotivosPromociones("#motivoCombos");
+            if (tipo === "Articulos") cargarMotivosPromociones("#motivoArticulos");
+            if (tipo === "Combos") cargarMotivosPromociones("#motivoCombos");
         });
 
-        // Carga Inicial en Cadena
-        $.get("/config").done(function (config) {
-            window.apiBaseUrl = config.apiBaseUrl;
-
-            cargarTiposPromocion(function () {
-                cargarMotivosPromociones("#motivoGeneral");
-                cargarFiltrosGeneral();        // Carga Marca/Div/Depto/Clase
-                cargarCombosPromociones();     // ✅ Carga Canal/Almacen/Cliente/Pago
-            });
-        }).fail(function () {
-            cargarTiposPromocion(function () {
-                cargarMotivosPromociones("#motivoGeneral");
-                cargarFiltrosGeneral();
-                cargarCombosPromociones();
-            });
+        // Carga inicial
+        cargarTiposPromocion(function () {
+            cargarMotivosPromociones("#motivoGeneral");
+            cargarFiltrosJerarquia();
+            cargarCombosPromociones();
         });
 
-        initDatepickers();
-        initCurrencyItems();
-
+        // Eventos Botones Guardar
         $("#btnGuardarPromocionGeneral").click(() => guardarPromocion("General"));
 
-        $("#modalConsultaProveedor").on("show.bs.modal", () => { proveedorTemporal = null; consultarProveedor(); });
-        $("#btnAceptarProveedor").click(() => {
-            if (!proveedorTemporal) return;
-            const display = `${proveedorTemporal.idFondo} - ${proveedorTemporal.proveedor}`;
-            setFondoEnFormActivo({ ...proveedorTemporal, display });
-            $("#modalConsultaProveedor").modal("hide");
+        // Modales de Acuerdo
+        $("#modalConsultaProveedor").on("show.bs.modal", function () {
+            proveedorTemporal = null;
+            consultarAcuerdos("TFPROVEDOR", "tablaProveedores", (s) => proveedorTemporal = s);
+        });
+        $("#btnAceptarProveedor").click(function () {
+            if (proveedorTemporal) {
+                setFondoProveedorEnForm(proveedorTemporal);
+                $("#modalConsultaProveedor").modal("hide");
+            }
         });
 
-        $("#btnAddItemArticulos, #btnAddItemCombos").click((e) => {
-            e.preventDefault();
-            $("#modalConsultaItems").modal("show");
+        $("#modalConsultaAcuerdoPropio").on("show.bs.modal", function () {
+            propioTemporal = null;
+            consultarAcuerdos("TFPROPIO", "tablaAcuerdosPropios", (s) => propioTemporal = s);
+        });
+        $("#btnAceptarAcuerdoPropio").click(function () {
+            if (propioTemporal) {
+                setFondoPropioEnForm(propioTemporal);
+                $("#modalConsultaAcuerdoPropio").modal("hide");
+            }
+        });
+
+        // Tipo Cliente (Manejo de archivo específico)
+        $("#tipoClienteGeneral").off("change").on("change", function () {
+            const val = $(this).val();
+            // Si es 3 (Lista Esp) o 4 (Varios) -> segun la carga de combos
+            if (val === "3" || val === "4") {
+                $("#btnListaClienteGeneral").removeClass("d-none");
+                // Logica visual adicional si se requiere
+            } else {
+                $("#btnListaClienteGeneral").addClass("d-none");
+            }
+        });
+
+        // Input File
+        $('#inputGroupFile24').on('change', function () {
+            const fileNameSpan = document.getElementById('fileName');
+            if (this.files && this.files.length > 0) fileNameSpan.textContent = this.files[0].name;
         });
 
         $(".btn-secondary[id^='btnCancelar']").click(() => location.reload());
-
-        // Conectamos el evento change a nuestra función externa
-        $('#inputGroupFile24').on('change', function () {
-            gestionarCambioArchivo(this); // 'this' le pasa el elemento del input a la función
-        });
     });
 })();

@@ -49,19 +49,16 @@
             border: 1px solid #dee2e6;
         }
 
-        /* Cabeceras Consulta/Solo Lectura - Verde */
         .custom-header-cons-bg {
             background-color: #a4c995 !important;
             color: #343a40 !important;
         }
 
-        /* Cabeceras Editables - Amarillo */
         .custom-header-ingr-bg {
             background-color: #FFEC99 !important;
             color: #343a40 !important;
         }
 
-        /* Cabeceras de Cálculos - Naranja */
         .custom-header-calc-bg {
             background-color: #FFBF47 !important;
             color: #343a40 !important;
@@ -81,7 +78,6 @@
             background-color: rgba(140, 140, 140, 0.15) !important;
         }
 
-        /* Estilos para select múltiple */
         .filtro-container {
             cursor: pointer;
         }
@@ -92,7 +88,6 @@
             font-weight: bold;
         }
 
-        /* Modal ajustes */
         #modalConsultaItems .modal-body {
             padding-top: 0 !important;
             padding-bottom: 0 !important;
@@ -103,7 +98,6 @@
             overflow-y: auto;
         }
 
-        /* Tabla sticky column */
         .table-sticky-col {
             position: sticky;
             left: 0;
@@ -130,11 +124,16 @@
 
 <hr />
 
+<!-- ========================================== -->
+<!-- FORMULARIO GENERAL                         -->
+<!-- ========================================== -->
 <form id="formGeneral" class="row g-2">
 
     <input type="hidden" id="fondoProveedorIdGeneral">
     <input type="hidden" id="fondoDisponibleHiddenGeneral">
     <input type="hidden" id="fondoDisponibleGeneral">
+    <input type="hidden" id="acuerdoPropioIdGeneral">
+    <input type="hidden" id="acuerdoPropioDisponibleHiddenGeneral">
 
     <div class="col-md-3 text-center">
         <label for="descripcionGeneral" class="form-label fw-bold col-form-label-sm">Descripción</label>
@@ -168,27 +167,50 @@
 
     <div class="col-md-3 text-center">
         <label for="filtroMarcaGeneral" class="form-label fw-bold col-form-label-sm">Marca</label>
-        <select id="filtroMarcaGeneral" class="form-select form-select-sm" size="3" multiple>
-            <option selected>Cargando...</option>
-        </select>
+        <div class="input-group input-group-sm">
+            <button id="btnMarcaGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalMarca">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select id="filtroMarcaGeneral" class="form-select">
+                <option selected>Cargando...</option>
+            </select>
+        </div>
     </div>
+
     <div class="col-md-3 text-center">
         <label for="filtroDivisionGeneral" class="form-label fw-bold col-form-label-sm">División</label>
-        <select id="filtroDivisionGeneral" class="form-select form-select-sm" size="3" multiple>
-            <option selected>Cargando...</option>
-        </select>
+        <div class="input-group input-group-sm">
+            <button id="btnDivisionGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalDivision">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select id="filtroDivisionGeneral" class="form-select">
+                <option selected>Cargando...</option>
+            </select>
+        </div>
     </div>
+
     <div class="col-md-3 text-center">
         <label for="filtroDepartamentoGeneral" class="form-label fw-bold col-form-label-sm">Departamento</label>
-        <select id="filtroDepartamentoGeneral" class="form-select form-select-sm" size="3" multiple>
-            <option selected>Cargando...</option>
-        </select>
+        <div class="input-group input-group-sm">
+            <button id="btnDepartamentoGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalDepartamento">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select id="filtroDepartamentoGeneral" class="form-select">
+                <option selected>Cargando...</option>
+            </select>
+        </div>
     </div>
+
     <div class="col-md-3 text-center">
         <label for="filtroClaseGeneral" class="form-label fw-bold col-form-label-sm">Clase</label>
-        <select id="filtroClaseGeneral" class="form-select form-select-sm" size="3" multiple>
-            <option selected>Cargando...</option>
-        </select>
+        <div class="input-group input-group-sm">
+            <button id="btnClaseGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClase">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select id="filtroClaseGeneral" class="form-select">
+                <option selected>Cargando...</option>
+            </select>
+        </div>
     </div>
 
     <div class="col-md-2 text-center">
@@ -286,11 +308,12 @@
         <input type="text" class="form-control form-control-sm text-end" id="descuentoPropioGeneral" placeholder="0.00%">
     </div>
 
+    <!-- ✅ ID Acuerdo Propio - Ahora con botón que abre modal de consulta -->
     <div class="col-md-2 text-center">
         <label for="acuerdoPropioGeneral" class="form-label fw-bold col-form-label-sm">ID Acuerdo Propio</label>
         <div class="input-group input-group-sm">
-            <input type="text" class="form-control" id="acuerdoPropioGeneral" placeholder="APR999 - Propio" readonly>
-            <button class="btn btn-outline-secondary" type="button">
+            <input type="text" class="form-control" id="acuerdoPropioGeneral" placeholder="Seleccione..." readonly>
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdoPropio">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
         </div>
@@ -330,24 +353,75 @@
     </div>
 </form>
 
+<!-- ========================================== -->
+<!-- MODAL CANAL                                -->
+<!-- ========================================== -->
 <div class="modal fade" id="ModalCanal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header"><h1 class="modal-title fs-5">Lista de Canales</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h1 class="modal-title fs-5">Canales</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-                <div class="row m-2">
-                    <ul class="list-group">
-                        <li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Tienda Local</label></li>
-                        <li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Tienda Virtual</label></li>
-                        <li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Tienda Móvil</label></li>
-                    </ul>
-                </div>
+                <div class="row m-2" id="bodyModalCanal"></div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary">Aceptar</button></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarCanal" data-bs-dismiss="modal">Aceptar</button>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- ===================================================== -->
+<!-- MODAL Marca - Division - Departamento - clase         -->
+<!-- ===================================================== -->
+<div class="modal fade" id="ModalMarca" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Marcas</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="row m-2" id="bodyModalMarca"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarMarca" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalDivision" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Divisiones</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><div class="row m-2" id="bodyModalDivision"></div></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalDepartamento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Departamentos</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><div class="row m-2" id="bodyModalDepartamento"></div></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalClase" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Clases</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><div class="row m-2" id="bodyModalClase"></div></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL CLIENTES ESPECÍFICOS                 -->
+<!-- ========================================== -->
 <div class="modal fade" id="ModalClientesEspecificos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -385,26 +459,41 @@
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODAL GRUPO ALMACÉN                        -->
+<!-- ========================================== -->
 <div class="modal fade" id="ModalGrupoAlmacen" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header"><h1 class="modal-title fs-5">Grupos Almacenes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2"><ul class="list-group"><li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Grupo 1</label></li><li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Grupo 2</label></li></ul></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary">Aceptar</button></div>
+            <div class="modal-body"><div class="row m-2" id="bodyModalGrupoAlmacen"></div></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarGrupoAlmacen" data-bs-dismiss="modal">Aceptar</button>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODAL ALMACÉN                              -->
+<!-- ========================================== -->
 <div class="modal fade" id="ModalAlmacen" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header"><h1 class="modal-title fs-5">Almacenes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2"><ul class="list-group"><li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Almacen 1</label></li><li class="list-group-item"><input class="form-check-input me-1" type="checkbox"><label class="form-check-label">Almacen 2</label></li></ul></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary">Aceptar</button></div>
+            <div class="modal-body"><div class="row m-2" id="bodyModalAlmacen"></div></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarAlmacen" data-bs-dismiss="modal">Aceptar</button>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- FORMULARIO ARTÍCULOS                       -->
+<!-- ========================================== -->
 <form id="formArticulos" class="row g-1 mb-1 pb-1" style="display:none;">
     <div class="col-md-3">
         <label for="descripcionArticulos" class="form-label fw-bold col-form-label-sm">Descripción de la Promoción</label>
@@ -578,6 +667,9 @@
     </div>
 </form>
 
+<!-- ========================================== -->
+<!-- FORMULARIO COMBOS                          -->
+<!-- ========================================== -->
 <form id="formCombos" class="row g-1 mb-1 pb-1" style="display:none;">
 
     <div class="col-md-3">
@@ -646,15 +738,15 @@
     </div>
 
     <div class="col-md-2 text-center">
-        <label for="tipoClienteGeneral" class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+        <label for="tipoClienteCombos" class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
         <div class="input-group input-group-sm">
-            <button id="btnListaClienteGeneral" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClientesEspecificos">
+            <button id="btnListaClienteCombos" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClientesEspecificos">
                 <i class="fa-solid fa-list-check"></i>
             </button>
-            <select class="form-select" id="tipoClienteGeneral">
+            <select class="form-select" id="tipoClienteCombos">
                 <option value="0" selected>Todos</option>
                 <option value="1">Especiales</option>
-                <option value="2">Frecuentes</option>                
+                <option value="2">Frecuentes</option>
                 <option value="3">Varios</option>
                 <option value="4">Lista Específica</option>
             </select>
@@ -915,6 +1007,9 @@
     </div>
 </form>
 
+<!-- ========================================== -->
+<!-- MODAL CONSULTA ITEMS                       -->
+<!-- ========================================== -->
 <div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
@@ -1032,11 +1127,14 @@
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODAL CONSULTA PROVEEDOR (TFPROVEDOR)      -->
+<!-- ========================================== -->
 <div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Consulta de Fondos/Proveedores</h1>
+                <h1 class="modal-title fs-5">Consulta de Acuerdos - Fondo Proveedor</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1045,12 +1143,12 @@
                         <thead class="table-success sticky-top">
                             <tr class="text-nowrap">
                                 <th class="text-center">Sel.</th>
-                                <th>ID Fondo</th>
+                                <th>ID Acuerdo</th>
                                 <th>Descripción</th>
-                                <th>RUC</th>
+                                <th>ID Fondo</th>
                                 <th>Proveedor</th>
                                 <th>Tipo Fondo</th>
-                                <th class="text-end">Valor Fondo</th>
+                                <th class="text-end">Valor Acuerdo</th>
                                 <th>Inicio</th>
                                 <th>Fin</th>
                                 <th class="text-end">Disponible</th>
@@ -1071,23 +1169,51 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalConsultaAcuerdos" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+<!-- ========================================== -->
+<!-- ✅ MODAL CONSULTA ACUERDO PROPIO (TFPROPIO) -->
+<!-- ========================================== -->
+<div class="modal fade" id="modalConsultaAcuerdoPropio" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Consulta de Acuerdos</h1>
+                <h1 class="modal-title fs-5">Consulta de Acuerdos - Fondo Propio</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Funcionalidad pendiente de implementar...</p>
+                <div class="table-responsive border rounded" style="max-height: 350px; overflow-y: auto;">
+                    <table id="tablaAcuerdosPropios" class="table table-hover table-sm table-bordered mb-0">
+                        <thead class="table-warning sticky-top">
+                            <tr class="text-nowrap">
+                                <th class="text-center">Sel.</th>
+                                <th>ID Acuerdo</th>
+                                <th>Descripción</th>
+                                <th>ID Fondo</th>
+                                <th>Proveedor</th>
+                                <th>Tipo Fondo</th>
+                                <th class="text-end">Valor Acuerdo</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th class="text-end">Disponible</th>
+                                <th class="text-end">Comprometido</th>
+                                <th class="text-end">Liquidado</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarAcuerdoPropio">Aceptar</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODAL CLIENTES ESPECÍFICOS (duplicado)     -->
+<!-- ========================================== -->
 <div class="modal fade" id="modalClientesEspecificos" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -1125,26 +1251,25 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalMediosPago" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- ========================================== -->
+<!-- MODAL MEDIOS DE PAGO                       -->
+<!-- ========================================== -->
+<div class="modal fade" id="ModalMedioPago" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Medios de Pago</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="mpEfectivo" checked><label class="form-check-label" for="mpEfectivo">Efectivo</label></div>
-                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="mpCreditoDirecto" checked><label class="form-check-label" for="mpCreditoDirecto">Crédito Directo</label></div>
-                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="mpVisaPlatinium" checked><label class="form-check-label" for="mpVisaPlatinium">Visa Platinium</label></div>
-            </div>
+            <div class="modal-header"><h1 class="modal-title fs-5">Medios de Pago</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><div class="row m-2" id="bodyModalMedioPago"></div></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarMedioPago" data-bs-dismiss="modal">Aceptar</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODALES PLACEHOLDER                        -->
+<!-- ========================================== -->
 <div class="modal fade" id="modalEquivalentes" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h1 class="modal-title fs-5">Equivalentes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Contenido...</div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div></div></div>
 </div>
