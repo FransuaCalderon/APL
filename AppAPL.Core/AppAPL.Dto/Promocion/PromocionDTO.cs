@@ -188,7 +188,7 @@ namespace AppAPL.Dto.Promocion
         public int IDPROMOCION { get; set; }
         public int SOLICITUD { get; set; }
         public string NOMBRE_SOLICITUD { get; set; }
-        public int IDUSERSOLICITUD { get; set; }
+        public string IDUSERSOLICITUD { get; set; }
         public string USUARIOSOLICITA { get; set; }
         public DateTime FECHASOLICITUD { get; set; }
         public string IDUSERAPROBADOR { get; set; }
