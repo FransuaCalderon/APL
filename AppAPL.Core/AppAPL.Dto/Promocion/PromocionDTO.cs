@@ -185,27 +185,25 @@ namespace AppAPL.Dto.Promocion
 
     public class BandAproPromocionDTO
     {
-        public int IDAPROBACION { get; set; }
-        public int IDPROMOCION { get; set; }
-        public int SOLICITUD { get; set; }
-        public string NOMBRE_SOLICITUD { get; set; }
-        public string IDUSERSOLICITUD { get; set; }
-        public string USUARIOSOLICITA { get; set; }
-        public DateTime FECHASOLICITUD { get; set; }
-        public string IDUSERAPROBADOR { get; set; }
-        public int NIVELAPROBACION { get; set; }
-        public int ESTADOAPROBACION { get; set; }
-        public int NUMEROLOTEAPROBACION { get; set; }
-
-        public string DESCRIPCION { get; set; }
-        public int MOTIVO { get; set; }
-        public int CLASEPROMOCION { get; set; }
-        public string NOMBRE_CLASE_PROMOCION { get; set; } //cc
-        public DateTime FECHAHORAINICIO { get; set; }
-        public DateTime FECHAHORAFIN { get; set; }
-        public string MARCAREGALO { get; set; }
-        public int ESTADOPROMOCION { get; set; }
-        public string NOMBRE_ESTADO { get; set; }
+        public string solicitud { get; set; }
+        public int idpromocion { get; set; }
+        public string descripcion { get; set; }
+        public int motivo { get; set; }
+        public int id_clase_promocion { get; set; }
+        public string nombre_clase_promocion { get; set; }
+        public DateTime fechahorainicio { get; set; }
+        public DateTime fechahorafin { get; set; }
+        public string nombreusersolicitud { get; set; }
+        public DateTime fechasolicitud { get; set; }
+        public string marcaregalo { get; set; }
+        public int idestado_promocion { get; set; }
+        public string nombre_estado { get; set; }
+        public string id_etiqueta_estado { get; set; }
+        public string archivosoporte { get; set; }
+        public int nivelaprobacion { get; set; }
+        public string aprobador { get; set; }
+        public int idaprobacion { get; set; }
+        public int tiene_aprobador { get; set; }
     }
 
     public class BandAproPromocionIDDTO
