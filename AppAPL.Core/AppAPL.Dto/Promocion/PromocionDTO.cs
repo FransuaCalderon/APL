@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace AppAPL.Dto.Promocion
@@ -207,6 +208,74 @@ namespace AppAPL.Dto.Promocion
         public string NOMBRE_ESTADO { get; set; }
     }
 
+    public class BandAproPromocionIDDTO
+    {
+        // Lista para capturar el cursor p_cursor_cabecera
+        public CabeceraBandAproPromoDTO? cabecera { get; set; }
+
+        // Lista para capturar el cursor p_cursor_articulos
+        public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
+        public string tipopromocion { get; set; }
+        [JsonIgnore]
+        public int? codigoSalida { get; set; }
+        [JsonIgnore]
+        public string? mensajeSalida { get; set; }
+    }
+
+    public class CabeceraBandAproPromoDTO
+    {
+        public string Solicitud { get; set; }
+        public int IdPromocion { get; set; }
+        public string Descripcion { get; set; }
+        public int IdMotivo { get; set; }
+        public string NombreMotivo { get; set; }
+        public int IdClasePromocion { get; set; }
+        public string NombreClasePromocion { get; set; }
+        public string EtiquetaClasePromocion { get; set; }
+        public string MarcaRegalo { get; set; }
+        public string MarcaProcesoAprobacion { get; set; }
+        public int? NumeroLoteAprobacion { get; set; }
+        public string ArchivoSoporte { get; set; }
+
+        // Campos que vienen en cabecera solo si es PRGENERAL
+        public int? IdPromocionAcuerdo { get; set; }
+        public int? IdAcuerdo { get; set; }
+        public string DescripcionAcuerdo { get; set; }
+        public decimal? PorcentajeDescuento { get; set; }
+        public decimal? ValorComprometido { get; set; }
+        public decimal? ValorDisponible { get; set; }
+        public decimal? ValorLiquidado { get; set; }
+
+        public string FechaInicio { get; set; }
+        public string FechaFin { get; set; }
+        public int IdEstadoPromocion { get; set; }
+        public string NombreEstadoPromocion { get; set; }
+        public string EtiquetaEstadoPromocion { get; set; }
+        public int NivelAprobacion { get; set; }
+        public string Aprobador { get; set; }
+        public int IdAprobacion { get; set; }
+        public int IdEntidad { get; set; }
+        public string EntidadEtiqueta { get; set; }
+        public int IdTipoProceso { get; set; }
+        public string TipoProcesoEtiqueta { get; set; }
+        public string EstadoAprobEtiqueta { get; set; }
+    }
+
+    public class ArticuloBandAproPromoDTO
+    {
+        public int IdPromocionAcuerdo { get; set; }
+        public int IdPromocion { get; set; }
+        public int IdAcuerdo { get; set; }
+        public string DescripcionAcuerdo { get; set; }
+        public decimal PorcentajeDescuento { get; set; }
+        public decimal ValorComprometido { get; set; }
+        public decimal ValorDisponible { get; set; }
+        public decimal ValorLiquidado { get; set; }
+        public int IdEstadoDetalle { get; set; }
+        public string NombreEstadoDetalle { get; set; }
+        public string EtiquetaEstadoDetalle { get; set; }
+    }
+
     public class AcuerdoPromoDTO
     {
         public int idacuerdo { get; set; }
@@ -228,6 +297,24 @@ namespace AppAPL.Dto.Promocion
         public decimal valor_liquidado { get; set; }
         public string estado { get; set; }
         public string estado_etiqueta { get; set; }
+    }
+
+    public class AprobarPromocionRequest
+    {
+        public int? Entidad { get; set; }
+        public int? Identidad { get; set; }
+        public int? IdTipoProceso { get; set; }
+        public string? IdEtiquetaTipoProceso { get; set; }
+        public string? Comentario { get; set; }
+        public string? IdEtiquetaEstado { get; set; }
+        public int? IdAprobacion { get; set; }
+        public string? UsuarioAprobador { get; set; }
+
+        public int? IdOpcion { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
+        public string? NombreUsuario { get; set; }
+
     }
 
     public class CrearPromocionRequestDTO

@@ -574,6 +574,52 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<BandAproPromocionIDDTO?> ObtenerBandAproPromoPorId(int idPromocion, int idAprobacion)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idpromocion = idPromocion,
+                p_idaprobacion = idAprobacion
+            };
+
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+
+            using var multi = await connection.QueryMultipleAsync(
+                "APL_PKG_PROMOCIONES.sp_consulta_bandeja_aprobacion_por_id",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+            var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandAproPromoDTO>();
+            var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
+
+            string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}, tipoPromocion: {tipoPromocion}");
+
+            var resultado = new BandAproPromocionIDDTO()
+            {
+                cabecera = cabecera,
+                articulos = articulos,
+                tipopromocion = tipoPromocion
+            };
+
+            return resultado;
+        }
+
         public async Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion)
         {
 
@@ -634,6 +680,55 @@ namespace AppAPL.AccesoDatos.Repositorio
                 mensaje = mensajeSalida,
                 codigoRetorno = codigoSalida
             };
+            return retorno;
+        }
+
+        public async Task<ControlErroresDTO> AprobarPromocion(AprobarPromocionRequest promocion)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_entidad = promocion.Entidad,
+                p_identidad = promocion.Identidad,
+                p_idtipoproceso = promocion.IdTipoProceso,
+                p_idetiquetatipoproceso = promocion.IdEtiquetaTipoProceso,
+                p_comentario = promocion.Comentario,
+                p_idetiquetaestado = promocion.IdEtiquetaEstado,
+                p_idaprobacion = promocion.IdAprobacion,
+                p_usuarioaprobador = promocion.UsuarioAprobador,
+
+                p_idopcion = promocion.IdOpcion,
+                p_idcontrolinterfaz = promocion.IdControlInterfaz,
+                p_idevento_etiqueta = promocion.IdEvento,
+                p_nombreusuario = promocion.NombreUsuario
+            };
+
+            logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "APL_PKG_PROMOCIONES.sp_proceso_aprobacion_promocion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+
+            var retorno = new ControlErroresDTO()
+            {
+                codigoRetorno = codigoSalida,
+                mensaje = mensajeSalida,
+                filasAfectadas = filasAfectadas
+            };
+
             return retorno;
         }
 

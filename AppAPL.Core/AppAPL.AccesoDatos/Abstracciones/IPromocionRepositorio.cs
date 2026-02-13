@@ -1,4 +1,5 @@
 ﻿using AppAPL.Dto;
+using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Promocion;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
 {
     public interface IPromocionRepositorio
     {
+        Task<ControlErroresDTO> AprobarPromocion(AprobarPromocionRequest promocion);
         Task<GruposPromocionesDTO> CargarCombosPromociones();
         Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo);
         Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen();
@@ -27,5 +29,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<PromocionSegmentoDetalleDTO>> ConsultarPromocionSegmentoDetalle();
         Task<IEnumerable<TipoClienteDTO>> ConsultarTipoCliente();
         Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion);
+        Task<BandAproPromocionIDDTO?> ObtenerBandAproPromoPorId(int idPromocion, int idAprobacion);
     }
 }

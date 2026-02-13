@@ -1,4 +1,5 @@
 ﻿using AppAPL.Dto;
+using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Promocion;
 using System;
 using System.Collections.Generic;
@@ -27,5 +28,7 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion();
         Task<IEnumerable<BandAproPromocionDTO>> ConsultarBandAprobPromocion(string usuarioAprobador);
         Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo);
+        Task<BandAproPromocionIDDTO?> ObtenerBandAproPromoPorId(int idPromocion, int idAprobacion);
+        Task<ControlErroresDTO> AprobarPromocion(AprobarPromocionRequest promocion);
     }
 }

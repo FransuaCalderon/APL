@@ -631,7 +631,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_nombreusuario = acuerdo.NombreUsuario
             };
 
-            logger.LogInformation($"aprobar fondo parametros sp: {paramObject.ToString()}");
+            logger.LogInformation($"aprobar acuerdo parametros sp: {paramObject.ToString()}");
 
             var parameters = new OracleDynamicParameters(paramObject);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);

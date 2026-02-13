@@ -139,13 +139,107 @@ namespace AppAPL.Api.Controllers
             return listaBandeja.ToList();
         }
 
+        [HttpGet("bandeja-aprobacion-id/{idPromocion:int}/{idAprobacion:int}")]
+        public async Task<ActionResult<BandAproPromocionIDDTO>> ObtenerBandAproPromoPorId(int idPromocion, int idAprobacion)
+        {
+
+            var item = await servicio.ObtenerBandAproPromoPorId(idPromocion, idAprobacion);
+            if (item.codigoSalida == 0)
+            {
+                logger.LogInformation(item.mensajeSalida);
+                return item;
+            }
+            else
+            {
+                logger.LogError(item.mensajeSalida);
+                return BadRequest(new { mensaje = item.mensajeSalida });
+            }
+        }
+
         [HttpGet("consultar-bandeja-inactivacion")]
-        public async Task<ActionResult<List<BandInacPromocionDTO>>> ConsultarBandInacAcuerdo()
+        public async Task<ActionResult<List<BandInacPromocionDTO>>> ConsultarBandInacPromocion()
         {
 
             var listaBandeja = await servicio.ConsultarBandInacPromocion();
 
             return listaBandeja.ToList();
+        }
+
+        [HttpGet("bandeja-inactivacion-id/{idPromocion:int}")]
+        public async Task<ActionResult<BandInacAcuerdoPorIDDTO>> ObtenerBandejaInactivacionPorId(int idPromocion)
+        {
+            /*
+            var item = await servicio.ObtenerBandejaInactivacionPorId(idAcuerdo);
+            if (item.codigoSalida == 0)
+            {
+                logger.LogInformation(item.mensajeSalida);
+                return item;
+            }
+            else
+            {
+                logger.LogError(item.mensajeSalida);
+                return BadRequest(new { mensaje = item.mensajeSalida });
+            }*/
+            return Ok();
+        }
+
+        [HttpGet("consultar-bandeja-modificacion")]
+        public async Task<ActionResult<List<BandejaModificacionAcuerdoDTO>>> ConsultarBandModAcuerdo()
+        {
+            /*
+            var listaBandeja = await servicio.ConsultarBandModAcuerdo();
+
+            return listaBandeja.ToList();
+            */
+            return Ok();
+        }
+
+        [HttpGet("bandeja-modificacion-id/{idPromocion:int}")]
+        public async Task<ActionResult<BandModAcuerdoPorIDDTO>> ObtenerBandejaModificacionPorId(int idPromocion)
+        {
+            /*
+            var item = await servicio.ObtenerBandejaModificacionPorId(idPromocion);
+            if (item.codigoSalida == 0)
+            {
+                logger.LogInformation(item.mensajeSalida);
+                return item;
+            }
+            else
+            {
+                logger.LogError(item.mensajeSalida);
+                return BadRequest(new { mensaje = item.mensajeSalida });
+            }*/
+
+            return Ok();
+        }
+
+        [HttpGet("consultar-bandeja-general")]
+        public async Task<ActionResult<List<BandejaConsultaAcuerdoDTO>>> ConsultarBandConsPromocion()
+        {
+            /*
+            var listaBandeja = await servicio.ConsultarBandConsAcuerdo();
+
+            return listaBandeja.ToList();*/
+            return Ok();
+        }
+
+        [HttpGet("bandeja-general-id/{idPromocion:int}")]
+        public async Task<ActionResult<BandConsAcuerdoPorIDDTO>> ObtenerBandejaConsultaPorId(int idPromocion)
+        {
+            /*
+            var item = await servicio.ObtenerBandejaConsultaPorId(idAcuerdo);
+
+            if (item.codigoSalida == 0)
+            {
+                logger.LogInformation(item.mensajeSalida);
+                return item;
+            }
+            else
+            {
+                logger.LogError(item.mensajeSalida);
+                return BadRequest(new { mensaje = item.mensajeSalida });
+            }*/
+            return Ok();
         }
 
         [HttpPost("insertar")]
@@ -200,6 +294,26 @@ namespace AppAPL.Api.Controllers
             }
             else
             {
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
+        }
+
+        [HttpPost("aprobar-promocion")]
+        
+        public async Task<ActionResult<ControlErroresDTO>> AprobarPromocion(AprobarPromocionRequest promocion)
+        {
+
+            var retorno = await servicio.AprobarPromocion(promocion);
+
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
                 logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
             }
