@@ -580,32 +580,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             using var connection = factory.CreateOpenConnection();
             var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-            // 1. Obtener la ruta desde el appsettings
-            string folderPath = configuration["ConfiguracionArchivos:CarpetaSoportes"];
-                                //?? Path.Combine(AppContext.BaseDirectory, "Soportes");
-
-            string rutaFisicaFinal = string.Empty;
-
-            // 2. Lógica de guardado físico
-            if (promocion.ArchivoSoporte != null && promocion.ArchivoSoporte.Length > 0)
-            {
-                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
-                //string fileName = $"{Guid.NewGuid()}{Path.GetExtension(promocion.ArchivoSoporte.FileName)}";
-                string fileName = $"{Guid.NewGuid()}_{promocion.ArchivoSoporte.FileName}";
-                rutaFisicaFinal = Path.Combine(folderPath, fileName);
-
-                using (var stream = new FileStream(rutaFisicaFinal, FileMode.Create, FileAccess.Write, FileShare.None))
-                {
-                    await promocion.ArchivoSoporte.CopyToAsync(stream);
-                    // Fuerza a que los bytes se escriban físicamente antes de cerrar
-                    await stream.FlushAsync();
-                }
-
-                logger.LogInformation($"Archivo guardado exitosamente. Tamaño: {promocion.ArchivoSoporte.Length} bytes");
-            }
-
-            logger.LogInformation($"rutaFinalParaOracle: {rutaFisicaFinal}");
+            // --- AQUÍ USAS EL MÉTODO ---
+            string rutaFisicaFinal = await ProcesarArchivoBase64(promocion.ArchivoSoporteBase64, promocion.NombreArchivoSoporte);
 
             var paramObject = new
             {
@@ -659,6 +635,35 @@ namespace AppAPL.AccesoDatos.Repositorio
                 codigoRetorno = codigoSalida
             };
             return retorno;
+        }
+
+        private async Task<string> ProcesarArchivoBase64(string base64String, string nombreOriginal)
+        {
+            if (string.IsNullOrEmpty(base64String)) return string.Empty;
+
+                // 1. Obtener ruta desde appsettings
+                string folderPath = configuration["ConfiguracionArchivos:CarpetaSoportes"];
+                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                // 2. Limpiar el string Base64 (por si el Front mandó el encabezado data:...)
+                // Esto es un "seguro de vida" para que no truene el Convert
+                string base64Limpio = base64String.Contains(",")
+                    ? base64String.Split(',')[1]
+                    : base64String;
+
+                // 3. Generar nombre único para evitar sobreescritura
+                string fileName = $"{Guid.NewGuid()}_{nombreOriginal}";
+                string rutaCompleta = Path.Combine(folderPath, fileName);
+
+                // 4. Conversión y guardado
+                byte[] fileBytes = Convert.FromBase64String(base64Limpio);
+                await File.WriteAllBytesAsync(rutaCompleta, fileBytes);
+
+                logger.LogInformation($"Archivo guardado en: {rutaCompleta}");
+
+                return rutaCompleta; // Retornamos la ruta que necesita el SP
+            
+            
         }
 
 

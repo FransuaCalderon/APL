@@ -149,59 +149,60 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("insertar")]
-        [Consumes("multipart/form-data")]
-        public async Task<ActionResult<ControlErroresDTO>> Insertar(
-            IFormFile ArchivoSoporte,
-            [FromForm] string promocionJson)     // Todo el resto de datos como un string JSON
+        public async Task<ActionResult<ControlErroresDTO>> Insertar([FromBody] CrearPromocionRequestDTO promocion)
         {
-            // 1. Validar que el archivo no sea nulo
-            if (ArchivoSoporte == null || ArchivoSoporte.Length == 0)
-                return BadRequest("El archivo de soporte es obligatorio.");
+            // 1. Validar que el string no sea nulo o vacío
+            if (string.IsNullOrEmpty(promocion.ArchivoSoporteBase64))
+            {
+                return BadRequest(new ControlErroresDTO { mensaje = "El archivo de soporte es obligatorio." });
+            }
 
-            // --- NUEVA VALIDACIÓN DE TAMAÑO ---
-            var maxMB = configuration.GetValue<int>("ConfiguracionArchivos:MaximoTamanoMB");
-            long maximoBytes = maxMB * 1024 * 1024;
-            if (ArchivoSoporte.Length > maximoBytes)
+            // 2. Obtener la 'carnita' del Base64 (quitar el encabezado si existe)
+            string base64Data = promocion.ArchivoSoporteBase64.Contains(",")
+                                ? promocion.ArchivoSoporteBase64.Split(',')[1]
+                                : promocion.ArchivoSoporteBase64;
+
+            // 3. VALIDACIÓN DE TAMAÑO (Sobre los bytes reales)
+            // Fórmula rápida: cada 4 caracteres Base64 son ~3 bytes
+            byte[] archivoBytes = Convert.FromBase64String(base64Data);
+            double tamanoMB = (double)archivoBytes.Length / (1024 * 1024);
+
+            // Traemos el límite del appsettings
+            int limiteMaxMB = configuration.GetValue<int>("ConfiguracionArchivos:MaximoTamanoMB");
+
+            if (tamanoMB > limiteMaxMB)
             {
                 return BadRequest(new ControlErroresDTO
                 {
-                    mensaje = $"El archivo excede el límite permitido de 5MB. Tamaño actual: {(ArchivoSoporte.Length / 1024.0 / 1024.0):F2}MB",
-                    codigoRetorno = 1
+                    mensaje = $"El archivo excede el límite permitido de {limiteMaxMB}MB (Tamaño enviado: {tamanoMB:N2}MB)."
                 });
             }
 
-            // 2. Validar extensión
+            // 4. VALIDACIÓN DE EXTENSIÓN
             var extensionesPermitidas = configuration.GetSection("ConfiguracionArchivos:ExtensionesPermitidas").Get<string[]>();
-            var extension = Path.GetExtension(ArchivoSoporte.FileName).ToLower();
+            string extensionArchivo = Path.GetExtension(promocion.NombreArchivoSoporte)?.ToLower();
 
-            if (!extensionesPermitidas.Contains(extension))
+            if (string.IsNullOrEmpty(extensionArchivo) || !extensionesPermitidas.Contains(extensionArchivo))
             {
-                var extensionesJoin = string.Join(",", extensionesPermitidas);
                 return BadRequest(new ControlErroresDTO
                 {
-                    mensaje = $"Extensión {extension} no permitida. Use las extensiones permitidas: {extensionesJoin}",
-                    codigoRetorno = 1
+                    mensaje = $"Extensión {extensionArchivo} no permitida. Solo se aceptan: {string.Join(", ", extensionesPermitidas)}"
                 });
             }
 
-            // 2. Deserializar el JSON que contiene el resto de los campos
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            var promocionDto = JsonSerializer.Deserialize<CrearPromocionRequestDTO>(promocionJson, options);
+            // 5. Si todo está OK, procedemos al servicio
+            var retorno = await servicio.CrearAsync(promocion);
 
-            if (promocionDto == null)
-                return BadRequest("El formato del JSON de datos es incorrecto.");
-
-            logger.LogInformation($"ArchivoSoporte.FileName: {ArchivoSoporte.FileName}");
-            logger.LogInformation($"TipoClaseEtiqueta: {promocionDto.TipoClaseEtiqueta}");
-           
-
-            // 3. Inyectar el archivo al DTO para que el servicio siga funcionando igual
-            promocionDto.ArchivoSoporte = ArchivoSoporte;
-
-            // 4. Llamar al servicio
-            var retorno = await servicio.CrearAsync(promocionDto);
-
-            return retorno.codigoRetorno == 1 ? Ok(retorno) : BadRequest(retorno);
+            if (retorno.Id > 0) // Usando tu lógica de éxito
+            {
+                logger.LogInformation(retorno.mensaje);
+                return Ok(retorno);
+            }
+            else
+            {
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
         }
     }
 }

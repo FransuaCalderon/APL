@@ -567,77 +567,127 @@
         return []; // Retorna Array vacío
     }
 
-    function guardarPromocion(tipo) {
+    const archivoToBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file); // Esto lee el archivo
+        reader.onload = () => resolve(reader.result); // Éxito
+        reader.onerror = error => reject(error); // Error
+    });
+
+    async function guardarPromocion(tipo) {
         const sufijo = tipo;
         const motivo = $(`#motivo${sufijo}`).val();
         const desc = $(`#descripcion${sufijo}`).val();
         const fechaInicio = getFullISOString(`#fechaInicio${sufijo}`, `#timeInicio${sufijo}`);
         const fechaFin = getFullISOString(`#fechaFin${sufijo}`, `#timeFin${sufijo}`);
 
+        // 1. Validaciones iniciales
         if (!motivo || !desc || !fechaInicio || !fechaFin) {
-            Swal.fire("Error", "Faltan datos obligatorios (Motivo, Descripción, Fechas)", "warning"); return;
+            Swal.fire("Error", "Faltan datos obligatorios (Motivo, Descripción, Fechas)", "warning");
+            return;
         }
 
-        // Recolección dinámica de datos generales
-        const marcas = obtenerValorCampo("marca", "#filtroMarcaGeneral", "3");
-        const divisiones = obtenerValorCampo("division", "#filtroDivisionGeneral", "3");
-        const canales = obtenerValorCampo("canal", "#filtroCanalGeneral", "3");
-        // ... agregar el resto según necesidad del backend
+        // 2. Manejo del Archivo (Convertir a Base64)
+        const fileInput = $('#inputGroupFile24')[0].files[0];
+        if (!fileInput) {
+            Swal.fire("Archivo requerido", "Debe adjuntar el soporte de la promoción", "warning");
+            return;
+        }
 
-        const body = {
-            "tipoclaseetiqueta": "PRGENERAL",
-            "idopcion": getIdOpcionSeguro(),
-            "promocion": {
-                "descripcion": desc,
-                "motivo": parseInt(motivo, 10) || 0,
-                "clasepromocion": 1,
-                "fechahorainicio": fechaInicio,
-                "fechahorafin": fechaFin,
-                "marcaregalo": $("#regaloGeneral").is(":checked") ? "S" : "N",
-                "idusuarioingreso": getUsuario(),
-            },
-            // Ejemplo de cómo se mandan los segmentos seleccionados
-            "segmentos": [
+        // Función auxiliar para leer archivo
+        const leerArchivo = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = e => reject(e);
+        });
+
+        Swal.fire({ title: 'Procesando archivo...', didOpen: () => Swal.showLoading() });
+
+        try {
+            const base64Completo = await leerArchivo(fileInput);
+
+            // 3. Recolección de segmentos (Tu lógica actual T/C)
+            const marcas = obtenerValorCampo("marca", "#filtroMarcaGeneral", "3");
+            const divisiones = obtenerValorCampo("division", "#filtroDivisionGeneral", "3");
+            const canales = obtenerValorCampo("canal", "#filtroCanalGeneral", "3");
+
+            const segmentosValidados = [
                 { "tiposegmento": "SEGMARCA", "codigos": marcas },
                 { "tiposegmento": "SEGDIVISION", "codigos": divisiones },
                 { "tiposegmento": "SEGCANAL", "codigos": canales }
-            ],
-            // Valores financieros limpios
-            "finanzas": {
-                "comprometido_proveedor": parseCurrency($("#fondoValorTotalGeneral").val()),
-                "dscto_proveedor": parseFloat($("#descuentoProveedorGeneral").val()) || 0,
-                "comprometido_propio": parseCurrency($("#comprometidoPropioGeneral").val()),
-                "dscto_propio": parseFloat($("#descuentoPropioGeneral").val()) || 0
-            }
-        };
+            ].map(seg => ({
+                ...seg,
+                "tipoasignacion": (seg.codigos && seg.codigos.length > 0) ? "C" : "T"
+            }));
 
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "POST",
-            endpoint_path: "/api/promocion/insertar",
-            client: "APL",
-            body_request: body
-        };
+            // 4. Construcción del Body (Debe coincidir con tu DTO de C#)
+            const body = {
+                "tipoclaseetiqueta": "PRGENERAL",
+                "idopcion": getIdOpcionSeguro(),
+                "idcontrolinterfaz": "BTNGRABAR",
+                "ideventoetiqueta": "EVCLICK",
+                "nombreArchivoSoporte": fileInput.name,
+                "archivoSoporteBase64": base64Completo, // El archivo va aquí adentro
+                "promocion": {
+                    "descripcion": desc,
+                    "motivo": parseInt(motivo, 10) || 0,
+                    "clasepromocion": 1,
+                    "fechahorainicio": fechaInicio,
+                    "fechahorafin": fechaFin,
+                    "marcaregalo": $("#regaloGeneral").is(":checked") ? "S" : "N",
+                    "marcaprocesoaprobacion": "",
+                    "idusuarioingreso": getUsuario(),
+                    "nombreusuario": getUsuario(),
+                },
+                "acuerdos": [
+                    {
+                        "idacuerdo": parseInt($("#fondoProveedorGeneral").val(), 10) || 0,
+                        "porcentajedescuento": parseFloat($("#descuentoProveedorGeneral").val()) || 0,
+                        "valorcomprometido": parseCurrency($("#fondoValorTotalGeneral").val())
+                    },
+                    {
+                        "idacuerdo": parseInt($("#acuerdoPropioGeneral").val(), 10) || 0,
+                        "porcentajedescuento": parseFloat($("#descuentoPropioGeneral").val()) || 0,
+                        "valorcomprometido": parseCurrency($("#comprometidoPropioGeneral").val())
+                    }
+                ],
+                "segmentos": segmentosValidados
+            };
 
-        var formData = new FormData();
-        var fileInput = $('#inputGroupFile24')[0].files[0];
-        if (fileInput) formData.append("ArchivoSoporte", fileInput);
-        formData.append("RouterRequestJson", JSON.stringify(payload));
+            const payload = {
+                "code_app": "APP20260128155212346",
+                "http_method": "POST",
+                "endpoint_path": "api/promocion/insertar",
+                "client": "APL",
+                "body_request": body
+            };
 
-        Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
+            // 5. Envío vía AJAX
+            $.ajax({
+                url: "/api/apigee-router-proxy", // O directamente la URL de Apigee si ya no usas proxy local
+                method: "POST",
+                contentType: "application/json", // IMPORTANTE: Enviamos JSON puro
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    // Adaptado para leer la respuesta de tu proxy o de Apigee
+                    const respuestaNegocio = res.json_response || res;
 
-        $.ajax({
-            url: "/api/apigee-router-proxy",
-            method: "POST",
-            processData: false,
-            contentType: false,
-            data: formData,
-            success: function (res) {
-                if (res?.code_status === 200) Swal.fire("Éxito", "Promoción Guardada", "success");
-                else Swal.fire("Error", res?.json_response?.mensaje || "Error al guardar", "error");
-            },
-            error: function () { Swal.fire("Error", "Error de comunicación", "error"); }
-        });
+                    if (respuestaNegocio.codigoRetorno === 1) {
+                        Swal.fire("Éxito", "Promoción Guardada: " + respuestaNegocio.mensaje, "success");
+                    } else {
+                        Swal.fire("Atención", respuestaNegocio.mensaje || "Error en base de datos", "warning");
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire("Error", "Error de comunicación: " + xhr.statusText, "error");
+                }
+            });
+
+        } catch (error) {
+            console.error(error);
+            Swal.fire("Error", "No se pudo procesar el archivo seleccionado", "error");
+        }
     }
 
     // ==========================================

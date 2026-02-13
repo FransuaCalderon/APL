@@ -237,8 +237,13 @@ namespace AppAPL.Dto.Promocion
         public long IdOpcion { get; set; }
         public string IdControlInterfaz { get; set; } = string.Empty;
         public string IdEventoEtiqueta { get; set; } = string.Empty;
-        // Agregamos el archivo aquí para que todo viaje en un solo objeto
-        public IFormFile? ArchivoSoporte { get; set; }
+
+        // --- CAMBIO AQUÍ: Reemplazamos IFormFile por strings ---
+        // El nombre del archivo (ej: "soporte.pdf")
+        public string? NombreArchivoSoporte { get; set; }
+
+        // El contenido del archivo convertido en texto largo
+        public string? ArchivoSoporteBase64 { get; set; }
 
         // Objetos que se enviarán como JSON (CLOB) al SP
         public PromocionDataDTO Promocion { get; set; } = new();
