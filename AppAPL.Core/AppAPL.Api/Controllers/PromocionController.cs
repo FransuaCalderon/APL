@@ -318,5 +318,51 @@ namespace AppAPL.Api.Controllers
                 return BadRequest(retorno);
             }
         }
+
+        [HttpPost("inactivar-promocion")]
+        //[Email("ENTACUERDO", TipoProceso.Inactivacion)]
+        public async Task<ActionResult<ControlErroresDTO>> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
+        {
+            /*
+            var retorno = await servicio.InactivarAcuerdo(acuerdo);
+
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
+            */
+            return Ok();
+        }
+
+
+        [HttpPost("actualizar-promocion")]
+        //[Email("ENTACUERDO", TipoProceso.Modificacion)]
+        public async Task<ActionResult<ControlErroresDTO>> ActualizarAcuerdo(ActualizarAcuerdoDTO actualizarAcuerdoDTO)
+        {
+            /*
+            var retorno = await servicio.ActualizarAsync(actualizarAcuerdoDTO);
+
+            if (retorno.codigoRetorno == 0)
+            {
+                logger.LogInformation(retorno.mensaje);
+                return retorno;
+            }
+            else
+            {
+
+                logger.LogError(retorno.mensaje);
+                return BadRequest(retorno);
+            }
+            */
+
+            return Ok();
+        }
     }
 }
