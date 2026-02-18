@@ -1,23 +1,20 @@
-﻿using System.Globalization;
-using System.Text.Json;
-using AppAPL.AccesoDatos.Abstracciones;
+﻿using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.Api.Attributes;
 using AppAPL.Api.Handlers.Interfaces;
 using AppAPL.Dto;
-using AppAPL.Dto.Email;
 using AppAPL.Dto.Fondos;
-using AppAPL.Negocio.Abstracciones;
-using Humanizer;
-
+using AppAPL.Dto.Promocion;
+using System.Text.Json;
 
 namespace AppAPL.Api.Handlers
 {
-    public class FondosEmailHandler (IEmailRepositorio emailRepo, ILogger<FondosEmailHandler> logger, 
-        IProveedorRepositorio proveedorRepo, IFondoRepositorio fondoRepo) :  HandlerBase(emailRepo, logger), IFondosEmailHandler
+    public class PromocionesEmailHandler (IEmailRepositorio emailRepo, ILogger<PromocionesEmailHandler> logger) 
+        : HandlerBase (emailRepo, logger) ,IPromocionesEmailHandler
     {
-        public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, FondoDTO? fondoAntiguo = null, string? responseBody = null)
+
+        public async Task HandleAsync(string entidad, TipoProceso tipoProceso, string requestBody, BandAproPromocionDTO? promocionAntiguo = null, string? responseBody = null)
         {
-            logger.LogInformation($"[FondosHandler] Procesando correo. Entidad={entidad}, TipoProceso={tipoProceso}");
+            logger.LogInformation($"[PromocionesHandler] Procesando correo. Entidad={entidad}, TipoProceso={tipoProceso}");
             var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
             // 🔹 Mapear el enum a la etiqueta que usa el SP
@@ -42,10 +39,11 @@ namespace AppAPL.Api.Handlers
             switch (tipoProceso)
             {
                 case TipoProceso.Creacion:
+                    /*
                     var reqCreacion = JsonSerializer.Deserialize<CrearFondoRequest>(requestBody, jsonOptions);
                     if (reqCreacion == null || string.IsNullOrEmpty(reqCreacion.IdProveedor))
                     {
-                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener IdProveedor de CrearFondoRequest.");
+                        logger.LogWarning("⚠️ [PromocionesHandler] No se pudo obtener IdProveedor de CrearFondoRequest.");
                         return;
                     }
 
@@ -70,7 +68,7 @@ namespace AppAPL.Api.Handlers
                         { "Nombre", reqCreacion.NombreUsuarioIngreso },
                         { "IdFondo", retorno.Id.ToString() },
                         { "IdProveedor", proveedor.Identificacion },
-                        { "NombreProveedor", proveedor.Nombre }, 
+                        { "NombreProveedor", proveedor.Nombre },
                         { "ValorFondo", this.FormatearAMoneda(reqCreacion.ValorFondo) },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras(reqCreacion.ValorFondo) },
                         { "FechaInicio", reqCreacion.FechaInicioVigencia.ToString() },
@@ -80,25 +78,28 @@ namespace AppAPL.Api.Handlers
                     };
 
                     notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
+                    */
                     break;
 
-                case TipoProceso.Modificacion: 
+                case TipoProceso.Modificacion:
+
+                    /*
                     // Asumo que tienes un DTO 'ModificarFondoRequest'
                     var reqModif = JsonSerializer.Deserialize<ActualizarFondoRequest>(requestBody, jsonOptions);
                     if (reqModif == null || string.IsNullOrEmpty(reqModif.IdProveedor))
                     {
-                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener IdProveedor de ModificarFondoRequest.");
+                        logger.LogWarning("⚠️ [PromocionesHandler] No se pudo obtener IdProveedor de ModificarFondoRequest.");
                         return;
                     }
 
-                    if(fondoAntiguo == null)
+                    if (fondoAntiguo == null)
                     {
-                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener fondo antiguo");
+                        logger.LogWarning("⚠️ [PromocionesHandler] No se pudo obtener fondo antiguo");
                         return;
                     }
 
                     IdProveedor = reqModif.IdProveedor;
-                    
+
                     var proveedorAntiguo = await proveedorRepo.ObtenerPorIdAsync(fondoAntiguo.IdProveedor);
                     var proveedorNuevo = await proveedorRepo.ObtenerPorIdAsync(reqModif.IdProveedor);
 
@@ -134,14 +135,17 @@ namespace AppAPL.Api.Handlers
                     };
 
                     notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
+
+                    */
                     break;
 
 
                 case TipoProceso.Aprobacion:
+                    /*
                     var reqAprobacion = JsonSerializer.Deserialize<AprobarFondoRequest>(requestBody, jsonOptions);
-                    if (reqAprobacion == null || reqAprobacion.Identidad ==null)
+                    if (reqAprobacion == null || reqAprobacion.Identidad == null)
                     {
-                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        logger.LogWarning("⚠️ [PromocionesHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
                         return;
                     }
 
@@ -190,18 +194,21 @@ namespace AppAPL.Api.Handlers
                       };
 
                     notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
+
+                    */
                     break;
 
-                    
+
                 case TipoProceso.Inactivacion:
+                    /*
                     var reqInactivacion = JsonSerializer.Deserialize<InactivarFondoRequest>(requestBody, jsonOptions);
                     if (reqInactivacion == null || reqInactivacion.IdFondo == null)
                     {
-                        logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        logger.LogWarning("⚠️ [PromocionesHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
                         return;
                     }
 
-                    
+
                     var fondo2 = await fondoRepo.ObtenerPorIdAsync((int)reqInactivacion.IdFondo);
 
                     if (fondo2 == null)
@@ -237,11 +244,11 @@ namespace AppAPL.Api.Handlers
                         };
 
                     notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
-
+                    */
                     break;
 
                 default:
-                    logger.LogWarning($"[FondosHandler] TipoProceso no reconocido o sin estrategia definida: {tipoProceso}.");
+                    logger.LogWarning($"[PromocionesHandler] TipoProceso no reconocido o sin estrategia definida: {tipoProceso}.");
                     return;
             }
 
@@ -250,11 +257,11 @@ namespace AppAPL.Api.Handlers
 
             if (camposPlantilla != null)
             {
-                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, notificacion);
+                await EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, notificacion);
             }
             else
             {
-                logger.LogWarning($"[FondosHandler] campos para plantilla de email no definido");
+                logger.LogWarning($"[PromocionesHandler] campos para plantilla de email no definido");
             }
         }
 

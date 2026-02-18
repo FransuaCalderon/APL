@@ -243,6 +243,7 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("insertar")]
+        [Email("ENTPROMOCION", TipoProceso.Creacion)]
         public async Task<ActionResult<ControlErroresDTO>> Insertar([FromBody] CrearPromocionRequestDTO promocion)
         {
             // 1. Validar que el string no sea nulo o vacío
@@ -300,7 +301,7 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("aprobar-promocion")]
-        
+        [Email("ENTPROMOCION", TipoProceso.Aprobacion)]
         public async Task<ActionResult<ControlErroresDTO>> AprobarPromocion(AprobarPromocionRequest promocion)
         {
 
@@ -320,7 +321,7 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpPost("inactivar-promocion")]
-        //[Email("ENTACUERDO", TipoProceso.Inactivacion)]
+        [Email("ENTPROMOCION", TipoProceso.Inactivacion)]
         public async Task<ActionResult<ControlErroresDTO>> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
         {
             /*
@@ -343,7 +344,7 @@ namespace AppAPL.Api.Controllers
 
 
         [HttpPost("actualizar-promocion")]
-        //[Email("ENTACUERDO", TipoProceso.Modificacion)]
+        [Email("ENTPROMOCION", TipoProceso.Modificacion)]
         public async Task<ActionResult<ControlErroresDTO>> ActualizarAcuerdo(ActualizarAcuerdoDTO actualizarAcuerdoDTO)
         {
             /*

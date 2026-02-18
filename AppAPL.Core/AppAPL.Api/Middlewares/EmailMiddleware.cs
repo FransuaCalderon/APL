@@ -139,7 +139,7 @@ namespace AppAPL.Api.Middlewares
             {
                 "fondo" => serviceProvider.GetService<IFondosEmailHandler>(),
                 "acuerdo" => serviceProvider.GetService<IAcuerdosEmailHandler>(),
-                //"promocion" => serviceProvider.GetService<IPromocionEmailHandler>(),
+                "promocion" => serviceProvider.GetService<IPromocionesEmailHandler>(),
                 _ => null
             };
 
@@ -161,7 +161,11 @@ namespace AppAPL.Api.Middlewares
                 case IAcuerdosEmailHandler acuerdosHandler:
                     await acuerdosHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, requestBody, acuerdoAntiguo, responseBody);
                     break;
-               
+
+                case IPromocionesEmailHandler promocionesHandler:
+                    await promocionesHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, requestBody, null, responseBody);
+                    break;
+
             }
 
 
@@ -169,63 +173,6 @@ namespace AppAPL.Api.Middlewares
             logger.LogInformation($"------------------TERMINANDO MIDDLEWARE DE EMAIL [hilo: {processId}] ------------------");
         }
 
-        /*
-        private async Task<FondoDTO> consultarFondoAntiguo(RouteValueDictionary routeValues, IServiceProvider serviceProvider)
-        {
-            
-            if (routeValues.TryGetValue("idFondo", out object idValue))
-            {
-                string idComoString = idValue?.ToString();
-
-                if (!string.IsNullOrEmpty(idComoString))
-                {
-                    logger.LogInformation($"[EmailMiddleware] Se encontró el parámetro 'idFondo': {idComoString}");
-
-                    var servicioFondo = serviceProvider.GetService<IFondoServicio>();
-                    return await servicioFondo.ObtenerPorIdAsync(Convert.ToInt32(idComoString));
-                }
-            }
-
-            logger.LogInformation($"No se encontro parametro de ruta 'idFondo'");
-            return null;
-        }*/
-
-        /*
-        private async Task<T?> ConsultarEntidadAntiguaAsync<T, TServicio>(
-        RouteValueDictionary routeValues,
-        string nombreParametro,
-        IServiceProvider serviceProvider,
-        Func<TServicio, int, Task<T?>> metodoBusqueda)
-        where T : class
-        {
-            if (routeValues.TryGetValue(nombreParametro, out var idValue))
-            {
-                var idString = idValue?.ToString();
-
-                if (!string.IsNullOrWhiteSpace(idString) && int.TryParse(idString, out int id))
-                {
-                    logger.LogInformation($"[EmailMiddleware] Parámetro '{nombreParametro}' encontrado: {id}");
-
-                    var servicio = serviceProvider.GetService<TServicio>();
-                    if (servicio == null)
-                    {
-                        logger.LogError($"No se pudo resolver el servicio: {typeof(TServicio).Name}");
-                        return null;
-                    }
-
-                    // Sin manejo de excepciones, se las dejas al filtro global
-                    return await metodoBusqueda(servicio, id);
-                }
-
-                logger.LogInformation($"El parámetro '{nombreParametro}' no es un entero válido: '{idString}'");
-            }
-            else
-            {
-                logger.LogInformation($"No se encontró el parámetro de ruta '{nombreParametro}'");
-            }
-
-            return null;
-        }*/
 
         private async Task<T?> ConsultarEntidadAntiguaAsync<T, TServicio, TBody>(
         HttpContext context,

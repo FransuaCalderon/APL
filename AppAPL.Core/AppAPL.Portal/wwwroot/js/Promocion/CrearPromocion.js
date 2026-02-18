@@ -94,10 +94,14 @@
     }
 
     function togglePromocionForm() {
-        const tipo = getTipoPromocion();
-        $("#formGeneral").toggle(tipo === "General");
-        $("#formArticulos").toggle(tipo === "Articulos");
-        $("#formCombos").toggle(tipo === "Combos");
+        const idSeleccionado = getTipoPromocion();
+
+        console.log('tipo: ', idSeleccionado);
+
+        // Comparamos contra las variables que llenaste en el AJAX
+        $("#formGeneral").toggle(idSeleccionado == idCatalogoGeneral);
+        $("#formArticulos").toggle(idSeleccionado == idCatalogoArticulo);
+        $("#formCombos").toggle(idSeleccionado == idCatalogoCombos);
     }
 
     // Helper para llenar Select y Modal simultáneamente
@@ -300,16 +304,18 @@
                     const etiqueta = (item.idetiqueta_catalogo || "").toUpperCase();
                     if (etiqueta === "PRGENERAL") {
                         idCatalogoGeneral = item.idcatalogo;
-                        $select.append($("<option>").val("General").text(item.nombre_catalogo));
+                        $select.append($("<option>").val(item.idcatalogo).text(item.nombre_catalogo));
                     } else if (etiqueta === "PRARTICULO") {
                         idCatalogoArticulo = item.idcatalogo;
-                        $select.append($("<option>").val("Articulos").text(item.nombre_catalogo));
+                        $select.append($("<option>").val(item.idcatalogo).text(item.nombre_catalogo));
                     } else if (etiqueta === "PRCOMBO") {
                         idCatalogoCombos = item.idcatalogo;
-                        $select.append($("<option>").val("Combos").text(item.nombre_catalogo));
+                        $select.append($("<option>").val(item.idcatalogo).text(item.nombre_catalogo));
                     }
                 });
-                $select.val("General");
+
+                const promocionGeneral = data.find(x => x.idetiqueta_catalogo == 'PRGENERAL');
+                $select.val(promocionGeneral.idcatalogo);
                 togglePromocionForm();
                 if (callback) callback();
             }
@@ -601,6 +607,16 @@
             return;
         }
 
+
+        // Validamos el archivo antes de seguir
+        if (!esArchivoValido('#inputGroupFile24', '#fileName')) {
+            // Si no hay archivo o es inválido, mostramos alerta si está vacío
+            if ($('#inputGroupFile24')[0].files.length === 0) {
+                Swal.fire("Archivo requerido", "Debe adjuntar el soporte", "warning");
+            }
+            return; // Detenemos la ejecución
+        }
+
         // 2. Manejo del Archivo
         const fileInput = $('#inputGroupFile24')[0].files[0];
         if (!fileInput) {
@@ -645,7 +661,7 @@
                 "promocion": {
                     "descripcion": desc,
                     "motivo": parseInt(motivo, 10) || 0,
-                    "clasepromocion": 1,
+                    "clasepromocion": parseInt($("#promocionTipo").val(), 10) || 0,
                     "fechahorainicio": fechaInicio,
                     "fechahorafin": fechaFin,
                     "marcaregalo": $("#regaloGeneral").is(":checked") ? "S" : "N",
@@ -676,6 +692,7 @@
                 "body_request": body
             };
 
+            console.log("body: ", body);
             // 5. Envío vía AJAX
             $.ajax({
                 url: "/api/apigee-router-proxy",
@@ -683,9 +700,10 @@
                 contentType: "application/json",
                 data: JSON.stringify(payload),
                 success: function (res) {
+                    console.log(res);
                     const respuestaNegocio = res.json_response || res;
 
-                    if (respuestaNegocio.codigoRetorno === 1) {
+                    if (respuestaNegocio.codigoretorno == 1) {
                         Swal.fire("Éxito", "Promoción Guardada: " + respuestaNegocio.mensaje, "success")
                             .then(() => {
                                 resetearFormulario(tipo); // ← AQUÍ, después de que el usuario cierra el Swal
@@ -706,6 +724,8 @@
     }
 
     function resetearFormulario(sufijo) {
+        console.log('resetearFormulario sufijo: ', sufijo);
+
         // --- Campos de texto / select básicos ---
         $(`#motivo${sufijo}`).val("").trigger("change");
         $(`#descripcion${sufijo}`).val("");
@@ -766,6 +786,42 @@
         $(".is-invalid").removeClass("is-invalid");
     }
 
+    function esArchivoValido(inputSelector, spanSelector) {
+        const $input = $(inputSelector);
+        const fileNameSpan = $(spanSelector)[0];
+        const file = $input[0].files[0];
+
+        if (!file) return false;
+
+        // Obtener parámetros dinámicos del ViewBag
+        const tamanoMaxMB = parseFloat($input.data('max-mb')) || 5;
+        const tamanoMaxBytes = tamanoMaxMB * 1024 * 1024;
+        const acceptAttr = $input.attr('accept') || "";
+
+        const extensionesPermitidas = acceptAttr.replace(/\./g, '').split(',').map(ext => ext.trim().toLowerCase());
+        const extensionArchivo = file.name.split('.').pop().toLowerCase();
+
+        // Validación: Extensión
+        if (acceptAttr !== "" && !extensionesPermitidas.includes(extensionArchivo)) {
+            Swal.fire("Extensión no permitida", `Solo se aceptan: ${acceptAttr}`, "error");
+            $input.val('');
+            if (fileNameSpan) fileNameSpan.textContent = "Archivo no válido";
+            return false;
+        }
+
+        // Validación: Tamaño
+        if (file.size > tamanoMaxBytes) {
+            Swal.fire("Archivo muy pesado", `El límite es de ${tamanoMaxMB}MB`, "error");
+            $input.val('');
+            if (fileNameSpan) fileNameSpan.textContent = "Archivo muy pesado";
+            return false;
+        }
+
+        // Si todo está bien
+        if (fileNameSpan) fileNameSpan.textContent = file.name;
+        return true;
+    }
+
     // ==========================================
     // INIT
     // ==========================================
@@ -781,8 +837,8 @@
         $("#promocionTipo").change(function () {
             togglePromocionForm();
             const tipo = getTipoPromocion();
-            if (tipo === "Articulos") cargarMotivosPromociones("#motivoArticulos");
-            if (tipo === "Combos") cargarMotivosPromociones("#motivoCombos");
+            if (tipo == idCatalogoArticulo) cargarMotivosPromociones("#motivoArticulos");
+            if (tipo == idCatalogoCombos) cargarMotivosPromociones("#motivoCombos");
         });
 
         // Carga inicial
@@ -830,9 +886,11 @@
 
         // Input File
         $('#inputGroupFile24').on('change', function () {
-            const fileNameSpan = document.getElementById('fileName');
-            if (this.files && this.files.length > 0) fileNameSpan.textContent = this.files[0].name;
+           esArchivoValido('#inputGroupFile24', '#fileName');
         });
+
+        // Función auxiliar para no repetir código
+        
 
         $(".btn-secondary[id^='btnCancelar']").click(() => location.reload());
     });
