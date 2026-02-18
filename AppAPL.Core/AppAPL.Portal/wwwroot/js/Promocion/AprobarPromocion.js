@@ -210,17 +210,17 @@ function crearListado(data) {
 
         html += "<tr>";
         html += "  <td class='text-center'>" + viewButton + "</td>";
-        html += "  <td>" + (promo.nombre_solicitud ?? "") + "</td>";
+        html += "  <td>" + (promo.solicitud ?? "") + "</td>";
         html += "  <td>" + (promo.idpromocion ?? "") + "</td>";
         html += "  <td>" + (promo.descripcion ?? "") + "</td>";
         html += "  <td>" + (promo.motivo ?? "") + "</td>";
         html += "  <td>" + clasePromocionHTML + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(promo.fechasolicitud) + "</td>";
-        html += "  <td>" + (promo.usuariosolicita ?? promo.idusersolicitud ?? "") + "</td>";
+        html += "  <td>" + (promo.nombreusersolicitud ?? "") + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(promo.fechahorainicio) + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(promo.fechahorafin) + "</td>";
         html += "  <td class='text-center'>" + (promo.marcaregalo ?? "") + "</td>";
-        html += "  <td>" + (promo.soporte ?? "") + "</td>";
+        html += "  <td>" + obtenerNombreArchivo(promo.archivosoporte) + "</td>";
         html += "  <td>" + (promo.nombre_estado ?? "") + "</td>";
         html += "</tr>";
     }
@@ -274,6 +274,19 @@ function formatearMoneda(valor) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
+}
+
+/**
+ * Extrae el nombre del archivo desde una ruta completa
+ * Ej: "C:\Soportes\Promociones\abc_archivo.pdf" => "archivo.pdf"
+ */
+function obtenerNombreArchivo(rutaCompleta) {
+    if (!rutaCompleta) return "";
+    // Obtener solo el nombre del archivo (después del último \ o /)
+    var nombreArchivo = rutaCompleta.replace(/^.*[\\/]/, '');
+    // Remover el GUID prefix si existe (formato: guid_nombrereal.ext)
+    var sinGuid = nombreArchivo.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i, '');
+    return sinGuid || nombreArchivo;
 }
 
 /**
@@ -347,17 +360,17 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                 };
 
                 // 1. Llenar Formulario
-                $("#verSolicitud").val(data.cabecera?.nombre_solicitud || "");
+                $("#verSolicitud").val(data.cabecera?.solicitud || "");
                 $("#verMotivo").val(data.cabecera?.motivo || "");
                 $("#verDescripcion").val(data.cabecera?.descripcion || "");
                 $("#verClasePromocion").val(data.cabecera?.nombre_clase_promocion || "");
                 $("#verEstado").val(data.cabecera?.nombre_estado || "");
-                $("#verUsuarioSolicita").val(data.cabecera?.usuariosolicita || data.cabecera?.idusersolicitud || "");
+                $("#verUsuarioSolicita").val(data.cabecera?.nombreusersolicitud || "");
                 $("#verFechaSolicitud").val(formatearFecha(data.cabecera?.fechasolicitud));
                 $("#verFechaInicio").val(formatearFecha(data.cabecera?.fechahorainicio));
                 $("#verFechaFin").val(formatearFecha(data.cabecera?.fechahorafin));
                 $("#verRegalo").val(data.cabecera?.marcaregalo || "");
-                $("#verSoporte").val(data.cabecera?.soporte || "");
+                $("#verSoporte").val(obtenerNombreArchivo(data.cabecera?.archivosoporte));
 
                 // =================================================================
                 // LOGICA DE ARTÍCULOS

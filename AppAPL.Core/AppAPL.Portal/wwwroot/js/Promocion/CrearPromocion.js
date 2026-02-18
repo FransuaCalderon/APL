@@ -25,7 +25,7 @@
         { id: "canal", select: "#filtroCanalGeneral", btnOpen: "#btnCanalGeneral", body: "#bodyModalCanal", btnAccept: "#btnAceptarCanal", triggerVal: "3" },
         { id: "grupo", select: "#filtroGrupoAlmacenGeneral", btnOpen: "#btnGrupoAlmacenGeneral", body: "#bodyModalGrupoAlmacen", btnAccept: "#btnAceptarGrupoAlmacen", triggerVal: "3" },
         { id: "almacen", select: "#filtroAlmacenGeneral", btnOpen: "#btnAlmacenGeneral", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" },
-        { id: "mediopago", select: "#filtroMedioPagoGeneral", btnOpen: "#btnMedioPagoGeneral", body: "#bodyModalMedioPago", btnAccept: "#btnAceptarMedioPago", triggerVal: "7" } // Ojo: Medio pago suele usar 7 u otro valor
+        { id: "mediopago", select: "#filtroMedioPagoGeneral", btnOpen: "#btnMedioPagoGeneral", body: "#bodyModalMedioPago", btnAccept: "#btnAceptarMedioPago", triggerVal: "7" }
     ];
 
     // ==========================================
@@ -76,11 +76,7 @@
 
     function parseCurrency(str) {
         if (!str) return 0;
-        // Elimina todo lo que no sea número o punto (asumiendo formato guardado o crudo)
-        // Si viene con formato español (1.000,00), hay que normalizar.
-        // Estrategia simple: limpiar no numéricos excepto coma y punto.
         let clean = str.toString().replace(/[^0-9.,-]/g, '');
-        // Si tiene coma como decimal, reemplazar.
         if (clean.includes(',') && !clean.includes('.')) clean = clean.replace(',', '.');
         else if (clean.includes(',') && clean.includes('.')) clean = clean.replace(/\./g, '').replace(',', '.');
         return parseFloat(clean) || 0;
@@ -106,13 +102,10 @@
 
     // Helper para llenar Select y Modal simultáneamente
     const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo) => {
-        // 1. Llenar Select
         $select.empty();
         $select.append(`<option selected value="">${labelDefault}</option>`);
-        // Opción Varios
         $select.append(`<option value="${valorVarios}" class="fw-bold text-success">-- VARIOS --</option>`);
 
-        // 2. Llenar Modal con Checkboxes
         $modalBody.empty();
         const $ul = $('<ul class="list-group w-100"></ul>');
 
@@ -121,10 +114,8 @@
                 const codigo = i.codigo || i.id || i.valor;
                 const texto = i.nombre || i.descripcion || i.codigo;
 
-                // Opción simple en select
                 $select.append($("<option>", { value: codigo, text: texto }));
 
-                // Checkbox en modal
                 const chkId = `chk_${idPrefijo}_${codigo}`;
                 const li = `
                     <li class="list-group-item">
@@ -143,18 +134,12 @@
 
     function initValidacionesFinancieras() {
 
-        // --- 1. VALIDACIÓN PRESUPUESTO PROVEEDOR ---
         $("#fondoValorTotalGeneral").on("blur", function () {
-            // Limpieza: solo números y puntos
             let valStr = $(this).val().replace(/[^0-9.]/g, '');
             let valorIngresado = parseFloat(valStr) || 0;
-
-            // Obtener disponible del hidden (se setea al elegir proveedor)
             let disponibleStr = $("#fondoDisponibleHiddenGeneral").val();
-            // Limpiar disponible por si viene con formato
             let disponible = parseCurrency(disponibleStr);
 
-            // Validar
             if (valorIngresado > disponible) {
                 Swal.fire({
                     icon: 'warning',
@@ -165,16 +150,13 @@
                 $(this).addClass("is-invalid");
             } else {
                 $(this).removeClass("is-invalid");
-                // Formatear visualmente
                 $(this).val(formatCurrencySpanish(valorIngresado));
             }
         });
 
-        // --- 2. VALIDACIÓN PRESUPUESTO PROPIO ---
         $("#comprometidoPropioGeneral").on("blur", function () {
             let valStr = $(this).val().replace(/[^0-9.]/g, '');
             let valorIngresado = parseFloat(valStr) || 0;
-
             let disponibleStr = $("#acuerdoPropioDisponibleHiddenGeneral").val();
             let disponible = parseCurrency(disponibleStr);
 
@@ -192,9 +174,7 @@
             }
         });
 
-        // --- 3. CÁLCULO DE PORCENTAJES ---
         const soloNumeros = function (e) {
-            // Reemplaza cualquier cosa que no sea número o punto
             this.value = this.value.replace(/[^0-9.]/g, '');
             calcularTotalDescuento();
         };
@@ -206,68 +186,52 @@
             let descProv = parseFloat($("#descuentoProveedorGeneral").val()) || 0;
             let descProp = parseFloat($("#descuentoPropioGeneral").val()) || 0;
             let total = descProv + descProp;
-
             $("#descuentoTotalGeneral").val(total.toFixed(2) + "%");
         }
 
-        // Formato visual al salir (% al final)
         $("#descuentoProveedorGeneral, #descuentoPropioGeneral").on("blur", function () {
             let val = parseFloat($(this).val()) || 0;
             if (val > 0) $(this).val(val.toFixed(2) + "%");
         });
 
-        // Limpiar % al entrar para editar
         $("#descuentoProveedorGeneral, #descuentoPropioGeneral").on("focus", function () {
             let val = $(this).val().replace("%", "");
             $(this).val(val);
         });
     }
 
-    // Lógica para manejar la selección múltiple en todos los filtros
     function initLogicaSeleccionMultiple() {
         CONFIG_MULTIPLE.forEach(conf => {
-            // 1. Listener en el Select (Change)
             $(conf.select).off("change").on("change", function () {
                 const val = $(this).val();
 
-                // Si selecciona "Varios", mostrar botón y abrir modal
                 if (val === conf.triggerVal) {
                     $(conf.btnOpen).removeClass("d-none");
-                    // Opcional: abrir modal automáticamente al seleccionar
-                    // const modalId = $(conf.btnOpen).attr("data-bs-target");
-                    // $(modalId).modal("show");
                 } else {
                     $(conf.btnOpen).addClass("d-none");
-                    // Limpiar data guardada si cambia a selección simple
                     $(conf.btnOpen).removeData("seleccionados");
                     $(conf.btnOpen).html(`<i class="fa-solid fa-list-check"></i>`);
                     $(conf.btnOpen).removeClass("btn-success").addClass("btn-outline-secondary");
                 }
 
-                // VALIDACIÓN ESPECÍFICA MARCA: 
-                // Si cambia en el select principal a algo que NO es Varios (1 sola marca)
                 if (conf.id === "marca") {
                     if (val !== conf.triggerVal && val !== "") {
-                        validarBloqueoProveedor(1); // 1 marca -> Desbloqueado
+                        validarBloqueoProveedor(1);
                     } else if (val === "") {
-                        validarBloqueoProveedor(0); // Nada -> Desbloqueado (o bloqueado según regla negocio, asumo desbloqueado para elegir)
+                        validarBloqueoProveedor(0);
                     }
                 }
             });
 
-            // 2. Listener en el Botón "Aceptar" del Modal
             $(conf.btnAccept).off("click").on("click", function () {
-                // Obtener checkboxes marcados en el body correspondiente
                 const seleccionados = [];
                 $(`${conf.body} input[type='checkbox']:checked`).each(function () {
                     seleccionados.push($(this).val());
                 });
 
-                // Guardar array en el botón de apertura
                 const $btnTrigger = $(conf.btnOpen);
                 $btnTrigger.data("seleccionados", seleccionados);
 
-                // Feedback Visual
                 if (seleccionados.length > 0) {
                     $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success");
                     $btnTrigger.html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
@@ -276,7 +240,6 @@
                     $btnTrigger.html(`<i class="fa-solid fa-list-check"></i>`);
                 }
 
-                // VALIDACIÓN ESPECÍFICA MARCA:
                 if (conf.id === "marca") {
                     validarBloqueoProveedor(seleccionados.length);
                 }
@@ -288,22 +251,19 @@
 
     function validarBloqueoProveedor(cantidad) {
         const $inputProv = $("#fondoProveedorGeneral");
-        const $btnProv = $inputProv.next("button"); // El botón de la lupa
+        const $btnProv = $inputProv.next("button");
         const $idProv = $("#fondoProveedorIdGeneral");
         const $idHidden = $("#fondoDisponibleHiddenGeneral");
 
         if (cantidad > 1) {
-            // Bloquear
             $inputProv.val("").prop("disabled", true).attr("placeholder", "Bloqueado por múltiples marcas");
             $idProv.val("");
             $idHidden.val("0");
             $btnProv.prop("disabled", true);
-            // Limpiar valores dependientes
             $("#fondoValorTotalGeneral").val("");
             $("#descuentoProveedorGeneral").val("");
             $("#descuentoTotalGeneral").val("");
         } else {
-            // Desbloquear
             $inputProv.prop("disabled", false).attr("placeholder", "Seleccione...");
             $btnProv.prop("disabled", false);
         }
@@ -394,8 +354,6 @@
             data: JSON.stringify(payload),
             success: function (res) {
                 const data = res.json_response || {};
-
-                // Usamos el helper para llenar Select y Modal
                 llenarComboYModal($("#filtroMarcaGeneral"), $("#bodyModalMarca"), data.marcas, "Todas", "3", "marca");
                 llenarComboYModal($("#filtroDivisionGeneral"), $("#bodyModalDivision"), data.divisiones, "Todas", "3", "division");
                 llenarComboYModal($("#filtroDepartamentoGeneral"), $("#bodyModalDepartamento"), data.departamentos, "Todos", "3", "depto");
@@ -426,11 +384,10 @@
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Cargando...", "3", "almacen");
                 llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), data.mediospagos, "Cargando...", "7", "mediopago");
 
-                // Tipo Cliente (Manejo especial o similar)
                 const $cli = $("#tipoClienteGeneral");
                 $cli.empty().append('<option selected value="">Todos</option>');
                 if (data.tiposclientes) data.tiposclientes.forEach(c => $cli.append(`<option value="${c.codigo}">${c.nombre}</option>`));
-                $cli.append('<option value="3">Lista Específica</option><option value="4">Varios</option>'); // Ajustar valores según backend
+                $cli.append('<option value="3">Lista Específica</option><option value="4">Varios</option>');
             }
         });
     }
@@ -518,6 +475,68 @@
     }
 
     // ==========================================
+    // RESET FORMULARIO
+    // ==========================================
+    function resetearFormulario(sufijo) {
+        // Campos básicos
+        $(`#motivo${sufijo}`).val("").trigger("change");
+        $(`#descripcion${sufijo}`).val("");
+        $(`#fechaInicio${sufijo}`).val("");
+        $(`#fechaFin${sufijo}`).val("");
+        $(`#timeInicio${sufijo}`).val("");
+        $(`#timeFin${sufijo}`).val("");
+        $("#regaloGeneral").prop("checked", false);
+
+        // Acuerdo Proveedor
+        $("#fondoProveedorGeneral").val("").prop("disabled", false).attr("placeholder", "Seleccione...");
+        $("#fondoProveedorGeneral").next("button").prop("disabled", false);
+        $("#fondoProveedorIdGeneral").val("");
+        $("#fondoDisponibleHiddenGeneral").val("");
+        $("#fondoValorTotalGeneral").val("");
+        $("#descuentoProveedorGeneral").val("");
+
+        // Acuerdo Propio
+        $("#acuerdoPropioGeneral").val("");
+        $("#acuerdoPropioIdGeneral").val("");
+        $("#acuerdoPropioDisponibleHiddenGeneral").val("");
+        $("#comprometidoPropioGeneral").val("");
+        $("#descuentoPropioGeneral").val("");
+
+        // Descuento Total
+        $("#descuentoTotalGeneral").val("");
+
+        // Filtros múltiples: selects, botones y checkboxes
+        CONFIG_MULTIPLE.forEach(conf => {
+            $(conf.select).val("").trigger("change");
+            $(conf.btnOpen).addClass("d-none");
+            $(conf.btnOpen).removeData("seleccionados");
+            $(conf.btnOpen).html(`<i class="fa-solid fa-list-check"></i>`);
+            $(conf.btnOpen).removeClass("btn-success").addClass("btn-outline-secondary");
+            $(`${conf.body} input[type='checkbox']`).prop("checked", false);
+        });
+
+        // Tipo Cliente
+        $("#tipoClienteGeneral").val("").trigger("change");
+        $("#btnListaClienteGeneral").addClass("d-none");
+
+        // Archivo
+        $("#inputGroupFile24").val("");
+        const fileNameSpan = document.getElementById("fileName");
+        if (fileNameSpan) fileNameSpan.textContent = "";
+
+        // Artículo
+        $("#chkArticuloGeneral").prop("checked", false).trigger("change");
+        $("#articuloGeneral").val("").prop("disabled", true);
+
+        // Variables temporales
+        proveedorTemporal = null;
+        propioTemporal = null;
+
+        // Clases de validación visual
+        $(".is-invalid").removeClass("is-invalid");
+    }
+
+    // ==========================================
     // LOGICA GUARDAR Y ARTICULOS
     // ==========================================
 
@@ -527,7 +546,6 @@
             $("#articuloGeneral").prop("disabled", !isChecked);
             if (!isChecked) $("#articuloGeneral").val("");
             const $jerarquia = $("#filtroMarcaGeneral, #filtroDivisionGeneral, #filtroDepartamentoGeneral, #filtroClaseGeneral");
-            // Botones de modal tambien
             const $btns = $("#btnMarcaGeneral, #btnDivisionGeneral, #btnDepartamentoGeneral, #btnClaseGeneral");
 
             $jerarquia.prop("disabled", isChecked);
@@ -545,33 +563,29 @@
         $(".btn-outline-secondary:has(.fa-calendar)").click(function () { $(this).parent().find("input[type='text']").datepicker("show"); });
     }
 
-    // Función auxiliar para obtener datos de un campo (Simple o Múltiple)
     function obtenerValorCampo(configId, selectId, triggerVal) {
         const valSelect = $(selectId).val();
 
-        // Si es selección múltiple (Varios)
         if (valSelect === triggerVal) {
-            // Buscamos la configuración para obtener el botón
             const conf = CONFIG_MULTIPLE.find(c => c.id === configId);
             if (conf) {
                 const seleccionados = $(conf.btnOpen).data("seleccionados");
-                return seleccionados || []; // Retorna Array
+                return seleccionados || [];
             }
         }
 
-        // Si es selección simple y tiene valor
         if (valSelect && valSelect !== "") {
-            return [valSelect]; // Retorna Array con 1 elemento
+            return [valSelect];
         }
 
-        return []; // Retorna Array vacío
+        return [];
     }
 
     const archivoToBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.readAsDataURL(file); // Esto lee el archivo
-        reader.onload = () => resolve(reader.result); // Éxito
-        reader.onerror = error => reject(error); // Error
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
     });
 
     async function guardarPromocion(tipo) {
@@ -587,14 +601,13 @@
             return;
         }
 
-        // 2. Manejo del Archivo (Convertir a Base64)
+        // 2. Manejo del Archivo
         const fileInput = $('#inputGroupFile24')[0].files[0];
         if (!fileInput) {
             Swal.fire("Archivo requerido", "Debe adjuntar el soporte de la promoción", "warning");
             return;
         }
 
-        // Función auxiliar para leer archivo
         const leerArchivo = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -607,7 +620,7 @@
         try {
             const base64Completo = await leerArchivo(fileInput);
 
-            // 3. Recolección de segmentos (Tu lógica actual T/C)
+            // 3. Recolección de segmentos
             const marcas = obtenerValorCampo("marca", "#filtroMarcaGeneral", "3");
             const divisiones = obtenerValorCampo("division", "#filtroDivisionGeneral", "3");
             const canales = obtenerValorCampo("canal", "#filtroCanalGeneral", "3");
@@ -621,14 +634,14 @@
                 "tipoasignacion": (seg.codigos && seg.codigos.length > 0) ? "C" : "T"
             }));
 
-            // 4. Construcción del Body (Debe coincidir con tu DTO de C#)
+            // 4. Construcción del Body
             const body = {
                 "tipoclaseetiqueta": "PRGENERAL",
                 "idopcion": getIdOpcionSeguro(),
                 "idcontrolinterfaz": "BTNGRABAR",
                 "ideventoetiqueta": "EVCLICK",
                 "nombreArchivoSoporte": fileInput.name,
-                "archivoSoporteBase64": base64Completo, // El archivo va aquí adentro
+                "archivoSoporteBase64": base64Completo,
                 "promocion": {
                     "descripcion": desc,
                     "motivo": parseInt(motivo, 10) || 0,
@@ -642,12 +655,12 @@
                 },
                 "acuerdos": [
                     {
-                        "idacuerdo": parseInt($("#fondoProveedorGeneral").val(), 10) || 0,
+                        "idacuerdo": parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0,
                         "porcentajedescuento": parseFloat($("#descuentoProveedorGeneral").val()) || 0,
                         "valorcomprometido": parseCurrency($("#fondoValorTotalGeneral").val())
                     },
                     {
-                        "idacuerdo": parseInt($("#acuerdoPropioGeneral").val(), 10) || 0,
+                        "idacuerdo": parseInt($("#acuerdoPropioIdGeneral").val(), 10) || 0,
                         "porcentajedescuento": parseFloat($("#descuentoPropioGeneral").val()) || 0,
                         "valorcomprometido": parseCurrency($("#comprometidoPropioGeneral").val())
                     }
@@ -665,16 +678,18 @@
 
             // 5. Envío vía AJAX
             $.ajax({
-                url: "/api/apigee-router-proxy", // O directamente la URL de Apigee si ya no usas proxy local
+                url: "/api/apigee-router-proxy",
                 method: "POST",
-                contentType: "application/json", // IMPORTANTE: Enviamos JSON puro
+                contentType: "application/json",
                 data: JSON.stringify(payload),
                 success: function (res) {
-                    // Adaptado para leer la respuesta de tu proxy o de Apigee
                     const respuestaNegocio = res.json_response || res;
 
                     if (respuestaNegocio.codigoRetorno === 1) {
-                        Swal.fire("Éxito", "Promoción Guardada: " + respuestaNegocio.mensaje, "success");
+                        Swal.fire("Éxito", "Promoción Guardada: " + respuestaNegocio.mensaje, "success")
+                            .then(() => {
+                                resetearFormulario(tipo); // ← AQUÍ, después de que el usuario cierra el Swal
+                            });
                     } else {
                         Swal.fire("Atención", respuestaNegocio.mensaje || "Error en base de datos", "warning");
                     }
@@ -690,6 +705,67 @@
         }
     }
 
+    function resetearFormulario(sufijo) {
+        // --- Campos de texto / select básicos ---
+        $(`#motivo${sufijo}`).val("").trigger("change");
+        $(`#descripcion${sufijo}`).val("");
+        $(`#fechaInicio${sufijo}`).val("");
+        $(`#fechaFin${sufijo}`).val("");
+        $(`#timeInicio${sufijo}`).val("");
+        $(`#timeFin${sufijo}`).val("");
+        $(`#regaloGeneral`).prop("checked", false);
+
+        // --- Acuerdo Proveedor ---
+        $("#fondoProveedorGeneral").val("").prop("disabled", false);
+        $("#fondoProveedorIdGeneral").val("");
+        $("#fondoDisponibleHiddenGeneral").val("");
+        $("#fondoValorTotalGeneral").val("");
+        $("#descuentoProveedorGeneral").val("");
+
+        // --- Acuerdo Propio ---
+        $("#acuerdoPropioGeneral").val("");
+        $("#acuerdoPropioIdGeneral").val("");
+        $("#acuerdoPropioDisponibleHiddenGeneral").val("");
+        $("#comprometidoPropioGeneral").val("");
+        $("#descuentoPropioGeneral").val("");
+
+        // --- Descuento Total ---
+        $("#descuentoTotalGeneral").val("");
+
+        // --- Filtros Jerarquía y Combos (Selects + Botones múltiple) ---
+        CONFIG_MULTIPLE.forEach(conf => {
+            $(conf.select).val("").trigger("change");         // Reset select
+            $(conf.btnOpen).addClass("d-none");               // Ocultar botón Varios
+            $(conf.btnOpen).removeData("seleccionados");      // Limpiar selección guardada
+            $(conf.btnOpen).html(`<i class="fa-solid fa-list-check"></i>`);
+            $(conf.btnOpen).removeClass("btn-success").addClass("btn-outline-secondary");
+
+            // Desmarcar todos los checkboxes del modal correspondiente
+            $(`${conf.body} input[type='checkbox']`).prop("checked", false);
+        });
+
+        // --- Tipo Cliente ---
+        $("#tipoClienteGeneral").val("").trigger("change");
+        $("#btnListaClienteGeneral").addClass("d-none");
+
+        // --- Archivo ---
+        $("#inputGroupFile24").val("");
+        $("#fileName").textContent = "";  // Si usas span de nombre
+        const fileNameSpan = document.getElementById("fileName");
+        if (fileNameSpan) fileNameSpan.textContent = "";
+
+        // --- Artículo (si aplica) ---
+        $("#chkArticuloGeneral").prop("checked", false).trigger("change");
+        $("#articuloGeneral").val("").prop("disabled", true);
+
+        // --- Limpiar variables temporales globales ---
+        proveedorTemporal = null;
+        propioTemporal = null;
+
+        // --- Quitar clases de validación visual ---
+        $(".is-invalid").removeClass("is-invalid");
+    }
+
     // ==========================================
     // INIT
     // ==========================================
@@ -698,8 +774,8 @@
 
         togglePromocionForm();
         initLogicaArticuloGeneral();
-        initLogicaSeleccionMultiple(); // ✅ Inicia listeners para TODOS los selects (Jerarquía + Combos)
-        initValidacionesFinancieras(); // ✅ Inicia validaciones $, Presupuesto y %
+        initLogicaSeleccionMultiple();
+        initValidacionesFinancieras();
         initDatepickers();
 
         $("#promocionTipo").change(function () {
@@ -742,13 +818,11 @@
             }
         });
 
-        // Tipo Cliente (Manejo de archivo específico)
+        // Tipo Cliente
         $("#tipoClienteGeneral").off("change").on("change", function () {
             const val = $(this).val();
-            // Si es 3 (Lista Esp) o 4 (Varios) -> segun la carga de combos
             if (val === "3" || val === "4") {
                 $("#btnListaClienteGeneral").removeClass("d-none");
-                // Logica visual adicional si se requiere
             } else {
                 $("#btnListaClienteGeneral").addClass("d-none");
             }
