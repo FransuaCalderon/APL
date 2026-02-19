@@ -184,21 +184,19 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpGet("consultar-bandeja-modificacion")]
-        public async Task<ActionResult<List<BandejaModificacionAcuerdoDTO>>> ConsultarBandModAcuerdo()
+        public async Task<ActionResult<List<BandModPromocionDTO>>> ConsultarBandMod()
         {
-            /*
-            var listaBandeja = await servicio.ConsultarBandModAcuerdo();
+            
+            var listaBandeja = await servicio.ConsultarBandModPromocion();
 
             return listaBandeja.ToList();
-            */
-            return Ok();
+            
         }
 
         [HttpGet("bandeja-modificacion-id/{idPromocion:int}")]
-        public async Task<ActionResult<BandModAcuerdoPorIDDTO>> ObtenerBandejaModificacionPorId(int idPromocion)
+        public async Task<ActionResult<BandModPromocionIDDTO>> ObtenerBandModPromoPorId(int idPromocion)
         {
-            /*
-            var item = await servicio.ObtenerBandejaModificacionPorId(idPromocion);
+            var item = await servicio.ObtenerBandModPromoPorId(idPromocion);
             if (item.codigoSalida == 0)
             {
                 logger.LogInformation(item.mensajeSalida);
@@ -208,23 +206,21 @@ namespace AppAPL.Api.Controllers
             {
                 logger.LogError(item.mensajeSalida);
                 return BadRequest(new { mensaje = item.mensajeSalida });
-            }*/
-
-            return Ok();
+            }
         }
 
         [HttpGet("consultar-bandeja-general")]
-        public async Task<ActionResult<List<BandejaConsultaAcuerdoDTO>>> ConsultarBandConsPromocion()
+        public async Task<ActionResult<List<PromocionDTO>>> ConsultarBandConsGeneral()
         {
-            /*
-            var listaBandeja = await servicio.ConsultarBandConsAcuerdo();
+            
+            var listaBandeja = await servicio.ConsultarBandGeneral();
 
-            return listaBandeja.ToList();*/
-            return Ok();
+            return listaBandeja.ToList();
+            
         }
 
         [HttpGet("bandeja-general-id/{idPromocion:int}")]
-        public async Task<ActionResult<BandConsAcuerdoPorIDDTO>> ObtenerBandejaConsultaPorId(int idPromocion)
+        public async Task<ActionResult<BandConsAcuerdoPorIDDTO>> ConsultarBandConsGeneralPorId(int idPromocion)
         {
             /*
             var item = await servicio.ObtenerBandejaConsultaPorId(idAcuerdo);

@@ -12,17 +12,18 @@ namespace AppAPL.Dto.Promocion
 {
     public class PromocionDTO
     {
+        public string solicitud { get; set; }
         public int IDPROMOCION { get; set; }
         public string DESCRIPCION { get; set; }
         public int MOTIVO { get; set; }
-        public int CLASEPROMOCION { get; set; }
-        public DateTime FECHAHORAINICIO { get; set; }
-        public DateTime FECHAHORAFIN { get; set; }
-        public string MARCAREGALO { get; set; }
-        public int ESTADOREGISTRO { get; set; }
-        public string MARCAPROCESOAPROBACION { get; set; }
-        public int NUMEROLOTEAPROBACION { get; set; }
-        public string ARCHIVOSOPORTE { get; set; }
+        public string nombre_motivo { get; set; }
+        public string clase_promocion { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public string regalo { get; set; }
+        public string soporte { get; set; }
+        public string estado { get; set; }
+        public string estado_etiqueta { get; set; }
     }
 
     public class PromocionAcuerdoDTO
@@ -183,6 +184,27 @@ namespace AppAPL.Dto.Promocion
         public string ARCHIVOSOPORTE { get; set; }
     }
 
+    public class BandModPromocionDTO
+    {
+        public string solicitud { get; set; }
+        public int idpromocion { get; set; }
+        public string descripcion { get; set; }
+        public string motivo { get; set; }
+        public string clase_promocion { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public string marcaregalo { get; set; }
+        public string archivosoporte { get; set; }
+        public string estado { get; set; }
+        public string estado_etiqueta { get; set; }
+        public int idaprobacion { get; set; }
+        public string idusersolicitud { get; set; }
+        public string nombreusersolicitud { get; set; }
+        public DateTime fechasolicitud { get; set; }
+        public int nivelaprobacion { get; set; }
+        public int numeroloteaprobacion { get; set; }
+    }
+
     public class BandAproPromocionDTO
     {
         public string solicitud { get; set; }
@@ -206,14 +228,32 @@ namespace AppAPL.Dto.Promocion
         public int tiene_aprobador { get; set; }
     }
 
+    public class BandModPromocionIDDTO
+    {
+        // Lista para capturar el cursor p_cursor_cabecera
+        public CabeceraBandAproPromoDTO? cabecera { get; set; }
+        public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
+
+        // Lista para capturar el cursor p_cursor_articulos
+        public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
+
+        public string? tipopromocion { get; set; }
+        [JsonIgnore]
+        public int? codigoSalida { get; set; }
+        [JsonIgnore]
+        public string? mensajeSalida { get; set; }
+    }
+
     public class BandAproPromocionIDDTO
     {
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandAproPromoDTO? cabecera { get; set; }
+        public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
 
         // Lista para capturar el cursor p_cursor_articulos
         public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
-        public string tipopromocion { get; set; }
+        
+        public string? tipopromocion { get; set; }
         [JsonIgnore]
         public int? codigoSalida { get; set; }
         [JsonIgnore]
@@ -225,38 +265,31 @@ namespace AppAPL.Dto.Promocion
         public string Solicitud { get; set; }
         public int IdPromocion { get; set; }
         public string Descripcion { get; set; }
-        public int IdMotivo { get; set; }
-        public string NombreMotivo { get; set; }
-        public int IdClasePromocion { get; set; }
-        public string NombreClasePromocion { get; set; }
-        public string EtiquetaClasePromocion { get; set; }
+        public int id_motivo { get; set; }
+        public string nombre_motivo { get; set; }
+        public int id_clase_promocion { get; set; }
+        public string nombre_clase_promocion { get; set; }
+        public string etiqueta_clase_promocion { get; set; }
         public string MarcaRegalo { get; set; }
         public string MarcaProcesoAprobacion { get; set; }
         public int? NumeroLoteAprobacion { get; set; }
         public string ArchivoSoporte { get; set; }
+        public int cantidad_acuerdos { get; set; }
 
-        // Campos que vienen en cabecera solo si es PRGENERAL
-        public int? IdPromocionAcuerdo { get; set; }
-        public int? IdAcuerdo { get; set; }
-        public string DescripcionAcuerdo { get; set; }
-        public decimal? PorcentajeDescuento { get; set; }
-        public decimal? ValorComprometido { get; set; }
-        public decimal? ValorDisponible { get; set; }
-        public decimal? ValorLiquidado { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public int id_estado_promocion { get; set; }
+        public string nombre_estado_promocion { get; set; }
+        public string etiqueta_estado_promocion { get; set; }
+        public int nivelaprobacion { get; set; }
 
-        public string FechaInicio { get; set; }
-        public string FechaFin { get; set; }
-        public int IdEstadoPromocion { get; set; }
-        public string NombreEstadoPromocion { get; set; }
-        public string EtiquetaEstadoPromocion { get; set; }
-        public int NivelAprobacion { get; set; }
-        public string Aprobador { get; set; }
-        public int IdAprobacion { get; set; }
-        public int IdEntidad { get; set; }
-        public string EntidadEtiqueta { get; set; }
-        public int IdTipoProceso { get; set; }
-        public string TipoProcesoEtiqueta { get; set; }
-        public string EstadoAprobEtiqueta { get; set; }
+        public string aprobador { get; set; }
+        public int idaprobacion { get; set; }
+        public int id_entidad { get; set; }
+        public string entidad_etiqueta { get; set; }
+        public int id_tipo_proceso { get; set; }
+        public string tipo_proceso_etiqueta { get; set; }
+        public string estado_aprob_etiqueta { get; set; }
     }
 
     public class ArticuloBandAproPromoDTO
@@ -264,14 +297,14 @@ namespace AppAPL.Dto.Promocion
         public int IdPromocionAcuerdo { get; set; }
         public int IdPromocion { get; set; }
         public int IdAcuerdo { get; set; }
-        public string DescripcionAcuerdo { get; set; }
-        public decimal PorcentajeDescuento { get; set; }
-        public decimal ValorComprometido { get; set; }
-        public decimal ValorDisponible { get; set; }
-        public decimal ValorLiquidado { get; set; }
-        public int IdEstadoDetalle { get; set; }
-        public string NombreEstadoDetalle { get; set; }
-        public string EtiquetaEstadoDetalle { get; set; }
+        public string descripcion_acuerdo { get; set; }
+        public decimal porcentaje_descuento { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public int id_estado_detalle { get; set; }
+        public string nombre_estado_detalle { get; set; }
+        public string etiqueta_estado_detalle { get; set; }
     }
 
     public class AcuerdoPromoDTO
@@ -362,5 +395,20 @@ namespace AppAPL.Dto.Promocion
         public string TipoSegmento { get; set; } = string.Empty; // Ej: "SEGMARCA"
         public string TipoAsignacion { get; set; } = "T";        // 'T' (Todos) o 'C' (Codigos)
         public List<string> Codigos { get; set; } = new();       // Array de strings ["001", "002"]
+    }
+
+    public class AcuerdoBandAproDTO
+    {
+        public int IDPROMOCIONACUERDO { get; set; }
+        public int IDPROMOCION { get; set; }
+        public int IDACUERDO { get; set; }
+        public string descripcion_acuerdo { get; set; }
+        public decimal porcentaje_descuento { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public int id_estado_detalle { get; set; }
+        public string nombre_estado_detalle { get; set; }
+        public string etiqueta_estado_detalle { get; set; }
     }
 }

@@ -25,31 +25,31 @@ namespace AppAPL.AccesoDatos.Repositorio
         {
             using var connection = factory.CreateOpenConnection();
 
-            /*
+            
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
-            var paramObject = new { p_idfondo = idFondo };
-            var parameters = new OracleDynamicParameters(paramObject);
+            //var paramObject = new { p_idfondo = idFondo };
+            var parameters = new OracleDynamicParameters();
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
-            */
+            
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<PromocionDTO>(
-                "select * from apl_tb_promocion",
+                "APL_PKG_PROMOCIONES.sp_bandeja_consulta_promocion",
                 null, //aqui van los parametros
-                commandType: CommandType.Text
+                commandType: CommandType.StoredProcedure
             );
 
 
-            /*
+            
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
-            */
+            
 
             return datos;
 
@@ -512,6 +512,40 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<IEnumerable<PromocionDTO>> ConsultarBandGeneral()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            //var paramObject = new { p_idfondo = idFondo };
+            var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<PromocionDTO>(
+                "APL_PKG_PROMOCIONES.sp_bandeja_consulta_promocion",
+                parameters, //aqui van los parametros
+                commandType: CommandType.StoredProcedure
+            );
+
+
+            
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+            
+
+            return datos;
+
+        }
+
         public async Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion()
         {
             using var connection = factory.CreateOpenConnection();
@@ -537,6 +571,35 @@ namespace AppAPL.AccesoDatos.Repositorio
             //int? codigoSalida = parameters.Get<int>("p_codigo_salida");
 
             //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
+        public async Task<IEnumerable<BandModPromocionDTO>> ConsultarBandModPromocion()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+
+            var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<BandModPromocionDTO>(
+                "APL_PKG_PROMOCIONES.sp_consulta_bandeja_modificacion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
             return datos;
         }
@@ -589,6 +652,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
             parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
@@ -602,6 +666,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 );
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandAproPromoDTO>();
+            var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
             var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
 
             string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
@@ -613,8 +678,62 @@ namespace AppAPL.AccesoDatos.Repositorio
             var resultado = new BandAproPromocionIDDTO()
             {
                 cabecera = cabecera,
+                acuerdos = acuerdos,
                 articulos = articulos,
-                tipopromocion = tipoPromocion
+                tipopromocion = tipoPromocion,
+                codigoSalida = codigoSalida,
+                mensajeSalida = mensajeSalida
+            };
+
+            return resultado;
+        }
+
+
+        public async Task<BandModPromocionIDDTO?> ObtenerBandModPromoPorId(int idPromocion)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idpromocion = idPromocion
+            };
+
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+
+            using var multi = await connection.QueryMultipleAsync(
+                "APL_PKG_PROMOCIONES.sp_bandeja_modificacion_por_id",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+            var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandAproPromoDTO>();
+            var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
+            var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
+
+            string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}, tipoPromocion: {tipoPromocion}");
+
+            var resultado = new BandModPromocionIDDTO()
+            {
+                cabecera = cabecera,
+                acuerdos = acuerdos,
+                articulos = articulos,
+                tipopromocion = tipoPromocion,
+                codigoSalida = codigoSalida,
+                mensajeSalida = mensajeSalida
             };
 
             return resultado;

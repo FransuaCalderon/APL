@@ -68,5 +68,14 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<ControlErroresDTO> AprobarPromocion(AprobarPromocionRequest promocion)
             => repo.AprobarPromocion(promocion);
+
+        public Task<IEnumerable<PromocionDTO>> ConsultarBandGeneral()
+            => repo.ConsultarBandGeneral();
+
+        public Task<IEnumerable<BandModPromocionDTO>> ConsultarBandModPromocion()
+            => repo.ConsultarBandModPromocion();
+
+        public Task<BandModPromocionIDDTO?> ObtenerBandModPromoPorId(int idPromocion)
+            => repo.ObtenerBandModPromoPorId(idPromocion);
     }
 }

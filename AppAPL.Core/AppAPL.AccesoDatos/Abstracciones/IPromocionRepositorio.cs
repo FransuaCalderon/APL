@@ -18,7 +18,9 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente();
         Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia();
         Task<IEnumerable<BandAproPromocionDTO>> ConsultarBandAprobPromocion(string usuarioAprobador);
+        Task<IEnumerable<PromocionDTO>> ConsultarBandGeneral();
         Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion();
+        Task<IEnumerable<BandModPromocionDTO>> ConsultarBandModPromocion();
         Task<IEnumerable<CanalDTO>> ConsultarCanal();
         Task<IEnumerable<GrupoAlmacenDTO>> ConsultarGrupoAlmacen();
         Task<IEnumerable<OtrosCostosDTO>> ConsultarOtrosCostos();
@@ -30,5 +32,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<TipoClienteDTO>> ConsultarTipoCliente();
         Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion);
         Task<BandAproPromocionIDDTO?> ObtenerBandAproPromoPorId(int idPromocion, int idAprobacion);
+        Task<BandModPromocionIDDTO?> ObtenerBandModPromoPorId(int idPromocion);
     }
 }

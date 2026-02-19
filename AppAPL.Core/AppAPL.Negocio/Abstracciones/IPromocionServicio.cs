@@ -30,5 +30,8 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo);
         Task<BandAproPromocionIDDTO?> ObtenerBandAproPromoPorId(int idPromocion, int idAprobacion);
         Task<ControlErroresDTO> AprobarPromocion(AprobarPromocionRequest promocion);
+        Task<IEnumerable<PromocionDTO>> ConsultarBandGeneral();
+        Task<IEnumerable<BandModPromocionDTO>> ConsultarBandModPromocion();
+        Task<BandModPromocionIDDTO?> ObtenerBandModPromoPorId(int idPromocion);
     }
 }
