@@ -156,7 +156,6 @@ function crearListado(data) {
         tabla.destroy();
     }
 
-    // Si no hay datos, mostramos mensaje y salimos
     if (!data || data.length === 0) {
         $('#tabla').html(
             "<div class='alert alert-info text-center'>No hay promociones para aprobar.</div>"
@@ -168,14 +167,12 @@ function crearListado(data) {
     html += "<table id='tabla-principal' class='table table-bordered table-striped table-hover'>";
 
     html += "  <thead>";
-    // Fila del Título ROJO
     html += "    <tr>";
     html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
     html += "          BANDEJA DE APROBACIÓN DE PROMOCIONES";
     html += "      </th>";
     html += "    </tr>";
 
-    // Fila de las Cabeceras
     html += "    <tr>";
     html += "      <th>Acción</th>";
     html += "      <th>Solicitud</th>";
@@ -197,12 +194,10 @@ function crearListado(data) {
     for (var i = 0; i < data.length; i++) {
         var promo = data[i];
 
-        // Botón de visualizar
         var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + promo.idpromocion + ', ' + promo.idaprobacion + ')">' +
             '<i class="fa-regular fa-eye"></i>' +
             '</button>';
 
-        // Clase de Promoción con superíndice de artículos/combos
         var clasePromocionHTML = (promo.nombre_clase_promocion ?? "");
         if (promo.cantidad_articulos > 0) {
             clasePromocionHTML += '<sup style="font-size: 0.8em; margin-left: 2px; font-weight: bold;">' + promo.cantidad_articulos + '</sup>';
@@ -230,7 +225,6 @@ function crearListado(data) {
 
     $('#tabla').html(html);
 
-    // Inicializa DataTable
     tabla = $('#tabla-principal').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
@@ -262,9 +256,6 @@ function crearListado(data) {
 // ===== FUNCIONES UTILITARIAS =====
 // ===================================================================
 
-/**
- * Formatea un número como moneda
- */
 function formatearMoneda(valor) {
     var numero = parseFloat(valor);
     if (isNaN(numero) || valor === null || valor === undefined) {
@@ -276,22 +267,13 @@ function formatearMoneda(valor) {
     });
 }
 
-/**
- * Extrae el nombre del archivo desde una ruta completa
- * Ej: "C:\Soportes\Promociones\abc_archivo.pdf" => "archivo.pdf"
- */
 function obtenerNombreArchivo(rutaCompleta) {
     if (!rutaCompleta) return "";
-    // Obtener solo el nombre del archivo (después del último \ o /)
     var nombreArchivo = rutaCompleta.replace(/^.*[\\/]/, '');
-    // Remover el GUID prefix si existe (formato: guid_nombrereal.ext)
     var sinGuid = nombreArchivo.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i, '');
     return sinGuid || nombreArchivo;
 }
 
-/**
- * Formatea la fecha al formato DD/MM/YYYY
- */
 function formatearFecha(fechaString) {
     try {
         if (!fechaString) return '';
@@ -311,23 +293,30 @@ function formatearFecha(fechaString) {
 // FUNCIONES: LOGICA DE DETALLE (VISUALIZAR)
 // ===================================================================
 
-/**
- * Consulta el detalle por ID y muestra el DIV de detalle (Ocultando la tabla)
- */
 function abrirModalEditar(idPromocion, idAprobacion) {
     console.log("Consultando detalle idPromocion:", idPromocion, "idAprobacion:", idAprobacion);
+
+    // Validar que idAprobacion sea un valor válido antes de llamar al API
+    if (!idAprobacion || isNaN(idAprobacion) || parseInt(idAprobacion) <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Sin Aprobación Pendiente',
+            text: `La promoción #${idPromocion} no tiene un proceso de aprobación activo.`
+        });
+        return;
+    }
+
     $('body').css('cursor', 'wait');
 
-    // Limpiar datos previos
     datosAprobacionActual = null;
 
     $("#formVisualizar")[0].reset();
     $("#lblIdPromocion").text(idPromocion);
 
-    // Limpiar tablas previas
     $('#tabla-aprobaciones-promocion').html('');
     $('#contenedor-tabla-articulos').html('').hide();
     $('#contenedor-tabla-combos').html('').hide();
+    $('#contenedor-tabla-acuerdos').html('').hide();
 
     const payload = {
         code_app: "APP20260128155212346",
@@ -355,22 +344,66 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                     idetiquetatipoproceso: data.cabecera?.tipo_proceso_etiqueta || "",
                     idaprobacion: idAprobacion,
                     entidad_etiqueta: data.cabecera?.entidad_etiqueta,
-                    idetiquetatestado: data.cabecera?.estado_etiqueta || "",
+                    idetiquetatestado: data.cabecera?.etiqueta_estado_promocion || "",
                     comentario: ""
                 };
 
                 // 1. Llenar Formulario
                 $("#verSolicitud").val(data.cabecera?.solicitud || "");
-                $("#verMotivo").val(data.cabecera?.motivo || "");
+                $("#verMotivo").val(data.cabecera?.nombre_motivo || "");
                 $("#verDescripcion").val(data.cabecera?.descripcion || "");
                 $("#verClasePromocion").val(data.cabecera?.nombre_clase_promocion || "");
-                $("#verEstado").val(data.cabecera?.nombre_estado || "");
+                $("#verEstado").val(data.cabecera?.nombre_estado_promocion || "");
                 $("#verUsuarioSolicita").val(data.cabecera?.nombreusersolicitud || "");
                 $("#verFechaSolicitud").val(formatearFecha(data.cabecera?.fechasolicitud));
-                $("#verFechaInicio").val(formatearFecha(data.cabecera?.fechahorainicio));
-                $("#verFechaFin").val(formatearFecha(data.cabecera?.fechahorafin));
+                $("#verFechaInicio").val(formatearFecha(data.cabecera?.fecha_inicio));
+                $("#verFechaFin").val(formatearFecha(data.cabecera?.fecha_fin));
                 $("#verRegalo").val(data.cabecera?.marcaregalo || "");
                 $("#verSoporte").val(obtenerNombreArchivo(data.cabecera?.archivosoporte));
+
+                // =================================================================
+                // LOGICA DE ACUERDOS ASOCIADOS
+                // =================================================================
+                if (data.acuerdos && data.acuerdos.length > 0) {
+                    console.log("Promoción con acuerdos asociados detectada. Renderizando tabla...");
+
+                    let htmlAcuerdos = `
+                        <h6 class="fw-bold mb-2"><i class="fa fa-handshake"></i> Acuerdos Asociados</h6>
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-bordered table-sm mb-0">
+                                <thead class="sticky-top text-nowrap">
+                                    <tr class="text-center tabla-items-header">
+                                        <th scope="col" class="custom-header-cons-bg"># Acuerdo</th>
+                                        <th scope="col" class="custom-header-cons-bg">Descripción Acuerdo</th>
+                                        <th scope="col" class="custom-header-ingr-bg">% Descuento</th>
+                                        <th scope="col" class="custom-header-ingr-bg">Valor Disponible</th>
+                                        <th scope="col" class="custom-header-ingr-bg">Valor Comprometido</th>
+                                        <th scope="col" class="custom-header-calc-bg">Valor Liquidado</th>
+                                        <th scope="col" class="custom-header-calc-bg">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-nowrap tabla-items-body bg-white">`;
+
+                    data.acuerdos.forEach(ac => {
+                        htmlAcuerdos += `
+                            <tr>
+                                <td class="fw-bold text-center">${ac.idacuerdo || ''}</td>
+                                <td>${ac.descripcion_acuerdo || ''}</td>
+                                <td class="text-center fw-bold text-primary">${ac.porcentaje_descuento ?? 0}%</td>
+                                <td class="text-end">${formatearMoneda(ac.valor_disponible)}</td>
+                                <td class="text-end">${formatearMoneda(ac.valor_comprometido)}</td>
+                                <td class="text-end">${formatearMoneda(ac.valor_liquidado)}</td>
+                                <td class="text-center">${ac.nombre_estado_detalle || ''}</td>
+                            </tr>`;
+                    });
+
+                    htmlAcuerdos += `
+                                </tbody>
+                            </table>
+                        </div>`;
+
+                    $('#contenedor-tabla-acuerdos').html(htmlAcuerdos).fadeIn();
+                }
 
                 // =================================================================
                 // LOGICA DE ARTÍCULOS
@@ -491,9 +524,6 @@ function abrirModalEditar(idPromocion, idAprobacion) {
     });
 }
 
-/**
- * Cierra el div de detalle y vuelve a mostrar la tabla
- */
 function cerrarDetalle() {
     $("#vistaDetalle").fadeOut(200, function () {
         $("#vistaTabla").fadeIn(200);
@@ -504,21 +534,16 @@ function cerrarDetalle() {
     datosAprobacionActual = null;
 }
 
-/**
- * Consume el servicio de Aprobaciones y dibuja la tabla en el detalle
- */
 function cargarAprobacionesPromocion(entidad, idEntidad, tipoProceso) {
     console.log("=== CARGANDO APROBACIONES DE PROMOCIÓN ===");
     console.log("entidad:", entidad);
     console.log("idEntidad:", idEntidad);
     console.log("tipoProceso:", tipoProceso);
 
-    // Destruir tabla anterior si existe
     if ($.fn.DataTable.isDataTable('#dt-historial')) {
         $('#dt-historial').DataTable().destroy();
     }
 
-    // Spinner de carga
     $('#tabla-aprobaciones-promocion').html(`
         <div class="text-center p-3">
             <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
@@ -602,7 +627,6 @@ function cargarAprobacionesPromocion(entidad, idEntidad, tipoProceso) {
                 html += `</tbody></table>`;
                 $('#tabla-aprobaciones-promocion').html(html);
 
-                // Convertir a DataTable
                 tablaHistorial = $('#dt-historial').DataTable({
                     pageLength: 5,
                     lengthMenu: [5, 10, 25],
@@ -646,9 +670,6 @@ function cargarAprobacionesPromocion(entidad, idEntidad, tipoProceso) {
 // FUNCIONES PARA APROBAR/RECHAZAR PROMOCIONES
 // ===================================================================
 
-/**
- * Procesa la aprobación o rechazo de una promoción
- */
 function procesarAprobacionPromocion(accion, comentario) {
     if (!datosAprobacionActual) {
         Swal.fire({
@@ -689,9 +710,6 @@ function procesarAprobacionPromocion(accion, comentario) {
     });
 }
 
-/**
- * Ejecuta el POST al API para aprobar o rechazar
- */
 function ejecutarAprobacionPromocion(accion, nuevoEstado, comentario) {
     const idOpcionActual = obtenerIdOpcionSeguro();
     const usuarioActual = obtenerUsuarioActual();
