@@ -166,6 +166,8 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_iddocumento = request.IdDocumento
             };
 
+            logger.LogInformation($"parametros para datos correo: {paramObject.ToString()}");
+
             var parameters = new OracleDynamicParameters(paramObject);
 
             // 🔹 Agregar los parámetros de salida

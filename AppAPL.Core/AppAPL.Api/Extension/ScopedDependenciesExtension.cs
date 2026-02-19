@@ -9,6 +9,7 @@ namespace AppAPL.Api.Extension
         {
             services.AddScoped<IFondosEmailHandler, FondosEmailHandler>();
             services.AddScoped<IAcuerdosEmailHandler, AcuerdosEmailHandler>();
+            services.AddScoped<IPromocionesEmailHandler, PromocionesEmailHandler>();
         }
     }
 }

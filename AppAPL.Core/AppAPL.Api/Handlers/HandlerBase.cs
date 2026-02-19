@@ -61,8 +61,24 @@ namespace AppAPL.Api.Handlers
                 IdDocumento = IdProveedor // Usamos la variable llenada en el switch
             });
 
-            var plantilla = datos.FirstOrDefault(d => d.tipo_registro == "PLANTILLA");
+            var plantillasConsultadas = datos.Where(d => d.tipo_registro == "PLANTILLA").ToList();
             var destinatarios = datos.Where(d => d.tipo_registro == "DESTINATARIO").ToList();
+
+            DatosCorreoDTO plantilla = null;
+
+
+
+            //aqui poner la logico para aprobacion xq seran dos plantillas para aprobaciones
+            if (plantillasConsultadas.Count > 1)
+            {
+                
+                logger.LogInformation("hay mas de una plantilla consultada");
+            }
+            else
+            {
+                plantilla = plantillasConsultadas.FirstOrDefault();
+            }
+
 
             if (plantilla == null || !destinatarios.Any())
             {

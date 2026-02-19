@@ -556,8 +556,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
-            //parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            //parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_codigo_resp", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_resp", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<BandInacPromocionDTO>(
@@ -567,10 +567,10 @@ namespace AppAPL.AccesoDatos.Repositorio
             );
 
 
-            //string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
-            //int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_resp");
+            int? codigoSalida = parameters.Get<int>("p_codigo_resp");
 
-            //logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
             return datos;
         }

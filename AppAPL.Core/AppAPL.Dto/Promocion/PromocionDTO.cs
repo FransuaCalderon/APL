@@ -12,10 +12,8 @@ namespace AppAPL.Dto.Promocion
 {
     public class PromocionDTO
     {
-        public string solicitud { get; set; }
         public int IDPROMOCION { get; set; }
         public string DESCRIPCION { get; set; }
-        public int MOTIVO { get; set; }
         public string nombre_motivo { get; set; }
         public string clase_promocion { get; set; }
         public DateTime fecha_inicio { get; set; }
@@ -157,36 +155,20 @@ namespace AppAPL.Dto.Promocion
 
     public class BandInacPromocionDTO
     {
-        public int IDAPROBACION { get; set; }
-        public int ENTIDAD { get; set; }
-        public int IDENTIDAD { get; set; }
-        public int IDTIPOPROCESO { get; set; }
-        public string IDUSERSOLICITUD { get; set; }
-        public string NOMBREUSERSOLICITUD { get; set; }
-        public DateTime FECHASOLICITUD { get; set; }
-        public string IDUSERAPROBADOR { get; set; }
-        public DateTime FECHAAPROBACION { get; set; }
-        public string COMENTARIO { get; set; }
-        public int NIVELAPROBACION { get; set; }
-        public int IDESTADOREGISTRO { get; set; }
-        public int NUMEROLOTEAPROBACION { get; set; }
-
         public int IDPROMOCION { get; set; }
         public string DESCRIPCION { get; set; }
-        public int MOTIVO { get; set; }
-        public int CLASEPROMOCION { get; set; }
-        public DateTime FECHAHORAINICIO { get; set; }
-        public DateTime FECHAHORAFIN { get; set; }
-        public string MARCAREGALO { get; set; }
-        public int ESTADOREGISTRO_PROMO { get; set; }
-        public string MARCAPROCESOAPROBACION { get; set; }
-        public int NUMEROLOTE_PROMO { get; set; }
-        public string ARCHIVOSOPORTE { get; set; }
+        public string MOTIVO { get; set; }
+        public string CLASE_PROMOCION { get; set; }
+        public DateTime FECHA_INICIO { get; set; }
+        public DateTime FECHA_FIN { get; set; }
+        public string REGALO { get; set; }
+        
+        public string SOPORTE { get; set; }
+        public string ESTADO { get; set; }
     }
 
     public class BandModPromocionDTO
     {
-        public string solicitud { get; set; }
         public int idpromocion { get; set; }
         public string descripcion { get; set; }
         public string motivo { get; set; }

@@ -6,8 +6,8 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ApiExplorerSettings(IgnoreApi = true)]
-    public class EmailController(IEmailServicio servicio, ILogger<EmailController> logger) : ControllerBase
+    //[ApiExplorerSettings(IgnoreApi = true)]
+    public class EmailController(IEmailServicio servicio) : ControllerBase
     {
         [HttpGet("enviar-correo")]
         public async Task<ActionResult> Enviar()
@@ -38,6 +38,8 @@ namespace AppAPL.Api.Controllers
         [HttpPost("consultar-datos_correo")]
         public async Task<ActionResult<List<DatosCorreoDTO>>> ObtenerDatosCorreo(ConsultarDatosCorreoRequest request)
         {
+
+
             var listaDatos = await servicio.ObtenerDatosCorreo(request);
 
             return listaDatos.ToList();
