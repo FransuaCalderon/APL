@@ -80,5 +80,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<BandInacPromocionIDDTO?> ObtenerBandInacPromoPorId(int idPromocion)
             => repo.ObtenerBandInacPromoPorId(idPromocion);
+
+        public Task<ControlErroresDTO> InactivarPromocion(InactivarPromocionRequest promocion)
+            => repo.InactivarPromocion(promocion);
     }
 }

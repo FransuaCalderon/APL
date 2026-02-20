@@ -434,4 +434,16 @@ namespace AppAPL.Dto.Promocion
         public string nombre_estado_detalle { get; set; }
         public string etiqueta_estado_detalle { get; set; }
     }
+
+    public class InactivarPromocionRequest
+    {
+        public int IdPromocion { get; set; }
+        public string? NombreUsuarioIngreso { get; set; }
+
+        public int? IdOpcion { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
+        public string? NombreUsuario { get; set; }
+
+    }
 }

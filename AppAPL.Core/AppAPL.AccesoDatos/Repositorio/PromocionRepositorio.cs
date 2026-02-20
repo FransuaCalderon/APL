@@ -931,5 +931,54 @@ namespace AppAPL.AccesoDatos.Repositorio
         }
 
 
+        public async Task<ControlErroresDTO> InactivarPromocion(InactivarPromocionRequest promocion)
+        {
+
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idpromocion = promocion.IdPromocion,
+                p_nombreusuarioingreso = promocion.NombreUsuarioIngreso,
+
+                p_idopcion = promocion.IdOpcion,
+                p_idcontrolinterfaz = promocion.IdControlInterfaz,
+                p_idevento_etiqueta = promocion.IdEvento,
+                p_nombreusuario = promocion.NombreUsuario
+            };
+
+            //logger.LogInformation($"inactivar acuerdo parametros sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            //parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "APL_PKG_PROMOCIONES.sp_proceso_inactivacion_promocion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+
+            var retorno = new ControlErroresDTO()
+            {
+                codigoRetorno = codigoSalida,
+                mensaje = mensajeSalida,
+                filasAfectadas = filasAfectadas
+            };
+
+            return retorno;
+        }
+
+
     }
 }

@@ -320,10 +320,10 @@ namespace AppAPL.Api.Controllers
 
         [HttpPost("inactivar-promocion")]
         [Email("ENTPROMOCION", TipoProceso.Inactivacion)]
-        public async Task<ActionResult<ControlErroresDTO>> InactivarAcuerdo(InactivarAcuerdoRequest acuerdo)
+        public async Task<ActionResult<ControlErroresDTO>> InactivarPromocion(InactivarPromocionRequest promocion)
         {
-            /*
-            var retorno = await servicio.InactivarAcuerdo(acuerdo);
+            
+            var retorno = await servicio.InactivarPromocion(promocion);
 
             if (retorno.codigoRetorno == 0)
             {
@@ -336,8 +336,7 @@ namespace AppAPL.Api.Controllers
                 logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
             }
-            */
-            return Ok();
+            
         }
 
 
