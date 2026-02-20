@@ -241,8 +241,11 @@ function abrirModalEditar(id) {
 
             console.log("Datos procesados del fondo:", data);
 
-            // Concatenación RUC/ID y NOMBRE
-            const idProveedor = data.proveedor || '';
+            // ✅ CORRECCIÓN: usar los nombres de campo reales que devuelve la API
+            // API devuelve: idproveedor, nombre_proveedor, valorfondo,
+            //               fechainiciovigencia, fechafinvigencia,
+            //               valordisponible, valorcomprometido, valorliquidado
+            const idProveedor = data.idproveedor || '';
             const nombreProveedor = data.nombre_proveedor || '';
             const proveedorCompleto = (idProveedor && nombreProveedor)
                 ? `${idProveedor} - ${nombreProveedor}`
@@ -255,12 +258,13 @@ function abrirModalEditar(id) {
                 idproveedor: idProveedor,
                 nombre_proveedor: nombreProveedor,
                 tipo_fondo: data.nombre_tipo_fondo,
-                valor_disponible: formatearMoneda(data.valor_disponible),
-                valor_comprometido: formatearMoneda(data.valor_comprometido),
-                valor_liquidado: formatearMoneda(data.valor_liquidado),
-                valor_fondo: formatearMoneda(data.valor_fondo),
-                fecha_inicio: formatDateForInput(data.fecha_inicio),
-                fecha_fin: formatDateForInput(data.fecha_fin),
+                // ✅ Campos corregidos (nombres reales del JSON de la API)
+                valor_fondo: formatearMoneda(data.valorfondo),
+                valor_disponible: formatearMoneda(data.valordisponible),
+                valor_comprometido: formatearMoneda(data.valorcomprometido),
+                valor_liquidado: formatearMoneda(data.valorliquidado),
+                fecha_inicio: formatDateForInput(data.fechainiciovigencia),
+                fecha_fin: formatDateForInput(data.fechafinvigencia),
                 estado: data.estado_nombre
             };
 
