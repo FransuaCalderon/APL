@@ -210,6 +210,47 @@ namespace AppAPL.Dto.Promocion
         public int tiene_aprobador { get; set; }
     }
 
+    public class BandInacPromocionIDDTO
+    {
+        // Lista para capturar el cursor p_cursor_cabecera
+        public CabeceraBandInacPromoDTO? cabecera { get; set; }
+        public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
+
+        // Lista para capturar el cursor p_cursor_articulos
+        public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
+
+        public string? tipopromocion { get; set; }
+        [JsonIgnore]
+        public int? codigoSalida { get; set; }
+        [JsonIgnore]
+        public string? mensajeSalida { get; set; }
+    }
+
+    public class CabeceraBandInacPromoDTO
+    {
+       
+        public int IdPromocion { get; set; }
+        public string Descripcion { get; set; }
+        public int id_motivo { get; set; }
+        public string nombre_motivo { get; set; }
+        public int id_clase_promocion { get; set; }
+        public string nombre_clase_promocion { get; set; }
+        public string etiqueta_clase_promocion { get; set; }
+        public string MarcaRegalo { get; set; }
+        public string MarcaProcesoAprobacion { get; set; }
+        public int? NumeroLoteAprobacion { get; set; }
+        public string ArchivoSoporte { get; set; }
+        public int cantidad_acuerdos { get; set; }
+
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public int id_estado_promocion { get; set; }
+        public string nombre_estado_promocion { get; set; }
+        public string etiqueta_estado_promocion { get; set; }
+        
+    }
+
+
     public class BandModPromocionIDDTO
     {
         // Lista para capturar el cursor p_cursor_cabecera

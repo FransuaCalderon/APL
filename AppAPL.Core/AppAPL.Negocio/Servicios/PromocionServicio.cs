@@ -77,5 +77,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<BandModPromocionIDDTO?> ObtenerBandModPromoPorId(int idPromocion)
             => repo.ObtenerBandModPromoPorId(idPromocion);
+
+        public Task<BandInacPromocionIDDTO?> ObtenerBandInacPromoPorId(int idPromocion)
+            => repo.ObtenerBandInacPromoPorId(idPromocion);
     }
 }

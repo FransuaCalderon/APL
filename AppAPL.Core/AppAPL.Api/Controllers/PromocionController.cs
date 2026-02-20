@@ -5,6 +5,7 @@ using AppAPL.Dto.Promocion;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
 using System.Configuration;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
 namespace AppAPL.Api.Controllers
@@ -166,11 +167,12 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpGet("bandeja-inactivacion-id/{idPromocion:int}")]
-        public async Task<ActionResult<BandInacAcuerdoPorIDDTO>> ObtenerBandejaInactivacionPorId(int idPromocion)
+        public async Task<ActionResult<BandInacPromocionIDDTO>> ObtenerBandInacPromoPorId(int idPromocion)
         {
-            /*
-            var item = await servicio.ObtenerBandejaInactivacionPorId(idAcuerdo);
-            if (item.codigoSalida == 0)
+            
+            var item = await servicio.ObtenerBandInacPromoPorId(idPromocion);
+
+            /*if (item.codigoSalida == 0)
             {
                 logger.LogInformation(item.mensajeSalida);
                 return item;
@@ -180,7 +182,7 @@ namespace AppAPL.Api.Controllers
                 logger.LogError(item.mensajeSalida);
                 return BadRequest(new { mensaje = item.mensajeSalida });
             }*/
-            return Ok();
+            return item;
         }
 
         [HttpGet("consultar-bandeja-modificacion")]

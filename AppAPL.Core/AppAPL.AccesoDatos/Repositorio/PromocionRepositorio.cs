@@ -637,6 +637,56 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<BandInacPromocionIDDTO?> ObtenerBandInacPromoPorId(int idPromocion)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idpromocion = idPromocion
+            };
+
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+
+            using var multi = await connection.QueryMultipleAsync(
+                "APL_PKG_PROMOCIONES.sp_bandeja_inactivacion_por_id",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+            var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandInacPromoDTO>();
+            var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
+            var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
+
+            string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}, tipoPromocion: {tipoPromocion}");
+
+            var resultado = new BandInacPromocionIDDTO()
+            {
+                cabecera = cabecera,
+                acuerdos = acuerdos,
+                articulos = articulos,
+                tipopromocion = tipoPromocion,
+                codigoSalida = codigoSalida,
+                mensajeSalida = mensajeSalida
+            };
+
+            return resultado;
+        }
+
         public async Task<BandAproPromocionIDDTO?> ObtenerBandAproPromoPorId(int idPromocion, int idAprobacion)
         {
             using var connection = factory.CreateOpenConnection();
