@@ -656,9 +656,9 @@ function renderizarTablaAcuerdos(acuerdos) {
 
         html += "<tr>";
         html += "  <td>" + (acuerdo.idacuerdofondo ?? "") + "</td>";
-        html += "  <td>" + (acuerdo.acuerdofondo_estado_nombre ?? "") + "</td>";
+        html += "  <td>" + (acuerdo.acuerdo_estado_nombre ?? "") + "</td>";
         html += "  <td>" + (acuerdo.acuerdo_descripcion ?? "") + "</td>";
-        html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valorfondo) + "</td>";
+        html += "  <td class='text-end'>" + formatearMoneda(acuerdo.valoraporte) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_disponible) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_comprometido) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_liquidado) + "</td>";

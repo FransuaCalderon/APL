@@ -553,11 +553,11 @@ function renderizarTablaAcuerdos(acuerdos) {
 
     acuerdos.forEach(acuerdo => {
         const id = acuerdo.idacuerdofondo || acuerdo.idAcuerdofondo || "";
-        const valor = acuerdo.valorfondo || acuerdo.valorFondo || 0;
+        const valor = acuerdo.valoraporte || acuerdo.valoraporte || 0;
 
         html += "<tr>";
         html += "  <td>" + id + "</td>";
-        html += "  <td>" + (acuerdo.acuerdofondo_estado_nombre ?? "") + "</td>";
+        html += "  <td>" + (acuerdo.acuerdo_estado_nombre ?? "") + "</td>";
         html += "  <td>" + (acuerdo.acuerdo_descripcion ?? "") + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(valor) + "</td>";
         html += "  <td class='text-end'>" + formatearMoneda(acuerdo.acuerdofondo_disponible) + "</td>";
