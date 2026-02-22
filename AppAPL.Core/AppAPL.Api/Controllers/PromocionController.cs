@@ -342,10 +342,10 @@ namespace AppAPL.Api.Controllers
 
         [HttpPost("actualizar-promocion")]
         [Email("ENTPROMOCION", TipoProceso.Modificacion)]
-        public async Task<ActionResult<ControlErroresDTO>> ActualizarAcuerdo(ActualizarAcuerdoDTO actualizarAcuerdoDTO)
+        public async Task<ActionResult<ControlErroresDTO>> ActualizarPromocion(ActualizarPromocionRequest promocion)
         {
-            /*
-            var retorno = await servicio.ActualizarAsync(actualizarAcuerdoDTO);
+            
+            var retorno = await servicio.ActualizarAsync(promocion);
 
             if (retorno.codigoRetorno == 0)
             {
@@ -358,9 +358,7 @@ namespace AppAPL.Api.Controllers
                 logger.LogError(retorno.mensaje);
                 return BadRequest(retorno);
             }
-            */
-
-            return Ok();
+            
         }
     }
 }

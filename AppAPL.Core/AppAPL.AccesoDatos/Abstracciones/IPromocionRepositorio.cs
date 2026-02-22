@@ -11,6 +11,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
 {
     public interface IPromocionRepositorio
     {
+        Task<ControlErroresDTO> ActualizarAsync(ActualizarPromocionRequest promocion);
         Task<ControlErroresDTO> AprobarPromocion(AprobarPromocionRequest promocion);
         Task<GruposPromocionesDTO> CargarCombosPromociones();
         Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo);

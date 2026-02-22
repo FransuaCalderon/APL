@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -976,6 +977,61 @@ namespace AppAPL.AccesoDatos.Repositorio
                 filasAfectadas = filasAfectadas
             };
 
+            return retorno;
+        }
+
+
+
+        public async Task<ControlErroresDTO> ActualizarAsync(ActualizarPromocionRequest promocion)
+        {
+            using var connection = factory.CreateOpenConnection();
+            var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+            var paramObject = new
+            {
+                p_idpromocion = promocion.IdPromocion,
+                p_clasepromocion = promocion.ClasePromocion,
+                p_json_promocion = JsonSerializer.Serialize(promocion.Promocion, options),
+                p_json_acuerdos = JsonSerializer.Serialize(promocion.Acuerdos, options),
+                p_json_segmentos = JsonSerializer.Serialize(promocion.Segmentos, options),
+                p_archivosoporte = promocion.ArchivoSoporte,
+                p_idtipoproceso = promocion.IdTipoProceso,
+
+                p_idopcion = promocion.IdOpcion,
+                p_idcontrolinterfaz = promocion.IdControlInterfaz,
+                p_idevento_etiqueta = promocion.IdEventoEtiqueta,
+
+            };
+
+            logger.LogInformation($"parametros antes de enviar al sp: {paramObject.ToString()}");
+
+            //logger.LogInformation($"parametros a enviar para el sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "APL_PKG_PROMOCIONES.sp_modificar_promocion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            //return parameters.Get<int>("p_idfondo_out");
+            var retorno = new ControlErroresDTO()
+            {
+                filasAfectadas = filasAfectadas,
+                mensaje = mensajeSalida,
+                codigoRetorno = codigoSalida
+            };
             return retorno;
         }
 

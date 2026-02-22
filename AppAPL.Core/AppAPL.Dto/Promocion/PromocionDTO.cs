@@ -446,4 +446,51 @@ namespace AppAPL.Dto.Promocion
         public string? NombreUsuario { get; set; }
 
     }
+
+
+    public class ActualizarPromocionRequest
+    {
+        public long IdPromocion { get; set; }
+        public string ClasePromocion { get; set; } // 'PRGENERAL', 'PRARTICULO' o 'PRCOMBO'
+        public PromocionModDto Promocion { get; set; }
+        public List<AcuerdoModDto> Acuerdos { get; set; }
+        public List<SegmentoModDto> Segmentos { get; set; }
+        public string ArchivoSoporte { get; set; }
+        public int IdTipoProceso { get; set; }
+
+        // Parámetros para el LOG
+        public int IdOpcion { get; set; }
+        public string IdControlInterfaz { get; set; }
+        public string IdEventoEtiqueta { get; set; }
+    }
+
+    public class PromocionModDto
+    {
+        public string Descripcion { get; set; }
+        public int Motivo { get; set; }
+        public DateTime FechaHoraInicio { get; set; } // Formato ISO: YYYY-MM-DDTHH:mm:ss.fffZ
+        public DateTime FechaHoraFin { get; set; }
+        public string MarcaRegalo { get; set; } // "S" o "N"
+        public string IdUsuarioModifica { get; set; }
+        public string NombreUsuario { get; set; }
+    }
+
+    public class AcuerdoModDto
+    {
+        public string Accion { get; set; } // 'I', 'U', 'D'
+        public long? IdPromocionAcuerdo { get; set; } // Solo para 'U' y 'D'
+        public int IdAcuerdo { get; set; }
+        public decimal PorcentajeDescuento { get; set; }
+        public decimal ValorComprometido { get; set; }
+    }
+
+
+    public class SegmentoModDto
+    {
+        public string TipoSegmento { get; set; }
+        public string TipoAsignacion { get; set; } // 'T' (Todos) o 'S' (Seleccionados)
+        public List<string> Codigos { get; set; } // EANs, IDs de Local, etc.
+    }
+
+
 }

@@ -83,5 +83,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<ControlErroresDTO> InactivarPromocion(InactivarPromocionRequest promocion)
             => repo.InactivarPromocion(promocion);
+
+        public Task<ControlErroresDTO> ActualizarAsync(ActualizarPromocionRequest promocion)
+            => repo.ActualizarAsync(promocion);
     }
 }

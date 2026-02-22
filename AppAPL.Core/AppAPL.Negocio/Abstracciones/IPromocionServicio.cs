@@ -35,5 +35,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<BandModPromocionIDDTO?> ObtenerBandModPromoPorId(int idPromocion);
         Task<BandInacPromocionIDDTO?> ObtenerBandInacPromoPorId(int idPromocion);
         Task<ControlErroresDTO> InactivarPromocion(InactivarPromocionRequest promocion);
+        Task<ControlErroresDTO> ActualizarAsync(ActualizarPromocionRequest promocion);
     }
 }
