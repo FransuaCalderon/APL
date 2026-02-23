@@ -196,6 +196,9 @@ $(document).ready(function () {
 
     $("#btnGuardarFondos").on("click", (e) => {
         e.preventDefault();
+
+        console.log("click btnGuardarFondos");
+
         Swal.fire({
             title: '¿Confirmar guardado?',
             icon: 'question',

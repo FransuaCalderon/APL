@@ -11,9 +11,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
 {
     public interface ILogRepositorio
     {
-        Task<IEnumerable<LogDTO>> ObtenerLogsPorOpcionAsync(int idOpcion, DateTime? fechaInicio = null, DateTime? fechaFin = null);
-        Task<IEnumerable<LogDTO>> ObtenerLogsPorUsuarioAsync(int idUser, DateTime? fechaInicio = null, DateTime? fechaFin = null);
-        //Task RegistrarLogNombreAsync(CrearActualizarLogRequest log);
-        Task RegistrarLogOpcionAsync(CrearActualizarLogRequest log);
+        Task<IEnumerable<LogDTO>> ConsultarLogGeneral(int entidad, int identidad);
     }
 }
