@@ -8,18 +8,15 @@ namespace AppAPL.Dto.Aprobacion
 {
     public class AprobacionGeneralDTO
     {
-        public int IdAprobacion { get; set; }
-        public int Entidad { get; set; }
-        public int IdEntidad { get; set; }
-        public int IdTipoProceso { get; set; }
-        public string IdUserSolicitud { get; set; }
-        public string NombreUserSolicitud { get; set; }
-        public DateTime FechaSolicitud { get; set; }
-        public string IdUserAprobador { get; set; }
-        public DateTime FechaAprobacion { get; set; }
-        public string Comentario { get; set; }
-        public int NivelAprobacion { get; set; }
-        public int IdEstadoRegistro { get; set; }
+        public string tipo_solicitud { get; set; }
+        public string usuario_solicita { get; set; }
+        public DateTime fecha_solicitud { get; set; }
+        public string usuario_aprobador { get; set; }
+        public string comentario_aprobador { get; set; }
+        public DateTime fecha_aprobacion { get; set; }
+        public int nivel { get; set; }
+        public string estado { get; set; }
+        public int lote { get; set; }
     }
 
 

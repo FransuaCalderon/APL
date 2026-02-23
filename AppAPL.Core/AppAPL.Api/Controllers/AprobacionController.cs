@@ -9,13 +9,13 @@ namespace AppAPL.Api.Controllers
     [Route("api/[controller]")]
     public class AprobacionController (ILogger<AprobacionController> logger, IAprobacionServicio servicio) : ControllerBase
     {
-        [HttpGet("consultar-aprobaciones-generales/{entidad}/{identidad:int}/{idTipoProceso?}")]
-        [SwaggerOperation(Summary = "Obtiene id tipo proceso, con parámetro extra opcional.")]
-        public async Task<ActionResult<List<AprobacionGeneralDTO>>> ObtenerAprobacionesGenerales(string entidad, int identidad,
-            [SwaggerParameter(Description = "Parámetro opcional", Required = false)]
-            string? idTipoProceso = null)
+        [HttpGet("consultar-aprobaciones-generales/{entidad:int}/{identidad:int}")]
+        //[SwaggerOperation(Summary = "Obtiene id tipo proceso, con parámetro extra opcional.")]
+        public async Task<ActionResult<List<AprobacionGeneralDTO>>> ObtenerAprobacionesGenerales(int entidad, int identidad
+            //[SwaggerParameter(Description = "Parámetro opcional", Required = false)] string? idTipoProceso = null
+            )
         {
-            var listaAprobaciones = await servicio.ObtenerAprobacionesGenerales(entidad.ToUpper(), identidad, idTipoProceso.ToUpper());
+            var listaAprobaciones = await servicio.ObtenerAprobacionesGenerales(entidad, identidad);
 
             return listaAprobaciones.ToList();
         }

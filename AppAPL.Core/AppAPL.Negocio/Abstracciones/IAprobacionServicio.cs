@@ -9,7 +9,7 @@ namespace AppAPL.Negocio.Abstracciones
 {
     public interface IAprobacionServicio
     {
-        Task<IEnumerable<AprobacionGeneralDTO>> ObtenerAprobacionesGenerales(string entidad, int identidad, string? idTipoProceso = null);
+        Task<IEnumerable<AprobacionGeneralDTO>> ObtenerAprobacionesGenerales(int entidad, int identidad);
         Task<IEnumerable<AprobacionDTO>> ObtenerAprobaciones(string entidad, int identidad, string idTipoProceso);
         Task<IEnumerable<AprobacionPorIdDTO>> ObtenerAprobacionesPorId(int entidad, int identidad);
     }

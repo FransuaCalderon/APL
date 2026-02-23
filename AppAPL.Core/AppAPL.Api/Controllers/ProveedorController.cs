@@ -16,7 +16,7 @@ namespace AppAPL.Api.Controllers
             logger.LogInformation($"etiqueta: {etiqueta}");
             var listaProveedores = await servicio.ListarAsync(etiqueta);
 
-            return listaProveedores.ToList();
+            return listaProveedores.Take(100).ToList();
         }
 
         [HttpGet("obtener/{identificacion}")]
