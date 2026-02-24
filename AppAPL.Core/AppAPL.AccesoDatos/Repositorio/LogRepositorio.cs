@@ -17,14 +17,14 @@ namespace AppAPL.AccesoDatos.Repositorio
 {
     public class LogRepositorio(OracleConnectionFactory factory, ILogger<LogRepositorio> logger) : ILogRepositorio
     {
-        public async Task<IEnumerable<LogDTO>> ConsultarLogGeneral(int entidad, int identidad)
+        public async Task<IEnumerable<LogDTO>> ConsultarLogGeneral(string entidad, int identidad)
         {
             using var connection = factory.CreateOpenConnection();
 
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
             var paramObject = new
             {
-                p_entidad = entidad,
+                p_entidad_etiqueta = entidad,
                 p_identidad = identidad,
             };
             var parameters = new OracleDynamicParameters(paramObject);
@@ -32,8 +32,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
 
-            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<LogDTO>(
@@ -43,8 +43,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             );
 
 
-            string? mensajeSalida = parameters.Get<string>("p_mensaje");
-            int? codigoSalida = parameters.Get<int>("p_codigo");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 

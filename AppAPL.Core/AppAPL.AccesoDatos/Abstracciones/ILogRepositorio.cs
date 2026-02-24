@@ -11,6 +11,6 @@ namespace AppAPL.AccesoDatos.Abstracciones
 {
     public interface ILogRepositorio
     {
-        Task<IEnumerable<LogDTO>> ConsultarLogGeneral(int entidad, int identidad);
+        Task<IEnumerable<LogDTO>> ConsultarLogGeneral(string entidad, int identidad);
     }
 }

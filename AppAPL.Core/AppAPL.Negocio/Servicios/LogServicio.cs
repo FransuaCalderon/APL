@@ -12,7 +12,7 @@ namespace AppAPL.Negocio.Servicios
 {
     public class LogServicio(ILogRepositorio repo, ILogger<LogServicio> logger) : ILogServicio  // borrar logger, solo es para probar
     {
-        public Task<IEnumerable<LogDTO>> ConsultarLogGeneral(int entidad, int identidad)
+        public Task<IEnumerable<LogDTO>> ConsultarLogGeneral(string entidad, int identidad)
             => repo.ConsultarLogGeneral(entidad, identidad);
     }
 }

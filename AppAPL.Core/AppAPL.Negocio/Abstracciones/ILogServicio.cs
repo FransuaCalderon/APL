@@ -10,6 +10,6 @@ namespace AppAPL.Negocio.Abstracciones
 {
     public interface ILogServicio
     {
-        Task<IEnumerable<LogDTO>> ConsultarLogGeneral(int entidad, int identidad);
+        Task<IEnumerable<LogDTO>> ConsultarLogGeneral(string entidad, int identidad);
     }
 }
