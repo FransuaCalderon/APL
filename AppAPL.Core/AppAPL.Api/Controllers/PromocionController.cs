@@ -222,10 +222,10 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpGet("bandeja-general-id/{idPromocion:int}")]
-        public async Task<ActionResult<BandConsAcuerdoPorIDDTO>> ConsultarBandConsGeneralPorId(int idPromocion)
+        public async Task<ActionResult<BandGenPromocionIDDTO>> ConsultarBandConsGeneralPorId(int idPromocion)
         {
-            /*
-            var item = await servicio.ObtenerBandejaConsultaPorId(idAcuerdo);
+
+            var item = await servicio.ObtenerBandGenPromoPorId(idPromocion);
 
             if (item.codigoSalida == 0)
             {
@@ -236,8 +236,7 @@ namespace AppAPL.Api.Controllers
             {
                 logger.LogError(item.mensajeSalida);
                 return BadRequest(new { mensaje = item.mensajeSalida });
-            }*/
-            return Ok();
+            }
         }
 
         [HttpPost("insertar")]
