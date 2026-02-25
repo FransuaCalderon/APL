@@ -15,7 +15,213 @@
 <h2>Modificación - Promociones</h2>
 <hr class="separador-fondos" />
 
+<!-- =============================================================== -->
+<!-- VISTA BANDEJA -->
+<!-- =============================================================== -->
 <div id="vistaTabla" class="table-responsive">
     <div id="tabla"></div>
 </div>
 
+<!-- =============================================================== -->
+<!-- VISTA DETALLE (oculta por defecto) -->
+<!-- =============================================================== -->
+<div id="vistaDetalle" style="display:none;">
+
+    <div class="card border-secondary mb-3">
+
+        <!-- CARD HEADER -->
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-dark">
+                Modificar Promoción #<span id="lblIdPromocion"></span>
+                <span class="badge bg-secondary ms-2 fs-6" id="lblClasePromocion"></span>
+                <span class="badge bg-info ms-1 fs-6 text-dark" id="lblEstadoPromocion"></span>
+            </h5>
+            <button type="button" class="btn btn-sm btn-outline-dark" id="btnVolverTabla">
+                <i class="fa-solid fa-arrow-left"></i> Volver a la Bandeja
+            </button>
+        </div>
+
+        <!-- CARD BODY -->
+        <div class="card-body">
+
+            <!-- Campos ocultos -->
+            <input type="hidden" id="modalPromocionId">
+            <input type="hidden" id="modalTipoPromocion">
+
+            <!-- ===================================================== -->
+            <!-- FORMULARIO CABECERA -->
+            <!-- ===================================================== -->
+            <form id="formPromocion" class="row g-2 mb-3">
+
+                <!-- Descripción -->
+                <div class="col-md-5">
+                    <label for="promocionDescripcion" class="form-label fw-bold col-form-label-sm">Descripción</label>
+                    <input type="text" class="form-control form-control-sm" id="promocionDescripcion"
+                           placeholder="Ingrese descripción" maxlength="200">
+                </div>
+
+                <!-- Motivo -->
+                <div class="col-md-3">
+                    <label for="promocionMotivo" class="form-label fw-bold col-form-label-sm">Motivo</label>
+                    <select id="promocionMotivo" class="form-select form-select-sm">
+                        <option value="">Cargando...</option>
+                    </select>
+                </div>
+
+                <!-- Marca Regalo -->
+                <div class="col-md-2">
+                    <label for="promocionMarcaRegalo" class="form-label fw-bold col-form-label-sm">Marca Regalo</label>
+                    <select id="promocionMarcaRegalo" class="form-select form-select-sm">
+                        <option value="S">S - Sí</option>
+                        <option value="N">N - No</option>
+                    </select>
+                </div>
+
+                <!-- Fecha Inicio -->
+                <div class="col-md-3">
+                    <label for="promocionFechaInicio" class="form-label fw-bold col-form-label-sm">Fecha Inicio</label>
+                    <div class="input-group input-group-sm">
+                        <input id="promocionFechaInicio" type="text" class="form-control form-control-sm"
+                               placeholder="dd/mm/aaaa">
+                        <button class="btn btn-outline-secondary" type="button" id="btnFechaInicio">
+                            <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fecha Fin -->
+                <div class="col-md-3">
+                    <label for="promocionFechaFin" class="form-label fw-bold col-form-label-sm">Fecha Fin</label>
+                    <div class="input-group input-group-sm">
+                        <input id="promocionFechaFin" type="text" class="form-control form-control-sm"
+                               placeholder="dd/mm/aaaa">
+                        <button class="btn btn-outline-secondary" type="button" id="btnFechaFin">
+                            <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Archivo Soporte -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold col-form-label-sm">Archivo Soporte</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="fa-solid fa-paperclip"></i></span>
+                        <input type="file" class="form-control form-control-sm" id="inputArchivoSoporte"
+                               accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+                    </div>
+                    <small class="text-muted">
+                        Archivo actual: <span id="lblArchivoActual" class="fw-semibold">Sin archivo</span>
+                    </small>
+                </div>
+
+            </form>
+
+            <hr class="my-2" />
+
+            <!-- ===================================================== -->
+            <!-- SECCIÓN ACUERDOS -->
+            <!-- ===================================================== -->
+            <div class="col-12 mt-2">
+                <div class="detalle-header mb-2">Acuerdos Vinculados</div>
+
+                <!-- Barra de acciones -->
+                <div class="d-flex align-items-center gap-3 pb-2">
+                    <button id="btnAddAcuerdo" type="button"
+                            class="btn btn-outline-primary border-0 d-flex align-items-center gap-1">
+                        <i class="fa-regular fa-square-plus"></i> Añadir Acuerdo
+                    </button>
+                    <button id="btnModifyAcuerdo" type="button"
+                            class="btn btn-outline-warning border-0 d-flex align-items-center gap-1">
+                        <i class="fa-regular fa-pen-to-square"></i> Modificar
+                    </button>
+                    <button id="btnDeleteAcuerdo" type="button"
+                            class="btn btn-outline-danger border-0 d-flex align-items-center gap-1">
+                        <i class="fa-regular fa-trash-can"></i> Eliminar
+                    </button>
+                </div>
+
+                <!-- Tabla de acuerdos -->
+                <div class="col-12">
+                    <div class="table-responsive small border" style="height: 220px;">
+                        <table class="table table-bordered table-sm">
+                            <thead class="sticky-top text-nowrap">
+                                <tr class="text-center">
+                                    <th class="custom-header-cons-bg" style="width:40px;">Sel.</th>
+                                    <th class="custom-header-cons-bg">Id Acuerdo</th>
+                                    <th class="custom-header-cons-bg">Descripción</th>
+                                    <th class="custom-header-ingr-bg">% Descuento</th>
+                                    <th class="custom-header-ingr-bg">$ Valor Comprometido</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaAcuerdosBody" class="text-nowrap">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /card-body -->
+        <!-- CARD FOOTER -->
+        <div class="card-footer text-end">
+            <button type="button" class="btn btn-secondary" id="btnVolverAbajo">Cerrar</button>
+            <button type="button" class="custom-btn-primary" id="btnGuardarModificacion">
+                <i class="fa-solid fa-floppy-disk custom-btn-icon"></i> Guardar Modificación
+            </button>
+        </div>
+
+    </div><!-- /card -->
+    <!-- =========================================================== -->
+    <!-- MODAL CONSULTA DE ACUERDOS -->
+    <!-- =========================================================== -->
+    <div class="modal fade" id="modalConsultaAcuerdo" data-bs-backdrop="static" data-bs-keyboard="false"
+         tabindex="-1" aria-labelledby="modalConsultaAcuerdoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalConsultaAcuerdoLabel">
+                        <i class="fa-solid fa-handshake me-2"></i>Seleccionar Acuerdo
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <input type="text" class="form-control form-control-sm" id="buscarAcuerdo"
+                               placeholder="Buscar acuerdo...">
+                    </div>
+                    <div class="table-responsive border rounded" style="max-height: 350px; overflow-y: auto;">
+                        <table id="tablaAcuerdosConsulta" class="table table-hover table-sm table-bordered mb-0">
+                            <thead class="table-success sticky-top">
+                                <tr class="text-nowrap">
+                                    <th class="text-center" style="min-width:50px;">Sel.</th>
+                                    <th style="min-width:80px;">Id</th>
+                                    <th style="min-width:250px;">Descripción</th>
+                                    <th style="min-width:120px;">Clase</th>
+                                    <th style="min-width:100px;">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">
+                                        <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="btnAceptarAcuerdo">
+                        <i class="fa-solid fa-check"></i> Aceptar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div><!-- /vistaDetalle -->

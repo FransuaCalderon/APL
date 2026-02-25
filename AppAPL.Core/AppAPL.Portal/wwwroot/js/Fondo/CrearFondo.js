@@ -105,6 +105,41 @@ function consultarProveedor() {
 }
 
 // ===============================================================
+// HELPERS DE MONEDA
+// ===============================================================
+
+/**
+ * Convierte un string formateado como "$ 12.000,50" o "12000.50" a número flotante.
+ * ✅ CORRECCIÓN: maneja correctamente separadores de miles (.) y decimal (,) en es-EC.
+ */
+function parsearMoneda(str) {
+    if (!str) return 0;
+    // 1. Quitar el símbolo $, espacios y cualquier letra
+    let limpio = String(str).replace(/[^\d.,]/g, '');
+    // 2. En formato es-EC el punto es separador de miles y la coma es decimal
+    //    Ej: "12.000,50" → quitar puntos de miles → "12000,50" → reemplazar coma → "12000.50"
+    //    Si no tiene coma, asumir que el punto (si existe) es decimal directo: "12000.50"
+    if (limpio.includes(',')) {
+        // Tiene coma: punto = miles, coma = decimal
+        limpio = limpio.replace(/\./g, '').replace(',', '.');
+    }
+    // Si no tiene coma el punto ya es decimal, no hay que hacer nada más
+    return parseFloat(limpio) || 0;
+}
+
+/**
+ * Formatea un número como moneda con $ al inicio.
+ * Ej: 12000.5 → "$ 12.000,50"
+ */
+function formatearMonedaInput(valor) {
+    const num = parseFloat(valor) || 0;
+    return '$ ' + num.toLocaleString('es-EC', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+// ===============================================================
 // LÓGICA DE NEGOCIO Y EVENTOS
 // ===============================================================
 
@@ -112,20 +147,20 @@ function ejecutarGuardadoFondo() {
     const idOpcionActual = window.obtenerIdOpcionActual();
     const usuario = window.usuarioActual || "admin";
 
-    // Helpers de conversión
+    // ✅ CORRECCIÓN: toISO recibe fecha en formato dd/mm/yyyy del datepicker
     const toISO = (f) => {
         if (!f) return null;
         const p = f.split('/');
+        if (p.length !== 3) return null;
         return new Date(p[2], p[1] - 1, p[0]).toISOString();
     };
 
-    const toNum = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
-
+    // ✅ CORRECCIÓN: usar parsearMoneda que maneja correctamente el formato es-EC
     const body = {
         descripcion: $("#fondoDescripcion").val(),
         idproveedor: $("#fondoProveedorId").val(),
         idtipofondo: parseInt($("#fondoTipo").val()) || 0,
-        valorfondo: toNum($("#fondoValorTotal").val()),
+        valorfondo: parsearMoneda($("#fondoValorTotal").val()),
         fechainiciovigencia: toISO($("#fondoFechaInicio").val()),
         fechafinvigencia: toISO($("#fondoFechaFin").val()),
         idusuarioingreso: usuario,
@@ -134,6 +169,8 @@ function ejecutarGuardadoFondo() {
         idcontrolinterfaz: "BTNGRABAR",
         idevento: "EVCLICK"
     };
+
+    console.log("Valor parseado para guardar:", body.valorfondo); // ✅ Verificación en consola
 
     if (!body.fechainiciovigencia || !body.fechafinvigencia) {
         return Swal.fire('Error', 'Las fechas no son válidas.', 'error');
@@ -207,23 +244,54 @@ $(document).ready(function () {
         }).then((r) => { if (r.isConfirmed) ejecutarGuardadoFondo(); });
     });
 
-    // Formateo de moneda
+    // ===================================================================
+    // ✅ CAMPO VALOR TOTAL - Validaciones corregidas
+    // ===================================================================
+
+    // 1. BLOQUEAR caracteres inválidos al presionar tecla
+    //    Solo permite: dígitos (0-9), punto (.), coma (,) y teclas de control
+    $("#fondoValorTotal").on("keypress", function (e) {
+        const char = String.fromCharCode(e.which);
+        // Permitir solo dígitos, punto y coma
+        if (!/[\d.,]/.test(char)) {
+            e.preventDefault();
+        }
+    });
+
+    // 2. TAMBIÉN bloquear en el evento input (cubre pegar con ratón)
+    $("#fondoValorTotal").on("input", function () {
+        // Eliminar cualquier caracter que no sea dígito, punto o coma
+        const valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+        if ($(this).val() !== valorLimpio) {
+            $(this).val(valorLimpio);
+        }
+    });
+
+    // 3. AL SALIR DEL CAMPO: formatear con $ al inicio y separadores correctos
     $("#fondoValorTotal").on("blur", function () {
-        const val = $(this).val().replace(',', '.');
-        const formatted = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(parseFloat(val) || 0);
+        const num = parsearMoneda($(this).val());
+        // ✅ $ al INICIO, formato es-EC (punto=miles, coma=decimal)
+        const formatted = formatearMonedaInput(num);
         $(this).val(formatted);
         $("#fondoDisponible").val(formatted);
     });
+
+    // 4. AL ENTRAR AL CAMPO: mostrar solo el número limpio para facilitar edición
+    $("#fondoValorTotal").on("focus", function () {
+        const num = parsearMoneda($(this).val());
+        // Si el valor es 0, limpiar el campo para no mostrar "0"
+        $(this).val(num === 0 ? '' : String(num));
+    });
+
+    // ===================================================================
 
     // Init fechas
     $("#fondoFechaInicio").val(obtenerFechaActualFormateada());
 
     $("#btnAceptarProveedor").on("click", () => {
-        // 1. Buscamos el radio button que esté marcado dentro de la tabla
         const seleccionado = $('input[name="selectProveedor"]:checked');
 
         if (seleccionado.length > 0) {
-            // 2. Extraemos los datos usando la función .data() de jQuery
             const proveedor = {
                 id: seleccionado.data("id"),
                 nombre: seleccionado.data("nombre"),
@@ -232,11 +300,9 @@ $(document).ready(function () {
 
             console.log("Proveedor seleccionado:", proveedor);
 
-            // 3. Asignamos los valores a los inputs de la pantalla principal
             $("#fondoProveedor").val(proveedor.nombre);
             $("#fondoProveedorId").val(proveedor.ruc);
 
-            // 4. Cerramos el modal
             $("#modalConsultaProveedor").modal("hide");
 
         } else {

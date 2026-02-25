@@ -40,7 +40,7 @@ function manejarErrorGlobal(xhr, accion) {
 }
 
 function formatearMoneda(v) {
-    return (v || 0).toLocaleString('es-EC', { style: 'currency', currency: 'USD' });
+    return (v || 0).toLocaleString("es-EC", { style: "currency", currency: "USD" });
 }
 
 function formatearFecha(f) {
@@ -55,6 +55,7 @@ function formatearFecha(f) {
 
 /**
  * Extrae el nombre del archivo desde una ruta completa, removiendo el GUID prefix
+ * Ej: "C:\Soportes\Promociones\guid_archivo.xlsx" => "archivo.xlsx"
  */
 function obtenerNombreArchivo(rutaCompleta) {
     if (!rutaCompleta) return "";
@@ -70,24 +71,57 @@ $(document).ready(function () {
     console.log("=== INICIO - ConsultarPromocion (Estructura Post-REST) ===");
 
     $.get("/config", function (config) {
+        console.log("[config] Config cargada:", config);
         window.apiBaseUrl = config.apiBaseUrl;
         cargarBandeja();
     }).fail(function (xhr) {
         console.error("[config] Error al cargar /config:", xhr);
+        console.warn("[config] Intentando cargar bandeja sin config...");
         cargarBandeja();
     });
 
     // Eventos de Navegación
-    $('#btnVolverTabla, #btnVolverAbajo').on('click', function () {
+    $("#btnVolverTabla, #btnVolverAbajo").on("click", function () {
         cerrarDetalle();
     });
 
     // Botón Limpiar Filtros
-    $('body').on('click', '#btnLimpiar', function () {
+    $("body").on("click", "#btnLimpiar", function () {
         if (tabla) {
-            tabla.search('').draw();
+            tabla.search("").draw();
             tabla.page(0).draw('page');
         }
+    });
+
+    // Botón PDF - Ver Soporte
+    $("#btnVerSoporte").on("click", function () {
+        const soporte = $(this).data("soporte");
+        if (!soporte) {
+            Swal.fire({ icon: "info", title: "Sin soporte", text: "Esta promoción no tiene un archivo de soporte adjunto." });
+            return;
+        }
+        const urlVisualizacion = `/api/Promocion/ver-soporte?ruta=${encodeURIComponent(soporte)}`;
+        window.open(urlVisualizacion, "_blank");
+    });
+
+    // Botón Registro de Log
+    $("#btnVerLog").on("click", function () {
+        const idPromocion = parseInt($("#lblIdPromocion").text(), 10);
+        if (!idPromocion || isNaN(idPromocion)) {
+            Swal.fire({ icon: "warning", title: "Atención", text: "No se pudo determinar el Id de la promoción." });
+            return;
+        }
+        abrirModalLog(idPromocion);
+    });
+
+    // Botón Registro de Aprobaciones
+    $("#btnVerAprobaciones").on("click", function () {
+        const idPromocion = parseInt($("#lblIdPromocion").text(), 10);
+        if (!idPromocion || isNaN(idPromocion)) {
+            Swal.fire({ icon: "warning", title: "Atención", text: "No se pudo determinar el Id de la promoción." });
+            return;
+        }
+        abrirModalAprobaciones(idPromocion);
     });
 });
 
@@ -105,23 +139,30 @@ function cargarBandeja() {
         client: "APL"
     };
 
+    console.log("[cargarBandeja] Payload enviado:", JSON.stringify(payload));
+
     $.ajax({
         url: "/api/apigee-router-proxy",
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify(payload),
         success: function (response) {
-            console.log("[cargarBandeja] Respuesta completa:", response);
+            console.log("[cargarBandeja] Respuesta completa del proxy:", response);
 
             if (response && response.code_status === 200) {
                 const data = response.json_response || [];
+                console.log("[cargarBandeja] Datos recibidos:", data);
                 console.log("[cargarBandeja] Total registros:", Array.isArray(data) ? data.length : "No es array");
                 crearListado(data);
             } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar la bandeja de consulta.' });
+                console.error("[cargarBandeja] code_status no es 200:", response?.code_status, response);
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo cargar la bandeja de consulta. Código: " + (response?.code_status || "desconocido") });
             }
         },
-        error: (xhr) => manejarErrorGlobal(xhr, "cargar la bandeja de consulta de promociones")
+        error: function (xhr) {
+            console.error("[cargarBandeja] Error AJAX:", xhr.status, xhr.responseText);
+            manejarErrorGlobal(xhr, "cargar la bandeja de consulta de promociones");
+        }
     });
 }
 
@@ -181,9 +222,9 @@ function crearListado(data) {
     });
 
     html += `</tbody></table>`;
-    $('#tabla').html(html);
+    $("#tabla").html(html);
 
-    tabla = $('#tabla-principal').DataTable({
+    tabla = $("#tabla-principal").DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
         pagingType: 'full_numbers',
@@ -192,7 +233,7 @@ function crearListado(data) {
             { targets: 1, width: "8%", className: "dt-center" },
             { targets: [5, 6, 7], className: "dt-center" },
         ],
-        order: [[1, 'desc']],
+        order: [[1, "desc"]],
         language: {
             decimal: "",
             emptyTable: "No hay datos disponibles en la tabla",
@@ -222,13 +263,15 @@ function crearListado(data) {
 
 function abrirModalEditar(idPromocion) {
     console.log("Consultando detalle idPromocion:", idPromocion);
-    $('body').css('cursor', 'wait');
+    $("body").css("cursor", "wait");
 
     // Limpiar campos
     $("#formVisualizar")[0].reset();
     $("#lblIdPromocion").text(idPromocion);
-    $('#contenedor-tabla-articulos').hide().html('');
-    $('#contenedor-tabla-acuerdos').hide().html('');
+    $("#verPromocionHeader").val("");
+    $("#btnVerSoporte").data("soporte", "").removeData("soporte").attr("title", "Ver Soporte").removeClass("text-danger");
+    $("#contenedor-tabla-articulos").hide().html("");
+    $("#contenedor-tabla-acuerdos").hide().html("");
 
     const payload = {
         code_app: "APP20260128155212346",
@@ -246,42 +289,53 @@ function abrirModalEditar(idPromocion) {
         success: function (response) {
             if (response && response.code_status === 200) {
                 const data = response.json_response || {};
-                const cab = data.cabecera || {};
+                const cab = data?.cabecera || {};
                 console.log(`Datos de la promoción (${idPromocion}):`, data);
 
-                // Mapeo de Cabecera
-                $("#verMotivo").val(cab.nombre_motivo ?? "");
-                $("#verClasePromocion").val(cab.nombre_clase_promocion ?? "");
-                $("#verEstado").val(cab.nombre_estado_promocion ?? "");
+                // ── FILA 1: Header "Promoción" = idPromocion + nombre_clase_promocion ──
+                const idStr = cab.idpromocion ?? "";
+                const claseStr = cab.nombre_clase_promocion ?? "";
+                $("#verPromocionHeader").val(`${idStr} - ${claseStr}`);
+
+                // Guardar ruta de soporte en el botón PDF para abrirlo al clickear
+                const rutaSoporte = cab.archivosoporte ?? "";
+                $("#btnVerSoporte").data("soporte", rutaSoporte)
+                    .toggleClass("text-danger", !!rutaSoporte)
+                    .attr("title", rutaSoporte ? `Ver Soporte: ${obtenerNombreArchivo(rutaSoporte)}` : "Sin soporte");
+
+                // ── FILA 2: Descripción | Motivo | Inicio | Fin | Estado ──
                 $("#verDescripcion").val(cab.descripcion ?? "");
-                $("#verUsuarioSolicita").val(cab.nombreusersolicitud ?? "");
-                $("#verFechaSolicitud").val(formatearFecha(cab.fechasolicitud));
+                $("#verMotivo").val(cab.nombre_motivo ?? "");
                 $("#verFechaInicio").val(formatearFecha(cab.fecha_inicio));
                 $("#verFechaFin").val(formatearFecha(cab.fecha_fin));
-                $("#verRegalo").val(cab.marcaregalo ?? "");
-                $("#verSoporte").val(obtenerNombreArchivo(cab.archivosoporte));
+                $("#verEstado").val(cab.nombre_estado_promocion ?? "");
 
-                // Acuerdos asociados
-                if (data.acuerdos && data.acuerdos.length > 0) {
+                // Regalo: checkbox checked si es "S"
+                const esRegalo = (cab.marcaregalo ?? "").toString().trim().toUpperCase() === "S";
+                $("#verRegalo").prop("checked", esRegalo);
+
+                // ── ACUERDOS ──────────────────────────
+                if (data?.acuerdos && data.acuerdos.length > 0) {
                     renderizarTablaAcuerdos(data.acuerdos);
                 }
 
-                // Artículos
-                if (data.articulos && data.articulos.length > 0) {
+                // ── ARTÍCULOS ─────────────────────────
+                if (data?.articulos && data.articulos.length > 0) {
                     renderizarTablaArticulos(data.articulos);
                 }
 
                 $("#vistaTabla").fadeOut(200, function () {
                     $("#vistaDetalle").fadeIn(200);
                 });
-                $('body').css('cursor', 'default');
+                $("body").css("cursor", "default");
+
             } else {
-                $('body').css('cursor', 'default');
-                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo obtener el detalle de la promoción.' });
+                $("body").css("cursor", "default");
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo obtener el detalle de la promoción." });
             }
         },
         error: function (xhr) {
-            $('body').css('cursor', 'default');
+            $("body").css("cursor", "default");
             manejarErrorGlobal(xhr, "obtener el detalle de la promoción");
         }
     });
@@ -319,7 +373,7 @@ function renderizarTablaAcuerdos(acuerdos) {
     });
 
     html += `</tbody></table></div>`;
-    $('#contenedor-tabla-acuerdos').html(html).fadeIn();
+    $("#contenedor-tabla-acuerdos").html(html).fadeIn();
 }
 
 function renderizarTablaArticulos(articulos) {
@@ -354,15 +408,221 @@ function renderizarTablaArticulos(articulos) {
     });
 
     html += `</tbody></table></div>`;
-    $('#contenedor-tabla-articulos').html(html).fadeIn();
+    $("#contenedor-tabla-articulos").html(html).fadeIn();
 }
 
 function cerrarDetalle() {
-    $('#contenedor-tabla-acuerdos').hide().html('');
-    $('#contenedor-tabla-articulos').hide().html('');
+    $("#contenedor-tabla-acuerdos").hide().html("");
+    $("#contenedor-tabla-articulos").hide().html("");
     $("#vistaDetalle").fadeOut(200, function () {
         $("#vistaTabla").fadeIn(200);
         if (tabla) tabla.columns.adjust();
+    });
+}
+
+// ===================================================================
+// REGISTRO DE LOG
+// ===================================================================
+
+function abrirModalLog(idPromocion) {
+    console.log("[abrirModalLog] Consultando logs para idPromocion:", idPromocion);
+
+    // Limpiar estado previo
+    $("#tbodyLog").empty();
+    $("#logSinDatos").hide();
+    $("#contenedorTablaLog").hide();
+    $("#logSpinner").show();
+
+    // Abrir modal
+    const modal = new bootstrap.Modal(document.getElementById("modalRegistroLog"));
+    modal.show();
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Auditoria/consultar-logs-general",
+        client: "APL",
+        endpoint_query_params: `/ENTPROMOCION/${idPromocion}`
+    };
+
+    console.log("[abrirModalLog] Payload enviado:", JSON.stringify(payload));
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            $("#logSpinner").hide();
+            $("#contenedorTablaLog").show();
+
+            console.log("[abrirModalLog] Respuesta:", response);
+
+            if (response && response.code_status === 200) {
+                const logs = response.json_response || [];
+
+                if (!Array.isArray(logs) || logs.length === 0) {
+                    $("#logSinDatos").show();
+                    return;
+                }
+
+                let html = "";
+                logs.forEach(function (log) {
+                    const tieneDatos = log.datos && log.datos.toString().trim() !== "";
+                    html += `
+                        <tr>
+                            <td class="text-center fw-bold">${log.idlog ?? ""}</td>
+                            <td class="text-center text-nowrap">${log.fecha ?? ""}</td>
+                            <td class="text-center">${log.usuario ?? ""}</td>
+                            <td>${log.opcion ?? ""}</td>
+                            <td>${log.accion ?? ""}</td>
+                            <td class="text-center">${log.entidad ?? ""}</td>
+                            <td class="text-center">${log.tipo_proceso ?? ""}</td>
+                            <td class="text-center">
+                                ${tieneDatos
+                            ? `<button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1"
+                                           title="Ver datos" onclick="verDatosLog(${log.idlog})">
+                                           <i class="fa-regular fa-file-lines"></i>
+                                       </button>`
+                            : ""}
+                            </td>
+                        </tr>`;
+                });
+
+                $("#tbodyLog").html(html);
+
+            } else {
+                $("#logSinDatos").show();
+                console.warn("[abrirModalLog] code_status no es 200:", response?.code_status);
+            }
+        },
+        error: function (xhr) {
+            $("#logSpinner").hide();
+            $("#contenedorTablaLog").show();
+            $("#logSinDatos").show();
+            console.error("[abrirModalLog] Error AJAX:", xhr.status, xhr.responseText);
+        }
+    });
+}
+
+function verDatosLog(idLog) {
+    console.log("[verDatosLog] Ver datos del log idLog:", idLog);
+    Swal.fire({
+        icon: "info",
+        title: `Datos del Log #${idLog}`,
+        text: "Funcionalidad de detalle de datos pendiente de implementación."
+    });
+}
+
+// ===================================================================
+// REGISTRO DE APROBACIONES
+// ===================================================================
+
+function abrirModalAprobaciones(idPromocion) {
+    console.log("[abrirModalAprobaciones] Consultando aprobaciones para idPromocion:", idPromocion);
+
+    // Limpiar estado previo
+    $("#tbodyAprobaciones").empty();
+    $("#aprobacionesSinDatos").hide();
+    $("#contenedorTablaAprobaciones").hide();
+    $("#aprobacionesSpinner").show();
+
+    // Abrir modal
+    const modal = new bootstrap.Modal(document.getElementById("modalRegistroAprobaciones"));
+    modal.show();
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Aprobacion/consultar-aprobaciones-generales",
+        client: "APL",
+        endpoint_query_params: `/ENTPROMOCION/${idPromocion}`
+    };
+
+    console.log("[abrirModalAprobaciones] Payload enviado:", JSON.stringify(payload));
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            $("#aprobacionesSpinner").hide();
+            $("#contenedorTablaAprobaciones").show();
+
+            console.log("[abrirModalAprobaciones] Respuesta:", response);
+
+            if (response && response.code_status === 200) {
+                const aprobaciones = response.json_response || [];
+
+                if (!Array.isArray(aprobaciones) || aprobaciones.length === 0) {
+                    $("#aprobacionesSinDatos").show();
+                    return;
+                }
+
+                let html = "";
+                aprobaciones.forEach(function (apr) {
+                    const tieneComentario = apr.comentario_aprobador && apr.comentario_aprobador.toString().trim() !== "";
+
+                    // Badge de color segun estado
+                    let badgeClass = "bg-secondary";
+                    const estado = (apr.estado ?? "").toLowerCase();
+                    if (estado === "aprobado") badgeClass = "bg-success";
+                    if (estado === "rechazado") badgeClass = "bg-danger";
+                    if (estado === "nuevo") badgeClass = "bg-primary";
+                    if (estado === "pendiente") badgeClass = "bg-warning text-dark";
+
+                    const comentarioEscapado = (apr.comentario_aprobador ?? "").replace(/'/g, "\\'");
+
+                    html += `
+                        <tr>
+                            <td class="text-center">${apr.tipo_solicitud ?? ""}</td>
+                            <td class="text-center">${apr.usuario_solicita ?? ""}</td>
+                            <td class="text-center">${apr.nombre_solicita ?? ""}</td>
+                            <td class="text-center text-nowrap">${formatearFecha(apr.fecha_solicitud)}</td>
+                            <td class="text-center">
+                                <span>${apr.usuario_aprobador ?? ""}</span>
+                                ${tieneComentario
+                            ? `<button type="button"
+                                           class="btn btn-sm btn-link p-0 ms-1 text-dark"
+                                           title="${apr.comentario_aprobador.replace(/"/g, '&quot;')}"
+                                           onclick="verComentarioAprobacion('${apr.usuario_aprobador ?? ""}', '${comentarioEscapado}')">
+                                           <i class="fa-solid fa-message" style="font-size:0.8rem;"></i>
+                                       </button>`
+                            : ""}
+                            </td>
+                            <td class="text-center">${apr.nombre_aprobador ?? ""}</td>
+                            <td class="text-center text-nowrap">${formatearFecha(apr.fecha_aprobacion)}</td>
+                            <td class="text-center fw-bold">${apr.nivel ?? ""}</td>
+                            <td class="text-center">
+                                <span class="badge ${badgeClass}">${apr.estado ?? ""}</span>
+                            </td>
+                            <td class="text-center">${apr.lote ?? ""}</td>
+                        </tr>`;
+                });
+
+                $("#tbodyAprobaciones").html(html);
+
+            } else {
+                $("#aprobacionesSinDatos").show();
+                console.warn("[abrirModalAprobaciones] code_status no es 200:", response?.code_status);
+            }
+        },
+        error: function (xhr) {
+            $("#aprobacionesSpinner").hide();
+            $("#contenedorTablaAprobaciones").show();
+            $("#aprobacionesSinDatos").show();
+            console.error("[abrirModalAprobaciones] Error AJAX:", xhr.status, xhr.responseText);
+        }
+    });
+}
+
+function verComentarioAprobacion(usuario, comentario) {
+    Swal.fire({
+        icon: "info",
+        title: "Comentario de " + usuario,
+        text: comentario,
+        confirmButtonText: "Cerrar"
     });
 }
 

@@ -12,6 +12,255 @@
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
+<style>
+    /* =====================================================
+               GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN
+            ===================================================== */
+    .promo-form-grid {
+        border: 1px solid #ccc;
+        background: #fff;
+        font-size: 0.8rem;
+    }
+
+    /* Fila superior: Promoción ID */
+    .promo-header-row {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #ccc;
+        padding: 4px 6px;
+        gap: 8px;
+        background: #fff;
+    }
+
+        .promo-header-row .promo-label {
+            font-weight: 700;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            color: #222;
+        }
+
+        .promo-header-row .promo-id-input {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 3px 6px;
+            font-size: 0.8rem;
+            background: #f0f0f0;
+            color: #333;
+            border-radius: 2px;
+        }
+
+        .promo-header-row .promo-icons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .promo-header-row .promo-icon-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #bbb;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            border-radius: 2px;
+            color: #555;
+            font-size: 0.8rem;
+        }
+
+    /* Sección de columnas con header+input */
+    .promo-section {
+        display: flex;
+        border-bottom: 1px solid #ccc;
+    }
+
+        .promo-section:last-child {
+            border-bottom: none;
+        }
+
+    .promo-col {
+        flex: 1;
+        border-right: 1px solid #ccc;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .promo-col:last-child {
+            border-right: none;
+        }
+
+    .promo-col-header {
+        font-weight: 700;
+        text-align: center;
+        padding: 4px 6px;
+        background: #fff;
+        border-bottom: 1px solid #ccc;
+        color: #222;
+        font-size: 0.78rem;
+    }
+
+    .promo-col-value {
+        padding: 3px 6px;
+        background: #fff;
+    }
+
+        .promo-col-value input[type="text"],
+        .promo-col-value select {
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 3px 6px;
+            font-size: 0.78rem;
+            background: #f0f0f0;
+            color: #333;
+            border-radius: 2px;
+            height: 28px;
+        }
+
+            .promo-col-value input[type="text"]:focus,
+            .promo-col-value select:focus {
+                outline: none;
+            }
+
+    /* Columna pequeña: % y Regalo */
+    .promo-col.col-xs {
+        flex: 0 0 80px;
+        max-width: 80px;
+    }
+
+    .promo-col.col-sm {
+        flex: 0 0 110px;
+        max-width: 110px;
+    }
+
+    /* Columna Estado + Regalo juntos */
+    .promo-col.col-estado-regalo {
+        flex: 0 0 200px;
+        max-width: 200px;
+    }
+
+    .estado-regalo-value {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 6px;
+    }
+
+        .estado-regalo-value input[type="text"] {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid #ccc;
+            padding: 3px 6px;
+            font-size: 0.78rem;
+            background: #f0f0f0;
+            color: #333;
+            border-radius: 2px;
+            height: 28px;
+        }
+
+    .regalo-label {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #333;
+        cursor: default;
+        margin: 0;
+    }
+
+        .regalo-label input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: #0d6efd;
+            margin: 0;
+        }
+
+    .promo-col.col-md {
+        flex: 0 0 160px;
+        max-width: 160px;
+    }
+
+    /* Checkbox regalo alineado al centro */
+    .promo-col-value.center-value {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+    }
+
+    .promo-col-value input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #0d6efd;
+        cursor: default;
+    }
+
+    /* Input con icono de búsqueda (solo visual) */
+    .input-with-icon {
+        display: flex;
+        gap: 0;
+    }
+
+        .input-with-icon input {
+            border-right: none !important;
+            border-radius: 2px 0 0 2px !important;
+        }
+
+        .input-with-icon .icon-btn {
+            width: 28px;
+            min-width: 28px;
+            height: 28px;
+            border: 1px solid #ccc;
+            border-left: none;
+            background: #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0 2px 2px 0;
+            color: #666;
+            font-size: 0.75rem;
+        }
+
+    /* =====================================================
+           MODAL REGISTRO DE LOG - CABECERA TABLA
+        ===================================================== */
+    #tablaLog thead tr:first-child th {
+        background-color: #8B0000 !important;
+        color: #fff;
+        text-align: center;
+        font-weight: bold;
+        padding: 8px;
+        font-size: 0.95rem;
+    }
+
+    #tablaLog thead tr:nth-child(2) th {
+        background-color: #1a237e !important;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    /* =====================================================
+           MODAL REGISTRO DE APROBACIONES - CABECERA TABLA
+        ===================================================== */
+    #tablaAprobaciones thead tr:first-child th {
+        background-color: #8B0000 !important;
+        color: #fff;
+        text-align: center;
+        font-weight: bold;
+        padding: 8px;
+        font-size: 0.95rem;
+    }
+
+    #tablaAprobaciones thead tr:nth-child(2) th {
+        background-color: #1a237e !important;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+    }
+</style>
+
 <h2>Consulta - Promociones</h2>
 <hr class="separador-fondos" />
 
@@ -28,74 +277,79 @@
             </button>
         </div>
 
-        <div class="card-body">
-            <form id="formVisualizar" class="row g-1">
+        <div class="card-body p-2">
+            <form id="formVisualizar">
 
-                <div class="col-md-3">
-                    <label class="form-label fw-bold col-form-label-sm">Motivo</label>
-                    <input type="text" class="form-control form-control-sm" id="verMotivo" readonly disabled>
-                </div>
+                <!-- ============================================
+                     GRILLA ESTILO IMAGEN
+                ============================================= -->
+                <div class="promo-form-grid">
 
-                <div class="col-md-3">
-                    <label class="form-label fw-bold col-form-label-sm">Clase de Promoción</label>
-                    <input type="text" class="form-control form-control-sm" id="verClasePromocion" readonly disabled>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-bold col-form-label-sm">Estado</label>
-                    <input type="text" class="form-control form-control-sm" id="verEstado" readonly disabled>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-bold col-form-label-sm">Usuario Solicita</label>
-                    <input type="text" class="form-control form-control-sm" id="verUsuarioSolicita" readonly disabled>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-bold col-form-label-sm">Descripción</label>
-                    <input type="text" class="form-control form-control-sm" id="verDescripcion" readonly disabled>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-bold col-form-label-sm">Fecha Solicitud</label>
-                    <div class="input-group input-group-sm">
-                        <input id="verFechaSolicitud" type="text" class="form-control form-control-sm" readonly disabled>
-                        <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
+                    <!-- FILA 1: ID Promoción -->
+                    <div class="promo-header-row">
+                        <span class="promo-label">Promoción</span>
+                        <input type="text" class="promo-id-input" id="verPromocionHeader" readonly>
+                        <div class="promo-icons">
+                            <div class="promo-icon-btn" id="btnVerSoporte" title="Ver Soporte" style="cursor:pointer;">
+                                <i class="fa-regular fa-file-pdf"></i>
+                            </div>
+                            <div class="promo-icon-btn" id="btnVerLog" title="Registro de Log" style="cursor:pointer;">
+                                <i class="fa-regular fa-rectangle-list"></i>
+                            </div>
+                            <div class="promo-icon-btn" id="btnVerAprobaciones" title="Registro de Aprobaciones" style="cursor:pointer;">
+                                <i class="fa-regular fa-calendar-check"></i>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-3">
-                    <label class="form-label fw-bold col-form-label-sm">Fecha Inicio</label>
-                    <div class="input-group input-group-sm">
-                        <input id="verFechaInicio" type="text" class="form-control form-control-sm" readonly disabled>
-                        <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
+                    <!-- FILA 2: Descripción | Motivo | Inicio Fecha-Hora | Fin Fecha-Hora | Estado | Regalo -->
+                    <div class="promo-section">
+                        <div class="promo-col">
+                            <div class="promo-col-header">Descripción</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="verDescripcion" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">Motivo</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="verMotivo" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">Inicio: Fecha - Hora</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="verFechaInicio" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">Fin: Fecha - Hora</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="verFechaFin" readonly>
+                            </div>
+                        </div>
+                        <!-- Estado + Regalo juntos -->
+                        <div class="promo-col col-estado-regalo">
+                            <div class="promo-col-header">Estado</div>
+                            <div class="promo-col-value estado-regalo-value">
+                                <input type="text" id="verEstado" readonly>
+                                <label class="regalo-label" title="Regalo">
+                                    <input type="checkbox" id="verRegalo" disabled>
+                                    <span>Regalo</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
+                <!-- FIN GRILLA -->
 
-                <div class="col-md-3">
-                    <label class="form-label fw-bold col-form-label-sm">Fecha Fin</label>
-                    <div class="input-group input-group-sm">
-                        <input id="verFechaFin" type="text" class="form-control form-control-sm" readonly disabled>
-                        <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
-                    </div>
-                </div>
+                <hr class="mt-3 mb-2" />
 
-                <div class="col-md-3">
-                    <label class="form-label fw-bold col-form-label-sm">Regalo</label>
-                    <input type="text" class="form-control form-control-sm" id="verRegalo" readonly disabled>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-bold col-form-label-sm">Soporte</label>
-                    <input type="text" class="form-control form-control-sm" id="verSoporte" readonly disabled>
-                </div>
-
-                <hr class="mt-3 mb-3" />
-
-                @* Tabla de Acuerdos Asociados *@
+                <!-- Tabla de Acuerdos Asociados -->
                 <div class="col-12 mt-2" id="contenedor-tabla-acuerdos" style="display:none;"></div>
 
-                @* Tabla de Artículos *@
+                <!-- Tabla de Artículos -->
                 <div class="col-12 mt-2" id="contenedor-tabla-articulos" style="display:none;"></div>
 
             </form>
@@ -103,6 +357,132 @@
 
         <div class="card-footer text-end">
             <button type="button" class="btn btn-secondary" id="btnVolverAbajo">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     MODAL: REGISTRO DE LOG
+============================================= -->
+<div class="modal fade" id="modalRegistroLog" tabindex="-1" aria-labelledby="modalLogLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header py-2">
+                <h5 class="modal-title fw-bold" id="modalLogLabel">
+                    <i class="fa-regular fa-rectangle-list me-2"></i>Registro de Log
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body p-2">
+
+                <!-- Spinner de carga -->
+                <div id="logSpinner" class="text-center py-4" style="display:none;">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2 text-muted small">Cargando registros...</p>
+                </div>
+
+                <!-- Tabla de logs -->
+                <div id="contenedorTablaLog" style="display:none;">
+                    <div class="table-responsive">
+                        <table id="tablaLog" class="table table-bordered table-hover table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th colspan="8">Registro de Log</th>
+                                </tr>
+                                <tr>
+                                    <th>IdLog</th>
+                                    <th>Fecha</th>
+                                    <th>Usuario</th>
+                                    <th>Opción</th>
+                                    <th>Acción</th>
+                                    <th>Entidad</th>
+                                    <th>Tipo Proceso</th>
+                                    <th>Datos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyLog">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="logSinDatos" class="alert alert-info text-center mt-2" style="display:none;">
+                        No se encontraron registros de log para esta promoción.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     MODAL: REGISTRO DE APROBACIONES
+============================================= -->
+<div class="modal fade" id="modalRegistroAprobaciones" tabindex="-1" aria-labelledby="modalAprobacionesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header py-2">
+                <h5 class="modal-title fw-bold" id="modalAprobacionesLabel">
+                    <i class="fa-regular fa-calendar-check me-2"></i>Registro de Aprobaciones
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body p-2">
+
+                <!-- Spinner de carga -->
+                <div id="aprobacionesSpinner" class="text-center py-4" style="display:none;">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2 text-muted small">Cargando registros...</p>
+                </div>
+
+                <!-- Tabla de aprobaciones -->
+                <div id="contenedorTablaAprobaciones" style="display:none;">
+                    <div class="table-responsive">
+                        <table id="tablaAprobaciones" class="table table-bordered table-hover table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th colspan="10">Registro de Aprobaciones</th>
+                                </tr>
+                                <tr>
+                                    <th>Tipo Solicitud</th>
+                                    <th>Usuario Solicita</th>
+                                    <th>Nombre Solicita</th>
+                                    <th>Fecha Solicitud</th>
+                                    <th>Usuario Aprobador</th>
+                                    <th>Nombre Aprobador</th>
+                                    <th>Fecha Aprobacion</th>
+                                    <th>Nivel</th>
+                                    <th>Estado</th>
+                                    <th>Lote</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyAprobaciones">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="aprobacionesSinDatos" class="alert alert-info text-center mt-2" style="display:none;">
+                        No se encontraron registros de aprobaciones para esta promoción.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
         </div>
     </div>
 </div>
