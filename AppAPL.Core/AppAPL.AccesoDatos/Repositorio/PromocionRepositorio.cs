@@ -5,6 +5,7 @@ using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Opciones;
 using AppAPL.Dto.Promocion;
 using Dapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
@@ -16,11 +17,13 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
-    public class PromocionRepositorio (OracleConnectionFactory factory, ILogger<PromocionRepositorio> logger, IConfiguration configuration) : IPromocionRepositorio
+    public class PromocionRepositorio (OracleConnectionFactory factory, ILogger<PromocionRepositorio> logger, IWebHostEnvironment env,
+        IConfiguration configuration) : IPromocionRepositorio
     {
         public async Task<IEnumerable<PromocionDTO>> ConsultarPromocion()
         {
@@ -953,29 +956,33 @@ namespace AppAPL.AccesoDatos.Repositorio
         {
             if (string.IsNullOrEmpty(base64String)) return string.Empty;
 
-                // 1. Obtener ruta desde appsettings
-                string folderPath = configuration["ConfiguracionArchivos:CarpetaSoportes"];
-                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+            // 1. Obtener el nombre desde el JSON (o usar uno por defecto)
+            string nombreCarpetaConfig = configuration.GetValue<string>("ConfiguracionArchivos:ArchivoSoportes") ?? "ArchivoSoportes";
 
-                // 2. Limpiar el string Base64 (por si el Front mandó el encabezado data:...)
-                // Esto es un "seguro de vida" para que no truene el Convert
-                string base64Limpio = base64String.Contains(",")
-                    ? base64String.Split(',')[1]
-                    : base64String;
+            // 2. Construir la ruta física completa
+            string folderPath = Path.Combine(env.ContentRootPath, nombreCarpetaConfig);
 
-                // 3. Generar nombre único para evitar sobreescritura
-                string fileName = $"{Guid.NewGuid()}_{nombreOriginal}";
-                string rutaCompleta = Path.Combine(folderPath, fileName);
+            // 3. ¡AQUÍ ESTÁ LA MAGIA! Si no existe, la creamos al vuelo
+            if (!Directory.Exists(folderPath))
+            {
+                logger.LogInformation($"La carpeta {nombreCarpetaConfig} no existe. Creándola...");
+                Directory.CreateDirectory(folderPath);
+            }
 
-                // 4. Conversión y guardado
-                byte[] fileBytes = Convert.FromBase64String(base64Limpio);
-                await File.WriteAllBytesAsync(rutaCompleta, fileBytes);
+            // 4. Limpiar el Base64 (quitar el prefijo data:image/...)
+            string base64Limpio = base64String.Contains(",") ? base64String.Split(',')[1] : base64String;
 
-                logger.LogInformation($"Archivo guardado en: {rutaCompleta}");
+            // 5. Preparar nombre único y ruta final del archivo
+            string fileName = $"{Guid.NewGuid()}_{nombreOriginal}";
+            string rutaCompleta = Path.Combine(folderPath, fileName);
 
-                return rutaCompleta; // Retornamos la ruta que necesita el SP
-            
-            
+            // 6. Guardar los bytes en el disco
+            byte[] fileBytes = Convert.FromBase64String(base64Limpio);
+            await File.WriteAllBytesAsync(rutaCompleta, fileBytes);
+
+            // 7. Retornar la ruta relativa para guardar en la BD
+            // Esto devolverá algo como: "SoportesSistemas/guid_nombre.jpg"
+            return Path.Combine(nombreCarpetaConfig, fileName);
         }
 
 

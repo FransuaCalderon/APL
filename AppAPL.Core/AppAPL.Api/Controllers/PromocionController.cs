@@ -172,7 +172,7 @@ namespace AppAPL.Api.Controllers
             
             var item = await servicio.ObtenerBandInacPromoPorId(idPromocion);
 
-            /*if (item.codigoSalida == 0)
+            if (item.codigoSalida == 0)
             {
                 logger.LogInformation(item.mensajeSalida);
                 return item;
@@ -181,8 +181,7 @@ namespace AppAPL.Api.Controllers
             {
                 logger.LogError(item.mensajeSalida);
                 return BadRequest(new { mensaje = item.mensajeSalida });
-            }*/
-            return item;
+            }
         }
 
         [HttpGet("consultar-bandeja-modificacion")]

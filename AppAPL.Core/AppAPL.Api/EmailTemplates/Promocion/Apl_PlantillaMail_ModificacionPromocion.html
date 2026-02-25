@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Bienvenido</title>
+</head>
+<body style="font-family: Arial, sans-serif; color: #333;">
+
+<p style="font-size:12px; font-weight: bold; font-family: Arial;">Estimado {{Nombre}} </p> <!-- ES EL NOMBRE DEL PROVEEDOR O DE ARTEFACTA, SI LA PROMOCION TIENEN UN ACUERDO DE PROVEEDOR Y UN ACUERDO PROPIO, ENTONCES SE DEBE DE ENVIAR DOS VECES EL MAIL, UNO PARA EL PROVEEDOR Y OTRO PARA EL PROPIO QUE ES ARTEFACTA, AMBOS DESTINBATARIOS ESTAN EN LA TABLA DE DESTINATARIOS COMO REGISTROS INDEPENDIENTES CON SUS PARA Y CC DEFINIDOS -->
+<br>
+
+<p style="font-size:12px; font-weight: normal; font-family: Arial;">
+    Le comunicamos a usted que conforme a lo acordado hemos MODIFICADO LA PROMOCI&Oacute;N {{IdPromocion}} con el propósito de incrementar 
+	las ventas de los artículos según el siguiente detalle:
+    
+</p>
+
+<p style="font-size:12px; font-weight: normal; font-family: Arial;">
+ 
+		<!-- Indicar con un "*" en negritas en que parte fue modificado, es decir si alguna cosa se modifico en MARCA entonces el titulo saldra asi: "* Marca" -->
+	  &emsp; <mark>¡Atención!</mark> <strong>Los Campos con '*' fueron modificados</strong>  <br><br> 
+      &emsp; {{InformacionGeneral}} <br><br>  <!-- Tabla html para visualiza DESCRIPCON, MOTIVO, FECHA-HORA INICIO, FECHA-HORA FIN, ESTADO, DESCUENTO TOTAL Y MARCA REGALO -->
+	  &emsp; {{Alcance}} <br><br> <!-- Tabla html para visualiza MARCA, DIVISION, DEPARTAMENTO, CLASE, ARTICULO -->
+	  &emsp; {{Cobertura}} <br><br> <!-- Tabla html para visualizar CANAL, GRUPO, ALMACEN, TIPO DE CLIENTE, MEDIO DE PAGO. SI EN TIPO DE CLIENTE ELIGEN LISTA ESPECIFICA ENTONCES NO DETALLAR LOS CODIGOS QUE FUERON CARGADOS MEDIANTE UN ARCHIVO NI LOS QUE FUERON INGRESADOS MANUALMENTE, ES DECIR SOLO ESPECIFICAR EN TIPO DE CLIENTE COMO LISTA ESPECIFICA  -->
+	  &emsp; {{Acuerdos}} <br><br> <!-- Tabla html para visualiza LOS ACUERDOS, POR CADA ACUERDO DE DETALLA % DESCUENTO, ID ACUERDO Y NOMBRE DEL PROVEEDOR, VALOR COMPROMETIDO -->
+     
+
+<br><br>
+
+
+</p>
+
+<p style="font-size:12px; font-weight: normal; font-family: Arial;">
+Estamos a su disposición para atender cualquier inquietud. Agradecemos la confianza depositada en nosotros. <br>
+Saludos <br>
+</p>
+
+<p style="font-size:12px; font-weight: normal; font-family: Arial;">
+{{Firma}}
+</p>
+
+</body>
+</html>
+
+
+
+
+
+
+
+

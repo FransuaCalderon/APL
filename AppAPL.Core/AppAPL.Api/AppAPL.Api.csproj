@@ -43,6 +43,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="ArchivoSoportes\" />
       <Folder Include="Soportes\" />
     </ItemGroup>
 </Project>

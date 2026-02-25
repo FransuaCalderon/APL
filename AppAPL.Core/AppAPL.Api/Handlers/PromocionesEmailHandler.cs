@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace AppAPL.Api.Handlers
 {
-    public class PromocionesEmailHandler (IEmailRepositorio emailRepo, ILogger<PromocionesEmailHandler> logger) 
+    public class PromocionesEmailHandler (IEmailRepositorio emailRepo, ILogger<PromocionesEmailHandler> logger, IFondoRepositorio fondoRepo, IAcuerdoRepositorio acuerdoRepo) 
         : HandlerBase (emailRepo, logger) ,IPromocionesEmailHandler
     {
 
@@ -24,11 +24,12 @@ namespace AppAPL.Api.Handlers
                 TipoProceso.Modificacion => "TPMODIFICACION",
                 TipoProceso.Aprobacion => "TPAPROBACION",
                 TipoProceso.Inactivacion => "TPINACTIVACION",
+                TipoProceso.AprobacionInactivacion => "TPAPROBACIONINACTIVACION",
                 _ => tipoProceso.ToString().ToUpper()
             };
 
             // 1. Declaramos las variables que llenará el switch
-            string IdProveedor = "";
+            List<string> proveedores = new List<string>();
             Dictionary<string, string> camposPlantilla = null;
             string notificacion = "";
 
@@ -39,13 +40,9 @@ namespace AppAPL.Api.Handlers
             switch (tipoProceso)
             {
                 case TipoProceso.Creacion:
-                    /*
-                    var reqCreacion = JsonSerializer.Deserialize<CrearFondoRequest>(requestBody, jsonOptions);
-                    if (reqCreacion == null || string.IsNullOrEmpty(reqCreacion.IdProveedor))
-                    {
-                        logger.LogWarning("⚠️ [PromocionesHandler] No se pudo obtener IdProveedor de CrearFondoRequest.");
-                        return;
-                    }
+                    
+                    var reqCreacion = JsonSerializer.Deserialize<CrearPromocionRequestDTO>(requestBody, jsonOptions);
+                    
 
                     var retorno = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
                     if (retorno == null)
@@ -53,16 +50,21 @@ namespace AppAPL.Api.Handlers
                         logger.LogWarning("No existe Response body");
                         return;
                     }
-
+                    /*
                     IdProveedor = reqCreacion.IdProveedor;
-                    var proveedor = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
+                    var proveedor = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);*/
 
-                    if (proveedor == null)
+                    foreach (var item in reqCreacion.Acuerdos)
                     {
-                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
-                        return;
+                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId(item.IdAcuerdo);
+
+                        var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
+
+                        proveedores.Add(fondo.IdProveedor); 
                     }
 
+                    
+                    /*
                     camposPlantilla = new Dictionary<string, string>
                     {
                         { "Nombre", reqCreacion.NombreUsuarioIngreso },
@@ -75,12 +77,12 @@ namespace AppAPL.Api.Handlers
                         { "FechaFin", reqCreacion.FechaFinVigencia.ToString() },
                         { "Firma", reqCreacion.NombreUsuarioIngreso },
                         // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
-                    };
+                    };*/
 
                     notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
-                    */
+                    
                     break;
-
+                    
                 case TipoProceso.Modificacion:
 
                     /*
@@ -247,6 +249,55 @@ namespace AppAPL.Api.Handlers
                     */
                     break;
 
+
+                case TipoProceso.AprobacionInactivacion:
+                    /*
+                    var reqInactivacion = JsonSerializer.Deserialize<InactivarFondoRequest>(requestBody, jsonOptions);
+                    if (reqInactivacion == null || reqInactivacion.IdFondo == null)
+                    {
+                        logger.LogWarning("⚠️ [PromocionesHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        return;
+                    }
+
+
+                    var fondo2 = await fondoRepo.ObtenerPorIdAsync((int)reqInactivacion.IdFondo);
+
+                    if (fondo2 == null)
+                    {
+                        logger.LogWarning($"no se encontro el fondo con el id: {reqInactivacion.IdFondo}");
+                        return;
+                    }
+
+                    IdProveedor = fondo2.IdProveedor;
+                    var proveedor4 = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
+
+                    if (proveedor4 == null)
+                    {
+                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
+                        return;
+                    }
+
+                    camposPlantilla = new Dictionary<string, string>
+                        {
+                            { "Nombre", fondo2.IdUsuarioIngreso },
+                            { "IdFondo", fondo2.IdProveedor },
+                            { "NombreProveedor", proveedor4.Nombre },
+                            { "IdProveedor", proveedor4.Identificacion },
+                            { "ValorFondo", this.FormatearAMoneda((decimal)fondo2.ValorFondo) },
+                            { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo2.ValorFondo) },
+                            { "FechaInicio", fondo2.FechaInicioVigencia.ToString() },
+                            { "FechaFin", fondo2.FechaFinVigencia.ToString() },
+                            { "ValorDisponible", this.FormatearAMoneda((decimal)fondo2.ValorDisponible) },
+                            { "ValorComprometido", this.FormatearAMoneda((decimal)fondo2.ValorComprometido) },
+                            { "ValorLiquidado", this.FormatearAMoneda((decimal)fondo2.ValorLiquidado) },
+                            { "Firma", reqInactivacion.NombreUsuarioIngreso },
+                            // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
+                        };
+
+                    notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
+                    */
+                    break;
+
                 default:
                     logger.LogWarning($"[PromocionesHandler] TipoProceso no reconocido o sin estrategia definida: {tipoProceso}.");
                     return;
@@ -257,7 +308,8 @@ namespace AppAPL.Api.Handlers
 
             if (camposPlantilla != null)
             {
-                await EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, notificacion);
+                await EnviarCorreo(entidad, tipoProcEtiqueta, proveedores, tipoProceso, camposPlantilla, notificacion);
+                logger.LogInformation("Enviando correo");
             }
             else
             {

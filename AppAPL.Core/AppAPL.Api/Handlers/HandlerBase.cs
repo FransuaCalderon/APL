@@ -47,19 +47,27 @@ namespace AppAPL.Api.Handlers
             }
         }
 
-        protected async Task EnviarCorreo(string entidad, string tipoProcEtiqueta, string IdProveedor, TipoProceso tipoProceso,
+        protected async Task EnviarCorreo(string entidad, string tipoProcEtiqueta, List<string> proveedores, TipoProceso tipoProceso,
             Dictionary<string, string>? camposPlantilla, string? notificacion = null)
         {
             logger.LogInformation("Parametros para enviar correo");
-            logger.LogInformation($"entidad: {entidad}, tipoProcEtiqueta: {tipoProcEtiqueta}, IdProveedor: {IdProveedor}, tipoProceso: {tipoProceso}");
+            logger.LogInformation($"entidad: {entidad}, tipoProcEtiqueta: {tipoProcEtiqueta}, tipoProceso: {tipoProceso}");
 
             // 🔹 Consultar SP y enviar correo
-            var datos = await emailRepo.ObtenerDatosCorreo(new ConsultarDatosCorreoRequest
+            List<DatosCorreoDTO> datos = new List<DatosCorreoDTO>();
+
+            foreach (var proveedor in proveedores)
             {
-                Entidad = entidad,
-                TipoProceso = tipoProcEtiqueta,
-                IdDocumento = IdProveedor // Usamos la variable llenada en el switch
-            });
+                var datosCorreos = await emailRepo.ObtenerDatosCorreo(new ConsultarDatosCorreoRequest
+                {
+                    Entidad = entidad,
+                    TipoProceso = tipoProcEtiqueta,
+                    IdDocumento = proveedor // Usamos la variable llenada en el switch
+                });
+
+                datos.AddRange(datosCorreos);
+            }
+            
 
             var plantillasConsultadas = datos.Where(d => d.tipo_registro == "PLANTILLA").ToList();
             var destinatarios = datos.Where(d => d.tipo_registro == "DESTINATARIO").ToList();

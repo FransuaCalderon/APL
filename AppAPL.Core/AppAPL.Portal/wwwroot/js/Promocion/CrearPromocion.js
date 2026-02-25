@@ -421,6 +421,7 @@
             data: JSON.stringify(payload),
             success: function (res) {
                 const data = res.json_response || [];
+                console.log('data ',data);
                 $tbody.empty();
                 if (!data.length) {
                     $tbody.html('<tr><td colspan="13" class="text-center">No hay datos.</td></tr>');
@@ -693,6 +694,7 @@
             };
 
             console.log("body: ", body);
+            return;
             // 5. Envío vía AJAX
             $.ajax({
                 url: "/api/apigee-router-proxy",

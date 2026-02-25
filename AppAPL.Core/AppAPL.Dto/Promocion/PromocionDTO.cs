@@ -421,9 +421,10 @@ namespace AppAPL.Dto.Promocion
 
     public class AcuerdoDTO
     {
-        public long IdAcuerdo { get; set; }
+        public int IdAcuerdo { get; set; }
         public decimal PorcentajeDescuento { get; set; }
         public decimal ValorComprometido { get; set; }
+        
     }
 
     public class SegmentoDTO

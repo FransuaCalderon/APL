@@ -31,7 +31,7 @@ namespace AppAPL.Api.Handlers
             };
 
             // 1. Declaramos las variables que llenará el switch
-            string IdProveedor = "";
+            List<string> proveedores = new List<string>();
             Dictionary<string, string> camposPlantilla = null;
             string notificacion = "";
 
@@ -62,12 +62,13 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    IdProveedor = fondo.IdProveedor;
-                    var proveedor = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
+                    //IdProveedor = fondo.IdProveedor;
+                    proveedores.Add(fondo.IdProveedor);
+                    var proveedor = await proveedorRepo.ObtenerPorIdAsync(fondo.IdProveedor);
 
                     if (proveedor == null)
                     {
-                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
+                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {fondo.IdProveedor}");
                         return;
                     }
 
@@ -201,8 +202,8 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    IdProveedor = fondo2.IdProveedor;
-               
+                    //IdProveedor = fondo2.IdProveedor;
+                    proveedores.Add(fondo2.IdProveedor);
 
                     var catalogo2 = await catalogoRepo.ObtenerPorIdAsync((int)fondo2.IdTipoFondo);
                     if (catalogo2 == null)
@@ -254,7 +255,8 @@ namespace AppAPL.Api.Handlers
                         logger.LogWarning($"no se encontro el fondo con el id: {acuerdo2.cabecera.idfondo}");
                     }
 
-                    IdProveedor = fondo3.IdProveedor;
+                    //IdProveedor = fondo3.IdProveedor;
+                    proveedores.Add(fondo3.IdProveedor);
 
 
                     camposPlantilla = new Dictionary<string, string>
@@ -286,7 +288,7 @@ namespace AppAPL.Api.Handlers
 
             if (camposPlantilla != null)
             {
-                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, notificacion);
+                await this.EnviarCorreo(entidad, tipoProcEtiqueta, proveedores, tipoProceso, camposPlantilla, notificacion);
             }
             else
             {
