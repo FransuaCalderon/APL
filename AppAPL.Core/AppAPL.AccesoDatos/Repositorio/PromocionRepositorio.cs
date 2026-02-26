@@ -732,8 +732,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             var resultado = new BandAproPromocionIDDTO()
             {
                 cabecera = cabecera,
-                acuerdos = acuerdos,
-                articulos = articulos,
+                acuerdos = acuerdos.ToList(),
+                articulos = articulos.ToList(),
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida
@@ -757,8 +757,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
             parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
@@ -771,8 +771,9 @@ namespace AppAPL.AccesoDatos.Repositorio
                 );
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandAproPromoDTO>();
+            var segmentos = await multi.ReadAsync<SegmentoBandejaDTO>();
             var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
-            var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
+           
 
             string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
@@ -783,8 +784,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             var resultado = new BandModPromocionIDDTO()
             {
                 cabecera = cabecera,
+                segmentos = segmentos,
                 acuerdos = acuerdos,
-                articulos = articulos,
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida

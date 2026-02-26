@@ -10,7 +10,7 @@ using System.Text.Json;
 namespace AppAPL.Api.Handlers
 {
     public class PromocionesEmailHandler (IEmailRepositorio emailRepo, ILogger<PromocionesEmailHandler> logger, IFondoRepositorio fondoRepo, IAcuerdoRepositorio acuerdoRepo,
-        ICatalogoRepositorio catalogoRepo) 
+        ICatalogoRepositorio catalogoRepo, IPromocionRepositorio promocionRepo) 
         : HandlerBase (emailRepo, logger) ,IPromocionesEmailHandler
     {
 
@@ -96,6 +96,8 @@ namespace AppAPL.Api.Handlers
 
                     var motivo = await catalogoRepo.ObtenerPorIdAsync(reqCreacion.Promocion.Motivo);
 
+
+                    var descuentoTotal = reqCreacion.Acuerdos[0].ValorComprometido + reqCreacion.Acuerdos[1].ValorComprometido;
                     var camposBase = new Dictionary<string, string>
                         {
                            
@@ -104,6 +106,8 @@ namespace AppAPL.Api.Handlers
                             { "Motivo",  motivo.Nombre },
                             { "FechaInicio",  reqCreacion.Promocion.FechaHoraInicio.ToString() },
                             { "FechaFin",  reqCreacion.Promocion.FechaHoraFin.ToString() },
+                            { "Estado",  "Nuevo" },
+                            { "DescuentoTotal",  descuentoTotal.ToString("N2") },
                             { "Regalo",  reqCreacion.Promocion.MarcaRegalo },
 
                             { "Marca",  marcas },
@@ -207,61 +211,64 @@ namespace AppAPL.Api.Handlers
 
 
                 case TipoProceso.Aprobacion:
-                    /*
-                    var reqAprobacion = JsonSerializer.Deserialize<AprobarFondoRequest>(requestBody, jsonOptions);
-                    if (reqAprobacion == null || reqAprobacion.Identidad == null)
+                    var reqCreacion2 = JsonSerializer.Deserialize<AprobarPromocionRequest>(requestBody, jsonOptions);
+
+
+                    var retorno2 = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
+                    if (retorno2 == null)
                     {
-                        logger.LogWarning("⚠️ [PromocionesHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
+                        logger.LogWarning("No existe Response body");
                         return;
                     }
 
-                    string estadoCorreo = reqAprobacion.IdEtiquetaEstado switch
-                    {
-                        "ESTADOAPROBADO" => "APROBADO",
-                        "ESTADONEGADO" => "NEGADO"
-                    };
 
-                    string etiquetaTipoProceso = reqAprobacion.IdEtiquetaTipoProceso switch
+                    if (reqCreacion2 == null)
                     {
-                        "TPCREACION" => "CREACION",
-                        "TPINACTIVACION" => "INACTIVACION"
-                    };
-
-                    var fondo = await fondoRepo.ObtenerPorIdAsync((int)reqAprobacion.Identidad);
-
-                    if (fondo == null)
-                    {
-                        logger.LogWarning($"no se encontro el fondo con el id: {reqAprobacion.Identidad}");
+                        logger.LogWarning("No existe request body");
                         return;
                     }
 
-                    IdProveedor = fondo.IdProveedor;
-                    var proveedor3 = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);
+                    var promocionAprobacion = await promocionRepo.ObtenerBandAproPromoPorId((int)reqCreacion2.Identidad, (int)reqCreacion2.IdAprobacion);
 
-                    if (proveedor3 == null)
-                    {
-                        logger.LogWarning($"no se encontro proveedor con el idproveedor: {IdProveedor}");
-                        return;
-                    }
+                    var descuentoTotal2 = promocionAprobacion.acuerdos[0].valor_comprometido + promocionAprobacion.acuerdos[1].valor_comprometido;
 
-                    camposPlantilla = new Dictionary<string, string>
-                      {
-                        { "Nombre", fondo.IdUsuarioIngreso },
-                        { "IdFondo", fondo.IdFondo.ToString() },
-                        { "NombreProveedor", proveedor3.Nombre },
-                        { "IdProveedor", proveedor3.Identificacion },
-                        { "ValorFondo", this.FormatearAMoneda((decimal)fondo.ValorFondo) },
-                        { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo.ValorFondo) },
-                        { "FechaInicio", fondo.FechaInicioVigencia.ToString() },
-                        { "FechaFin", fondo.FechaFinVigencia.ToString() },
-                        { "Firma", reqAprobacion.UsuarioAprobador },
-                        { "Estado", estadoCorreo },
-                        { "TipoProceso", etiquetaTipoProceso },
-                      };
+                    var camposBase2 = new Dictionary<string, string>
+                        {
+                            //nombre
+                            { "IdPromocion",  promocionAprobacion.cabecera.IdPromocion.ToString() },
+                            { "Descripcion",  promocionAprobacion.cabecera.Descripcion },
+                            { "Motivo",  promocionAprobacion.cabecera.nombre_motivo },
+                            { "FechaInicio",  promocionAprobacion.cabecera.fecha_inicio.ToString() },
+                            { "FechaFin",  promocionAprobacion.cabecera.fecha_fin.ToString() },
+                            { "Estado",  reqCreacion2.IdEtiquetaEstado },
+                            { "DescuentoTotal",  descuentoTotal2.ToString("N2") },
+                            { "Regalo",  promocionAprobacion.cabecera.MarcaRegalo },
 
-                    notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
+                            /*
+                            { "Marca",  marcas },
+                            { "Division",  divisiones },
+                            { "Departamento",  departamentos },
+                            { "Clase",  clases },
 
-                    */
+                            { "Canal",  canales },
+                            { "Grupo",  gruposalmacenes },
+                            { "Almacen",  almacenes },
+                            { "TipoCliente",  tiposclientes },
+                            { "MedioPago",  mediospagos },
+                            */
+
+                            { "AcuerdoProveedor",  promocionAprobacion.acuerdos[0].IDACUERDO.ToString() },
+                            { "PorcentajeProveedor",  promocionAprobacion.acuerdos[0].porcentaje_descuento.ToString("N2") },
+                            { "ValorComprometidoProveedor",  promocionAprobacion.acuerdos[0].valor_comprometido.ToString("N2") },
+
+                            { "AcuerdoPropio",  promocionAprobacion.acuerdos[1].IDACUERDO.ToString() },
+                            { "PorcentajePropio",  promocionAprobacion.acuerdos[1].porcentaje_descuento.ToString("N2") },
+                            { "ValorComprometidoPropio",  promocionAprobacion.acuerdos[1].valor_comprometido.ToString("N2") },
+
+                            { "Firma",  reqCreacion2.NombreUsuario },
+                        };
+                    
+
                     break;
 
 

@@ -153,6 +153,27 @@ namespace AppAPL.Dto.Promocion
         public int? incluirTodos { get; set; }
     }
 
+    public class SegmentoBandejaDTO
+    {
+        // Campos de la tabla apl_tb_promocionsegmento (seg)
+        public int idpromocionsegmento { get; set; }
+        public int idpromocion { get; set; }
+        public int idtiposegmento { get; set; }
+        public string nombre_tipo_segmento { get; set; }
+        public string etiqueta_tipo_segmento { get; set; }
+        public string tipoasignacion { get; set; }
+        public string descripcion_asignacion { get; set; }
+        public int id_estado_segmento { get; set; }
+        public string nombre_estado_segmento { get; set; }
+
+        // Campos del detalle (det) - Nullables porque vienen de un LEFT JOIN
+        public int? idpromocionsegmentodetalle { get; set; }
+        public string codigo_detalle { get; set; }
+        public string nombre_detalle { get; set; }
+        public int? id_estado_detalle { get; set; }
+        public string nombre_estado_detalle { get; set; }
+    }
+
     public class BandInacPromocionDTO
     {
         public int IDPROMOCION { get; set; }
@@ -269,9 +290,10 @@ namespace AppAPL.Dto.Promocion
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandAproPromoDTO? cabecera { get; set; }
         public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
+        public IEnumerable<SegmentoBandejaDTO>? segmentos { get; set; }
 
         // Lista para capturar el cursor p_cursor_articulos
-        public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
+        //public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
 
         public string? tipopromocion { get; set; }
         [JsonIgnore]
@@ -284,10 +306,10 @@ namespace AppAPL.Dto.Promocion
     {
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandAproPromoDTO? cabecera { get; set; }
-        public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
+        public List<AcuerdoBandAproDTO>? acuerdos { get; set; }
 
         // Lista para capturar el cursor p_cursor_articulos
-        public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
+        public List<ArticuloBandAproPromoDTO>? articulos { get; set; }
         
         public string? tipopromocion { get; set; }
         [JsonIgnore]
