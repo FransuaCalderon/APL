@@ -47,12 +47,13 @@ namespace AppAPL.Api.Handlers
             }
         }
 
-        protected async Task EnviarCorreo(string entidad, string tipoProcEtiqueta, List<string> proveedores, TipoProceso tipoProceso,
+        protected async Task EnviarCorreo(string entidad, string tipoProcEtiqueta, string IdProveedor, TipoProceso tipoProceso,
             Dictionary<string, string>? camposPlantilla, string? notificacion = null)
         {
             logger.LogInformation("Parametros para enviar correo");
             logger.LogInformation($"entidad: {entidad}, tipoProcEtiqueta: {tipoProcEtiqueta}, tipoProceso: {tipoProceso}");
 
+            /*
             // 🔹 Consultar SP y enviar correo
             List<DatosCorreoDTO> datos = new List<DatosCorreoDTO>();
 
@@ -66,15 +67,22 @@ namespace AppAPL.Api.Handlers
                 });
 
                 datos.AddRange(datosCorreos);
-            }
-            
+            }*/
 
-            var plantillasConsultadas = datos.Where(d => d.tipo_registro == "PLANTILLA").ToList();
+            var datos = await emailRepo.ObtenerDatosCorreo(new ConsultarDatosCorreoRequest
+            {
+                Entidad = entidad,
+                TipoProceso = tipoProcEtiqueta,
+                IdDocumento = IdProveedor // Usamos la variable llenada en el switch
+            });
+
+
+            var plantilla = datos.Where(d => d.tipo_registro == "PLANTILLA").FirstOrDefault();
             var destinatarios = datos.Where(d => d.tipo_registro == "DESTINATARIO").ToList();
 
+
+            /*
             DatosCorreoDTO plantilla = null;
-
-
 
             //aqui poner la logico para aprobacion xq seran dos plantillas para aprobaciones
             if (plantillasConsultadas.Count > 1)
@@ -85,7 +93,7 @@ namespace AppAPL.Api.Handlers
             else
             {
                 plantilla = plantillasConsultadas.FirstOrDefault();
-            }
+            }*/
 
 
             if (plantilla == null || !destinatarios.Any())

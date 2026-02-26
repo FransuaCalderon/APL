@@ -4,11 +4,13 @@ using AppAPL.Api.Handlers.Interfaces;
 using AppAPL.Dto;
 using AppAPL.Dto.Fondos;
 using AppAPL.Dto.Promocion;
+using AppAPL.Dto.Proveedor;
 using System.Text.Json;
 
 namespace AppAPL.Api.Handlers
 {
-    public class PromocionesEmailHandler (IEmailRepositorio emailRepo, ILogger<PromocionesEmailHandler> logger, IFondoRepositorio fondoRepo, IAcuerdoRepositorio acuerdoRepo) 
+    public class PromocionesEmailHandler (IEmailRepositorio emailRepo, ILogger<PromocionesEmailHandler> logger, IFondoRepositorio fondoRepo, IAcuerdoRepositorio acuerdoRepo,
+        ICatalogoRepositorio catalogoRepo) 
         : HandlerBase (emailRepo, logger) ,IPromocionesEmailHandler
     {
 
@@ -29,8 +31,8 @@ namespace AppAPL.Api.Handlers
             };
 
             // 1. Declaramos las variables que llenará el switch
-            List<string> proveedores = new List<string>();
-            Dictionary<string, string> camposPlantilla = null;
+            var proveedores = new List<ProveedorDTO>();
+            //Dictionary<string, string> camposPlantilla = null;
             string notificacion = "";
 
             // 2. Aplicamos el "Strategy Pattern". 
@@ -54,33 +56,95 @@ namespace AppAPL.Api.Handlers
                     IdProveedor = reqCreacion.IdProveedor;
                     var proveedor = await proveedorRepo.ObtenerPorIdAsync(IdProveedor);*/
 
+
+                    // 1. Validación de seguridad para los Acuerdos
+                    if (reqCreacion.Acuerdos == null || reqCreacion.Acuerdos.Count < 2)
+                    {
+                        logger.LogWarning("No se puede procesar el envío: Faltan acuerdos (Proveedor y Propio).");
+                        return; // O lanza una excepción controlada
+                    }
+
+                    //proceso para obtener los proveedores de los acuerdos
                     foreach (var item in reqCreacion.Acuerdos)
                     {
                         var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId(item.IdAcuerdo);
 
                         var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
 
-                        proveedores.Add(fondo.IdProveedor); 
+                        var proveedor = new ProveedorDTO
+                        {
+                            Identificacion = fondo.IdProveedor,
+                            Nombre = fondo.nombre_proveedor
+                        };
+
+                        proveedores.Add(proveedor);
                     }
 
                     
-                    /*
-                    camposPlantilla = new Dictionary<string, string>
-                    {
-                        { "Nombre", reqCreacion.NombreUsuarioIngreso },
-                        { "IdFondo", retorno.Id.ToString() },
-                        { "IdProveedor", proveedor.Identificacion },
-                        { "NombreProveedor", proveedor.Nombre },
-                        { "ValorFondo", this.FormatearAMoneda(reqCreacion.ValorFondo) },
-                        { "ValorFondoLetras", this.ConvertirDecimalAPalabras(reqCreacion.ValorFondo) },
-                        { "FechaInicio", reqCreacion.FechaInicioVigencia.ToString() },
-                        { "FechaFin", reqCreacion.FechaFinVigencia.ToString() },
-                        { "Firma", reqCreacion.NombreUsuarioIngreso },
-                        // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
-                    };*/
+                    notificacion = $"apl solicitud {tipoProceso} promocion".ToUpper();
 
-                    notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
-                    
+                    string marcas = this.ObtenerDetalleSegmentoPorTipo(reqCreacion, "SEGMARCA");
+                    string divisiones = this.ObtenerDetalleSegmentoPorTipo(reqCreacion, "SEGDIVISION");
+                    string clases = this.ObtenerDetalleSegmentoPorTipo(reqCreacion, "SEGCLASE");
+                    string departamentos = this.ObtenerDetalleSegmentoPorTipo(reqCreacion, "SEGDEPARTAMENTO");
+
+                    string canales = this.ObtenerDetalleSegmentoPorTipo(reqCreacion, "SEGCANAL");
+                    string gruposalmacenes = this.ObtenerDetalleSegmentoPorTipo(reqCreacion, "SEGGRUPOALMACEN");
+                    string almacenes = this.ObtenerDetalleSegmentoPorTipo(reqCreacion, "SEGALMACEN");
+                    string tiposclientes = this.ObtenerDetalleSegmentoPorTipo(reqCreacion, "SEGTIPOCLIENTE");
+                    string mediospagos = this.ObtenerDetalleSegmentoPorTipo(reqCreacion, "SEGMEDIOPAGO");
+
+                    var motivo = await catalogoRepo.ObtenerPorIdAsync(reqCreacion.Promocion.Motivo);
+
+                    var camposBase = new Dictionary<string, string>
+                        {
+                           
+                            { "IdPromocion",  retorno.Id.ToString() },
+                            { "Descripcion",  reqCreacion.Promocion.Descripcion },
+                            { "Motivo",  motivo.Nombre },
+                            { "FechaInicio",  reqCreacion.Promocion.FechaHoraInicio.ToString() },
+                            { "FechaFin",  reqCreacion.Promocion.FechaHoraFin.ToString() },
+                            { "Regalo",  reqCreacion.Promocion.MarcaRegalo },
+
+                            { "Marca",  marcas },
+                            { "Division",  divisiones },
+                            { "Departamento",  departamentos },
+                            { "Clase",  clases },
+
+                            { "Canal",  canales },
+                            { "Grupo",  gruposalmacenes },
+                            { "Almacen",  almacenes },
+                            { "TipoCliente",  tiposclientes },
+                            { "MedioPago",  mediospagos },
+
+                            { "AcuerdoProveedor",  reqCreacion.Acuerdos[0].IdAcuerdo.ToString() },
+                            { "PorcentajeProveedor",  reqCreacion.Acuerdos[0].PorcentajeDescuento.ToString("N2") },
+                            { "ValorComprometidoProveedor",  reqCreacion.Acuerdos[0].ValorComprometido.ToString("N2") },
+
+                            { "AcuerdoPropio",  reqCreacion.Acuerdos[1].IdAcuerdo.ToString() },
+                            { "PorcentajePropio",  reqCreacion.Acuerdos[1].PorcentajeDescuento.ToString("N2") },
+                            { "ValorComprometidoPropio",  reqCreacion.Acuerdos[1].ValorComprometido.ToString("N2") },
+
+                            { "Firma",  reqCreacion.Promocion.NombreUsuario },
+                        };
+
+                    foreach (var proveedor in proveedores)
+                    {
+
+                        // 2. Creamos una copia del diccionario base para este proveedor específico
+                        var camposPlantilla = new Dictionary<string, string>(camposBase);
+
+                        // 3. Solo agregamos/actualizamos lo que cambia
+                        camposPlantilla["Nombre"] = proveedor.Nombre;
+
+                        // 4. Enviamos el correo
+                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion, tipoProceso, camposPlantilla, notificacion);
+
+                        logger.LogInformation($"Enviando correo a {proveedor.Nombre}");
+
+                        
+                    }
+
                     break;
                     
                 case TipoProceso.Modificacion:
@@ -306,6 +370,7 @@ namespace AppAPL.Api.Handlers
             // 3. A partir de aquí, la lógica es común y ya tiene los datos correctos
             //    (IdProveedor y camposPlantilla) sin importar qué 'case' se ejecutó.
 
+            /*
             if (camposPlantilla != null)
             {
                 await EnviarCorreo(entidad, tipoProcEtiqueta, proveedores, tipoProceso, camposPlantilla, notificacion);
@@ -314,7 +379,31 @@ namespace AppAPL.Api.Handlers
             else
             {
                 logger.LogWarning($"[PromocionesHandler] campos para plantilla de email no definido");
+            }*/
+        }
+
+        private string ObtenerDetalleSegmentoPorTipo(CrearPromocionRequestDTO dto, string tipoSegmentoBusqueda)
+        {
+            // 1. Buscamos el segmento específico dentro de la lista del DTO
+            var segmento = dto.Segmentos?.FirstOrDefault(s =>
+                s.TipoSegmento.Equals(tipoSegmentoBusqueda, StringComparison.OrdinalIgnoreCase));
+
+            // 2. Si no existe el segmento, devolvemos un string vacío
+            if (segmento == null) return string.Empty;
+
+            // 3. Si el tipo de asignación es 'T' (Todos), devolvemos solo esa palabra
+            if (segmento.TipoAsignacion == "T")
+            {
+                return "TODOS";
             }
+
+            // 4. Si tiene códigos, los unimos usando <br> para el HTML
+            if (segmento.Codigos != null && segmento.Codigos.Any())
+            {
+                return string.Join("<br>", segmento.Codigos);
+            }
+
+            return "Sin códigos";
         }
 
 

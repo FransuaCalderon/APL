@@ -384,7 +384,7 @@
             data: JSON.stringify(payload),
             success: function (response) {
                 const data = response.json_response || {};
-
+                console.log("cargarCombosPromociones data: ", data);
                 llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Cargando...", "3", "canal");
                 llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Cargando...", "3", "grupo");
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Cargando...", "3", "almacen");
@@ -637,18 +637,42 @@
         try {
             const base64Completo = await leerArchivo(fileInput);
 
-            // 3. Recolección de segmentos
-            const marcas = obtenerValorCampo("marca", "#filtroMarcaGeneral", "3");
-            const divisiones = obtenerValorCampo("division", "#filtroDivisionGeneral", "3");
-            const canales = obtenerValorCampo("canal", "#filtroCanalGeneral", "3");
+            // Definimos una función auxiliar para determinar el tipo de asignación
+            const determinarAsignacion = (idSelector) => {
+                const selector = $(idSelector); // Asumiendo el uso de jQuery por los selectores
+                const valorSeleccionado = selector.val(); // Valor actual del combo/select
 
-            const segmentosValidados = [
-                { "tiposegmento": "SEGMARCA", "codigos": marcas },
-                { "tiposegmento": "SEGDIVISION", "codigos": divisiones },
-                { "tiposegmento": "SEGCANAL", "codigos": canales }
-            ].map(seg => ({
-                ...seg,
-                "tipoasignacion": (seg.codigos && seg.codigos.length > 0) ? "C" : "T"
+                // 1. Si el combo dice "TODOS" (o el valor que uses para esa opción)
+                if (valorSeleccionado === "TODOS" || !valorSeleccionado || valorSeleccionado.length === 0) {
+                    return "T";
+                }
+
+                // 2. Si es una "Lista Específica" 
+                // (Ajusta "LISTA" por el valor real que devuelva tu combo en ese caso)
+                if (valorSeleccionado === "3") {
+                    return "D";
+                }
+
+                // 3. Si seleccionó uno o varios códigos
+                return "C";
+            };
+
+            const segmentosConfig = [
+                { tipo: "SEGMARCA", codigos: obtenerValorCampo("marca", "#filtroMarcaGeneral", "3"), id: "#filtroMarcaGeneral" },
+                { tipo: "SEGDIVISION", codigos: obtenerValorCampo("division", "#filtroDivisionGeneral", "3"), id: "#filtroDivisionGeneral" },
+                { tipo: "SEGCLASE", codigos: obtenerValorCampo("clase", "#filtroClaseGeneral", "3"), id: "#filtroClaseGeneral" },
+                { tipo: "SEGDEPARTAMENTO", codigos: obtenerValorCampo("departamento", "#filtroDepartamentoGeneral", "3"), id: "#filtroDepartamentoGeneral" },
+                { tipo: "SEGCANAL", codigos: obtenerValorCampo("canal", "#filtroCanalGeneral", "3"), id: "#filtroCanalGeneral" },
+                { tipo: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupoalmacen", "#filtroGrupoAlmacenGeneral", "3"), id: "#filtroGrupoAlmacenGeneral" },
+                { tipo: "SEGALMACEN", codigos: obtenerValorCampo("almacen", "#filtroAlmacenGeneral", "3"), id: "#filtroAlmacenGeneral" },
+                { tipo: "SEGTIPOCLIENTE", codigos: obtenerValorCampo("tipocliente", "#tipoClienteGeneral", "3"), id: "#tipoClienteGeneral" },
+                { tipo: "SEGMEDIOPAGO", codigos: obtenerValorCampo("mediopago", "#filtroMedioPagoGeneral", "3"), id: "#filtroMedioPagoGeneral" }
+            ];
+
+            const segmentosValidados = segmentosConfig.map(seg => ({
+                tiposegmento: seg.tipo,
+                codigos: seg.codigos,
+                tipoasignacion: determinarAsignacion(seg.id)
             }));
 
             // 4. Construcción del Body
@@ -694,7 +718,7 @@
             };
 
             console.log("body: ", body);
-            return;
+
             // 5. Envío vía AJAX
             $.ajax({
                 url: "/api/apigee-router-proxy",

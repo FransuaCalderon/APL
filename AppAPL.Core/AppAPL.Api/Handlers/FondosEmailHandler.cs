@@ -31,7 +31,8 @@ namespace AppAPL.Api.Handlers
             };
 
             // 1. Declaramos las variables que llenará el switch
-            List<string> proveedores = new List<string>();
+            //List<string> proveedores = new List<string>();
+            string IdProveedor = "";
             Dictionary<string, string> camposPlantilla = null;
             string notificacion = "";
 
@@ -56,8 +57,8 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    //IdProveedor = reqCreacion.IdProveedor;
-                    proveedores.Add(reqCreacion.IdProveedor);
+                    IdProveedor = reqCreacion.IdProveedor;
+                    //proveedores.Add(reqCreacion.IdProveedor);
                     var proveedor = await proveedorRepo.ObtenerPorIdAsync(reqCreacion.IdProveedor);
 
                     if (proveedor == null)
@@ -98,8 +99,8 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    //IdProveedor = reqModif.IdProveedor;
-                    proveedores.Add(reqModif.IdProveedor);
+                    IdProveedor = reqModif.IdProveedor;
+                    //proveedores.Add(reqModif.IdProveedor);
 
                     var proveedorAntiguo = await proveedorRepo.ObtenerPorIdAsync(fondoAntiguo.IdProveedor);
                     var proveedorNuevo = await proveedorRepo.ObtenerPorIdAsync(reqModif.IdProveedor);
@@ -167,8 +168,8 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    //IdProveedor = fondo.IdProveedor;
-                    proveedores.Add(fondo.IdProveedor);
+                    IdProveedor = fondo.IdProveedor;
+                    //proveedores.Add(fondo.IdProveedor);
                     var proveedor3 = await proveedorRepo.ObtenerPorIdAsync(fondo.IdProveedor);
 
                     if (proveedor3 == null)
@@ -213,8 +214,8 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    //IdProveedor = fondo2.IdProveedor;
-                    proveedores.Add(fondo2.IdProveedor);
+                    IdProveedor = fondo2.IdProveedor;
+                    //proveedores.Add(fondo2.IdProveedor);
                     var proveedor4 = await proveedorRepo.ObtenerPorIdAsync(fondo2.IdProveedor);
 
                     if (proveedor4 == null)
@@ -254,7 +255,7 @@ namespace AppAPL.Api.Handlers
 
             if (camposPlantilla != null)
             {
-                await this.EnviarCorreo(entidad, tipoProcEtiqueta, proveedores, tipoProceso, camposPlantilla, notificacion);
+                await this.EnviarCorreo(entidad, tipoProcEtiqueta, IdProveedor, tipoProceso, camposPlantilla, notificacion);
             }
             else
             {
