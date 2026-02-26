@@ -468,25 +468,35 @@ function abrirModalLog(idPromocion) {
 
                 let html = "";
                 logs.forEach(function (log) {
+                    // ► CORRECCIÓN: el JSON devuelve "opción" y "acción" con tilde
+                    const opcion = log["opción"] ?? log["opcion"] ?? "";
+                    const accion = log["acción"] ?? log["accion"] ?? "";
                     const tieneDatos = log.datos && log.datos.toString().trim() !== "";
+
                     html += `
                         <tr>
                             <td class="text-center fw-bold">${log.idlog ?? ""}</td>
                             <td class="text-center text-nowrap">${log.fecha ?? ""}</td>
                             <td class="text-center">${log.usuario ?? ""}</td>
-                            <td>${log.opcion ?? ""}</td>
-                            <td>${log.accion ?? ""}</td>
+                            <td>${opcion}</td>
+                            <td>${accion}</td>
                             <td class="text-center">${log.entidad ?? ""}</td>
                             <td class="text-center">${log.tipo_proceso ?? ""}</td>
                             <td class="text-center">
                                 ${tieneDatos
                             ? `<button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1"
-                                           title="Ver datos" onclick="verDatosLog(${log.idlog})">
-                                           <i class="fa-regular fa-file-lines"></i>
-                                       </button>`
+                                               title="Ver datos" onclick="verDatosLog(${log.idlog})">
+                                               <i class="fa-regular fa-file-lines"></i>
+                                           </button>`
                             : ""}
                             </td>
                         </tr>`;
+                });
+
+                // Guardar los logs en memoria para acceder desde verDatosLog
+                window._logsCache = {};
+                logs.forEach(function (log) {
+                    window._logsCache[log.idlog] = log.datos;
                 });
 
                 $("#tbodyLog").html(html);
@@ -506,11 +516,28 @@ function abrirModalLog(idPromocion) {
 }
 
 function verDatosLog(idLog) {
-    console.log("[verDatosLog] Ver datos del log idLog:", idLog);
+    const datos = window._logsCache && window._logsCache[idLog];
+
+    if (!datos) {
+        Swal.fire({ icon: "info", title: `Log #${idLog}`, text: "No hay datos disponibles para este registro." });
+        return;
+    }
+
+    // Intentar formatear como JSON pretty-print
+    let contenido = datos;
+    try {
+        const parsed = JSON.parse(datos);
+        contenido = JSON.stringify(parsed, null, 2);
+    } catch (e) {
+        contenido = datos;
+    }
+
     Swal.fire({
         icon: "info",
         title: `Datos del Log #${idLog}`,
-        text: "Funcionalidad de detalle de datos pendiente de implementación."
+        html: `<pre style="text-align:left; font-size:0.78rem; max-height:350px; overflow-y:auto; background:#f8f8f8; border:1px solid #ddd; border-radius:4px; padding:10px; white-space:pre-wrap; word-break:break-all;">${contenido}</pre>`,
+        width: 700,
+        confirmButtonText: "Cerrar"
     });
 }
 
@@ -520,6 +547,12 @@ function verDatosLog(idLog) {
 
 function abrirModalAprobaciones(idPromocion) {
     console.log("[abrirModalAprobaciones] Consultando aprobaciones para idPromocion:", idPromocion);
+
+    // Destruir popovers anteriores para evitar duplicados
+    document.querySelectorAll('#tbodyAprobaciones [data-bs-toggle="popover"]').forEach(function (el) {
+        const instance = bootstrap.Popover.getInstance(el);
+        if (instance) instance.dispose();
+    });
 
     // Limpiar estado previo
     $("#tbodyAprobaciones").empty();
@@ -564,44 +597,70 @@ function abrirModalAprobaciones(idPromocion) {
                 aprobaciones.forEach(function (apr) {
                     const tieneComentario = apr.comentario_aprobador && apr.comentario_aprobador.toString().trim() !== "";
 
-                    // Badge de color segun estado
-                    let badgeClass = "bg-secondary";
-                    const estado = (apr.estado ?? "").toLowerCase();
-                    if (estado === "aprobado") badgeClass = "bg-success";
-                    if (estado === "rechazado") badgeClass = "bg-danger";
-                    if (estado === "nuevo") badgeClass = "bg-primary";
-                    if (estado === "pendiente") badgeClass = "bg-warning text-dark";
-
-                    const comentarioEscapado = (apr.comentario_aprobador ?? "").replace(/'/g, "\\'");
+                    // Escapar el comentario para usarlo como atributo HTML
+                    const comentarioAttr = (apr.comentario_aprobador ?? "")
+                        .replace(/&/g, "&amp;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#39;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;");
 
                     html += `
                         <tr>
                             <td class="text-center">${apr.tipo_solicitud ?? ""}</td>
                             <td class="text-center">${apr.usuario_solicita ?? ""}</td>
-                            <td class="text-center">${apr.nombre_solicita ?? ""}</td>
                             <td class="text-center text-nowrap">${formatearFecha(apr.fecha_solicitud)}</td>
                             <td class="text-center">
                                 <span>${apr.usuario_aprobador ?? ""}</span>
                                 ${tieneComentario
                             ? `<button type="button"
-                                           class="btn btn-sm btn-link p-0 ms-1 text-dark"
-                                           title="${apr.comentario_aprobador.replace(/"/g, '&quot;')}"
-                                           onclick="verComentarioAprobacion('${apr.usuario_aprobador ?? ""}', '${comentarioEscapado}')">
-                                           <i class="fa-solid fa-message" style="font-size:0.8rem;"></i>
-                                       </button>`
+                                               class="btn btn-sm btn-link p-0 ms-1 text-dark btn-comentario-popover"
+                                               data-bs-toggle="popover"
+                                               data-bs-trigger="click"
+                                               data-bs-placement="left"
+                                               data-bs-title="Comentario de ${apr.usuario_aprobador ?? ""}"
+                                               data-bs-content="${comentarioAttr}">
+                                               <i class="fa-solid fa-message" style="font-size:0.8rem;"></i>
+                                           </button>`
                             : ""}
                             </td>
-                            <td class="text-center">${apr.nombre_aprobador ?? ""}</td>
                             <td class="text-center text-nowrap">${formatearFecha(apr.fecha_aprobacion)}</td>
-                            <td class="text-center fw-bold">${apr.nivel ?? ""}</td>
-                            <td class="text-center">
-                                <span class="badge ${badgeClass}">${apr.estado ?? ""}</span>
-                            </td>
+                            <td class="text-center">${apr.nivel ?? ""}</td>
+                            <td class="text-center">${apr.estado ?? ""}</td>
                             <td class="text-center">${apr.lote ?? ""}</td>
                         </tr>`;
                 });
 
                 $("#tbodyAprobaciones").html(html);
+
+                // ► Inicializar popovers Bootstrap 5
+                document.querySelectorAll('#tbodyAprobaciones [data-bs-toggle="popover"]').forEach(function (el) {
+                    new bootstrap.Popover(el, {
+                        trigger: 'click',
+                        container: '#modalRegistroAprobaciones'
+                    });
+
+                    // Al abrir uno, cerrar todos los demás
+                    el.addEventListener('show.bs.popover', function () {
+                        document.querySelectorAll('#tbodyAprobaciones [data-bs-toggle="popover"]').forEach(function (other) {
+                            if (other !== el) {
+                                const instance = bootstrap.Popover.getInstance(other);
+                                if (instance) instance.hide();
+                            }
+                        });
+                    });
+                });
+
+                // ► Cerrar popovers al hacer clic fuera (dentro del modal)
+                document.getElementById("modalRegistroAprobaciones")
+                    .addEventListener("click", function handler(e) {
+                        if (!e.target.closest('.btn-comentario-popover') && !e.target.closest('.popover')) {
+                            document.querySelectorAll('#tbodyAprobaciones [data-bs-toggle="popover"]').forEach(function (el) {
+                                const instance = bootstrap.Popover.getInstance(el);
+                                if (instance) instance.hide();
+                            });
+                        }
+                    });
 
             } else {
                 $("#aprobacionesSinDatos").show();
@@ -614,15 +673,6 @@ function abrirModalAprobaciones(idPromocion) {
             $("#aprobacionesSinDatos").show();
             console.error("[abrirModalAprobaciones] Error AJAX:", xhr.status, xhr.responseText);
         }
-    });
-}
-
-function verComentarioAprobacion(usuario, comentario) {
-    Swal.fire({
-        icon: "info",
-        title: "Comentario de " + usuario,
-        text: comentario,
-        confirmButtonText: "Cerrar"
     });
 }
 
