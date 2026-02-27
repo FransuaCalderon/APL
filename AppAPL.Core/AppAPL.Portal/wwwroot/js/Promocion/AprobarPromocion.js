@@ -214,7 +214,7 @@ function crearListado(data) {
         html += "  <td>" + (promo.nombreusersolicitud ?? "") + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(promo.fechahorainicio) + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(promo.fechahorafin) + "</td>";
-        html += "  <td class='text-center'>" + (promo.marcaregalo ?? "") + "</td>";
+        html += "  <td class='text-center'>" + (promo.marcaregalo && promo.marcaregalo !== "N" ? "✓" : "") + "</td>";
         html += "  <td>" + obtenerNombreArchivo(promo.archivosoporte) + "</td>";
         html += "  <td>" + (promo.nombre_estado ?? "") + "</td>";
         html += "</tr>";

@@ -46,22 +46,53 @@ function formatearMoneda(v) {
 function formatearFecha(f) {
     if (!f) return "";
     const d = new Date(f);
-    if (isNaN(d.getTime())) return "";
-    const dia = d.getUTCDate().toString().padStart(2, '0');
-    const mes = (d.getUTCMonth() + 1).toString().padStart(2, '0');
-    const anio = d.getUTCFullYear();
-    return `${dia}/${mes}/${anio}`;
+    return d.toLocaleDateString("es-EC");
+}
+
+function formatearFechaHora(f) {
+    if (!f) return "";
+    const d = new Date(f);
+    return d.toLocaleDateString("es-EC") + " " + d.toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" });
 }
 
 /**
  * Extrae el nombre del archivo desde una ruta completa, removiendo el GUID prefix
- * Ej: "C:\Soportes\Promociones\guid_archivo.xlsx" => "archivo.xlsx"
  */
 function obtenerNombreArchivo(rutaCompleta) {
     if (!rutaCompleta) return "";
     var nombreArchivo = rutaCompleta.replace(/^.*[\\/]/, '');
     var sinGuid = nombreArchivo.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i, '');
     return sinGuid || nombreArchivo;
+}
+
+/**
+ * Extrae solo el nombre del archivo (con GUID incluido) para consumo del endpoint de descarga.
+ */
+function obtenerNombreArchivoRaw(rutaCompleta) {
+    if (!rutaCompleta) return "";
+    return rutaCompleta.replace(/^.*[\\/]/, '');
+}
+
+/**
+ * Busca un segmento por su etiqueta dentro del array de segmentos.
+ * Retorna el texto descriptivo para mostrar en el campo.
+ * Si hay múltiples detalles con la misma etiqueta, los concatena.
+ */
+function obtenerTextoSegmento(segmentos, etiqueta) {
+    if (!segmentos || !Array.isArray(segmentos)) return "";
+
+    const items = segmentos.filter(s => s.etiqueta_tipo_segmento === etiqueta);
+
+    if (items.length === 0) return "";
+    if (items.length === 1) {
+        const item = items[0];
+        return item.codigo_detalle
+            ? `${item.codigo_detalle} - ${item.nombre_detalle || ""}`
+            : (item.nombre_detalle || "");
+    }
+
+    // Múltiples detalles → "Varios"
+    return "Varios";
 }
 
 // ===============================================================
@@ -95,13 +126,12 @@ $(document).ready(function () {
 
     // Botón PDF - Ver Soporte
     $("#btnVerSoporte").on("click", function () {
-        const soporte = $(this).data("soporte");
-        if (!soporte) {
+        const archivo = $(this).data("archivo");
+        if (!archivo) {
             Swal.fire({ icon: "info", title: "Sin soporte", text: "Esta promoción no tiene un archivo de soporte adjunto." });
             return;
         }
-        const urlVisualizacion = `/api/Promocion/ver-soporte?ruta=${encodeURIComponent(soporte)}`;
-        window.open(urlVisualizacion, "_blank");
+        abrirVisualizadorPdf(archivo);
     });
 
     // Botón Registro de Log
@@ -215,7 +245,7 @@ function crearListado(data) {
                 <td>${promo.clase_promocion ?? ""}</td>
                 <td class="text-center">${formatearFecha(promo.fecha_inicio)}</td>
                 <td class="text-center">${formatearFecha(promo.fecha_fin)}</td>
-                <td class="text-center">${promo.regalo ?? ""}</td>
+                <td class="text-center">${promo.regalo && promo.regalo !== "N" ? "✓" : ""}</td>
                 <td>${obtenerNombreArchivo(promo.soporte)}</td>
                 <td>${promo.estado ?? ""}</td>
             </tr>`;
@@ -269,9 +299,21 @@ function abrirModalEditar(idPromocion) {
     $("#formVisualizar")[0].reset();
     $("#lblIdPromocion").text(idPromocion);
     $("#verPromocionHeader").val("");
-    $("#btnVerSoporte").data("soporte", "").removeData("soporte").attr("title", "Ver Soporte").removeClass("text-danger");
+    $("#btnVerSoporte")
+        .removeData("soporte")
+        .removeData("archivo")
+        .attr("title", "Ver Soporte")
+        .removeClass("text-danger");
     $("#contenedor-tabla-articulos").hide().html("");
-    $("#contenedor-tabla-acuerdos").hide().html("");
+
+    // Limpiar campos de segmentos
+    $("#verMarca, #verDivision, #verDepartamento, #verClase, #verArticulo").val("");
+    $("#verCanal, #verGrupoAlmacen, #verAlmacen, #verTipoCliente, #verMedioPago").val("");
+
+    // Limpiar campos de acuerdos resumen
+    $("#verDsctoProv, #verIdAcuerdoProv, #verComprometidoProv").val("");
+    $("#verDsctoProp, #verIdAcuerdoProp, #verComprometidoProp").val("");
+    $("#verDsctoTotal").val("");
 
     const payload = {
         code_app: "APP20260128155212346",
@@ -290,6 +332,9 @@ function abrirModalEditar(idPromocion) {
             if (response && response.code_status === 200) {
                 const data = response.json_response || {};
                 const cab = data?.cabecera || {};
+                const segmentos = data?.segmentos || [];
+                const acuerdos = data?.acuerdos || [];
+
                 console.log(`Datos de la promoción (${idPromocion}):`, data);
 
                 // ── FILA 1: Header "Promoción" = idPromocion + nombre_clase_promocion ──
@@ -299,27 +344,44 @@ function abrirModalEditar(idPromocion) {
 
                 // Guardar ruta de soporte en el botón PDF para abrirlo al clickear
                 const rutaSoporte = cab.archivosoporte ?? "";
-                $("#btnVerSoporte").data("soporte", rutaSoporte)
+                const archivoRaw = obtenerNombreArchivoRaw(rutaSoporte);
+                const nombreVisible = obtenerNombreArchivo(rutaSoporte);
+                $("#btnVerSoporte")
+                    .data("soporte", rutaSoporte)
+                    .data("archivo", archivoRaw)
                     .toggleClass("text-danger", !!rutaSoporte)
-                    .attr("title", rutaSoporte ? `Ver Soporte: ${obtenerNombreArchivo(rutaSoporte)}` : "Sin soporte");
+                    .attr("title", rutaSoporte ? `Ver Soporte: ${nombreVisible}` : "Sin soporte");
 
                 // ── FILA 2: Descripción | Motivo | Inicio | Fin | Estado ──
                 $("#verDescripcion").val(cab.descripcion ?? "");
                 $("#verMotivo").val(cab.nombre_motivo ?? "");
-                $("#verFechaInicio").val(formatearFecha(cab.fecha_inicio));
-                $("#verFechaFin").val(formatearFecha(cab.fecha_fin));
+                $("#verFechaInicio").val(formatearFechaHora(cab.fecha_inicio));
+                $("#verFechaFin").val(formatearFechaHora(cab.fecha_fin));
                 $("#verEstado").val(cab.nombre_estado_promocion ?? "");
 
-                // Regalo: checkbox checked si es "S"
-                const esRegalo = (cab.marcaregalo ?? "").toString().trim().toUpperCase() === "S";
+                // Regalo: checkbox checked si tiene cualquier valor distinto de vacío o "N"
+                const valorRegalo = (cab.marcaregalo ?? "").toString().trim().toUpperCase();
+                const esRegalo = valorRegalo !== "" && valorRegalo !== "N";
                 $("#verRegalo").prop("checked", esRegalo);
 
-                // ── ACUERDOS ──────────────────────────
-                if (data?.acuerdos && data.acuerdos.length > 0) {
-                    renderizarTablaAcuerdos(data.acuerdos);
-                }
+                // ── FILA 3: Segmentos de Producto ──
+                $("#verMarca").val(obtenerTextoSegmento(segmentos, "SEGMARCA") || "Todos");
+                $("#verDivision").val(obtenerTextoSegmento(segmentos, "SEGDIVISION") || "Todos");
+                $("#verDepartamento").val(obtenerTextoSegmento(segmentos, "SEGDEPARTAMENTO") || "Todos");
+                $("#verClase").val(obtenerTextoSegmento(segmentos, "SEGCLASE") || "Todos");
+                $("#verArticulo").val(obtenerTextoSegmento(segmentos, "SEGARTICULO") || "");
 
-                // ── ARTÍCULOS ─────────────────────────
+                // ── FILA 4: Segmentos de Canal/Almacén/Cliente/Pago ──
+                $("#verCanal").val(obtenerTextoSegmento(segmentos, "SEGCANAL") || "Todos");
+                $("#verGrupoAlmacen").val(obtenerTextoSegmento(segmentos, "SEGGRUPOALMACEN") || "Todos");
+                $("#verAlmacen").val(obtenerTextoSegmento(segmentos, "SEGALMACEN") || "Todos");
+                $("#verTipoCliente").val(obtenerTextoSegmento(segmentos, "SEGTIPOCLIENTE") || "Todos");
+                $("#verMedioPago").val(obtenerTextoSegmento(segmentos, "SEGMEDIOPAGO") || "Todos");
+
+                // ── FILA 5: Resumen de Acuerdos (Proveedor / Propio) ──
+                poblarResumenAcuerdos(acuerdos);
+
+                // ── ARTÍCULOS ──
                 if (data?.articulos && data.articulos.length > 0) {
                     renderizarTablaArticulos(data.articulos);
                 }
@@ -341,39 +403,38 @@ function abrirModalEditar(idPromocion) {
     });
 }
 
-function renderizarTablaAcuerdos(acuerdos) {
-    let html = `
-        <h6 class="fw-bold mb-2"><i class="fa fa-handshake"></i> Acuerdos Asociados</h6>
-        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-            <table class="table table-bordered table-sm mb-0">
-                <thead class="sticky-top text-nowrap">
-                    <tr class="text-center tabla-items-header">
-                        <th scope="col" class="custom-header-cons-bg"># Acuerdo</th>
-                        <th scope="col" class="custom-header-cons-bg">Descripción Acuerdo</th>
-                        <th scope="col" class="custom-header-ingr-bg">% Descuento</th>
-                        <th scope="col" class="custom-header-ingr-bg">Valor Disponible</th>
-                        <th scope="col" class="custom-header-ingr-bg">Valor Comprometido</th>
-                        <th scope="col" class="custom-header-calc-bg">Valor Liquidado</th>
-                        <th scope="col" class="custom-header-calc-bg">Estado</th>
-                    </tr>
-                </thead>
-                <tbody class="text-nowrap tabla-items-body bg-white">`;
+/**
+ * Pobla los campos resumen de acuerdos (Fila 5 de la grilla).
+ * Separa acuerdos "Proveedor" vs "Propio" según la descripción o tipo.
+ * Si no se puede distinguir, muestra el primer acuerdo como Proveedor y el segundo como Propio.
+ */
+function poblarResumenAcuerdos(acuerdos) {
+    if (!acuerdos || acuerdos.length === 0) {
+        $("#verDsctoProv, #verIdAcuerdoProv, #verComprometidoProv").val("");
+        $("#verDsctoProp, #verIdAcuerdoProp, #verComprometidoProp").val("");
+        $("#verDsctoTotal").val("");
+        return;
+    }
 
-    acuerdos.forEach(ac => {
-        html += `
-            <tr>
-                <td class="fw-bold text-center">${ac.idacuerdo || ""}</td>
-                <td>${ac.descripcion_acuerdo || ""}</td>
-                <td class="text-center fw-bold text-primary">${ac.porcentaje_descuento ?? 0}%</td>
-                <td class="text-end">${formatearMoneda(ac.valor_disponible)}</td>
-                <td class="text-end">${formatearMoneda(ac.valor_comprometido)}</td>
-                <td class="text-end">${formatearMoneda(ac.valor_liquidado)}</td>
-                <td class="text-center">${ac.nombre_estado_detalle || ""}</td>
-            </tr>`;
-    });
+    // Heurística: el primer acuerdo es Proveedor, el segundo es Propio
+    const acProv = acuerdos.length > 0 ? acuerdos[0] : null;
+    const acProp = acuerdos.length > 1 ? acuerdos[1] : null;
 
-    html += `</tbody></table></div>`;
-    $("#contenedor-tabla-acuerdos").html(html).fadeIn();
+    if (acProv) {
+        $("#verDsctoProv").val((acProv.porcentaje_descuento ?? 0) + "%");
+        $("#verIdAcuerdoProv").val(`${acProv.idacuerdo ?? ""} - ${acProv.descripcion_acuerdo ?? ""}`);
+        $("#verComprometidoProv").val(formatearMoneda(acProv.valor_comprometido));
+    }
+
+    if (acProp) {
+        $("#verDsctoProp").val((acProp.porcentaje_descuento ?? 0) + "%");
+        $("#verIdAcuerdoProp").val(`${acProp.idacuerdo ?? ""} - ${acProp.descripcion_acuerdo ?? ""}`);
+        $("#verComprometidoProp").val(formatearMoneda(acProp.valor_comprometido));
+    }
+
+    // % Descuento Total: suma de los porcentajes de todos los acuerdos
+    const totalDscto = acuerdos.reduce((sum, ac) => sum + (ac.porcentaje_descuento || 0), 0);
+    $("#verDsctoTotal").val(totalDscto + "%");
 }
 
 function renderizarTablaArticulos(articulos) {
@@ -412,7 +473,6 @@ function renderizarTablaArticulos(articulos) {
 }
 
 function cerrarDetalle() {
-    $("#contenedor-tabla-acuerdos").hide().html("");
     $("#contenedor-tabla-articulos").hide().html("");
     $("#vistaDetalle").fadeOut(200, function () {
         $("#vistaTabla").fadeIn(200);
@@ -427,13 +487,11 @@ function cerrarDetalle() {
 function abrirModalLog(idPromocion) {
     console.log("[abrirModalLog] Consultando logs para idPromocion:", idPromocion);
 
-    // Limpiar estado previo
     $("#tbodyLog").empty();
     $("#logSinDatos").hide();
     $("#contenedorTablaLog").hide();
     $("#logSpinner").show();
 
-    // Abrir modal
     const modal = new bootstrap.Modal(document.getElementById("modalRegistroLog"));
     modal.show();
 
@@ -468,7 +526,6 @@ function abrirModalLog(idPromocion) {
 
                 let html = "";
                 logs.forEach(function (log) {
-                    // ► CORRECCIÓN: el JSON devuelve "opción" y "acción" con tilde
                     const opcion = log["opción"] ?? log["opcion"] ?? "";
                     const accion = log["acción"] ?? log["accion"] ?? "";
                     const tieneDatos = log.datos && log.datos.toString().trim() !== "";
@@ -493,7 +550,6 @@ function abrirModalLog(idPromocion) {
                         </tr>`;
                 });
 
-                // Guardar los logs en memoria para acceder desde verDatosLog
                 window._logsCache = {};
                 logs.forEach(function (log) {
                     window._logsCache[log.idlog] = log.datos;
@@ -523,7 +579,6 @@ function verDatosLog(idLog) {
         return;
     }
 
-    // Intentar formatear como JSON pretty-print
     let contenido = datos;
     try {
         const parsed = JSON.parse(datos);
@@ -548,19 +603,16 @@ function verDatosLog(idLog) {
 function abrirModalAprobaciones(idPromocion) {
     console.log("[abrirModalAprobaciones] Consultando aprobaciones para idPromocion:", idPromocion);
 
-    // Destruir popovers anteriores para evitar duplicados
     document.querySelectorAll('#tbodyAprobaciones [data-bs-toggle="popover"]').forEach(function (el) {
         const instance = bootstrap.Popover.getInstance(el);
         if (instance) instance.dispose();
     });
 
-    // Limpiar estado previo
     $("#tbodyAprobaciones").empty();
     $("#aprobacionesSinDatos").hide();
     $("#contenedorTablaAprobaciones").hide();
     $("#aprobacionesSpinner").show();
 
-    // Abrir modal
     const modal = new bootstrap.Modal(document.getElementById("modalRegistroAprobaciones"));
     modal.show();
 
@@ -597,7 +649,6 @@ function abrirModalAprobaciones(idPromocion) {
                 aprobaciones.forEach(function (apr) {
                     const tieneComentario = apr.comentario_aprobador && apr.comentario_aprobador.toString().trim() !== "";
 
-                    // Escapar el comentario para usarlo como atributo HTML
                     const comentarioAttr = (apr.comentario_aprobador ?? "")
                         .replace(/&/g, "&amp;")
                         .replace(/"/g, "&quot;")
@@ -633,14 +684,12 @@ function abrirModalAprobaciones(idPromocion) {
 
                 $("#tbodyAprobaciones").html(html);
 
-                // ► Inicializar popovers Bootstrap 5
                 document.querySelectorAll('#tbodyAprobaciones [data-bs-toggle="popover"]').forEach(function (el) {
                     new bootstrap.Popover(el, {
                         trigger: 'click',
                         container: '#modalRegistroAprobaciones'
                     });
 
-                    // Al abrir uno, cerrar todos los demás
                     el.addEventListener('show.bs.popover', function () {
                         document.querySelectorAll('#tbodyAprobaciones [data-bs-toggle="popover"]').forEach(function (other) {
                             if (other !== el) {
@@ -651,7 +700,6 @@ function abrirModalAprobaciones(idPromocion) {
                     });
                 });
 
-                // ► Cerrar popovers al hacer clic fuera (dentro del modal)
                 document.getElementById("modalRegistroAprobaciones")
                     .addEventListener("click", function handler(e) {
                         if (!e.target.closest('.btn-comentario-popover') && !e.target.closest('.popover')) {
@@ -673,6 +721,329 @@ function abrirModalAprobaciones(idPromocion) {
             $("#aprobacionesSinDatos").show();
             console.error("[abrirModalAprobaciones] Error AJAX:", xhr.status, xhr.responseText);
         }
+    });
+}
+
+// ===================================================================
+// VISUALIZADOR DE PDF (SOPORTE) — renderizado con PDF.js
+// ===================================================================
+
+/**
+ * ESTRATEGIA A — Extracción RAW (sin interpretar UTF-8).
+ */
+function extraerBytesRaw(rawBytes) {
+    const keyBytes = new TextEncoder().encode('"json_response"');
+    let pos = -1;
+
+    outer: for (let i = 0; i < rawBytes.length - keyBytes.length; i++) {
+        for (let j = 0; j < keyBytes.length; j++) {
+            if (rawBytes[i + j] !== keyBytes[j]) continue outer;
+        }
+        pos = i + keyBytes.length;
+        break;
+    }
+
+    if (pos === -1) throw new Error("Campo json_response no encontrado en la respuesta");
+
+    while (pos < rawBytes.length && rawBytes[pos] !== 0x3A) pos++;
+    pos++;
+    while (pos < rawBytes.length && rawBytes[pos] !== 0x22) pos++;
+    pos++;
+
+    const result = [];
+
+    while (pos < rawBytes.length) {
+        const b = rawBytes[pos];
+
+        if (b === 0x22) break;
+
+        if (b === 0x5C) {
+            pos++;
+            const esc = rawBytes[pos];
+            if (esc === 0x22) result.push(0x22);
+            else if (esc === 0x5C) result.push(0x5C);
+            else if (esc === 0x2F) result.push(0x2F);
+            else if (esc === 0x62) result.push(0x08);
+            else if (esc === 0x66) result.push(0x0C);
+            else if (esc === 0x6E) result.push(0x0A);
+            else if (esc === 0x72) result.push(0x0D);
+            else if (esc === 0x74) result.push(0x09);
+            else if (esc === 0x75) {
+                const hex = String.fromCharCode(
+                    rawBytes[pos + 1], rawBytes[pos + 2],
+                    rawBytes[pos + 3], rawBytes[pos + 4]
+                );
+                const codePoint = parseInt(hex, 16);
+                result.push(codePoint & 0xFF);
+                pos += 4;
+            } else {
+                result.push(esc);
+            }
+        } else {
+            result.push(b);
+        }
+
+        pos++;
+    }
+
+    console.log("[extraerBytesRaw] Bytes extraídos (sin UTF-8 decode):", result.length);
+    return new Uint8Array(result);
+}
+
+/**
+ * ESTRATEGIA B — Extracción con decodificación UTF-8.
+ */
+function extraerBytesUtf8Decode(rawBytes) {
+    const keyBytes = new TextEncoder().encode('"json_response"');
+    let pos = -1;
+
+    outer: for (let i = 0; i < rawBytes.length - keyBytes.length; i++) {
+        for (let j = 0; j < keyBytes.length; j++) {
+            if (rawBytes[i + j] !== keyBytes[j]) continue outer;
+        }
+        pos = i + keyBytes.length;
+        break;
+    }
+
+    if (pos === -1) throw new Error("Campo json_response no encontrado en la respuesta");
+
+    while (pos < rawBytes.length && rawBytes[pos] !== 0x3A) pos++;
+    pos++;
+    while (pos < rawBytes.length && rawBytes[pos] !== 0x22) pos++;
+    pos++;
+
+    const result = [];
+
+    while (pos < rawBytes.length) {
+        const b = rawBytes[pos];
+
+        if (b === 0x22) break;
+
+        if (b === 0x5C) {
+            pos++;
+            const esc = rawBytes[pos];
+            if (esc === 0x22) result.push(0x22);
+            else if (esc === 0x5C) result.push(0x5C);
+            else if (esc === 0x2F) result.push(0x2F);
+            else if (esc === 0x62) result.push(0x08);
+            else if (esc === 0x66) result.push(0x0C);
+            else if (esc === 0x6E) result.push(0x0A);
+            else if (esc === 0x72) result.push(0x0D);
+            else if (esc === 0x74) result.push(0x09);
+            else if (esc === 0x75) {
+                const hex = String.fromCharCode(rawBytes[pos + 1], rawBytes[pos + 2], rawBytes[pos + 3], rawBytes[pos + 4]);
+                result.push(parseInt(hex, 16) & 0xFF);
+                pos += 4;
+            }
+        } else if (b < 0x80) {
+            result.push(b);
+        } else if ((b & 0xE0) === 0xC0 && pos + 1 < rawBytes.length) {
+            const cp = ((b & 0x1F) << 6) | (rawBytes[pos + 1] & 0x3F);
+            result.push(cp & 0xFF);
+            pos++;
+        } else if ((b & 0xF0) === 0xE0 && pos + 2 < rawBytes.length) {
+            const cp = ((b & 0x0F) << 12) | ((rawBytes[pos + 1] & 0x3F) << 6) | (rawBytes[pos + 2] & 0x3F);
+            result.push(cp & 0xFF);
+            pos += 2;
+        } else if ((b & 0xF8) === 0xF0 && pos + 3 < rawBytes.length) {
+            const cp = ((b & 0x07) << 18) | ((rawBytes[pos + 1] & 0x3F) << 12) | ((rawBytes[pos + 2] & 0x3F) << 6) | (rawBytes[pos + 3] & 0x3F);
+            result.push(cp & 0xFF);
+            pos += 3;
+        } else {
+            result.push(b);
+        }
+
+        pos++;
+    }
+
+    console.log("[extraerBytesUtf8Decode] Bytes extraídos (con UTF-8 decode):", result.length);
+    return new Uint8Array(result);
+}
+
+function base64ToUint8Array(base64) {
+    const binStr = atob(base64);
+    const bytes = new Uint8Array(binStr.length);
+    for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i) & 0xff;
+    return bytes;
+}
+
+function esPdfValido(bytes) {
+    return bytes && bytes.length > 4 &&
+        bytes[0] === 0x25 && bytes[1] === 0x50 &&
+        bytes[2] === 0x44 && bytes[3] === 0x46;
+}
+
+function verificarFlateStreams(bytes) {
+    let validos = 0;
+    let invalidos = 0;
+    for (let i = 0; i < bytes.length - 1; i++) {
+        if (bytes[i] === 0x78) {
+            const par = (bytes[i] << 8) | bytes[i + 1];
+            if (par % 31 === 0) {
+                validos++;
+            } else {
+                invalidos++;
+            }
+        }
+    }
+    return { validos, invalidos };
+}
+
+async function renderizarPdfEnModal(pdfBytes, nombreArchivo) {
+    const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+    const pdfDoc = await loadingTask.promise;
+    const container = document.getElementById("pdfCanvasContainer");
+
+    $("#pdfSpinner").hide();
+    $("#pdfViewer").show();
+
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+        const page = await pdfDoc.getPage(i);
+        const viewport = page.getViewport({ scale: 1.2 });
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "mb-3 shadow-sm bg-white";
+        wrapper.appendChild(canvas);
+        container.appendChild(wrapper);
+
+        await page.render({ canvasContext: context, viewport: viewport }).promise;
+    }
+
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const blobUrl = URL.createObjectURL(blob);
+    $("#btnDescargarPdf").off("click").on("click", () => {
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = obtenerNombreArchivo(nombreArchivo);
+        a.click();
+    });
+}
+
+function abrirVisualizadorPdf(nombreArchivo) {
+    console.log("[abrirVisualizadorPdf] Iniciando descarga:", nombreArchivo);
+
+    $("#pdfViewer").hide();
+    $("#pdfCanvasContainer").empty();
+    $("#pdfSpinner").show();
+    $("#pdfError").hide();
+
+    const modalEl = document.getElementById("modalVisualizadorPdf");
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+
+    modalEl.addEventListener('shown.bs.modal', function onShown() {
+        modalEl.removeEventListener('shown.bs.modal', onShown);
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Descargas/descargar",
+            client: "APL",
+            endpoint_query_params: `/${encodeURIComponent(nombreArchivo)}`
+        };
+
+        fetch("/api/apigee-router-proxy", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Error HTTP: " + res.status);
+                return res.arrayBuffer();
+            })
+            .then(async (buffer) => {
+                const rawBytes = new Uint8Array(buffer);
+                console.log("[abrirVisualizadorPdf] Respuesta total bytes:", rawBytes.length);
+
+                let pdfBytes = null;
+
+                try {
+                    const textDecoder = new TextDecoder('utf-8');
+                    const textBody = textDecoder.decode(rawBytes);
+                    const jsonObj = JSON.parse(textBody);
+                    const jsonResp = jsonObj.json_response;
+
+                    if (jsonResp && typeof jsonResp === "string") {
+                        let cleanData = jsonResp.trim().replace(/^"|"$/g, '');
+
+                        if (cleanData.startsWith("data:application/pdf;base64,")) {
+                            cleanData = cleanData.split(",")[1];
+                        }
+
+                        if (cleanData.startsWith("JVBER")) {
+                            console.log("[abrirVisualizadorPdf] Base64 detectado, decodificando...");
+                            pdfBytes = base64ToUint8Array(cleanData);
+                        }
+                    }
+                } catch (e) {
+                    console.warn("[abrirVisualizadorPdf] No es Base64 o JSON parse falló:", e.message);
+                }
+
+                if (!pdfBytes || !esPdfValido(pdfBytes)) {
+                    console.log("[abrirVisualizadorPdf] Intentando extracción binaria desde arrayBuffer...");
+
+                    let bytesRaw = null;
+                    let bytesUtf8 = null;
+
+                    try {
+                        bytesRaw = extraerBytesRaw(rawBytes);
+                        const checkRaw = verificarFlateStreams(bytesRaw);
+                        console.log("[abrirVisualizadorPdf] RAW - tamaño:", bytesRaw.length,
+                            "| flate válidos:", checkRaw.validos, "| inválidos:", checkRaw.invalidos);
+                    } catch (e) {
+                        console.warn("[abrirVisualizadorPdf] extraerBytesRaw falló:", e.message);
+                    }
+
+                    try {
+                        bytesUtf8 = extraerBytesUtf8Decode(rawBytes);
+                        const checkUtf8 = verificarFlateStreams(bytesUtf8);
+                        console.log("[abrirVisualizadorPdf] UTF8 - tamaño:", bytesUtf8.length,
+                            "| flate válidos:", checkUtf8.validos, "| inválidos:", checkUtf8.invalidos);
+                    } catch (e) {
+                        console.warn("[abrirVisualizadorPdf] extraerBytesUtf8Decode falló:", e.message);
+                    }
+
+                    const rawOk = bytesRaw && esPdfValido(bytesRaw);
+                    const utf8Ok = bytesUtf8 && esPdfValido(bytesUtf8);
+
+                    if (rawOk && utf8Ok) {
+                        const cRaw = verificarFlateStreams(bytesRaw);
+                        const cUtf8 = verificarFlateStreams(bytesUtf8);
+
+                        if (cRaw.validos >= cUtf8.validos && cRaw.invalidos <= cUtf8.invalidos) {
+                            console.log("[abrirVisualizadorPdf] ✓ Seleccionada: extracción RAW");
+                            pdfBytes = bytesRaw;
+                        } else {
+                            console.log("[abrirVisualizadorPdf] ✓ Seleccionada: extracción UTF-8 decode");
+                            pdfBytes = bytesUtf8;
+                        }
+                    } else if (rawOk) {
+                        console.log("[abrirVisualizadorPdf] ✓ Seleccionada: extracción RAW (única válida)");
+                        pdfBytes = bytesRaw;
+                    } else if (utf8Ok) {
+                        console.log("[abrirVisualizadorPdf] ✓ Seleccionada: extracción UTF-8 decode (única válida)");
+                        pdfBytes = bytesUtf8;
+                    }
+                }
+
+                if (!pdfBytes || !esPdfValido(pdfBytes)) {
+                    throw new Error("No se pudo obtener un PDF válido. La respuesta del servidor puede estar corrupta.");
+                }
+
+                console.log("[abrirVisualizadorPdf] PDF válido obtenido, tamaño:", pdfBytes.length, "bytes");
+
+                await renderizarPdfEnModal(pdfBytes, nombreArchivo);
+            })
+            .catch(err => {
+                console.error("[abrirVisualizadorPdf] Error:", err);
+                $("#pdfSpinner").hide();
+                $("#pdfError").text("No se pudo renderizar el PDF: " + err.message).show();
+            });
     });
 }
 

@@ -689,7 +689,7 @@
                     "clasepromocion": parseInt($("#promocionTipo").val(), 10) || 0,
                     "fechahorainicio": fechaInicio,
                     "fechahorafin": fechaFin,
-                    "marcaregalo": $("#regaloGeneral").is(":checked") ? "S" : "N",
+                    "marcaregalo": $("#regaloGeneral").is(":checked") ? "✓" : "",
                     "marcaprocesoaprobacion": "",
                     "idusuarioingreso": getUsuario(),
                     "nombreusuario": getUsuario(),
@@ -717,8 +717,7 @@
                 "body_request": body
             };
 
-            console.log("body: ", body);
-
+            console.log("body: ", body);           
             // 5. Envío vía AJAX
             $.ajax({
                 url: "/api/apigee-router-proxy",
