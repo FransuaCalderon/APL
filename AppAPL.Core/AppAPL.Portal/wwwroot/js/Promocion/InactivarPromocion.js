@@ -222,62 +222,36 @@ function abrirVisorPDF(nombreArchivo) {
 }
 
 /**
- * Descarga el PDF mediante fetch directo al BFF/proxy y lo muestra en el iframe.
+ * Descarga el PDF consumiendo el endpoint a través del Proxy Apigee
+ * y lo fuerza a visualizarse en el iframe.
  */
 function fetchPDFDirecto(nombreArchivo) {
-    // Construir URL directa - usa el proxy del BFF
-    const url = `/api/Descargas/descargar/${encodeURIComponent(nombreArchivo)}`;
+    // 1. Tomamos tu apiBaseUrl y le limpiamos la parte del proxy para llegar a la raíz del servidor
+    let baseUrl = (window.apiBaseUrl || "http://localhost:5074").replace("/api/router-proxy/execute", "");
 
-    console.log("[fetchPDFDirecto] Fetching:", url);
+    // 2. Construimos la URL limpia (igual a la de Swagger)
+    const url = `${baseUrl}/api/Descargas/descargar/${encodeURIComponent(nombreArchivo)}`;
+
+    console.log("[fetchPDFDirecto] Fetching directo al API limpio:", url);
 
     fetch(url)
         .then(function (response) {
-            console.log("[fetchPDFDirecto] Status:", response.status, "Content-Type:", response.headers.get("content-type"));
-
             if (!response.ok) {
                 return response.text().then(function (txt) {
                     throw new Error(txt || `Error HTTP ${response.status}`);
                 });
             }
-
-            const contentType = response.headers.get("content-type") || "";
-
-            // Si la respuesta es JSON (proxy devuelve JSON con base64)
-            if (contentType.includes("application/json")) {
-                return response.json().then(function (jsonData) {
-                    // Intentar extraer base64 del JSON
-                    const base64 = jsonData.base64 || jsonData.archivo || jsonData.data || jsonData.contenido || null;
-                    if (base64) {
-                        const byteCharacters = atob(base64);
-                        const byteNumbers = new Array(byteCharacters.length);
-                        for (let i = 0; i < byteCharacters.length; i++) {
-                            byteNumbers[i] = byteCharacters.charCodeAt(i);
-                        }
-                        const byteArray = new Uint8Array(byteNumbers);
-                        return new Blob([byteArray], { type: "application/pdf" });
-                    }
-                    throw new Error("La respuesta JSON no contiene datos del archivo.");
-                });
-            }
-
-            // Si la respuesta es directamente el PDF (binario)
             return response.blob();
         })
         .then(function (blob) {
-            if (blob.type && !blob.type.includes("pdf")) {
-                // Si el blob no es PDF, intentar forzar el tipo
-                blob = new Blob([blob], { type: "application/pdf" });
-            }
+            // Convertimos el binario directo en un PDF visualizable
+            const pdfBlob = new Blob([blob], { type: "application/pdf" });
+            const blobUrl = URL.createObjectURL(pdfBlob);
 
-            const blobUrl = URL.createObjectURL(blob);
-            console.log("[fetchPDFDirecto] Blob URL creado:", blobUrl);
-
-            // Mostrar en iframe
             $("#pdfIframe").attr("src", blobUrl);
             $("#pdfSpinner").hide();
             $("#pdfVisorContenido").show();
 
-            // Configurar botón de descarga
             const nombreLegible = obtenerNombreArchivo(nombreArchivo);
             $("#btnDescargarPdf")
                 .data("blob-url", blobUrl)
@@ -285,14 +259,13 @@ function fetchPDFDirecto(nombreArchivo) {
                 .show();
         })
         .catch(function (error) {
-            console.error("[fetchPDFDirecto] Error:", error);
+            console.error("[fetchPDFDirecto] Error visualizando PDF:", error);
             $("#pdfSpinner").hide();
             $("#pdfVisorError")
-                .html(`<i class="fa-solid fa-triangle-exclamation me-2"></i>${error.message || "No se pudo cargar el archivo PDF."}`)
+                .html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> ${error.message}`)
                 .show();
         });
 }
-
 function cerrarVisorPDF() {
     // Limpiar el iframe y revocar blob URL
     const iframe = document.getElementById("pdfIframe");

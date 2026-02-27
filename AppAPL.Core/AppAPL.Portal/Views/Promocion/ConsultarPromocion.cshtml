@@ -8,15 +8,14 @@
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
     <script src="~/js/Promocion/ConsultarPromocion.js" asp-append-version="true"></script>
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 }
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
 <style>
     /* =====================================================
-                   GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN
-                ===================================================== */
+                       GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN
+                    ===================================================== */
     .promo-form-grid {
         border: 1px solid #ccc;
         background: #fff;
@@ -224,8 +223,8 @@
     }
 
     /* =====================================================
-                   MODAL REGISTRO DE LOG - CABECERA TABLA
-                ===================================================== */
+                       MODAL REGISTRO DE LOG - CABECERA TABLA
+                    ===================================================== */
     #tablaLog thead tr:first-child th {
         background-color: #8B0000 !important;
         color: #fff;
@@ -243,8 +242,8 @@
     }
 
     /* =====================================================
-                   MODAL REGISTRO DE APROBACIONES - CABECERA TABLA
-                ===================================================== */
+                       MODAL REGISTRO DE APROBACIONES - CABECERA TABLA
+                    ===================================================== */
     #tablaAprobaciones thead tr:first-child th {
         background-color: #8B0000 !important;
         color: #fff;
@@ -262,46 +261,61 @@
     }
 
     /* =====================================================
-                   MODAL VISOR PDF
-                ===================================================== */
-    #modalVisorPdf .modal-dialog {
+                       MODAL VISOR PDF
+            ===================================================== */
+    #modalVisualizadorPdf .modal-dialog {
         max-width: 90vw;
         height: 90vh;
     }
 
-    #modalVisorPdf .modal-content {
+    #modalVisualizadorPdf .modal-content {
         height: 90vh;
-    }
-
-    #modalVisorPdf .modal-body {
-        padding: 0;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
     }
 
-    #modalVisorPdf .modal-header {
+    #modalVisualizadorPdf .modal-header {
         background: #1a237e;
         color: #fff;
         padding: 8px 16px;
         border-bottom: none;
     }
 
-        #modalVisorPdf .modal-header .btn-close {
+        #modalVisualizadorPdf .modal-header .btn-close {
             filter: invert(1);
         }
 
-    #modalVisorPdf .modal-footer {
+        #modalVisualizadorPdf .modal-header .modal-title i {
+            color: #fff !important; /* Ajuste para el icono del PDF en Inactivar */
+        }
+
+    #modalVisualizadorPdf .modal-body {
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    #modalVisualizadorPdf .modal-footer {
         padding: 6px 16px;
         border-top: 1px solid #ddd;
         background: #f8f8f8;
     }
 
+    /* --- Contenedores internos del Body --- */
+    #pdfVisorContenido {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+    }
+
     #pdfIframe {
         width: 100%;
-        flex: 1;
+        height: 100%;
         border: none;
         background: #525659;
+        display: block;
     }
 
     #pdfSpinner {
@@ -310,36 +324,41 @@
         align-items: center;
         justify-content: center;
         flex: 1;
+        height: 100%;
         background: #525659;
         color: #fff;
     }
 
-    #pdfVisorError {
+        #pdfSpinner .spinner-border {
+            color: #fff !important; /* Mismo color que en Inactivar */
+            width: 3rem;
+            height: 3rem;
+        }
+
+    #pdfError {
         display: flex;
         align-items: center;
         justify-content: center;
         flex: 1;
+        height: 100%;
         background: #f8d7da;
         color: #842029;
         font-size: 0.9rem;
         padding: 20px;
         text-align: center;
+        margin: 0 !important; /* Quitado el margen para que ocupe todo */
+        border: none;
+        border-radius: 0;
     }
 </style>
 
 <h2>Consulta - Promociones</h2>
 <hr class="separador-fondos" />
 
-<!-- ============================================
-     VISTA: BANDEJA (TABLA)
-============================================= -->
 <div id="vistaTabla" class="table-responsive">
     <div id="tabla"></div>
 </div>
 
-<!-- ============================================
-     VISTA: DETALLE DE PROMOCIÓN
-============================================= -->
 <div id="vistaDetalle" style="display:none;">
     <div class="card border-secondary mb-3">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -352,14 +371,8 @@
         <div class="card-body p-2">
             <form id="formVisualizar">
 
-                <!-- ============================================
-                     GRILLA ESTILO IMAGEN
-                ============================================= -->
                 <div class="promo-form-grid">
 
-                    <!-- ═══════════════════════════════════════
-                         FILA 1: ID Promoción + Iconos
-                    ═══════════════════════════════════════ -->
                     <div class="promo-header-row">
                         <span class="promo-label">Promoción</span>
                         <input type="text" class="promo-id-input" id="verPromocionHeader" readonly>
@@ -376,9 +389,6 @@
                         </div>
                     </div>
 
-                    <!-- ═══════════════════════════════════════
-                         FILA 2: Descripción | Motivo | Inicio | Fin | Estado
-                    ═══════════════════════════════════════ -->
                     <div class="promo-section">
                         <div class="promo-col">
                             <div class="promo-col-header">Descripción</div>
@@ -412,9 +422,6 @@
                         </div>
                     </div>
 
-                    <!-- ═══════════════════════════════════════
-                         FILA 3: Marca | División | Departamento | Clase | Artículo
-                    ═══════════════════════════════════════ -->
                     <div class="promo-section">
                         <div class="promo-col">
                             <div class="promo-col-header">Marca</div>
@@ -463,9 +470,6 @@
                         </div>
                     </div>
 
-                    <!-- ═══════════════════════════════════════
-                         FILA 4: Canal | Grupo | Almacén | Tipo Cliente | Medio Pago
-                    ═══════════════════════════════════════ -->
                     <div class="promo-section">
                         <div class="promo-col">
                             <div class="promo-col-header">Canal</div>
@@ -514,9 +518,6 @@
                         </div>
                     </div>
 
-                    <!-- ═══════════════════════════════════════
-                         FILA 5: % Dscto Prov. | ID Acuerdo Prov. | $ Comprom. Prov. | % Dscto Prop. | ID Acuerdo Prop. | $ Comprom. Prop. | % Dscto Total | Regalo
-                    ═══════════════════════════════════════ -->
                     <div class="promo-section">
                         <div class="promo-col col-xs">
                             <div class="promo-col-header">% Dscto Prov.</div>
@@ -575,11 +576,8 @@
                     </div>
 
                 </div>
-                <!-- FIN GRILLA -->
-
                 <hr class="mt-3 mb-2" />
 
-                <!-- Tabla de Artículos -->
                 <div class="col-12 mt-2" id="contenedor-tabla-articulos" style="display:none;"></div>
 
             </form>
@@ -591,51 +589,41 @@
     </div>
 </div>
 
-<!-- ============================================
-     MODAL: VISUALIZADOR DE PDF (SOPORTE)
-============================================= -->
-<div class="modal fade" id="modalVisualizadorPdf" tabindex="-1"
-     aria-labelledby="modalPdfLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered"
-         style="max-width: 90vw; height: 90vh;">
-        <div class="modal-content d-flex flex-column" style="height: 88vh;">
+<div class="modal fade" id="modalVisualizadorPdf" tabindex="-1" aria-labelledby="modalPdfLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
 
-            <div class="modal-header py-2">
-                <h5 class="modal-title fw-bold" id="modalPdfLabel">
-                    <i class="fa-regular fa-file-pdf me-2 text-danger"></i>Visualizador de Soporte
-                </h5>
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold mb-0" id="modalPdfLabel">
+                    <i class="fa-regular fa-file-pdf me-2"></i>
+                    <span class="pdf-nombre-archivo">Soporte</span>
+                </h6>
                 <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-danger" id="btnDescargarPdf" title="Descargar PDF">
-                        <i class="fa-solid fa-download me-1"></i>Descargar
-                    </button>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
             </div>
 
-            <div class="modal-body p-0 d-flex flex-column flex-grow-1" style="overflow: hidden;">
-
-                <!-- Spinner de carga -->
-                <div id="pdfSpinner" class="text-center py-5">
-                    <div class="spinner-border text-danger" role="status">
+            <div class="modal-body">
+                <div id="pdfSpinner" style="display:none;">
+                    <div class="spinner-border" role="status">
                         <span class="visually-hidden">Cargando...</span>
                     </div>
-                    <p class="mt-2 text-muted small">Cargando documento...</p>
+                    <p class="mt-3 text-light small">Cargando documento...</p>
                 </div>
 
-                <!-- Mensaje de error -->
-                <div id="pdfError" class="alert alert-danger m-3" style="display:none;">
-                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                    No se pudo cargar el archivo. Verifique que el soporte existe o intente nuevamente.
+                <div id="pdfError" style="display:none;">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i> No se pudo cargar el archivo.
                 </div>
 
-                <!-- Contenedor PDF.js -->
-                <div id="pdfViewer" style="display:none; flex:1; overflow-y:auto; background:#525659; padding:10px; min-height:0;">
-                    <div id="pdfCanvasContainer" style="display:flex; flex-direction:column; align-items:center; gap:8px;"></div>
+                <div id="pdfVisorContenido" style="display:none;">
+                    <iframe id="pdfIframe" src="about:blank"></iframe>
                 </div>
-
             </div>
 
-            <div class="modal-footer py-2">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="btnDescargarPdf" title="Descargar PDF" style="display:none;">
+                    <i class="fa-solid fa-download me-1"></i>Descargar
+                </button>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
             </div>
 
@@ -643,9 +631,6 @@
     </div>
 </div>
 
-<!-- ============================================
-     MODAL: REGISTRO DE LOG
-============================================= -->
 <div class="modal fade" id="modalRegistroLog" tabindex="-1" aria-labelledby="modalLogLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -702,9 +687,6 @@
     </div>
 </div>
 
-<!-- ============================================
-     MODAL: REGISTRO DE APROBACIONES
-============================================= -->
 <div class="modal fade" id="modalRegistroAprobaciones" tabindex="-1" aria-labelledby="modalAprobacionesLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
