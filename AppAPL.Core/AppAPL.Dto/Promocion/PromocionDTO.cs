@@ -249,6 +249,7 @@ namespace AppAPL.Dto.Promocion
     {
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandInacPromoDTO? cabecera { get; set; }
+        public IEnumerable<SegmentoBandejaDTO>? segmentos { get; set; }
         public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
 
         public string? clase_promocion { get; set; }

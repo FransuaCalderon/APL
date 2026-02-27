@@ -809,6 +809,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
             parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_clase_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
@@ -822,6 +823,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 );
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandInacPromoDTO>();
+            var segmentos = await multi.ReadAsync<SegmentoBandejaDTO>();
             var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
 
             string? clasePromocion = parameters.Get<string>("p_clase_promocion");
@@ -833,6 +835,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             var resultado = new BandGenPromocionIDDTO()
             {
                 cabecera = cabecera,
+                segmentos = segmentos,
                 acuerdos = acuerdos,
                 clase_promocion = clasePromocion,
                 codigoSalida = codigoSalida,
