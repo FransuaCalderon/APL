@@ -751,7 +751,6 @@ function ejecutarAprobacionPromocion(accion, nuevoEstado, comentario) {
     };
 
     console.log("body: ", body);
-    return;
 
     $.ajax({
         url: "/api/apigee-router-proxy",
