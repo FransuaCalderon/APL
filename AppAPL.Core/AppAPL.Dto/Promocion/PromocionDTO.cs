@@ -235,8 +235,8 @@ namespace AppAPL.Dto.Promocion
     {
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandInacPromoDTO? cabecera { get; set; }
-        public IEnumerable<SegmentoBandejaDTO> segmentos { get; set; }
-        public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
+        public List<SegmentoBandejaDTO> segmentos { get; set; }
+        public List<AcuerdoBandAproDTO>? acuerdos { get; set; }
 
         public string? tipopromocion { get; set; }
         [JsonIgnore]
@@ -249,8 +249,8 @@ namespace AppAPL.Dto.Promocion
     {
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandInacPromoDTO? cabecera { get; set; }
-        public IEnumerable<SegmentoBandejaDTO>? segmentos { get; set; }
-        public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
+        public List<SegmentoBandejaDTO>? segmentos { get; set; }
+        public List<AcuerdoBandAproDTO>? acuerdos { get; set; }
 
         public string? clase_promocion { get; set; }
         [JsonIgnore]
@@ -288,8 +288,8 @@ namespace AppAPL.Dto.Promocion
     {
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandAproPromoDTO? cabecera { get; set; }
-        public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
-        public IEnumerable<SegmentoBandejaDTO>? segmentos { get; set; }
+        public List<AcuerdoBandAproDTO>? acuerdos { get; set; }
+        public List<SegmentoBandejaDTO>? segmentos { get; set; }
 
         // Lista para capturar el cursor p_cursor_articulos
         //public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
@@ -409,7 +409,7 @@ namespace AppAPL.Dto.Promocion
     {
         // Parámetros directos
         public string TipoClaseEtiqueta { get; set; } = string.Empty;
-        public long IdOpcion { get; set; }
+        public int IdOpcion { get; set; }
         public string IdControlInterfaz { get; set; } = string.Empty;
         public string IdEventoEtiqueta { get; set; } = string.Empty;
 
@@ -481,11 +481,11 @@ namespace AppAPL.Dto.Promocion
 
     public class ActualizarPromocionRequest
     {
-        public long IdPromocion { get; set; }
+        public int IdPromocion { get; set; }
         public string ClasePromocion { get; set; } // 'PRGENERAL', 'PRARTICULO' o 'PRCOMBO'
         public PromocionModDto Promocion { get; set; }
         public List<AcuerdoModDto> Acuerdos { get; set; }
-        public List<SegmentoModDto> Segmentos { get; set; }
+        public List<SegmentoDTO> Segmentos { get; set; }
         public string? NombreArchivoSoporte { get; set; }
         public string? ArchivoSoporteBase64 { get; set; }
 
@@ -512,18 +512,10 @@ namespace AppAPL.Dto.Promocion
     public class AcuerdoModDto
     {
         public string Accion { get; set; } // 'I', 'U', 'D'
-        public long? IdPromocionAcuerdo { get; set; } // Solo para 'U' y 'D'
+        public int? IdPromocionAcuerdo { get; set; } // Solo para 'U' y 'D'
         public int IdAcuerdo { get; set; }
         public decimal PorcentajeDescuento { get; set; }
         public decimal ValorComprometido { get; set; }
-    }
-
-
-    public class SegmentoModDto
-    {
-        public string TipoSegmento { get; set; }
-        public string TipoAsignacion { get; set; } // 'T' (Todos) o 'S' (Seleccionados)
-        public List<string> Codigos { get; set; } // EANs, IDs de Local, etc.
     }
 
 

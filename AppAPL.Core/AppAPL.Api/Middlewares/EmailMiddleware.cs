@@ -4,6 +4,7 @@ using AppAPL.Api.Handlers;
 using AppAPL.Api.Handlers.Interfaces;
 using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Fondos;
+using AppAPL.Dto.Promocion;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
@@ -72,6 +73,7 @@ namespace AppAPL.Api.Middlewares
 
             FondoDTO fondoAntiguo = null;
             BandConsAcuerdoPorIDDTO acuerdoAntiguo = null;
+            BandModPromocionIDDTO promocionAntiguo = null;
             //logica para sacar el fondo antiguo antes de modificar
             if (emailAttr.Entidad == "ENTFONDO" && emailAttr.TipoProceso == TipoProceso.Modificacion)
             {
@@ -94,6 +96,19 @@ namespace AppAPL.Api.Middlewares
                 serviceProvider,
                 dto => dto.IdAcuerdo, // <--- Aquí le dices qué propiedad del DTO es el ID
                 (svc, id) => svc.ObtenerBandejaConsultaPorId(id));
+            }
+
+
+            if (emailAttr.Entidad == "ENTPROMOCION" && emailAttr.TipoProceso == TipoProceso.Modificacion)
+            {
+                //var reqModificacion = JsonSerializer.Deserialize<ActualizarAcuerdoDTO>(requestBody, jsonOptions);
+
+                promocionAntiguo = await ConsultarEntidadAntiguaAsync<BandModPromocionIDDTO, IPromocionServicio, ActualizarPromocionRequest>(
+                context,
+                "idAcuerdo",
+                serviceProvider,
+                dto => dto.IdPromocion, // <--- Aquí le dices qué propiedad del DTO es el ID
+                (svc, id) => svc.ObtenerBandModPromoPorId(id));
             }
 
 
@@ -163,7 +178,7 @@ namespace AppAPL.Api.Middlewares
                     break;
 
                 case IPromocionesEmailHandler promocionesHandler:
-                    await promocionesHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, requestBody, null, responseBody);
+                    await promocionesHandler.HandleAsync(emailAttr.Entidad, tipoProcesoEnum, requestBody, promocionAntiguo, responseBody);
                     break;
 
             }

@@ -682,8 +682,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             var resultado = new BandInacPromocionIDDTO()
             {
                 cabecera = cabecera,
-                segmentos = segmentos,
-                acuerdos = acuerdos,
+                segmentos = segmentos.ToList(),
+                acuerdos = acuerdos.ToList(),
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida
@@ -785,8 +785,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             var resultado = new BandModPromocionIDDTO()
             {
                 cabecera = cabecera,
-                segmentos = segmentos,
-                acuerdos = acuerdos,
+                segmentos = segmentos.ToList(),
+                acuerdos = acuerdos.ToList(),
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida
@@ -835,8 +835,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             var resultado = new BandGenPromocionIDDTO()
             {
                 cabecera = cabecera,
-                segmentos = segmentos,
-                acuerdos = acuerdos,
+                segmentos = segmentos.ToList(),
+                acuerdos = acuerdos.ToList(),
                 clase_promocion = clasePromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida
@@ -1048,7 +1048,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
             // --- AQUÍ USAS EL MÉTODO ---
-            string rutaFisicaFinal = await ProcesarArchivoBase64(promocion.ArchivoSoporteBase64, promocion.NombreArchivoSoporte);
+            string? rutaFisicaFinal = await ProcesarArchivoBase64(promocion.ArchivoSoporteBase64, promocion.NombreArchivoSoporte);
 
             var paramObject = new
             {
@@ -1057,7 +1057,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_json_promocion = JsonSerializer.Serialize(promocion.Promocion, options),
                 p_json_acuerdos = JsonSerializer.Serialize(promocion.Acuerdos, options),
                 p_json_segmentos = JsonSerializer.Serialize(promocion.Segmentos, options),
-                p_archivosoporte = rutaFisicaFinal,
+                p_archivosoporte = "sin archivo",
                 p_idtipoproceso = promocion.IdTipoProceso,
 
                 p_idopcion = promocion.IdOpcion,

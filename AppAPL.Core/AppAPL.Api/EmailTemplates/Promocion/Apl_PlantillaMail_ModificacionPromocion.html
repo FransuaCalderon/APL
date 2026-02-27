@@ -16,16 +16,134 @@
 </p>
 
 <p style="font-size:12px; font-weight: normal; font-family: Arial;">
- 
-		<!-- Indicar con un "*" en negritas en que parte fue modificado, es decir si alguna cosa se modifico en MARCA entonces el titulo saldra asi: "* Marca" -->
-	  &emsp; <mark>¡Atención!</mark> <strong>Los Campos con '*' fueron modificados</strong>  <br><br> 
-      &emsp; {{InformacionGeneral}} <br><br>  <!-- Tabla html para visualiza DESCRIPCON, MOTIVO, FECHA-HORA INICIO, FECHA-HORA FIN, ESTADO, DESCUENTO TOTAL Y MARCA REGALO -->
-	  &emsp; {{Alcance}} <br><br> <!-- Tabla html para visualiza MARCA, DIVISION, DEPARTAMENTO, CLASE, ARTICULO -->
-	  &emsp; {{Cobertura}} <br><br> <!-- Tabla html para visualizar CANAL, GRUPO, ALMACEN, TIPO DE CLIENTE, MEDIO DE PAGO. SI EN TIPO DE CLIENTE ELIGEN LISTA ESPECIFICA ENTONCES NO DETALLAR LOS CODIGOS QUE FUERON CARGADOS MEDIANTE UN ARCHIVO NI LOS QUE FUERON INGRESADOS MANUALMENTE, ES DECIR SOLO ESPECIFICAR EN TIPO DE CLIENTE COMO LISTA ESPECIFICA  -->
-	  &emsp; {{Acuerdos}} <br><br> <!-- Tabla html para visualiza LOS ACUERDOS, POR CADA ACUERDO DE DETALLA % DESCUENTO, ID ACUERDO Y NOMBRE DEL PROVEEDOR, VALOR COMPROMETIDO -->
-     
 
-<br><br>
+    <!-- Indicar con un "*" en negritas en que parte fue modificado, es decir si alguna cosa se modifico en MARCA entonces el titulo saldra asi: "* Marca" -->
+    &emsp; <mark>¡Atención!</mark> <strong>Los Campos con '*' fueron modificados</strong>  <br><br>
+
+
+    <!-- Tabla html para visualiza DESCRIPCON, MOTIVO, FECHA-HORA INICIO, FECHA-HORA FIN, ESTADO, DESCUENTO TOTAL Y MARCA REGALO -->
+    <table style="font-size:12px; font-weight: normal; font-family: Arial; width:50%">
+        <tr>
+            <th style="text-align: left; font-weight: bold; background-color: #F2EBEB;">Información General</th>
+            <th style="text-align: left; font-weight: bold; background-color: #F2EBEB;"></th>
+
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Descripción</td>
+            <td>{{Descripcion}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Motivo</td>
+            <td> {{Motivo}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Fecha-Hora Inicio</td>
+            <td> {{FechaInicio}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Fecha-Hora Fin</td>
+            <td> {{FechaFin}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Estado</td>
+            <td> {{Estado}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Descuento Total</td>
+            <td> {{DescuentoTotal}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Regalo</td>
+            <td> {{Regalo}}</td>
+        </tr>
+    </table>
+    <br><br>
+
+
+
+    <!-- Tabla html para visualiza MARCA, DIVISION, DEPARTAMENTO, CLASE, ARTICULO -->
+    <table style="font-size:12px; font-weight: normal; font-family: Arial; width:50%">
+        <tr>
+            <th style="text-align: left; font-weight: bold; background-color: #F2EBEB;">Alcance</th>
+            <th style="text-align: left; font-weight: bold; background-color: #F2EBEB;"></th>
+
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Marca</td>
+            <!--<td>Panasonic<br>Sonic<br>Saansumg</td>-->
+            <td>{{Marca}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Division</td>
+            <td>{{Division}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Departamento</td>
+            <td>{{Departamento}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Clase</td>
+            <td>{{Clase}}</td>
+        </tr>
+    </table>
+    <br><br>
+
+
+
+    <!-- Tabla html para visualizar CANAL, GRUPO, ALMACEN, TIPO DE CLIENTE, MEDIO DE PAGO. SI EN TIPO DE CLIENTE ELIGEN LISTA ESPECIFICA ENTONCES NO DETALLAR LOS CODIGOS QUE FUERON CARGADOS MEDIANTE UN ARCHIVO NI LOS QUE FUERON INGRESADOS MANUALMENTE, ES DECIR SOLO ESPECIFICAR EN TIPO DE CLIENTE COMO LISTA ESPECIFICA  -->
+    <table style="font-size:12px; font-weight: normal; font-family: Arial; width:50%">
+        <tr>
+            <th style="text-align: left; font-weight: bold; background-color: #F2EBEB;">Cobertura</th>
+            <th style="text-align: left; font-weight: bold; background-color: #F2EBEB;"></th>
+
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Canal</td>
+            <!--<td>Panasonic<br>Sonic<br>Saansumg</td>-->
+            <td>{{Canal}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Grupo</td>
+            <td>{{Grupo}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Almacen</td>
+            <td>{{Almacen}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Tipo de Cliente</td>
+            <td>{{TipoCliente}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;Medio de Pago</td>
+            <td>{{MedioPago}}</td>
+        </tr>
+    </table>
+    <br><br>
+
+
+    <!-- Tabla html para visualiza LOS ACUERDOS, POR CADA ACUERDO DE DETALLA % DESCUENTO, ID ACUERDO Y NOMBRE DEL PROVEEDOR, VALOR COMPROMETIDO -->
+    <table style="font-size:12px; font-weight: normal; font-family: Arial; width:50%">
+        <tr>
+            <th style="text-align: left; font-weight: bold; background-color: #F2EBEB;">Acuerdos</th>
+            <th style="text-align: left; font-weight: bold; background-color: #F2EBEB;">Porcentaje</th>
+            <th style="text-align: left; font-weight: bold; background-color: #F2EBEB;">Comprometido</th>
+
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;{{AcuerdoProveedor}}</td>
+            <td>{{PorcentajeProveedor}}%</td>
+            <td>{{ValorComprometidoProveedor}}</td>
+        </tr>
+        <tr>
+            <td class="" style="font-weight: bold;">&emsp;{{AcuerdoPropio}}</td>
+            <td>{{PorcentajePropio}}%</td>
+            <td>{{ValorComprometidoPropio}}</td>
+        </tr>
+
+    </table>
+
+    <br><br>
 
 
 </p>

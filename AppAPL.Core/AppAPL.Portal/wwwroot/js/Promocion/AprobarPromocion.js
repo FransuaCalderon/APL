@@ -750,6 +750,9 @@ function ejecutarAprobacionPromocion(accion, nuevoEstado, comentario) {
         body_request: body
     };
 
+    console.log("body: ", body);
+    return;
+
     $.ajax({
         url: "/api/apigee-router-proxy",
         method: "POST",

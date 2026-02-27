@@ -6,7 +6,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[ApiExplorerSettings(IgnoreApi = true)]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class EmailController(IEmailServicio servicio) : ControllerBase
     {
         [HttpGet("enviar-correo")]
