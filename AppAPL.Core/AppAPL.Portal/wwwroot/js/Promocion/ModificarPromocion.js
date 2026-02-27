@@ -1,44 +1,46 @@
 ﻿// ~/js/Promocion/ModificarPromocion.js
 
 // ===============================================================
-// Variables globales
+// VARIABLES GLOBALES
 // ===============================================================
 let tabla;
-let ultimaFilaModificada = null;
-let acuerdoSeleccionadoTemporal = null;
 let promocionTemporal = null;
+let proveedorTemporal = null;
+let propioTemporal = null;
+
+// ===============================================================
+// CONFIGURACIÓN MÚLTIPLE (Segmentos)
+// ===============================================================
+const CONFIG_MULTIPLE = [
+    { id: "marca", select: "#segMarca", btnOpen: "#btnMarca", body: "#bodyModalMarca", btnAccept: "#btnAceptarMarca", triggerVal: "3" },
+    { id: "division", select: "#segDivision", btnOpen: "#btnDivision", body: "#bodyModalDivision", btnAccept: "#btnAceptarDivision", triggerVal: "3" },
+    { id: "depto", select: "#segDepartamento", btnOpen: "#btnDepartamento", body: "#bodyModalDepartamento", btnAccept: "#btnAceptarDepartamento", triggerVal: "3" },
+    { id: "clase", select: "#segClase", btnOpen: "#btnClase", body: "#bodyModalClase", btnAccept: "#btnAceptarClase", triggerVal: "3" },
+    { id: "canal", select: "#segCanal", btnOpen: "#btnCanal", body: "#bodyModalCanal", btnAccept: "#btnAceptarCanal", triggerVal: "3" },
+    { id: "grupo", select: "#segGrupoAlmacen", btnOpen: "#btnGrupoAlmacen", body: "#bodyModalGrupoAlmacen", btnAccept: "#btnAceptarGrupoAlmacen", triggerVal: "3" },
+    { id: "almacen", select: "#segAlmacen", btnOpen: "#btnAlmacen", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" },
+    { id: "tipocliente", select: "#segTipoCliente", btnOpen: "#btnTipoCliente", body: "#ModalClientesEspecificos", btnAccept: "#btnAceptarClientesEspecificos", triggerVal: "3" },
+    { id: "mediopago", select: "#segMedioPago", btnOpen: "#btnMedioPago", body: "#bodyModalMedioPago", btnAccept: "#btnAceptarMedioPago", triggerVal: "7" }
+];
 
 // ===============================================================
 // FUNCIONES HELPER
 // ===============================================================
 function obtenerUsuarioActual() {
-    return window.usuarioActual
-        || sessionStorage.getItem('usuarioActual')
-        || sessionStorage.getItem('usuario')
-        || localStorage.getItem('usuarioActual')
-        || "admin";
+    return window.usuarioActual || "admin";
 }
 
 function getIdOpcionSeguro() {
     try {
-        return (
-            (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) ||
-            (window.obtenerInfoOpcionActual && window.obtenerInfoOpcionActual().idOpcion) ||
-            "0"
-        );
+        return ((window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) || "0");
     } catch (e) {
-        console.error("Error obteniendo idOpcion:", e);
         return "0";
     }
 }
 
 function manejarErrorGlobal(xhr, accion) {
     console.error(`Error al ${accion}:`, xhr.responseText);
-    Swal.fire({
-        icon: 'error',
-        title: 'Error de Comunicación',
-        text: `No se pudo completar la acción: ${accion}.`
-    });
+    Swal.fire({ icon: 'error', title: 'Error', text: `No se pudo completar la acción: ${accion}.` });
 }
 
 function formatearFecha(fechaString) {
@@ -51,23 +53,10 @@ function formatearFecha(fechaString) {
     return `${dia}/${mes}/${anio}`;
 }
 
-function formatearFechaHora(fechaString) {
-    if (!fechaString) return "";
-    const fecha = new Date(fechaString);
-    if (isNaN(fecha.getTime())) return "";
-    const dia = fecha.getUTCDate().toString().padStart(2, '0');
-    const mes = (fecha.getUTCMonth() + 1).toString().padStart(2, '0');
-    const anio = fecha.getUTCFullYear();
-    const hora = fecha.getUTCHours().toString().padStart(2, '0');
-    const min = fecha.getUTCMinutes().toString().padStart(2, '0');
-    return `${dia}/${mes}/${anio} ${hora}:${min}`;
-}
-
 function obtenerNombreArchivo(rutaCompleta) {
     if (!rutaCompleta) return "";
     var nombreArchivo = rutaCompleta.replace(/^.*[\\/]/, '');
-    var sinGuid = nombreArchivo.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i, '');
-    return sinGuid || nombreArchivo;
+    return nombreArchivo.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i, '') || nombreArchivo;
 }
 
 function isValidDateDDMMYYYY(s) {
@@ -83,272 +72,339 @@ function toISOFromDDMMYYYY(s) {
     return new Date(yyyy, mm - 1, dd).toISOString();
 }
 
-function compareDatesDDMMYYYY(a, b) {
-    const [da, ma, ya] = a.split("/").map(Number);
-    const [db, mb, yb] = b.split("/").map(Number);
-    return new Date(ya, ma - 1, da).getTime() - new Date(yb, mb - 1, db).getTime();
-}
-
-function parseCurrencyToNumber(monedaStr) {
-    if (!monedaStr) return 0;
-    let v = String(monedaStr).replace(/\$/g, "").replace(/\s/g, "").replace(/\./g, "");
-    v = v.replace(",", ".");
-    return parseFloat(v) || 0;
+function parseCurrencyToNumber(str) {
+    if (!str) return 0;
+    let clean = str.toString().replace(/[^0-9.,-]/g, '');
+    if (clean.includes(',') && !clean.includes('.')) clean = clean.replace(',', '.');
+    else if (clean.includes(',') && clean.includes('.')) clean = clean.replace(/\./g, '').replace(',', '.');
+    return parseFloat(clean) || 0;
 }
 
 function formatCurrencySpanish(value) {
     let number = parseFloat(value);
     if (isNaN(number)) number = 0.0;
-    const formatter = new Intl.NumberFormat("es-ES", {
-        style: "decimal",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
+    const formatter = new Intl.NumberFormat("es-ES", { style: "decimal", minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return `$ ${formatter.format(number)}`;
 }
 
 async function consultarCombos(etiqueta) {
     try {
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "GET",
-            endpoint_path: "api/Opciones/ConsultarCombos",
-            client: "APL",
-            endpoint_query_params: `/${etiqueta}`
-        };
         const response = await $.ajax({
             url: "/api/apigee-router-proxy",
             method: "POST",
             contentType: "application/json",
-            data: JSON.stringify(payload)
+            data: JSON.stringify({ code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Opciones/ConsultarCombos", client: "APL", endpoint_query_params: `/${etiqueta}` })
         });
         return response.json_response || [];
     } catch (error) {
-        console.error("Error consultarCombos:", error);
         return [];
     }
 }
 
-/**
- * Pobla un <select> de segmento a partir de los datos del JSON.
- * - tipoasignacion "T" → "Todos/Todas"
- * - tipoasignacion "C" con 1 detalle → agrega opción y la selecciona
- * - tipoasignacion "C" con múltiples → agrega "Varios"
- */
-function poblarSelectSegmento(selectId, segmentos, etiqueta) {
-    const $select = $(`#${selectId}`);
+// ===============================================================
+// INICIALIZACIÓN DE FILTROS Y COMBOS (SEGMENTOS)
+// ===============================================================
+function cargarFiltrosJerarquia() {
+    const payload = { code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Acuerdo/consultar-combos", client: "APL", endpoint_query_params: "" };
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (res) {
+            const data = res.json_response || {};
+            llenarComboYModal($("#segMarca"), $("#bodyModalMarca"), data.marcas, "Todas", "3", "marca");
+            llenarComboYModal($("#segDivision"), $("#bodyModalDivision"), data.divisiones, "Todas", "3", "division");
+            llenarComboYModal($("#segDepartamento"), $("#bodyModalDepartamento"), data.departamentos, "Todos", "3", "depto");
+            llenarComboYModal($("#segClase"), $("#bodyModalClase"), data.clases, "Todas", "3", "clase");
+        }
+    });
+}
+
+function cargarCombosPromociones() {
+    const payload = { code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Promocion/consultar-combos-promociones", client: "APL", endpoint_query_params: "" };
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (res) {
+            const data = res.json_response || {};
+            llenarComboYModal($("#segCanal"), $("#bodyModalCanal"), data.canales, "Todos", "3", "canal");
+            llenarComboYModal($("#segGrupoAlmacen"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Todos", "3", "grupo");
+            llenarComboYModal($("#segAlmacen"), $("#bodyModalAlmacen"), data.almacenes, "Todos", "3", "almacen");
+            llenarComboYModal($("#segMedioPago"), $("#bodyModalMedioPago"), data.mediospagos, "Todos", "7", "mediopago");
+
+            const $cli = $("#segTipoCliente");
+            $cli.empty().append('<option selected value="">Todos</option>');
+            if (data.tiposclientes) data.tiposclientes.forEach(c => $cli.append(`<option value="${c.codigo}">${c.nombre}</option>`));
+            $cli.append('<option value="3">Lista Específica</option><option value="4">Varios</option>');
+        }
+    });
+}
+
+const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo) => {
+    $select.empty();
+    $select.append(`<option selected value="">${labelDefault}</option>`);
+    $select.append(`<option value="${valorVarios}" class="fw-bold text-success">-- VARIOS --</option>`);
+    $modalBody.empty();
+    const $ul = $('<ul class="list-group w-100"></ul>');
+    if (Array.isArray(items)) {
+        items.forEach(i => {
+            const codigo = i.codigo || i.id || i.valor;
+            const texto = i.nombre || i.descripcion || i.codigo;
+            $select.append($("<option>", { value: codigo, text: texto }));
+            const chkId = `chk_${idPrefijo}_${codigo}`;
+            $ul.append(`<li class="list-group-item"><input class="form-check-input me-1 chk-seleccion-multiple" type="checkbox" value="${codigo}" id="${chkId}"><label class="form-check-label stretched-link" for="${chkId}">${texto}</label></li>`);
+        });
+    }
+    $modalBody.append($ul);
+};
+
+function initLogicaSeleccionMultiple() {
+    CONFIG_MULTIPLE.forEach(conf => {
+        $(conf.select).off("change").on("change", function () {
+            if ($(this).val() === conf.triggerVal || ($(this).val() === "4" && conf.id === "tipocliente")) {
+                $(conf.btnOpen).removeClass("d-none");
+            } else {
+                $(conf.btnOpen).addClass("d-none").removeData("seleccionados").html(`<i class="fa-solid fa-list-check"></i>`).removeClass("btn-success-custom").addClass("btn-outline-secondary");
+            }
+        });
+
+        $(conf.btnAccept).off("click").on("click", function () {
+            let seleccionados = [];
+            if (conf.id === "tipocliente" && conf.triggerVal === "3") {
+                const text = $("#txtListaClientes").val() || "";
+                seleccionados = text.split(/[\n,]+/).map(s => s.trim()).filter(s => s !== "");
+            } else {
+                $(`${conf.body} input[type='checkbox']:checked`).each(function () { seleccionados.push($(this).val()); });
+            }
+
+            const $btnTrigger = $(conf.btnOpen);
+            $btnTrigger.data("seleccionados", seleccionados);
+            if (seleccionados.length > 0) {
+                $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success-custom").html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+            } else {
+                $btnTrigger.removeClass("btn-success-custom").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
+            }
+        });
+    });
+}
+
+function poblarSelectSegmento(configId, segmentos, etiqueta) {
+    const conf = CONFIG_MULTIPLE.find(c => c.id === configId);
+    if (!conf) return;
+
+    const $select = $(conf.select);
+    const $btn = $(conf.btnOpen);
+    const $modalBody = $(conf.body);
+
+    $modalBody.find("input[type='checkbox']").prop("checked", false);
+    $btn.addClass("d-none").removeClass("btn-success-custom").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`).removeData("seleccionados");
+
     const items = (segmentos || []).filter(s => s.etiqueta_tipo_segmento === etiqueta);
 
-    if (items.length === 0) return;
+    if (items.length === 0) {
+        $select.val("").trigger("change");
+        return;
+    }
 
     const primerItem = items[0];
 
-    // Si es "T" (Todos), dejar la opción por defecto
-    if (primerItem.tipoasignacion === "T") {
-        $select.val("T");
+    // Tipo Todos
+    if (primerItem.tipoasignacion === "T" || primerItem.tipoasignacion === "TODOS") {
+        $select.val("").trigger("change");
         return;
     }
 
-    // Si es "C" con un solo detalle
-    if (items.length === 1 && primerItem.codigo_detalle) {
-        const texto = primerItem.nombre_detalle
-            ? `${primerItem.codigo_detalle} - ${primerItem.nombre_detalle}`
-            : primerItem.codigo_detalle;
-        $select.append(`<option value="${primerItem.codigo_detalle}">${texto}</option>`);
-        $select.val(primerItem.codigo_detalle);
+    // Un solo registro
+    if (items.length === 1 && primerItem.codigo_detalle && primerItem.tipoasignacion !== "C") {
+        $select.val(primerItem.codigo_detalle).trigger("change");
         return;
     }
 
-    // Múltiples detalles → "Varios"
-    if (items.length > 1) {
-        const textoDetalle = items.map(i => {
-            return i.nombre_detalle ? `${i.codigo_detalle} - ${i.nombre_detalle}` : i.codigo_detalle;
-        }).join(", ");
-        $select.append(`<option value="V" title="${textoDetalle}">Varios</option>`);
-        $select.val("V");
+    // Tipo Lista o Varios
+    if (items.length > 1 || primerItem.tipoasignacion === "C" || primerItem.tipoasignacion === "D") {
+        $select.val(conf.triggerVal).trigger("change");
+        $btn.removeClass("d-none").removeClass("btn-outline-secondary").addClass("btn-success-custom");
+        $btn.html(`<i class="fa-solid fa-list-check"></i> (${items.length})`);
+
+        const seleccionados = [];
+        items.forEach(i => {
+            const cod = i.codigo_detalle;
+            seleccionados.push(cod);
+            $modalBody.find(`input[value='${cod}']`).prop("checked", true);
+        });
+
+        if (configId === "tipocliente" && conf.triggerVal === "3") {
+            $("#txtListaClientes").val(seleccionados.join(",\n"));
+        }
+
+        $btn.data("seleccionados", seleccionados);
     }
 }
 
-/**
- * Pobla los campos resumen de acuerdos (Fila 5).
- * Primer acuerdo → Proveedor, segundo → Propio, suma → Total.
- */
-function poblarResumenAcuerdos(acuerdos) {
-    if (!acuerdos || acuerdos.length === 0) {
-        $("#resumenDsctoProv, #resumenIdAcuerdoProv, #resumenComprometidoProv").val("");
-        $("#resumenDsctoProp, #resumenIdAcuerdoProp, #resumenComprometidoProp").val("");
-        $("#resumenDsctoTotal").val("");
-        return;
-    }
+// ===============================================================
+// LÓGICA DE CÁLCULOS ACUERDOS
+// ===============================================================
+function initValidacionesFinancieras() {
+    const soloNumeros = function () {
+        this.value = this.value.replace(/[^0-9.]/g, '');
+        calcularTotalDescuento();
+    };
 
-    const acProv = acuerdos.length > 0 ? acuerdos[0] : null;
-    const acProp = acuerdos.length > 1 ? acuerdos[1] : null;
+    $("#descuentoProveedor, #descuentoPropio").on("input", soloNumeros);
+    $("#descuentoProveedor, #descuentoPropio").on("blur", function () {
+        let val = parseFloat($(this).val()) || 0;
+        if (val > 0) $(this).val(val.toFixed(2));
+    });
 
-    if (acProv) {
-        $("#resumenDsctoProv").val((acProv.porcentaje_descuento ?? 0) + "%");
-        $("#resumenIdAcuerdoProv").val(`${acProv.idacuerdo ?? ""} - ${acProv.descripcion_acuerdo ?? ""}`);
-        $("#resumenComprometidoProv").val(formatCurrencySpanish(acProv.valor_comprometido));
-    }
+    $("#fondoValorTotal, #comprometidoPropio").on("blur", function () {
+        let valStr = $(this).val().replace(/[^0-9.]/g, '');
+        let valorIngresado = parseFloat(valStr) || 0;
+        $(this).val(valorIngresado > 0 ? formatCurrencySpanish(valorIngresado) : "");
+    });
+}
 
-    if (acProp) {
-        $("#resumenDsctoProp").val((acProp.porcentaje_descuento ?? 0) + "%");
-        $("#resumenIdAcuerdoProp").val(`${acProp.idacuerdo ?? ""} - ${acProp.descripcion_acuerdo ?? ""}`);
-        $("#resumenComprometidoProp").val(formatCurrencySpanish(acProp.valor_comprometido));
-    }
+function calcularTotalDescuento() {
+    let descProv = parseFloat($("#descuentoProveedor").val()) || 0;
+    let descProp = parseFloat($("#descuentoPropio").val()) || 0;
+    let total = descProv + descProp;
+    $("#descuentoTotal").val(total > 0 ? total.toFixed(2) : "");
+}
 
-    const totalDscto = acuerdos.reduce((sum, ac) => sum + (ac.porcentaje_descuento || 0), 0);
-    $("#resumenDsctoTotal").val(totalDscto + "%");
+// ===============================================================
+// CONSULTA DE ACUERDOS MODALES
+// ===============================================================
+function consultarAcuerdos(tipoFondo, tablaId, onSeleccion) {
+    const $tbody = $(`#${tablaId} tbody`);
+    $tbody.html('<tr><td colspan="13" class="text-center">Cargando...</td></tr>');
+
+    // Obtenemos la etiqueta de la clase de la promoción actual para buscar acuerdos compatibles
+    const claseAcuerdo = $('#modalTipoPromocion').val() || "PRGENERAL";
+    // Mapeamos a la clase de acuerdo correspondiente (CLAARTICULO, CLACOMBO, CLAGENERAL)
+    let claseMapeada = "CLAGENERAL";
+    if (claseAcuerdo === "PRARTICULO") claseMapeada = "CLAARTICULO";
+    else if (claseAcuerdo === "PRCOMBO") claseMapeada = "CLACOMBO";
+
+    const payload = {
+        code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Promocion/consultar-acuerdo", client: "APL",
+        endpoint_query_params: "/" + tipoFondo + "/" + claseMapeada
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (res) {
+            const data = res.json_response || [];
+            $tbody.empty();
+            if (!data.length) { $tbody.html('<tr><td colspan="13" class="text-center">No hay datos.</td></tr>'); return; }
+
+            const fmtDate = (s) => s ? new Date(s).toLocaleDateString("es-EC") : "";
+            data.forEach(x => {
+                const row = `<tr class="text-nowrap">
+                    <td class="text-center">
+                        <input class="form-check-input acuerdo-radio" type="radio" name="acuerdo_${tipoFondo}"
+                            data-idacuerdo="${x.idacuerdo || ''}" data-desc="${x.descripcion || ''}"
+                            data-disp="${x.valor_disponible || 0}">
+                    </td>
+                    <td>${x.idacuerdo}</td><td>${x.descripcion}</td><td>${x.idfondo}</td><td>${x.nombre_proveedor}</td>
+                    <td>${x.nombre_tipo_fondo}</td><td class="text-end">${formatCurrencySpanish(x.valor_acuerdo)}</td>
+                    <td>${fmtDate(x.fecha_inicio)}</td><td>${fmtDate(x.fecha_fin)}</td><td class="text-end">${formatCurrencySpanish(x.valor_disponible)}</td>
+                    <td class="text-end">${formatCurrencySpanish(x.valor_comprometido)}</td><td class="text-end">${formatCurrencySpanish(x.valor_liquidado)}</td>
+                    <td>${x.estado}</td>
+                </tr>`;
+                $tbody.append(row);
+            });
+
+            $(`#${tablaId} .acuerdo-radio`).change(function () {
+                $(`#${tablaId} tr`).removeClass("table-active");
+                $(this).closest("tr").addClass("table-active");
+                const d = $(this).data();
+                if (onSeleccion) onSeleccion({ idAcuerdo: d.idacuerdo, display: `${d.idacuerdo} - ${d.desc}`, disponible: d.disp });
+            });
+        }
+    });
 }
 
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
 $(document).ready(function () {
-    console.log("=== INICIO - ModificarPromocion (Estructura Post-REST) ===");
+    cargarFiltrosJerarquia();
+    cargarCombosPromociones();
+    initLogicaSeleccionMultiple();
+    initValidacionesFinancieras();
 
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
-        console.log("[config] Config cargada:", config);
         cargarBandeja();
-    }).fail(function (xhr) {
-        console.error("[config] Error al cargar /config:", xhr);
-        cargarBandeja();
-    });
+    }).fail(function () { cargarBandeja(); });
 
-    // Botón Limpiar Filtros
-    $('body').on('click', '#btnLimpiar', function () {
-        if (tabla) {
-            tabla.search('').draw();
-            tabla.page(0).draw('page');
-        }
-    });
+    $('#btnVolverTabla, #btnVolverAbajo').on('click', function () { cerrarDetalle(); });
+    $('#btnGuardarModificacion').on('click', function () { guardarPromocion(); });
 
-    // Navegación: volver a la bandeja
-    $('#btnVolverTabla, #btnVolverAbajo').on('click', function () {
-        cerrarDetalle();
-    });
-
-    // Guardar modificación
-    $('#btnGuardarModificacion').on('click', function () {
-        guardarPromocion();
-    });
-
-    // Botones de gestión de acuerdos
-    $('#btnAddAcuerdo').on('click', function (e) {
-        e.preventDefault();
-        cargarAcuerdosDisponibles();
-        $('#modalConsultaAcuerdo').modal('show');
-    });
-
-    $('#btnModifyAcuerdo').on('click', function (e) {
-        e.preventDefault();
-        modificarAcuerdoSeleccionado();
-    });
-
-    $('#btnDeleteAcuerdo').on('click', function (e) {
-        e.preventDefault();
-        eliminarAcuerdoSeleccionado();
-    });
-
-    // Aceptar acuerdo del modal
-    $('#btnAceptarAcuerdo').on('click', function () {
-        const $selected = $('#tablaAcuerdosConsulta tbody input[name="selectAcuerdo"]:checked');
-        if ($selected.length === 0) {
-            Swal.fire({ icon: 'info', title: 'Atención', text: 'Debe seleccionar un acuerdo.' });
-            return;
-        }
-        const item = {
-            idacuerdo: $selected.data('idacuerdo'),
-            descripcion: $selected.data('descripcion'),
-            porcentajedescuento: 0,
-            valorcomprometido: 0,
-        };
-        agregarAcuerdoATabla([item]);
-        $('#modalConsultaAcuerdo').modal('hide');
-    });
-
-    // Selección de fila en tabla acuerdos
-    $(document).on('change', '.acuerdo-row-radio', function () {
-        $('#tablaAcuerdosBody tr').removeClass('fila-seleccionada');
-        $(this).closest('tr').addClass('fila-seleccionada');
-    });
-
-    // Checkbox artículo: habilitar/deshabilitar input
     $('#chkArticulo').on('change', function () {
         $('#segArticulo').prop('disabled', !this.checked);
         if (!this.checked) $('#segArticulo').val('');
+
+        const isChecked = $(this).is(":checked");
+        const $jerarquia = $("#segMarca, #segDivision, #segDepartamento, #segClase");
+        const $btns = $("#btnMarca, #btnDivision, #btnDepartamento, #btnClase");
+        $jerarquia.prop("disabled", isChecked);
+        if (isChecked) {
+            $jerarquia.val("").trigger("change");
+            $btns.addClass("d-none");
+        }
     });
 
-    // Botón ver soporte actual
     $('#btnVerSoporteActual').on('click', function () {
         const ruta = $(this).data('soporte');
-        if (!ruta) {
-            Swal.fire({ icon: 'info', title: 'Sin soporte', text: 'No hay archivo de soporte adjunto.' });
-            return;
-        }
-        const url = `/api/Promocion/ver-soporte?ruta=${encodeURIComponent(ruta)}`;
-        window.open(url, '_blank');
+        if (!ruta) { Swal.fire({ icon: 'info', title: 'Sin soporte', text: 'No hay archivo adjunto.' }); return; }
+        window.open(`/api/Promocion/ver-soporte?ruta=${encodeURIComponent(ruta)}`, '_blank');
     });
 
-    // Botón Ver Soporte (icono PDF en header)
-    $('#btnVerSoporte').on('click', function () {
-        const soporte = $(this).data('soporte');
-        if (!soporte) {
-            Swal.fire({ icon: 'info', title: 'Sin soporte', text: 'Esta promoción no tiene un archivo de soporte adjunto.' });
-            return;
+    // Modales de Acuerdo
+    $("#modalConsultaProveedor").on("show.bs.modal", function () {
+        proveedorTemporal = null;
+        consultarAcuerdos("TFPROVEDOR", "tablaProveedores", (s) => proveedorTemporal = s);
+    });
+    $("#btnAceptarProveedor").click(function () {
+        if (proveedorTemporal) {
+            $("#fondoProveedorText").val(proveedorTemporal.display);
+            $("#fondoProveedorId").val(proveedorTemporal.idAcuerdo);
+            $("#fondoDisponibleProv").val(proveedorTemporal.disponible);
+            $("#modalConsultaProveedor").modal("hide");
         }
-        const url = `/api/Promocion/ver-soporte?ruta=${encodeURIComponent(soporte)}`;
-        window.open(url, '_blank');
+    });
+
+    $("#modalConsultaAcuerdoPropio").on("show.bs.modal", function () {
+        propioTemporal = null;
+        consultarAcuerdos("TFPROPIO", "tablaAcuerdosPropios", (s) => propioTemporal = s);
+    });
+    $("#btnAceptarAcuerdoPropio").click(function () {
+        if (propioTemporal) {
+            $("#acuerdoPropioText").val(propioTemporal.display);
+            $("#acuerdoPropioId").val(propioTemporal.idAcuerdo);
+            $("#acuerdoPropioDisponible").val(propioTemporal.disponible);
+            $("#modalConsultaAcuerdoPropio").modal("hide");
+        }
     });
 
     initDatepickers();
 });
 
 // ===================================================================
-// FUNCIONES DE CARGA (BANDEJA)
+// FUNCIONES DE CARGA (BANDEJA) EXACTO ORIGINAL
 // ===================================================================
-
 function cargarBandeja() {
-    console.log("[cargarBandeja] Iniciando carga de bandeja modificación promociones...");
-
-    const payload = {
-        code_app: "APP20260128155212346",
-        http_method: "GET",
-        endpoint_path: "api/Promocion/consultar-bandeja-modificacion",
-        client: "APL"
-    };
-
+    const payload = { code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Promocion/consultar-bandeja-modificacion", client: "APL" };
     $.ajax({
-        url: "/api/apigee-router-proxy",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload),
-        success: function (response) {
-            if (response && response.code_status === 200) {
-                const data = response.json_response || [];
-                console.log("[cargarBandeja] Datos recibidos:", data);
-                crearListado(data);
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo cargar la bandeja. Código: ' + (response?.code_status || "desconocido")
-                });
-            }
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (res) {
+            const data = res.json_response || [];
+            crearListado(data);
         },
-        error: function (xhr) {
-            manejarErrorGlobal(xhr, "cargar la bandeja de modificación de promociones");
-        }
+        error: function (xhr) { manejarErrorGlobal(xhr, "cargar bandeja"); }
     });
 }
 
 function crearListado(data) {
     if (tabla) tabla.destroy();
-
-    if (!data || data.length === 0) {
-        $('#tabla').html("<div class='alert alert-info text-center'>No hay promociones para modificar.</div>");
-        return;
-    }
+    if (!data || data.length === 0) { $('#tabla').html("<div class='alert alert-info text-center'>No hay promociones.</div>"); return; }
 
     let html = `
         <table id="tabla-principal" class="table table-bordered table-striped table-hover">
@@ -377,7 +433,7 @@ function crearListado(data) {
         html += `
             <tr>
                 <td class="text-center">
-                    <button type="button" class="btn-action edit-btn" title="Modificar" onclick="abrirModalEditar(${promo.idpromocion})">
+                    <button type="button" class="btn-action edit-btn" title="Modificar" onclick="abrirModalEditar(${promo.idpromocion})" style="border:none; background:none; color:#0d6efd;">
                         <i class="fa-regular fa-pen-to-square"></i>
                     </button>
                 </td>
@@ -406,67 +462,26 @@ function crearListado(data) {
             { targets: [5, 6, 7], className: "dt-center" },
         ],
         order: [[1, "desc"]],
-        language: {
-            decimal: "",
-            emptyTable: "No hay datos disponibles en la tabla",
-            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            infoEmpty: "Mostrando 0 a 0 de 0 registros",
-            infoFiltered: "(filtrado de _MAX_ registros totales)",
-            lengthMenu: "Mostrar _MENU_ registros",
-            loadingRecords: "Cargando...",
-            processing: "Procesando...",
-            search: "Buscar:",
-            zeroRecords: "No se encontraron registros coincidentes",
-            paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
-        }
+        language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }
     });
 }
 
-// ===================================================================
-// ABRIR DETALLE / EDITAR
-// ===================================================================
-
 function abrirModalEditar(idPromocion) {
-    console.log("[abrirModalEditar] Cargando promoción ID:", idPromocion);
-    $('body').css('cursor', 'wait');
-
     resetFormulario();
     $('#lblIdPromocion').text(idPromocion);
     $('#modalPromocionId').val(idPromocion);
 
-    const payload = {
-        code_app: "APP20260128155212346",
-        http_method: "GET",
-        endpoint_path: "api/Promocion/bandeja-modificacion-id",
-        client: "APL",
-        endpoint_query_params: `/${idPromocion}`
-    };
-
+    const payload = { code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Promocion/bandeja-modificacion-id", client: "APL", endpoint_query_params: `/${idPromocion}` };
     $.ajax({
-        url: "/api/apigee-router-proxy",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload),
-        success: function (response) {
-            $('body').css('cursor', 'default');
-            if (response && response.code_status === 200) {
-                const data = response.json_response || {};
-                console.log("[abrirModalEditar] Datos recibidos:", data);
-                promocionTemporal = data;
-
-                poblarFormulario(data);
-
-                $('#vistaTabla').fadeOut(200, function () {
-                    $('#vistaDetalle').fadeIn(200);
-                });
-            } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo obtener el detalle de la promoción.' });
-            }
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (res) {
+            const data = res.json_response || {};
+            promocionTemporal = data;
+            poblarFormulario(data);
+            $('#vistaTabla').hide();
+            $('#vistaDetalle').fadeIn();
         },
-        error: function (xhr) {
-            $('body').css('cursor', 'default');
-            manejarErrorGlobal(xhr, "obtener el detalle de la promoción");
-        }
+        error: function (xhr) { manejarErrorGlobal(xhr, "obtener detalle"); }
     });
 }
 
@@ -475,493 +490,166 @@ function poblarFormulario(data) {
     const acuerdos = data.acuerdos || [];
     const segmentos = data.segmentos || [];
 
-    // ── FILA 1: Header ──
-    const idStr = cab.idpromocion ?? "";
-    const claseStr = cab.nombre_clase_promocion ?? "";
-    $('#verPromocionHeader').val(`${idStr} - ${claseStr}`);
-    $('#modalTipoPromocion').val(cab.etiqueta_clase_promocion ?? "");
-
-    // Guardar ruta soporte en botones
-    const rutaSoporte = cab.archivosoporte ?? "";
-    $('#btnVerSoporte').data('soporte', rutaSoporte)
-        .toggleClass('text-danger', !!rutaSoporte)
-        .attr('title', rutaSoporte ? `Ver Soporte: ${obtenerNombreArchivo(rutaSoporte)}` : 'Sin soporte');
-    $('#btnVerSoporteActual').data('soporte', rutaSoporte);
-
-    // ── FILA 2: Descripción | Motivo | Fechas ──
-    $('#promocionDescripcion').val(cab.descripcion ?? "");
+    // LÍNEA 1
+    $('#verPromocionHeader').val(`${cab.idpromocion || ""} - ${cab.nombre_clase_promocion || ""}`);
+    $('#verPromocionNum').val(cab.idpromocion);
+    $('#modalTipoPromocion').val(cab.etiqueta_clase_promocion || "");
+    $('#promocionDescripcion').val(cab.descripcion || "");
     $('#promocionFechaInicio').val(formatearFecha(cab.fecha_inicio));
     $('#promocionFechaFin').val(formatearFecha(cab.fecha_fin));
+    $('#verEstadoPromocion').val(cab.nombre_estado_promocion || cab.estado || "");
 
-    // Cargar motivos y setear el valor
-    cargarMotivos(function () {
-        $('#promocionMotivo').val(cab.id_motivo);
-    });
+    const rutaSoporte = cab.archivosoporte || "";
+    $('#btnVerSoporteActual').data('soporte', rutaSoporte);
+    $('#lblArchivoActual').val(obtenerNombreArchivo(rutaSoporte) || "Ningún archivo seleccionado");
 
-    // ── FILA 3: Segmentos de Producto ──
-    resetSelectsSegmentos();
-    poblarSelectSegmento("segMarca", segmentos, "SEGMARCA");
-    poblarSelectSegmento("segDivision", segmentos, "SEGDIVISION");
-    poblarSelectSegmento("segDepartamento", segmentos, "SEGDEPARTAMENTO");
-    poblarSelectSegmento("segClase", segmentos, "SEGCLASE");
+    cargarMotivos(function () { $('#promocionMotivo').val(cab.id_motivo); });
 
-    // Artículo
+    // LÍNEA 2 y 3 (Segmentos)
+    poblarSelectSegmento("marca", segmentos, "SEGMARCA");
+    poblarSelectSegmento("division", segmentos, "SEGDIVISION");
+    poblarSelectSegmento("depto", segmentos, "SEGDEPARTAMENTO");
+    poblarSelectSegmento("clase", segmentos, "SEGCLASE");
+    poblarSelectSegmento("canal", segmentos, "SEGCANAL");
+    poblarSelectSegmento("grupo", segmentos, "SEGGRUPOALMACEN");
+    poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
+    poblarSelectSegmento("tipocliente", segmentos, "SEGTIPOCLIENTE");
+    poblarSelectSegmento("mediopago", segmentos, "SEGMEDIOPAGO");
+
+    // ARTÍCULO
     const artItems = segmentos.filter(s => s.etiqueta_tipo_segmento === "SEGARTICULO");
     if (artItems.length > 0 && artItems[0].codigo_detalle) {
-        $('#chkArticulo').prop('checked', true);
-        $('#segArticulo').prop('disabled', false);
-        const textoArt = artItems[0].nombre_detalle
-            ? `${artItems[0].codigo_detalle} - ${artItems[0].nombre_detalle}`
-            : artItems[0].codigo_detalle;
-        $('#segArticulo').val(textoArt);
+        $('#chkArticulo').prop('checked', true).trigger("change");
+        $('#segArticulo').val(artItems[0].codigo_detalle);
     }
 
-    // ── FILA 4: Segmentos de Canal/Almacén/Cliente/Pago ──
-    poblarSelectSegmento("segCanal", segmentos, "SEGCANAL");
-    poblarSelectSegmento("segGrupoAlmacen", segmentos, "SEGGRUPOALMACEN");
-    poblarSelectSegmento("segAlmacen", segmentos, "SEGALMACEN");
-    poblarSelectSegmento("segTipoCliente", segmentos, "SEGTIPOCLIENTE");
-    poblarSelectSegmento("segMedioPago", segmentos, "SEGMEDIOPAGO");
+    // REGALO
+    $('#promocionMarcaRegalo').prop('checked', (cab.marcaregalo || "N").toUpperCase() === "S");
 
-    // ── FILA 5: Resumen de Acuerdos + Regalo ──
-    poblarResumenAcuerdos(acuerdos);
+    // LÍNEA 4 (ACUERDOS) PINTAR DESDE DB
+    const acProv = acuerdos.length > 0 ? acuerdos[0] : null;
+    const acProp = acuerdos.length > 1 ? acuerdos[1] : null;
 
-    const esRegalo = (cab.marcaregalo ?? "N").toString().trim().toUpperCase() === "S";
-    $('#promocionMarcaRegalo').prop('checked', esRegalo);
-
-    // ── Archivo soporte ──
-    const nombreArchivo = obtenerNombreArchivo(cab.archivosoporte);
-    $('#lblArchivoActual').text(nombreArchivo || "Ningún archivo seleccionado");
-
-    // ── Tabla de Acuerdos (gestión) ──
-    $('#tablaAcuerdosBody').empty();
-    if (acuerdos.length > 0) {
-        agregarAcuerdosExistentesATabla(acuerdos);
+    if (acProv) {
+        $("#descuentoProveedor").val(acProv.porcentaje_descuento || 0);
+        $("#fondoProveedorId").val(acProv.idacuerdo || "");
+        $("#fondoProveedorText").val(acProv.idacuerdo ? `${acProv.idacuerdo} - ${acProv.descripcion_acuerdo || ""}` : "");
+        $("#fondoValorTotal").val(formatCurrencySpanish(acProv.valor_comprometido || 0));
     }
-}
-
-/**
- * Limpia las opciones adicionales de los selects de segmentos.
- */
-function resetSelectsSegmentos() {
-    const selectIds = [
-        "segMarca", "segDivision", "segDepartamento", "segClase",
-        "segCanal", "segGrupoAlmacen", "segAlmacen", "segTipoCliente", "segMedioPago"
-    ];
-    selectIds.forEach(function (id) {
-        const $sel = $(`#${id}`);
-        const defaultText = $sel.find('option:first').text();
-        const defaultVal = $sel.find('option:first').val();
-        $sel.empty().append(`<option value="${defaultVal}">${defaultText}</option>`);
-    });
+    if (acProp) {
+        $("#descuentoPropio").val(acProp.porcentaje_descuento || 0);
+        $("#acuerdoPropioId").val(acProp.idacuerdo || "");
+        $("#acuerdoPropioText").val(acProp.idacuerdo ? `${acProp.idacuerdo} - ${acProp.descripcion_acuerdo || ""}` : "");
+        $("#comprometidoPropio").val(formatCurrencySpanish(acProp.valor_comprometido || 0));
+    }
+    calcularTotalDescuento();
 }
 
 function resetFormulario() {
-    $('#verPromocionHeader').val('');
-    $('#promocionDescripcion').val('');
-    $('#promocionMotivo').val('');
-    $('#promocionFechaInicio').val('');
-    $('#promocionFechaFin').val('');
-    $('#promocionMarcaRegalo').prop('checked', false);
-    $('#lblArchivoActual').text('Ningún archivo seleccionado');
-    $('#inputArchivoSoporte').val('');
-    $('#btnVerSoporte').removeData('soporte');
+    $('#formPromocion')[0].reset();
+    $('#lblArchivoActual').val('Ningún archivo seleccionado');
     $('#btnVerSoporteActual').removeData('soporte');
-    $('#tablaAcuerdosBody').empty();
-    $('#modalPromocionId').val('');
-    $('#modalTipoPromocion').val('');
 
-    // Limpiar segmentos
-    resetSelectsSegmentos();
-    $('#chkArticulo').prop('checked', false);
+    CONFIG_MULTIPLE.forEach(conf => {
+        $(conf.select).val("").trigger("change");
+        $(conf.btnOpen).addClass("d-none").removeData("seleccionados").html(`<i class="fa-solid fa-list-check"></i>`).removeClass("btn-success-custom").addClass("btn-outline-secondary");
+        $(`${conf.body} input[type='checkbox']`).prop("checked", false);
+    });
+    $("#txtListaClientes").val("");
+
+    $('#chkArticulo').prop('checked', false).trigger("change");
     $('#segArticulo').val('').prop('disabled', true);
 
-    // Limpiar resumen acuerdos
-    $("#resumenDsctoProv, #resumenIdAcuerdoProv, #resumenComprometidoProv").val("");
-    $("#resumenDsctoProp, #resumenIdAcuerdoProp, #resumenComprometidoProp").val("");
-    $("#resumenDsctoTotal").val("");
+    $("#fondoProveedorId, #fondoDisponibleProv, #acuerdoPropioId, #acuerdoPropioDisponible").val("");
+    $("#descuentoProveedor, #fondoProveedorText, #fondoValorTotal, #descuentoPropio, #acuerdoPropioText, #comprometidoPropio, #descuentoTotal").val("");
+
+    proveedorTemporal = null;
+    propioTemporal = null;
 }
 
 function cerrarDetalle() {
-    $('#vistaDetalle').fadeOut(200, function () {
-        $('#vistaTabla').fadeIn(200);
-    });
+    $('#vistaDetalle').hide();
+    $('#vistaTabla').fadeIn();
 }
-
-// ===================================================================
-// CARGAR MOTIVOS
-// ===================================================================
 
 function cargarMotivos(callback) {
     const $select = $('#promocionMotivo');
-    $select.empty().append($('<option>').val('').text('Cargando...'));
-
-    const payload = {
-        code_app: "APP20260128155212346",
-        http_method: "GET",
-        endpoint_path: "api/Opciones/ConsultarCombos",
-        client: "APL",
-        endpoint_query_params: "/PRMOTIVOS"
-    };
-
+    const payload = { code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Opciones/ConsultarCombos", client: "APL", endpoint_query_params: "/PRMOTIVOS" };
     $.ajax({
-        url: "/api/apigee-router-proxy",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload),
-        success: function (response) {
-            const data = response.json_response || [];
-            $select.empty().append($('<option>').val('').text('Seleccione...'));
-            if (Array.isArray(data) && data.length > 0) {
-                data.forEach(function (item) {
-                    $select.append($('<option>').val(item.idcatalogo).text(item.nombre_catalogo));
-                });
-            }
-            if (typeof callback === 'function') callback();
-        },
-        error: function (xhr) {
-            console.error("Error cargando motivos:", xhr.responseText);
-            $select.empty().append($('<option>').val('').text('Error al cargar'));
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (res) {
+            $select.empty().append('<option value="">Seleccione...</option>');
+            (res.json_response || []).forEach(item => $select.append($('<option>').val(item.idcatalogo).text(item.nombre_catalogo)));
+            if (callback) callback();
         }
     });
 }
 
-// ===================================================================
-// GESTIÓN DE ACUERDOS EN TABLA
-// ===================================================================
-
-function agregarAcuerdosExistentesATabla(acuerdos) {
-    const $tbody = $('#tablaAcuerdosBody');
-
-    acuerdos.forEach(function (acuerdo) {
-        const fila = construirFilaAcuerdo({
-            idpromocionacuerdo: acuerdo.idpromocionacuerdo,
-            idacuerdo: acuerdo.idacuerdo,
-            descripcion: acuerdo.descripcion_acuerdo,
-            porcentajedescuento: acuerdo.porcentaje_descuento,
-            valorcomprometido: acuerdo.valor_comprometido,
-            accion: 'U'
-        });
-        $tbody.append(fila);
-    });
-}
-
-function agregarAcuerdoATabla(items) {
-    const $tbody = $('#tablaAcuerdosBody');
-
-    items.forEach(function (item) {
-        const existe = $tbody.find(`tr[data-idacuerdo="${item.idacuerdo}"]`).length > 0;
-
-        if (existe) {
-            const $filaExistente = $tbody.find(`tr[data-idacuerdo="${item.idacuerdo}"]`);
-            const $accion = $filaExistente.find('.acuerdo-accion');
-
-            if ($accion.val() === 'D') {
-                $accion.val('U');
-                $filaExistente.show();
-                Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Acuerdo restaurado', showConfirmButton: false, timer: 1500 });
-            } else {
-                Swal.fire({ title: 'Advertencia', text: `El acuerdo #${item.idacuerdo} ya está en la tabla.`, icon: 'warning' });
-            }
-            return;
-        }
-
-        const fila = construirFilaAcuerdo({
-            idpromocionacuerdo: 0,
-            idacuerdo: item.idacuerdo,
-            descripcion: item.descripcion,
-            porcentajedescuento: item.porcentajedescuento || 0,
-            valorcomprometido: item.valorcomprometido || 0,
-            accion: 'I'
-        });
-        $tbody.append(fila);
-    });
-}
-
-function construirFilaAcuerdo(data) {
-    return `
-    <tr data-idacuerdo="${data.idacuerdo}">
-        <td class="text-center align-middle">
-            <input type="radio" class="form-check-input acuerdo-row-radio" name="acuerdoSeleccionado">
-        </td>
-        <td class="align-middle text-center">${data.idacuerdo}</td>
-        <td class="align-middle">${data.descripcion ?? ""}</td>
-        <td class="align-middle celda-editable">
-            <input type="number" class="form-control form-control-sm text-end acuerdo-porcentaje"
-                   value="${data.porcentajedescuento ?? 0}" min="0" max="100" step="0.01" disabled>
-        </td>
-        <td class="align-middle celda-editable">
-            <input type="text" class="form-control form-control-sm text-end acuerdo-valor"
-                   value="${formatCurrencySpanish(data.valorcomprometido ?? 0)}" disabled>
-        </td>
-        <input type="hidden" class="acuerdo-idpromocionacuerdo" value="${data.idpromocionacuerdo}">
-        <input type="hidden" class="acuerdo-accion" value="${data.accion}">
-    </tr>`;
-}
-
-function modificarAcuerdoSeleccionado() {
-    const $radioSeleccionado = $('#tablaAcuerdosBody .acuerdo-row-radio:checked');
-
-    if ($radioSeleccionado.length === 0) {
-        Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe seleccionar un acuerdo para modificar.' });
-        return;
-    }
-
-    const $fila = $radioSeleccionado.closest('tr');
-    const yaEnEdicion = !$fila.find('.acuerdo-porcentaje').prop('disabled');
-
-    if (yaEnEdicion) {
-        Swal.fire({
-            title: 'Guardar Cambios',
-            text: '¿Desea confirmar los cambios realizados?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#009845',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, Confirmar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $fila.find('.celda-editable input').prop('disabled', true);
-                const rawVal = $fila.find('.acuerdo-valor').val().replace(/[^0-9.,]/g, '').replace(',', '.');
-                $fila.find('.acuerdo-valor').val(formatCurrencySpanish(parseFloat(rawVal) || 0));
-
-                // Actualizar resumen de acuerdos
-                actualizarResumenDesdeTabla();
-
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Cambios confirmados', showConfirmButton: false, timer: 1500 });
-            }
-        });
-    } else {
-        $fila.find('.celda-editable input').prop('disabled', false);
-        $fila.find('.acuerdo-porcentaje').focus();
-        Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Modo edición activado', showConfirmButton: false, timer: 1500 });
-    }
-}
-
-function eliminarAcuerdoSeleccionado() {
-    const $radioSeleccionado = $('#tablaAcuerdosBody .acuerdo-row-radio:checked');
-
-    if ($radioSeleccionado.length === 0) {
-        Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe seleccionar un acuerdo para eliminar.' });
-        return;
-    }
-
-    const $fila = $radioSeleccionado.closest('tr');
-    const idAcuerdo = $fila.data('idacuerdo');
-
-    Swal.fire({
-        title: '¿Está seguro?',
-        html: `Se eliminará el acuerdo <strong>#${idAcuerdo}</strong>`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, Eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const idPromocionAcuerdo = parseInt($fila.find('.acuerdo-idpromocionacuerdo').val(), 10) || 0;
-
-            if (idPromocionAcuerdo === 0) {
-                $fila.remove();
-            } else {
-                $fila.find('.acuerdo-accion').val('D');
-                $fila.hide();
-            }
-
-            $radioSeleccionado.prop('checked', false);
-            $fila.removeClass('fila-seleccionada');
-
-            // Actualizar resumen de acuerdos
-            actualizarResumenDesdeTabla();
-
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Acuerdo eliminado', showConfirmButton: false, timer: 1500 });
-        }
-    });
-}
-
-/**
- * Recalcula el resumen de acuerdos (Fila 5) a partir de la tabla de gestión.
- */
-function actualizarResumenDesdeTabla() {
-    const acuerdosVisibles = [];
-
-    $('#tablaAcuerdosBody tr').each(function () {
-        const $tr = $(this);
-        const accion = $tr.find('.acuerdo-accion').val();
-        if (accion === 'D') return;
-
-        const porcentaje = parseFloat($tr.find('.acuerdo-porcentaje').val()) || 0;
-        const valorStr = $tr.find('.acuerdo-valor').val();
-        const valor = parseCurrencyToNumber(valorStr);
-        const idacuerdo = $tr.data('idacuerdo');
-        const descripcion = $tr.find('td:eq(2)').text();
-
-        acuerdosVisibles.push({
-            idacuerdo: idacuerdo,
-            descripcion_acuerdo: descripcion,
-            porcentaje_descuento: porcentaje,
-            valor_comprometido: valor
-        });
-    });
-
-    poblarResumenAcuerdos(acuerdosVisibles);
-}
-
-function leerDetalleAcuerdosDesdeTabla() {
-    const acuerdos = [];
-
-    $('#tablaAcuerdosBody tr').each(function () {
-        const $tr = $(this);
-        const accion = $tr.find('.acuerdo-accion').val();
-        const idpromocionacuerdo = parseInt($tr.find('.acuerdo-idpromocionacuerdo').val(), 10) || 0;
-
-        if (idpromocionacuerdo === 0 && accion === 'D') return;
-
-        const idacuerdo = parseInt($tr.data('idacuerdo'), 10) || 0;
-        const porcentaje = parseFloat($tr.find('.acuerdo-porcentaje').val()) || 0;
-        const valorStr = $tr.find('.acuerdo-valor').val();
-        const valor = parseCurrencyToNumber(valorStr);
-
-        acuerdos.push({
-            accion: accion,
-            idpromocionacuerdo: idpromocionacuerdo,
-            idacuerdo: idacuerdo,
-            porcentajedescuento: porcentaje,
-            valorcomprometido: valor
-        });
-    });
-
-    console.log("Acuerdos a enviar:", acuerdos);
-    return acuerdos;
-}
-
-// ===================================================================
-// CARGAR ACUERDOS DISPONIBLES (MODAL)
-// ===================================================================
-
-function cargarAcuerdosDisponibles() {
-    const $tbody = $('#tablaAcuerdosConsulta tbody');
-    $tbody.empty().append('<tr><td colspan="5" class="text-center">Cargando...</td></tr>');
-
-    const payload = {
-        code_app: "APP20260128155212346",
-        http_method: "GET",
-        endpoint_path: "api/Acuerdo/consultar-bandeja-modificacion",
-        client: "APL"
-    };
-
-    $.ajax({
-        url: "/api/apigee-router-proxy",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload),
-        success: function (response) {
-            const data = response.json_response || [];
-            $tbody.empty();
-
-            if (!Array.isArray(data) || data.length === 0) {
-                $tbody.append('<tr><td colspan="5" class="text-center text-muted">No hay acuerdos disponibles.</td></tr>');
-                return;
-            }
-
-            data.forEach(function (acuerdo) {
-                const fila = `
-                <tr>
-                    <td class="text-center align-middle">
-                        <input type="radio" class="form-check-input" name="selectAcuerdo"
-                            data-idacuerdo="${acuerdo.idacuerdo}"
-                            data-descripcion="${(acuerdo.descripcion ?? '').replace(/"/g, '&quot;')}">
-                    </td>
-                    <td class="align-middle">${acuerdo.idacuerdo ?? ""}</td>
-                    <td class="align-middle">${acuerdo.descripcion ?? ""}</td>
-                    <td class="align-middle text-center">${acuerdo.clase_acuerdo ?? ""}</td>
-                    <td class="align-middle">${acuerdo.estado ?? ""}</td>
-                </tr>`;
-                $tbody.append(fila);
-            });
-        },
-        error: function (xhr) {
-            $tbody.empty().append('<tr><td colspan="5" class="text-center text-danger">Error al cargar acuerdos.</td></tr>');
-            console.error("Error cargando acuerdos:", xhr.responseText);
-        }
-    });
-}
-
-// ===================================================================
-// VALIDACIONES
-// ===================================================================
-
-function validarPromocion() {
-    const descripcion = $('#promocionDescripcion').val();
-    const motivo = $('#promocionMotivo').val();
-    const fechaInicio = $('#promocionFechaInicio').val();
-    const fechaFin = $('#promocionFechaFin').val();
-
-    if (!descripcion || descripcion.trim().length < 3) {
-        Swal.fire('Validación', 'Debe ingresar una descripción (mínimo 3 caracteres).', 'warning');
-        return false;
-    }
-    if (!motivo || motivo.trim() === '') {
-        Swal.fire('Validación', 'Debe seleccionar un motivo.', 'warning');
-        return false;
-    }
-    if (!isValidDateDDMMYYYY(fechaInicio) || !isValidDateDDMMYYYY(fechaFin)) {
-        Swal.fire('Validación', 'Fechas inválidas. Use el formato dd/mm/aaaa.', 'warning');
-        return false;
-    }
-    if (compareDatesDDMMYYYY(fechaInicio, fechaFin) > 0) {
-        Swal.fire('Validación', 'La fecha inicio no puede ser mayor que la fecha fin.', 'warning');
-        return false;
-    }
-
-    const acuerdosActivos = $('#tablaAcuerdosBody tr').filter(function () {
-        return $(this).find('.acuerdo-accion').val() !== 'D';
-    });
-
-    if (acuerdosActivos.length === 0) {
-        Swal.fire('Validación', 'Debe existir al menos un acuerdo activo.', 'warning');
-        return false;
-    }
-
-    return true;
-}
-
-// ===================================================================
-// GUARDAR MODIFICACIÓN
-// ===================================================================
-
+// ===============================================================
+// GUARDAR PROMOCIÓN
+// ===============================================================
 async function guardarPromocion() {
-    if (!validarPromocion()) return;
-
-    const idOpcionActual = getIdOpcionSeguro();
-    const usuarioActual = obtenerUsuarioActual();
+    if (!isValidDateDDMMYYYY($('#promocionFechaInicio').val()) || !isValidDateDDMMYYYY($('#promocionFechaFin').val())) {
+        return Swal.fire('Validación', 'Fechas inválidas. Use el formato dd/mm/aaaa.', 'warning');
+    }
 
     const combos = await consultarCombos("TPMODIFICACION");
-    let tipoProceso = null;
-    if (combos && combos.length > 0) {
-        tipoProceso = combos[0];
+    const tipoProceso = combos && combos.length > 0 ? combos[0] : null;
+
+    const obtenerValorCampo = (configId, selectId, triggerVal) => {
+        const valSelect = $(selectId).val();
+        if (valSelect === triggerVal || (configId === "tipocliente" && valSelect === "4")) {
+            const conf = CONFIG_MULTIPLE.find(c => c.id === configId);
+            return $(conf.btnOpen).data("seleccionados") || [];
+        }
+        return valSelect && valSelect !== "" ? [valSelect] : [];
+    };
+
+    const determinarAsignacion = (idSelector) => {
+        const val = $(idSelector).val();
+        if (!val || val === "T" || val === "TODOS") return "T";
+        if (val === "3" || val === "7" || val === "4") return "C"; // Multiples/Listas
+        return "C"; // Especificos unicos
+    };
+
+    const segmentosConfig = [
+        { tipo: "SEGMARCA", codigos: obtenerValorCampo("marca", "#segMarca", "3"), id: "#segMarca" },
+        { tipo: "SEGDIVISION", codigos: obtenerValorCampo("division", "#segDivision", "3"), id: "#segDivision" },
+        { tipo: "SEGDEPARTAMENTO", codigos: obtenerValorCampo("depto", "#segDepartamento", "3"), id: "#segDepartamento" },
+        { tipo: "SEGCLASE", codigos: obtenerValorCampo("clase", "#segClase", "3"), id: "#segClase" },
+        { tipo: "SEGCANAL", codigos: obtenerValorCampo("canal", "#segCanal", "3"), id: "#segCanal" },
+        { tipo: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupo", "#segGrupoAlmacen", "3"), id: "#segGrupoAlmacen" },
+        { tipo: "SEGALMACEN", codigos: obtenerValorCampo("almacen", "#segAlmacen", "3"), id: "#segAlmacen" },
+        { tipo: "SEGTIPOCLIENTE", codigos: obtenerValorCampo("tipocliente", "#segTipoCliente", "3"), id: "#segTipoCliente" },
+        { tipo: "SEGMEDIOPAGO", codigos: obtenerValorCampo("mediopago", "#segMedioPago", "7"), id: "#segMedioPago" }
+    ];
+
+    const segmentosValidados = segmentosConfig.map(seg => ({ tiposegmento: seg.tipo, codigos: seg.codigos, tipoasignacion: determinarAsignacion(seg.id) }));
+    if ($('#chkArticulo').is(':checked')) segmentosValidados.push({ tiposegmento: "SEGARTICULO", codigos: [$('#segArticulo').val()], tipoasignacion: "C" });
+
+    // ACUERDOS CONTRUIDOS DESDE LOS CAMPOS DE LA LÍNEA 4
+    const acuerdosModificados = [];
+    const idProv = parseInt($("#fondoProveedorId").val(), 10) || 0;
+    if (idProv > 0) {
+        acuerdosModificados.push({
+            idacuerdo: idProv,
+            porcentajedescuento: parseFloat($("#descuentoProveedor").val()) || 0,
+            valorcomprometido: parseCurrencyToNumber($("#fondoValorTotal").val())
+        });
     }
 
-    if (!tipoProceso) {
-        Swal.fire('Error', 'No se pudo obtener el tipo de proceso de modificación.', 'error');
-        return;
+    const idProp = parseInt($("#acuerdoPropioId").val(), 10) || 0;
+    if (idProp > 0) {
+        acuerdosModificados.push({
+            idacuerdo: idProp,
+            porcentajedescuento: parseFloat($("#descuentoPropio").val()) || 0,
+            valorcomprometido: parseCurrencyToNumber($("#comprometidoPropio").val())
+        });
     }
 
-    const acuerdos = leerDetalleAcuerdosDesdeTabla();
-    const fechaInicioISO = toISOFromDDMMYYYY($('#promocionFechaInicio').val());
-    const fechaFinISO = toISOFromDDMMYYYY($('#promocionFechaFin').val());
-
-    // Marca regalo desde checkbox
-    const marcaRegalo = $('#promocionMarcaRegalo').is(':checked') ? "S" : "N";
-
-    // Archivo soporte
     let archivoSoporte = "";
     const $fileInput = $('#inputArchivoSoporte')[0];
-    if ($fileInput && $fileInput.files && $fileInput.files.length > 0) {
-        archivoSoporte = $fileInput.files[0].name;
-    }
+    if ($fileInput && $fileInput.files.length > 0) archivoSoporte = $fileInput.files[0].name;
 
     const body = {
         idpromocion: parseInt($('#modalPromocionId').val(), 10) || 0,
@@ -969,143 +657,46 @@ async function guardarPromocion() {
         promocion: {
             descripcion: $('#promocionDescripcion').val(),
             motivo: parseInt($('#promocionMotivo').val(), 10) || 0,
-            fechahorainicio: fechaInicioISO,
-            fechahorafin: fechaFinISO,
-            marcaregalo: marcaRegalo,
-            idusuariomodifica: usuarioActual,
-            nombreusuario: usuarioActual
+            fechahorainicio: toISOFromDDMMYYYY($('#promocionFechaInicio').val()),
+            fechahorafin: toISOFromDDMMYYYY($('#promocionFechaFin').val()),
+            marcaregalo: $('#promocionMarcaRegalo').is(':checked') ? "S" : "N",
+            idusuariomodifica: obtenerUsuarioActual(), nombreusuario: obtenerUsuarioActual()
         },
-        acuerdos: acuerdos,
-        segmentos: [],
+        acuerdos: acuerdosModificados,
+        segmentos: segmentosValidados,
         archivosoporte: archivoSoporte,
         rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
-        idtipoproceso: tipoProceso.idcatalogo,
-        idopcion: idOpcionActual,
-        idcontrolinterfaz: "BTNGRABAR",
-        ideventoetiqueta: "EVCLICK"
+        idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
+        idopcion: getIdOpcionSeguro(), idcontrolinterfaz: "BTNGRABAR", ideventoetiqueta: "EVCLICK"
     };
 
     console.log("📤 Enviando JSON Modificar Promoción:", body);
-    console.log("promocionTemporal: ", promocionTemporal);
 
     Swal.fire({
-        title: 'Confirmar Modificación',
-        html: `¿Desea guardar los cambios de la Promoción <strong>#${body.idpromocion}</strong>?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#009845',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, Guardar',
-        cancelButtonText: 'Cancelar'
+        title: 'Confirmar Modificación', html: `¿Desea guardar los cambios de la Promoción <strong>#${body.idpromocion}</strong>?`, icon: 'warning',
+        showCancelButton: true, confirmButtonColor: '#009845', cancelButtonColor: '#d33', confirmButtonText: 'Sí, Guardar', cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (!result.isConfirmed) return;
-
-        Swal.fire({
-            title: 'Guardando...',
-            text: 'Por favor espere',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "POST",
-            endpoint_path: "api/Promocion/actualizar-promocion",
-            client: "APL",
-            body_request: body
-        };
-
+        Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
         $.ajax({
-            url: "/api/apigee-router-proxy",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(payload),
-            success: function (response) {
-                if (response && response.code_status === 200) {
-                    console.log("✅ Respuesta exitosa:", response.json_response);
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Guardado!',
-                        text: 'La promoción se modificó correctamente.',
-                        showConfirmButton: false,
-                        timer: 1600
-                    });
-                    cargarBandeja();
-                    cerrarDetalle();
-                } else {
-                    const mensajeError = response.json_response?.mensaje || 'Error al guardar la promoción.';
-                    Swal.fire({ icon: 'error', title: 'Error al Guardar', text: mensajeError });
-                }
+            url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json",
+            data: JSON.stringify({ code_app: "APP20260128155212346", http_method: "POST", endpoint_path: "api/Promocion/actualizar-promocion", client: "APL", body_request: body }),
+            success: function (res) {
+                if (res && res.code_status === 200) {
+                    Swal.fire({ icon: 'success', title: '¡Guardado!', showConfirmButton: false, timer: 1500 });
+                    cargarBandeja(); cerrarDetalle();
+                } else Swal.fire('Error al Guardar', res.json_response?.mensaje || 'Error al guardar', 'error');
             },
-            error: function (xhr) {
-                console.error("❌ Error guardando promoción:", xhr.status, xhr.responseText);
-                let mensajeError = "Algo salió mal al guardar la promoción.";
-                try {
-                    const errorResponse = JSON.parse(xhr.responseText);
-                    mensajeError = errorResponse.message || errorResponse.title || mensajeError;
-                } catch (e) {
-                    if (xhr.responseText) mensajeError = xhr.responseText;
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error al Guardar',
-                    text: mensajeError,
-                    footer: `<small>Código: ${xhr.status}</small>`
-                });
-            }
+            error: function (xhr) { manejarErrorGlobal(xhr, "guardar promoción"); }
         });
     });
 }
-
-// ===================================================================
-// DATEPICKERS
-// ===================================================================
 
 function initDatepickers() {
-    if (!$.datepicker) {
-        console.warn("jQuery UI Datepicker no está disponible.");
-        return;
-    }
-
+    if (!$.datepicker) return;
     $.datepicker.setDefaults($.datepicker.regional["es"] || {});
-
-    const commonOptions = {
-        dateFormat: "dd/mm/yy",
-        changeMonth: true,
-        changeYear: true,
-        showButtonPanel: true,
-        beforeShow: function (input, inst) {
-            setTimeout(function () {
-                const buttonPane = $(inst.dpDiv).find(".ui-datepicker-buttonpane");
-                const doneButton = buttonPane.find(".ui-datepicker-close");
-                doneButton.text("Borrar");
-                doneButton.off("click").on("click", function () {
-                    $(input).val("");
-                    $.datepicker._hideDatepicker();
-                });
-                buttonPane.find(".ui-datepicker-current").text("Hoy");
-            }, 1);
-        }
-    };
-
-    $('#promocionFechaInicio').datepicker({
-        ...commonOptions,
-        onSelect: function (dateText) {
-            const startDate = $(this).datepicker("getDate");
-            if (startDate) {
-                const minEndDate = new Date(startDate.getTime());
-                minEndDate.setDate(minEndDate.getDate() + 1);
-                $('#promocionFechaFin').datepicker("option", "minDate", minEndDate);
-                const currentEnd = $('#promocionFechaFin').datepicker("getDate");
-                if (currentEnd && currentEnd <= startDate) $('#promocionFechaFin').val('');
-            }
-        }
-    });
-
-    $('#promocionFechaFin').datepicker({ ...commonOptions, minDate: 1 });
-
-    $('#btnFechaInicio').on('click', function () { $('#promocionFechaInicio').datepicker('show'); });
-    $('#btnFechaFin').on('click', function () { $('#promocionFechaFin').datepicker('show'); });
+    $('#promocionFechaInicio').datepicker({ dateFormat: "dd/mm/yy", onSelect: function () { const d = $(this).datepicker("getDate"); if (d) { d.setDate(d.getDate() + 1); $('#promocionFechaFin').datepicker("option", "minDate", d); } } });
+    $('#promocionFechaFin').datepicker({ dateFormat: "dd/mm/yy", minDate: 1 });
+    $('#btnFechaInicio').click(() => $('#promocionFechaInicio').datepicker('show'));
+    $('#btnFechaFin').click(() => $('#promocionFechaFin').datepicker('show'));
 }
-
-// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
