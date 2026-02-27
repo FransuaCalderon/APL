@@ -12,6 +12,273 @@
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
+<style>
+    /* =====================================================
+           GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN
+        ===================================================== */
+    .promo-form-grid {
+        border: 1px solid #ccc;
+        background: #fff;
+        font-size: 0.8rem;
+    }
+
+    .promo-header-row {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #ccc;
+        padding: 4px 6px;
+        gap: 8px;
+        background: #fff;
+    }
+
+        .promo-header-row .promo-label {
+            font-weight: 700;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            color: #222;
+        }
+
+        .promo-header-row .promo-id-input {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 3px 6px;
+            font-size: 0.8rem;
+            background: #f0f0f0;
+            color: #333;
+            border-radius: 2px;
+        }
+
+        .promo-header-row .promo-icons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .promo-header-row .promo-icon-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #bbb;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 2px;
+            color: #555;
+            font-size: 0.8rem;
+        }
+
+    .promo-section {
+        display: flex;
+        border-bottom: 1px solid #ccc;
+    }
+
+        .promo-section:last-child {
+            border-bottom: none;
+        }
+
+    .promo-col {
+        flex: 1;
+        border-right: 1px solid #ccc;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .promo-col:last-child {
+            border-right: none;
+        }
+
+    .promo-col-header {
+        font-weight: 700;
+        text-align: center;
+        padding: 4px 6px;
+        background: #fff;
+        border-bottom: 1px solid #ccc;
+        color: #222;
+        font-size: 0.78rem;
+    }
+
+    .promo-col-value {
+        padding: 3px 6px;
+        background: #fff;
+    }
+
+        .promo-col-value input[type="text"],
+        .promo-col-value select {
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 3px 6px;
+            font-size: 0.78rem;
+            background: #fff;
+            color: #333;
+            border-radius: 2px;
+            height: 28px;
+        }
+
+            .promo-col-value input[type="text"][readonly] {
+                background: #f0f0f0;
+            }
+
+            .promo-col-value input[type="text"]:focus,
+            .promo-col-value select:focus {
+                outline: none;
+                border-color: #86b7fe;
+            }
+
+    .promo-col.col-xs {
+        flex: 0 0 80px;
+        max-width: 80px;
+    }
+
+    .promo-col.col-sm {
+        flex: 0 0 110px;
+        max-width: 110px;
+    }
+
+    .promo-col.col-md {
+        flex: 0 0 160px;
+        max-width: 160px;
+    }
+
+    /* Input con icono */
+    .input-with-icon {
+        display: flex;
+        gap: 0;
+    }
+
+        .input-with-icon input,
+        .input-with-icon select {
+            border-right: none !important;
+            border-radius: 2px 0 0 2px !important;
+        }
+
+        .input-with-icon .icon-btn {
+            width: 28px;
+            min-width: 28px;
+            height: 28px;
+            border: 1px solid #ccc;
+            border-left: none;
+            background: #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0 2px 2px 0;
+            color: #666;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+    /* Checkbox con input (artículo) */
+    .input-with-check {
+        display: flex;
+        gap: 0;
+    }
+
+        .input-with-check .check-btn {
+            width: 28px;
+            min-width: 28px;
+            height: 28px;
+            border: 1px solid #ccc;
+            border-right: none;
+            background: #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px 0 0 2px;
+        }
+
+            .input-with-check .check-btn input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+                accent-color: #0d6efd;
+                margin: 0;
+                cursor: pointer;
+            }
+
+        .input-with-check input[type="text"] {
+            border-radius: 0 2px 2px 0 !important;
+        }
+
+    /* Checkbox regalo */
+    .promo-col-value.center-value {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+    }
+
+    .promo-col-value input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #0d6efd;
+        cursor: pointer;
+    }
+
+    /* Fila soporte */
+    .promo-soporte-row {
+        display: flex;
+        align-items: center;
+        padding: 4px 6px;
+        gap: 6px;
+        background: #fff;
+    }
+
+        .promo-soporte-row .promo-label {
+            font-weight: 700;
+            white-space: nowrap;
+            font-size: 0.78rem;
+            color: #222;
+        }
+
+        .promo-soporte-row .soporte-file-group {
+            flex: 1;
+            display: flex;
+            gap: 0;
+        }
+
+        .promo-soporte-row .btn-buscar-archivo {
+            padding: 3px 10px;
+            font-size: 0.78rem;
+            border: 1px solid #ccc;
+            background: #6c757d;
+            color: #fff;
+            border-radius: 2px 0 0 2px;
+            cursor: pointer;
+            white-space: nowrap;
+            height: 28px;
+        }
+
+        .promo-soporte-row .soporte-nombre {
+            flex: 1;
+            border: 1px solid #ccc;
+            border-left: none;
+            padding: 3px 6px;
+            font-size: 0.78rem;
+            background: #f0f0f0;
+            color: #333;
+            border-radius: 0;
+            height: 28px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .promo-soporte-row .soporte-ver-btn {
+            width: 28px;
+            min-width: 28px;
+            height: 28px;
+            border: 1px solid #ccc;
+            border-left: none;
+            background: #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0 2px 2px 0;
+            color: #666;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+</style>
+
 <h2>Modificación - Promociones</h2>
 <hr class="separador-fondos" />
 
@@ -23,7 +290,7 @@
 </div>
 
 <!-- =============================================================== -->
-<!-- VISTA DETALLE (oculta por defecto) -->
+<!-- VISTA DETALLE -->
 <!-- =============================================================== -->
 <div id="vistaDetalle" style="display:none;">
 
@@ -31,100 +298,264 @@
 
         <!-- CARD HEADER -->
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 text-dark">
-                Modificar Promoción #<span id="lblIdPromocion"></span>
-                <span class="badge bg-secondary ms-2 fs-6" id="lblClasePromocion"></span>
-                <span class="badge bg-info ms-1 fs-6 text-dark" id="lblEstadoPromocion"></span>
-            </h5>
+            <h5 class="mb-0 text-dark">Modificar Promoción #<span id="lblIdPromocion"></span></h5>
             <button type="button" class="btn btn-sm btn-outline-dark" id="btnVolverTabla">
                 <i class="fa-solid fa-arrow-left"></i> Volver a la Bandeja
             </button>
         </div>
 
         <!-- CARD BODY -->
-        <div class="card-body">
+        <div class="card-body p-2">
 
-            <!-- Campos ocultos -->
             <input type="hidden" id="modalPromocionId">
             <input type="hidden" id="modalTipoPromocion">
 
-            <!-- ===================================================== -->
-            <!-- FORMULARIO CABECERA -->
-            <!-- ===================================================== -->
-            <form id="formPromocion" class="row g-2 mb-3">
+            <form id="formPromocion">
 
-                <!-- Descripción -->
-                <div class="col-md-5">
-                    <label for="promocionDescripcion" class="form-label fw-bold col-form-label-sm">Descripción</label>
-                    <input type="text" class="form-control form-control-sm" id="promocionDescripcion"
-                           placeholder="Ingrese descripción" maxlength="200">
-                </div>
+                <div class="promo-form-grid">
 
-                <!-- Motivo -->
-                <div class="col-md-3">
-                    <label for="promocionMotivo" class="form-label fw-bold col-form-label-sm">Motivo</label>
-                    <select id="promocionMotivo" class="form-select form-select-sm">
-                        <option value="">Cargando...</option>
-                    </select>
-                </div>
-
-                <!-- Marca Regalo -->
-                <div class="col-md-2">
-                    <label for="promocionMarcaRegalo" class="form-label fw-bold col-form-label-sm">Marca Regalo</label>
-                    <select id="promocionMarcaRegalo" class="form-select form-select-sm">
-                        <option value="S">S - Sí</option>
-                        <option value="N">N - No</option>
-                    </select>
-                </div>
-
-                <!-- Fecha Inicio -->
-                <div class="col-md-3">
-                    <label for="promocionFechaInicio" class="form-label fw-bold col-form-label-sm">Fecha Inicio</label>
-                    <div class="input-group input-group-sm">
-                        <input id="promocionFechaInicio" type="text" class="form-control form-control-sm"
-                               placeholder="dd/mm/aaaa">
-                        <button class="btn btn-outline-secondary" type="button" id="btnFechaInicio">
-                            <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
-                        </button>
+                    <!-- ═══════════════════════════════════════
+                         FILA 1: ID Promoción + Iconos
+                    ═══════════════════════════════════════ -->
+                    <div class="promo-header-row">
+                        <span class="promo-label">Promoción</span>
+                        <input type="text" class="promo-id-input" id="verPromocionHeader" readonly>
+                        <div class="promo-icons">
+                            <div class="promo-icon-btn" id="btnVerSoporte" title="Ver Soporte">
+                                <i class="fa-regular fa-file-pdf"></i>
+                            </div>
+                            <div class="promo-icon-btn" id="btnVerAprobaciones" title="Registro de Aprobaciones">
+                                <i class="fa-regular fa-calendar-check"></i>
+                            </div>
+                            <div class="promo-icon-btn" id="btnVerLog" title="Registro de Log">
+                                <i class="fa-regular fa-rectangle-list"></i>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Fecha Fin -->
-                <div class="col-md-3">
-                    <label for="promocionFechaFin" class="form-label fw-bold col-form-label-sm">Fecha Fin</label>
-                    <div class="input-group input-group-sm">
-                        <input id="promocionFechaFin" type="text" class="form-control form-control-sm"
-                               placeholder="dd/mm/aaaa">
-                        <button class="btn btn-outline-secondary" type="button" id="btnFechaFin">
-                            <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
-                        </button>
+                    <!-- ═══════════════════════════════════════
+                         FILA 2: Descripción | Motivo | Inicio | Fin
+                    ═══════════════════════════════════════ -->
+                    <div class="promo-section">
+                        <div class="promo-col">
+                            <div class="promo-col-header">Descripción</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="promocionDescripcion" placeholder="Ingrese Descripción" maxlength="200">
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">Motivo</div>
+                            <div class="promo-col-value">
+                                <select id="promocionMotivo">
+                                    <option value="">Cargando...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">Inicio: Fecha - Hora</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="promocionFechaInicio" placeholder="dd/mm/aaaa">
+                                    <span class="icon-btn" id="btnFechaInicio"><i class="fa-regular fa-calendar"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">Fin: Fecha - Hora</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="promocionFechaFin" placeholder="dd/mm/aaaa">
+                                    <span class="icon-btn" id="btnFechaFin"><i class="fa-regular fa-calendar"></i></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Archivo Soporte -->
-                <div class="col-md-6">
-                    <label class="form-label fw-bold col-form-label-sm">Archivo Soporte</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="fa-solid fa-paperclip"></i></span>
-                        <input type="file" class="form-control form-control-sm" id="inputArchivoSoporte"
-                               accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+                    <!-- ═══════════════════════════════════════
+                         FILA 3: Marca | División | Departamento | Clase | Artículo
+                    ═══════════════════════════════════════ -->
+                    <div class="promo-section">
+                        <div class="promo-col">
+                            <div class="promo-col-header">Marca</div>
+                            <div class="promo-col-value">
+                                <select id="segMarca">
+                                    <option value="T" selected>Todas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">División</div>
+                            <div class="promo-col-value">
+                                <select id="segDivision">
+                                    <option value="T" selected>Todas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Departamento</div>
+                            <div class="promo-col-value">
+                                <select id="segDepartamento">
+                                    <option value="T" selected>Todos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Clase</div>
+                            <div class="promo-col-value">
+                                <select id="segClase">
+                                    <option value="T" selected>Todas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">Artículo</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-check">
+                                    <div class="check-btn">
+                                        <input type="checkbox" id="chkArticulo">
+                                    </div>
+                                    <input type="text" id="segArticulo" disabled>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <small class="text-muted">
-                        Archivo actual: <span id="lblArchivoActual" class="fw-semibold">Sin archivo</span>
-                    </small>
+
+                    <!-- ═══════════════════════════════════════
+                         FILA 4: Canal | Grupo | Almacén | Tipo Cliente | Medio Pago
+                    ═══════════════════════════════════════ -->
+                    <div class="promo-section">
+                        <div class="promo-col">
+                            <div class="promo-col-header">Canal</div>
+                            <div class="promo-col-value">
+                                <select id="segCanal">
+                                    <option value="T" selected>Todos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Grupo</div>
+                            <div class="promo-col-value">
+                                <select id="segGrupoAlmacen">
+                                    <option value="T" selected>Todos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Almacén</div>
+                            <div class="promo-col-value">
+                                <select id="segAlmacen">
+                                    <option value="T" selected>Todos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Tipo de Cliente</div>
+                            <div class="promo-col-value">
+                                <select id="segTipoCliente">
+                                    <option value="T" selected>Todos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Medio Pago</div>
+                            <div class="promo-col-value">
+                                <select id="segMedioPago">
+                                    <option value="T" selected>Todos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════
+                         FILA 5: % Dscto Prov | ID Acuerdo Prov | $ Comprom Prov | % Dscto Prop | ID Acuerdo Prop | $ Comprom Prop | % Dscto Total | Regalo
+                    ═══════════════════════════════════════ -->
+                    <div class="promo-section">
+                        <div class="promo-col col-xs">
+                            <div class="promo-col-header">% Dscto Prov.</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="resumenDsctoProv" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">ID Acuerdo Proveedor</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="resumenIdAcuerdoProv" readonly>
+                                    <span class="icon-btn" id="btnBuscarAcuerdoProv"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">$ Comprometido Proveed.</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="resumenComprometidoProv" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col col-xs">
+                            <div class="promo-col-header">% Dscto Prop.</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="resumenDsctoProp" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">ID Acuerdo Propio</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="resumenIdAcuerdoProp" readonly>
+                                    <span class="icon-btn" id="btnBuscarAcuerdoProp"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">$ Comprometido Propio</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="resumenComprometidoProp" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col col-xs">
+                            <div class="promo-col-header">% Dscto Total</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="resumenDsctoTotal" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col col-xs">
+                            <div class="promo-col-header">Regalo</div>
+                            <div class="promo-col-value center-value">
+                                <input type="checkbox" id="promocionMarcaRegalo">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════
+                         FILA 6: Adjuntar Documento Soporte
+                    ═══════════════════════════════════════ -->
+                    <div class="promo-soporte-row">
+                        <span class="promo-label">Adjuntar Documento Soporte</span>
+                        <div class="soporte-file-group">
+                            <label class="btn-buscar-archivo" for="inputArchivoSoporte">Buscar Archivo</label>
+                            <input type="file" id="inputArchivoSoporte" class="d-none"
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                                   onchange="document.getElementById('lblArchivoActual').textContent = this.files[0] ? this.files[0].name : 'Ningún archivo seleccionado'">
+                            <span class="soporte-nombre" id="lblArchivoActual">Ningún archivo seleccionado</span>
+                            <span class="soporte-ver-btn" id="btnVerSoporteActual" title="Ver Documento">
+                                <i class="fa-regular fa-file-lines"></i>
+                            </span>
+                        </div>
+                    </div>
+
                 </div>
+                <!-- FIN GRILLA -->
 
             </form>
 
-            <hr class="my-2" />
+            <hr class="mt-3 mb-2" />
 
             <!-- ===================================================== -->
-            <!-- SECCIÓN ACUERDOS -->
+            <!-- SECCIÓN ACUERDOS (tabla de gestión) -->
             <!-- ===================================================== -->
             <div class="col-12 mt-2">
                 <div class="detalle-header mb-2">Acuerdos Vinculados</div>
 
-                <!-- Barra de acciones -->
                 <div class="d-flex align-items-center gap-3 pb-2">
                     <button id="btnAddAcuerdo" type="button"
                             class="btn btn-outline-primary border-0 d-flex align-items-center gap-1">
@@ -140,7 +571,6 @@
                     </button>
                 </div>
 
-                <!-- Tabla de acuerdos -->
                 <div class="col-12">
                     <div class="table-responsive small border" style="height: 220px;">
                         <table class="table table-bordered table-sm">
@@ -154,7 +584,6 @@
                                 </tr>
                             </thead>
                             <tbody id="tablaAcuerdosBody" class="text-nowrap">
-                                <!-- Se llenará dinámicamente -->
                             </tbody>
                         </table>
                     </div>

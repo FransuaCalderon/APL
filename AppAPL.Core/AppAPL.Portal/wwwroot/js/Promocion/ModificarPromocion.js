@@ -129,6 +129,77 @@ async function consultarCombos(etiqueta) {
     }
 }
 
+/**
+ * Pobla un <select> de segmento a partir de los datos del JSON.
+ * - tipoasignacion "T" → "Todos/Todas"
+ * - tipoasignacion "C" con 1 detalle → agrega opción y la selecciona
+ * - tipoasignacion "C" con múltiples → agrega "Varios"
+ */
+function poblarSelectSegmento(selectId, segmentos, etiqueta) {
+    const $select = $(`#${selectId}`);
+    const items = (segmentos || []).filter(s => s.etiqueta_tipo_segmento === etiqueta);
+
+    if (items.length === 0) return;
+
+    const primerItem = items[0];
+
+    // Si es "T" (Todos), dejar la opción por defecto
+    if (primerItem.tipoasignacion === "T") {
+        $select.val("T");
+        return;
+    }
+
+    // Si es "C" con un solo detalle
+    if (items.length === 1 && primerItem.codigo_detalle) {
+        const texto = primerItem.nombre_detalle
+            ? `${primerItem.codigo_detalle} - ${primerItem.nombre_detalle}`
+            : primerItem.codigo_detalle;
+        $select.append(`<option value="${primerItem.codigo_detalle}">${texto}</option>`);
+        $select.val(primerItem.codigo_detalle);
+        return;
+    }
+
+    // Múltiples detalles → "Varios"
+    if (items.length > 1) {
+        const textoDetalle = items.map(i => {
+            return i.nombre_detalle ? `${i.codigo_detalle} - ${i.nombre_detalle}` : i.codigo_detalle;
+        }).join(", ");
+        $select.append(`<option value="V" title="${textoDetalle}">Varios</option>`);
+        $select.val("V");
+    }
+}
+
+/**
+ * Pobla los campos resumen de acuerdos (Fila 5).
+ * Primer acuerdo → Proveedor, segundo → Propio, suma → Total.
+ */
+function poblarResumenAcuerdos(acuerdos) {
+    if (!acuerdos || acuerdos.length === 0) {
+        $("#resumenDsctoProv, #resumenIdAcuerdoProv, #resumenComprometidoProv").val("");
+        $("#resumenDsctoProp, #resumenIdAcuerdoProp, #resumenComprometidoProp").val("");
+        $("#resumenDsctoTotal").val("");
+        return;
+    }
+
+    const acProv = acuerdos.length > 0 ? acuerdos[0] : null;
+    const acProp = acuerdos.length > 1 ? acuerdos[1] : null;
+
+    if (acProv) {
+        $("#resumenDsctoProv").val((acProv.porcentaje_descuento ?? 0) + "%");
+        $("#resumenIdAcuerdoProv").val(`${acProv.idacuerdo ?? ""} - ${acProv.descripcion_acuerdo ?? ""}`);
+        $("#resumenComprometidoProv").val(formatCurrencySpanish(acProv.valor_comprometido));
+    }
+
+    if (acProp) {
+        $("#resumenDsctoProp").val((acProp.porcentaje_descuento ?? 0) + "%");
+        $("#resumenIdAcuerdoProp").val(`${acProp.idacuerdo ?? ""} - ${acProp.descripcion_acuerdo ?? ""}`);
+        $("#resumenComprometidoProp").val(formatCurrencySpanish(acProp.valor_comprometido));
+    }
+
+    const totalDscto = acuerdos.reduce((sum, ac) => sum + (ac.porcentaje_descuento || 0), 0);
+    $("#resumenDsctoTotal").val(totalDscto + "%");
+}
+
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
@@ -200,6 +271,34 @@ $(document).ready(function () {
     $(document).on('change', '.acuerdo-row-radio', function () {
         $('#tablaAcuerdosBody tr').removeClass('fila-seleccionada');
         $(this).closest('tr').addClass('fila-seleccionada');
+    });
+
+    // Checkbox artículo: habilitar/deshabilitar input
+    $('#chkArticulo').on('change', function () {
+        $('#segArticulo').prop('disabled', !this.checked);
+        if (!this.checked) $('#segArticulo').val('');
+    });
+
+    // Botón ver soporte actual
+    $('#btnVerSoporteActual').on('click', function () {
+        const ruta = $(this).data('soporte');
+        if (!ruta) {
+            Swal.fire({ icon: 'info', title: 'Sin soporte', text: 'No hay archivo de soporte adjunto.' });
+            return;
+        }
+        const url = `/api/Promocion/ver-soporte?ruta=${encodeURIComponent(ruta)}`;
+        window.open(url, '_blank');
+    });
+
+    // Botón Ver Soporte (icono PDF en header)
+    $('#btnVerSoporte').on('click', function () {
+        const soporte = $(this).data('soporte');
+        if (!soporte) {
+            Swal.fire({ icon: 'info', title: 'Sin soporte', text: 'Esta promoción no tiene un archivo de soporte adjunto.' });
+            return;
+        }
+        const url = `/api/Promocion/ver-soporte?ruta=${encodeURIComponent(soporte)}`;
+        window.open(url, '_blank');
     });
 
     initDatepickers();
@@ -288,7 +387,7 @@ function crearListado(data) {
                 <td>${promo.clase_promocion ?? ""}</td>
                 <td class="text-center">${formatearFecha(promo.fecha_inicio)}</td>
                 <td class="text-center">${formatearFecha(promo.fecha_fin)}</td>
-                <td class="text-center">${promo.marcaregalo ?? ""}</td>
+                <td class="text-center">${promo.marcaregalo && promo.marcaregalo !== "N" ? "✓" : ""}</td>
                 <td>${obtenerNombreArchivo(promo.archivosoporte)}</td>
                 <td>${promo.estado ?? ""}</td>
             </tr>`;
@@ -331,7 +430,6 @@ function abrirModalEditar(idPromocion) {
     console.log("[abrirModalEditar] Cargando promoción ID:", idPromocion);
     $('body').css('cursor', 'wait');
 
-    // Limpiar formulario
     resetFormulario();
     $('#lblIdPromocion').text(idPromocion);
     $('#modalPromocionId').val(idPromocion);
@@ -373,44 +471,115 @@ function abrirModalEditar(idPromocion) {
 }
 
 function poblarFormulario(data) {
-    const cab = data.cabecera;
+    const cab = data.cabecera || {};
     const acuerdos = data.acuerdos || [];
+    const segmentos = data.segmentos || [];
 
-    // Cabecera
-    $('#promocionDescripcion').val(cab.descripcion ?? "");
-    $('#promocionMarcaRegalo').val(cab.marcaregalo ?? "N");
-    $('#promocionFechaInicio').val(formatearFecha(cab.fecha_inicio));
-    $('#promocionFechaFin').val(formatearFecha(cab.fecha_fin));
-    $('#lblClasePromocion').text(cab.nombre_clase_promocion ?? "");
-    $('#lblEstadoPromocion').text(cab.nombre_estado_promocion ?? "");
-    $('#lblArchivoActual').text(obtenerNombreArchivo(cab.archivosoporte) || "Sin archivo");
+    // ── FILA 1: Header ──
+    const idStr = cab.idpromocion ?? "";
+    const claseStr = cab.nombre_clase_promocion ?? "";
+    $('#verPromocionHeader').val(`${idStr} - ${claseStr}`);
     $('#modalTipoPromocion').val(cab.etiqueta_clase_promocion ?? "");
 
-    // Cargar motivos y luego setear el valor
+    // Guardar ruta soporte en botones
+    const rutaSoporte = cab.archivosoporte ?? "";
+    $('#btnVerSoporte').data('soporte', rutaSoporte)
+        .toggleClass('text-danger', !!rutaSoporte)
+        .attr('title', rutaSoporte ? `Ver Soporte: ${obtenerNombreArchivo(rutaSoporte)}` : 'Sin soporte');
+    $('#btnVerSoporteActual').data('soporte', rutaSoporte);
+
+    // ── FILA 2: Descripción | Motivo | Fechas ──
+    $('#promocionDescripcion').val(cab.descripcion ?? "");
+    $('#promocionFechaInicio').val(formatearFecha(cab.fecha_inicio));
+    $('#promocionFechaFin').val(formatearFecha(cab.fecha_fin));
+
+    // Cargar motivos y setear el valor
     cargarMotivos(function () {
         $('#promocionMotivo').val(cab.id_motivo);
     });
 
-    // Poblar tabla de acuerdos
+    // ── FILA 3: Segmentos de Producto ──
+    resetSelectsSegmentos();
+    poblarSelectSegmento("segMarca", segmentos, "SEGMARCA");
+    poblarSelectSegmento("segDivision", segmentos, "SEGDIVISION");
+    poblarSelectSegmento("segDepartamento", segmentos, "SEGDEPARTAMENTO");
+    poblarSelectSegmento("segClase", segmentos, "SEGCLASE");
+
+    // Artículo
+    const artItems = segmentos.filter(s => s.etiqueta_tipo_segmento === "SEGARTICULO");
+    if (artItems.length > 0 && artItems[0].codigo_detalle) {
+        $('#chkArticulo').prop('checked', true);
+        $('#segArticulo').prop('disabled', false);
+        const textoArt = artItems[0].nombre_detalle
+            ? `${artItems[0].codigo_detalle} - ${artItems[0].nombre_detalle}`
+            : artItems[0].codigo_detalle;
+        $('#segArticulo').val(textoArt);
+    }
+
+    // ── FILA 4: Segmentos de Canal/Almacén/Cliente/Pago ──
+    poblarSelectSegmento("segCanal", segmentos, "SEGCANAL");
+    poblarSelectSegmento("segGrupoAlmacen", segmentos, "SEGGRUPOALMACEN");
+    poblarSelectSegmento("segAlmacen", segmentos, "SEGALMACEN");
+    poblarSelectSegmento("segTipoCliente", segmentos, "SEGTIPOCLIENTE");
+    poblarSelectSegmento("segMedioPago", segmentos, "SEGMEDIOPAGO");
+
+    // ── FILA 5: Resumen de Acuerdos + Regalo ──
+    poblarResumenAcuerdos(acuerdos);
+
+    const esRegalo = (cab.marcaregalo ?? "N").toString().trim().toUpperCase() === "S";
+    $('#promocionMarcaRegalo').prop('checked', esRegalo);
+
+    // ── Archivo soporte ──
+    const nombreArchivo = obtenerNombreArchivo(cab.archivosoporte);
+    $('#lblArchivoActual').text(nombreArchivo || "Ningún archivo seleccionado");
+
+    // ── Tabla de Acuerdos (gestión) ──
     $('#tablaAcuerdosBody').empty();
     if (acuerdos.length > 0) {
         agregarAcuerdosExistentesATabla(acuerdos);
     }
 }
 
+/**
+ * Limpia las opciones adicionales de los selects de segmentos.
+ */
+function resetSelectsSegmentos() {
+    const selectIds = [
+        "segMarca", "segDivision", "segDepartamento", "segClase",
+        "segCanal", "segGrupoAlmacen", "segAlmacen", "segTipoCliente", "segMedioPago"
+    ];
+    selectIds.forEach(function (id) {
+        const $sel = $(`#${id}`);
+        const defaultText = $sel.find('option:first').text();
+        const defaultVal = $sel.find('option:first').val();
+        $sel.empty().append(`<option value="${defaultVal}">${defaultText}</option>`);
+    });
+}
+
 function resetFormulario() {
+    $('#verPromocionHeader').val('');
     $('#promocionDescripcion').val('');
     $('#promocionMotivo').val('');
     $('#promocionFechaInicio').val('');
     $('#promocionFechaFin').val('');
-    $('#promocionMarcaRegalo').val('S');
-    $('#lblClasePromocion').text('');
-    $('#lblEstadoPromocion').text('');
-    $('#lblArchivoActual').text('Sin archivo');
+    $('#promocionMarcaRegalo').prop('checked', false);
+    $('#lblArchivoActual').text('Ningún archivo seleccionado');
     $('#inputArchivoSoporte').val('');
+    $('#btnVerSoporte').removeData('soporte');
+    $('#btnVerSoporteActual').removeData('soporte');
     $('#tablaAcuerdosBody').empty();
     $('#modalPromocionId').val('');
     $('#modalTipoPromocion').val('');
+
+    // Limpiar segmentos
+    resetSelectsSegmentos();
+    $('#chkArticulo').prop('checked', false);
+    $('#segArticulo').val('').prop('disabled', true);
+
+    // Limpiar resumen acuerdos
+    $("#resumenDsctoProv, #resumenIdAcuerdoProv, #resumenComprometidoProv").val("");
+    $("#resumenDsctoProp, #resumenIdAcuerdoProp, #resumenComprometidoProp").val("");
+    $("#resumenDsctoTotal").val("");
 }
 
 function cerrarDetalle() {
@@ -554,9 +723,11 @@ function modificarAcuerdoSeleccionado() {
         }).then((result) => {
             if (result.isConfirmed) {
                 $fila.find('.celda-editable input').prop('disabled', true);
-                // Formatear valor al cerrar edición
                 const rawVal = $fila.find('.acuerdo-valor').val().replace(/[^0-9.,]/g, '').replace(',', '.');
                 $fila.find('.acuerdo-valor').val(formatCurrencySpanish(parseFloat(rawVal) || 0));
+
+                // Actualizar resumen de acuerdos
+                actualizarResumenDesdeTabla();
 
                 Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Cambios confirmados', showConfirmButton: false, timer: 1500 });
             }
@@ -593,7 +764,6 @@ function eliminarAcuerdoSeleccionado() {
             const idPromocionAcuerdo = parseInt($fila.find('.acuerdo-idpromocionacuerdo').val(), 10) || 0;
 
             if (idPromocionAcuerdo === 0) {
-                // Es nuevo, eliminar directamente de la tabla
                 $fila.remove();
             } else {
                 $fila.find('.acuerdo-accion').val('D');
@@ -603,9 +773,40 @@ function eliminarAcuerdoSeleccionado() {
             $radioSeleccionado.prop('checked', false);
             $fila.removeClass('fila-seleccionada');
 
+            // Actualizar resumen de acuerdos
+            actualizarResumenDesdeTabla();
+
             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Acuerdo eliminado', showConfirmButton: false, timer: 1500 });
         }
     });
+}
+
+/**
+ * Recalcula el resumen de acuerdos (Fila 5) a partir de la tabla de gestión.
+ */
+function actualizarResumenDesdeTabla() {
+    const acuerdosVisibles = [];
+
+    $('#tablaAcuerdosBody tr').each(function () {
+        const $tr = $(this);
+        const accion = $tr.find('.acuerdo-accion').val();
+        if (accion === 'D') return;
+
+        const porcentaje = parseFloat($tr.find('.acuerdo-porcentaje').val()) || 0;
+        const valorStr = $tr.find('.acuerdo-valor').val();
+        const valor = parseCurrencyToNumber(valorStr);
+        const idacuerdo = $tr.data('idacuerdo');
+        const descripcion = $tr.find('td:eq(2)').text();
+
+        acuerdosVisibles.push({
+            idacuerdo: idacuerdo,
+            descripcion_acuerdo: descripcion,
+            porcentaje_descuento: porcentaje,
+            valor_comprometido: valor
+        });
+    });
+
+    poblarResumenAcuerdos(acuerdosVisibles);
 }
 
 function leerDetalleAcuerdosDesdeTabla() {
@@ -616,7 +817,6 @@ function leerDetalleAcuerdosDesdeTabla() {
         const accion = $tr.find('.acuerdo-accion').val();
         const idpromocionacuerdo = parseInt($tr.find('.acuerdo-idpromocionacuerdo').val(), 10) || 0;
 
-        // Omitir filas nuevas que fueron eliminadas antes de guardar
         if (idpromocionacuerdo === 0 && accion === 'D') return;
 
         const idacuerdo = parseInt($tr.data('idacuerdo'), 10) || 0;
@@ -753,11 +953,14 @@ async function guardarPromocion() {
     const fechaInicioISO = toISOFromDDMMYYYY($('#promocionFechaInicio').val());
     const fechaFinISO = toISOFromDDMMYYYY($('#promocionFechaFin').val());
 
-    // Archivo soporte (si hay nuevo archivo)
+    // Marca regalo desde checkbox
+    const marcaRegalo = $('#promocionMarcaRegalo').is(':checked') ? "S" : "N";
+
+    // Archivo soporte
     let archivoSoporte = "";
     const $fileInput = $('#inputArchivoSoporte')[0];
     if ($fileInput && $fileInput.files && $fileInput.files.length > 0) {
-        archivoSoporte = $fileInput.files[0].name; // En un caso real se subiría el archivo
+        archivoSoporte = $fileInput.files[0].name;
     }
 
     const body = {
@@ -768,7 +971,7 @@ async function guardarPromocion() {
             motivo: parseInt($('#promocionMotivo').val(), 10) || 0,
             fechahorainicio: fechaInicioISO,
             fechahorafin: fechaFinISO,
-            marcaregalo: $('#promocionMarcaRegalo').val(),
+            marcaregalo: marcaRegalo,
             idusuariomodifica: usuarioActual,
             nombreusuario: usuarioActual
         },

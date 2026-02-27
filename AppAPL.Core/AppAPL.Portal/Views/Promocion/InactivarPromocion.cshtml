@@ -14,8 +14,8 @@
 
 <style>
     /* =====================================================
-                   GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN
-                ===================================================== */
+               GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN
+            ===================================================== */
     .promo-form-grid {
         border: 1px solid #ccc;
         background: #fff;
@@ -132,6 +132,11 @@
         max-width: 110px;
     }
 
+    .promo-col.col-md {
+        flex: 0 0 160px;
+        max-width: 160px;
+    }
+
     /* Columna Estado + Regalo juntos */
     .promo-col.col-estado-regalo {
         flex: 0 0 200px;
@@ -176,27 +181,7 @@
             margin: 0;
         }
 
-    .promo-col.col-md {
-        flex: 0 0 160px;
-        max-width: 160px;
-    }
-
-    /* Checkbox regalo alineado al centro */
-    .promo-col-value.center-value {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 6px;
-    }
-
-    .promo-col-value input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        accent-color: #0d6efd;
-        cursor: default;
-    }
-
-    /* Input con icono de búsqueda (solo visual) */
+    /* Input con icono (solo visual) */
     .input-with-icon {
         display: flex;
         gap: 0;
@@ -221,6 +206,21 @@
             color: #666;
             font-size: 0.75rem;
         }
+
+    /* Checkbox regalo alineado al centro */
+    .promo-col-value.center-value {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+    }
+
+    .promo-col-value input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #0d6efd;
+        cursor: default;
+    }
 
     /* =====================================================
                MODAL REGISTRO DE LOG - CABECERA TABLA
@@ -259,15 +259,86 @@
         text-align: center;
         white-space: nowrap;
     }
+
+    /* =====================================================
+               MODAL VISOR PDF
+            ===================================================== */
+    #modalVisorPdf .modal-dialog {
+        max-width: 90vw;
+        height: 90vh;
+    }
+
+    #modalVisorPdf .modal-content {
+        height: 90vh;
+    }
+
+    #modalVisorPdf .modal-body {
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    #modalVisorPdf .modal-header {
+        background: #1a237e;
+        color: #fff;
+        padding: 8px 16px;
+        border-bottom: none;
+    }
+
+        #modalVisorPdf .modal-header .btn-close {
+            filter: invert(1);
+        }
+
+    #modalVisorPdf .modal-footer {
+        padding: 6px 16px;
+        border-top: 1px solid #ddd;
+        background: #f8f8f8;
+    }
+
+    #pdfIframe {
+        width: 100%;
+        flex: 1;
+        border: none;
+        background: #525659;
+    }
+
+    #pdfSpinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        background: #525659;
+        color: #fff;
+    }
+
+    #pdfVisorError {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        background: #f8d7da;
+        color: #842029;
+        font-size: 0.9rem;
+        padding: 20px;
+        text-align: center;
+    }
 </style>
 
 <h2>Inactivación - Promociones</h2>
 <hr class="separador-fondos" />
 
+<!-- ============================================
+     VISTA: BANDEJA (TABLA)
+============================================= -->
 <div id="vistaTabla" class="table-responsive">
     <div id="tabla"></div>
 </div>
 
+<!-- ============================================
+     VISTA: DETALLE DE PROMOCIÓN
+============================================= -->
 <div id="vistaDetalle" style="display:none;">
     <div class="card border-secondary mb-3">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -285,7 +356,9 @@
                 ============================================= -->
                 <div class="promo-form-grid">
 
-                    <!-- FILA 1: ID Promoción -->
+                    <!-- ═══════════════════════════════════════
+                         FILA 1: ID Promoción + Iconos
+                    ═══════════════════════════════════════ -->
                     <div class="promo-header-row">
                         <span class="promo-label">Promoción</span>
                         <input type="text" class="promo-id-input" id="verPromocionHeader" readonly>
@@ -302,7 +375,9 @@
                         </div>
                     </div>
 
-                    <!-- FILA 2: Descripción | Motivo | Inicio Fecha-Hora | Fin Fecha-Hora | Estado | Regalo -->
+                    <!-- ═══════════════════════════════════════
+                         FILA 2: Descripción | Motivo | Inicio | Fin | Estado
+                    ═══════════════════════════════════════ -->
                     <div class="promo-section">
                         <div class="promo-col">
                             <div class="promo-col-header">Descripción</div>
@@ -328,15 +403,172 @@
                                 <input type="text" id="verFechaFin" readonly>
                             </div>
                         </div>
-                        <!-- Estado + Regalo juntos -->
-                        <div class="promo-col col-estado-regalo">
+                        <div class="promo-col col-md">
                             <div class="promo-col-header">Estado</div>
-                            <div class="promo-col-value estado-regalo-value">
+                            <div class="promo-col-value">
                                 <input type="text" id="verEstado" readonly>
-                                <label class="regalo-label" title="Regalo">
-                                    <input type="checkbox" id="verRegalo" disabled>
-                                    <span>Regalo</span>
-                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════
+                         FILA 3: Marca | División | Departamento | Clase | Artículo
+                    ═══════════════════════════════════════ -->
+                    <div class="promo-section">
+                        <div class="promo-col">
+                            <div class="promo-col-header">Marca</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verMarca" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">División</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verDivision" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Departamento</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verDepartamento" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Clase</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verClase" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">Artículo</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verArticulo" readonly>
+                                    <span class="icon-btn"><i class="fa-regular fa-square-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════
+                         FILA 4: Canal | Grupo | Almacén | Tipo Cliente | Medio Pago
+                    ═══════════════════════════════════════ -->
+                    <div class="promo-section">
+                        <div class="promo-col">
+                            <div class="promo-col-header">Canal</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verCanal" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Grupo</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verGrupoAlmacen" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Almacén</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verAlmacen" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Tipo de Cliente</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verTipoCliente" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">Medio Pago</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verMedioPago" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════
+                         FILA 5: Acuerdos + Regalo
+                    ═══════════════════════════════════════ -->
+                    <div class="promo-section">
+                        <div class="promo-col col-xs">
+                            <div class="promo-col-header">% Dscto Prov.</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="verDsctoProv" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">ID Acuerdo Proveedor</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verIdAcuerdoProv" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">$ Comprometido Proveed.</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="verComprometidoProv" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col col-xs">
+                            <div class="promo-col-header">% Dscto Prop.</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="verDsctoProp" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col">
+                            <div class="promo-col-header">ID Acuerdo Propio</div>
+                            <div class="promo-col-value">
+                                <div class="input-with-icon">
+                                    <input type="text" id="verIdAcuerdoProp" readonly>
+                                    <span class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="promo-col col-md">
+                            <div class="promo-col-header">$ Comprometido Propio</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="verComprometidoProp" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col col-xs">
+                            <div class="promo-col-header">% Dscto Total</div>
+                            <div class="promo-col-value">
+                                <input type="text" id="verDsctoTotal" readonly>
+                            </div>
+                        </div>
+                        <div class="promo-col col-xs">
+                            <div class="promo-col-header">Regalo</div>
+                            <div class="promo-col-value center-value">
+                                <input type="checkbox" id="verRegalo" onclick="return false;">
                             </div>
                         </div>
                     </div>
@@ -345,9 +577,6 @@
                 <!-- FIN GRILLA -->
 
                 <hr class="mt-3 mb-2" />
-
-                <!-- Tabla de Acuerdos Asociados -->
-                <div class="col-12 mt-2" id="contenedor-tabla-acuerdos" style="display:none;"></div>
 
                 <!-- Tabla de Artículos -->
                 <div class="col-12 mt-2" id="contenedor-tabla-articulos" style="display:none;"></div>
@@ -360,6 +589,51 @@
             <button type="button" class="custom-btn-danger" id="btnInactivarPromocion">
                 <i class="fa-solid fa-ban custom-btn-icon"></i> Inactivar
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     MODAL: VISOR DE PDF EMBEBIDO
+============================================= -->
+<div class="modal fade" id="modalVisorPdf" tabindex="-1" aria-labelledby="modalVisorPdfLabel" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h6 class="modal-title fw-bold mb-0" id="modalVisorPdfLabel">
+                    <i class="fa-regular fa-file-pdf me-2"></i>
+                    <span class="pdf-nombre-archivo">Soporte</span>
+                </h6>
+                <button type="button" class="btn-close" id="btnCerrarVisorPdf" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Spinner de carga -->
+                <div id="pdfSpinner" style="display:none;">
+                    <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-light small">Cargando documento...</p>
+                </div>
+
+                <!-- Mensaje de error -->
+                <div id="pdfVisorError" style="display:none;"></div>
+
+                <!-- Iframe con el PDF -->
+                <div id="pdfVisorContenido" style="display:none; flex:1; width:100%;">
+                    <iframe id="pdfIframe" src="about:blank"></iframe>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="btnDescargarPdf" style="display:none;">
+                    <i class="fa-solid fa-download me-1"></i> Descargar
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary" id="btnCerrarVisorPdfFooter">Cerrar</button>
+            </div>
+
         </div>
     </div>
 </div>
@@ -380,7 +654,6 @@
 
             <div class="modal-body p-2">
 
-                <!-- Spinner de carga -->
                 <div id="logSpinner" class="text-center py-4" style="display:none;">
                     <div class="spinner-border text-danger" role="status">
                         <span class="visually-hidden">Cargando...</span>
@@ -388,7 +661,6 @@
                     <p class="mt-2 text-muted small">Cargando registros...</p>
                 </div>
 
-                <!-- Tabla de logs -->
                 <div id="contenedorTablaLog" style="display:none;">
                     <div class="table-responsive">
                         <table id="tablaLog" class="table table-bordered table-hover table-sm mb-0">
@@ -407,8 +679,7 @@
                                     <th>Datos</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodyLog">
-                            </tbody>
+                            <tbody id="tbodyLog"></tbody>
                         </table>
                     </div>
                     <div id="logSinDatos" class="alert alert-info text-center mt-2" style="display:none;">
@@ -442,7 +713,6 @@
 
             <div class="modal-body p-2">
 
-                <!-- Spinner de carga -->
                 <div id="aprobacionesSpinner" class="text-center py-4" style="display:none;">
                     <div class="spinner-border text-danger" role="status">
                         <span class="visually-hidden">Cargando...</span>
@@ -450,7 +720,6 @@
                     <p class="mt-2 text-muted small">Cargando registros...</p>
                 </div>
 
-                <!-- Tabla de aprobaciones -->
                 <div id="contenedorTablaAprobaciones" style="display:none;">
                     <div class="table-responsive">
                         <table id="tablaAprobaciones" class="table table-bordered table-hover table-sm mb-0">
@@ -469,8 +738,7 @@
                                     <th>Lote</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodyAprobaciones">
-                            </tbody>
+                            <tbody id="tbodyAprobaciones"></tbody>
                         </table>
                     </div>
                     <div id="aprobacionesSinDatos" class="alert alert-info text-center mt-2" style="display:none;">
