@@ -3,28 +3,23 @@
 // ===============================================================
 // Variables globales
 // ===============================================================
-let tabla; // GLOBAL
+let tabla;
 let ultimaFilaModificada = null;
 let datosAprobacionActual = null;
 let tablaHistorial;
 
 // ===============================================================
-// FUNCIÓN HELPER PARA OBTENER USUARIO
+// FUNCIONES HELPER
 // ===============================================================
 function obtenerUsuarioActual() {
-    const usuario = window.usuarioActual
+    return window.usuarioActual
         || sessionStorage.getItem('usuarioActual')
         || sessionStorage.getItem('usuario')
         || localStorage.getItem('usuarioActual')
         || localStorage.getItem('usuario')
         || "admin";
-
-    return usuario;
 }
 
-// ===============================================================
-// FUNCIÓN HELPER PARA OBTENER IDOPCION
-// ===============================================================
 function obtenerIdOpcionSeguro() {
     try {
         return (
@@ -38,9 +33,6 @@ function obtenerIdOpcionSeguro() {
     }
 }
 
-// ===============================================================
-// FUNCIÓN HELPER PARA MANEJO DE ERRORES
-// ===============================================================
 function manejarErrorGlobal(xhr, accion) {
     console.error(`Error al ${accion}:`, xhr.responseText);
     Swal.fire({
@@ -50,6 +42,56 @@ function manejarErrorGlobal(xhr, accion) {
     });
 }
 
+function formatearMoneda(valor) {
+    var numero = parseFloat(valor);
+    if (isNaN(numero) || valor === null || valor === undefined) return "$ 0.00";
+    return '$ ' + numero.toLocaleString('es-EC', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatearFecha(fechaString) {
+    if (!fechaString) return '';
+    try {
+        var fecha = new Date(fechaString);
+        if (isNaN(fecha)) return fechaString;
+        var dia = String(fecha.getDate()).padStart(2, '0');
+        var mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        var anio = fecha.getFullYear();
+        return `${dia}/${mes}/${anio}`;
+    } catch (e) {
+        return fechaString;
+    }
+}
+
+function formatearFechaHora(f) {
+    if (!f) return "";
+    const d = new Date(f);
+    if (isNaN(d)) return f;
+    return d.toLocaleDateString("es-EC") + " " + d.toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" });
+}
+
+function obtenerNombreArchivo(rutaCompleta) {
+    if (!rutaCompleta) return "";
+    var nombreArchivo = rutaCompleta.replace(/^.*[\\/]/, '');
+    var sinGuid = nombreArchivo.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i, '');
+    return sinGuid || nombreArchivo;
+}
+
+function obtenerNombreArchivoConGuid(rutaCompleta) {
+    if (!rutaCompleta) return "";
+    return rutaCompleta.replace(/^.*[\\/]/, '');
+}
+
+function obtenerTextoSegmento(segmentos, etiqueta) {
+    if (!segmentos || !Array.isArray(segmentos)) return "";
+    const items = segmentos.filter(s => s.etiqueta_tipo_segmento === etiqueta);
+    if (items.length === 0) return "";
+    if (items.length === 1) {
+        const item = items[0];
+        return item.codigo_detalle ? `${item.codigo_detalle} - ${item.nombre_detalle || ""}` : (item.nombre_detalle || "");
+    }
+    return "Varios";
+}
+
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
@@ -57,68 +99,140 @@ $(document).ready(function () {
 
     console.log("=== INICIO DE CARGA DE PÁGINA - AprobarPromocion (Estructura Post-REST) ===");
 
-    const usuarioFinal = obtenerUsuarioActual();
-    console.log("Usuario final obtenido:", usuarioFinal);
-
-    // Configuración inicial y carga de datos
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
-        console.log("API Base URL configurada:", config.apiBaseUrl);
         cargarBandeja();
     });
 
-    // ===== BOTÓN LIMPIAR =====
     $('body').on('click', '#btnLimpiar', function () {
         if (tabla) {
             tabla.search('').draw();
             tabla.page(0).draw('page');
             ultimaFilaModificada = null;
-            if (typeof limpiarSeleccion === 'function') {
-                limpiarSeleccion('#tabla-principal');
-            }
+            if (typeof limpiarSeleccion === 'function') limpiarSeleccion('#tabla-principal');
         }
     });
 
-    // ===============================================================
-    // EVENTOS PARA VOLVER A LA TABLA (CERRAR DETALLE)
-    // ===============================================================
     $('#btnVolverTabla, #btnVolverAbajo').on('click', function () {
         cerrarDetalle();
     });
 
-    // ===============================================================
-    // EVENTOS PARA APROBAR Y RECHAZAR PROMOCIÓN
-    // ===============================================================
     $('#btnAprobarPromocion').on('click', function () {
         let comentario = $("#modal-promocion-comentario").val();
-        console.log('comentario:', comentario);
-        console.log('boton de aprobar promoción');
         procesarAprobacionPromocion("APROBAR", comentario);
     });
 
     $('#btnRechazarPromocion').on('click', function () {
         let comentario = $("#modal-promocion-comentario").val();
-        console.log('comentario:', comentario);
-        console.log('boton de rechazar promoción');
         procesarAprobacionPromocion("RECHAZAR", comentario);
     });
 
-}); // FIN document.ready
+    // Eventos Visor PDF
+    $("#btnVerSoporte").on("click", function () {
+        const soporte = $(this).data("soporte");
+        if (!soporte) {
+            Swal.fire({ icon: "info", title: "Sin soporte", text: "Esta promoción no tiene un archivo de soporte adjunto." });
+            return;
+        }
+
+        const nombreArchivoConGuid = obtenerNombreArchivoConGuid(soporte);
+        if (!nombreArchivoConGuid) {
+            Swal.fire({ icon: "info", title: "Sin soporte", text: "No se pudo determinar el nombre del archivo." });
+            return;
+        }
+        abrirVisorPDF(nombreArchivoConGuid);
+    });
+
+    $("#btnCerrarVisorPdf, #btnCerrarVisorPdfFooter").on("click", function () {
+        cerrarVisorPDF();
+    });
+
+    $("#btnDescargarPdf").on("click", function () {
+        const url = $(this).data("blob-url");
+        const nombre = $(this).data("nombre-archivo");
+        if (url) {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = nombre || "soporte.pdf";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    });
+
+});
 
 // ===================================================================
-// ===== FUNCIONES GLOBALES =====
+// VISOR DE PDF EMBEBIDO
+// ===================================================================
+function abrirVisorPDF(nombreArchivo) {
+    $("#pdfSpinner").show();
+    $("#pdfVisorContenido").hide();
+    $("#pdfVisorError").hide();
+    $("#btnDescargarPdf").hide();
+
+    const nombreLegible = obtenerNombreArchivo(nombreArchivo);
+    $("#modalVisorPdfLabel .pdf-nombre-archivo").text(nombreLegible || "Soporte");
+
+    const modal = new bootstrap.Modal(document.getElementById("modalVisorPdf"));
+    modal.show();
+
+    fetchPDFDirecto(nombreArchivo);
+}
+
+function fetchPDFDirecto(nombreArchivo) {
+    let baseUrl = (window.apiBaseUrl || "http://localhost:5074").replace("/api/router-proxy/execute", "");
+    const url = `${baseUrl}/api/Descargas/descargar/${encodeURIComponent(nombreArchivo)}`;
+
+    fetch(url)
+        .then(function (response) {
+            if (!response.ok) {
+                return response.text().then(function (txt) { throw new Error(txt || `Error HTTP ${response.status}`); });
+            }
+            return response.blob();
+        })
+        .then(function (blob) {
+            const pdfBlob = new Blob([blob], { type: "application/pdf" });
+            const blobUrl = URL.createObjectURL(pdfBlob);
+
+            $("#pdfIframe").attr("src", blobUrl);
+            $("#pdfSpinner").hide();
+            $("#pdfVisorContenido").show();
+
+            const nombreLegible = obtenerNombreArchivo(nombreArchivo);
+            $("#btnDescargarPdf")
+                .data("blob-url", blobUrl)
+                .data("nombre-archivo", nombreLegible || "soporte.pdf")
+                .show();
+        })
+        .catch(function (error) {
+            $("#pdfSpinner").hide();
+            $("#pdfVisorError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> ${error.message}`).show();
+        });
+}
+
+function cerrarVisorPDF() {
+    const iframe = document.getElementById("pdfIframe");
+    const blobUrl = $("#btnDescargarPdf").data("blob-url");
+
+    if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+        $("#btnDescargarPdf").removeData("blob-url");
+    }
+
+    if (iframe) iframe.src = "about:blank";
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById("modalVisorPdf"));
+    if (modal) modal.hide();
+}
+
+// ===================================================================
+// FUNCIONES GLOBALES - BANDEJA
 // ===================================================================
 
 function cargarBandeja() {
-    const idOpcionActual = obtenerIdOpcionSeguro();
     const usuario = obtenerUsuarioActual();
-
-    if (!usuario) {
-        console.error('No hay usuario en sesión, no se puede cargar la bandeja.');
-        return;
-    }
-
-    console.log('Cargando bandeja de promociones para usuario:', usuario, 'con idOpcion:', idOpcionActual);
+    if (!usuario) return;
 
     const payload = {
         code_app: "APP20260128155212346",
@@ -135,16 +249,9 @@ function cargarBandeja() {
         data: JSON.stringify(payload),
         success: function (response) {
             if (response && response.code_status === 200) {
-                const data = response.json_response || [];
-                console.log("Datos recibidos de bandeja-aprobacion promociones:", data);
-                crearListado(data);
+                crearListado(response.json_response || []);
             } else {
-                console.error("Error en respuesta:", response);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar las promociones para aprobación'
-                });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudieron cargar las promociones para aprobación' });
             }
         },
         error: (xhr) => manejarErrorGlobal(xhr, "cargar la bandeja de aprobación de promociones")
@@ -152,51 +259,44 @@ function cargarBandeja() {
 }
 
 function crearListado(data) {
-    if (tabla) {
-        tabla.destroy();
-    }
+    if (tabla) tabla.destroy();
 
     if (!data || data.length === 0) {
-        $('#tabla').html(
-            "<div class='alert alert-info text-center'>No hay promociones para aprobar.</div>"
-        );
+        $('#tabla').html("<div class='alert alert-info text-center'>No hay promociones para aprobar.</div>");
         return;
     }
 
-    var html = "";
-    html += "<table id='tabla-principal' class='table table-bordered table-striped table-hover'>";
-
-    html += "  <thead>";
-    html += "    <tr>";
-    html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE APROBACIÓN DE PROMOCIONES";
-    html += "      </th>";
-    html += "    </tr>";
-
-    html += "    <tr>";
-    html += "      <th>Acción</th>";
-    html += "      <th>Solicitud</th>";
-    html += "      <th>Id Promoción</th>";
-    html += "      <th>Descripción</th>";
-    html += "      <th>Motivo</th>";
-    html += "      <th>Clase de Promoción</th>";
-    html += "      <th>Fecha Solicitud</th>";
-    html += "      <th>Usuario Solicita</th>";
-    html += "      <th>Fecha Inicio</th>";
-    html += "      <th>Fecha Fin</th>";
-    html += "      <th>Regalo</th>";
-    html += "      <th>Soporte</th>";
-    html += "      <th>Estado</th>";
-    html += "    </tr>";
-    html += "  </thead>";
-    html += "  <tbody>";
+    var html = `
+    <table id='tabla-principal' class='table table-bordered table-striped table-hover'>
+      <thead>
+        <tr>
+          <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>
+              BANDEJA DE APROBACIÓN DE PROMOCIONES
+          </th>
+        </tr>
+        <tr>
+          <th>Acción</th>
+          <th>Solicitud</th>
+          <th>Id Promoción</th>
+          <th>Descripción</th>
+          <th>Motivo</th>
+          <th>Clase de Promoción</th>
+          <th>Fecha Solicitud</th>
+          <th>Usuario Solicita</th>
+          <th>Fecha Inicio</th>
+          <th>Fecha Fin</th>
+          <th>Regalo</th>
+          <th>Soporte</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>`;
 
     for (var i = 0; i < data.length; i++) {
         var promo = data[i];
 
         var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + promo.idpromocion + ', ' + promo.idaprobacion + ')">' +
-            '<i class="fa-regular fa-eye"></i>' +
-            '</button>';
+            '<i class="fa-regular fa-eye"></i></button>';
 
         var clasePromocionHTML = (promo.nombre_clase_promocion ?? "");
         if (promo.cantidad_articulos > 0) {
@@ -205,24 +305,22 @@ function crearListado(data) {
 
         html += "<tr>";
         html += "  <td class='text-center'>" + viewButton + "</td>";
-        html += "  <td>" + (promo.solicitud ?? "") + "</td>";
-        html += "  <td>" + (promo.idpromocion ?? "") + "</td>";
+        html += "  <td class='text-center'>" + (promo.solicitud ?? "") + "</td>";
+        html += "  <td class='text-center'>" + (promo.idpromocion ?? "") + "</td>";
         html += "  <td>" + (promo.descripcion ?? "") + "</td>";
         html += "  <td>" + (promo.motivo ?? "") + "</td>";
         html += "  <td>" + clasePromocionHTML + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(promo.fechasolicitud) + "</td>";
-        html += "  <td>" + (promo.nombreusersolicitud ?? "") + "</td>";
+        html += "  <td class='text-center'>" + (promo.nombreusersolicitud ?? "") + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(promo.fechahorainicio) + "</td>";
         html += "  <td class='text-center'>" + formatearFecha(promo.fechahorafin) + "</td>";
         html += "  <td class='text-center'>" + (promo.marcaregalo && promo.marcaregalo !== "N" ? "✓" : "") + "</td>";
         html += "  <td>" + obtenerNombreArchivo(promo.archivosoporte) + "</td>";
-        html += "  <td>" + (promo.nombre_estado ?? "") + "</td>";
+        html += "  <td class='text-center'>" + (promo.nombre_estado ?? "") + "</td>";
         html += "</tr>";
     }
 
-    html += "  </tbody>";
-    html += "</table>";
-
+    html += "  </tbody></table>";
     $('#tabla').html(html);
 
     tabla = $('#tabla-principal').DataTable({
@@ -237,86 +335,32 @@ function crearListado(data) {
         ],
         order: [[2, 'desc']],
         language: {
-            decimal: "",
-            emptyTable: "No hay datos disponibles en la tabla",
-            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            infoEmpty: "Mostrando 0 a 0 de 0 registros",
-            infoFiltered: "(filtrado de _MAX_ registros totales)",
-            lengthMenu: "Mostrar _MENU_ registros",
-            loadingRecords: "Cargando...",
-            processing: "Procesando...",
-            search: "Buscar:",
-            zeroRecords: "No se encontraron registros coincidentes",
-            paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+            decimal: "", emptyTable: "No hay datos disponibles en la tabla", info: "Mostrando _START_ a _END_ de _TOTAL_ registros", infoEmpty: "Mostrando 0 a 0 de 0 registros", infoFiltered: "(filtrado de _MAX_ registros totales)", lengthMenu: "Mostrar _MENU_ registros", loadingRecords: "Cargando...", processing: "Procesando...", search: "Buscar:", zeroRecords: "No se encontraron registros coincidentes", paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
         }
     });
 }
 
 // ===================================================================
-// ===== FUNCIONES UTILITARIAS =====
-// ===================================================================
-
-function formatearMoneda(valor) {
-    var numero = parseFloat(valor);
-    if (isNaN(numero) || valor === null || valor === undefined) {
-        return "$ 0.00";
-    }
-    return '$ ' + numero.toLocaleString('es-EC', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-}
-
-function obtenerNombreArchivo(rutaCompleta) {
-    if (!rutaCompleta) return "";
-    var nombreArchivo = rutaCompleta.replace(/^.*[\\/]/, '');
-    var sinGuid = nombreArchivo.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i, '');
-    return sinGuid || nombreArchivo;
-}
-
-function formatearFecha(fechaString) {
-    try {
-        if (!fechaString) return '';
-        var fecha = new Date(fechaString);
-        if (isNaN(fecha)) return fechaString;
-        var dia = String(fecha.getDate()).padStart(2, '0');
-        var mes = String(fecha.getMonth() + 1).padStart(2, '0');
-        var anio = fecha.getFullYear();
-        return `${dia}/${mes}/${anio}`;
-    } catch (e) {
-        console.warn("Error formateando fecha:", fechaString);
-        return fechaString;
-    }
-}
-
-// ===================================================================
-// FUNCIONES: LOGICA DE DETALLE (VISUALIZAR)
+// LOGICA DE DETALLE (VISUALIZAR Y APROBAR)
 // ===================================================================
 
 function abrirModalEditar(idPromocion, idAprobacion) {
-    console.log("Consultando detalle idPromocion:", idPromocion, "idAprobacion:", idAprobacion);
-
-    // Validar que idAprobacion sea un valor válido antes de llamar al API
     if (!idAprobacion || isNaN(idAprobacion) || parseInt(idAprobacion) <= 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Sin Aprobación Pendiente',
-            text: `La promoción #${idPromocion} no tiene un proceso de aprobación activo.`
-        });
+        Swal.fire({ icon: 'warning', title: 'Sin Aprobación Pendiente', text: `La promoción #${idPromocion} no tiene un proceso de aprobación activo.` });
         return;
     }
 
     $('body').css('cursor', 'wait');
-
     datosAprobacionActual = null;
 
+    // Limpiar campos UI
     $("#formVisualizar")[0].reset();
     $("#lblIdPromocion").text(idPromocion);
+    $("#btnVerSoporte").data("soporte", "").removeData("soporte").attr("title", "Ver Soporte").removeClass("text-danger");
 
     $('#tabla-aprobaciones-promocion').html('');
     $('#contenedor-tabla-articulos').html('').hide();
     $('#contenedor-tabla-combos').html('').hide();
-    $('#contenedor-tabla-acuerdos').html('').hide();
 
     const payload = {
         code_app: "APP20260128155212346",
@@ -334,249 +378,202 @@ function abrirModalEditar(idPromocion, idAprobacion) {
         success: function (response) {
             if (response && response.code_status === 200) {
                 const data = response.json_response || {};
-                console.log(`Datos de la promoción (${idPromocion}):`, data);
+                const cab = data.cabecera || {};
+                const segmentos = data.segmentos || [];
+                const acuerdos = data.acuerdos || [];
 
-                // Guardar datos para los botones de aprobación/rechazo
                 datosAprobacionActual = {
-                    entidad: data.cabecera?.id_entidad || 0,
-                    identidad: data.cabecera?.idpromocion || 0,
-                    idtipoproceso: data.cabecera?.id_tipo_proceso || 0,
-                    idetiquetatipoproceso: data.cabecera?.tipo_proceso_etiqueta || "",
+                    entidad: cab.id_entidad || 0,
+                    identidad: cab.idpromocion || 0,
+                    idtipoproceso: cab.id_tipo_proceso || 0,
+                    idetiquetatipoproceso: cab.tipo_proceso_etiqueta || "",
                     idaprobacion: idAprobacion,
-                    entidad_etiqueta: data.cabecera?.entidad_etiqueta,
-                    idetiquetatestado: data.cabecera?.etiqueta_estado_promocion || "",
+                    entidad_etiqueta: cab.entidad_etiqueta,
+                    idetiquetatestado: cab.etiqueta_estado_promocion || "",
                     comentario: ""
                 };
 
-                // 1. Llenar Formulario
-                $("#verSolicitud").val(data.cabecera?.solicitud || "");
-                $("#verMotivo").val(data.cabecera?.nombre_motivo || "");
-                $("#verDescripcion").val(data.cabecera?.descripcion || "");
-                $("#verClasePromocion").val(data.cabecera?.nombre_clase_promocion || "");
-                $("#verEstado").val(data.cabecera?.nombre_estado_promocion || "");
-                $("#verUsuarioSolicita").val(data.cabecera?.nombreusersolicitud || "");
-                $("#verFechaSolicitud").val(formatearFecha(data.cabecera?.fechasolicitud));
-                $("#verFechaInicio").val(formatearFecha(data.cabecera?.fecha_inicio));
-                $("#verFechaFin").val(formatearFecha(data.cabecera?.fecha_fin));
-                $("#verRegalo").val(data.cabecera?.marcaregalo || "");
-                $("#verSoporte").val(obtenerNombreArchivo(data.cabecera?.archivosoporte));
+                // Llenar Grilla Visual (sin solicitud, ni usuario solicita, ni fecha solicitud)
+                const idStr = cab.idpromocion ?? "";
+                const claseStr = cab.nombre_clase_promocion ?? "";
+                $("#verPromocionHeader").val(`${idStr} - ${claseStr}`);
 
-                // =================================================================
-                // LOGICA DE ACUERDOS ASOCIADOS
-                // =================================================================
-                if (data.acuerdos && data.acuerdos.length > 0) {
-                    console.log("Promoción con acuerdos asociados detectada. Renderizando tabla...");
+                // Soporte PDF
+                const rutaSoporte = cab.archivosoporte ?? "";
+                $("#btnVerSoporte").data("soporte", rutaSoporte)
+                    .toggleClass("text-danger", !!rutaSoporte)
+                    .attr("title", rutaSoporte ? `Ver Soporte: ${obtenerNombreArchivo(rutaSoporte)}` : "Sin soporte");
 
-                    let htmlAcuerdos = `
-                        <h6 class="fw-bold mb-2"><i class="fa fa-handshake"></i> Acuerdos Asociados</h6>
-                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-bordered table-sm mb-0">
-                                <thead class="sticky-top text-nowrap">
-                                    <tr class="text-center tabla-items-header">
-                                        <th scope="col" class="custom-header-cons-bg"># Acuerdo</th>
-                                        <th scope="col" class="custom-header-cons-bg">Descripción Acuerdo</th>
-                                        <th scope="col" class="custom-header-ingr-bg">% Descuento</th>
-                                        <th scope="col" class="custom-header-ingr-bg">Valor Disponible</th>
-                                        <th scope="col" class="custom-header-ingr-bg">Valor Comprometido</th>
-                                        <th scope="col" class="custom-header-calc-bg">Valor Liquidado</th>
-                                        <th scope="col" class="custom-header-calc-bg">Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-nowrap tabla-items-body bg-white">`;
+                // Datos Generales
+                $("#verDescripcion").val(cab.descripcion ?? "");
+                $("#verMotivo").val(cab.nombre_motivo ?? "");
+                $("#verFechaInicio").val(formatearFechaHora(cab.fecha_inicio));
+                $("#verFechaFin").val(formatearFechaHora(cab.fecha_fin));
+                $("#verEstado").val(cab.nombre_estado_promocion ?? "");
 
-                    data.acuerdos.forEach(ac => {
-                        htmlAcuerdos += `
-                            <tr>
-                                <td class="fw-bold text-center">${ac.idacuerdo || ''}</td>
-                                <td>${ac.descripcion_acuerdo || ''}</td>
-                                <td class="text-center fw-bold text-primary">${ac.porcentaje_descuento ?? 0}%</td>
-                                <td class="text-end">${formatearMoneda(ac.valor_disponible)}</td>
-                                <td class="text-end">${formatearMoneda(ac.valor_comprometido)}</td>
-                                <td class="text-end">${formatearMoneda(ac.valor_liquidado)}</td>
-                                <td class="text-center">${ac.nombre_estado_detalle || ''}</td>
-                            </tr>`;
-                    });
+                const esRegalo = (cab.marcaregalo ?? "").toString().trim().toUpperCase() === "S";
+                $("#verRegalo").prop("checked", esRegalo);
 
-                    htmlAcuerdos += `
-                                </tbody>
-                            </table>
-                        </div>`;
+                // Segmentos
+                $("#verMarca").val(obtenerTextoSegmento(segmentos, "SEGMARCA") || "Todos");
+                $("#verDivision").val(obtenerTextoSegmento(segmentos, "SEGDIVISION") || "Todos");
+                $("#verDepartamento").val(obtenerTextoSegmento(segmentos, "SEGDEPARTAMENTO") || "Todos");
+                $("#verClase").val(obtenerTextoSegmento(segmentos, "SEGCLASE") || "Todos");
+                $("#verArticulo").val(obtenerTextoSegmento(segmentos, "SEGARTICULO") || "");
+                $("#verCanal").val(obtenerTextoSegmento(segmentos, "SEGCANAL") || "Todos");
+                $("#verGrupoAlmacen").val(obtenerTextoSegmento(segmentos, "SEGGRUPOALMACEN") || "Todos");
+                $("#verAlmacen").val(obtenerTextoSegmento(segmentos, "SEGALMACEN") || "Todos");
+                $("#verTipoCliente").val(obtenerTextoSegmento(segmentos, "SEGTIPOCLIENTE") || "Todos");
+                $("#verMedioPago").val(obtenerTextoSegmento(segmentos, "SEGMEDIOPAGO") || "Todos");
 
-                    $('#contenedor-tabla-acuerdos').html(htmlAcuerdos).fadeIn();
-                }
+                // Resumen Acuerdos
+                poblarResumenAcuerdos(acuerdos);
 
-                // =================================================================
-                // LOGICA DE ARTÍCULOS
-                // =================================================================
-                if (data.articulos && data.articulos.length > 0) {
-                    console.log("Promoción con artículos detectada. Renderizando tabla...");
+                // Artículos y Combos
+                if (data.articulos && data.articulos.length > 0) renderizarTablaArticulos(data.articulos);
+                if (data.combos && data.combos.length > 0) renderizarTablaCombos(data.combos);
 
-                    let htmlArticulos = `
-                        <h6 class="fw-bold mb-2"><i class="fa fa-list"></i> Detalle de Artículos</h6>
-                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-bordered table-sm mb-0">
-                                <thead class="sticky-top text-nowrap">
-                                    <tr class="text-center tabla-items-header">
-                                        <th scope="col" class="custom-header-cons-bg">Item</th>
-                                        <th scope="col" class="custom-header-cons-bg">Descripción</th>
-                                        <th scope="col" class="custom-header-ingr-bg">Precio Contado</th>
-                                        <th scope="col" class="custom-header-ingr-bg">Precio TC</th>
-                                        <th scope="col" class="custom-header-ingr-bg">Precio Crédito</th>
-                                        <th scope="col" class="custom-header-calc-bg">% Descuento</th>
-                                        <th scope="col" class="custom-header-calc-bg">Valor Descuento</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-nowrap tabla-items-body bg-white">`;
-
-                    data.articulos.forEach(art => {
-                        htmlArticulos += `
-                            <tr>
-                                <td class="fw-bold text-center">${art.codigoarticulo || ''}</td>
-                                <td>${art.descripcion || ''}</td>
-                                <td class="text-end">${formatearMoneda(art.preciocontado)}</td>
-                                <td class="text-end">${formatearMoneda(art.preciotarjetacredito)}</td>
-                                <td class="text-end">${formatearMoneda(art.preciocredito)}</td>
-                                <td class="text-center fw-bold text-primary">${art.porcentajedescuento ?? 0}%</td>
-                                <td class="text-end fw-bold">${formatearMoneda(art.valordescuento)}</td>
-                            </tr>`;
-                    });
-
-                    htmlArticulos += `
-                                </tbody>
-                            </table>
-                        </div>`;
-
-                    $('#contenedor-tabla-articulos').html(htmlArticulos).fadeIn();
-                }
-
-                // =================================================================
-                // LOGICA DE COMBOS
-                // =================================================================
-                if (data.combos && data.combos.length > 0) {
-                    console.log("Promoción con combos detectada. Renderizando tabla...");
-
-                    let htmlCombos = `
-                        <h6 class="fw-bold mb-2 mt-3"><i class="fa fa-layer-group"></i> Detalle de Combos</h6>
-                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-bordered table-sm mb-0">
-                                <thead class="sticky-top text-nowrap">
-                                    <tr class="text-center tabla-items-header">
-                                        <th scope="col" class="custom-header-cons-bg">Código Combo</th>
-                                        <th scope="col" class="custom-header-cons-bg">Descripción</th>
-                                        <th scope="col" class="custom-header-ingr-bg">Cantidad</th>
-                                        <th scope="col" class="custom-header-ingr-bg">Precio</th>
-                                        <th scope="col" class="custom-header-calc-bg">Valor Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-nowrap tabla-items-body bg-white">`;
-
-                    data.combos.forEach(combo => {
-                        htmlCombos += `
-                            <tr>
-                                <td class="fw-bold text-center">${combo.codigocombo || ''}</td>
-                                <td>${combo.descripcion || ''}</td>
-                                <td class="text-center fw-bold text-primary">${combo.cantidad ?? 0}</td>
-                                <td class="text-end">${formatearMoneda(combo.precio)}</td>
-                                <td class="text-end fw-bold">${formatearMoneda(combo.valortotal)}</td>
-                            </tr>`;
-                    });
-
-                    htmlCombos += `
-                                </tbody>
-                            </table>
-                        </div>`;
-
-                    $('#contenedor-tabla-combos').html(htmlCombos).fadeIn();
-                }
-
-                // 2. LOGICA VISUAL
-                $("#vistaTabla").fadeOut(200, function () {
-                    $("#vistaDetalle").fadeIn(200);
-                });
+                $("#vistaTabla").fadeOut(200, function () { $("#vistaDetalle").fadeIn(200); });
                 $('body').css('cursor', 'default');
 
-                // 3. CARGAR TABLA DE HISTORIAL DE APROBACIONES
-                if (data.cabecera?.entidad_etiqueta && data.cabecera?.tipo_proceso_etiqueta) {
-                    cargarAprobacionesPromocion(
-                        data.cabecera.entidad_etiqueta,
-                        idPromocion,
-                        data.cabecera.tipo_proceso_etiqueta
-                    );
+                // Historial
+                if (cab.entidad_etiqueta && cab.tipo_proceso_etiqueta) {
+                    cargarAprobacionesPromocion(cab.entidad_etiqueta, idPromocion, cab.tipo_proceso_etiqueta);
                 } else {
-                    $('#tabla-aprobaciones-promocion').html(
-                        '<p class="alert alert-warning">No se encontraron los parámetros necesarios para cargar aprobaciones.</p>'
-                    );
+                    $('#tabla-aprobaciones-promocion').html('<p class="alert alert-warning">No se encontraron los parámetros necesarios para cargar aprobaciones.</p>');
                 }
+
             } else {
                 $('body').css('cursor', 'default');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar los datos de la promoción.'
-                });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudieron cargar los datos de la promoción.' });
             }
         },
         error: function (xhr) {
             $('body').css('cursor', 'default');
-            console.error("Error detalle:", xhr);
             manejarErrorGlobal(xhr, "cargar los datos de la promoción");
         }
     });
 }
 
+function poblarResumenAcuerdos(acuerdos) {
+    if (!acuerdos || acuerdos.length === 0) {
+        $("#verDsctoProv, #verIdAcuerdoProv, #verComprometidoProv, #verDsctoProp, #verIdAcuerdoProp, #verComprometidoProp, #verDsctoTotal").val("");
+        return;
+    }
+
+    const acProv = acuerdos.length > 0 ? acuerdos[0] : null;
+    const acProp = acuerdos.length > 1 ? acuerdos[1] : null;
+
+    if (acProv) {
+        $("#verDsctoProv").val((acProv.porcentaje_descuento ?? 0) + "%");
+        $("#verIdAcuerdoProv").val(`${acProv.idacuerdo ?? ""} - ${acProv.descripcion_acuerdo ?? ""}`);
+        $("#verComprometidoProv").val(formatearMoneda(acProv.valor_comprometido));
+    }
+    if (acProp) {
+        $("#verDsctoProp").val((acProp.porcentaje_descuento ?? 0) + "%");
+        $("#verIdAcuerdoProp").val(`${acProp.idacuerdo ?? ""} - ${acProp.descripcion_acuerdo ?? ""}`);
+        $("#verComprometidoProp").val(formatearMoneda(acProp.valor_comprometido));
+    }
+
+    const totalDscto = acuerdos.reduce((sum, ac) => sum + (ac.porcentaje_descuento || 0), 0);
+    $("#verDsctoTotal").val(totalDscto + "%");
+}
+
+function renderizarTablaArticulos(articulos) {
+    let html = `
+        <h6 class="fw-bold mb-2"><i class="fa fa-list text-primary"></i> Detalle de Artículos</h6>
+        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+            <table class="table table-bordered table-sm mb-0">
+                <thead class="sticky-top text-nowrap">
+                    <tr class="text-center tabla-items-header">
+                        <th class="custom-header-cons-bg">Item</th>
+                        <th class="custom-header-cons-bg">Descripción</th>
+                        <th class="custom-header-ingr-bg">Precio Contado</th>
+                        <th class="custom-header-ingr-bg">Precio TC</th>
+                        <th class="custom-header-ingr-bg">Precio Crédito</th>
+                        <th class="custom-header-calc-bg">% Descuento</th>
+                        <th class="custom-header-calc-bg">Valor Descuento</th>
+                    </tr>
+                </thead>
+                <tbody class="text-nowrap tabla-items-body bg-white">`;
+    articulos.forEach(art => {
+        html += `
+            <tr>
+                <td class="fw-bold text-center">${art.codigoarticulo || ''}</td>
+                <td>${art.descripcion || ''}</td>
+                <td class="text-end">${formatearMoneda(art.preciocontado)}</td>
+                <td class="text-end">${formatearMoneda(art.preciotarjetacredito)}</td>
+                <td class="text-end">${formatearMoneda(art.preciocredito)}</td>
+                <td class="text-center fw-bold text-primary">${art.porcentajedescuento ?? 0}%</td>
+                <td class="text-end fw-bold">${formatearMoneda(art.valordescuento)}</td>
+            </tr>`;
+    });
+    html += `</tbody></table></div>`;
+    $('#contenedor-tabla-articulos').html(html).fadeIn();
+}
+
+function renderizarTablaCombos(combos) {
+    let html = `
+        <h6 class="fw-bold mb-2 mt-3"><i class="fa fa-layer-group text-primary"></i> Detalle de Combos</h6>
+        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+            <table class="table table-bordered table-sm mb-0">
+                <thead class="sticky-top text-nowrap">
+                    <tr class="text-center tabla-items-header">
+                        <th class="custom-header-cons-bg">Código Combo</th>
+                        <th class="custom-header-cons-bg">Descripción</th>
+                        <th class="custom-header-ingr-bg">Cantidad</th>
+                        <th class="custom-header-ingr-bg">Precio</th>
+                        <th class="custom-header-calc-bg">Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody class="text-nowrap tabla-items-body bg-white">`;
+    combos.forEach(combo => {
+        html += `
+            <tr>
+                <td class="fw-bold text-center">${combo.codigocombo || ''}</td>
+                <td>${combo.descripcion || ''}</td>
+                <td class="text-center fw-bold text-primary">${combo.cantidad ?? 0}</td>
+                <td class="text-end">${formatearMoneda(combo.precio)}</td>
+                <td class="text-end fw-bold">${formatearMoneda(combo.valortotal)}</td>
+            </tr>`;
+    });
+    html += `</tbody></table></div>`;
+    $('#contenedor-tabla-combos').html(html).fadeIn();
+}
+
 function cerrarDetalle() {
     $("#vistaDetalle").fadeOut(200, function () {
         $("#vistaTabla").fadeIn(200);
-        if (tabla) {
-            tabla.columns.adjust();
-        }
+        if (tabla) tabla.columns.adjust();
     });
     datosAprobacionActual = null;
 }
 
 function cargarAprobacionesPromocion(entidad, idEntidad, tipoProceso) {
-    console.log("=== CARGANDO APROBACIONES DE PROMOCIÓN ===");
-    console.log("entidad:", entidad);
-    console.log("idEntidad:", idEntidad);
-    console.log("tipoProceso:", tipoProceso);
-
-    if ($.fn.DataTable.isDataTable('#dt-historial')) {
-        $('#dt-historial').DataTable().destroy();
-    }
+    if ($.fn.DataTable.isDataTable('#dt-historial')) $('#dt-historial').DataTable().destroy();
 
     $('#tabla-aprobaciones-promocion').html(`
         <div class="text-center p-3">
             <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
-            <p class="mt-2 small text-muted">Cargando historial...</p>
         </div>
     `);
 
     const payload = {
-        code_app: "APP20260128155212346",
-        http_method: "GET",
-        endpoint_path: "api/Aprobacion/consultar-aprobaciones",
-        client: "APL",
-        endpoint_query_params: `/${entidad}/${idEntidad}/${tipoProceso}`
+        code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Aprobacion/consultar-aprobaciones", client: "APL", endpoint_query_params: `/${entidad}/${idEntidad}/${tipoProceso}`
     };
 
     $.ajax({
-        url: "/api/apigee-router-proxy",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload),
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
         success: function (response) {
             if (response && response.code_status === 200) {
-                const data = response.json_response || [];
-                console.log("Datos de aprobaciones de la promoción:", data);
-
-                let lista = Array.isArray(data) ? data : [data];
-
+                let lista = Array.isArray(response.json_response) ? response.json_response : [response.json_response];
                 if (!lista || lista.length === 0) {
                     $('#tabla-aprobaciones-promocion').html('<div class="alert alert-light text-center border">No hay historial de aprobaciones.</div>');
                     return;
                 }
 
                 let html = `
+                <h6 class="fw-bold mb-2"><i class="fa fa-clock-rotate-left text-primary"></i> Historial de Aprobaciones</h6>
                 <table id='dt-historial' class='table table-sm table-bordered table-hover w-100'>
                     <thead class="table-light">
                         <tr>
@@ -592,27 +589,13 @@ function cargarAprobacionesPromocion(entidad, idEntidad, tipoProceso) {
                     <tbody>`;
 
                 lista.forEach(item => {
-                    let comentarioLimpio = (item.comentario && item.comentario !== "string")
-                        ? item.comentario
-                        : "Sin comentarios.";
-
+                    let comentarioLimpio = (item.comentario && item.comentario !== "string") ? item.comentario : "Sin comentarios.";
                     let estadoNombre = item.estado_nombre || item.estado_etiqueta || "N/A";
                     let estadoUpper = estadoNombre.toUpperCase();
-
                     let iconoPopover = "";
                     if (estadoUpper.includes("APROBADO") || estadoUpper.includes("NEGADO")) {
-                        iconoPopover = `
-                        <i class="fa-solid fa-comment-dots text-warning ms-1"
-                           style="cursor: pointer; font-size: 0.9rem;"
-                           data-bs-toggle="popover" 
-                           data-bs-trigger="focus" 
-                           data-bs-placement="top"
-                           tabindex="0"
-                           title="Comentario" 
-                           data-bs-content="${comentarioLimpio}">
-                        </i>`;
+                        iconoPopover = `<i class="fa-solid fa-comment-dots text-warning ms-1" style="cursor:pointer; font-size:0.9rem;" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="top" tabindex="0" title="Comentario" data-bs-content="${comentarioLimpio}"></i>`;
                     }
-
                     html += `<tr>
                         <td class="text-center">${item.idaprobacion || ""}</td>
                         <td>${item.idusersolicitud || ""}</td>
@@ -623,46 +606,21 @@ function cargarAprobacionesPromocion(entidad, idEntidad, tipoProceso) {
                         <td>${item.tipoproceso_nombre || ""}</td>
                     </tr>`;
                 });
-
                 html += `</tbody></table>`;
                 $('#tabla-aprobaciones-promocion').html(html);
 
                 tablaHistorial = $('#dt-historial').DataTable({
-                    pageLength: 5,
-                    lengthMenu: [5, 10, 25],
-                    pagingType: 'simple_numbers',
-                    searching: false,
-                    columnDefs: [
-                        { targets: [0, 4, 5], className: "dt-center" },
-                        { targets: 3, className: "dt-nowrap" }
-                    ],
-                    order: [[0, 'desc']],
-                    language: {
-                        decimal: "",
-                        emptyTable: "No hay aprobaciones disponibles",
-                        info: "Mostrando _START_ a _END_ de _TOTAL_ aprobaciones",
-                        infoEmpty: "Mostrando 0 a 0 de 0 aprobaciones",
-                        infoFiltered: "(filtrado de _MAX_ aprobaciones totales)",
-                        lengthMenu: "Mostrar _MENU_ aprobaciones",
-                        loadingRecords: "Cargando...",
-                        processing: "Procesando...",
-                        search: "Buscar:",
-                        zeroRecords: "No se encontraron aprobaciones coincidentes",
-                        paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
-                    },
+                    pageLength: 5, lengthMenu: [5, 10, 25], pagingType: 'simple_numbers', searching: false,
+                    columnDefs: [{ targets: [0, 4, 5], className: "dt-center" }, { targets: 3, className: "dt-nowrap" }], order: [[0, 'desc']],
+                    language: { decimal: "", emptyTable: "No hay aprobaciones", info: "Mostrando _START_ a _END_ de _TOTAL_", infoEmpty: "0 a 0 de 0", paginate: { first: "Primero", last: "Último", next: "Sig", previous: "Ant" } },
                     drawCallback: function () {
-                        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
-                        [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+                        const popoverTriggerList = document.querySelectorAll('#dt-historial [data-bs-toggle="popover"]');
+                        [...popoverTriggerList].map(el => new bootstrap.Popover(el));
                     }
                 });
-            } else {
-                $('#tabla-aprobaciones-promocion').html('<div class="text-danger small">Error al cargar historial.</div>');
-            }
+            } else { $('#tabla-aprobaciones-promocion').html('<div class="text-danger small">Error al cargar historial.</div>'); }
         },
-        error: function (xhr) {
-            console.error("Error historial:", xhr);
-            $('#tabla-aprobaciones-promocion').html('<div class="text-danger small">Error al cargar historial.</div>');
-        }
+        error: function () { $('#tabla-aprobaciones-promocion').html('<div class="text-danger small">Error al cargar historial.</div>'); }
     });
 }
 
@@ -672,51 +630,25 @@ function cargarAprobacionesPromocion(entidad, idEntidad, tipoProceso) {
 
 function procesarAprobacionPromocion(accion, comentario) {
     if (!datosAprobacionActual) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No hay datos de aprobación disponibles.'
-        });
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No hay datos de aprobación disponibles.' });
         return;
     }
-
-    let nuevoEstado = "";
-    let tituloAccion = "";
-    let mensajeAccion = "";
-
-    if (accion === "APROBAR") {
-        nuevoEstado = "ESTADOAPROBADO";
-        tituloAccion = "Aprobar Promoción";
-        mensajeAccion = "¿Está seguro que desea aprobar esta promoción?";
-    } else if (accion === "RECHAZAR") {
-        nuevoEstado = "ESTADONEGADO";
-        tituloAccion = "Rechazar Promoción";
-        mensajeAccion = "¿Está seguro que desea rechazar esta promoción?";
-    }
+    let nuevoEstado = accion === "APROBAR" ? "ESTADOAPROBADO" : "ESTADONEGADO";
+    let tituloAccion = accion === "APROBAR" ? "Aprobar Promoción" : "Rechazar Promoción";
+    let mensajeAccion = accion === "APROBAR" ? "¿Está seguro que desea aprobar esta promoción?" : "¿Está seguro que desea rechazar esta promoción?";
 
     Swal.fire({
-        title: tituloAccion,
-        text: mensajeAccion,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: accion == "APROBAR" ? '#28a745' : '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: accion == "APROBAR" ? 'Sí, aprobar' : 'Sí, rechazar',
-        cancelButtonText: 'Cancelar'
+        title: tituloAccion, text: mensajeAccion, icon: 'warning', showCancelButton: true,
+        confirmButtonColor: accion == "APROBAR" ? '#28a745' : '#dc3545', cancelButtonColor: '#6c757d',
+        confirmButtonText: accion == "APROBAR" ? 'Sí, aprobar' : 'Sí, rechazar', cancelButtonText: 'Cancelar'
     }).then((result) => {
-        if (result.isConfirmed) {
-            ejecutarAprobacionPromocion(accion, nuevoEstado, comentario);
-        }
+        if (result.isConfirmed) ejecutarAprobacionPromocion(accion, nuevoEstado, comentario);
     });
 }
 
 function ejecutarAprobacionPromocion(accion, nuevoEstado, comentario) {
     const idOpcionActual = obtenerIdOpcionSeguro();
     const usuarioActual = obtenerUsuarioActual();
-
-    console.log("accion:", accion);
-    console.log("datosAprobacionActual:", datosAprobacionActual);
-    console.log('Ejecutando aprobación/rechazo con idOpcion:', idOpcionActual, 'y usuario:', usuarioActual);
 
     const body = {
         entidad: datosAprobacionActual.entidad,
@@ -733,66 +665,23 @@ function ejecutarAprobacionPromocion(accion, nuevoEstado, comentario) {
         nombreusuario: usuarioActual
     };
 
-    console.log("Enviando aprobación/rechazo:", body);
-
-    Swal.fire({
-        title: 'Procesando...',
-        text: 'Por favor espere',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-    });
+    Swal.fire({ title: 'Procesando...', text: 'Por favor espere', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
     const payload = {
-        code_app: "APP20260128155212346",
-        http_method: "POST",
-        endpoint_path: "api/Promocion/aprobar-promocion",
-        client: "APL",
-        body_request: body
+        code_app: "APP20260128155212346", http_method: "POST", endpoint_path: "api/Promocion/aprobar-promocion", client: "APL", body_request: body
     };
 
-    console.log("body: ", body);
-
     $.ajax({
-        url: "/api/apigee-router-proxy",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload),
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
         success: function (response) {
             if (response && response.code_status === 200) {
-                const data = response.json_response || {};
                 cerrarDetalle();
-
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Operación Exitosa!',
-                    text: data.respuesta || `Promoción ${accion === "APROBAR" ? "aprobada" : "rechazada"} correctamente`,
-                    confirmButtonText: 'Aceptar',
-                    timer: 2000,
-                    timerProgressBar: true
-                }).then(() => {
-                    datosAprobacionActual = null;
-                    ultimaFilaModificada = null;
-                    cargarBandeja();
-                });
+                Swal.fire({ icon: 'success', title: '¡Operación Exitosa!', text: response.json_response?.respuesta || `Promoción ${accion === "APROBAR" ? "aprobada" : "rechazada"}`, confirmButtonText: 'Aceptar', timer: 2000, timerProgressBar: true })
+                    .then(() => { datosAprobacionActual = null; cargarBandeja(); });
             } else {
-                const mensajeError = response.json_response?.mensaje || 'Error al procesar la aprobación';
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: mensajeError
-                });
+                Swal.fire({ icon: 'error', title: 'Error', text: response.json_response?.mensaje || 'Error al procesar' });
             }
         },
-        error: function (xhr) {
-            const mensajeError = xhr.responseJSON?.mensaje || 'Error desconocido';
-            console.error("Error al procesar aprobación:", mensajeError);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo procesar la aprobación/rechazo: ' + mensajeError
-            });
-        }
+        error: function (xhr) { Swal.fire({ icon: 'error', title: 'Error', text: 'Error al procesar: ' + (xhr.responseJSON?.mensaje || '') }); }
     });
 }
-
-// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

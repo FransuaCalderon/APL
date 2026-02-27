@@ -924,127 +924,87 @@ async function renderizarPdfEnModal(pdfBytes, nombreArchivo) {
     });
 }
 
+// ===================================================================
+// VISUALIZADOR DE PDF (SOPORTE) — Iframe Nativo
+// ===================================================================
+
 function abrirVisualizadorPdf(nombreArchivo) {
-    console.log("[abrirVisualizadorPdf] Iniciando descarga:", nombreArchivo);
+    console.log("[abrirVisualizadorPdf] Solicitando archivo para visualizar:", nombreArchivo);
 
-    $("#pdfViewer").hide();
-    $("#pdfCanvasContainer").empty();
+    // Reiniciar UI del modal
     $("#pdfSpinner").show();
+    $("#pdfVisorContenido").hide();
     $("#pdfError").hide();
+    $("#btnDescargarPdf").hide();
 
-    const modalEl = document.getElementById("modalVisualizadorPdf");
-    const modal = new bootstrap.Modal(modalEl);
+    // Mostrar modal
+    const modal = new bootstrap.Modal(document.getElementById("modalVisualizadorPdf"));
     modal.show();
 
-    modalEl.addEventListener('shown.bs.modal', function onShown() {
-        modalEl.removeEventListener('shown.bs.modal', onShown);
+    // 1. Limpiamos la URL base (Quitamos el proxy como en InactivarPromocion)
+    let baseUrl = (window.apiBaseUrl || "http://localhost:5074").replace("/api/router-proxy/execute", "");
 
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "GET",
-            endpoint_path: "api/Descargas/descargar",
-            client: "APL",
-            endpoint_query_params: `/${encodeURIComponent(nombreArchivo)}`
-        };
+    // 2. Construimos la URL limpia hacia el microservicio
+    const url = `${baseUrl}/api/Descargas/descargar/${encodeURIComponent(nombreArchivo)}`;
 
-        fetch("/api/apigee-router-proxy", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+    console.log("[abrirVisualizadorPdf] Fetching directo al API limpio:", url);
+
+    fetch(url)
+        .then(function (response) {
+            if (!response.ok) {
+                return response.text().then(function (txt) {
+                    throw new Error(txt || `Error HTTP ${response.status}`);
+                });
+            }
+            return response.blob();
         })
-            .then(res => {
-                if (!res.ok) throw new Error("Error HTTP: " + res.status);
-                return res.arrayBuffer();
-            })
-            .then(async (buffer) => {
-                const rawBytes = new Uint8Array(buffer);
-                console.log("[abrirVisualizadorPdf] Respuesta total bytes:", rawBytes.length);
+        .then(function (blob) {
+            // Forzamos el tipo a PDF
+            const pdfBlob = new Blob([blob], { type: "application/pdf" });
+            const blobUrl = URL.createObjectURL(pdfBlob);
 
-                let pdfBytes = null;
+            // Renderizamos en el visor (Iframe)
+            $("#pdfIframe").attr("src", blobUrl);
+            $("#pdfSpinner").hide();
+            $("#pdfVisorContenido").show();
 
-                try {
-                    const textDecoder = new TextDecoder('utf-8');
-                    const textBody = textDecoder.decode(rawBytes);
-                    const jsonObj = JSON.parse(textBody);
-                    const jsonResp = jsonObj.json_response;
+            // Configuramos botón de descarga
+            const nombreLegible = obtenerNombreArchivo(nombreArchivo);
+            $("#btnDescargarPdf")
+                .data("blob-url", blobUrl)
+                .data("nombre-archivo", nombreLegible || "soporte.pdf")
+                .show();
 
-                    if (jsonResp && typeof jsonResp === "string") {
-                        let cleanData = jsonResp.trim().replace(/^"|"$/g, '');
-
-                        if (cleanData.startsWith("data:application/pdf;base64,")) {
-                            cleanData = cleanData.split(",")[1];
-                        }
-
-                        if (cleanData.startsWith("JVBER")) {
-                            console.log("[abrirVisualizadorPdf] Base64 detectado, decodificando...");
-                            pdfBytes = base64ToUint8Array(cleanData);
-                        }
-                    }
-                } catch (e) {
-                    console.warn("[abrirVisualizadorPdf] No es Base64 o JSON parse falló:", e.message);
+            // Evento para el botón de descarga
+            $("#btnDescargarPdf").off("click").on("click", function () {
+                const urlToDownload = $(this).data("blob-url");
+                const nameToDownload = $(this).data("nombre-archivo");
+                if (urlToDownload) {
+                    const a = document.createElement("a");
+                    a.href = urlToDownload;
+                    a.download = nameToDownload;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
                 }
-
-                if (!pdfBytes || !esPdfValido(pdfBytes)) {
-                    console.log("[abrirVisualizadorPdf] Intentando extracción binaria desde arrayBuffer...");
-
-                    let bytesRaw = null;
-                    let bytesUtf8 = null;
-
-                    try {
-                        bytesRaw = extraerBytesRaw(rawBytes);
-                        const checkRaw = verificarFlateStreams(bytesRaw);
-                        console.log("[abrirVisualizadorPdf] RAW - tamaño:", bytesRaw.length,
-                            "| flate válidos:", checkRaw.validos, "| inválidos:", checkRaw.invalidos);
-                    } catch (e) {
-                        console.warn("[abrirVisualizadorPdf] extraerBytesRaw falló:", e.message);
-                    }
-
-                    try {
-                        bytesUtf8 = extraerBytesUtf8Decode(rawBytes);
-                        const checkUtf8 = verificarFlateStreams(bytesUtf8);
-                        console.log("[abrirVisualizadorPdf] UTF8 - tamaño:", bytesUtf8.length,
-                            "| flate válidos:", checkUtf8.validos, "| inválidos:", checkUtf8.invalidos);
-                    } catch (e) {
-                        console.warn("[abrirVisualizadorPdf] extraerBytesUtf8Decode falló:", e.message);
-                    }
-
-                    const rawOk = bytesRaw && esPdfValido(bytesRaw);
-                    const utf8Ok = bytesUtf8 && esPdfValido(bytesUtf8);
-
-                    if (rawOk && utf8Ok) {
-                        const cRaw = verificarFlateStreams(bytesRaw);
-                        const cUtf8 = verificarFlateStreams(bytesUtf8);
-
-                        if (cRaw.validos >= cUtf8.validos && cRaw.invalidos <= cUtf8.invalidos) {
-                            console.log("[abrirVisualizadorPdf] ✓ Seleccionada: extracción RAW");
-                            pdfBytes = bytesRaw;
-                        } else {
-                            console.log("[abrirVisualizadorPdf] ✓ Seleccionada: extracción UTF-8 decode");
-                            pdfBytes = bytesUtf8;
-                        }
-                    } else if (rawOk) {
-                        console.log("[abrirVisualizadorPdf] ✓ Seleccionada: extracción RAW (única válida)");
-                        pdfBytes = bytesRaw;
-                    } else if (utf8Ok) {
-                        console.log("[abrirVisualizadorPdf] ✓ Seleccionada: extracción UTF-8 decode (única válida)");
-                        pdfBytes = bytesUtf8;
-                    }
-                }
-
-                if (!pdfBytes || !esPdfValido(pdfBytes)) {
-                    throw new Error("No se pudo obtener un PDF válido. La respuesta del servidor puede estar corrupta.");
-                }
-
-                console.log("[abrirVisualizadorPdf] PDF válido obtenido, tamaño:", pdfBytes.length, "bytes");
-
-                await renderizarPdfEnModal(pdfBytes, nombreArchivo);
-            })
-            .catch(err => {
-                console.error("[abrirVisualizadorPdf] Error:", err);
-                $("#pdfSpinner").hide();
-                $("#pdfError").text("No se pudo renderizar el PDF: " + err.message).show();
             });
-    });
+        })
+        .catch(function (error) {
+            console.error("[abrirVisualizadorPdf] Error:", error);
+            $("#pdfSpinner").hide();
+            $("#pdfError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> ${error.message}`).show();
+        });
 }
+
+// Limpieza de memoria al cerrar el modal (opcional pero recomendado)
+$(document).ready(function () {
+    $('#modalVisualizadorPdf').on('hidden.bs.modal', function () {
+        const iframe = document.getElementById("pdfIframe");
+        if (iframe) iframe.src = "about:blank";
+
+        const blobUrl = $("#btnDescargarPdf").data("blob-url");
+        if (blobUrl) URL.revokeObjectURL(blobUrl);
+    });
+});
 
 // Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
