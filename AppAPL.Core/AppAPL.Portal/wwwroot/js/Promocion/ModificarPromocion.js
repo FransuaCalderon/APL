@@ -978,6 +978,7 @@ async function guardarPromocion() {
         acuerdos: acuerdos,
         segmentos: [],
         archivosoporte: archivoSoporte,
+        rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
         idtipoproceso: tipoProceso.idcatalogo,
         idopcion: idOpcionActual,
         idcontrolinterfaz: "BTNGRABAR",
@@ -985,6 +986,7 @@ async function guardarPromocion() {
     };
 
     console.log("📤 Enviando JSON Modificar Promoción:", body);
+    console.log("promocionTemporal: ", promocionTemporal);
 
     Swal.fire({
         title: 'Confirmar Modificación',

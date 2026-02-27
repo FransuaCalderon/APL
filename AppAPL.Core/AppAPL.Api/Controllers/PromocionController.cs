@@ -339,7 +339,7 @@ namespace AppAPL.Api.Controllers
 
 
         [HttpPost("actualizar-promocion")]
-        [Email("ENTPROMOCION", TipoProceso.Modificacion)]
+        //[Email("ENTPROMOCION", TipoProceso.Modificacion)]
         public async Task<ActionResult<ControlErroresDTO>> ActualizarPromocion(ActualizarPromocionRequest promocion)
         {
             

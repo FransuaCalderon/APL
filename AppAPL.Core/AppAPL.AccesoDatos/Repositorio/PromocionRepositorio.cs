@@ -1088,6 +1088,21 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
+
+            if (codigoSalida == 0 && !string.IsNullOrEmpty(promocion.rutaArchivoAntiguo))
+            {
+                // Combina la raíz del proyecto con la ruta que viene del JSON
+                string rutaFisicaAntigua = Path.Combine(env.ContentRootPath, promocion.rutaArchivoAntiguo);
+                logger.LogInformation($"rutaFisicaAntigua: {rutaFisicaAntigua}");
+
+                if (File.Exists(rutaFisicaAntigua))
+                {
+                    File.Delete(rutaFisicaAntigua);
+                }
+            }
+
+
+
             //return parameters.Get<int>("p_idfondo_out");
             var retorno = new ControlErroresDTO()
             {
