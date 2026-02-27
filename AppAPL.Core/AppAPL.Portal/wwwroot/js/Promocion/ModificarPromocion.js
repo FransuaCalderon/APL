@@ -384,6 +384,11 @@ $(document).ready(function () {
         }
     });
 
+    // Input File
+    $('#inputArchivoSoporte').on('change', function () {
+        esArchivoValido('#inputArchivoSoporte', '#lblArchivoActual');
+    });
+
     initDatepickers();
 });
 
@@ -476,6 +481,7 @@ function abrirModalEditar(idPromocion) {
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
         success: function (res) {
             const data = res.json_response || {};
+            console.log("data: ", data);
             promocionTemporal = data;
             poblarFormulario(data);
             $('#vistaTabla').hide();
@@ -501,7 +507,7 @@ function poblarFormulario(data) {
 
     const rutaSoporte = cab.archivosoporte || "";
     $('#btnVerSoporteActual').data('soporte', rutaSoporte);
-    $('#lblArchivoActual').val(obtenerNombreArchivo(rutaSoporte) || "Ningún archivo seleccionado");
+    $('#lblArchivoActual').text(obtenerNombreArchivo(rutaSoporte) || "Ningún archivo seleccionado");
 
     cargarMotivos(function () { $('#promocionMotivo').val(cab.id_motivo); });
 
@@ -547,7 +553,8 @@ function poblarFormulario(data) {
 
 function resetFormulario() {
     $('#formPromocion')[0].reset();
-    $('#lblArchivoActual').val('Ningún archivo seleccionado');
+    const fileNameSpan = document.getElementById("lblArchivoActual");
+    if (fileNameSpan) fileNameSpan.textContent = "";
     $('#btnVerSoporteActual').removeData('soporte');
 
     CONFIG_MULTIPLE.forEach(conf => {
@@ -612,6 +619,37 @@ async function guardarPromocion() {
         return "C"; // Especificos unicos
     };
 
+
+    /*
+    // Validamos el archivo antes de seguir
+    if (!esArchivoValido('#inputArchivoSoporte', '#lblArchivoActual')) {
+        // Si no hay archivo o es inválido, mostramos alerta si está vacío
+        if ($('#inputArchivoSoporte')[0].files.length === 0) {
+            Swal.fire("Archivo requerido", "Debe adjuntar el soporte", "warning");
+        }
+        return; // Detenemos la ejecución
+    }
+    */
+    // 2. Manejo del Archivo
+    const fileInput = $('#inputArchivoSoporte')[0].files[0];
+
+    /*
+    if (!fileInput) {
+        Swal.fire("Archivo requerido", "Debe adjuntar el soporte de la promoción", "warning");
+        return;
+    }*/
+    
+
+    const leerArchivo = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = e => reject(e);
+    });
+
+
+    const base64Completo = fileInput ?  await leerArchivo(fileInput) : "";
+
     const segmentosConfig = [
         { tipo: "SEGMARCA", codigos: obtenerValorCampo("marca", "#segMarca", "3"), id: "#segMarca" },
         { tipo: "SEGDIVISION", codigos: obtenerValorCampo("division", "#segDivision", "3"), id: "#segDivision" },
@@ -632,6 +670,7 @@ async function guardarPromocion() {
     const idProv = parseInt($("#fondoProveedorId").val(), 10) || 0;
     if (idProv > 0) {
         acuerdosModificados.push({
+            accion: 'U',
             idacuerdo: idProv,
             porcentajedescuento: parseFloat($("#descuentoProveedor").val()) || 0,
             valorcomprometido: parseCurrencyToNumber($("#fondoValorTotal").val())
@@ -641,6 +680,7 @@ async function guardarPromocion() {
     const idProp = parseInt($("#acuerdoPropioId").val(), 10) || 0;
     if (idProp > 0) {
         acuerdosModificados.push({
+            accion: 'U',
             idacuerdo: idProp,
             porcentajedescuento: parseFloat($("#descuentoPropio").val()) || 0,
             valorcomprometido: parseCurrencyToNumber($("#comprometidoPropio").val())
@@ -664,7 +704,8 @@ async function guardarPromocion() {
         },
         acuerdos: acuerdosModificados,
         segmentos: segmentosValidados,
-        archivosoporte: archivoSoporte,
+        archivosoportebase64: base64Completo,
+        nombrearchivosoporte: fileInput ? fileInput.name : "", 
         rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
         idopcion: getIdOpcionSeguro(), idcontrolinterfaz: "BTNGRABAR", ideventoetiqueta: "EVCLICK"
@@ -690,6 +731,43 @@ async function guardarPromocion() {
             error: function (xhr) { manejarErrorGlobal(xhr, "guardar promoción"); }
         });
     });
+}
+
+
+function esArchivoValido(inputSelector, spanSelector) {
+    const $input = $(inputSelector);
+    const fileNameSpan = $(spanSelector)[0];
+    const file = $input[0].files[0];
+
+    if (!file) return false;
+
+    // Obtener parámetros dinámicos del ViewBag
+    const tamanoMaxMB = parseFloat($input.data('max-mb')) || 5;
+    const tamanoMaxBytes = tamanoMaxMB * 1024 * 1024;
+    const acceptAttr = $input.attr('accept') || "";
+
+    const extensionesPermitidas = acceptAttr.replace(/\./g, '').split(',').map(ext => ext.trim().toLowerCase());
+    const extensionArchivo = file.name.split('.').pop().toLowerCase();
+
+    // Validación: Extensión
+    if (acceptAttr !== "" && !extensionesPermitidas.includes(extensionArchivo)) {
+        Swal.fire("Extensión no permitida", `Solo se aceptan: ${acceptAttr}`, "error");
+        $input.val('');
+        if (fileNameSpan) fileNameSpan.textContent = "Archivo no válido";
+        return false;
+    }
+
+    // Validación: Tamaño
+    if (file.size > tamanoMaxBytes) {
+        Swal.fire("Archivo muy pesado", `El límite es de ${tamanoMaxMB}MB`, "error");
+        $input.val('');
+        if (fileNameSpan) fileNameSpan.textContent = "Archivo muy pesado";
+        return false;
+    }
+
+    // Si todo está bien
+    if (fileNameSpan) fileNameSpan.textContent = file.name;
+    return true;
 }
 
 function initDatepickers() {

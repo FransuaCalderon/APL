@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1057,7 +1058,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_json_promocion = JsonSerializer.Serialize(promocion.Promocion, options),
                 p_json_acuerdos = JsonSerializer.Serialize(promocion.Acuerdos, options),
                 p_json_segmentos = JsonSerializer.Serialize(promocion.Segmentos, options),
-                p_archivosoporte = "sin archivo",
+                p_archivosoporte = !string.IsNullOrEmpty(rutaFisicaFinal) ? rutaFisicaFinal : promocion.rutaArchivoAntiguo,
                 p_idtipoproceso = promocion.IdTipoProceso,
 
                 p_idopcion = promocion.IdOpcion,
@@ -1089,7 +1090,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
 
 
-            if (codigoSalida == 0 && !string.IsNullOrEmpty(promocion.rutaArchivoAntiguo))
+            if (codigoSalida == 0 && !string.IsNullOrEmpty(promocion.rutaArchivoAntiguo) && !string.IsNullOrWhiteSpace(promocion.ArchivoSoporteBase64))
             {
                 // Combina la raíz del proyecto con la ruta que viene del JSON
                 string rutaFisicaAntigua = Path.Combine(env.ContentRootPath, promocion.rutaArchivoAntiguo);

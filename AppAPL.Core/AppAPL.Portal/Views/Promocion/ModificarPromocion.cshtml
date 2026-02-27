@@ -339,10 +339,10 @@
                                         Buscar Archivo
                                     </label>
                                     <input type="file" id="inputArchivoSoporte" class="d-none"
-                                           accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
-                                           onchange="document.getElementById('lblArchivoActual').value = this.files[0] ? this.files[0].name : 'Ningún archivo seleccionado'">
-                                    <input type="text" class="form-control soporte-nombre" id="lblArchivoActual"
-                                           value="Ningún archivo seleccionado" readonly>
+                                           accept="@ViewBag.ExtensionesPermitidas"
+                                           data-max-mb="@ViewBag.MaximoTamanoMB">
+                                    <!--onchange="document.getElementById('lblArchivoActual').value = this.files[0] ? this.files[0].name : 'Ningún archivo seleccionado'"-->
+                                    <span class="form-control" id="lblArchivoActual">Ningún archivo seleccionado</span>
                                     <button class="btn btn-outline-secondary" type="button" id="btnVerSoporteActual"
                                             title="Ver Documento">
                                         <i class="fa-regular fa-file-lines"></i>

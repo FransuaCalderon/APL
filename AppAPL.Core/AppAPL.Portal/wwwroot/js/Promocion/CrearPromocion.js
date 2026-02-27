@@ -717,7 +717,7 @@
                 "body_request": body
             };
 
-            console.log("body: ", body);           
+            console.log("body: ", body);  
             // 5. Envío vía AJAX
             $.ajax({
                 url: "/api/apigee-router-proxy",
