@@ -655,8 +655,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
             parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
@@ -669,8 +669,9 @@ namespace AppAPL.AccesoDatos.Repositorio
                 );
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandInacPromoDTO>();
+            var segmentos = await multi.ReadAsync<SegmentoBandejaDTO>();
             var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
-            var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
+
 
             string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
@@ -681,8 +682,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             var resultado = new BandInacPromocionIDDTO()
             {
                 cabecera = cabecera,
+                segmentos = segmentos,
                 acuerdos = acuerdos,
-                articulos = articulos,
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida
@@ -1042,6 +1043,10 @@ namespace AppAPL.AccesoDatos.Repositorio
             using var connection = factory.CreateOpenConnection();
             var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
+
+            // --- AQUÍ USAS EL MÉTODO ---
+            string rutaFisicaFinal = await ProcesarArchivoBase64(promocion.ArchivoSoporteBase64, promocion.NombreArchivoSoporte);
+
             var paramObject = new
             {
                 p_idpromocion = promocion.IdPromocion,
@@ -1049,7 +1054,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_json_promocion = JsonSerializer.Serialize(promocion.Promocion, options),
                 p_json_acuerdos = JsonSerializer.Serialize(promocion.Acuerdos, options),
                 p_json_segmentos = JsonSerializer.Serialize(promocion.Segmentos, options),
-                p_archivosoporte = promocion.ArchivoSoporte,
+                p_archivosoporte = rutaFisicaFinal,
                 p_idtipoproceso = promocion.IdTipoProceso,
 
                 p_idopcion = promocion.IdOpcion,

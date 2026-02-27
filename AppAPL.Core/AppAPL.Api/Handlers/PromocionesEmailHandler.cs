@@ -211,6 +211,7 @@ namespace AppAPL.Api.Handlers
 
 
                 case TipoProceso.Aprobacion:
+                    /*
                     var reqCreacion2 = JsonSerializer.Deserialize<AprobarPromocionRequest>(requestBody, jsonOptions);
 
 
@@ -244,7 +245,7 @@ namespace AppAPL.Api.Handlers
                             { "DescuentoTotal",  descuentoTotal2.ToString("N2") },
                             { "Regalo",  promocionAprobacion.cabecera.MarcaRegalo },
 
-                            /*
+                            
                             { "Marca",  marcas },
                             { "Division",  divisiones },
                             { "Departamento",  departamentos },
@@ -255,7 +256,7 @@ namespace AppAPL.Api.Handlers
                             { "Almacen",  almacenes },
                             { "TipoCliente",  tiposclientes },
                             { "MedioPago",  mediospagos },
-                            */
+                            
 
                             { "AcuerdoProveedor",  promocionAprobacion.acuerdos[0].IDACUERDO.ToString() },
                             { "PorcentajeProveedor",  promocionAprobacion.acuerdos[0].porcentaje_descuento.ToString("N2") },
@@ -268,7 +269,7 @@ namespace AppAPL.Api.Handlers
                             { "Firma",  reqCreacion2.NombreUsuario },
                         };
                     
-
+                        */
                     break;
 
 

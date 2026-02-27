@@ -235,10 +235,8 @@ namespace AppAPL.Dto.Promocion
     {
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandInacPromoDTO? cabecera { get; set; }
+        public IEnumerable<SegmentoBandejaDTO> segmentos { get; set; }
         public IEnumerable<AcuerdoBandAproDTO>? acuerdos { get; set; }
-
-        // Lista para capturar el cursor p_cursor_articulos
-        public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
 
         public string? tipopromocion { get; set; }
         [JsonIgnore]
@@ -414,11 +412,7 @@ namespace AppAPL.Dto.Promocion
         public string IdControlInterfaz { get; set; } = string.Empty;
         public string IdEventoEtiqueta { get; set; } = string.Empty;
 
-        // --- CAMBIO AQUÍ: Reemplazamos IFormFile por strings ---
-        // El nombre del archivo (ej: "soporte.pdf")
         public string? NombreArchivoSoporte { get; set; }
-
-        // El contenido del archivo convertido en texto largo
         public string? ArchivoSoporteBase64 { get; set; }
 
         // Objetos que se enviarán como JSON (CLOB) al SP
@@ -491,7 +485,10 @@ namespace AppAPL.Dto.Promocion
         public PromocionModDto Promocion { get; set; }
         public List<AcuerdoModDto> Acuerdos { get; set; }
         public List<SegmentoModDto> Segmentos { get; set; }
-        public string ArchivoSoporte { get; set; }
+        public string? NombreArchivoSoporte { get; set; }
+        public string? ArchivoSoporteBase64 { get; set; }
+
+        //public string ArchivoSoporte { get; set; }
         public int IdTipoProceso { get; set; }
 
         // Parámetros para el LOG
