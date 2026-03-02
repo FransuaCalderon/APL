@@ -309,7 +309,9 @@ namespace AppAPL.Dto.Promocion
 
         // Lista para capturar el cursor p_cursor_articulos
         public List<ArticuloBandAproPromoDTO>? articulos { get; set; }
-        
+
+        public List<SegmentoBandejaDTO>? segmentos { get; set; }
+
         public string? tipopromocion { get; set; }
         [JsonIgnore]
         public int? codigoSalida { get; set; }

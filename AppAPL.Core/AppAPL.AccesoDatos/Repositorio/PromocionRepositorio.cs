@@ -696,7 +696,7 @@ namespace AppAPL.AccesoDatos.Repositorio
         public async Task<BandAproPromocionIDDTO?> ObtenerBandAproPromoPorId(int idPromocion, int idAprobacion)
         {
             using var connection = factory.CreateOpenConnection();
-
+            
             var paramObject = new
             {
                 p_idpromocion = idPromocion,
@@ -708,6 +708,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
             parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
@@ -722,6 +723,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 );
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandAproPromoDTO>();
+            var segmentos = await multi.ReadAsync<SegmentoBandejaDTO>();
             var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
             var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
 
@@ -735,6 +737,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             {
                 cabecera = cabecera,
                 acuerdos = acuerdos.ToList(),
+                segmentos = segmentos.ToList(),
                 articulos = articulos.ToList(),
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,

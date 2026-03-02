@@ -298,12 +298,18 @@ namespace AppAPL.Api.Handlers
                         "ESTADOAPROBADO" => "APROBADO",
                         "ESTADONEGADO" => "NEGADO"
                     };
-
+                    /*
                     string etiquetaTipoProceso = reqAprobacion.IdEtiquetaTipoProceso switch
                     {
                         "TPCREACION" => "CREACION",
                         "TPINACTIVACION" => "INACTIVACION"
-                    };
+                    };*/
+
+                    if (reqAprobacion.IdEtiquetaTipoProceso == "TPINACTIVACION")
+                    {
+                        tipoProcEtiqueta = "TPAPROBACIONINACTIVACION";
+                        tipoProceso = TipoProceso.AprobacionInactivacion;
+                    }
 
 
                     var promocionAprobacion = await promocionRepo.ObtenerBandGenPromoPorId((int)reqAprobacion.Identidad);
@@ -342,7 +348,8 @@ namespace AppAPL.Api.Handlers
 
                     var camposBase2 = new Dictionary<string, string>
                         {
-                            //nombre
+                        //nombre
+                            { "estadoCorreo", estadoCorreo },
                             { "IdPromocion",  promocionAprobacion.cabecera.IdPromocion.ToString() },
                             { "Descripcion",  promocionAprobacion.cabecera.Descripcion },
                             { "Motivo",  promocionAprobacion.cabecera.nombre_motivo },

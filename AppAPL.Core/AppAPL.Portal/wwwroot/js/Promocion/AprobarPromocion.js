@@ -691,6 +691,7 @@ function ejecutarAprobacionPromocion(accion, nuevoEstado, comentario) {
         code_app: "APP20260128155212346", http_method: "POST", endpoint_path: "api/Promocion/aprobar-promocion", client: "APL", body_request: body
     };
 
+    console.log("body: ", body);
     $.ajax({
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
         success: function (response) {
