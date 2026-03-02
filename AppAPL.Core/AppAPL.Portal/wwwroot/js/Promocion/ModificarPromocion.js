@@ -543,7 +543,7 @@ function crearListado(data) {
             { targets: [5, 6, 7], className: "dt-center" },
         ],
         order: [[1, "desc"]],
-        language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }
+        language: { url: "/lib/datatables/i18n/es-ES.json" }
     });
 }
 
