@@ -53,6 +53,42 @@ function formatearFecha(fechaString) {
     return `${dia}/${mes}/${anio}`;
 }
 
+// Función para mostrar la fecha con hora en el input
+function formatearFechaHora(fechaString) {
+    if (!fechaString) return "";
+    const fecha = new Date(fechaString);
+    if (isNaN(fecha.getTime())) return "";
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const anio = fecha.getFullYear();
+    const horas = fecha.getHours().toString().padStart(2, '0');
+    const minutos = fecha.getMinutes().toString().padStart(2, '0');
+    return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
+}
+
+// Validación para aceptar el formato con hora opcional
+function isValidDateDDMMYYYYHHMM(s) {
+    if (!s) return false;
+    return /^\d{2}\/\d{2}\/\d{4}( \d{2}:\d{2})?$/.test(s);
+}
+
+// Convertir de dd/mm/yyyy HH:mm a formato ISO para el servicio
+function toISOFromDDMMYYYYHHMM(s) {
+    if (!s || !isValidDateDDMMYYYYHHMM(s)) return null;
+    const partes = s.split(" ");
+    const [dd, mm, yyyy] = partes[0].split("/").map(Number);
+    let hh = 0, min = 0;
+
+    // Si la cadena incluye hora, la separamos
+    if (partes[1]) {
+        const tiempo = partes[1].split(":");
+        hh = Number(tiempo[0]);
+        min = Number(tiempo[1]);
+    }
+
+    return new Date(yyyy, mm - 1, dd, hh, min).toISOString();
+}
+
 function obtenerNombreArchivo(rutaCompleta) {
     if (!rutaCompleta) return "";
     var nombreArchivo = rutaCompleta.replace(/^.*[\\/]/, '');
@@ -174,12 +210,22 @@ function initLogicaSeleccionMultiple() {
                 $(`${conf.body} input[type='checkbox']:checked`).each(function () { seleccionados.push($(this).val()); });
             }
 
+            // NUEVA LÓGICA: Si seleccionó 0, limpiamos. Si seleccionó exactamente 1 (y no es lista específica de clientes), lo pasamos al combo principal
+            if (seleccionados.length === 0) {
+                $(conf.select).val("").trigger("change");
+                return;
+            } else if (seleccionados.length === 1 && conf.id !== "tipocliente") {
+                const valorUnico = seleccionados[0];
+                if ($(conf.select).find(`option[value='${valorUnico}']`).length > 0) {
+                    $(conf.select).val(valorUnico).trigger("change");
+                    return; // Termina la función, el botón se oculta por el trigger('change')
+                }
+            }
+
             const $btnTrigger = $(conf.btnOpen);
             $btnTrigger.data("seleccionados", seleccionados);
             if (seleccionados.length > 0) {
                 $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success-custom").html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
-            } else {
-                $btnTrigger.removeClass("btn-success-custom").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
             }
         });
     });
@@ -194,6 +240,8 @@ function poblarSelectSegmento(configId, segmentos, etiqueta) {
     const $modalBody = $(conf.body);
 
     $modalBody.find("input[type='checkbox']").prop("checked", false);
+    if (configId === "tipocliente") $("#txtListaClientes").val("");
+
     $btn.addClass("d-none").removeClass("btn-success-custom").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`).removeData("seleccionados");
 
     const items = (segmentos || []).filter(s => s.etiqueta_tipo_segmento === etiqueta);
@@ -211,15 +259,27 @@ function poblarSelectSegmento(configId, segmentos, etiqueta) {
         return;
     }
 
-    // Un solo registro
-    if (items.length === 1 && primerItem.codigo_detalle && primerItem.tipoasignacion !== "C") {
-        $select.val(primerItem.codigo_detalle).trigger("change");
-        return;
+    // NUEVA LÓGICA: Un solo registro - Validamos que exista en las opciones normales del Select
+    if (items.length === 1 && primerItem.codigo_detalle) {
+        const existeOpcion = $select.find(`option[value='${primerItem.codigo_detalle}']`).length > 0;
+        if (existeOpcion && primerItem.codigo_detalle !== conf.triggerVal) {
+            $select.val(primerItem.codigo_detalle).trigger("change");
+            return;
+        }
     }
 
     // Tipo Lista o Varios
-    if (items.length > 1 || primerItem.tipoasignacion === "C" || primerItem.tipoasignacion === "D") {
-        $select.val(conf.triggerVal).trigger("change");
+    if (items.length > 0) {
+        let valParaTrigger = conf.triggerVal;
+
+        // Excepción por si traes códigos cédulas en tipo de cliente
+        if (configId === "tipocliente" && primerItem.codigo_detalle && primerItem.codigo_detalle.length > 5) {
+            valParaTrigger = "3"; // Fuerza a lista específica
+        } else if (configId === "tipocliente" && items.length > 1) {
+            valParaTrigger = "4"; // Opciones de catálogo
+        }
+
+        $select.val(valParaTrigger).trigger("change");
         $btn.removeClass("d-none").removeClass("btn-outline-secondary").addClass("btn-success-custom");
         $btn.html(`<i class="fa-solid fa-list-check"></i> (${items.length})`);
 
@@ -230,7 +290,7 @@ function poblarSelectSegmento(configId, segmentos, etiqueta) {
             $modalBody.find(`input[value='${cod}']`).prop("checked", true);
         });
 
-        if (configId === "tipocliente" && conf.triggerVal === "3") {
+        if (configId === "tipocliente" && valParaTrigger === "3") {
             $("#txtListaClientes").val(seleccionados.join(",\n"));
         }
 
@@ -351,10 +411,26 @@ $(document).ready(function () {
         }
     });
 
-    $('#btnVerSoporteActual').on('click', function () {
+    $('#btnVerSoporteActual').off('click').on('click', function () {
         const ruta = $(this).data('soporte');
         if (!ruta) { Swal.fire({ icon: 'info', title: 'Sin soporte', text: 'No hay archivo adjunto.' }); return; }
-        window.open(`/api/Promocion/ver-soporte?ruta=${encodeURIComponent(ruta)}`, '_blank');
+        const nombreArchivoConGuid = obtenerNombreArchivoConGuid(ruta);
+        abrirVisorPDF(nombreArchivoConGuid);
+    });
+
+    // Eventos para cerrar y descargar del visor PDF
+    $("#btnCerrarVisorPdf, #btnCerrarVisorPdfFooter").on("click", function () { cerrarVisorPDF(); });
+    $("#btnDescargarPdf").on("click", function () {
+        const url = $(this).data("blob-url");
+        const nombre = $(this).data("nombre-archivo");
+        if (url) {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = nombre || "soporte.pdf";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
     });
 
     // Modales de Acuerdo
@@ -501,8 +577,8 @@ function poblarFormulario(data) {
     $('#verPromocionNum').val(cab.idpromocion);
     $('#modalTipoPromocion').val(cab.etiqueta_clase_promocion || "");
     $('#promocionDescripcion').val(cab.descripcion || "");
-    $('#promocionFechaInicio').val(formatearFecha(cab.fecha_inicio));
-    $('#promocionFechaFin').val(formatearFecha(cab.fecha_fin));
+    $('#promocionFechaInicio').val(formatearFechaHora(cab.fecha_inicio));
+    $('#promocionFechaFin').val(formatearFechaHora(cab.fecha_fin));
     $('#verEstadoPromocion').val(cab.nombre_estado_promocion || cab.estado || "");
 
     const rutaSoporte = cab.archivosoporte || "";
@@ -529,8 +605,8 @@ function poblarFormulario(data) {
         $('#segArticulo').val(artItems[0].codigo_detalle);
     }
 
-    // REGALO
-    $('#promocionMarcaRegalo').prop('checked', (cab.marcaregalo || "N").toUpperCase() === "S");
+    const marcaRegaloVal = (cab.marcaregalo || "N").toString().trim().toUpperCase();
+    $('#promocionMarcaRegalo').prop('checked', (marcaRegaloVal === "S" || marcaRegaloVal === "¿" || marcaRegaloVal === "1"));
 
     // LÍNEA 4 (ACUERDOS) PINTAR DESDE DB
     const acProv = acuerdos.length > 0 ? acuerdos[0] : null;
@@ -777,4 +853,67 @@ function initDatepickers() {
     $('#promocionFechaFin').datepicker({ dateFormat: "dd/mm/yy", minDate: 1 });
     $('#btnFechaInicio').click(() => $('#promocionFechaInicio').datepicker('show'));
     $('#btnFechaFin').click(() => $('#promocionFechaFin').datepicker('show'));
+}
+
+// ===============================================================
+// FUNCIONES VISOR PDF
+// ===============================================================
+function obtenerNombreArchivoConGuid(rutaCompleta) {
+    if (!rutaCompleta) return "";
+    return rutaCompleta.replace(/^.*[\\/]/, '');
+}
+
+function abrirVisorPDF(nombreArchivo) {
+    $("#pdfSpinner").show();
+    $("#pdfVisorContenido").hide();
+    $("#pdfVisorError").hide();
+    $("#btnDescargarPdf").hide();
+
+    const nombreLegible = obtenerNombreArchivo(nombreArchivo);
+    $("#modalVisorPdfLabel .pdf-nombre-archivo").text(nombreLegible || "Soporte");
+
+    const modal = new bootstrap.Modal(document.getElementById("modalVisorPdf"));
+    modal.show();
+
+    fetchPDFDirecto(nombreArchivo);
+}
+
+function fetchPDFDirecto(nombreArchivo) {
+    let baseUrl = (window.apiBaseUrl || "http://localhost:5074").replace("/api/router-proxy/execute", "");
+    const url = `${baseUrl}/api/Descargas/descargar/${encodeURIComponent(nombreArchivo)}`;
+
+    fetch(url)
+        .then(function (response) {
+            if (!response.ok) return response.text().then(txt => { throw new Error(txt || `Error HTTP ${response.status}`); });
+            return response.blob();
+        })
+        .then(function (blob) {
+            const pdfBlob = new Blob([blob], { type: "application/pdf" });
+            const blobUrl = URL.createObjectURL(pdfBlob);
+
+            $("#pdfIframe").attr("src", blobUrl);
+            $("#pdfSpinner").hide();
+            $("#pdfVisorContenido").show();
+
+            const nombreLegible = obtenerNombreArchivo(nombreArchivo);
+            $("#btnDescargarPdf").data("blob-url", blobUrl).data("nombre-archivo", nombreLegible || "soporte.pdf").show();
+        })
+        .catch(function (error) {
+            $("#pdfSpinner").hide();
+            $("#pdfVisorError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> ${error.message}`).show();
+        });
+}
+
+function cerrarVisorPDF() {
+    const iframe = document.getElementById("pdfIframe");
+    const blobUrl = $("#btnDescargarPdf").data("blob-url");
+
+    if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+        $("#btnDescargarPdf").removeData("blob-url");
+    }
+
+    if (iframe) iframe.src = "about:blank";
+    const modal = bootstrap.Modal.getInstance(document.getElementById("modalVisorPdf"));
+    if (modal) modal.hide();
 }
