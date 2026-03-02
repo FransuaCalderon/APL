@@ -456,7 +456,7 @@ namespace AppAPL.Api.Handlers
                             { "Motivo",  promocioninactivar.cabecera.nombre_motivo },
                             { "FechaInicio",  promocioninactivar.cabecera.fecha_inicio.ToString() },
                             { "FechaFin",  promocioninactivar.cabecera.fecha_fin.ToString() },
-                            { "Estado",  promocioninactivar.cabecera.nombre_estado_promocion },
+                            { "Estado",  "Inactivo" },
                             { "DescuentoTotal",  descuentoTotal4.ToString("N2") },
                             { "Regalo",  promocioninactivar.cabecera.MarcaRegalo },
 

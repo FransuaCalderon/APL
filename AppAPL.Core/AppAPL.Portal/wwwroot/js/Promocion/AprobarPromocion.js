@@ -82,14 +82,34 @@ function obtenerNombreArchivoConGuid(rutaCompleta) {
 }
 
 function obtenerTextoSegmento(segmentos, etiqueta) {
-    if (!segmentos || !Array.isArray(segmentos)) return "";
-    const items = segmentos.filter(s => s.etiqueta_tipo_segmento === etiqueta);
-    if (items.length === 0) return "";
-    if (items.length === 1) {
-        const item = items[0];
-        return item.codigo_detalle ? `${item.codigo_detalle} - ${item.nombre_detalle || ""}` : (item.nombre_detalle || "");
+    // 1. Si el array ni siquiera existe, devolvemos "Todos" por seguridad visual
+    if (!segmentos || !Array.isArray(segmentos) || segmentos.length === 0) {
+        return "Todos";
     }
-    return "Varios";
+
+    // 2. Intento de filtrado flexible
+    const items = segmentos.filter(s => {
+        const tag = s.etiqueta_tipo_segmento || s.etiquetaTipoSegmento || s.etiqueta || "";
+        return tag.toUpperCase() === etiqueta.toUpperCase();
+    });
+
+    if (items.length === 0) return "Todos";
+
+    const primerItem = items[0];
+
+    // 3. Manejo de Tipo de Asignación "T" (Todos)
+    const tipoAsig = (primerItem.tipoasignacion || primerItem.tipoAsignacion || "").toString().toUpperCase();
+    if (tipoAsig === "T") return "Todos";
+
+    // 4. Manejo de múltiples registros
+    if (items.length > 1) return `Varios (${items.length})`;
+
+    // 5. Formateo de un solo registro (Código - Nombre)
+    let cod = (primerItem.codigo_detalle || primerItem.codigoDetalle || "").toString().trim();
+    let nom = (primerItem.nombre_detalle || primerItem.nombreDetalle || "").toString().trim();
+
+    if (cod && nom) return `${cod} - ${nom}`;
+    return cod || nom || "Todos";
 }
 
 // ===============================================================
@@ -415,16 +435,16 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                 $("#verRegalo").prop("checked", esRegalo);
 
                 // Segmentos
-                $("#verMarca").val(obtenerTextoSegmento(segmentos, "SEGMARCA") || "Todos");
-                $("#verDivision").val(obtenerTextoSegmento(segmentos, "SEGDIVISION") || "Todos");
-                $("#verDepartamento").val(obtenerTextoSegmento(segmentos, "SEGDEPARTAMENTO") || "Todos");
-                $("#verClase").val(obtenerTextoSegmento(segmentos, "SEGCLASE") || "Todos");
-                $("#verArticulo").val(obtenerTextoSegmento(segmentos, "SEGARTICULO") || "");
-                $("#verCanal").val(obtenerTextoSegmento(segmentos, "SEGCANAL") || "Todos");
-                $("#verGrupoAlmacen").val(obtenerTextoSegmento(segmentos, "SEGGRUPOALMACEN") || "Todos");
-                $("#verAlmacen").val(obtenerTextoSegmento(segmentos, "SEGALMACEN") || "Todos");
-                $("#verTipoCliente").val(obtenerTextoSegmento(segmentos, "SEGTIPOCLIENTE") || "Todos");
-                $("#verMedioPago").val(obtenerTextoSegmento(segmentos, "SEGMEDIOPAGO") || "Todos");
+                $("#verMarca").val(obtenerTextoSegmento(segmentos, "SEGMARCA"));
+                $("#verDivision").val(obtenerTextoSegmento(segmentos, "SEGDIVISION"));
+                $("#verDepartamento").val(obtenerTextoSegmento(segmentos, "SEGDEPARTAMENTO"));
+                $("#verClase").val(obtenerTextoSegmento(segmentos, "SEGCLASE"));
+                $("#verArticulo").val(obtenerTextoSegmento(segmentos, "SEGARTICULO"));
+                $("#verCanal").val(obtenerTextoSegmento(segmentos, "SEGCANAL"));
+                $("#verGrupoAlmacen").val(obtenerTextoSegmento(segmentos, "SEGGRUPOALMACEN"));
+                $("#verAlmacen").val(obtenerTextoSegmento(segmentos, "SEGALMACEN"));
+                $("#verTipoCliente").val(obtenerTextoSegmento(segmentos, "SEGTIPOCLIENTE"));
+                $("#verMedioPago").val(obtenerTextoSegmento(segmentos, "SEGMEDIOPAGO"));
 
                 // Resumen Acuerdos
                 poblarResumenAcuerdos(acuerdos);
