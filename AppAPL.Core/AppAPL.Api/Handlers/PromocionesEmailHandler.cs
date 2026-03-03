@@ -81,16 +81,18 @@ namespace AppAPL.Api.Handlers
                     
                     notificacion = $"apl solicitud {tipoProceso} promocion".ToUpper();
 
-                    string marcas = this.ObtenerDetalleSegmentoPorTipo(reqCreacion.Segmentos, "SEGMARCA");
-                    string divisiones = this.ObtenerDetalleSegmentoPorTipo(reqCreacion.Segmentos, "SEGDIVISION");
-                    string clases = this.ObtenerDetalleSegmentoPorTipo(reqCreacion.Segmentos, "SEGCLASE");
-                    string departamentos = this.ObtenerDetalleSegmentoPorTipo(reqCreacion.Segmentos, "SEGDEPARTAMENTO");
+                    var promocionCreacion = await promocionRepo.ObtenerBandGenPromoPorId((int)retorno.Id);
 
-                    string canales = this.ObtenerDetalleSegmentoPorTipo(reqCreacion.Segmentos, "SEGCANAL");
-                    string gruposalmacenes = this.ObtenerDetalleSegmentoPorTipo(reqCreacion.Segmentos, "SEGGRUPOALMACEN");
-                    string almacenes = this.ObtenerDetalleSegmentoPorTipo(reqCreacion.Segmentos, "SEGALMACEN");
-                    string tiposclientes = this.ObtenerDetalleSegmentoPorTipo(reqCreacion.Segmentos, "SEGTIPOCLIENTE");
-                    string mediospagos = this.ObtenerDetalleSegmentoPorTipo(reqCreacion.Segmentos, "SEGMEDIOPAGO");
+                    string marcas = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGMARCA");
+                    string divisiones = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGDIVISION");
+                    string clases = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGCLASE");
+                    string departamentos = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGDEPARTAMENTO");
+
+                    string canales = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGCANAL");
+                    string gruposalmacenes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGGRUPOALMACEN");
+                    string almacenes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGALMACEN");
+                    string tiposclientes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGTIPOCLIENTE");
+                    string mediospagos = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGMEDIOPAGO");
 
                     var motivo = await catalogoRepo.ObtenerPorIdAsync(reqCreacion.Promocion.Motivo);
 
@@ -190,16 +192,19 @@ namespace AppAPL.Api.Handlers
                         proveedores.Add(proveedor);
                     }
 
-                    string marcas2 = this.ObtenerDetalleSegmentoPorTipo(reqModif.Segmentos, "SEGMARCA");
-                    string divisiones2 = this.ObtenerDetalleSegmentoPorTipo(reqModif.Segmentos, "SEGDIVISION");
-                    string clases2 = this.ObtenerDetalleSegmentoPorTipo(reqModif.Segmentos, "SEGCLASE");
-                    string departamentos2 = this.ObtenerDetalleSegmentoPorTipo(reqModif.Segmentos, "SEGDEPARTAMENTO");
 
-                    string canales2 = this.ObtenerDetalleSegmentoPorTipo(reqModif.Segmentos, "SEGCANAL");
-                    string gruposalmacenes2 = this.ObtenerDetalleSegmentoPorTipo(reqModif.Segmentos, "SEGGRUPOALMACEN");
-                    string almacenes2 = this.ObtenerDetalleSegmentoPorTipo(reqModif.Segmentos, "SEGALMACEN");
-                    string tiposclientes2 = this.ObtenerDetalleSegmentoPorTipo(reqModif.Segmentos, "SEGTIPOCLIENTE");
-                    string mediospagos2 = this.ObtenerDetalleSegmentoPorTipo(reqModif.Segmentos, "SEGMEDIOPAGO");
+                    var promocionModificacion = await promocionRepo.ObtenerBandGenPromoPorId(reqModif.IdPromocion);
+
+                    string marcas2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGMARCA");
+                    string divisiones2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGDIVISION");
+                    string clases2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGCLASE");
+                    string departamentos2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGDEPARTAMENTO");
+
+                    string canales2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGCANAL");
+                    string gruposalmacenes2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGGRUPOALMACEN");
+                    string almacenes2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGALMACEN");
+                    string tiposclientes2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGTIPOCLIENTE");
+                    string mediospagos2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGMEDIOPAGO");
 
                     var motivo2 = await catalogoRepo.ObtenerPorIdAsync(reqModif.Promocion.Motivo);
 
@@ -687,15 +692,15 @@ namespace AppAPL.Api.Handlers
             if (segmentos == null || !segmentos.Any()) return string.Empty;
 
             // 1. Filtramos todos los que coincidan con el tipo
-            // 2. Seleccionamos solo la propiedad 'codigo_detalle'
-            // 3. Eliminamos nulos o vacíos para evitar <br> innecesarios
-            var codigos = segmentos
+            var detallesCombinados = segmentos
                 .Where(s => s.etiqueta_tipo_segmento.Equals(tipoSegmentoBusqueda, StringComparison.OrdinalIgnoreCase))
-                .Select(s => s.codigo_detalle)
-                .Where(c => !string.IsNullOrEmpty(c));
+                // 2. Proyectamos combinando codigo y nombre con un guion
+                .Select(s => $"{s.codigo_detalle} - {s.nombre_detalle}")
+                // 3. Filtramos para asegurar que no queden cadenas vacías (por si ambos campos son nulos)
+                .Where(d => !string.IsNullOrWhiteSpace(d) && d != " - ");
 
             // 4. Unimos todos con el separador <br>
-            return string.Join("<br>", codigos);
+            return string.Join("<br>", detallesCombinados);
         }
 
 
