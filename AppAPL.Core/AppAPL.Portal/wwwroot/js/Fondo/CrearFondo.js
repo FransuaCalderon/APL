@@ -45,14 +45,105 @@ function cargarTipoFondo(callback) {
     });
 }
 
+// ===============================================================
+// ✅ MODIFICADO: CONSULTA DE PROVEEDORES CON DATATABLES + CACHÉ
+// ===============================================================
+
+// Variable para guardar la instancia de DataTables
+let dtProveedores = null;
+// Caché de proveedores para no volver a llamar al API cada vez que se abre el modal
+let cacheProveedores = null;
+
 /**
  * Consulta la lista de proveedores para el modal.
+ * ✅ Usa DataTables para búsqueda y paginación automática.
+ * ✅ Cachea los datos para que la segunda apertura sea instantánea.
  */
 function consultarProveedor() {
-    const $tbody = $("#tablaProveedores tbody");
-    const esFondoPropio = verificarSiFondoPropio();
-    const RUC_FONDO_PROPIO = "1790895548001";
+    const etiqueta = obtenerEtiquetaFondo();
+    const queryParam = etiqueta ? "/" + etiqueta : "";
 
+    // Función que recibe los datos y los pinta con DataTables
+    function renderizarTabla(data) {
+        const filas = data.map(p => {
+            const ruc = p.identificacion ?? '';
+            const contacto = p.nombrecontacto1 || p.nombrecontacto2 || '';
+            const mail = p.mailcontacto1 || p.mailcontacto2 || '';
+            return [
+                `<input type="radio" name="selectProveedor" data-id="${p.codigo}" data-nombre="${p.nombre}" data-ruc="${ruc}">`,
+                p.codigo,
+                ruc,
+                p.nombre,
+                contacto,
+                mail,
+                '-'
+            ];
+        });
+
+        if (dtProveedores) {
+            dtProveedores.destroy();
+            $("#tablaProveedores tbody").empty();
+        }
+
+        dtProveedores = $("#tablaProveedores").DataTable({
+            data: filas,
+            columns: [
+                { title: "Seleccionar", className: "text-center", orderable: false, searchable: false },
+                { title: "Código" },
+                { title: "RUC" },
+                { title: "Nombre Proveedor" },
+                { title: "Contacto" },
+                { title: "Mail" },
+                { title: "Teléfono", searchable: false }
+            ],
+            deferRender: true,
+            pageLength: 10,
+            lengthChange: false,
+            dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
+            language: {
+                search: "Buscar:",
+                zeroRecords: "No se encontraron proveedores.",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
+                infoEmpty: "Sin proveedores",
+                infoFiltered: "(filtrado de _MAX_ totales)",
+                paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+            },
+            order: [[3, 'asc']],
+            // ✅ NUEVO: Forzar centrado después de que DataTables termine de renderizar
+            initComplete: function () {
+                const wrapper = $("#tablaProveedores_wrapper");
+                wrapper.find(".dataTables_paginate").attr("style",
+                    "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;"
+                );
+                wrapper.find(".dataTables_info").attr("style",
+                    "text-align:center !important; float:none !important; display:block !important; width:100% !important; font-size:0.8rem; padding-top:0.5rem;"
+                );
+            },
+            drawCallback: function () {
+                const wrapper = $("#tablaProveedores_wrapper");
+                wrapper.find(".dataTables_paginate").attr("style",
+                    "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;"
+                );
+            }
+        });
+
+        if (etiqueta) {
+            $('input[name="selectProveedor"]').first().prop('checked', true);
+        }
+
+        $("#buscarProveedorInput").off("keyup").on("keyup", function () {
+            dtProveedores.search($(this).val()).draw();
+        });
+    }
+
+    // ✅ Solo usar caché si NO tiene etiqueta (listado general)
+    //    Si tiene etiqueta (TFPROPIO/TFCREDITO) siempre llamar al API
+    if (!etiqueta && cacheProveedores) {
+        renderizarTabla(cacheProveedores);
+        return;
+    }
+
+    const $tbody = $("#tablaProveedores tbody");
     $tbody.empty().append('<tr><td colspan="7" class="text-center">Cargando proveedores...</td></tr>');
 
     const payload = {
@@ -60,7 +151,7 @@ function consultarProveedor() {
         http_method: "GET",
         endpoint_path: "api/Proveedor/Listar",
         client: "APL",
-        endpoint_query_params: ""
+        endpoint_query_params: queryParam
     };
 
     $.ajax({
@@ -69,38 +160,18 @@ function consultarProveedor() {
         contentType: "application/json",
         data: JSON.stringify(payload),
         success: function (response) {
-            console.log("Proveedores recibidos:", response.json_response);
             const data = response.json_response || [];
-            $tbody.empty();
 
-            if (data && data.length > 0) {
-                data.forEach(proveedor => {
-                    const ruc = proveedor.identificacion ?? '';
-
-                    // Lógica de filtrado de negocio
-                    if (!esFondoPropio && ruc === RUC_FONDO_PROPIO) return;
-
-                    const contacto = proveedor.nombrecontacto1 || proveedor.nombrecontacto2 || '';
-                    const mail = proveedor.mailcontacto1 || proveedor.mailcontacto2 || '';
-
-                    const fila = `
-                        <tr>
-                            <td class="text-center"><input type="radio" name="selectProveedor" 
-                                data-id="${proveedor.codigo}" data-nombre="${proveedor.nombre}" data-ruc="${ruc}"></td>
-                            <td>${proveedor.codigo}</td>
-                            <td>${ruc}</td>
-                            <td>${proveedor.nombre}</td>
-                            <td>${contacto}</td>
-                            <td>${mail}</td>
-                            <td>-</td>
-                        </tr>`;
-                    $tbody.append(fila);
-                });
-            } else {
-                $tbody.append('<tr><td colspan="7" class="text-center">No hay proveedores disponibles.</td></tr>');
+            // Solo cachear el listado general (sin etiqueta)
+            if (!etiqueta) {
+                cacheProveedores = data;
             }
+
+            renderizarTabla(data);
         },
-        error: (xhr) => $tbody.html(`<tr><td colspan="7" class="text-danger">Error al cargar datos.</td></tr>`)
+        error: (xhr) => {
+            $tbody.html('<tr><td colspan="7" class="text-danger">Error al cargar datos.</td></tr>');
+        }
     });
 }
 
@@ -224,12 +295,20 @@ $(document).ready(function () {
         cargarTipoFondo();
     });
 
-    // Eventos de UI
     $("#fondoTipo").on("change", function () {
-        verificarSiFondoPropio() ? seleccionarProveedorFondoPropio() : habilitarSeleccionProveedor();
+        const etiqueta = obtenerEtiquetaFondo();
+        if (etiqueta) {
+            seleccionarProveedorAutomatico(etiqueta);
+        } else {
+            habilitarSeleccionProveedor();
+        }
     });
 
-    $('#modalConsultaProveedor').on('show.bs.modal', () => consultarProveedor());
+    $('#modalConsultaProveedor').on('show.bs.modal', function () {
+        // ✅ Limpiar búsqueda al abrir el modal
+        $("#buscarProveedorInput").val("");
+        consultarProveedor();
+    });
 
     $("#btnGuardarFondos").on("click", (e) => {
         e.preventDefault();
@@ -336,15 +415,52 @@ function manejarErrorContexto() {
     Swal.fire('Error de Contexto', 'ID de opción no encontrado.', 'error');
 }
 
-function verificarSiFondoPropio() {
+
+function obtenerEtiquetaFondo() {
     const text = $("#fondoTipo option:selected").attr('data-nombre') || "";
-    return /fondo\s*propio|propio/i.test(text);
+    if (/fondo\s*propio|propio/i.test(text)) return "TFPROPIO";
+    if (/fondo\s*cr[eé]dito/i.test(text)) return "TFCREDITO";
+    return null;
 }
 
-function seleccionarProveedorFondoPropio() {
-    $("#fondoProveedorId").val("1790895548001");
-    $("#fondoProveedor").val("Unicomer de Ecuador S.A.");
-    $("#btnBuscarProveedorModal").prop('disabled', true).addClass('disabled');
+function verificarSiFondoPropio() {
+    return obtenerEtiquetaFondo() !== null;
+}
+
+function seleccionarProveedorAutomatico(etiqueta) {
+    // ✅ NO deshabilitar la lupa, para que pueda ver el listado filtrado
+    $("#fondoProveedor").val("Cargando...");
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Proveedor/Listar",
+        client: "APL",
+        endpoint_query_params: "/" + etiqueta
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            const data = response.json_response || [];
+            if (data.length > 0) {
+                const p = data[0];
+                $("#fondoProveedor").val(p.nombre);
+                $("#fondoProveedorId").val(p.identificacion || "");
+                console.log("Proveedor automático (" + etiqueta + "):", p.nombre);
+            } else {
+                $("#fondoProveedor").val("Sin proveedor");
+                $("#fondoProveedorId").val("");
+            }
+        },
+        error: (xhr) => {
+            $("#fondoProveedor").val("Error al cargar");
+            manejarErrorGlobal(xhr, "cargar proveedor automático");
+        }
+    });
 }
 
 function habilitarSeleccionProveedor() {
