@@ -281,12 +281,14 @@ function guardarCambiosFondo() {
 
     const id = $("#modal-fondo-id").val();
 
+    const valorFondo = desformatearMoneda($("#modal-fondo-valor").val());
+
     const body = {
         idfondo: parseInt(id),
         descripcion: $("#modal-fondo-descripcion").val(),
         idproveedor: $("#modal-fondo-idproveedor-hidden").val(),
         idtipofondo: parseInt($("#modal-fondo-tipofondo").val()),
-        valorfondo: parseFloat($("#modal-fondo-valor").val()),
+        valorfondo: parseFloat(valorFondo),
         fechainiciovigencia: $("#modal-fondo-fechainicio").val(),
         fechafinvigencia: $("#modal-fondo-fechafin").val(),
         idusuariomodifica: usuario,
@@ -607,6 +609,27 @@ function formatearMoneda(valor) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
+}
+
+function desformatearMoneda(valorString) {
+    if (!valorString || typeof valorString !== 'string') {
+        return 0.00;
+    }
+
+    // 1. Eliminamos el símbolo de dólar y espacios
+    let limpio = valorString.replace('$', '').trim();
+
+    // 2. Quitamos los separadores de miles (puntos)
+    // Usamos una expresión regular con 'g' para quitar todos
+    limpio = limpio.replace(/\./g, '');
+
+    // 3. Cambiamos la coma decimal por un punto
+    limpio = limpio.replace(',', '.');
+
+    // 4. Convertimos a número
+    const numero = parseFloat(limpio);
+
+    return isNaN(numero) ? 0.00 : numero;
 }
 
 function formatearFecha(fechaString) {
