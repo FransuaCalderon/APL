@@ -543,7 +543,19 @@ function crearListado(data) {
             { targets: [5, 6, 7], className: "dt-center" },
         ],
         order: [[1, "desc"]],
-        language: { url: "/lib/datatables/i18n/es-ES.json" }
+        // Por:
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Sin registros",
+            infoFiltered: "(filtrado de _MAX_ registros)",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "No hay datos disponibles",
+            paginate: { first: "Primero", previous: "Anterior", next: "Siguiente", last: "Último" }
+        }
     });
 }
 
@@ -605,8 +617,8 @@ function poblarFormulario(data) {
         $('#segArticulo').val(artItems[0].codigo_detalle);
     }
 
-    const marcaRegaloVal = (cab.marcaregalo || "N").toString().trim().toUpperCase();
-    $('#promocionMarcaRegalo').prop('checked', (marcaRegaloVal === "S" || marcaRegaloVal === "¿" || marcaRegaloVal === "1"));
+    const marcaRegaloVal = (cab.marcaregalo || "").toString().trim();
+    $('#promocionMarcaRegalo').prop('checked', marcaRegaloVal === "✓");
 
     // LÍNEA 4 (ACUERDOS) PINTAR DESDE DB
     const acProv = acuerdos.length > 0 ? acuerdos[0] : null;
@@ -672,8 +684,8 @@ function cargarMotivos(callback) {
 // GUARDAR PROMOCIÓN
 // ===============================================================
 async function guardarPromocion() {
-    if (!isValidDateDDMMYYYY($('#promocionFechaInicio').val()) || !isValidDateDDMMYYYY($('#promocionFechaFin').val())) {
-        return Swal.fire('Validación', 'Fechas inválidas. Use el formato dd/mm/aaaa.', 'warning');
+    if (!isValidDateDDMMYYYYHHMM($('#promocionFechaInicio').val()) || !isValidDateDDMMYYYYHHMM($('#promocionFechaFin').val())) {
+        return Swal.fire('Validación', 'Fechas inválidas. Use el formato dd/mm/aaaa HH:mm.', 'warning');
     }
 
     const combos = await consultarCombos("TPMODIFICACION");
@@ -773,9 +785,9 @@ async function guardarPromocion() {
         promocion: {
             descripcion: $('#promocionDescripcion').val(),
             motivo: parseInt($('#promocionMotivo').val(), 10) || 0,
-            fechahorainicio: toISOFromDDMMYYYY($('#promocionFechaInicio').val()),
-            fechahorafin: toISOFromDDMMYYYY($('#promocionFechaFin').val()),
-            marcaregalo: $('#promocionMarcaRegalo').is(':checked') ? "S" : "N",
+            fechahorainicio: toISOFromDDMMYYYYHHMM($('#promocionFechaInicio').val()),
+            fechahorafin: toISOFromDDMMYYYYHHMM($('#promocionFechaFin').val()),
+            marcaregalo: $('#promocionMarcaRegalo').is(':checked') ? "✓" : "",
             idusuariomodifica: obtenerUsuarioActual(), nombreusuario: obtenerUsuarioActual()
         },
         acuerdos: acuerdosModificados,
