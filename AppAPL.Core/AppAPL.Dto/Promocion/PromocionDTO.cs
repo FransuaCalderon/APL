@@ -147,6 +147,12 @@ namespace AppAPL.Dto.Promocion
         public IEnumerable<MedioPagoDTO> MediosPagos { get; set; } = Enumerable.Empty<MedioPagoDTO>();
     }
 
+    public class ArticuloPromocionDTO
+    {
+        public string CODIGO { get; set; }
+        public string NOMBRE { get; set; }
+    }
+
     public class ConsultarCombosPromocionesDTO
     {
         public string? codigoAlmacen { get; set; }

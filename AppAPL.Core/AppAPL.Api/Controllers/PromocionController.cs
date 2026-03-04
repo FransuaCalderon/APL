@@ -131,6 +131,16 @@ namespace AppAPL.Api.Controllers
             return listaBandeja.ToList();
         }
 
+        [HttpGet("consultar-articulo-promociones/{codigoArticulo}")]
+        public async Task<ActionResult<List<ArticuloPromocionDTO>>> ConsultarArticuloPromocion(string codigoArticulo)
+        {
+
+            var listaBandeja = await servicio.ConsultarArticuloPromocion(codigoArticulo);
+
+            return listaBandeja.ToList();
+        }
+
+
         [HttpGet("consultar-bandeja-aprobacion/{usuarioAprobador}")]
         public async Task<ActionResult<List<BandAproPromocionDTO>>> ConsultarBandAprobPromocion(string usuarioAprobador)
         {

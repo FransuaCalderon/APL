@@ -551,6 +551,42 @@ namespace AppAPL.AccesoDatos.Repositorio
 
         }
 
+
+        public async Task<IEnumerable<ArticuloPromocionDTO>> ConsultarArticuloPromocion(string codigoArticulo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new { p_codigo_articulo = codigoArticulo };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            
+            parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_resultado", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<ArticuloPromocionDTO>(
+                "apl_sp_consultar_articulo_promociones",
+                parameters, //aqui van los parametros
+                commandType: CommandType.StoredProcedure
+            );
+
+
+
+            int? codigoSalida = parameters.Get<int>("p_codigo");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+
+            return datos;
+
+        }
+
         public async Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion()
         {
             using var connection = factory.CreateOpenConnection();
