@@ -11,6 +11,10 @@ let idCatalogoArticulo = null;
 let tipoAcuerdo = null;
 let acuerdoTemporal = null;
 
+// ✅ NUEVAS VARIABLES - DataTables y caché para proveedores
+let dtProveedoresAcuerdo = null;
+let cacheProveedoresAcuerdo = null;
+
 // ===============================================================
 // FUNCIONES HELPER
 // ===============================================================
@@ -138,7 +142,6 @@ $(document).ready(function () {
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
         cargarBandeja();
-        consultarProveedor();
         cargarTiposAcuerdo(function () {
             cargarMotivosGeneral();
             cargarMotivosItems();
@@ -152,16 +155,15 @@ $(document).ready(function () {
         });
     });
 
-    // Modal Proveedores
+    // ✅ Modal Proveedores - ACTUALIZADO: llama consultarProveedor() al abrir
     $("#modalConsultaProveedor").on("show.bs.modal", function () {
+        $("#buscarProveedorInputAcuerdo").val("");
         proveedorTemporal = null;
-        console.log("abriendo modal de proveedores");
+        consultarProveedor();
     });
 
     $("#modalConsultaProveedor").on("hidden.bs.modal", function () {
         proveedorTemporal = null;
-        $("#tablaProveedores tbody tr").removeClass("table-active");
-        $("#tablaProveedores tbody input[name='selectProveedor']").prop("checked", false);
     });
 
     $("#btnGuardarCambios").on("click", function () {
@@ -181,13 +183,17 @@ $(document).ready(function () {
             return;
         }
 
+        // ✅ Si no hizo click manual (venía pre-seleccionado), reconstruir temporal
         if (!proveedorTemporal) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "No se pudieron obtener los datos del proveedor seleccionado.",
-            });
-            return;
+            proveedorTemporal = {
+                idFondo: $selected.data("idfondo"),
+                descripcion: $selected.data("descripcion"),
+                proveedor: $selected.data("proveedor"),
+                ruc: $selected.data("ruc"),
+                disponible: $selected.data("disponible"),
+                comprometido: $selected.data("comprometido"),
+                liquidado: $selected.data("liquidado"),
+            };
         }
 
         const display = `${proveedorTemporal.idFondo} - (${proveedorTemporal.proveedor})`;
@@ -481,6 +487,9 @@ function cargarBandeja() {
     });
 }
 
+// ===================================================================
+// ✅ CONSULTAR PROVEEDOR - REESCRITO CON DATATABLES, CACHÉ Y BÚSQUEDA
+// ===================================================================
 function consultarProveedor() {
     const idOpcionActual = getIdOpcionSeguro();
 
@@ -493,10 +502,14 @@ function consultarProveedor() {
         return;
     }
 
-    const $tbody = $("#tablaProveedores tbody");
-    if ($tbody.length === 0) {
-        console.error("No existe #tablaProveedores tbody");
-        return;
+    // ✅ Obtener idFondo actualmente seleccionado en el formulario activo
+    const tipoAcuerdoActivo = getTipoAcuerdo();
+    let idFondoActualFormulario = "";
+
+    if (tipoAcuerdoActivo === "General") {
+        idFondoActualFormulario = $("#fondoProveedorIdGeneral").val();
+    } else {
+        idFondoActualFormulario = $("#fondoProveedorIdItems").val();
     }
 
     const pick = (obj, keys, def = "") => {
@@ -530,6 +543,138 @@ function consultarProveedor() {
             .replaceAll('"', "&quot;")
             .replaceAll("'", "&#39;");
 
+    // ✅ Función interna que renderiza con DataTables
+    function renderizarTabla(data) {
+        const filas = data.map((x) => {
+            const idFondo = pick(x, ["idfondo", "idFondo"]);
+            const descripcion = pick(x, ["descripcion", "descripcionFondo", "nombreFondo"]);
+            const ruc = pick(x, ["idproveedor", "ruc", "identificacion"]);
+            const proveedor = pick(x, ["nombre", "proveedor", "nombreProveedor", "razonSocialProveedor"], "");
+            const tipoFondo = pick(
+                x,
+                ["tipoFondo", "tipoFondoDescripcion", "descTipoFondo"],
+                pick(x, ["nombre_tipo_fondo", "idtipofondo", "idTipoFondo"])
+            );
+
+            const valorFondo = fmtMoney(pick(x, ["valorfondo", "valorFondo", "montoFondo"], 0));
+            const fechaInicio = fmtDate(
+                pick(x, ["fechainidovigencia", "fechainicio", "fechaInicio", "fechaIniVigencia"])
+            );
+            const fechaFin = fmtDate(
+                pick(x, ["fechafinvigencia", "fechafin", "fechaFin", "fechaFinVigencia"])
+            );
+
+            const disponible = fmtMoney(pick(x, ["valordisponible", "valorDisponible"], 0));
+            const comprometido = fmtMoney(pick(x, ["valorcomprometido", "valorComprometido"], 0));
+            const liquidado = fmtMoney(pick(x, ["valorliquidado", "valorLiquidado"], 0));
+
+            const estado = pick(
+                x,
+                ["estado", "descEstado", "nombre_registro", "nombreRegistro"],
+                pick(x, ["idestadoregistro", "idEstadoRegistro"])
+            );
+
+            // ✅ Pre-seleccionar el proveedor que ya está en el formulario
+            const isChecked = (String(idFondo) === String(idFondoActualFormulario)) ? 'checked' : '';
+
+            return [
+                `<input class="form-check-input proveedor-radio" type="radio" name="selectProveedor"
+                    data-idfondo="${esc(idFondo)}"
+                    data-descripcion="${esc(descripcion)}"
+                    data-ruc="${esc(ruc)}"
+                    data-proveedor="${esc(proveedor)}"
+                    data-idtipofondo="${esc(pick(x, ["idtipofondo", "idTipoFondo"]))}"
+                    data-tipofondo="${esc(tipoFondo)}"
+                    data-valorfondo="${esc(pick(x, ["valorfondo", "valorFondo"]))}"
+                    data-fechainicio="${esc(pick(x, ["fechainidovigencia", "fechainicio", "fechaInicio"]))}"
+                    data-fechafin="${esc(pick(x, ["fechafinvigencia", "fechafin", "fechaFin"]))}"
+                    data-disponible="${esc(pick(x, ["valordisponible", "valorDisponible"]))}"
+                    data-comprometido="${esc(pick(x, ["valorcomprometido", "valorComprometido"]))}"
+                    data-liquidado="${esc(pick(x, ["valorliquidado", "valorLiquidado"]))}"
+                    data-estado="${esc(estado)}"
+                    ${isChecked}>`,
+                esc(idFondo),
+                esc(descripcion),
+                esc(ruc),
+                esc(proveedor),
+                esc(tipoFondo),
+                esc(valorFondo),
+                esc(fechaInicio),
+                esc(fechaFin),
+                esc(disponible),
+                esc(comprometido),
+                esc(liquidado),
+                esc(estado)
+            ];
+        });
+
+        // Destruir DataTable anterior si existe
+        if (dtProveedoresAcuerdo) {
+            dtProveedoresAcuerdo.destroy();
+            $("#tablaProveedores tbody").empty();
+        }
+
+        // ✅ Inicializar DataTables con paginación y búsqueda
+        dtProveedoresAcuerdo = $("#tablaProveedores").DataTable({
+            data: filas,
+            columns: [
+                { title: "Sel.", className: "text-center align-middle", orderable: false, searchable: false },
+                { title: "IDFondo", className: "align-middle" },
+                { title: "Descripción", className: "align-middle" },
+                { title: "RUC", className: "align-middle" },
+                { title: "Proveedor", className: "align-middle" },
+                { title: "Tipo Fondo", className: "align-middle" },
+                { title: "$ Fondo", className: "align-middle text-end" },
+                { title: "Fecha Inicio", className: "align-middle" },
+                { title: "Fecha Fin", className: "align-middle" },
+                { title: "$ Disponible", className: "align-middle text-end" },
+                { title: "$ Comprometido", className: "align-middle text-end" },
+                { title: "$ Liquidado", className: "align-middle text-end" },
+                { title: "Estado", className: "align-middle" }
+            ],
+            deferRender: true,
+            pageLength: 10,
+            lengthChange: false,
+            dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
+            language: {
+                search: "Buscar:",
+                zeroRecords: "No se encontraron fondos de proveedor.",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ fondos",
+                infoEmpty: "Sin fondos",
+                infoFiltered: "(filtrado de _MAX_ totales)",
+                paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+            },
+            order: [[1, 'desc']],
+            initComplete: function () {
+                const wrapper = $("#tablaProveedores_wrapper");
+                wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+                wrapper.find(".dataTables_info").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; font-size:0.8rem; padding-top:0.5rem;");
+            },
+            drawCallback: function () {
+                const wrapper = $("#tablaProveedores_wrapper");
+                wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+            }
+        });
+
+        // ✅ Resaltar fila pre-seleccionada
+        $("#tablaProveedores tbody input[name='selectProveedor']:checked").closest("tr").addClass("table-active");
+
+        // ✅ Vincular búsqueda al input del modal
+        $("#buscarProveedorInputAcuerdo").off("keyup").on("keyup", function () {
+            dtProveedoresAcuerdo.search($(this).val()).draw();
+        });
+
+        // ✅ Inicializar selección de filas
+        initProveedorRowSelection();
+    }
+
+    // ✅ Si ya tenemos datos en caché, no volvemos a consultar
+    if (cacheProveedoresAcuerdo) {
+        renderizarTabla(cacheProveedoresAcuerdo);
+        return;
+    }
+
+    const $tbody = $("#tablaProveedores tbody");
     $tbody.empty().append('<tr><td colspan="13" class="text-center">Cargando...</td></tr>');
 
     const payload = {
@@ -548,77 +693,9 @@ function consultarProveedor() {
         success: function (response) {
             const data = response.json_response || [];
             console.log("Datos fondo-acuerdo:", data);
-            $tbody.empty();
 
-            if (!Array.isArray(data) || data.length === 0) {
-                $tbody.append('<tr><td colspan="13" class="text-center">No se encontraron registros.</td></tr>');
-                return;
-            }
-
-            data.forEach((x) => {
-                const idFondo = pick(x, ["idfondo", "idFondo"]);
-                const descripcion = pick(x, ["descripcion", "descripcionFondo", "nombreFondo"]);
-                const ruc = pick(x, ["idproveedor", "ruc", "identificacion"]);
-                const proveedor = pick(x, ["nombre", "proveedor", "nombreProveedor", "razonSocialProveedor"], "");
-                const tipoFondo = pick(
-                    x,
-                    ["tipoFondo", "tipoFondoDescripcion", "descTipoFondo"],
-                    pick(x, ["idtipofondo", "idTipoFondo"])
-                );
-
-                const valorFondo = fmtMoney(pick(x, ["valorfondo", "valorFondo", "montoFondo"], 0));
-                const fechaInicio = fmtDate(
-                    pick(x, ["fechainidovigencia", "fechainicio", "fechaInicio", "fechaIniVigencia"])
-                );
-                const fechaFin = fmtDate(
-                    pick(x, ["fechafinvigencia", "fechafin", "fechaFin", "fechaFinVigencia"])
-                );
-
-                const disponible = fmtMoney(pick(x, ["valordisponible", "valorDisponible"], 0));
-                const comprometido = fmtMoney(pick(x, ["valorcomprometido", "valorComprometido"], 0));
-                const liquidado = fmtMoney(pick(x, ["valorliquidado", "valorLiquidado"], 0));
-
-                const estado = pick(
-                    x,
-                    ["estado", "descEstado"],
-                    pick(x, ["idestadoregistro", "idEstadoRegistro"])
-                );
-
-                const fila = `
-                <tr class="text-nowrap">
-                    <td class="align-middle text-center">
-                        <input class="form-check-input proveedor-radio" type="radio" name="selectProveedor"
-                            data-idfondo="${esc(idFondo)}"
-                            data-descripcion="${esc(descripcion)}"
-                            data-ruc="${esc(ruc)}"
-                            data-proveedor="${esc(proveedor)}"
-                            data-idtipofondo="${esc(pick(x, ["idtipofondo", "idTipoFondo"]))}"
-                            data-tipofondo="${esc(tipoFondo)}"
-                            data-valorfondo="${esc(pick(x, ["valorfondo", "valorFondo"]))}"
-                            data-fechainicio="${esc(pick(x, ["fechainidovigencia", "fechainicio", "fechaInicio"]))}"
-                            data-fechafin="${esc(pick(x, ["fechafinvigencia", "fechafin", "fechaFin"]))}"
-                            data-disponible="${esc(pick(x, ["valordisponible", "valorDisponible"]))}"
-                            data-comprometido="${esc(pick(x, ["valorcomprometido", "valorComprometido"]))}"
-                            data-liquidado="${esc(pick(x, ["valorliquidado", "valorLiquidado"]))}"
-                            data-estado="${esc(estado)}">
-                    </td>
-                    <td class="align-middle">${esc(idFondo)}</td>
-                    <td class="align-middle">${esc(descripcion)}</td>
-                    <td class="align-middle">${esc(ruc)}</td>
-                    <td class="align-middle">${esc(proveedor)}</td>
-                    <td class="align-middle">${esc(tipoFondo)}</td>
-                    <td class="align-middle text-end">${esc(valorFondo)}</td>
-                    <td class="align-middle">${esc(fechaInicio)}</td>
-                    <td class="align-middle">${esc(fechaFin)}</td>
-                    <td class="align-middle text-end">${esc(disponible)}</td>
-                    <td class="align-middle text-end">${esc(comprometido)}</td>
-                    <td class="align-middle text-end">${esc(liquidado)}</td>
-                    <td class="align-middle">${esc(estado)}</td>
-                </tr>`;
-                $tbody.append(fila);
-            });
-
-            initProveedorRowSelection();
+            cacheProveedoresAcuerdo = data; // ✅ Almacenar en caché
+            renderizarTabla(data);
         },
         error: (xhr) => {
             console.error("Error fondo-acuerdo:", xhr.responseText);
@@ -772,72 +849,56 @@ function cargarFiltrosItems() {
 
             if (Array.isArray(data.marcas) && data.marcas.length > 0) {
                 data.marcas.forEach((marca) => {
-                    const checkboxHtml = `
+                    $("#filtroMarca").append(`
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox" 
                                 id="marca_${marca.codigo}" value="${marca.nombre}">
-                            <label class="form-check-label" for="marca_${marca.codigo}">
-                                ${marca.nombre}
-                            </label>
+                            <label class="form-check-label" for="marca_${marca.codigo}">${marca.nombre}</label>
                         </div>
-                    `;
-                    $("#filtroMarca").append(checkboxHtml);
+                    `);
                 });
-                console.log(`✅ ${data.marcas.length} marcas cargadas`);
             } else {
                 $("#filtroMarca").html('<small class="text-muted">No hay marcas disponibles</small>');
             }
 
             if (Array.isArray(data.divisiones) && data.divisiones.length > 0) {
                 data.divisiones.forEach((div) => {
-                    const checkboxHtml = `
+                    $("#filtroDivision").append(`
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox"
                                 id="division_${div.codigo}" value="${div.nombre}">
-                            <label class="form-check-label" for="division_${div.codigo}">
-                                ${div.nombre}
-                            </label>
+                            <label class="form-check-label" for="division_${div.codigo}">${div.nombre}</label>
                         </div>
-                    `;
-                    $("#filtroDivision").append(checkboxHtml);
+                    `);
                 });
-                console.log(`✅ ${data.divisiones.length} divisiones cargadas`);
             } else {
                 $("#filtroDivision").html('<small class="text-muted">No hay divisiones disponibles</small>');
             }
 
             if (Array.isArray(data.departamentos) && data.departamentos.length > 0) {
                 data.departamentos.forEach((dep) => {
-                    const checkboxHtml = `
+                    $("#filtroDepartamento").append(`
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox" 
                                 id="departamento_${dep.codigo}" value="${dep.nombre}">
-                            <label class="form-check-label" for="departamento_${dep.codigo}">
-                                ${dep.nombre}
-                            </label>
+                            <label class="form-check-label" for="departamento_${dep.codigo}">${dep.nombre}</label>
                         </div>
-                    `;
-                    $("#filtroDepartamento").append(checkboxHtml);
+                    `);
                 });
-                console.log(`✅ ${data.departamentos.length} departamentos cargados`);
             } else {
                 $("#filtroDepartamento").html('<small class="text-muted">No hay departamentos disponibles</small>');
             }
 
             if (Array.isArray(data.clases) && data.clases.length > 0) {
                 data.clases.forEach((clase) => {
-                    const checkboxHtml = `
+                    $("#filtroClase").append(`
                         <div class="form-check">
                             <input class="form-check-input filtro-item-checkbox" type="checkbox" 
                                 id="clase_${clase.codigo}" value="${clase.nombre}">
-                            <label class="form-check-label" for="clase_${clase.codigo}">
-                                ${clase.nombre}
-                            </label>
+                            <label class="form-check-label" for="clase_${clase.codigo}">${clase.nombre}</label>
                         </div>
-                    `;
-                    $("#filtroClase").append(checkboxHtml);
+                    `);
                 });
-                console.log(`✅ ${data.clases.length} clases cargadas`);
             } else {
                 $("#filtroClase").html('<small class="text-muted">No hay clases disponibles</small>');
             }
@@ -1036,6 +1097,9 @@ function abrirModalEditar(idAcuerdo) {
     $("#lblIdAcuerdo").text(idAcuerdo);
     $('#contenedor-tabla-articulos').hide().html('');
 
+    // ✅ Invalidar caché para que al abrir el modal recargue con el check correcto
+    cacheProveedoresAcuerdo = null;
+
     const payload = {
         code_app: "APP20260128155212346",
         http_method: "GET",
@@ -1062,8 +1126,9 @@ function abrirModalEditar(idAcuerdo) {
                 switch (tipoAcuerdo) {
                     case "CLAGENERAL":
                         $select.val("General");
-                        marcarProveedorEnTablaExistente(cab.idfondo);
                         $("#modalAcuerdoIdGeneral").val(cab.idacuerdo);
+                        // ✅ ESTA LÍNEA ES CLAVE: asignamos el ID del fondo para validación posterior
+                        $("#fondoProveedorIdGeneral").val(cab.idfondo);
                         $("#acuerdoTipoGeneral").val(cab.idmotivoacuerdo);
                         $("#acuerdoDescripcionGeneral").val(cab.descripcion);
                         $("#acuerdoFechaInicioGeneral").val(formatearFecha(cab.fecha_inicio));
@@ -1075,9 +1140,10 @@ function abrirModalEditar(idAcuerdo) {
                         break;
                     case "CLAARTICULO":
                         $select.val("Items");
-                        marcarProveedorEnTablaExistente(cab.idfondo);
-                        $("#acuerdoTipoItems").val(cab.idmotivoacuerdo);
                         $("#modalAcuerdoIdArticulo").val(cab.idacuerdo);
+                        // ✅ ESTA LÍNEA ES CLAVE: asignamos el ID del fondo para validación posterior
+                        $("#fondoProveedorIdItems").val(cab.idfondo);
+                        $("#acuerdoTipoItems").val(cab.idmotivoacuerdo);
                         $("#acuerdoDescripcionItems").val(cab.descripcion);
                         $("#acuerdoFechaInicioItems").val(formatearFecha(cab.fecha_inicio));
                         $("#acuerdoFechaFinItems").val(formatearFecha(cab.fecha_fin));
@@ -1090,23 +1156,8 @@ function abrirModalEditar(idAcuerdo) {
                         break;
                 }
 
-                console.log("Datos capturados globalmente:", proveedorTemporal);
-                const display = `${proveedorTemporal.idFondo} - (${proveedorTemporal.proveedor})`;
-
-                console.log("✅ Proveedor confirmado:", {
-                    idFondo: proveedorTemporal.idFondo,
-                    proveedor: proveedorTemporal.proveedor,
-                    disponible: proveedorTemporal.disponible,
-                });
-
-                setFondoEnFormActivo({
-                    idFondo: proveedorTemporal.idFondo,
-                    display: display,
-                    ruc: proveedorTemporal.ruc,
-                    disponible: proveedorTemporal.disponible,
-                    comprometido: proveedorTemporal.comprometido,
-                    liquidado: proveedorTemporal.liquidado,
-                });
+                // ✅ Cargar proveedores y marcar el actual usando la nueva función
+                cargarProveedorYMarcar(cab.idfondo);
 
                 toggleAcuerdoForm();
 
@@ -1122,6 +1173,80 @@ function abrirModalEditar(idAcuerdo) {
         error: function (xhr) {
             $('body').css('cursor', 'default');
             manejarErrorGlobal(xhr, "obtener el detalle del acuerdo");
+        }
+    });
+}
+
+// ✅ FUNCIÓN: Carga proveedores y marca el seleccionado + setea el display
+function cargarProveedorYMarcar(idFondo) {
+    const pick = (obj, keys, def = "") => {
+        for (const k of keys) {
+            const v = obj?.[k];
+            if (v != null && String(v).trim() !== "") return String(v).trim();
+        }
+        return def;
+    };
+
+    function procesarDatos(data) {
+        const proveedorEncontrado = data.find(x => {
+            const id = pick(x, ["idfondo", "idFondo"]);
+            return String(id) === String(idFondo);
+        });
+
+        if (proveedorEncontrado) {
+            const prov = {
+                idFondo: pick(proveedorEncontrado, ["idfondo", "idFondo"]),
+                proveedor: pick(proveedorEncontrado, ["nombre", "proveedor", "nombreProveedor", "razonSocialProveedor"], ""),
+                ruc: pick(proveedorEncontrado, ["idproveedor", "ruc", "identificacion"]),
+                disponible: pick(proveedorEncontrado, ["valordisponible", "valorDisponible"], 0),
+                comprometido: pick(proveedorEncontrado, ["valorcomprometido", "valorComprometido"], 0),
+                liquidado: pick(proveedorEncontrado, ["valorliquidado", "valorLiquidado"], 0),
+            };
+
+            const display = `${prov.idFondo} - (${prov.proveedor})`;
+
+            console.log("✅ Proveedor marcado desde datos:", prov);
+
+            setFondoEnFormActivo({
+                idFondo: prov.idFondo,
+                display: display,
+                ruc: prov.ruc,
+                disponible: prov.disponible,
+                comprometido: prov.comprometido,
+                liquidado: prov.liquidado,
+            });
+        } else {
+            console.warn("⚠️ No se encontró el proveedor con idFondo:", idFondo);
+        }
+    }
+
+    // Si ya tenemos caché, usar directamente
+    if (cacheProveedoresAcuerdo) {
+        procesarDatos(cacheProveedoresAcuerdo);
+        return;
+    }
+
+    // Si no, cargar desde API
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/consultar-fondo-acuerdo",
+        client: "APL",
+        endpoint_query_params: ""
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            const data = response.json_response || [];
+            cacheProveedoresAcuerdo = data;
+            procesarDatos(data);
+        },
+        error: (xhr) => {
+            console.error("Error cargando proveedores para marcar:", xhr.responseText);
         }
     });
 }
@@ -1156,6 +1281,9 @@ async function guardarGeneral() {
     const valorTotal = parseCurrencyToNumber($("#acuerdoValorTotalGeneral").val());
     const valorDisponible = parseCurrencyToNumber($("#acuerdoDisponibleGeneral").val());
 
+    // ✅ LECTURA DIRECTA DEL CAMPO OCULTO (que se actualiza en setFondoEnFormActivo)
+    const idFondoActualizado = parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0;
+
     const body = {
         "idacuerdo": parseInt($("#modalAcuerdoIdGeneral").val(), 10) || 0,
         "claseacuerdo": tipoAcuerdo,
@@ -1164,8 +1292,8 @@ async function guardarGeneral() {
         "fechainiciovigencia": toISOFromDDMMYYYY($("#acuerdoFechaInicioGeneral").val()),
         "fechafinvigencia": toISOFromDDMMYYYY($("#acuerdoFechaFinGeneral").val()),
         "idusuariomodifica": usuarioActual,
-        "idtipoproceso": tipoProceso.idcatalogo,
-        "idfondo": parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0,
+        "idtipoproceso": tipoProceso ? tipoProceso.idcatalogo : 0,
+        "idfondo": idFondoActualizado, // ✅ Usamos la variable que siempre tendrá el ID correcto seleccionado
         "valoraporte": valorTotal,
         "valordisponible": valorDisponible,
         "valorcomprometido": 0,
@@ -1223,6 +1351,7 @@ async function guardarGeneral() {
                         showConfirmButton: false,
                         timer: 1400,
                     });
+                    cacheProveedoresAcuerdo = null; // ✅ Invalidar caché
                     cargarBandeja();
                     cerrarDetalle();
                 } else {
@@ -1287,6 +1416,9 @@ async function guardarItems() {
 
     const valorTotal = parseCurrencyToNumber($("#acuerdoValorTotalItems").val());
 
+    // ✅ LECTURA DIRECTA DEL CAMPO OCULTO
+    const idFondoActualizado = parseInt($("#fondoProveedorIdItems").val(), 10) || 0;
+
     const body = {
         "idacuerdo": parseInt($("#modalAcuerdoIdArticulo").val(), 10) || 0,
         "claseacuerdo": tipoAcuerdo,
@@ -1295,8 +1427,8 @@ async function guardarItems() {
         "fechainiciovigencia": toISOFromDDMMYYYY($("#acuerdoFechaInicioItems").val()),
         "fechafinvigencia": toISOFromDDMMYYYY($("#acuerdoFechaFinItems").val()),
         "idusuariomodifica": usuarioActual,
-        "idtipoproceso": tipoProceso.idcatalogo,
-        "idfondo": parseInt($("#fondoProveedorIdItems").val(), 10) || 0,
+        "idtipoproceso": tipoProceso ? tipoProceso.idcatalogo : 0,
+        "idfondo": idFondoActualizado, // ✅ Garantiza que se envía el ID modificado
         "valoraporte": valorTotal,
         "valordisponible": valorTotal,
         "valorcomprometido": 0,
@@ -1360,6 +1492,7 @@ async function guardarItems() {
                         showConfirmButton: false,
                         timer: 2000,
                     });
+                    cacheProveedoresAcuerdo = null; // ✅ Invalidar caché
                     cargarBandeja();
                     cerrarDetalle();
                 } else {
@@ -1543,26 +1676,10 @@ function initProveedorRowSelection() {
     });
 }
 
-function marcarProveedorEnTablaExistente(idFondo) {
-    if (!idFondo) return;
-
-    const $radio = $(`.proveedor-radio`).filter(function () {
-        return $(this).data("idfondo") == idFondo;
-    });
-
-    if ($radio.length > 0) {
-        $radio.prop("checked", true).trigger("change");
-        $radio[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        console.log("✅ Radio marcado para ID:", idFondo);
-        initProveedorRowSelection();
-    } else {
-        console.warn("⚠️ No se encontró el ID de fondo en la tabla actual:", idFondo);
-    }
-}
-
 function setFondoEnFormActivo(f) {
     const tipo = getTipoAcuerdo();
 
+    // ✅ ACTUALIZAMOS TANTO EL DISPLAY COMO LOS INPUTS OCULTOS
     if (tipo === "General") {
         $("#fondoProveedorGeneral").val(f.display);
         $("#fondoProveedorIdGeneral").val(f.idFondo);
@@ -1570,6 +1687,11 @@ function setFondoEnFormActivo(f) {
     } else {
         $("#fondoProveedorItems").val(f.display);
         $("#fondoProveedorIdItems").val(f.idFondo);
+    }
+
+    // ✅ ACTUALIZAMOS EL TEMPORAL EN MEMORIA POR SEGURIDAD DE LA DATA
+    if (acuerdoTemporal && acuerdoTemporal.cabecera) {
+        acuerdoTemporal.cabecera.idfondo = f.idFondo;
     }
 }
 
