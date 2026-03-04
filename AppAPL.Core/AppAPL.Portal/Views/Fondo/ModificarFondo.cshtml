@@ -22,6 +22,26 @@
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
+<style>
+    /* Estilos para DataTables dentro del modal */
+    #tablaProveedores_wrapper .dataTables_info {
+        font-size: 0.8rem;
+        padding-top: 0.5rem;
+        text-align: center !important;
+    }
+
+    #tablaProveedores_wrapper > div:last-child {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    #tablaProveedores_wrapper .dataTables_paginate {
+        float: none !important;
+        padding-top: 0.5rem;
+    }
+</style>
+
 <div class="table-responsive">
     <div id="tabla">
     </div>
@@ -75,7 +95,6 @@
                     </div>
                     <div class="custom-form-col">
                         <label class="custom-label">Valor Fondo <span class="text-danger">*</span></label>
-                        <!-- ✅ CAMBIO DE type="number" A type="text" -->
                         <input type="text" class="custom-input" id="modal-fondo-valor" name="valor_fondo">
                     </div>
                     <div class="custom-form-col">
@@ -87,17 +106,14 @@
                 <div class="custom-form-row">
                     <div class="custom-form-col">
                         <label class="custom-label">Valor Disponible <span class="text-danger"></span></label>
-                        <!-- ✅ CAMBIO DE type="number" A type="text" -->
                         <input type="text" class="custom-input" id="modal-fondo-disponible" name="valor_disponible" disabled>
                     </div>
                     <div class="custom-form-col">
                         <label class="custom-label">Valor Comprometido <span class="text-danger"></span></label>
-                        <!-- ✅ CAMBIO DE type="number" A type="text" -->
                         <input type="text" class="custom-input" id="modal-fondo-comprometido" name="valor_comprometido" disabled>
                     </div>
                     <div class="custom-form-col">
                         <label class="custom-label">Valor Liquidado <span class="text-danger"></span></label>
-                        <!-- ✅ CAMBIO DE type="number" A type="text" -->
                         <input type="text" class="custom-input" id="modal-fondo-liquidado" name="valor_liquidado" disabled>
                     </div>
                 </div>
@@ -127,11 +143,11 @@
             <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-semibold">Seleccione un Proveedor</span>
-                    <input type="text" class="form-control form-control-sm" placeholder="Buscar..." style="width: 250px;">
+                    <input type="text" id="buscarProveedorInputModificar" class="form-control form-control-sm" placeholder="Buscar por código, RUC, nombre..." style="width: 300px;">
                 </div>
 
                 <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
-                    <table id="tablaProveedores" class="table table-hover table-sm table-bordered mb-0">
+                    <table id="tablaProveedores" class="table table-hover table-sm table-bordered mb-0" style="width:100%">
                         <thead class="table-success sticky-top">
                             <tr class="text-nowrap">
                                 <th scope="col" class="text-center align-middle" style="min-width: 110px;">Seleccionar</th>
@@ -147,26 +163,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <nav aria-label="Navegación de páginas" class="mt-2">
-                    <ul class="pagination pagination-sm justify-content-center mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true" aria-label="Anterior">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item active" aria-current="page">
-                            <a class="page-link" href="#">1</a>
-                        </li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Siguiente">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
             </div>
 
             <div class="modal-footer">
@@ -176,5 +172,3 @@
         </div>
     </div>
 </div>
-
-<!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->

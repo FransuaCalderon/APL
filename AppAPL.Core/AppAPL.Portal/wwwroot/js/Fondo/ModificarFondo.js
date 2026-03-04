@@ -1,10 +1,13 @@
-﻿// ~/js/Fondo/ModificarFondo.js
+﻿// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
+// ~/js/Fondo/ModificarFondo.js
 
 // ===============================================================
 // Variables globales
 // ===============================================================
 let tabla;
 let ultimaFilaModificada = null;
+let dtProveedoresModificar = null;
+let cacheProveedoresModificar = null;
 
 // ===============================================================
 // FUNCIÓN HELPER PARA OBTENER USUARIO
@@ -58,9 +61,11 @@ $(document).ready(function () {
         }
     });
 
-    // Cargar proveedores cuando se abre el modal
+    // Cargar proveedores cuando se abre el modal y pasar el RUC actual
     $('#modalConsultaProveedor').on('show.bs.modal', function () {
-        consultarProveedor();
+        $("#buscarProveedorInputModificar").val(""); // Limpiar búsqueda
+        const rucActual = $("#modal-fondo-idproveedor-hidden").val(); // Obtener el RUC pre-cargado
+        consultarProveedor(rucActual);
     });
 
     // Botón "Aceptar" del modal de proveedores (Modificación)
@@ -219,7 +224,6 @@ function abrirModalEditar(id) {
                 return;
             }
 
-            // Los datos pueden venir como array o como objeto único
             const data = Array.isArray(response.json_response)
                 ? response.json_response[0]
                 : response.json_response;
@@ -235,7 +239,6 @@ function abrirModalEditar(id) {
 
             console.log("Datos procesados del fondo:", data);
 
-            // Concatenación RUC/ID y Nombre
             const idProveedor = data.proveedor || '';
             const nombreProveedor = data.nombre_proveedor || '';
             const proveedorCompleto = (idProveedor && nombreProveedor)
@@ -280,7 +283,6 @@ function guardarCambiosFondo() {
     console.log('Guardando cambios con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
     const id = $("#modal-fondo-id").val();
-
     const valorFondo = desformatearMoneda($("#modal-fondo-valor").val());
 
     const body = {
@@ -326,7 +328,6 @@ function guardarCambiosFondo() {
             console.log("Respuesta de actualizar:", response);
 
             if (response && response.code_status === 200) {
-                // Verificar si hay mensaje de error en data
                 if (response.json_response?.codigoretorno && response.json_response.codigoretorno < 0) {
                     Swal.fire({
                         icon: 'error',
@@ -366,7 +367,7 @@ function guardarCambiosFondo() {
     });
 }
 
-function consultarProveedor() {
+function consultarProveedor(rucActualSeleccionado) {
     const idOpcionActual = window.obtenerIdOpcionActual();
 
     if (!idOpcionActual) {
@@ -378,15 +379,79 @@ function consultarProveedor() {
         return;
     }
 
-    const $tbody = $("#tablaProveedores tbody");
+    function renderizarTabla(data) {
+        const filas = data.map(p => {
+            const ruc = p.identificacion ?? '';
+            const contacto = obtenerPrimerValorValido(p.nombrecontacto1, p.nombrecontacto2, p.nombrecontacto3, p.nombrecontacto4);
+            const mail = obtenerPrimerValorValido(p.mailcontacto1, p.mailcontacto2, p.mailcontacto3, p.mailcontacto4);
 
-    console.log('Consultando proveedores con idOpcion:', idOpcionActual);
+            // Validar si es el proveedor que viene en el modal para pre-seleccionarlo
+            const isChecked = (ruc !== '' && ruc === rucActualSeleccionado) ? 'checked' : '';
 
-    if ($tbody.length === 0) {
-        console.error("¡ERROR! No se encontró '#tablaProveedores tbody'.");
+            return [
+                `<input class="form-check-input" type="radio" name="selectProveedor" data-id="${p.codigo}" data-nombre="${p.nombre}" data-ruc="${ruc}" ${isChecked}>`,
+                p.codigo,
+                ruc,
+                p.nombre,
+                contacto,
+                mail,
+                '-'
+            ];
+        });
+
+        if (dtProveedoresModificar) {
+            dtProveedoresModificar.destroy();
+            $("#tablaProveedores tbody").empty();
+        }
+
+        dtProveedoresModificar = $("#tablaProveedores").DataTable({
+            data: filas,
+            columns: [
+                { title: "Seleccionar", className: "text-center align-middle", orderable: false, searchable: false },
+                { title: "Código", className: "align-middle" },
+                { title: "RUC", className: "align-middle" },
+                { title: "Nombre Proveedor", className: "align-middle" },
+                { title: "Contacto", className: "align-middle" },
+                { title: "Mail", className: "align-middle" },
+                { title: "Teléfono", className: "align-middle", searchable: false }
+            ],
+            deferRender: true,
+            pageLength: 10,
+            lengthChange: false,
+            dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
+            language: {
+                search: "Buscar:",
+                zeroRecords: "No se encontraron proveedores.",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
+                infoEmpty: "Sin proveedores",
+                infoFiltered: "(filtrado de _MAX_ totales)",
+                paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+            },
+            order: [[3, 'asc']], // Ordenado por Nombre Proveedor
+            initComplete: function () {
+                const wrapper = $("#tablaProveedores_wrapper");
+                wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+                wrapper.find(".dataTables_info").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; font-size:0.8rem; padding-top:0.5rem;");
+            },
+            drawCallback: function () {
+                const wrapper = $("#tablaProveedores_wrapper");
+                wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+            }
+        });
+
+        // Evento de búsqueda manual
+        $("#buscarProveedorInputModificar").off("keyup").on("keyup", function () {
+            dtProveedoresModificar.search($(this).val()).draw();
+        });
+    }
+
+    // Uso de caché para no golpear la API cada vez que abren el modal en Modificar
+    if (cacheProveedoresModificar) {
+        renderizarTabla(cacheProveedoresModificar);
         return;
     }
 
+    const $tbody = $("#tablaProveedores tbody");
     $tbody.empty().append('<tr><td colspan="7" class="text-center">Cargando proveedores...</td></tr>');
 
     const payload = {
@@ -403,51 +468,9 @@ function consultarProveedor() {
         contentType: "application/json",
         data: JSON.stringify(payload),
         success: function (response) {
-            console.log("Respuesta de proveedores:", response);
-
             const data = response.json_response || [];
-            console.log("Proveedores procesados:", data);
-
-            $tbody.empty();
-
-            if (data && data.length > 0) {
-                data.forEach(function (proveedor) {
-                    const codigo = proveedor.codigo ?? '';
-                    const ruc = proveedor.identificacion ?? '';
-                    const nombre = proveedor.nombre ?? '';
-
-                    const contacto = obtenerPrimerValorValido(
-                        proveedor.nombrecontacto1, proveedor.nombrecontacto2,
-                        proveedor.nombrecontacto3, proveedor.nombrecontacto4
-                    );
-                    const mail = obtenerPrimerValorValido(
-                        proveedor.mailcontacto1, proveedor.mailcontacto2,
-                        proveedor.mailcontacto3, proveedor.mailcontacto4
-                    );
-                    const telefono = '';
-
-                    const fila = `
-                        <tr>
-                            <td class="align-middle text-center">
-                                <input class="form-check-input" type="radio" name="selectProveedor" 
-                                        data-id="${codigo}" 
-                                        data-nombre="${nombre}"
-                                        data-ruc="${ruc}">
-                            </td>
-                            <td class="align-middle">${codigo}</td>
-                            <td class="align-middle">${ruc}</td>
-                            <td class="align-middle">${nombre}</td>
-                            <td class="align-middle">${contacto}</td>
-                            <td class="align-middle">${mail}</td>
-                            <td class="align-middle">${telefono}</td>
-                        </tr>
-                    `;
-
-                    $tbody.append(fila);
-                });
-            } else {
-                $tbody.append('<tr><td colspan="7" class="text-center">No se encontraron proveedores.</td></tr>');
-            }
+            cacheProveedoresModificar = data; // Guardamos en caché
+            renderizarTabla(data);
         },
         error: function (xhr) {
             console.error("Error al cargar proveedores:", xhr.responseText);
@@ -616,17 +639,9 @@ function desformatearMoneda(valorString) {
         return 0.00;
     }
 
-    // 1. Eliminamos el símbolo de dólar y espacios
     let limpio = valorString.replace('$', '').trim();
-
-    // 2. Quitamos los separadores de miles (puntos)
-    // Usamos una expresión regular con 'g' para quitar todos
     limpio = limpio.replace(/\./g, '');
-
-    // 3. Cambiamos la coma decimal por un punto
     limpio = limpio.replace(',', '.');
-
-    // 4. Convertimos a número
     const numero = parseFloat(limpio);
 
     return isNaN(numero) ? 0.00 : numero;
@@ -686,5 +701,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
-// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
