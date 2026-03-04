@@ -138,6 +138,7 @@
 
     function initValidacionesFinancieras() {
 
+        // --- VALIDACIONES DE PRESUPUESTO AL SALIR DEL CAMPO (BLUR) ---
         $("#fondoValorTotalGeneral").on("blur", function () {
             let valStr = $(this).val().replace(/[^0-9.]/g, '');
             let valorIngresado = parseFloat(valStr) || 0;
@@ -178,18 +179,32 @@
             }
         });
 
-        const soloNumeros = function (e) {
+        // NUEVO: Bloquear letras mientras se escribe en los campos de dólares (solo números, punto y coma)
+        $("#fondoValorTotalGeneral, #comprometidoPropioGeneral").on("input", function () {
+            this.value = this.value.replace(/[^0-9.,]/g, '');
+        });
+
+        // --- VALIDACIONES DE DESCUENTO ---
+        const soloNumerosDescuento = function (e) {
+            // Solo permite números y puntos
             this.value = this.value.replace(/[^0-9.]/g, '');
+
+            // NUEVO: Validar que no sobrepase el 100%
+            let val = parseFloat(this.value);
+            if (val > 100) {
+                this.value = "100";
+            }
             calcularTotalDescuento();
         };
 
-        $("#descuentoProveedorGeneral").on("input", soloNumeros);
-        $("#descuentoPropioGeneral").on("input", soloNumeros);
+        $("#descuentoProveedorGeneral").on("input", soloNumerosDescuento);
+        $("#descuentoPropioGeneral").on("input", soloNumerosDescuento);
 
         function calcularTotalDescuento() {
             let descProv = parseFloat($("#descuentoProveedorGeneral").val()) || 0;
             let descProp = parseFloat($("#descuentoPropioGeneral").val()) || 0;
             let total = descProv + descProp;
+            // Opcional: si la suma de ambos supera 100, puedes limitarla también si tu negocio lo requiere.
             $("#descuentoTotalGeneral").val(total.toFixed(2) + "%");
         }
 
@@ -211,6 +226,12 @@
 
                 if (val === conf.triggerVal) {
                     $(conf.btnOpen).removeClass("d-none");
+
+                    // NUEVO: Simular clic para abrir el modal automáticamente
+                    setTimeout(() => {
+                        $(conf.btnOpen)[0].click();
+                    }, 50);
+
                 } else {
                     $(conf.btnOpen).addClass("d-none");
                     $(conf.btnOpen).removeData("seleccionados");
@@ -384,16 +405,51 @@
             data: JSON.stringify(payload),
             success: function (response) {
                 const data = response.json_response || {};
-                console.log("cargarCombosPromociones data: ", data);
+
                 llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Cargando...", "3", "canal");
                 llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Cargando...", "3", "grupo");
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Cargando...", "3", "almacen");
                 llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), data.mediospagos, "Cargando...", "7", "mediopago");
 
-                const $cli = $("#tipoClienteGeneral");
-                $cli.empty().append('<option selected value="">Todos</option>');
-                if (data.tiposclientes) data.tiposclientes.forEach(c => $cli.append(`<option value="${c.codigo}">${c.nombre}</option>`));
-                $cli.append('<option value="3">Lista Específica</option><option value="4">Varios</option>');
+                // Llenar Selects y Modal de Tipo Cliente
+                const $cliGen = $("#tipoClienteGeneral");
+                const $cliArt = $("#tipoClienteArticulos");
+                const $cliCom = $("#tipoClienteCombos");
+                const $modalBodyCli = $("#bodyModalTipoCliente");
+
+                // 1. Opciones Iniciales: Todos y Varios (arriba)
+                const opcionesBase = '<option selected value="">Todos</option><option value="4" class="fw-bold text-success">-- VARIOS --</option>';
+                $cliGen.empty().append(opcionesBase);
+                $cliArt.empty().append(opcionesBase);
+                $cliCom.empty().append(opcionesBase);
+
+                $modalBodyCli.empty();
+                const $ulCli = $('<ul class="list-group w-100"></ul>');
+
+                // 2. Llenar con datos de la API (Evitando duplicar "Todos")
+                if (data.tiposclientes) {
+                    data.tiposclientes.forEach(c => {
+                        // Filtramos por si la API trae la palabra "Todos" o código 0
+                        if (c.nombre.toUpperCase() !== "TODOS" && c.codigo !== "0" && c.codigo !== "") {
+                            const opt = `<option value="${c.codigo}">${c.nombre}</option>`;
+                            $cliGen.append(opt); $cliArt.append(opt); $cliCom.append(opt);
+
+                            // Generar Checkboxes para el modal
+                            const chkId = `chk_tipocliente_${c.codigo}`;
+                            $ulCli.append(`
+                                <li class="list-group-item">
+                                    <input class="form-check-input me-1 chk-seleccion-multiple" type="checkbox" value="${c.codigo}" id="${chkId}">
+                                    <label class="form-check-label stretched-link" for="${chkId}">${c.nombre}</label>
+                                </li>
+                            `);
+                        }
+                    });
+                }
+                $modalBodyCli.append($ulCli);
+
+                // 3. Opción Final: Lista Específica (al fondo)
+                const opcionFinal = '<option value="3">Lista Específica</option>';
+                $cliGen.append(opcionFinal); $cliArt.append(opcionFinal); $cliCom.append(opcionFinal);
             }
         });
     }
@@ -522,9 +578,42 @@
             $(`${conf.body} input[type='checkbox']`).prop("checked", false);
         });
 
-        // Tipo Cliente
-        $("#tipoClienteGeneral").val("").trigger("change");
-        $("#btnListaClienteGeneral").addClass("d-none");
+        // Tipo Cliente (Unificado para General, Artículos y Combos)
+        $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").off("change").on("change", function () {
+            const val = $(this).val();
+            const idSelect = $(this).attr("id");
+            let $btn;
+
+            // Determinar botón
+            if (idSelect === "tipoClienteGeneral") $btn = $("#btnListaClienteGeneral");
+            else if (idSelect === "tipoClienteCombos") $btn = $("#btnListaClienteCombos");
+            else if (idSelect === "tipoClienteArticulos") $btn = $(this).parent().find("button");
+
+            if (!$btn) return;
+
+            if (val === "3") {
+                // 3: LISTA ESPECÍFICA (Archivo)
+                $btn.removeClass("d-none btn-success").addClass("btn-outline-secondary");
+                $btn.attr("data-bs-target", "#ModalClientesEspecificos");
+                $btn.html(`<i class="fa-solid fa-list-check"></i>`);
+                // Forzar apertura del modal correcto
+                $("#ModalClientesEspecificos").modal("show");
+
+            } else if (val === "4") {
+                // 4: VARIOS (Checkboxes)
+                $btn.removeClass("d-none");
+                $btn.attr("data-bs-target", "#ModalTipoClienteVarios");
+                // Forzar apertura del modal correcto
+                $("#ModalTipoClienteVarios").modal("show");
+
+            } else {
+                // TODOS U OTRA OPCIÓN
+                $btn.addClass("d-none");
+                $btn.removeData("seleccionados");
+                $btn.html(`<i class="fa-solid fa-list-check"></i>`);
+                $btn.removeClass("btn-success").addClass("btn-outline-secondary");
+            }
+        });
 
         // Archivo
         $("#inputGroupFile24").val("");
@@ -552,6 +641,7 @@
             const isChecked = $(this).is(":checked");
             $("#articuloGeneral").prop("disabled", !isChecked);
             if (!isChecked) $("#articuloGeneral").val("");
+
             const $jerarquia = $("#filtroMarcaGeneral, #filtroDivisionGeneral, #filtroDepartamentoGeneral, #filtroClaseGeneral");
             const $btns = $("#btnMarcaGeneral, #btnDivisionGeneral, #btnDepartamentoGeneral, #btnClaseGeneral");
 
@@ -561,13 +651,52 @@
                 $btns.addClass("d-none");
             }
         });
+
+        // NUEVO: Permitir solo ingreso de números en el input de Artículo
+        $("#articuloGeneral").on("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
     }
 
     function initDatepickers() {
         if (!$.datepicker) return;
-        const opts = { dateFormat: "dd/mm/yy", changeMonth: true, changeYear: true };
-        $("#fechaInicioGeneral, #fechaFinGeneral").datepicker(opts);
-        $(".btn-outline-secondary:has(.fa-calendar)").click(function () { $(this).parent().find("input[type='text']").datepicker("show"); });
+
+        const commonOptions = {
+            dateFormat: "dd/mm/yy",
+            changeMonth: true,
+            changeYear: true
+        };
+
+        // Datepicker Fecha Inicio
+        $("#fechaInicioGeneral, #fechaInicioArticulos, #fechaInicioCombos").datepicker({
+            ...commonOptions,
+            minDate: 0, // 0 significa "desde el día de hoy"
+            onSelect: function (dateText, inst) {
+                const startDate = $(this).datepicker("getDate");
+                const idFin = this.id.replace("Inicio", "Fin"); // Obtiene el ID correspondiente del Fin
+
+                if (startDate) {
+                    // La fecha fin solo puede seleccionarse desde la fecha inicio en adelante
+                    $("#" + idFin).datepicker("option", "minDate", startDate);
+
+                    const currentEndDate = $("#" + idFin).datepicker("getDate");
+                    if (currentEndDate && currentEndDate < startDate) {
+                        $("#" + idFin).val(""); // Borra la fecha fin si quedó obsoleta
+                    }
+                }
+            }
+        });
+
+        // Datepicker Fecha Fin
+        $("#fechaFinGeneral, #fechaFinArticulos, #fechaFinCombos").datepicker({
+            ...commonOptions,
+            minDate: 0
+        });
+
+        // Mostrar datepicker al dar clic en el ícono de calendario
+        $(".btn-outline-secondary:has(.fa-calendar), .btn-outline-secondary:has(img[alt='Calendario'])").click(function () {
+            $(this).parent().find("input[type='text']").datepicker("show");
+        });
     }
 
     function obtenerValorCampo(configId, selectId, triggerVal) {
@@ -791,7 +920,8 @@
 
         // --- Tipo Cliente ---
         $("#tipoClienteGeneral").val("").trigger("change");
-        $("#btnListaClienteGeneral").addClass("d-none");
+        $("#btnListaClienteGeneral").addClass("d-none").removeData("seleccionados");
+        $("#btnListaClienteGeneral").html(`<i class="fa-solid fa-list-check"></i>`);
 
         // --- Archivo ---
         $("#inputGroupFile24").val("");
@@ -902,8 +1032,16 @@
         // Tipo Cliente
         $("#tipoClienteGeneral").off("change").on("change", function () {
             const val = $(this).val();
+
+            // "3" (Lista Específica) o "4" (Varios)
             if (val === "3" || val === "4") {
                 $("#btnListaClienteGeneral").removeClass("d-none");
+
+                // NUEVO: Abrir modal de clientes automáticamente
+                setTimeout(() => {
+                    $("#btnListaClienteGeneral")[0].click();
+                }, 50);
+
             } else {
                 $("#btnListaClienteGeneral").addClass("d-none");
             }
@@ -918,5 +1056,31 @@
         
 
         $(".btn-secondary[id^='btnCancelar']").click(() => location.reload());
+        // Aceptar Selección de "Varios" Tipos de Clientes
+        $("#btnAceptarTipoCliente").off("click").on("click", function () {
+            let $btnTrigger;
+
+            // Buscar cuál es el botón visible actualmente
+            if ($("#tipoClienteGeneral").val() === "4") $btnTrigger = $("#btnListaClienteGeneral");
+            else if ($("#tipoClienteCombos").val() === "4") $btnTrigger = $("#btnListaClienteCombos");
+            else if ($("#tipoClienteArticulos").val() === "4") $btnTrigger = $("#tipoClienteArticulos").parent().find("button");
+
+            if (!$btnTrigger) return;
+
+            const seleccionados = [];
+            $("#bodyModalTipoCliente input[type='checkbox']:checked").each(function () {
+                seleccionados.push($(this).val());
+            });
+
+            $btnTrigger.data("seleccionados", seleccionados);
+
+            if (seleccionados.length > 0) {
+                $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success");
+                $btnTrigger.html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+            } else {
+                $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary");
+                $btnTrigger.html(`<i class="fa-solid fa-list-check"></i>`);
+            }
+        });
     });
 })();
