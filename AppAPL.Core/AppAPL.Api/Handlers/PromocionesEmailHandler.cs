@@ -691,15 +691,29 @@ namespace AppAPL.Api.Handlers
         {
             if (segmentos == null || !segmentos.Any()) return string.Empty;
 
-            // 1. Filtramos todos los que coincidan con el tipo
-            var detallesCombinados = segmentos
+            // 1. Filtramos primero por el tipo de segmento
+            var filtrados = segmentos
                 .Where(s => s.etiqueta_tipo_segmento.Equals(tipoSegmentoBusqueda, StringComparison.OrdinalIgnoreCase))
-                // 2. Proyectamos combinando codigo y nombre con un guion
+                .ToList();
+
+            if (!filtrados.Any()) return string.Empty;
+
+            // 2. Verificamos si alguno tiene "TODOS" en la descripción (case-insensitive)
+            bool esAsignacionTotal = filtrados.Any(s =>
+                !string.IsNullOrEmpty(s.descripcion_asignacion) &&
+                s.descripcion_asignacion.Equals("TODOS", StringComparison.OrdinalIgnoreCase));
+
+            if (esAsignacionTotal)
+            {
+                return "TODOS";
+            }
+
+            // 3. Si no es "TODOS", proyectamos la combinación código - nombre
+            var detallesCombinados = filtrados
                 .Select(s => $"{s.codigo_detalle} - {s.nombre_detalle}")
-                // 3. Filtramos para asegurar que no queden cadenas vacías (por si ambos campos son nulos)
                 .Where(d => !string.IsNullOrWhiteSpace(d) && d != " - ");
 
-            // 4. Unimos todos con el separador <br>
+            // 4. Unimos con el separador <br>
             return string.Join("<br>", detallesCombinados);
         }
 
