@@ -149,8 +149,14 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloPromocionDTO
     {
-        public string CODIGO { get; set; }
-        public string NOMBRE { get; set; }
+        public string codigo_marca { get; set; }
+        public string nombre_marca { get; set; }
+        public string codigo_division { get; set; }
+        public string nombre_division { get; set; }
+        public string codigo_departamento { get; set; }
+        public string nombre_departamento { get; set; }
+        public string codigo_clase { get; set; }
+        public string nombre_clase { get; set; }
     }
 
     public class ConsultarCombosPromocionesDTO

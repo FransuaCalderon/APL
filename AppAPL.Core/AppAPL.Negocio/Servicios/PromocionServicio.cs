@@ -90,7 +90,7 @@ namespace AppAPL.Negocio.Servicios
         public Task<ControlErroresDTO> ActualizarAsync(ActualizarPromocionRequest promocion)
             => repo.ActualizarAsync(promocion);
 
-        public Task<IEnumerable<ArticuloPromocionDTO>> ConsultarArticuloPromocion(string codigoArticulo)
+        public Task<IEnumerable<ArticuloPromocionDTO>> ConsultarArticuloPromocion(int codigoArticulo)
             => repo.ConsultarArticuloPromocion(codigoArticulo);
     }
 }

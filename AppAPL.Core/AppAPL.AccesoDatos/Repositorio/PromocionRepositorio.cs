@@ -552,7 +552,7 @@ namespace AppAPL.AccesoDatos.Repositorio
         }
 
 
-        public async Task<IEnumerable<ArticuloPromocionDTO>> ConsultarArticuloPromocion(string codigoArticulo)
+        public async Task<IEnumerable<ArticuloPromocionDTO>> ConsultarArticuloPromocion(int codigoArticulo)
         {
             using var connection = factory.CreateOpenConnection();
 
