@@ -618,7 +618,8 @@ function poblarFormulario(data) {
     }
 
     const marcaRegaloVal = (cab.marcaregalo || "").toString().trim();
-    $('#promocionMarcaRegalo').prop('checked', marcaRegaloVal === "✓");
+    // Se marcará siempre que no esté vacío (y omitiendo una "N" por si acaso, guiándonos por tu listado)
+    $('#promocionMarcaRegalo').prop('checked', marcaRegaloVal !== "" && marcaRegaloVal !== "N");
 
     // LÍNEA 4 (ACUERDOS) PINTAR DESDE DB
     const acProv = acuerdos.length > 0 ? acuerdos[0] : null;

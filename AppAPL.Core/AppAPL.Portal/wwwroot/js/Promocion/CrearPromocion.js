@@ -804,6 +804,19 @@
                 tipoasignacion: determinarAsignacion(seg.id)
             }));
 
+            // --- NUEVA VALIDACIÓN FRONTEND ---
+            // Buscamos si hay algún segmento que sea "D" pero tenga el arreglo de códigos vacío
+            const segmentoInvalido = segmentosValidados.find(seg => seg.tipoasignacion === "D" && (!seg.codigos || seg.codigos.length === 0));
+
+            if (segmentoInvalido) {
+                Swal.fire(
+                    "Atención",
+                    `Has seleccionado "Varios" en el filtro de ${segmentoInvalido.tiposegmento.replace('SEG', '')}, pero no has marcado ningún elemento en la lista.`,
+                    "warning"
+                );
+                return; // Detenemos la ejecución para que no haga la petición AJAX
+            }
+
             // 4. Construcción del Body
             const body = {
                 "tipoclaseetiqueta": "PRGENERAL",
@@ -1032,18 +1045,21 @@
         // Tipo Cliente
         $("#tipoClienteGeneral").off("change").on("change", function () {
             const val = $(this).val();
+            const $btn = $("#btnListaClienteGeneral");
 
-            // "3" (Lista Específica) o "4" (Varios)
-            if (val === "3" || val === "4") {
-                $("#btnListaClienteGeneral").removeClass("d-none");
-
-                // NUEVO: Abrir modal de clientes automáticamente
-                setTimeout(() => {
-                    $("#btnListaClienteGeneral")[0].click();
-                }, 50);
-
+            if (val === "3") {
+                // 3: Lista Específica
+                $btn.removeClass("d-none");
+                $btn.attr("data-bs-target", "#ModalClientesEspecificos");
+                setTimeout(() => { $("#ModalClientesEspecificos").modal("show"); }, 50);
+            } else if (val === "4") {
+                // 4: Varios
+                $btn.removeClass("d-none");
+                $btn.attr("data-bs-target", "#ModalTipoClienteVarios");
+                setTimeout(() => { $("#ModalTipoClienteVarios").modal("show"); }, 50);
             } else {
-                $("#btnListaClienteGeneral").addClass("d-none");
+                // Todos
+                $btn.addClass("d-none");
             }
         });
 
