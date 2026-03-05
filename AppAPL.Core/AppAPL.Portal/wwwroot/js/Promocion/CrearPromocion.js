@@ -13,6 +13,10 @@
     let proveedorTemporal = null;
     let propioTemporal = null;
 
+    // NUEVO: Variables para los buscadores de DataTables
+    let dtProveedores = null;
+    let dtPropios = null;
+
     // Configuración para el manejo unificado de "Varios"
     // Mapea: Select -> Botón Apertura -> Modal Body -> Botón Aceptar Modal -> Valor Trigger "Varios"
     const CONFIG_MULTIPLE = [
@@ -458,9 +462,14 @@
     // CONSULTA ACUERDOS (PROVEEDOR / PROPIO)
     // ==========================================
     function consultarAcuerdos(tipoFondo, tablaId, onSeleccion) {
-        const $tbody = $(`#${tablaId} tbody`);
-        $tbody.html('<tr><td colspan="13" class="text-center">Cargando...</td></tr>');
+        const $tabla = $(`#${tablaId}`);
+        const $tbody = $tabla.find("tbody");
         const claseAcuerdo = getClaseAcuerdo();
+
+        // Mostramos cargando solo si la tabla no está inicializada
+        if (!$.fn.DataTable.isDataTable(`#${tablaId}`)) {
+            $tbody.html('<tr><td colspan="13" class="text-center">Cargando acuerdos...</td></tr>');
+        }
 
         const payload = {
             code_app: "APP20260128155212346",
@@ -477,42 +486,63 @@
             data: JSON.stringify(payload),
             success: function (res) {
                 const data = res.json_response || [];
-                console.log('data ',data);
+
+                // Destruir instancia previa si existe para recargar
+                if ($.fn.DataTable.isDataTable(`#${tablaId}`)) {
+                    $tabla.DataTable().destroy();
+                }
                 $tbody.empty();
+
                 if (!data.length) {
-                    $tbody.html('<tr><td colspan="13" class="text-center">No hay datos.</td></tr>');
+                    $tbody.html('<tr><td colspan="13" class="text-center">No hay acuerdos disponibles.</td></tr>');
                     return;
                 }
+
                 const fmtDate = (s) => s ? new Date(s).toLocaleDateString("es-EC") : "";
 
                 data.forEach(x => {
-                    const row = `<tr class="text-nowrap">
-                        <td class="text-center">
-                            <input class="form-check-input acuerdo-radio" type="radio" name="acuerdo_${tipoFondo}"
-                                data-idacuerdo="${x.idacuerdo || ''}"
-                                data-desc="${x.descripcion || ''}"
-                                data-prov="${x.nombre_proveedor || ''}"
-                                data-disp="${x.valor_disponible || 0}"
-                                data-estado="${x.estado || ''}">
-                        </td>
-                        <td>${x.idacuerdo}</td>
-                        <td>${x.descripcion}</td>
-                        <td>${x.idfondo}</td>
-                        <td>${x.nombre_proveedor}</td>
-                        <td>${x.nombre_tipo_fondo}</td>
-                        <td class="text-end">${formatCurrencySpanish(x.valor_acuerdo)}</td>
-                        <td>${fmtDate(x.fecha_inicio)}</td>
-                        <td>${fmtDate(x.fecha_fin)}</td>
-                        <td class="text-end">${formatCurrencySpanish(x.valor_disponible)}</td>
-                        <td class="text-end">${formatCurrencySpanish(x.valor_comprometido)}</td>
-                        <td class="text-end">${formatCurrencySpanish(x.valor_liquidado)}</td>
-                        <td>${x.estado}</td>
-                    </tr>`;
+                    const row = `<tr>
+                    <td class="text-center">
+                        <input class="form-check-input acuerdo-radio" type="radio" name="radio_${tablaId}"
+                            data-idacuerdo="${x.idacuerdo || ''}"
+                            data-prov="${x.nombre_proveedor || ''}"
+                            data-disp="${x.valor_disponible || 0}">
+                    </td>
+                    <td>${x.idacuerdo}</td>
+                    <td>${x.descripcion}</td>
+                    <td>${x.idfondo}</td>
+                    <td>${x.nombre_proveedor}</td>
+                    <td>${x.nombre_tipo_fondo}</td>
+                    <td class="text-end">${formatCurrencySpanish(x.valor_acuerdo)}</td>
+                    <td>${fmtDate(x.fecha_inicio)}</td>
+                    <td>${fmtDate(x.fecha_fin)}</td>
+                    <td class="text-end">${formatCurrencySpanish(x.valor_disponible)}</td>
+                    <td class="text-end">${formatCurrencySpanish(x.valor_comprometido)}</td>
+                    <td class="text-end">${formatCurrencySpanish(x.valor_liquidado)}</td>
+                    <td>${x.estado}</td>
+                </tr>`;
                     $tbody.append(row);
                 });
 
-                $(`#${tablaId} .acuerdo-radio`).change(function () {
-                    $(`#${tablaId} tr`).removeClass("table-active");
+                // Inicializar DataTable
+                const dtInstance = $tabla.DataTable({
+                    pageLength: 10,
+                    destroy: true,
+                    searching: true, // <-- NUEVO: Obliga a DataTables a permitir búsquedas por API
+                    language: {
+                        url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+                    },
+                    dom: 'tp',
+                    columnDefs: [{ targets: 0, orderable: false }]
+                });
+
+                // Guardar instancia según corresponda
+                if (tablaId === "tablaProveedores") dtProveedores = dtInstance;
+                else dtPropios = dtInstance;
+
+                // Evento de selección (Radio)
+                $tabla.find('.acuerdo-radio').on('change', function () {
+                    $tabla.find("tr").removeClass("table-active");
                     $(this).closest("tr").addClass("table-active");
                     const d = $(this).data();
                     if (onSeleccion) onSeleccion({
@@ -1019,8 +1049,11 @@
         // Eventos Botones Guardar
         $("#btnGuardarPromocionGeneral").click(() => guardarPromocion("General"));
 
-        // Modales de Acuerdo
+        // Modales de Acuerdo Proveedor
         $("#modalConsultaProveedor").on("show.bs.modal", function () {
+            $("#buscarProveedorInput").val(""); // Limpiamos el input de búsqueda visualmente
+            if (dtProveedores) dtProveedores.search("").draw(); // Limpiamos la búsqueda en memoria
+
             proveedorTemporal = null;
             consultarAcuerdos("TFPROVEDOR", "tablaProveedores", (s) => proveedorTemporal = s);
         });
@@ -1031,7 +1064,11 @@
             }
         });
 
+        // Modales de Acuerdo Propio
         $("#modalConsultaAcuerdoPropio").on("show.bs.modal", function () {
+            $("#buscarPropioInput").val(""); // Limpiamos el input de búsqueda visualmente
+            if (dtPropios) dtPropios.search("").draw(); // Limpiamos la búsqueda en memoria
+
             propioTemporal = null;
             consultarAcuerdos("TFPROPIO", "tablaAcuerdosPropios", (s) => propioTemporal = s);
         });
@@ -1096,6 +1133,19 @@
             } else {
                 $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary");
                 $btnTrigger.html(`<i class="fa-solid fa-list-check"></i>`);
+            }
+        });
+        // Buscador para el modal de Proveedor (Usa evento delegado 'input' para detectar teclas y pegado de texto)
+        $(document).on("input", "#buscarProveedorInput", function () {
+            if (dtProveedores) {
+                dtProveedores.search(this.value).draw();
+            }
+        });
+
+        // Buscador para el modal de Acuerdo Propio
+        $(document).on("input", "#buscarPropioInput", function () {
+            if (dtPropios) {
+                dtPropios.search(this.value).draw();
             }
         });
     });
