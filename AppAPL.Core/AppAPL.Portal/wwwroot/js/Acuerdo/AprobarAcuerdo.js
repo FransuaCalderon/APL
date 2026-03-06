@@ -295,7 +295,6 @@ function formatearFecha(fechaString) {
 // ===================================================================
 // FUNCIONES: LOGICA DE DETALLE (VISUALIZAR)
 // ===================================================================
-
 /**
  * Consulta el detalle por ID y muestra el DIV de detalle (Ocultando la tabla)
  */
@@ -343,12 +342,25 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
                     comentario: ""
                 };
 
-                // 1. Llenar Formulario
-                $("#verNombreProveedor").val(data.cabecera?.nombre_proveedor || "");
-                $("#verNombreTipoFondo").val(data.cabecera?.nombre_tipo_fondo || "");
+                // =================================================================
+                // 1. LLENAR FORMULARIO - CORREGIDO
+                // =================================================================
+
+                // Concatenación para el primer input: ID Fondo - Proveedor - Tipo Fondo
+                const idFondo = data.cabecera?.id_fondo || "";
+                const proveedor = data.cabecera?.nombre_proveedor || "";
+                const tipoFondo = data.cabecera?.nombre_tipo_fondo || "";
+                const infoCompleta = `${idFondo} - ${proveedor} - ${tipoFondo}`;
+
+                $("#verNombreProveedor").val(infoCompleta);
+
+                $("#verMotivo").val(data.cabecera?.nombre_motivo || "");
+
+                // El resto de campos
                 $("#verDescripcion").val(data.cabecera?.descripcion || "");
                 $("#verClaseAcuerdo").val(data.cabecera?.nombre_clase_acuerdo || "");
                 $("#verEstado").val(data.cabecera?.nombre_estado_acuerdo || "");
+
                 $("#verFechaInicio").val(formatearFecha(data.cabecera?.fecha_inicio));
                 $("#verFechaFin").val(formatearFecha(data.cabecera?.fecha_fin));
                 $("#verValorAcuerdo").val(formatearMoneda(data.cabecera?.valor_acuerdo));
@@ -360,14 +372,12 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
                 // LOGICA DE ARTÍCULOS
                 // =================================================================
                 if (data.articulos && data.articulos.length > 0) {
-                    console.log("Acuerdo por artículos detectado. Renderizando tabla...");
-
                     let htmlArticulos = `
                         <h6 class="fw-bold mb-2"><i class="fa fa-list"></i> Detalle de Artículos</h6>
                         <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                             <table class="table table-bordered table-sm mb-0">
                                 <thead class="sticky-top text-nowrap">
-                                    <tr class="text-center tabla-items-header">                                    
+                                    <tr class="text-center tabla-items-header">                                     
                                         <th scope="col" class="custom-header-cons-bg">Item</th>
                                         <th scope="col" class="custom-header-cons-bg">Costo</th>
                                         <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
@@ -385,7 +395,6 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
 
                     data.articulos.forEach(art => {
                         let margenCredito = (art.preciocredito || 0) - (art.costoactual || 0);
-
                         htmlArticulos += `
                             <tr>
                                 <td class="fw-bold text-center">${art.codigoarticulo || ''}</td>
@@ -402,44 +411,31 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
                             </tr>`;
                     });
 
-                    htmlArticulos += `
-                                </tbody>
-                            </table>
-                        </div>`;
-
+                    htmlArticulos += `</tbody></table></div>`;
                     $('#contenedor-tabla-articulos').html(htmlArticulos).fadeIn();
                 }
 
-                // 2. LOGICA VISUAL
+                // LOGICA VISUAL
                 $("#vistaTabla").fadeOut(200, function () {
                     $("#vistaDetalle").fadeIn(200);
                 });
                 $('body').css('cursor', 'default');
 
-                // 3. CARGAR TABLA DE HISTORIAL DE APROBACIONES
+                // CARGAR TABLA DE HISTORIAL
                 if (data.cabecera?.entidad_etiqueta && data.cabecera?.tipo_proceso_etiqueta) {
                     cargarAprobacionesAcuerdo(
                         data.cabecera.entidad_etiqueta,
                         idAcuerdo,
                         data.cabecera.tipo_proceso_etiqueta
                     );
-                } else {
-                    $('#tabla-aprobaciones-fondo').html(
-                        '<p class="alert alert-warning">No se encontraron los parámetros necesarios para cargar aprobaciones.</p>'
-                    );
                 }
             } else {
                 $('body').css('cursor', 'default');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar los datos del acuerdo.'
-                });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudieron cargar los datos.' });
             }
         },
         error: function (xhr) {
             $('body').css('cursor', 'default');
-            console.error("Error detalle:", xhr);
             manejarErrorGlobal(xhr, "cargar los datos del acuerdo");
         }
     });
