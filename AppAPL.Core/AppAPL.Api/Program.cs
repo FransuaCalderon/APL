@@ -100,6 +100,7 @@ builder.Services.AddControllers(opciones =>
 }).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = new CustomSnakeCaseNamingPolicy();
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 
 });
 

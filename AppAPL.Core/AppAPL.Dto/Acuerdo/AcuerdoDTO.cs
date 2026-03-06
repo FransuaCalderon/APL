@@ -137,6 +137,7 @@ namespace AppAPL.Dto.Acuerdo
         public string nombre_proveedor { get; set; }
         public int id_tipo_clase_acuerdo { get; set; }
         public string nombre_clase_acuerdo { get; set; }
+        public string etiqueta_clase_acuerdo { get; set; }
         public int cantidad_articulos { get; set; }
         
         public decimal valor_acuerdo { get; set; }
@@ -152,6 +153,8 @@ namespace AppAPL.Dto.Acuerdo
         public string aprobador { get; set; }
         public int idaprobacion { get; set; }
         public int id_entidad { get; set; }
+        public int idmotivoacuerdo { get; set; }
+        public string motivo { get; set; }
         public string entidad_etiqueta { get; set; }
         public int id_tipo_proceso { get; set; }
         public string tipo_proceso_etiqueta { get; set; }
@@ -494,9 +497,6 @@ namespace AppAPL.Dto.Acuerdo
         public DateTime FechaFinVigencia { get; set; }
         public string? IdUsuarioIngreso { get; set; }
         public int IdEstadoRegistro { get; set; }
-
-        //[Required(ErrorMessage = "El campo {0} es requerido")]
-        //[RegularExpression("[AI]", ErrorMessage = "El campo {0} solo debe tener uno de estos caracteres {1}")]
         [StringLength(maximumLength: 1, ErrorMessage = "el campo {0} no debe tener mas de un caracter")]
         public string? MarcaProcesoAprobacion { get; set; }
     }
@@ -513,7 +513,7 @@ namespace AppAPL.Dto.Acuerdo
     public class CrearAcuerdoArticuloDTO
     {
         public int? IdAcuerdoArticulo { get; set; }
-        public string? CodigoArticulo { get; set; }
+        public int? CodigoArticulo { get; set; }
         public decimal CostoActual { get; set; }
         public int UnidadesLimite { get; set; }
         public decimal PrecioContado { get; set; }
