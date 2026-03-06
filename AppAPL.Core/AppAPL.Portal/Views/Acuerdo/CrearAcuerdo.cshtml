@@ -77,26 +77,6 @@
             border-radius: 0.2rem;
         }
 
-        /* ✅ NUEVO: Evitar que los inputs colapsen los números y el símbolo $ */
-        .tabla-items-body input[type="text"],
-        .tabla-items-body input[type="number"] {
-            min-width: 110px !important;
-            white-space: nowrap !important;
-        }
-
-        /* ✅ NUEVO: Permitir que la tabla principal crezca dinámicamente sin cortarse */
-        .custom-table-wrapper {
-            max-height: 400px;
-            min-height: 220px;
-            overflow-y: auto;
-            overflow-x: auto;
-        }
-
-        /* ✅ NUEVO: Hacer el modal casi del tamaño de la pantalla sin llegar al 100% */
-        .custom-modal-xxl {
-            max-width: 95vw !important;
-        }
-
         /* Reajustamos el espacio del modal y la tabla para que se vea correctamente */
         #modalConsultaItems .modal-body {
             padding-top: 0 !important;
@@ -116,6 +96,11 @@
             padding-bottom: 0 !important;
         }
 
+        #modalConsultaItems .table-responsive {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
         #btnseleccionar {
             margin-top: 0 !important;
         }
@@ -124,13 +109,13 @@
             cursor: pointer;
         }
 
-            #filtroMarca option:hover,
-            #filtroDivision option:hover,
-            #filtroDepartamento option:hover,
-            #filtroClase option:hover {
-                background-color: #0d6efd !important;
-                color: white !important;
-            }
+        #filtroMarca option:hover,
+        #filtroDivision option:hover,
+        #filtroDepartamento option:hover,
+        #filtroClase option:hover {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
 
         .form-select option:checked {
             background-color: #198754 !important;
@@ -138,25 +123,40 @@
             font-weight: bold;
         }
 
-        /* ✅ Estilos para DataTables dentro de los modales */
-        #tablaProveedores_wrapper .dataTables_info,
-        #tablaItemsConsulta_wrapper .dataTables_info {
+        /* ✅ Estilos para DataTables dentro del modal de Proveedores */
+        #tablaProveedores_wrapper .dataTables_info {
             font-size: 0.8rem;
             padding-top: 0.5rem;
             text-align: center !important;
         }
 
-        #tablaProveedores_wrapper > div:last-child,
-        #tablaItemsConsulta_wrapper > div:last-child {
+        #tablaProveedores_wrapper > div:last-child {
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
         }
 
-        #tablaProveedores_wrapper .dataTables_paginate,
-        #tablaItemsConsulta_wrapper .dataTables_paginate {
+        #tablaProveedores_wrapper .dataTables_paginate {
             float: none !important;
             padding-top: 0.5rem;
+        }
+
+        /* Se agrupan los inputs de texto y número para que aplique a Costo, Unidades, Precios, etc. */
+        .tabla-items-body input[type="text"],
+        .tabla-items-body input[type="number"] {
+            text-align: right;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            height: 28px;
+            border: 1px solid #ced4da;
+            border-radius: 0.2rem;
+            min-width: 100px; /* <--- CLAVE: Garantiza que no se oculten los números */
+            width: 100%;
+        }
+
+        /* Opcional: Para la celda de la descripción si es muy larga, evitar que estropee la vista */
+        .tabla-items-body td {
+            vertical-align: middle;
         }
     </style>
 }
@@ -176,7 +176,7 @@
 
 <form id="formGeneral" class="row g-1 mb-1 pb-1">
     <div class="col-md-3">
-        <label class="form-label fw-bold col-form-label-sm">Fondos Proveedor</label>
+        <label class="form-label fw-bold col-form-label-sm">ID Fondo - Proveedor</label>
         <div class="input-group input-group-sm">
             <input type="text" class="form-control" id="fondoProveedorGeneral" value="Seleccione..." readonly>
             <button class="btn btn-outline-secondary" type="button"
@@ -320,7 +320,7 @@
         <div class="col-12">
             <div class="row p-0">
                 <div class="col">
-                    <div class="table-responsive small border custom-table-wrapper">
+                    <div class="table-responsive small border" style="height: 220px;">
                         <table class="table table-bordered table-sm">
                             <thead class="sticky-top text-nowrap">
                                 <tr class="text-center tabla-items-header">
@@ -403,9 +403,8 @@
 </div>
 
 <div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-labelledby="modalConsultaItemLabel" aria-hidden="true">
-    <div class="modal-dialog custom-modal-xxl modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable" style="max-width: 90%;">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="modalConsultaItemLabel">Consulta de Items</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -414,65 +413,69 @@
                 <div class="row m-2">
                     <div class="card border-secondary p-0">
                         <div class="card-header">
-                            Criterios de Seleccion
+                            Criterios de Selección
                         </div>
 
                         <div class="card-body">
-                            <form class="row g-2 w-100 m-0">
-                                <div class="col-2 d-flex flex-column">
-                                    <label class="form-label fw-bold col-form-label-sm text-center">Marca</label>
-                                    <div class="border rounded p-2 flex-grow-1" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
-                                        <div class="form-check">
-                                            <input class="form-check-input filtro-todas" type="checkbox" id="todasMarcas" data-target="filtroMarca">
-                                            <label class="form-check-label fw-bold" for="todasMarcas">Todas</label>
+                            <form class="row g-2">
+                                <div class="col-12">
+                                    <div class="row g-2 flex-nowrap">
+                                        <div class="col">
+                                            <label class="form-label fw-bold col-form-label-sm text-center d-block">Marca</label>
+                                            <div class="border rounded p-2" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input filtro-todas" type="checkbox" id="todasMarcas" data-target="filtroMarca">
+                                                    <label class="form-check-label fw-bold" for="todasMarcas">Todas</label>
+                                                </div>
+                                                <hr class="my-1">
+                                                <div id="filtroMarca"></div>
+                                            </div>
                                         </div>
-                                        <hr class="my-1">
-                                        <div id="filtroMarca"></div>
+
+                                        <div class="col">
+                                            <label class="form-label fw-bold col-form-label-sm text-center d-block">División</label>
+                                            <div class="border rounded p-2" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input filtro-todas" type="checkbox" id="todasDivisiones" data-target="filtroDivision">
+                                                    <label class="form-check-label fw-bold" for="todasDivisiones">Todas</label>
+                                                </div>
+                                                <hr class="my-1">
+                                                <div id="filtroDivision"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col">
+                                            <label class="form-label fw-bold col-form-label-sm text-center d-block">Departamento</label>
+                                            <div class="border rounded p-2" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input filtro-todas" type="checkbox" id="todosDepartamentos" data-target="filtroDepartamento">
+                                                    <label class="form-check-label fw-bold" for="todosDepartamentos">Todos</label>
+                                                </div>
+                                                <hr class="my-1">
+                                                <div id="filtroDepartamento"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col">
+                                            <label class="form-label fw-bold col-form-label-sm text-center d-block">Clase</label>
+                                            <div class="border rounded p-2" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input filtro-todas" type="checkbox" id="todasClases" data-target="filtroClase">
+                                                    <label class="form-check-label fw-bold" for="todasClases">Todas</label>
+                                                </div>
+                                                <hr class="my-1">
+                                                <div id="filtroClase"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-auto pe-2" style="min-width: 200px; max-width: 100px;">
+                                            <label class="form-label fw-bold col-form-label-sm text-center d-block">Artículo</label>
+                                            <input type="text" id="filtroArticulo" class="form-control form-control-sm w-100" placeholder="Buscar...">
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-3 d-flex flex-column">
-                                    <label class="form-label fw-bold col-form-label-sm text-center">División</label>
-                                    <div class="border rounded p-2 flex-grow-1" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
-                                        <div class="form-check">
-                                            <input class="form-check-input filtro-todas" type="checkbox" id="todasDivisiones" data-target="filtroDivision">
-                                            <label class="form-check-label fw-bold" for="todasDivisiones">Todas</label>
-                                        </div>
-                                        <hr class="my-1">
-                                        <div id="filtroDivision"></div>
-                                    </div>
-                                </div>
-
-                                <div class="col-3 d-flex flex-column">
-                                    <label class="form-label fw-bold col-form-label-sm text-center">Departamento</label>
-                                    <div class="border rounded p-2 flex-grow-1" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
-                                        <div class="form-check">
-                                            <input class="form-check-input filtro-todas" type="checkbox" id="todosDepartamentos" data-target="filtroDepartamento">
-                                            <label class="form-check-label fw-bold" for="todosDepartamentos">Todos</label>
-                                        </div>
-                                        <hr class="my-1">
-                                        <div id="filtroDepartamento"></div>
-                                    </div>
-                                </div>
-
-                                <div class="col-3 d-flex flex-column">
-                                    <label class="form-label fw-bold col-form-label-sm text-center">Clase</label>
-                                    <div class="border rounded p-2 flex-grow-1" style="height: 120px; overflow-y: auto; background-color: #f8f9fa;">
-                                        <div class="form-check">
-                                            <input class="form-check-input filtro-todas" type="checkbox" id="todasClases" data-target="filtroClase">
-                                            <label class="form-check-label fw-bold" for="todasClases">Todas</label>
-                                        </div>
-                                        <hr class="my-1">
-                                        <div id="filtroClase"></div>
-                                    </div>
-                                </div>
-
-                                <div class="col-1">
-                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Artículo</label>
-                                    <input type="text" id="filtroArticulo" class="form-control form-control-sm text-center" placeholder="">
-                                </div>
-
-                                <div class="col-12 mt-3">
+                                <div class="col-12 mt-2">
                                     <button type="button" id="btnProcesarFiltros" class="btn btn-secondary btn-sm w-100">
                                         <i class="fa-solid fa-filter"></i> Procesar Selección
                                     </button>
@@ -483,20 +486,19 @@
                 </div>
 
                 <div class="row m-2">
-                    <div class="d-flex align-items-center mt-2">
+                    <div class="d-flex justify-content-between align-items-center mt-2 p-0">
                         <div class="form-check form-check-sm">
-                            <input class="form-check-input" type="checkbox" id="checkTodosItems">
-                            <label class="form-check-label" for="checkTodosItems">Seleccionar Todos (Página Actual)</label>
+                            <input class="form-check-input" type="checkbox" id="checkTodosItems" checked>
+                            <label class="form-check-label" for="checkTodosItems">Todos</label>
                         </div>
-                        <div class="flex-grow-1"></div>
-                        <input type="text" id="buscarItemInput" class="form-control w-25" placeholder="Buscar...,">
+                        <input type="text" id="buscarItemInputAcuerdo" class="form-control form-control-sm" placeholder="Buscar en resultados..." style="width: 300px;">
                     </div>
                 </div>
 
                 <div class="row m-2">
-                    <div class="table-responsive small p-1 border border-secondary" style="max-height: 400px; overflow-y: auto;">
-                        <table id="tablaItemsConsulta" class="table table-hover table-bordered w-100 table-sm">
-                            <thead class="sticky-top table-success text-white text-nowrap">
+                    <div class="table-responsive small p-1 border border-secondary">
+                        <table id="tablaItemsConsulta" class="table table-hover table-bordered w-100 text-nowrap">
+                            <thead class="sticky-top table-success text-white">
                                 <tr>
                                     <th>Sel</th>
                                     <th>Codigo</th>
@@ -507,7 +509,7 @@
                                     <th>Excedente(u)</th>
                                     <th>Excedente($)</th>
                                     <th>M-0(u)</th>
-                                    <th>>M-0($)</th>
+                                    <th>M-0($)</th>
                                     <th>M-1(u)</th>
                                     <th>M-1($)</th>
                                     <th>M-2(u)</th>

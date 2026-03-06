@@ -354,7 +354,7 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
 
                 $("#verNombreProveedor").val(infoCompleta);
 
-                $("#verMotivo").val(data.cabecera?.nombre_motivo || "");
+                $("#verMotivo").val(data.cabecera?.motivo || "");
 
                 // El resto de campos
                 $("#verDescripcion").val(data.cabecera?.descripcion || "");
