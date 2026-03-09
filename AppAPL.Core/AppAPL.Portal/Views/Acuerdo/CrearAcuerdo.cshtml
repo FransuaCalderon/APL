@@ -302,19 +302,26 @@
     <div class="col-12 mt-3">
         <div class="detalle-header">Detalle de los Artículos</div>
 
-        <div class="d-flex align-items-center gap-3 pt-2 pb-1">
-            <button id="btnAddItem" type="button" class="btn btn-outline-primary border-0 d-flex align-items-center gap-1"
-                    data-bs-toggle="modal" data-bs-target="#modalConsultaItems">
-                <i class="fa-regular fa-square-plus"></i> Añadir Item
-            </button>
+        <div class="d-flex align-items-center justify-content-between pt-2 pb-1">
+            <div class="d-flex gap-3">
+                <button id="btnAddItem" type="button" class="btn btn-outline-primary border-0 d-flex align-items-center gap-1"
+                        data-bs-toggle="modal" data-bs-target="#modalConsultaItems">
+                    <i class="fa-regular fa-square-plus"></i> Añadir Item
+                </button>
 
-            <button id="btnModifyItem" type="button" class="btn btn-outline-warning border-0 d-flex align-items-center gap-1">
-                <i class="fa-regular fa-pen-to-square"></i> Modificar
-            </button>
+                <button id="btnModifyItem" type="button" class="btn btn-outline-warning border-0 d-flex align-items-center gap-1">
+                    <i class="fa-regular fa-pen-to-square"></i> Modificar
+                </button>
 
-            <button id="btnDeleteItem" type="button" class="btn btn-outline-danger border-0 d-flex align-items-center gap-1">
-                <i class="fa-regular fa-trash-can"></i> Eliminar
-            </button>
+                <button id="btnDeleteItem" type="button" class="btn btn-outline-danger border-0 d-flex align-items-center gap-1">
+                    <i class="fa-regular fa-trash-can"></i> Eliminar
+                </button>
+            </div>
+
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <span><i></i></span>
+                <input type="text" id="buscarItemAgregado" class="form-control" placeholder="Buscar..." class="fa-solid fa-search text-muted">
+            </div>
         </div>
 
         <div class="col-12">

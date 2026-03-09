@@ -862,6 +862,7 @@
 
     function agregarItemsATabla(items) {
         const $tbody = $("#tablaItemsBody");
+        let itemsNuevosAgregados = 0;
 
         items.forEach((item) => {
             const existe = $tbody.find(`tr[data-codigo="${item.codigo}"]`).length > 0;
@@ -870,12 +871,13 @@
                 return;
             }
 
+            itemsNuevosAgregados++;
             const nuevaFila = `
         <tr data-codigo="${item.codigo}">
           <td class="text-center align-middle">
             <input type="radio" class="form-check-input item-row-radio" name="itemSeleccionado">
           </td>
-          <td class="align-middle celda-readonly">${item.codigo} - ${item.descripcion}</td>
+          <td class="align-middle celda-readonly td-descripcion">${item.codigo} - ${item.descripcion}</td>
           <td class="align-middle celda-readonly">
             <input type="text" class="form-control form-control-sm text-end item-costo" 
                    value="${formatCurrencySpanish(item.costo)}" readonly disabled>
@@ -912,10 +914,38 @@
             $tbody.append(nuevaFila);
         });
 
+        // ==========================================
+        // LÓGICA DE SELECCIÓN DE RADIO BUTTONS
+        // ==========================================
         $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
+            // 1. Desmarcar visualmente todas las filas
             $("#tablaItemsBody tr").removeClass("fila-seleccionada");
-            $(this).closest("tr").addClass("fila-seleccionada");
+
+            // 2. BLOQUEAR absolutamente todos los inputs editables de toda la tabla
+            // Esto asegura que al cambiar de ítem, el usuario deba presionar "Modificar"
+            $("#tablaItemsBody .celda-editable input").prop("disabled", true);
+
+            // 3. Solo marcamos visualmente la fila actual a la que le dimos clic
+            const $filaActual = $(this).closest("tr");
+            $filaActual.addClass("fila-seleccionada");
         });
+
+        // Validamos si ingresamos items nuevos y si no hay nada seleccionado, 
+        // seleccionamos el primero y lo habilitamos por default
+        if (itemsNuevosAgregados > 0) {
+            if ($tbody.find(".item-row-radio:checked").length === 0) {
+                const $primerFila = $tbody.find("tr").first();
+
+                // Esto marca el check y ejecuta la regla de arriba (bloquear todo)
+                $primerFila.find(".item-row-radio").prop("checked", true).trigger("change");
+
+                // Pero como es el PRIMER ítem, lo desbloqueamos manualmente por default
+                // para que el usuario empiece a trabajar de inmediato
+                $primerFila.find(".celda-editable input").prop("disabled", false);
+                $primerFila.find('input[name="unidadesLimite"]').focus();
+            }
+        }
+
         calcularTotalesItems();
     }
 
@@ -937,24 +967,40 @@
             const precioTC = parseCurrencyToNumber($fila.find(".item-precio-tc").val());
             const precioCredito = parseCurrencyToNumber($fila.find(".item-precio-credito").val());
 
+            // --- Recálculo Margen Contado ---
             if (precioContado > 0) {
                 const mContado = ((precioContado + aporte - costo) / precioContado * 100).toFixed(2);
                 $fila.find(".margen-contado").text(mContado + "%");
+            } else {
+                $fila.find(".margen-contado").text("0.00%");
             }
 
+            // --- Recálculo Margen TC ---
             if (precioTC > 0) {
                 const mTC = ((precioTC + aporte - costo) / precioTC * 100).toFixed(2);
                 $fila.find(".margen-tc").text(mTC + "%");
+            } else {
+                $fila.find(".margen-tc").text("0.00%");
             }
 
+            // --- Recálculo Margen Crédito ---
             if (precioCredito > 0) {
                 const mCredito = ((precioCredito + aporte - costo) / precioCredito * 100).toFixed(2);
                 $fila.find(".margen-credito").text(mCredito + "%");
+            } else {
+                $fila.find(".margen-credito").text("0.00%");
             }
 
+            // --- Colores Dinámicos ---
             $fila.find(".margen-contado, .margen-tc, .margen-credito").each(function () {
                 const valor = parseFloat($(this).text());
-                $(this).css("color", valor < 0 ? "#dc3545" : "#198754");
+                if (valor < 0) {
+                    $(this).css("color", "#dc3545"); // Rojo si hay pérdida
+                } else if (valor > 0) {
+                    $(this).css("color", "#198754"); // Verde si es positivo
+                } else {
+                    $(this).css("color", "#212529"); // Neutro/Oscuro si es 0%
+                }
             });
         });
 
@@ -1069,26 +1115,49 @@
     }
 
     function initCurrencyItems() {
-        $(document).on(
-            "blur",
-            ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte",
-            function () {
-                if (!$(this).prop("disabled")) {
-                    const rawValue = $(this).val().replace(",", ".");
-                    $(this).val(formatCurrencySpanish(rawValue));
-                    calcularTotalesItems();
-                }
-            }
-        );
+        const inputsDinamicos = ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte";
 
-        $(document).on("change", "input[name='unidadesLimite']", function () {
-            calcularTotalesItems();
+        // 1. Evitar letras y caracteres especiales (solo números, coma y punto)
+        $(document).on("keypress", inputsDinamicos, function (event) {
+            const char = event.key;
+            if (char >= "0" && char <= "9") return true;
+            if (char === "," || char === ".") return true;
+            event.preventDefault();
+            return false;
         });
 
-        $(document).on("keyup", ".item-precio-contado, .item-precio-tc, .item-precio-credito", function () {
+        // Para unidades límite, solo números enteros
+        $(document).on("keypress", "input[name='unidadesLimite']", function (event) {
+            const char = event.key;
+            if (char >= "0" && char <= "9") return true;
+            event.preventDefault();
+            return false;
+        });
+
+        // 2. Formatear al salir del campo (Arregla el bug de Tab)
+        $(document).on("blur", inputsDinamicos, function () {
+            if (!$(this).prop("disabled")) {
+                const valStr = String($(this).val()).trim();
+                if (valStr === "") {
+                    $(this).val(""); // Si lo borró, lo dejamos vacío
+                } else {
+                    // parseCurrencyToNumber extrae el número de forma segura eliminando el '$' 
+                    const numLimpio = parseCurrencyToNumber(valStr);
+                    $(this).val(formatCurrencySpanish(numLimpio));
+                }
+                calcularTotalesItems();
+            }
+        });
+
+        // 3. Cálculos INSTANTÁNEOS mientras se escribe
+        $(document).on("keyup", inputsDinamicos + ", input[name='unidadesLimite']", function () {
             if (!$(this).prop("disabled")) {
                 calcularTotalesItems();
             }
+        });
+
+        $(document).on("change", "input[name='unidadesLimite']", function () {
+            calcularTotalesItems();
         });
     }
 
@@ -1150,48 +1219,51 @@
         const fin = $("#fondoFechaFinItems").val();
 
         if (!proveedorIdFondo || proveedorIdFondo.trim() === "") {
-            Swal.fire("Validación", "Debe seleccionar un proveedor / fondo.", "warning");
-            return false;
+            Swal.fire("Validación", "Debe seleccionar un proveedor / fondo.", "warning"); return false;
         }
         if (!motivo || String(motivo).trim() === "") {
-            Swal.fire("Validación", "Debe seleccionar un motivo.", "warning");
-            return false;
+            Swal.fire("Validación", "Debe seleccionar un motivo.", "warning"); return false;
         }
         if (!desc || desc.trim().length < 3) {
-            Swal.fire("Validación", "Debe ingresar una descripción (mínimo 3 caracteres).", "warning");
-            return false;
+            Swal.fire("Validación", "Debe ingresar una descripción (mínimo 3 caracteres).", "warning"); return false;
         }
         if (!isValidDateDDMMYYYY(ini) || !isValidDateDDMMYYYY(fin)) {
-            Swal.fire("Validación", "Fechas inválidas. Use el formato dd/mm/aaaa.", "warning");
-            return false;
+            Swal.fire("Validación", "Fechas inválidas. Use el formato dd/mm/aaaa.", "warning"); return false;
         }
         if (compareDatesDDMMYYYY(ini, fin) > 0) {
-            Swal.fire("Validación", "La fecha inicio no puede ser mayor que la fecha fin.", "warning");
-            return false;
+            Swal.fire("Validación", "La fecha inicio no puede ser mayor que la fecha fin.", "warning"); return false;
         }
 
         const filas = $("#tablaItemsBody tr").length;
         if (filas <= 0) {
-            Swal.fire("Validación", "Debe existir al menos un ítem en el detalle.", "warning");
-            return false;
+            Swal.fire("Validación", "Debe existir al menos un ítem en el detalle.", "warning"); return false;
         }
 
-        let unidadesInvalidas = false;
-        $("#tablaItemsBody input[name='unidadesLimite']").each(function () {
-            const v = String($(this).val() || "").trim();
-            const n = parseInt(v, 10);
-            if (!v || isNaN(n) || n <= 0) {
-                unidadesInvalidas = true;
-                return false;
+        // Validación exhaustiva fila por fila
+        let errorFila = "";
+        $("#tablaItemsBody tr").each(function (index) {
+            const numFila = index + 1;
+            const vUnidades = String($(this).find("input[name='unidadesLimite']").val() || "").trim();
+            const nUnidades = parseInt(vUnidades, 10);
+
+            const nAporte = parseCurrencyToNumber($(this).find(".item-aporte").val());
+            const nPContado = parseCurrencyToNumber($(this).find(".item-precio-contado").val());
+            const nPTC = parseCurrencyToNumber($(this).find(".item-precio-tc").val());
+            const nPCredito = parseCurrencyToNumber($(this).find(".item-precio-credito").val());
+
+            if (!vUnidades || isNaN(nUnidades) || nUnidades <= 0) {
+                errorFila = `Fila ${numFila}: 'Unidades Límite' es obligatorio y debe ser mayor a 0.`; return false;
+            }
+            if (nAporte <= 0) {
+                errorFila = `Fila ${numFila}: 'Aporte por Unidad' es obligatorio.`; return false;
+            }
+            if (nPContado <= 0 && nPTC <= 0 && nPCredito <= 0) {
+                errorFila = `Fila ${numFila}: Debe ingresar al menos un Precio (Contado, TC o Crédito).`; return false;
             }
         });
 
-        if (unidadesInvalidas) {
-            Swal.fire(
-                "Validación",
-                "Revise el detalle: 'Unidades Límite' debe ser un número mayor a 0.",
-                "warning"
-            );
+        if (errorFila) {
+            Swal.fire("Validación de Detalle", errorFila, "warning");
             return false;
         }
 
@@ -1928,6 +2000,14 @@
                         timer: 1500
                     });
                 }
+            });
+        });
+        // Activar el buscador de los items en "Detalle de los Artículos"
+        $("#buscarItemAgregado").on("keyup", function () {
+            const value = $(this).val().toLowerCase();
+            $("#tablaItemsBody tr").filter(function () {
+                // Busca en la columna de Descripción (índice 1) o en toda la fila
+                $(this).toggle($(this).find(".td-descripcion").text().toLowerCase().indexOf(value) > -1)
             });
         });
     });

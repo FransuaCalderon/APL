@@ -246,7 +246,7 @@ function abrirModalEditar(idAcuerdo) {
                 const cab = data.cabecera || {};
 
                 // Mapeo de Cabecera
-                $("#verNombreProveedor").val(cab.fondo_proveedor || "");
+                $("#verNombreProveedor").val(`${cab.idfondo} - ${cab.fondo_proveedor || ""}`);
                 $("#verNombreTipoFondo").val(cab.motivo || "");
                 $("#verClaseAcuerdo").val(cab.clase_acuerdo || "");
                 $("#verEstado").val(cab.estado || "");

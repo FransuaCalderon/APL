@@ -223,7 +223,11 @@ function abrirModalEditar(idAcuerdo) {
                 const cab = data?.cabecera || {};
 
                 // Mapeo de Cabecera            
-                $("#verProveedorNombre").val(cab.fondo_proveedor);
+                const textoFondoProveedor = [cab.idfondo, cab.fondo_proveedor, cab.proveedor_nombre]
+                    .filter(Boolean) // Esto evita que se concatenen valores nulos o vacíos
+                    .join(" - ");
+
+                $("#verProveedorNombre").val(textoFondoProveedor);
                 $("#verNombreTipoFondo").val(cab.motivo ?? "");
                 $("#verClaseAcuerdo").val(cab.clase_acuerdo ?? "");
                 $("#verEstado").val(cab.estado ?? "");
