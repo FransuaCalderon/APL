@@ -4,6 +4,7 @@ using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Promocion;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Configuration;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
@@ -122,11 +123,12 @@ namespace AppAPL.Api.Controllers
             return combosPromociones;
         }
 
-        [HttpGet("consultar-acuerdo/{tipoFondo}/{claseAcuerdo}")]
-        public async Task<ActionResult<List<AcuerdoPromoDTO>>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo)
+        [HttpGet("consultar-acuerdo/{tipoFondo}/{claseAcuerdo}/{marca?}")]
+        public async Task<ActionResult<List<AcuerdoPromoDTO>>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo,
+            [SwaggerParameter(Description = "Parámetro opcional", Required = false)] string? marca = "")
         {
-
-            var listaBandeja = await servicio.ConsultarAcuerdo(tipoFondo.Trim(), claseAcuerdo.Trim());
+            string? marcaReal = (string.IsNullOrWhiteSpace(marca) || marca == "{marca}") ? null : marca.Trim();
+            var listaBandeja = await servicio.ConsultarAcuerdo(tipoFondo.Trim(), claseAcuerdo.Trim(), marcaReal);
 
             return listaBandeja.ToList();
         }

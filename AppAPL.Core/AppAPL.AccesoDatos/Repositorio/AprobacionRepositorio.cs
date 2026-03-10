@@ -38,7 +38,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<AprobacionGeneralDTO>(
-                "sp_consulta_aprobacion_general",
+                "APL_sp_consulta_aprobacion_general",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );

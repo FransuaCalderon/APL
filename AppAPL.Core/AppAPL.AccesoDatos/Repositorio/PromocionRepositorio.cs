@@ -483,7 +483,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             return resultado;
         }
 
-        public async Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo)
+        public async Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo, string? marca = null)
         {
             using var connection = factory.CreateOpenConnection();
 
@@ -491,9 +491,22 @@ namespace AppAPL.AccesoDatos.Repositorio
             var paramObject = new
             {
                 p_etiqueta_tipo_fondo = tipoFondo,
-                p_etiqueta_clase_acuerdo = claseAcuerdo
+                p_etiqueta_clase_acuerdo = claseAcuerdo,
             };
             var parameters = new OracleDynamicParameters(paramObject);
+
+
+            if (!string.IsNullOrEmpty(marca))
+            {
+                parameters.Add("p_marca", OracleDbType.Varchar2, ParameterDirection.Input, value: marca.Trim());
+                logger.LogInformation($"valor de marca: {marca}");
+                logger.LogInformation("marca es diferente de null");
+            }
+            else
+            {
+                //parameters.Add("p_marca", OracleDbType.Varchar2, ParameterDirection.Input, value: null);
+                logger.LogInformation("p_marca es NULL/Vacío, no se envía el parámetro.");
+            }
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);

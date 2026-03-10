@@ -14,7 +14,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<ControlErroresDTO> ActualizarAsync(ActualizarPromocionRequest promocion);
         Task<ControlErroresDTO> AprobarPromocion(AprobarPromocionRequest promocion);
         Task<GruposPromocionesDTO> CargarCombosPromociones();
-        Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo);
+        Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo, string? marca = null);
         Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen();
         Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente();
         Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia();

@@ -348,6 +348,8 @@ namespace AppAPL.Dto.Acuerdo
     {
         public int idacuerdoarticulo { get; set; }
         public int idacuerdo { get; set; }
+        public int codigo_articulo { get; set; }
+        public string descripcion_articulo { get; set; }
         public string articulo { get; set; }
         public decimal costo { get; set; }
         public int unidades_limite { get; set; }

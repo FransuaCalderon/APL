@@ -37,7 +37,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<LogDTO>(
-                "sp_consulta_log_general",
+                "Apl_sp_consulta_log_general",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
