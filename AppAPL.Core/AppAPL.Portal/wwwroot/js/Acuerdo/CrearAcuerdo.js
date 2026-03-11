@@ -373,7 +373,7 @@
                 const proveedor = pick(x, ["nombre", "proveedor", "nombreProveedor", "razonSocialProveedor"], "");
                 const tipoFondo = pick(x, ["tipoFondo", "tipoFondoDescripcion", "descTipoFondo"], pick(x, ["nombre_tipo_fondo", "nombre_tipo_fondo"]));
                 const valorFondo = fmtMoney(pick(x, ["valorfondo", "valorFondo", "montoFondo"], 0));
-                const fechaInicio = fmtDate(pick(x, ["fechainidovigencia", "fechainicio", "fechaInicio", "fechaIniVigencia"]));
+                const fechaInicio = fmtDate(pick(x, ["fechainiciovigencia", "fechainicio", "fechaInicio", "fechaIniVigencia"]));
                 const fechaFin = fmtDate(pick(x, ["fechafinvigencia", "fechafin", "fechaFin", "fechaFinVigencia"]));
                 const disponible = fmtMoney(pick(x, ["valordisponible", "valorDisponible"], 0));
                 const comprometido = fmtMoney(pick(x, ["valorcomprometido", "valorComprometido"], 0));
@@ -563,8 +563,11 @@
                 .replaceAll("'", "&#39;");
 
         // Limpiar o preparar la tabla antes de llamar al API
+        // (Como ahora inicializamos DataTables al abrir el modal, dtItemsConsulta siempre existirá)
         if (dtItemsConsulta) {
             dtItemsConsulta.clear().draw();
+            // Opcional: Mostrar un pequeño mensaje de carga temporal en la tabla vacía
+            $('.dataTables_empty').text("Cargando resultados...");
         } else {
             $("#tablaItemsConsulta tbody").empty().append('<tr><td colspan="14" class="text-center">Cargando...</td></tr>');
         }
@@ -592,19 +595,19 @@
                 const filas = data.map((item) => {
                     return [
                         `<input type="checkbox" class="form-check-input item-checkbox"
-                        data-codigo="${esc(item.codigo || item.iditem || "")}"
-                        data-descripcion="${esc(item.descripcion || item.nombre || "")}"
-                        data-costo="${esc(item.costo || 0)}"
-                        data-stock="${esc(item.stock || 0)}"
-                        data-optimo="${esc(item.optimo || 0)}"
-                        data-excedenteu="${esc(item.excedente_u || 0)}"
-                        data-excedentes="${esc(item.excedente_s || 0)}"
-                        data-m0u="${esc(item.m0_u || 0)}"
-                        data-m0s="${esc(item.m0_s || 0)}"
-                        data-m1u="${esc(item.m1_u || 0)}"
-                        data-m1s="${esc(item.m1_s || 0)}"
-                        data-m2u="${esc(item.m2_u || 0)}"
-                        data-m2s="${esc(item.m2_s || 0)}">`,
+                    data-codigo="${esc(item.codigo || item.iditem || "")}"
+                    data-descripcion="${esc(item.descripcion || item.nombre || "")}"
+                    data-costo="${esc(item.costo || 0)}"
+                    data-stock="${esc(item.stock || 0)}"
+                    data-optimo="${esc(item.optimo || 0)}"
+                    data-excedenteu="${esc(item.excedente_u || 0)}"
+                    data-excedentes="${esc(item.excedente_s || 0)}"
+                    data-m0u="${esc(item.m0_u || 0)}"
+                    data-m0s="${esc(item.m0_s || 0)}"
+                    data-m1u="${esc(item.m1_u || 0)}"
+                    data-m1s="${esc(item.m1_s || 0)}"
+                    data-m2u="${esc(item.m2_u || 0)}"
+                    data-m2s="${esc(item.m2_s || 0)}">`,
                         esc(item.codigo || item.iditem || ""),
                         esc(item.descripcion || item.nombre || ""),
                         formatCurrencySpanish(item.costo || 0),
@@ -621,67 +624,35 @@
                     ];
                 });
 
+                // ✅ CAMBIO PRINCIPAL: Inyectar datos sin destruir la tabla
                 if (dtItemsConsulta) {
-                    dtItemsConsulta.destroy();
-                    $("#tablaItemsConsulta tbody").empty();
-                }
+                    dtItemsConsulta.clear();
+                    dtItemsConsulta.rows.add(filas);
+                    dtItemsConsulta.draw();
 
-                // Inicialización de DataTables idéntica a CrearFondo
-                dtItemsConsulta = $("#tablaItemsConsulta").DataTable({
-                    data: filas,
-                    columns: [
-                        { title: "Sel", className: "text-center align-middle", orderable: false, searchable: false },
-                        { title: "Codigo", className: "align-middle" },
-                        { title: "Descripcion", className: "align-middle" },
-                        { title: "Costo", className: "align-middle text-end" },
-                        { title: "Stock", className: "align-middle text-center" },
-                        { title: "Optimo", className: "align-middle text-center" },
-                        { title: "Excedente(u)", className: "align-middle text-center" },
-                        { title: "Excedente($)", className: "align-middle text-end" },
-                        { title: "M-0(u)", className: "align-middle text-center" },
-                        { title: ">M-0($)", className: "align-middle text-end" },
-                        { title: "M-1(u)", className: "align-middle text-center" },
-                        { title: "M-1($)", className: "align-middle text-end" },
-                        { title: "M-2(u)", className: "align-middle text-center" },
-                        { title: "M-2($)", className: "align-middle text-end" }
-                    ],
-                    deferRender: true,
-                    pageLength: 10,
-                    lengthChange: false,
-                    dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
-                    language: {
-                        search: "Buscar:",
-                        zeroRecords: "No se encontraron items con los criterios seleccionados.",
-                        info: "Mostrando _START_ a _END_ de _TOTAL_ items",
-                        infoEmpty: "Sin items",
-                        infoFiltered: "(filtrado de _MAX_ totales)",
-                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
-                    },
-                    order: [[1, 'asc']], // Ordenar por código
-                    initComplete: function () {
-                        const wrapper = $("#tablaItemsConsulta_wrapper");
-                        wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
-                        wrapper.find(".dataTables_info").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; font-size:0.8rem; padding-top:0.5rem;");
-                    },
-                    drawCallback: function () {
-                        const wrapper = $("#tablaItemsConsulta_wrapper");
-                        wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+                    // Restauramos el mensaje de "cero resultados" por si la búsqueda no trajo nada
+                    if (filas.length === 0) {
+                        $('.dataTables_empty').text("No se encontraron items con los criterios seleccionados.");
                     }
-                });
+                }
 
                 // Enlazar evento de búsqueda manual
                 $("#buscarItemInputAcuerdo").off("keyup").on("keyup", function () {
-                    dtItemsConsulta.search($(this).val()).draw();
+                    if (dtItemsConsulta) {
+                        dtItemsConsulta.search($(this).val()).draw();
+                    }
                 });
             },
             error: function (xhr) {
                 console.error("Error consultando items:", xhr.responseText);
                 if (dtItemsConsulta) {
                     dtItemsConsulta.clear().draw();
+                    $('.dataTables_empty').html('<span class="text-danger">Error al cargar items.</span>');
+                } else {
+                    $("#tablaItemsConsulta tbody").empty().append(
+                        '<tr><td colspan="14" class="text-center text-danger">Error al cargar items.</td></tr>'
+                    );
                 }
-                $("#tablaItemsConsulta tbody").empty().append(
-                    '<tr><td colspan="14" class="text-center text-danger">Error al cargar items.</td></tr>'
-                );
             },
         });
     }
@@ -1793,19 +1764,60 @@
             proveedorTemporal = null;
         });
 
-        // Modal Items
         $("#modalConsultaItems").on("show.bs.modal", function () {
             cargarFiltrosItems();
 
-            const $tbody = $("#tablaItemsConsulta tbody");
-            $tbody.empty().append(`
-                <tr>
-                    <td colspan="14" class="text-center text-muted p-4">
-                        <i class="fa-solid fa-filter"></i><br>
-                        Seleccione los criterios de búsqueda y presione <strong>"Procesar Selección"</strong>
-                    </td>
-                </tr>
-            `);
+            // Inicializamos DataTables una sola vez aquí para que la tabla nunca cambie de aspecto
+            if (!dtItemsConsulta) {
+                dtItemsConsulta = $("#tablaItemsConsulta").DataTable({
+                    data: [],
+                    columns: [
+                        { title: "Sel", className: "text-center align-middle", orderable: false, searchable: false },
+                        { title: "Codigo", className: "align-middle" },
+                        { title: "Descripcion", className: "align-middle" },
+                        { title: "Costo", className: "align-middle text-end" },
+                        { title: "Stock", className: "align-middle text-center" },
+                        { title: "Optimo", className: "align-middle text-center" },
+                        { title: "Excedente(u)", className: "align-middle text-center" },
+                        { title: "Excedente($)", className: "align-middle text-end" },
+                        { title: "M-0(u)", className: "align-middle text-center" },
+                        { title: "M-0($)", className: "align-middle text-end" },
+                        { title: "M-1(u)", className: "align-middle text-center" },
+                        { title: "M-1($)", className: "align-middle text-end" },
+                        { title: "M-2(u)", className: "align-middle text-center" },
+                        { title: "M-2($)", className: "align-middle text-end" }
+                    ],
+                    deferRender: true,
+                    pageLength: 10,
+                    lengthChange: false,
+                    dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
+                    language: {
+                        search: "Buscar:",
+                        // Usamos la propiedad nativa de DataTables para tu mensaje de inicio
+                        emptyTable: `<div class="text-center text-muted p-4">
+                                <i class="fa-solid fa-filter"></i><br>
+                                Seleccione los criterios de búsqueda y presione <strong>"Procesar Selección"</strong>
+                             </div>`,
+                        zeroRecords: "No se encontraron items con los criterios seleccionados.",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ items",
+                        infoEmpty: "Sin items",
+                        infoFiltered: "(filtrado de _MAX_ totales)",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    },
+                    order: [[1, 'asc']],
+                    initComplete: function () {
+                        const wrapper = $("#tablaItemsConsulta_wrapper");
+                        wrapper.find(".dataTables_paginate, .dataTables_info").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+                    },
+                    drawCallback: function () {
+                        const wrapper = $("#tablaItemsConsulta_wrapper");
+                        wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+                    }
+                });
+            }
+
+            // Limpiamos la tabla para que siempre inicie vacía y muestre tu mensaje de búsqueda
+            dtItemsConsulta.clear().draw();
         });
 
         $("#checkTodosItems").on("change", function () {
