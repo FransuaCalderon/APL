@@ -108,6 +108,32 @@
         thead .table-sticky-col {
             z-index: 2;
         }
+
+        /* ✅ Estilos NUEVOS para DataTables dentro de los modales de Acuerdos */
+        #tablaProveedores_wrapper .dataTables_info,
+        #tablaAcuerdosPropios_wrapper .dataTables_info {
+            font-size: 0.8rem;
+            padding-top: 0.5rem;
+            text-align: center !important;
+        }
+
+        #tablaProveedores_wrapper > div:last-child,
+        #tablaAcuerdosPropios_wrapper > div:last-child {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+
+        #tablaProveedores_wrapper .dataTables_paginate,
+        #tablaAcuerdosPropios_wrapper .dataTables_paginate {
+            float: none !important;
+            padding-top: 0.5rem;
+        }
+
+        .modal-pantalla-completa {
+            max-width: 95vw !important;
+            width: 95vw !important;
+        }
     </style>
 }
 
@@ -1154,31 +1180,35 @@
 <!-- ========================================== -->
 <!-- MODAL CONSULTA PROVEEDOR (TFPROVEDOR)      -->
 <!-- ========================================== -->
-<div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
+<div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-pantalla-completa">
+        <div class="modal-content" style="height: 90vh; max-height: 90vh;">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">Consulta de Acuerdos - Fondo Proveedor</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="table-responsive border rounded" style="max-height: 350px; overflow-y: auto;">
-                    <table id="tablaProveedores" class="table table-hover table-sm table-bordered mb-0">
+            <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">Seleccione un Acuerdo</span>
+                    <input type="text" id="buscarProveedorInput" class="form-control form-control-sm" placeholder="Buscar..." style="width: 300px;">
+                </div>
+                <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
+                    <table id="tablaProveedores" class="table table-hover table-sm table-bordered mb-0" style="width:100%">
                         <thead class="table-success sticky-top">
                             <tr class="text-nowrap">
-                                <th class="text-center">Sel.</th>
-                                <th>ID Acuerdo</th>
-                                <th>Descripción</th>
-                                <th>ID Fondo</th>
-                                <th>Proveedor</th>
-                                <th>Tipo Fondo</th>
-                                <th class="text-end">Valor Acuerdo</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                                <th class="text-end">Disponible</th>
-                                <th class="text-end">Comprometido</th>
-                                <th class="text-end">Liquidado</th>
-                                <th>Estado</th>
+                                <th class="text-center align-middle" style="min-width: 70px;">Sel.</th>
+                                <th class="align-middle" style="min-width: 90px;">ID Acuerdo</th>
+                                <th class="align-middle" style="min-width: 220px;">Descripción</th>
+                                <th class="align-middle" style="min-width: 90px;">ID Fondo</th>
+                                <th class="align-middle" style="min-width: 220px;">Proveedor</th>
+                                <th class="align-middle" style="min-width: 130px;">Tipo Fondo</th>
+                                <th class="align-middle text-end" style="min-width: 120px;">Valor Acuerdo</th>
+                                <th class="align-middle" style="min-width: 120px;">Inicio</th>
+                                <th class="align-middle" style="min-width: 120px;">Fin</th>
+                                <th class="align-middle text-end" style="min-width: 130px;">Disponible</th>
+                                <th class="align-middle text-end" style="min-width: 150px;">Comprometido</th>
+                                <th class="align-middle text-end" style="min-width: 130px;">Liquidado</th>
+                                <th class="align-middle" style="min-width: 110px;">Estado</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1196,31 +1226,35 @@
 <!-- ========================================== -->
 <!-- ✅ MODAL CONSULTA ACUERDO PROPIO (TFPROPIO) -->
 <!-- ========================================== -->
-<div class="modal fade" id="modalConsultaAcuerdoPropio" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
+<div class="modal fade" id="modalConsultaAcuerdoPropio" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-pantalla-completa">
+        <div class="modal-content" style="height: 90vh; max-height: 90vh;">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">Consulta de Acuerdos - Fondo Propio</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="table-responsive border rounded" style="max-height: 350px; overflow-y: auto;">
-                    <table id="tablaAcuerdosPropios" class="table table-hover table-sm table-bordered mb-0">
+            <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">Seleccione un Acuerdo Propio</span>
+                    <input type="text" id="buscarAcuerdoPropioInput" class="form-control form-control-sm" placeholder="Buscar..." style="width: 300px;">
+                </div>
+                <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
+                    <table id="tablaAcuerdosPropios" class="table table-hover table-sm table-bordered mb-0" style="width:100%">
                         <thead class="table-warning sticky-top">
                             <tr class="text-nowrap">
-                                <th class="text-center">Sel.</th>
-                                <th>ID Acuerdo</th>
-                                <th>Descripción</th>
-                                <th>ID Fondo</th>
-                                <th>Proveedor</th>
-                                <th>Tipo Fondo</th>
-                                <th class="text-end">Valor Acuerdo</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                                <th class="text-end">Disponible</th>
-                                <th class="text-end">Comprometido</th>
-                                <th class="text-end">Liquidado</th>
-                                <th>Estado</th>
+                                <th class="text-center align-middle" style="min-width: 70px;">Sel.</th>
+                                <th class="align-middle" style="min-width: 90px;">ID Acuerdo</th>
+                                <th class="align-middle" style="min-width: 220px;">Descripción</th>
+                                <th class="align-middle" style="min-width: 90px;">ID Fondo</th>
+                                <th class="align-middle" style="min-width: 220px;">Proveedor</th>
+                                <th class="align-middle" style="min-width: 130px;">Tipo Fondo</th>
+                                <th class="align-middle text-end" style="min-width: 120px;">Valor Acuerdo</th>
+                                <th class="align-middle" style="min-width: 120px;">Inicio</th>
+                                <th class="align-middle" style="min-width: 120px;">Fin</th>
+                                <th class="align-middle text-end" style="min-width: 130px;">Disponible</th>
+                                <th class="align-middle text-end" style="min-width: 150px;">Comprometido</th>
+                                <th class="align-middle text-end" style="min-width: 130px;">Liquidado</th>
+                                <th class="align-middle" style="min-width: 110px;">Estado</th>
                             </tr>
                         </thead>
                         <tbody></tbody>

@@ -439,11 +439,18 @@
             success: function (response) {
                 const data = response.json_response || {};
 
-                // MODIFICADO: "Seleccione..." en vez de "Cargando..."
+                // 1. Filtrar "Todos" o "0" del Medio de Pago para que no aparezca
+                let mediosPagoFiltrados = (data.mediospagos || []).filter(m => {
+                    let nom = (m.nombre || "").toUpperCase();
+                    return nom !== "TODOS" && nom !== "TODAS" && m.codigo !== "0";
+                });
+
                 llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
                 llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo");
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Seleccione...", "3", "almacen");
-                llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), data.mediospagos, "Seleccione...", "7", "mediopago");
+
+                // Usamos el arreglo filtrado
+                llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
 
                 // Llenar Selects y Modal de Tipo Cliente
                 const $cliGen = $("#tipoClienteGeneral");
@@ -451,8 +458,12 @@
                 const $cliCom = $("#tipoClienteCombos");
                 const $modalBodyCli = $("#bodyModalTipoCliente");
 
-                // 1. Opciones Iniciales: Seleccione... y Varios (arriba)
-                const opcionesBase = '<option selected value="">Seleccione...</option><option value="4" class="fw-bold text-success">-- VARIOS --</option>';
+                // 2. Opciones Iniciales agregando explícitamente "Todos"
+                const opcionesBase = `
+                    <option selected value="">Seleccione...</option>
+                    <option value="TODOS">Todos</option>
+                    <option value="4" class="fw-bold text-success">-- VARIOS --</option>
+                `;
                 $cliGen.empty().append(opcionesBase);
                 $cliArt.empty().append(opcionesBase);
                 $cliCom.empty().append(opcionesBase);
@@ -460,15 +471,12 @@
                 $modalBodyCli.empty();
                 const $ulCli = $('<ul class="list-group w-100"></ul>');
 
-                // 2. Llenar con datos de la API (Evitando duplicar "Todos")
                 if (data.tiposclientes) {
                     data.tiposclientes.forEach(c => {
-                        // Filtramos por si la API trae la palabra "Todos" o código 0
                         if (c.nombre.toUpperCase() !== "TODOS" && c.codigo !== "0" && c.codigo !== "") {
                             const opt = `<option value="${c.codigo}">${c.nombre}</option>`;
                             $cliGen.append(opt); $cliArt.append(opt); $cliCom.append(opt);
 
-                            // Generar Checkboxes para el modal
                             const chkId = `chk_tipocliente_${c.codigo}`;
                             $ulCli.append(`
                                 <li class="list-group-item">
@@ -481,7 +489,6 @@
                 }
                 $modalBodyCli.append($ulCli);
 
-                // 3. Opción Final: Lista Específica (al fondo)
                 const opcionFinal = '<option value="3">Lista Específica</option>';
                 $cliGen.append(opcionFinal); $cliArt.append(opcionFinal); $cliCom.append(opcionFinal);
             }
@@ -491,17 +498,37 @@
     // ==========================================
     // CONSULTA ACUERDOS (PROVEEDOR / PROPIO)
     // ==========================================
+    // ==========================================
+    // CONSULTA ACUERDOS (PROVEEDOR / PROPIO)
+    // ==========================================
     function consultarAcuerdos(tipoFondo, tablaId, onSeleccion) {
+        // Destruir DataTable si ya existe para evitar que "se quede pegado" con datos viejos
+        if ($.fn.DataTable.isDataTable(`#${tablaId}`)) {
+            $(`#${tablaId}`).DataTable().clear().destroy();
+        }
+
         const $tbody = $(`#${tablaId} tbody`);
         $tbody.html('<tr><td colspan="13" class="text-center">Cargando...</td></tr>');
         const claseAcuerdo = getClaseAcuerdo();
+
+        let endpointParams = "/" + tipoFondo + "/" + claseAcuerdo;
+
+        // Condición: Solo mandar parámetro de Marca si es Fondo Proveedor
+        if (tipoFondo === "TFPROVEDOR") {
+            let marcas = obtenerValorCampo("marca", "#filtroMarcaGeneral", "3");
+            let parametroMarca = "0";
+            if (marcas && marcas.length === 1) {
+                parametroMarca = marcas[0];
+            }
+            endpointParams += "/" + parametroMarca;
+        }
 
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "GET",
             endpoint_path: "api/Promocion/consultar-acuerdo",
             client: "APL",
-            endpoint_query_params: "/" + tipoFondo + "/" + claseAcuerdo
+            endpoint_query_params: endpointParams
         };
 
         $.ajax({
@@ -511,17 +538,19 @@
             data: JSON.stringify(payload),
             success: function (res) {
                 const data = res.json_response || [];
-                console.log('data ', data);
                 $tbody.empty();
+
                 if (!data.length) {
                     $tbody.html('<tr><td colspan="13" class="text-center">No hay datos.</td></tr>');
                     return;
                 }
+
                 const fmtDate = (s) => s ? new Date(s).toLocaleDateString("es-EC") : "";
 
+                // Generar filas con las clases align-middle
                 data.forEach(x => {
                     const row = `<tr class="text-nowrap">
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                             <input class="form-check-input acuerdo-radio" type="radio" name="acuerdo_${tipoFondo}"
                                 data-idacuerdo="${x.idacuerdo || ''}"
                                 data-desc="${x.descripcion || ''}"
@@ -529,24 +558,62 @@
                                 data-disp="${x.valor_disponible || 0}"
                                 data-estado="${x.estado || ''}">
                         </td>
-                        <td>${x.idacuerdo}</td>
-                        <td>${x.descripcion}</td>
-                        <td>${x.idfondo}</td>
-                        <td>${x.nombre_proveedor}</td>
-                        <td>${x.nombre_tipo_fondo}</td>
-                        <td class="text-end">${formatCurrencySpanish(x.valor_acuerdo)}</td>
-                        <td>${fmtDate(x.fecha_inicio)}</td>
-                        <td>${fmtDate(x.fecha_fin)}</td>
-                        <td class="text-end">${formatCurrencySpanish(x.valor_disponible)}</td>
-                        <td class="text-end">${formatCurrencySpanish(x.valor_comprometido)}</td>
-                        <td class="text-end">${formatCurrencySpanish(x.valor_liquidado)}</td>
-                        <td>${x.estado}</td>
+                        <td class="align-middle">${x.idacuerdo}</td>
+                        <td class="align-middle">${x.descripcion}</td>
+                        <td class="align-middle">${x.idfondo}</td>
+                        <td class="align-middle">${x.nombre_proveedor}</td>
+                        <td class="align-middle">${x.nombre_tipo_fondo}</td>
+                        <td class="align-middle text-end">${formatCurrencySpanish(x.valor_acuerdo)}</td>
+                        <td class="align-middle">${fmtDate(x.fecha_inicio)}</td>
+                        <td class="align-middle">${fmtDate(x.fecha_fin)}</td>
+                        <td class="align-middle text-end">${formatCurrencySpanish(x.valor_disponible)}</td>
+                        <td class="align-middle text-end">${formatCurrencySpanish(x.valor_comprometido)}</td>
+                        <td class="align-middle text-end">${formatCurrencySpanish(x.valor_liquidado)}</td>
+                        <td class="align-middle">${x.estado}</td>
                     </tr>`;
                     $tbody.append(row);
                 });
 
-                $(`#${tablaId} .acuerdo-radio`).change(function () {
-                    $(`#${tablaId} tr`).removeClass("table-active");
+                // Inicialización idéntica a la tabla de Consulta en CrearAcuerdo
+                let dt = $(`#${tablaId}`).DataTable({
+                    destroy: true,
+                    deferRender: true,
+                    pageLength: 10,
+                    lengthChange: false,
+                    dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
+                    language: {
+                        search: "Buscar:",
+                        zeroRecords: "No se encontraron acuerdos.",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ acuerdos",
+                        infoEmpty: "Sin acuerdos",
+                        infoFiltered: "(filtrado de _MAX_ totales)",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    },
+                    initComplete: function () {
+                        const wrapper = $(`#${tablaId}_wrapper`);
+                        wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+                        wrapper.find(".dataTables_info").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; font-size:0.8rem; padding-top:0.5rem;");
+                    },
+                    drawCallback: function () {
+                        const wrapper = $(`#${tablaId}_wrapper`);
+                        wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+                    }
+                });
+
+                // Enlazar los inputs de búsqueda creados arriba de la tabla en el modal
+                if (tablaId === "tablaProveedores") {
+                    $("#buscarProveedorInput").off("keyup").on("keyup", function () {
+                        dt.search($(this).val()).draw();
+                    });
+                } else if (tablaId === "tablaAcuerdosPropios") {
+                    $("#buscarAcuerdoPropioInput").off("keyup").on("keyup", function () {
+                        dt.search($(this).val()).draw();
+                    });
+                }
+
+                // Delegación de eventos para que detecte el click aunque esté en la página 2 o 3 de la tabla
+                $(`#${tablaId} tbody`).off('change', '.acuerdo-radio').on('change', '.acuerdo-radio', function () {
+                    $(`#${tablaId} tbody tr`).removeClass("table-active");
                     $(this).closest("tr").addClass("table-active");
                     const d = $(this).data();
                     if (onSeleccion) onSeleccion({
@@ -736,8 +803,8 @@
     function obtenerValorCampo(configId, selectId, triggerVal) {
         const valSelect = $(selectId).val();
 
-        // MODIFICADO: Si es "TODAS" o vacío, retornar arreglo vacío (asignación tipo "T")
-        if (!valSelect || valSelect === "" || valSelect === "TODAS") {
+        // Agregamos "TODOS" a la validación de arreglos vacíos
+        if (!valSelect || valSelect === "" || valSelect === "TODAS" || valSelect === "TODOS") {
             return [];
         }
 
@@ -807,22 +874,19 @@
 
             // Definimos una función auxiliar para determinar el tipo de asignación
             const determinarAsignacion = (idSelector) => {
-                const selector = $(idSelector); // Asumiendo el uso de jQuery por los selectores
-                const valorSeleccionado = selector.val(); // Valor actual del combo/select
+                const selector = $(idSelector);
+                const valorSeleccionado = selector.val();
 
-                // 1. Si el combo dice "TODOS/TODAS" o "Seleccione..." (vacío)
-                // MODIFICADO: Se agrega "TODAS" como valor para la opción "Todas"
-                if (valorSeleccionado === "TODAS" || !valorSeleccionado || valorSeleccionado.length === 0) {
+                // Si dice TODOS, TODAS o está vacío, es asignación "T" (Todos)
+                if (valorSeleccionado === "TODAS" || valorSeleccionado === "TODOS" || !valorSeleccionado || valorSeleccionado.length === 0) {
                     return "T";
                 }
 
-                // 2. Si es una "Lista Específica" 
-                // (Ajusta "LISTA" por el valor real que devuelva tu combo en ese caso)
+                // Lista Específica
                 if (valorSeleccionado === "3") {
                     return "D";
                 }
 
-                // 3. Si seleccionó uno o varios códigos
                 return "C";
             };
 
@@ -1061,6 +1125,7 @@
 
         // Modales de Acuerdo
         $("#modalConsultaProveedor").on("show.bs.modal", function () {
+            $("#buscarProveedorInput").val(""); // <-- AÑADIR ESTA LÍNEA
             proveedorTemporal = null;
             consultarAcuerdos("TFPROVEDOR", "tablaProveedores", (s) => proveedorTemporal = s);
         });
@@ -1072,6 +1137,7 @@
         });
 
         $("#modalConsultaAcuerdoPropio").on("show.bs.modal", function () {
+            $("#buscarAcuerdoPropioInput").val(""); // <-- AÑADIR ESTA LÍNEA
             propioTemporal = null;
             consultarAcuerdos("TFPROPIO", "tablaAcuerdosPropios", (s) => propioTemporal = s);
         });
