@@ -10,7 +10,7 @@ let idCatalogoGeneral = null;
 let idCatalogoArticulo = null;
 let tipoAcuerdo = null;
 let acuerdoTemporal = null;
-
+let dtItemsConsulta = null;
 // ✅ NUEVAS VARIABLES - DataTables y caché para proveedores
 let dtProveedoresAcuerdo = null;
 let cacheProveedoresAcuerdo = null;
@@ -233,21 +233,58 @@ $(document).ready(function () {
     // Modal Items
     $("#modalConsultaItems").on("show.bs.modal", function () {
         cargarFiltrosItems();
+        $("#checkTodosItems").prop("checked", false); // Desmarca siempre
 
-        const $tbody = $("#tablaItemsConsulta tbody");
-        $tbody.empty().append(`
-            <tr>
-                <td colspan="14" class="text-center text-muted p-4">
-                    <i class="fa-solid fa-filter"></i><br>
-                    Seleccione los criterios de búsqueda y presione <strong>"Procesar Selección"</strong>
-                </td>
-            </tr>
-        `);
+        if (!dtItemsConsulta) {
+            dtItemsConsulta = $("#tablaItemsConsulta").DataTable({
+                data: [],
+                columns: [
+                    { title: "Sel", className: "text-center align-middle", orderable: false, searchable: false },
+                    { title: "Codigo", className: "align-middle" },
+                    { title: "Descripcion", className: "align-middle" },
+                    { title: "Costo", className: "align-middle text-end" },
+                    { title: "Stock", className: "align-middle text-center" },
+                    { title: "Optimo", className: "align-middle text-center" },
+                    { title: "Excedente(u)", className: "align-middle text-center" },
+                    { title: "Excedente($)", className: "align-middle text-end" },
+                    { title: "M-0(u)", className: "align-middle text-center" },
+                    { title: "M-0($)", className: "align-middle text-end" },
+                    { title: "M-1(u)", className: "align-middle text-center" },
+                    { title: "M-1($)", className: "align-middle text-end" },
+                    { title: "M-2(u)", className: "align-middle text-center" },
+                    { title: "M-2($)", className: "align-middle text-end" }
+                ],
+                deferRender: true,
+                pageLength: 10,
+                lengthChange: false,
+                dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
+                language: {
+                    search: "Buscar:",
+                    emptyTable: `<div class="text-center text-muted p-4">
+                                <i class="fa-solid fa-filter"></i><br>
+                                Seleccione los criterios de búsqueda y presione <strong>"Procesar Selección"</strong>
+                             </div>`,
+                    zeroRecords: "No se encontraron items.",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ items",
+                    infoEmpty: "Sin items",
+                    paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                },
+                order: [[1, 'asc']],
+                initComplete: function () {
+                    const wrapper = $("#tablaItemsConsulta_wrapper");
+                    wrapper.find(".dataTables_paginate, .dataTables_info").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+                }
+            });
+        }
+
+        dtItemsConsulta.clear().draw();
     });
 
     $("#checkTodosItems").on("change", function () {
         const isChecked = $(this).is(":checked");
-        $("#tablaItemsConsulta tbody .item-checkbox").prop("checked", isChecked);
+        if (dtItemsConsulta) {
+            $(dtItemsConsulta.$(".item-checkbox")).prop("checked", isChecked);
+        }
     });
 
     $("#btnProcesarFiltros").on("click", function () {
@@ -437,6 +474,14 @@ $(document).ready(function () {
         if (tabla) {
             tabla.search('').draw();
         }
+    });
+
+    $("#buscarItemAgregado").on("keyup", function () {
+        const value = $(this).val().toLowerCase();
+        $("#tablaItemsBody tr").filter(function () {
+            // Busca en toda la fila (o si tienes clase td-descripcion, la aplicas)
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
     });
 });
 
@@ -708,33 +753,17 @@ function consultarProveedor() {
 
 function consultarItems(filtros = {}) {
     const idOpcionActual = getIdOpcionSeguro();
-
     if (!idOpcionActual) {
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "No se pudo obtener el ID de la opción.",
-        });
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo obtener el ID de la opción." });
         return;
     }
 
-    const $tbody = $("#tablaItemsConsulta tbody");
-    if ($tbody.length === 0) {
-        console.error("No existe #tablaItemsConsulta tbody");
-        return;
+    const esc = (s) => String(s ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+
+    if (dtItemsConsulta) {
+        dtItemsConsulta.clear().draw();
+        $('.dataTables_empty').text("Cargando resultados...");
     }
-
-    const esc = (s) =>
-        String(s ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#39;");
-
-    $tbody.empty().append('<tr><td colspan="14" class="text-center">Cargando...</td></tr>');
-
-    console.log("filtros:", filtros);
 
     const payload = {
         code_app: "APP20260128155212346",
@@ -751,64 +780,47 @@ function consultarItems(filtros = {}) {
         data: JSON.stringify(payload),
         success: function (response) {
             const data = response.json_response || [];
-            console.log("Datos items:", data);
-            $tbody.empty();
 
-            if (!Array.isArray(data) || data.length === 0) {
-                $tbody.append(`
-                    <tr>
-                        <td colspan="14" class="text-center text-muted p-3">
-                            <i class="fa-solid fa-circle-info"></i><br>
-                            No se encontraron items con los criterios seleccionados
-                        </td>
-                    </tr>
-                `);
-                return;
-            }
-
-            data.forEach((item) => {
-                const fila = `
-                <tr>
-                    <td class="text-center">
-                        <input type="checkbox" class="form-check-input item-checkbox"
-                            data-codigo="${esc(item.codigo || item.iditem || "")}"
-                            data-descripcion="${esc(item.descripcion || item.nombre || "")}"
-                            data-costo="${esc(item.costo || 0)}"
-                            data-stock="${esc(item.stock || 0)}"
-                            data-optimo="${esc(item.optimo || 0)}"
-                            data-excedenteu="${esc(item.excedente_u || 0)}"
-                            data-excedentes="${esc(item.excedente_s || 0)}"
-                            data-m0u="${esc(item.m0_u || 0)}"
-                            data-m0s="${esc(item.m0_s || 0)}"
-                            data-m1u="${esc(item.m1_u || 0)}"
-                            data-m1s="${esc(item.m1_s || 0)}"
-                            data-m2u="${esc(item.m2_u || 0)}"
-                            data-m2s="${esc(item.m2_s || 0)}">
-                    </td>
-                    <td>${esc(item.codigo || item.iditem || "")}</td>
-                    <td>${esc(item.descripcion || item.nombre || "")}</td>
-                    <td class="text-end">${formatCurrencySpanish(item.costo || 0)}</td>
-                    <td class="text-center">${esc(item.stock || 0)}</td>
-                    <td class="text-center">${esc(item.optimo || 0)}</td>
-                    <td class="text-center">${esc(item.excedente_u || 0)}</td>
-                    <td class="text-end">${formatCurrencySpanish(item.excedente_s || 0)}</td>
-                    <td class="text-center">${esc(item.m0_u || 0)}</td>
-                    <td class="text-end">${formatCurrencySpanish(item.m0_s || 0)}</td>
-                    <td class="text-center">${esc(item.m1_u || 0)}</td>
-                    <td class="text-end">${formatCurrencySpanish(item.m1_s || 0)}</td>
-                    <td class="text-center">${esc(item.m2_u || 0)}</td>
-                    <td class="text-end">${formatCurrencySpanish(item.m2_s || 0)}</td>
-                </tr>`;
-                $tbody.append(fila);
+            const filas = data.map((item) => {
+                return [
+                    `<input type="checkbox" class="form-check-input item-checkbox"
+                        data-codigo="${esc(item.codigo || item.iditem || "")}"
+                        data-descripcion="${esc(item.descripcion || item.nombre || "")}"
+                        data-costo="${esc(item.costo || 0)}"
+                        data-stock="${esc(item.stock || 0)}"
+                        data-optimo="${esc(item.optimo || 0)}">`,
+                    esc(item.codigo || item.iditem || ""),
+                    esc(item.descripcion || item.nombre || ""),
+                    formatCurrencySpanish(item.costo || 0),
+                    esc(item.stock || 0),
+                    esc(item.optimo || 0),
+                    esc(item.excedente_u || 0),
+                    formatCurrencySpanish(item.excedente_s || 0),
+                    esc(item.m0_u || 0),
+                    formatCurrencySpanish(item.m0_s || 0),
+                    esc(item.m1_u || 0),
+                    formatCurrencySpanish(item.m1_s || 0),
+                    esc(item.m2_u || 0),
+                    formatCurrencySpanish(item.m2_s || 0)
+                ];
             });
 
-            initBusquedaItems();
+            if (dtItemsConsulta) {
+                dtItemsConsulta.clear();
+                dtItemsConsulta.rows.add(filas);
+                dtItemsConsulta.draw();
+                if (filas.length === 0) $('.dataTables_empty').text("No se encontraron items con los criterios seleccionados.");
+            }
+
+            $("#buscarItemInputAcuerdo").off("keyup").on("keyup", function () {
+                if (dtItemsConsulta) dtItemsConsulta.search($(this).val()).draw();
+            });
         },
         error: (xhr) => {
-            console.error("Error consultando items:", xhr.responseText);
-            $tbody.empty().append(
-                '<tr><td colspan="14" class="text-center text-danger">Error al cargar items.</td></tr>'
-            );
+            if (dtItemsConsulta) {
+                dtItemsConsulta.clear().draw();
+                $('.dataTables_empty').html('<span class="text-danger">Error al cargar items.</span>');
+            }
         }
     });
 }
@@ -1760,7 +1772,7 @@ function initBusquedaItems() {
 
 function agregarItemsExistenteATabla(items) {
     const $tbody = $("#tablaItemsBody");
-    console.log("items:", items);
+    console.log("items a cargar:", items);
 
     if ($tbody.children("tr").length > 0) {
         console.log("Limpiando tabla antes de agregar nuevos items...");
@@ -1768,18 +1780,20 @@ function agregarItemsExistenteATabla(items) {
     }
 
     items.forEach((item) => {
-        const existe = $tbody.find(`tr[data-codigo="${item.articulo}"]`).length > 0;
+        // ✅ Se cambia item.articulo por item.codigo_articulo
+        const existe = $tbody.find(`tr[data-codigo="${item.codigo_articulo}"]`).length > 0;
         if (existe) {
-            console.log(`Item ${item.articulo} ya existe en la tabla`);
+            console.log(`Item ${item.codigo_articulo} ya existe en la tabla`);
             return;
         }
 
+        // ✅ Se usan item.codigo_articulo y item.descripcion_articulo
         const nuevaFila = `
-        <tr data-codigo="${item.articulo}">
+        <tr data-codigo="${item.codigo_articulo}">
           <td class="text-center align-middle">
             <input type="radio" class="form-check-input item-row-radio" name="itemSeleccionado">
           </td>
-          <td class="align-middle celda-readonly">${item.articulo}</td>
+          <td class="align-middle celda-readonly td-descripcion">${item.codigo_articulo} - ${item.descripcion_articulo}</td>
           <td class="align-middle celda-readonly">
             <input type="text" class="form-control form-control-sm text-end item-costo" 
                    value="${formatCurrencySpanish(item.costo)}" readonly disabled>
@@ -1810,6 +1824,7 @@ function agregarItemsExistenteATabla(items) {
           </td>
           <td class="text-center align-middle celda-readonly margen-contado">${item.margen_contado}%</td>
           <td class="text-center align-middle celda-readonly margen-tc">${item.margen_tc}%</td>
+          <td class="text-center align-middle celda-readonly margen-credito">${item.margen_credito || "0.00"}%</td>
           <input type="hidden" class="item-id-acuerdo-articulo" value="${item.idacuerdoarticulo}">
           <input type="hidden" class="item-accion" value="U">
         </tr>`;
@@ -1817,11 +1832,21 @@ function agregarItemsExistenteATabla(items) {
     });
 
     $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
+        // 1. Desmarcar visualmente todas las filas
         $("#tablaItemsBody tr").removeClass("fila-seleccionada");
-        $(this).closest("tr").addClass("fila-seleccionada");
-    });
-}
 
+        // 2. BLOQUEAR absolutamente todos los inputs editables de toda la tabla
+        // Esto asegura que al cambiar de ítem, el usuario deba presionar "Modificar" obligatoriamente
+        $("#tablaItemsBody .celda-editable input").prop("disabled", true);
+
+        // 3. Marcamos visualmente la fila actual a la que le dimos clic
+        const $filaActual = $(this).closest("tr");
+        $filaActual.addClass("fila-seleccionada");
+    });
+
+    // ✅ Forzamos el cálculo inicial para que se apliquen los colores (verde/rojo) al cargar
+    calcularTotalesItems();
+}
 function agregarItemsATabla(items) {
     const $tbody = $("#tablaItemsBody");
 
@@ -1858,43 +1883,42 @@ function agregarItemsATabla(items) {
 
         const nuevaFila = `
         <tr data-codigo="${item.codigo}">
-          <td class="text-center align-middle">
-            <input type="radio" class="form-check-input item-row-radio" name="itemSeleccionado">
-          </td>
-          <td class="align-middle celda-readonly">${item.codigo}</td>
-          <td class="align-middle celda-readonly">
-            <input type="text" class="form-control form-control-sm text-end item-costo" 
-                   value="${formatCurrencySpanish(item.costo)}" readonly disabled>
-          </td>
-          <td class="align-middle celda-editable">
-            <input type="number" class="form-control form-control-sm text-end" 
-                   name="unidadesLimite" placeholder="0" min="1" disabled required>
-          </td>
-          <td class="align-middle celda-editable">
-            <input type="text" class="form-control form-control-sm text-end item-precio-contado" 
-                   placeholder="0.00" data-tipo="contado" disabled>
-          </td>
-          <td class="align-middle celda-editable">
-            <input type="text" class="form-control form-control-sm text-end item-precio-tc" 
-                   placeholder="0.00" data-tipo="tc" disabled>
-          </td>
-          <td class="align-middle celda-editable">
-            <input type="text" class="form-control form-control-sm text-end item-precio-credito" 
-                   placeholder="0.00" data-tipo="credito" disabled>
-          </td>
-          <td class="align-middle celda-editable">
-            <input type="text" class="form-control form-control-sm text-end item-aporte" 
-                   placeholder="0.00" disabled>
-          </td>
-          <td class="align-middle celda-readonly">
-            <input type="text" class="form-control form-control-sm text-end item-comprometido" 
-                   placeholder="0.00" readonly disabled>
-          </td>
-          <td class="text-center align-middle celda-readonly margen-contado">0.00%</td>
-          <td class="text-center align-middle celda-readonly margen-tc">0.00%</td>
-          <input type="hidden" class="item-id-acuerdo-articulo" value="0">
-          <input type="hidden" class="item-accion" value="I">
-        </tr>`;
+            <td class="text-center align-middle">
+                <input type="radio" class="form-check-input item-row-radio" name="itemSeleccionado">
+            </td>
+            <td class="align-middle celda-readonly td-descripcion">${item.codigo} - ${item.descripcion}</td> <td class="align-middle celda-readonly">
+                <input type="text" class="form-control form-control-sm text-end item-costo" 
+                        value="${formatCurrencySpanish(item.costo)}" readonly disabled>
+            </td>
+            <td class="align-middle celda-editable">
+                <input type="number" class="form-control form-control-sm text-end" 
+                        name="unidadesLimite" placeholder="0" min="1" disabled required>
+            </td>
+            <td class="align-middle celda-editable">
+                <input type="text" class="form-control form-control-sm text-end item-precio-contado" 
+                        placeholder="0.00" data-tipo="contado" disabled>
+            </td>
+            <td class="align-middle celda-editable">
+                <input type="text" class="form-control form-control-sm text-end item-precio-tc" 
+                        placeholder="0.00" data-tipo="tc" disabled>
+            </td>
+            <td class="align-middle celda-editable">
+                <input type="text" class="form-control form-control-sm text-end item-precio-credito" 
+                        placeholder="0.00" data-tipo="credito" disabled>
+            </td>
+            <td class="align-middle celda-editable">
+                <input type="text" class="form-control form-control-sm text-end item-aporte" 
+                        placeholder="0.00" disabled>
+            </td>
+            <td class="align-middle celda-readonly">
+                <input type="text" class="form-control form-control-sm text-end item-comprometido" 
+                        placeholder="0.00" readonly disabled>
+            </td>
+            <td class="text-center align-middle celda-readonly margen-contado">0.00%</td>
+            <td class="text-center align-middle celda-readonly margen-tc">0.00%</td>
+            <td class="text-center align-middle celda-readonly margen-credito">0.00%</td> <input type="hidden" class="item-id-acuerdo-articulo" value="0">
+            <input type="hidden" class="item-accion" value="I">
+    </tr>`;
         $tbody.append(nuevaFila);
     });
 
@@ -1908,36 +1932,59 @@ function calcularTotalesItems() {
     let totalProveedor = 0;
 
     $("#tablaItemsBody tr:visible").each(function () {
-        const costoStr = $(this).find(".item-costo").val();
+        const $fila = $(this);
+
+        const costoStr = $fila.find(".item-costo").val();
         const costo = parseCurrencyToNumber(costoStr);
-        const unidades = parseInt($(this).find('input[name="unidadesLimite"]').val()) || 0;
-        const aporteStr = $(this).find(".item-aporte").val();
+        const unidades = parseInt($fila.find('input[name="unidadesLimite"]').val()) || 0;
+        const aporteStr = $fila.find(".item-aporte").val();
         const aporte = parseCurrencyToNumber(aporteStr);
 
         const subtotal = aporte * unidades;
         totalProveedor += subtotal;
-        $(this).find(".item-comprometido").val(formatCurrencySpanish(subtotal));
+        $fila.find(".item-comprometido").val(formatCurrencySpanish(subtotal));
 
-        if (costo > 0) {
-            const precioContado = parseCurrencyToNumber($(this).find(".item-precio-contado").val());
-            const precioTC = parseCurrencyToNumber($(this).find(".item-precio-tc").val());
-            const precioCredito = parseCurrencyToNumber($(this).find(".item-precio-credito").val());
+        const precioContado = parseCurrencyToNumber($fila.find(".item-precio-contado").val());
+        const precioTC = parseCurrencyToNumber($fila.find(".item-precio-tc").val());
+        const precioCredito = parseCurrencyToNumber($fila.find(".item-precio-credito").val());
 
-            const margenContado = precioContado > 0
-                ? (((precioContado - costo) / precioContado) * 100).toFixed(2)
-                : "0.00";
-            const margenTC = precioTC > 0
-                ? (((precioTC - costo) / precioTC) * 100).toFixed(2)
-                : "0.00";
-            const margenCredito = precioCredito > 0
-                ? (((precioCredito - costo) / precioCredito) * 100).toFixed(2)
-                : "0.00";
-
-            $(this).find(".margen-contado").text(margenContado + "%");
-            $(this).find(".margen-tc").text(margenTC + "%");
-            $(this).find(".margen-credito").text(margenCredito + "%");
+        // --- Recálculo Margen Contado ---
+        if (precioContado > 0) {
+            const mContado = (((precioContado + aporte - costo) / precioContado) * 100).toFixed(2);
+            $fila.find(".margen-contado").text(mContado + "%");
+        } else {
+            $fila.find(".margen-contado").text("0.00%");
         }
+
+        // --- Recálculo Margen TC ---
+        if (precioTC > 0) {
+            const mTC = (((precioTC + aporte - costo) / precioTC) * 100).toFixed(2);
+            $fila.find(".margen-tc").text(mTC + "%");
+        } else {
+            $fila.find(".margen-tc").text("0.00%");
+        }
+
+        // --- Recálculo Margen Crédito ---
+        if (precioCredito > 0) {
+            const mCredito = (((precioCredito + aporte - costo) / precioCredito) * 100).toFixed(2);
+            $fila.find(".margen-credito").text(mCredito + "%");
+        } else {
+            $fila.find(".margen-credito").text("0.00%");
+        }
+
+        // --- Colores Dinámicos (✅ Igual a CrearAcuerdo) ---
+        $fila.find(".margen-contado, .margen-tc, .margen-credito").each(function () {
+            const valor = parseFloat($(this).text());
+            if (valor < 0) {
+                $(this).css("color", "#dc3545"); // Rojo si hay pérdida
+            } else if (valor > 0) {
+                $(this).css("color", "#198754"); // Verde si es positivo
+            } else {
+                $(this).css("color", "#212529"); // Neutro/Oscuro si es 0%
+            }
+        });
     });
+
     $("#acuerdoValorTotalItems").val(formatCurrencySpanish(totalProveedor));
 }
 
@@ -2053,7 +2100,9 @@ function leerDetalleItemsDesdeTabla() {
             return;
         }
 
-        const codigo = $tr.data("codigo");
+        // ✅ 1. FORZAR QUE EL CÓDIGO SEA UN STRING
+        const codigo = String($tr.data("codigo"));
+
         const costoStr = $tr.find(".item-costo").val();
         const costo = parseCurrencyToNumber(costoStr);
         const unidades = parseInt($tr.find('input[name="unidadesLimite"]').val()) || 0;
@@ -2064,13 +2113,17 @@ function leerDetalleItemsDesdeTabla() {
 
         const margenContadoStr = $tr.find(".margen-contado").text().replace("%", "").trim();
         const margenTCStr = $tr.find(".margen-tc").text().replace("%", "").trim();
+        // ✅ 2. LEER TAMBIÉN EL MARGEN DE CRÉDITO (Que agregamos recién)
+        const margenCreditoStr = $tr.find(".margen-credito").text().replace("%", "").trim();
+
         const margenContado = parseFloat(margenContadoStr) || 0;
         const margenTC = parseFloat(margenTCStr) || 0;
+        const margenCredito = parseFloat(margenCreditoStr) || 0;
 
         articulos.push({
             accion: accionActual,
             idacuerdoarticulo: idacuerdoarticulo,
-            codigoarticulo: codigo,
+            codigoarticulo: codigo, // <--- Ahora se envía como "123875" (String)
             costoactual: costo,
             unidadeslimite: unidades,
             preciocontado: precioContado,
@@ -2079,6 +2132,7 @@ function leerDetalleItemsDesdeTabla() {
             valoraporte: aporte,
             margencontado: margenContado,
             margentarjetacredito: margenTC,
+            margencredito: margenCredito // <--- Lo enviamos por si la API lo pide
         });
     });
 
