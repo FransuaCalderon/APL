@@ -289,7 +289,7 @@ function renderizarTablaArticulos(articulos) {
             <table class="table table-bordered table-sm mb-0">
                 <thead class="sticky-top text-nowrap">
                     <tr class="text-center tabla-items-header">                                     
-                        <th scope="col" class="custom-header-cons-bg">Item</th>
+                        <th scope="col" class="custom-header-cons-bg">Articulo</th>
                         <th scope="col" class="custom-header-cons-bg">Costo</th>
                         <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
                         <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
@@ -307,16 +307,17 @@ function renderizarTablaArticulos(articulos) {
     articulos.forEach(art => {
         let margenCredito = (art.precio_credito || 0) - (art.costo || 0);
 
+        // Se concatena codigo y descripcion. Se usa 'text-start' en lugar de 'text-center fw-bold' para quitar negrita y mejorar lectura.
         htmlArticulos += `
             <tr>
-                <td class="fw-bold text-center">${art.articulo || ''}</td>
+                <td class="text-start">${art.codigo_articulo || ''} - ${art.descripcion_articulo || ''}</td>
                 <td class="text-end">${formatearMoneda(art.costo)}</td>
-                <td class="text-center fw-bold text-primary">${art.unidades_limite}</td>
+                <td class="text-end">${art.unidades_limite}</td>
                 <td class="text-end">${formatearMoneda(art.precio_contado)}</td>
                 <td class="text-end">${formatearMoneda(art.precio_tc)}</td>
                 <td class="text-end">${formatearMoneda(art.precio_credito)}</td>
-                <td class="text-end fw-bold">${formatearMoneda(art.aporte_unidad_proveedor)}</td>
-                <td class="text-end fw-bold">${formatearMoneda(art.comprometido_proveedor)}</td>
+                <td class="text-end">${formatearMoneda(art.aporte_unidad_proveedor)}</td>
+                <td class="text-end">${formatearMoneda(art.comprometido_proveedor)}</td>
                 <td class="text-end">${formatearMoneda(art.margen_contado)}</td>
                 <td class="text-end">${formatearMoneda(art.margen_tc)}</td>
                 <td class="text-end">${formatearMoneda(margenCredito)}</td>
@@ -330,7 +331,6 @@ function renderizarTablaArticulos(articulos) {
 
     $('#contenedor-tabla-articulos').html(htmlArticulos).fadeIn();
 }
-
 function cerrarDetalle() {
     $('#contenedor-tabla-promociones').hide().html('');
     $("#vistaDetalle").fadeOut(200, function () {

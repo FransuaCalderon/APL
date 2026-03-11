@@ -1,6 +1,4 @@
-﻿//Path: ~/js/Promocion/CrearPromocion.js
-
-(function () {
+﻿(function () {
     "use strict";
 
     // ==========================================
@@ -105,9 +103,16 @@
     }
 
     // Helper para llenar Select y Modal simultáneamente
-    const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo) => {
+    // MODIFICADO: Se agrega parámetro opcional textoTodas para insertar opción "Todas"/"Todos" después de "Seleccione..."
+    const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo, textoTodas = null) => {
         $select.empty();
         $select.append(`<option selected value="">${labelDefault}</option>`);
+
+        // Si se pasa textoTodas, agregar opción "Todas"/"Todos" con valor "TODAS"
+        if (textoTodas) {
+            $select.append(`<option value="TODAS">${textoTodas}</option>`);
+        }
+
         $select.append(`<option value="${valorVarios}" class="fw-bold text-success">-- VARIOS --</option>`);
 
         $modalBody.empty();
@@ -239,11 +244,20 @@
                     $(conf.btnOpen).removeClass("btn-success").addClass("btn-outline-secondary");
                 }
 
+                // MODIFICADO: Lógica de bloqueo para Marca
                 if (conf.id === "marca") {
-                    if (val !== conf.triggerVal && val !== "") {
-                        validarBloqueoProveedor(1);
-                    } else if (val === "") {
-                        validarBloqueoProveedor(0);
+                    if (val === "TODAS") {
+                        // "Todas" seleccionada -> Bloquear Proveedor
+                        validarBloqueoProveedor(true);
+                    } else if (val === conf.triggerVal) {
+                        // "Varios" -> esperar a que el modal confirme la cantidad
+                        // No hacer nada aquí, se maneja en btnAccept
+                    } else if (val !== "" && val !== "TODAS") {
+                        // Una marca específica seleccionada -> Desbloquear
+                        validarBloqueoProveedor(false);
+                    } else {
+                        // "Seleccione..." (val === "") -> Desbloquear
+                        validarBloqueoProveedor(false);
                     }
                 }
             });
@@ -265,8 +279,9 @@
                     $btnTrigger.html(`<i class="fa-solid fa-list-check"></i>`);
                 }
 
+                // MODIFICADO: Bloquear si más de 1 marca seleccionada en Varios
                 if (conf.id === "marca") {
-                    validarBloqueoProveedor(seleccionados.length);
+                    validarBloqueoProveedor(seleccionados.length > 1);
                 }
 
                 console.log(`Guardado ${conf.id}:`, seleccionados);
@@ -274,23 +289,40 @@
         });
     }
 
-    function validarBloqueoProveedor(cantidad) {
+    // MODIFICADO: Ahora recibe un booleano (bloquear) y además bloquea/desbloquea % Dscto Prov. y $ Comprometido Prov.
+    function validarBloqueoProveedor(bloquear) {
         const $inputProv = $("#fondoProveedorGeneral");
         const $btnProv = $inputProv.next("button");
         const $idProv = $("#fondoProveedorIdGeneral");
         const $idHidden = $("#fondoDisponibleHiddenGeneral");
+        const $descuentoProv = $("#descuentoProveedorGeneral");
+        const $comprometidoProv = $("#fondoValorTotalGeneral");
 
-        if (cantidad > 1) {
-            $inputProv.val("").prop("disabled", true).attr("placeholder", "Bloqueado por múltiples marcas");
+        if (bloquear) {
+            // Bloquear ID Acuerdo Proveedor
+            $inputProv.val("").prop("disabled", true).attr("placeholder", "");
             $idProv.val("");
             $idHidden.val("0");
             $btnProv.prop("disabled", true);
-            $("#fondoValorTotalGeneral").val("");
-            $("#descuentoProveedorGeneral").val("");
+
+            // Bloquear % Dscto Prov.
+            $descuentoProv.val("").prop("disabled", true);
+
+            // Bloquear $ Comprometido Prov.
+            $comprometidoProv.val("").prop("disabled", true);
+
+            // Limpiar Descuento Total
             $("#descuentoTotalGeneral").val("");
         } else {
+            // Desbloquear ID Acuerdo Proveedor
             $inputProv.prop("disabled", false).attr("placeholder", "Seleccione...");
             $btnProv.prop("disabled", false);
+
+            // Desbloquear % Dscto Prov.
+            $descuentoProv.prop("disabled", false);
+
+            // Desbloquear $ Comprometido Prov.
+            $comprometidoProv.prop("disabled", false);
         }
     }
 
@@ -381,10 +413,11 @@
             data: JSON.stringify(payload),
             success: function (res) {
                 const data = res.json_response || {};
-                llenarComboYModal($("#filtroMarcaGeneral"), $("#bodyModalMarca"), data.marcas, "Todas", "3", "marca");
-                llenarComboYModal($("#filtroDivisionGeneral"), $("#bodyModalDivision"), data.divisiones, "Todas", "3", "division");
-                llenarComboYModal($("#filtroDepartamentoGeneral"), $("#bodyModalDepartamento"), data.departamentos, "Todos", "3", "depto");
-                llenarComboYModal($("#filtroClaseGeneral"), $("#bodyModalClase"), data.clases, "Todas", "3", "clase");
+                // MODIFICADO: "Seleccione..." como default + opción "Todas"/"Todos" separada
+                llenarComboYModal($("#filtroMarcaGeneral"), $("#bodyModalMarca"), data.marcas, "Seleccione...", "3", "marca", "Todas");
+                llenarComboYModal($("#filtroDivisionGeneral"), $("#bodyModalDivision"), data.divisiones, "Seleccione...", "3", "division", "Todas");
+                llenarComboYModal($("#filtroDepartamentoGeneral"), $("#bodyModalDepartamento"), data.departamentos, "Seleccione...", "3", "depto", "Todos");
+                llenarComboYModal($("#filtroClaseGeneral"), $("#bodyModalClase"), data.clases, "Seleccione...", "3", "clase", "Todas");
             }
         });
     }
@@ -406,10 +439,11 @@
             success: function (response) {
                 const data = response.json_response || {};
 
-                llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Cargando...", "3", "canal");
-                llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Cargando...", "3", "grupo");
-                llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Cargando...", "3", "almacen");
-                llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), data.mediospagos, "Cargando...", "7", "mediopago");
+                // MODIFICADO: "Seleccione..." en vez de "Cargando..."
+                llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
+                llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo");
+                llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Seleccione...", "3", "almacen");
+                llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), data.mediospagos, "Seleccione...", "7", "mediopago");
 
                 // Llenar Selects y Modal de Tipo Cliente
                 const $cliGen = $("#tipoClienteGeneral");
@@ -417,8 +451,8 @@
                 const $cliCom = $("#tipoClienteCombos");
                 const $modalBodyCli = $("#bodyModalTipoCliente");
 
-                // 1. Opciones Iniciales: Todos y Varios (arriba)
-                const opcionesBase = '<option selected value="">Todos</option><option value="4" class="fw-bold text-success">-- VARIOS --</option>';
+                // 1. Opciones Iniciales: Seleccione... y Varios (arriba)
+                const opcionesBase = '<option selected value="">Seleccione...</option><option value="4" class="fw-bold text-success">-- VARIOS --</option>';
                 $cliGen.empty().append(opcionesBase);
                 $cliArt.empty().append(opcionesBase);
                 $cliCom.empty().append(opcionesBase);
@@ -555,8 +589,8 @@
         $("#fondoProveedorGeneral").next("button").prop("disabled", false);
         $("#fondoProveedorIdGeneral").val("");
         $("#fondoDisponibleHiddenGeneral").val("");
-        $("#fondoValorTotalGeneral").val("");
-        $("#descuentoProveedorGeneral").val("");
+        $("#fondoValorTotalGeneral").val("").prop("disabled", false);
+        $("#descuentoProveedorGeneral").val("").prop("disabled", false);
 
         // Acuerdo Propio
         $("#acuerdoPropioGeneral").val("");
@@ -600,7 +634,7 @@
                 $("#ModalClientesEspecificos").modal("show");
 
             } else if (val === "4") {
-                // 4: VARIOS (Checkboxes)
+                // 4: Varios (Checkboxes)
                 $btn.removeClass("d-none");
                 $btn.attr("data-bs-target", "#ModalTipoClienteVarios");
                 // Forzar apertura del modal correcto
@@ -702,6 +736,11 @@
     function obtenerValorCampo(configId, selectId, triggerVal) {
         const valSelect = $(selectId).val();
 
+        // MODIFICADO: Si es "TODAS" o vacío, retornar arreglo vacío (asignación tipo "T")
+        if (!valSelect || valSelect === "" || valSelect === "TODAS") {
+            return [];
+        }
+
         if (valSelect === triggerVal) {
             const conf = CONFIG_MULTIPLE.find(c => c.id === configId);
             if (conf) {
@@ -771,8 +810,9 @@
                 const selector = $(idSelector); // Asumiendo el uso de jQuery por los selectores
                 const valorSeleccionado = selector.val(); // Valor actual del combo/select
 
-                // 1. Si el combo dice "TODOS" (o el valor que uses para esa opción)
-                if (valorSeleccionado === "TODOS" || !valorSeleccionado || valorSeleccionado.length === 0) {
+                // 1. Si el combo dice "TODOS/TODAS" o "Seleccione..." (vacío)
+                // MODIFICADO: Se agrega "TODAS" como valor para la opción "Todas"
+                if (valorSeleccionado === "TODAS" || !valorSeleccionado || valorSeleccionado.length === 0) {
                     return "T";
                 }
 
@@ -902,12 +942,12 @@
         $(`#timeFin${sufijo}`).val("");
         $(`#regaloGeneral`).prop("checked", false);
 
-        // --- Acuerdo Proveedor ---
+        // --- Acuerdo Proveedor (incluye desbloqueo) ---
         $("#fondoProveedorGeneral").val("").prop("disabled", false);
         $("#fondoProveedorIdGeneral").val("");
         $("#fondoDisponibleHiddenGeneral").val("");
-        $("#fondoValorTotalGeneral").val("");
-        $("#descuentoProveedorGeneral").val("");
+        $("#fondoValorTotalGeneral").val("").prop("disabled", false);
+        $("#descuentoProveedorGeneral").val("").prop("disabled", false);
 
         // --- Acuerdo Propio ---
         $("#acuerdoPropioGeneral").val("");

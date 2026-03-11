@@ -378,7 +378,7 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
                             <table class="table table-bordered table-sm mb-0">
                                 <thead class="sticky-top text-nowrap">
                                     <tr class="text-center tabla-items-header">                                     
-                                        <th scope="col" class="custom-header-cons-bg">Item</th>
+                                        <th scope="col" class="custom-header-cons-bg">Articulo</th>
                                         <th scope="col" class="custom-header-cons-bg">Costo</th>
                                         <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
                                         <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
@@ -395,16 +395,18 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
 
                     data.articulos.forEach(art => {
                         let margenCredito = (art.preciocredito || 0) - (art.costoactual || 0);
+
+                        // Se concatena código y descripción. Se quita 'fw-bold' y 'text-center' y se pone 'text-start'
                         htmlArticulos += `
                             <tr>
-                                <td class="fw-bold text-center">${art.codigoarticulo || ''}</td>
+                                <td class="text-start">${art.codigo_articulo || ''} - ${art.descripcion_articulo || ''}</td>
                                 <td class="text-end">${formatearMoneda(art.costoactual)}</td>
-                                <td class="text-center fw-bold text-primary">${art.unidadeslimite}</td>
+                                <td class="text-end">${art.unidadeslimite}</td>
                                 <td class="text-end">${formatearMoneda(art.preciocontado)}</td>
                                 <td class="text-end">${formatearMoneda(art.preciotarjetacredito)}</td>
                                 <td class="text-end">${formatearMoneda(art.preciocredito)}</td>
-                                <td class="text-end fw-bold">${formatearMoneda(art.valoraporte)}</td>
-                                <td class="text-end fw-bold">${formatearMoneda(art.valorcomprometido)}</td>
+                                <td class="text-end">${formatearMoneda(art.valoraporte)}</td>
+                                <td class="text-end">${formatearMoneda(art.valorcomprometido)}</td>
                                 <td class="text-end">${formatearMoneda(art.margencontado)}</td>
                                 <td class="text-end">${formatearMoneda(art.margentarjetacredito)}</td>
                                 <td class="text-end">${formatearMoneda(margenCredito)}</td>

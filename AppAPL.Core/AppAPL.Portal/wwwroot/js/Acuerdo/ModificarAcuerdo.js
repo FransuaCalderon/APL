@@ -1407,6 +1407,8 @@ async function guardarGeneral() {
 
 async function guardarItems() {
     console.log("ejecutar guardarItems actual");
+
+    calcularTotalesItems();
     if (!validarItems()) return;
 
     const idOpcionActual = getIdOpcionSeguro();
@@ -1440,10 +1442,11 @@ async function guardarItems() {
         "fechafinvigencia": toISOFromDDMMYYYY($("#acuerdoFechaFinItems").val()),
         "idusuariomodifica": usuarioActual,
         "idtipoproceso": tipoProceso ? tipoProceso.idcatalogo : 0,
-        "idfondo": idFondoActualizado, // ✅ Garantiza que se envía el ID modificado
+        "idfondo": idFondoActualizado,
         "valoraporte": valorTotal,
         "valordisponible": valorTotal,
-        "valorcomprometido": 0,
+        // 👇 ESTE ES EL CAMBIO CLAVE EN LA CABECERA 👇
+        "valorcomprometido": valorTotal,
         "valorliquidado": 0,
         "idopcion": idOpcionActual,
         "idcontrolinterfaz": "BTNGRABAR",
@@ -1882,57 +1885,72 @@ function agregarItemsATabla(items) {
         }
 
         const nuevaFila = `
-        <tr data-codigo="${item.codigo}">
+        <tr data-codigo="${item.codigo}" class="fila-seleccionada">
             <td class="text-center align-middle">
-                <input type="radio" class="form-check-input item-row-radio" name="itemSeleccionado">
+                <input type="radio" class="form-check-input item-row-radio" name="itemSeleccionado" checked>
             </td>
-            <td class="align-middle celda-readonly td-descripcion">${item.codigo} - ${item.descripcion}</td> <td class="align-middle celda-readonly">
+            <td class="align-middle celda-readonly td-descripcion">${item.codigo} - ${item.descripcion}</td> 
+            <td class="align-middle celda-readonly">
                 <input type="text" class="form-control form-control-sm text-end item-costo" 
                         value="${formatCurrencySpanish(item.costo)}" readonly disabled>
             </td>
             <td class="align-middle celda-editable">
                 <input type="number" class="form-control form-control-sm text-end" 
-                        name="unidadesLimite" placeholder="0" min="1" disabled required>
-            </td>
+                        name="unidadesLimite" placeholder="0" min="1" required> </td>
             <td class="align-middle celda-editable">
                 <input type="text" class="form-control form-control-sm text-end item-precio-contado" 
-                        placeholder="0.00" data-tipo="contado" disabled>
-            </td>
+                        placeholder="0.00" data-tipo="contado"> </td>
             <td class="align-middle celda-editable">
                 <input type="text" class="form-control form-control-sm text-end item-precio-tc" 
-                        placeholder="0.00" data-tipo="tc" disabled>
-            </td>
+                        placeholder="0.00" data-tipo="tc"> </td>
             <td class="align-middle celda-editable">
                 <input type="text" class="form-control form-control-sm text-end item-precio-credito" 
-                        placeholder="0.00" data-tipo="credito" disabled>
-            </td>
+                        placeholder="0.00" data-tipo="credito"> </td>
             <td class="align-middle celda-editable">
                 <input type="text" class="form-control form-control-sm text-end item-aporte" 
-                        placeholder="0.00" disabled>
-            </td>
+                        placeholder="0.00"> </td>
             <td class="align-middle celda-readonly">
                 <input type="text" class="form-control form-control-sm text-end item-comprometido" 
                         placeholder="0.00" readonly disabled>
             </td>
             <td class="text-center align-middle celda-readonly margen-contado">0.00%</td>
             <td class="text-center align-middle celda-readonly margen-tc">0.00%</td>
-            <td class="text-center align-middle celda-readonly margen-credito">0.00%</td> <input type="hidden" class="item-id-acuerdo-articulo" value="0">
+            <td class="text-center align-middle celda-readonly margen-credito">0.00%</td> 
+            <input type="hidden" class="item-id-acuerdo-articulo" value="0">
             <input type="hidden" class="item-accion" value="I">
-    </tr>`;
+        </tr>`;
+
+        // 1. Bloquear cualquier fila anterior y quitar selección visual
+        $("#tablaItemsBody tr").removeClass("fila-seleccionada");
+        $("#tablaItemsBody .celda-editable input").prop("disabled", true);
+
+        // 2. Agregar la nueva fila (que ya viene desbloqueada)
         $tbody.append(nuevaFila);
     });
 
     $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
+        // 1. Desmarcar visualmente todas las filas
         $("#tablaItemsBody tr").removeClass("fila-seleccionada");
-        $(this).closest("tr").addClass("fila-seleccionada");
+
+        // 2. BLOQUEAR absolutamente todos los inputs editables de TODA la tabla
+        // Esto obliga al cliente a darle clic en el botón "Modificar"
+        $("#tablaItemsBody .celda-editable input").prop("disabled", true);
+
+        // 3. Marcar visualmente la fila actual a la que le dimos clic
+        const $filaActual = $(this).closest("tr");
+        $filaActual.addClass("fila-seleccionada");
     });
 }
 
 function calcularTotalesItems() {
     let totalProveedor = 0;
 
-    $("#tablaItemsBody tr:visible").each(function () {
+    // ⚠️ CAMBIO CLAVE: Quitamos ':visible' porque al abrir el modal la vista aún está oculta.
+    $("#tablaItemsBody tr").each(function () {
         const $fila = $(this);
+
+        // Si el item fue eliminado temporalmente, lo ignoramos en la suma
+        if ($fila.find(".item-accion").val() === "D") return;
 
         const costoStr = $fila.find(".item-costo").val();
         const costo = parseCurrencyToNumber(costoStr);
@@ -1972,15 +1990,15 @@ function calcularTotalesItems() {
             $fila.find(".margen-credito").text("0.00%");
         }
 
-        // --- Colores Dinámicos (✅ Igual a CrearAcuerdo) ---
+        // --- Colores Dinámicos ---
         $fila.find(".margen-contado, .margen-tc, .margen-credito").each(function () {
             const valor = parseFloat($(this).text());
             if (valor < 0) {
-                $(this).css("color", "#dc3545"); // Rojo si hay pérdida
+                $(this).css("color", "#dc3545");
             } else if (valor > 0) {
-                $(this).css("color", "#198754"); // Verde si es positivo
+                $(this).css("color", "#198754");
             } else {
-                $(this).css("color", "#212529"); // Neutro/Oscuro si es 0%
+                $(this).css("color", "#212529");
             }
         });
     });
@@ -2096,13 +2114,12 @@ function leerDetalleItemsDesdeTabla() {
         const accionActual = $tr.find(".item-accion").val();
         const idacuerdoarticulo = parseInt($tr.find(".item-id-acuerdo-articulo").val(), 10) || 0;
 
+        // Ignorar items nuevos que se eliminaron antes de guardar
         if (idacuerdoarticulo === 0 && accionActual === "D") {
             return;
         }
 
-        // ✅ 1. FORZAR QUE EL CÓDIGO SEA UN STRING
         const codigo = String($tr.data("codigo"));
-
         const costoStr = $tr.find(".item-costo").val();
         const costo = parseCurrencyToNumber(costoStr);
         const unidades = parseInt($tr.find('input[name="unidadesLimite"]').val()) || 0;
@@ -2111,19 +2128,20 @@ function leerDetalleItemsDesdeTabla() {
         const precioCredito = parseCurrencyToNumber($tr.find(".item-precio-credito").val());
         const aporte = parseCurrencyToNumber($tr.find(".item-aporte").val());
 
+        // Lectura directa de la vista
         const margenContadoStr = $tr.find(".margen-contado").text().replace("%", "").trim();
         const margenTCStr = $tr.find(".margen-tc").text().replace("%", "").trim();
-        // ✅ 2. LEER TAMBIÉN EL MARGEN DE CRÉDITO (Que agregamos recién)
-        const margenCreditoStr = $tr.find(".margen-credito").text().replace("%", "").trim();
+        const comprometidoStr = $tr.find(".item-comprometido").val();
 
         const margenContado = parseFloat(margenContadoStr) || 0;
         const margenTC = parseFloat(margenTCStr) || 0;
-        const margenCredito = parseFloat(margenCreditoStr) || 0;
+        const comprometido = parseCurrencyToNumber(comprometidoStr);
 
+        // Armamos el objeto con los 12 campos exactos del JSON correcto
         articulos.push({
             accion: accionActual,
             idacuerdoarticulo: idacuerdoarticulo,
-            codigoarticulo: codigo, // <--- Ahora se envía como "123875" (String)
+            codigoarticulo: codigo,
             costoactual: costo,
             unidadeslimite: unidades,
             preciocontado: precioContado,
@@ -2132,7 +2150,7 @@ function leerDetalleItemsDesdeTabla() {
             valoraporte: aporte,
             margencontado: margenContado,
             margentarjetacredito: margenTC,
-            margencredito: margenCredito // <--- Lo enviamos por si la API lo pide
+            valorcomprometido: comprometido
         });
     });
 
@@ -2250,6 +2268,23 @@ function initCurrencyGeneral() {
 }
 
 function initCurrencyItems() {
+    // ✅ NUEVO: Limpia el formato de moneda al hacer clic o tab para que no se ponga en 0
+    $(document).on("focus", ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte", function () {
+        if (!$(this).prop("disabled")) {
+            let valorReal = parseCurrencyToNumber($(this).val());
+            // Si el valor es mayor a 0, muestra el número limpio. Si es 0, lo deja vacío para que escribas directo.
+            $(this).val(valorReal === 0 ? "" : valorReal);
+        }
+    });
+
+    // Opcional: Si también te pasa con las "Unidades Límite", agrega esto:
+    $(document).on("focus", "input[name='unidadesLimite']", function () {
+        if (!$(this).prop("disabled") && $(this).val() == "0") {
+            $(this).val("");
+        }
+    });
+
+    // 👇 Tus eventos existentes se mantienen igual 👇
     $(document).on(
         "blur",
         ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte",

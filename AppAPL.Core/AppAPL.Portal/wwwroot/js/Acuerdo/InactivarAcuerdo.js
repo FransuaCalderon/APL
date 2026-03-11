@@ -266,12 +266,12 @@ function abrirModalEditar(idAcuerdo) {
 
 function renderizarTablaArticulos(articulos) {
     let htmlArticulos = `
-        <h6 class="fw-bold mb-2"><i class="fa fa-list"></i> Detalle de Artículos</h6>
+        <h6 class="mb-2"><i class="fa fa-list"></i> Detalle de Artículos</h6>
         <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
             <table class="table table-bordered table-sm mb-0">
                 <thead class="sticky-top text-nowrap">
                     <tr class="text-center tabla-items-header">
-                        <th scope="col" class="custom-header-cons-bg">Item</th>
+                        <th scope="col" class="custom-header-cons-bg">Artículo</th>
                         <th scope="col" class="custom-header-cons-bg">Costo</th>
                         <th scope="col" class="custom-header-ingr-bg">Unidades Limite</th>
                         <th scope="col" class="custom-header-ingr-bg">Precio - Contado</th>
@@ -291,14 +291,14 @@ function renderizarTablaArticulos(articulos) {
 
         htmlArticulos += `
             <tr>
-                <td class="fw-bold text-center">${art.articulo || ""}</td>
+                <td class="text-start">${art.codigo_articulo || ""} - ${art.descripcion_articulo || ""}</td>
                 <td class="text-end">${formatearMoneda(art.costo)}</td>
-                <td class="text-center fw-bold text-primary">${art.unidades_limite ?? ""}</td>
+                <td class="text-center">${art.unidades_limite ?? ""}</td>
                 <td class="text-end">${formatearMoneda(art.precio_contado)}</td>
                 <td class="text-end">${formatearMoneda(art.precio_tc)}</td>
                 <td class="text-end">${formatearMoneda(art.precio_credito)}</td>
-                <td class="text-end fw-bold">${formatearMoneda(art.aporte_unidad_proveedor)}</td>
-                <td class="text-end fw-bold">${formatearMoneda(art.comprometido_proveedor)}</td>
+                <td class="text-end">${formatearMoneda(art.aporte_unidad_proveedor)}</td>
+                <td class="text-end">${formatearMoneda(art.comprometido_proveedor)}</td>
                 <td class="text-end">${formatearMoneda(art.margen_contado)}</td>
                 <td class="text-end">${formatearMoneda(art.margen_tc)}</td>
                 <td class="text-end">${formatearMoneda(margenCredito)}</td>
