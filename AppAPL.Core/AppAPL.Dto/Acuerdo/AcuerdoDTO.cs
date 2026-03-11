@@ -586,6 +586,7 @@ namespace AppAPL.Dto.Acuerdo
         public decimal valorAporte { get; set; }
         public decimal margenContado { get; set; }
         public decimal margenTarjetaCredito { get; set; }
+        public decimal valorComprometido { get; set; }
     }
 
     public class AprobarAcuerdoRequest
