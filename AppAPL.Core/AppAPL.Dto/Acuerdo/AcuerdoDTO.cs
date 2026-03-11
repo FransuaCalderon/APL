@@ -41,7 +41,8 @@ namespace AppAPL.Dto.Acuerdo
     public class AcuerdoArticuloDTO
     {
         public int idAcuerdoArticulo { get; set; }
-        public string codigoArticulo { get; set; }
+        public string codigo_articulo { get; set; }
+        public string descripcion_articulo { get; set; }
         public decimal costoActual { get; set; }
         public int unidadesLimite { get; set; }
         public decimal precioContado { get; set; }
@@ -220,7 +221,8 @@ namespace AppAPL.Dto.Acuerdo
     {
         public int idacuerdoarticulo { get; set; }
         public int idacuerdo { get; set; }
-        public string articulo { get; set; }
+        public string codigo_articulo { get; set; }
+        public string descripcion_articulo { get; set; }
         public decimal costo { get; set; }
         public int unidades_limite { get; set; }
         public decimal precio_contado { get; set; }
@@ -405,7 +407,8 @@ namespace AppAPL.Dto.Acuerdo
     {
         public int idacuerdoarticulo { get; set; }
         public int idacuerdo { get; set; }
-        public string articulo { get; set; }
+        public string codigo_articulo { get; set; }
+        public string descripcion_articulo { get; set; }
         public decimal costo { get; set; }
         public int unidades_limite { get; set; }
         public decimal precio_contado { get; set; }
