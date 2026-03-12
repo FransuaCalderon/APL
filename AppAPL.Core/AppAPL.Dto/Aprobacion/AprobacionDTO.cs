@@ -13,7 +13,7 @@ namespace AppAPL.Dto.Aprobacion
         public DateTime fecha_solicitud { get; set; }
         public string usuario_aprobador { get; set; }
         public string comentario_aprobador { get; set; }
-        public DateTime fecha_aprobacion { get; set; }
+        public string fecha_aprobacion { get; set; }
         public int nivel { get; set; }
         public string estado { get; set; }
         public int lote { get; set; }
