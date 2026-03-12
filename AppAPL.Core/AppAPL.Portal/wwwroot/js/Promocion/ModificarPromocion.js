@@ -302,22 +302,47 @@ function poblarSelectSegmento(configId, segmentos, etiqueta) {
 // LÓGICA DE CÁLCULOS ACUERDOS
 // ===============================================================
 function initValidacionesFinancieras() {
-    const soloNumeros = function () {
-        this.value = this.value.replace(/[^0-9.]/g, '');
-        calcularTotalDescuento();
-    };
+    // 1. Lógica para campos de Porcentaje (%)
+    $("#descuentoProveedor, #descuentoPropio")
+        .off("focus input blur") // Limpiamos eventos previos por seguridad
+        .on("focus", function () {
+            // Si está en 0, lo vaciamos para facilitar la escritura
+            if (parseFloat($(this).val()) === 0) $(this).val("");
+        })
+        .on("input", function () {
+            // Solo permitir números y punto
+            this.value = this.value.replace(/[^0-9.]/g, '');
+            calcularTotalDescuento();
+        })
+        .on("blur", function () {
+            let val = parseFloat($(this).val()) || 0;
+            $(this).val(val > 0 ? val.toFixed(2) : "");
+            calcularTotalDescuento();
+        });
 
-    $("#descuentoProveedor, #descuentoPropio").on("input", soloNumeros);
-    $("#descuentoProveedor, #descuentoPropio").on("blur", function () {
-        let val = parseFloat($(this).val()) || 0;
-        if (val > 0) $(this).val(val.toFixed(2));
-    });
+    // 2. Lógica para campos de Dinero ($ Comprometido)
+    $("#fondoValorTotal, #comprometidoPropio")
+        .off("focus input blur")
+        .on("focus", function () {
+            // Al hacer clic, quitamos el "$ " y las comas para que sea un número puro editable
+            let valStr = $(this).val().replace(/[^0-9.,]/g, '');
+            // Convertimos la coma europea/española a punto decimal de JS si existe
+            if (valStr.includes(',') && !valStr.includes('.')) valStr = valStr.replace(',', '.');
+            else if (valStr.includes(',') && valStr.includes('.')) valStr = valStr.replace(/\./g, '').replace(',', '.');
 
-    $("#fondoValorTotal, #comprometidoPropio").on("blur", function () {
-        let valStr = $(this).val().replace(/[^0-9.]/g, '');
-        let valorIngresado = parseFloat(valStr) || 0;
-        $(this).val(valorIngresado > 0 ? formatCurrencySpanish(valorIngresado) : "");
-    });
+            let val = parseFloat(valStr);
+            $(this).val(!isNaN(val) && val > 0 ? val : "");
+        })
+        .on("input", function () {
+            // Mientras escribe, solo permitimos números y punto decimal
+            this.value = this.value.replace(/[^0-9.]/g, '');
+        })
+        .on("blur", function () {
+            // Al salir, aplicamos tu formato de moneda en español
+            let valStr = $(this).val().replace(/[^0-9.]/g, '');
+            let valorIngresado = parseFloat(valStr) || 0;
+            $(this).val(valorIngresado > 0 ? formatCurrencySpanish(valorIngresado) : "");
+        });
 }
 
 function calcularTotalDescuento() {

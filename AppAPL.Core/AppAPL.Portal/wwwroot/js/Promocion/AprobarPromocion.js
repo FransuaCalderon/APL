@@ -570,77 +570,133 @@ function cerrarDetalle() {
 }
 
 function cargarAprobacionesPromocion(entidad, idEntidad, tipoProceso) {
-    if ($.fn.DataTable.isDataTable('#dt-historial')) $('#dt-historial').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#dt-historial')) {
+        $('#dt-historial').DataTable().destroy();
+    }
+
+    document.querySelectorAll('#tabla-aprobaciones-promocion [data-bs-toggle="popover"]').forEach(function (el) {
+        const instance = bootstrap.Popover.getInstance(el);
+        if (instance) instance.dispose();
+    });
 
     $('#tabla-aprobaciones-promocion').html(`
         <div class="text-center p-3">
             <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+            <p class="mt-2 small text-muted">Cargando historial...</p>
         </div>
     `);
 
     const payload = {
-        code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Aprobacion/consultar-aprobaciones", client: "APL", endpoint_query_params: `/${entidad}/${idEntidad}/${tipoProceso}`
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Aprobacion/consultar-aprobaciones-generales",
+        client: "APL",
+        endpoint_query_params: `/ENTPROMOCION/${idEntidad}`
     };
 
     $.ajax({
-        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (response) {
             if (response && response.code_status === 200) {
-                let lista = Array.isArray(response.json_response) ? response.json_response : [response.json_response];
+                let lista = response.json_response || [];
+                if (!Array.isArray(lista)) lista = [lista];
+
                 if (!lista || lista.length === 0) {
-                    $('#tabla-aprobaciones-promocion').html('<div class="alert alert-light text-center border">No hay historial de aprobaciones.</div>');
+                    $('#tabla-aprobaciones-promocion').html('<div class="alert alert-light text-center border">No hay historial de aprobaciones disponibles.</div>');
                     return;
                 }
 
+                // ESTRUCTURA LIMPIA (sin estilos en línea) para que tome tu CSS global azul
                 let html = `
-                <h6 class="fw-bold mb-2"><i class="fa fa-clock-rotate-left text-primary"></i> Historial de Aprobaciones</h6>
                 <table id='dt-historial' class='table table-sm table-bordered table-hover w-100'>
                     <thead class="table-light">
                         <tr>
-                            <th>ID Aprobación</th>
-                            <th>Usuario Solicitante</th>
-                            <th>Usuario Aprobador</th>
-                            <th>Estado</th>
-                            <th>Fecha Solicitud</th>
-                            <th>Nivel Aprobación</th>
-                            <th>Tipo Proceso</th>
+                            <th class="text-center">Tipo Solicitud</th>
+                            <th class="text-center">Usuario Solicita</th>
+                            <th class="text-center">Fecha Solicitud</th>
+                            <th class="text-center">Usuario Aprobador</th>
+                            <th class="text-center">Fecha Aprobación</th>
+                            <th class="text-center">Nivel</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Lote</th>
                         </tr>
                     </thead>
                     <tbody>`;
 
-                lista.forEach(item => {
-                    let comentarioLimpio = (item.comentario && item.comentario !== "string") ? item.comentario : "Sin comentarios.";
-                    let estadoNombre = item.estado_nombre || item.estado_etiqueta || "N/A";
-                    let estadoUpper = estadoNombre.toUpperCase();
-                    let iconoPopover = "";
-                    if (estadoUpper.includes("APROBADO") || estadoUpper.includes("NEGADO")) {
-                        iconoPopover = `<i class="fa-solid fa-comment-dots text-warning ms-1" style="cursor:pointer; font-size:0.9rem;" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="top" tabindex="0" title="Comentario" data-bs-content="${comentarioLimpio}"></i>`;
-                    }
+                lista.forEach(apr => {
+                    const tieneComentario = apr.comentario_aprobador && apr.comentario_aprobador.toString().trim() !== "";
+
+                    const comentarioAttr = (apr.comentario_aprobador ?? "")
+                        .replace(/&/g, "&amp;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#39;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;");
+
                     html += `<tr>
-                        <td class="text-center">${item.idaprobacion || ""}</td>
-                        <td>${item.idusersolicitud || ""}</td>
-                        <td>${item.iduseraprobador || ""}</td>
-                        <td class="text-nowrap">${estadoNombre}${iconoPopover}</td>
-                        <td class="text-center">${formatearFecha(item.fechasolicitud)}</td>
-                        <td class="text-center">${item.nivelaprobacion || 0}</td>
-                        <td>${item.tipoproceso_nombre || ""}</td>
+                        <td class="text-center">${apr.tipo_solicitud ?? ""}</td>
+                        <td class="text-center">${apr.usuario_solicita ?? ""}</td>
+                        <td class="text-center text-nowrap">${formatearFecha(apr.fecha_solicitud)}</td>
+                        <td class="text-center">
+                            <span>${apr.usuario_aprobador ?? ""}</span>
+                            ${tieneComentario
+                            ? `<button type="button" class="btn btn-sm btn-link p-0 ms-1 text-dark btn-comentario-popover" 
+                                    data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="left" 
+                                    data-bs-title="Comentario de ${apr.usuario_aprobador ?? ""}" 
+                                    data-bs-content="${comentarioAttr}">
+                                    <i class="fa-solid fa-message text-warning" style="font-size:0.9rem;"></i>
+                                   </button>`
+                            : ""}
+                        </td>
+                        <td class="text-center text-nowrap">${formatearFecha(apr.fecha_aprobacion)}</td>
+                        <td class="text-center">${apr.nivel ?? ""}</td>
+                        <td class="text-center">${apr.estado ?? ""}</td>
+                        <td class="text-center">${apr.lote ?? ""}</td>
                     </tr>`;
                 });
+
                 html += `</tbody></table>`;
                 $('#tabla-aprobaciones-promocion').html(html);
 
                 tablaHistorial = $('#dt-historial').DataTable({
-                    pageLength: 5, lengthMenu: [5, 10, 25], pagingType: 'simple_numbers', searching: false,
-                    columnDefs: [{ targets: [0, 4, 5], className: "dt-center" }, { targets: 3, className: "dt-nowrap" }], order: [[0, 'desc']],
-                    language: { decimal: "", emptyTable: "No hay aprobaciones", info: "Mostrando _START_ a _END_ de _TOTAL_", infoEmpty: "0 a 0 de 0", paginate: { first: "Primero", last: "Último", next: "Sig", previous: "Ant" } },
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 25],
+                    pagingType: 'simple_numbers',
+                    searching: false,
+                    columnDefs: [
+                        { targets: [0, 5, 7], className: "dt-center" },
+                        { targets: [2, 4], className: "dt-nowrap dt-center" }
+                    ],
+                    order: [],
+                    // CONFIGURACIÓN DE IDIOMA EXACTAMENTE IGUAL A APROBARACUERDO
+                    language: {
+                        decimal: "",
+                        emptyTable: "No hay aprobaciones disponibles",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ aprobaciones",
+                        infoEmpty: "Mostrando 0 a 0 de 0 aprobaciones",
+                        infoFiltered: "(filtrado de _MAX_ aprobaciones totales)",
+                        lengthMenu: "Mostrar _MENU_ aprobaciones",
+                        loadingRecords: "Cargando...",
+                        processing: "Procesando...",
+                        search: "Buscar:",
+                        zeroRecords: "No se encontraron aprobaciones coincidentes",
+                        paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+                    },
                     drawCallback: function () {
                         const popoverTriggerList = document.querySelectorAll('#dt-historial [data-bs-toggle="popover"]');
                         [...popoverTriggerList].map(el => new bootstrap.Popover(el));
                     }
                 });
-            } else { $('#tabla-aprobaciones-promocion').html('<div class="text-danger small">Error al cargar historial.</div>'); }
+            } else {
+                $('#tabla-aprobaciones-promocion').html('<div class="text-danger small text-center p-3 border">Error al cargar historial.</div>');
+            }
         },
-        error: function () { $('#tabla-aprobaciones-promocion').html('<div class="text-danger small">Error al cargar historial.</div>'); }
+        error: function () {
+            $('#tabla-aprobaciones-promocion').html('<div class="text-danger small text-center p-3 border">Error al cargar historial.</div>');
+        }
     });
 }
 

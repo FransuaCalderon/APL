@@ -40,10 +40,10 @@
         border-color: #6c757d;
     }
 
-        #dvPromocionGeneral .btn-outline-secondary img {
-            width: 14px;
-            height: 14px;
-        }
+    #dvPromocionGeneral .btn-outline-secondary img {
+        width: 14px;
+        height: 14px;
+    }
 
     .promo-top-row {
         border-bottom: 1px solid #dee2e6;
@@ -51,31 +51,31 @@
         margin-bottom: 4px;
     }
 
-        .promo-top-row .input-group-text {
-            font-weight: 700;
-            font-size: 0.82rem;
-        }
+    .promo-top-row .input-group-text {
+        font-weight: 700;
+        font-size: 0.82rem;
+    }
 
-        .promo-top-row .btn-group .btn {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+    .promo-top-row .btn-group .btn {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
 
-            .promo-top-row .btn-group .btn i {
-                font-size: 0.85rem;
-            }
+    .promo-top-row .btn-group .btn i {
+        font-size: 0.85rem;
+    }
 
     .seg-input-group .btn {
         padding: 0.25rem 0.35rem;
         line-height: 1;
     }
 
-        .seg-input-group .btn i {
-            font-size: 0.75rem;
-        }
+    .seg-input-group .btn i {
+        font-size: 0.75rem;
+    }
 
     .soporte-section {
         border-top: 1px solid #dee2e6;
@@ -83,16 +83,16 @@
         margin-top: 6px;
     }
 
-        .soporte-section .btn-buscar {
-            font-size: 0.78rem;
-            padding: 4px 10px;
-            white-space: nowrap;
-        }
+    .soporte-section .btn-buscar {
+        font-size: 0.78rem;
+        padding: 4px 10px;
+        white-space: nowrap;
+    }
 
-        .soporte-section .soporte-nombre {
-            font-size: 0.78rem;
-            background: #e9ecef;
-        }
+    .soporte-section .soporte-nombre {
+        font-size: 0.78rem;
+        background: #e9ecef;
+    }
 
     .regalo-check-container {
         display: flex;
@@ -101,12 +101,12 @@
         height: 31px;
     }
 
-        .regalo-check-container input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: #0d6efd;
-            cursor: pointer;
-        }
+    .regalo-check-container input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #0d6efd;
+        cursor: pointer;
+    }
 
     .articulo-group .input-group-text {
         padding: 0.25rem 0.4rem;
@@ -148,9 +148,9 @@
         border-bottom: none;
     }
 
-        #modalVisorPdf .modal-header .btn-close {
-            filter: invert(1);
-        }
+    #modalVisorPdf .modal-header .btn-close {
+        filter: invert(1);
+    }
 
     #modalVisorPdf .modal-body {
         padding: 0;
@@ -202,6 +202,15 @@
         font-size: 0.9rem;
         padding: 20px;
         text-align: center;
+    }
+
+    .label-una-linea {
+        white-space: nowrap; /* Prohíbe que el texto salte abajo */
+        font-size: 0.68rem !important; /* Letra un pelín más pequeña para que entre */
+        overflow: hidden; /* Evita que invada la columna vecina */
+        text-overflow: ellipsis; /* Si la pantalla es muy chica, pone '...' */
+        display: block;
+        width: 100%;
     }
 </style>
 
@@ -351,50 +360,50 @@
                         </div>
                     </div>
 
-                    <div class="col-md-1 text-center">
-                        <label for="descuentoProveedor" class="form-label fw-bold col-form-label-sm">% Dscto Prov.</label>
-                        <input type="text" class="form-control form-control-sm text-end input-numero" id="descuentoProveedor" placeholder="0.00">
+                    <div class="col-md-1 text-center px-1">
+                        <label for="descuentoProveedor" class="form-label fw-bold label-una-linea" title="% Dscto Prov.">% Dscto Prov.</label>
+                        <input type="text" class="form-control form-control-sm text-end" id="descuentoProveedor" placeholder="0.00">
                     </div>
-                    <div class="col-md-2 text-center">
-                        <label for="fondoProveedorText" class="form-label fw-bold col-form-label-sm">ID Acuerdo Proveedor</label>
+                    <div class="col-md-2 text-center px-1">
+                        <label for="fondoProveedorText" class="form-label fw-bold label-una-linea" title="ID Acuerdo Prov.">ID Acuerdo Prov.</label>
                         <div class="input-group input-group-sm">
                             <input type="hidden" id="fondoProveedorId">
                             <input type="hidden" id="fondoDisponibleProv">
-                            <input type="text" class="form-control" id="fondoProveedorText" placeholder="Seleccione..." readonly>
+                            <input type="text" class="form-control" id="fondoProveedorText" placeholder="Selec..." readonly>
                             <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="col-md-2 text-center">
-                        <label for="fondoValorTotal" class="form-label fw-bold col-form-label-sm">$ Comprometido Prov.</label>
-                        <input type="text" class="form-control form-control-sm text-end input-numero" id="fondoValorTotal" placeholder="0.00">
+                    <div class="col-md-2 text-center px-1">
+                        <label for="fondoValorTotal" class="form-label fw-bold label-una-linea" title="$ Compr. Prov.">$ Compr. Prov.</label>
+                        <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotal" placeholder="0.00">
                     </div>
-                    <div class="col-md-1 text-center">
-                        <label for="descuentoPropio" class="form-label fw-bold col-form-label-sm">% Dscto Prop</label>
-                        <input type="text" class="form-control form-control-sm text-end input-numero" id="descuentoPropio" placeholder="0.00">
+                    <div class="col-md-1 text-center px-1">
+                        <label for="descuentoPropio" class="form-label fw-bold label-una-linea" title="% Dscto Propio">% Dscto Propio</label>
+                        <input type="text" class="form-control form-control-sm text-end" id="descuentoPropio" placeholder="0.00">
                     </div>
-                    <div class="col-md-2 text-center">
-                        <label for="acuerdoPropioText" class="form-label fw-bold col-form-label-sm">ID Acuerdo Propio</label>
+                    <div class="col-md-2 text-center px-1">
+                        <label for="acuerdoPropioText" class="form-label fw-bold label-una-linea" title="ID Acuerdo Propio">ID Acuerdo Propio</label>
                         <div class="input-group input-group-sm">
                             <input type="hidden" id="acuerdoPropioId">
                             <input type="hidden" id="acuerdoPropioDisponible">
-                            <input type="text" class="form-control" id="acuerdoPropioText" placeholder="Seleccione..." readonly>
+                            <input type="text" class="form-control" id="acuerdoPropioText" placeholder="Selec..." readonly>
                             <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdoPropio">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="col-md-2 text-center">
-                        <label for="comprometidoPropio" class="form-label fw-bold col-form-label-sm">$ Comprometido Propio</label>
-                        <input type="text" class="form-control form-control-sm text-end input-numero" id="comprometidoPropio" placeholder="0.00">
+                    <div class="col-md-2 text-center px-1">
+                        <label for="comprometidoPropio" class="form-label fw-bold label-una-linea" title="$ Compr. Propio">$ Compr. Propio</label>
+                        <input type="text" class="form-control form-control-sm text-end" id="comprometidoPropio" placeholder="0.00">
                     </div>
-                    <div class="col-md-1 text-center">
-                        <label for="descuentoTotal" class="form-label fw-bold col-form-label-sm">% Dscto Total</label>
+                    <div class="col-md-1 text-center px-1">
+                        <label for="descuentoTotal" class="form-label fw-bold label-una-linea" title="% Dscto Total">% Dscto Total</label>
                         <input type="text" class="form-control form-control-sm text-end" id="descuentoTotal" placeholder="0.00" readonly disabled>
                     </div>
-                    <div class="col-md-1 text-center">
-                        <label for="promocionMarcaRegalo" class="form-label fw-bold col-form-label-sm">Regalo</label>
+                    <div class="col-md-1 text-center px-1">
+                        <label for="promocionMarcaRegalo" class="form-label fw-bold label-una-linea" title="Regalo">Regalo</label>
                         <div class="regalo-check-container">
                             <input class="form-check-input" type="checkbox" id="promocionMarcaRegalo">
                         </div>
@@ -424,7 +433,6 @@
                             </div>
                         </div>
                     </div>
-
                 </form>
             </div>
 

@@ -363,15 +363,10 @@
 
         <div class="card-body p-2">
             <form id="formVisualizar">
-
                 <!-- ============================================
                      GRILLA ESTILO IMAGEN
                 ============================================= -->
                 <div class="promo-form-grid">
-
-                    <!-- ═══════════════════════════════════════
-                         FILA 1: ID Promoción + Iconos
-                    ═══════════════════════════════════════ -->
                     <div class="promo-header-row">
                         <span class="promo-label">Promoción</span>
                         <input type="text" class="promo-id-input" id="verPromocionHeader" readonly>
@@ -388,9 +383,6 @@
                         </div>
                     </div>
 
-                    <!-- ═══════════════════════════════════════
-                         FILA 2: Descripción | Motivo | Inicio | Fin | Estado
-                    ═══════════════════════════════════════ -->
                     <div class="promo-section">
                         <div class="promo-col">
                             <div class="promo-col-header">Descripción</div>
@@ -424,9 +416,6 @@
                         </div>
                     </div>
 
-                    <!-- ═══════════════════════════════════════
-                         FILA 3: Marca | División | Departamento | Clase | Artículo
-                    ═══════════════════════════════════════ -->
                     <div class="promo-section">
                         <div class="promo-col">
                             <div class="promo-col-header">Marca</div>
@@ -475,9 +464,6 @@
                         </div>
                     </div>
 
-                    <!-- ═══════════════════════════════════════
-                         FILA 4: Canal | Grupo | Almacén | Tipo Cliente | Medio Pago
-                    ═══════════════════════════════════════ -->
                     <div class="promo-section">
                         <div class="promo-col">
                             <div class="promo-col-header">Canal</div>
@@ -526,18 +512,15 @@
                         </div>
                     </div>
 
-                    <!-- ═══════════════════════════════════════
-                         FILA 5: Acuerdos + Regalo
-                    ═══════════════════════════════════════ -->
                     <div class="promo-section">
-                        <div class="promo-col col-xs">
-                            <div class="promo-col-header">% Dscto Prov.</div>
+                        <div class="promo-col">
+                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Prov.</div>
                             <div class="promo-col-value">
                                 <input type="text" id="verDsctoProv" readonly>
                             </div>
                         </div>
                         <div class="promo-col">
-                            <div class="promo-col-header">ID Acuerdo Proveedor</div>
+                            <div class="promo-col-header" style="white-space: nowrap;">ID Acuerdo Proveedor</div>
                             <div class="promo-col-value">
                                 <div class="input-with-icon">
                                     <input type="text" id="verIdAcuerdoProv" readonly>
@@ -546,19 +529,19 @@
                             </div>
                         </div>
                         <div class="promo-col col-md">
-                            <div class="promo-col-header">$ Comprometido Proveed.</div>
+                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">$ Comprometido Proveed.</div>
                             <div class="promo-col-value">
                                 <input type="text" id="verComprometidoProv" readonly>
                             </div>
                         </div>
-                        <div class="promo-col col-xs">
-                            <div class="promo-col-header">% Dscto Prop.</div>
+                        <div class="promo-col">
+                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Prop.</div>
                             <div class="promo-col-value">
                                 <input type="text" id="verDsctoProp" readonly>
                             </div>
                         </div>
                         <div class="promo-col">
-                            <div class="promo-col-header">ID Acuerdo Propio</div>
+                            <div class="promo-col-header" style="white-space: nowrap;">ID Acuerdo Propio</div>
                             <div class="promo-col-value">
                                 <div class="input-with-icon">
                                     <input type="text" id="verIdAcuerdoProp" readonly>
@@ -567,25 +550,24 @@
                             </div>
                         </div>
                         <div class="promo-col col-md">
-                            <div class="promo-col-header">$ Comprometido Propio</div>
+                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">$ Comprometido Propio</div>
                             <div class="promo-col-value">
                                 <input type="text" id="verComprometidoProp" readonly>
                             </div>
                         </div>
-                        <div class="promo-col col-xs">
-                            <div class="promo-col-header">% Dscto Total</div>
+                        <div class="promo-col">
+                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Total</div>
                             <div class="promo-col-value">
                                 <input type="text" id="verDsctoTotal" readonly>
                             </div>
                         </div>
                         <div class="promo-col col-xs">
-                            <div class="promo-col-header">Regalo</div>
+                            <div class="promo-col-header" style="text-align: center;">Regalo</div>
                             <div class="promo-col-value center-value">
                                 <input type="checkbox" id="verRegalo" onclick="return false;">
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <!-- FIN GRILLA -->
 
