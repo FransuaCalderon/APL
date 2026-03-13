@@ -921,6 +921,7 @@
                 return; // Detenemos la ejecución para que no haga la petición AJAX
             }
 
+            const idProveedorGeneral = parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0;
             // 4. Construcción del Body
             const body = {
                 "tipoclaseetiqueta": "PRGENERAL",
@@ -941,11 +942,12 @@
                     "nombreusuario": getUsuario(),
                 },
                 "acuerdos": [
-                    {
-                        "idacuerdo": parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0,
+                    // Validamos solo el de Proveedor General
+                    ...(idProveedorGeneral !== 0 ? [{
+                        "idacuerdo": idProveedorGeneral,
                         "porcentajedescuento": parseFloat($("#descuentoProveedorGeneral").val()) || 0,
                         "valorcomprometido": parseCurrency($("#fondoValorTotalGeneral").val())
-                    },
+                    }] : []),
                     {
                         "idacuerdo": parseInt($("#acuerdoPropioIdGeneral").val(), 10) || 0,
                         "porcentajedescuento": parseFloat($("#descuentoPropioGeneral").val()) || 0,
