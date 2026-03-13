@@ -1116,7 +1116,7 @@ async function guardarPromocion() {
     };
 
     console.log("📤 Enviando JSON Modificar Promoción:", body);
-    return;
+
     Swal.fire({
         title: 'Confirmar Modificación', html: `¿Desea guardar los cambios de la Promoción <strong>#${body.idpromocion}</strong>?`, icon: 'warning',
         showCancelButton: true, confirmButtonColor: '#009845', cancelButtonColor: '#d33', confirmButtonText: 'Sí, Guardar', cancelButtonText: 'Cancelar'
