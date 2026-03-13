@@ -486,12 +486,14 @@ function poblarResumenAcuerdos(acuerdos) {
 
     if (acProv) {
         $("#verDsctoProv").val((acProv.porcentaje_descuento ?? 0) + "%");
-        $("#verIdAcuerdoProv").val(`${acProv.idacuerdo ?? ""} - ${acProv.descripcion_acuerdo ?? ""}`);
+        // Modificado: Se incluye acProv.nombre_proveedor en la concatenación
+        $("#verIdAcuerdoProv").val(`${acProv.idacuerdo ?? ""} - ${acProv.nombre_proveedor ?? ""} - ${acProv.descripcion_acuerdo ?? ""}`);
         $("#verComprometidoProv").val(formatearMoneda(acProv.valor_comprometido));
     }
     if (acProp) {
         $("#verDsctoProp").val((acProp.porcentaje_descuento ?? 0) + "%");
-        $("#verIdAcuerdoProp").val(`${acProp.idacuerdo ?? ""} - ${acProp.descripcion_acuerdo ?? ""}`);
+        // Modificado: Se incluye acProp.nombre_proveedor en la concatenación
+        $("#verIdAcuerdoProp").val(`${acProp.idacuerdo ?? ""} - ${acProp.nombre_proveedor ?? ""} - ${acProp.descripcion_acuerdo ?? ""}`);
         $("#verComprometidoProp").val(formatearMoneda(acProp.valor_comprometido));
     }
 

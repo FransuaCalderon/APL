@@ -212,6 +212,14 @@
         display: block;
         width: 100%;
     }
+
+    /* ✅ Resalta visualmente los campos bloqueados */
+    input:disabled, select:disabled {
+        background-color: #e9ecef !important;
+        color: #6c757d !important;
+        cursor: not-allowed !important;
+        opacity: 1;
+    }
 </style>
 
 <h2>Modificación - Promociones</h2>
@@ -370,8 +378,11 @@
                             <input type="hidden" id="fondoProveedorId">
                             <input type="hidden" id="fondoDisponibleProv">
                             <input type="text" class="form-control" id="fondoProveedorText" placeholder="Selec..." readonly>
-                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
+                            <button class="btn btn-outline-secondary" type="button" id="btnBuscarProv" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor" title="Buscar Acuerdo">
                                 <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" type="button" id="btnBorrarProv" title="Quitar Selección">
+                                <i class="fa-solid fa-eraser"></i>
                             </button>
                         </div>
                     </div>
@@ -389,8 +400,11 @@
                             <input type="hidden" id="acuerdoPropioId">
                             <input type="hidden" id="acuerdoPropioDisponible">
                             <input type="text" class="form-control" id="acuerdoPropioText" placeholder="Selec..." readonly>
-                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdoPropio">
+                            <button class="btn btn-outline-secondary" type="button" id="btnBuscarPropio" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdoPropio" title="Buscar Acuerdo">
                                 <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" type="button" id="btnBorrarPropio" title="Quitar Selección">
+                                <i class="fa-solid fa-eraser"></i>
                             </button>
                         </div>
                     </div>

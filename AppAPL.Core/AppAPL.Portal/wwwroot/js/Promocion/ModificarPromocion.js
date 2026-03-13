@@ -529,37 +529,52 @@ function consultarAcuerdos(tipoFondo, tablaId, onSeleccion) {
     });
 }
 
+function evaluarBloqueosAcuerdos() {
+    // Evaluación Proveedor
+    const idProv = $("#fondoProveedorId").val();
+    if (idProv && idProv !== "0" && idProv !== "") {
+        $("#descuentoProveedor, #fondoValorTotal").prop("disabled", false);
+    } else {
+        $("#descuentoProveedor, #fondoValorTotal").val("").prop("disabled", true);
+    }
+
+    // Evaluación Propio
+    const idProp = $("#acuerdoPropioId").val();
+    if (idProp && idProp !== "0" && idProp !== "") {
+        $("#descuentoPropio, #comprometidoPropio").prop("disabled", false);
+    } else {
+        $("#descuentoPropio, #comprometidoPropio").val("").prop("disabled", true);
+    }
+
+    // Recalcular total por si se vaciaron campos
+    calcularTotalDescuento();
+}
+
 // Función para bloquear o desbloquear la sección del proveedor
+// Función modificada para bloquear/desbloquear la sección del proveedor desde la MARCA
 function validarBloqueoProveedor(bloquear) {
     const $inputProv = $("#fondoProveedorText");
-    const $btnProv = $inputProv.next("button"); // El botón de la lupa
+    const $btnBuscar = $("#btnBuscarProv");
+    const $btnBorrar = $("#btnBorrarProv");
     const $idProv = $("#fondoProveedorId");
     const $idHidden = $("#fondoDisponibleProv");
-    const $descuentoProv = $("#descuentoProveedor");
-    const $comprometidoProv = $("#fondoValorTotal");
 
     if (bloquear) {
-        // Bloquear ID Acuerdo Proveedor
+        // Bloquear ID Acuerdo Proveedor completamente
         $inputProv.val("").prop("disabled", true).attr("placeholder", "");
         $idProv.val("");
         $idHidden.val("0");
-        $btnProv.prop("disabled", true);
-
-        // Bloquear % Dscto Prov. y $ Comprometido Prov.
-        $descuentoProv.val("").prop("disabled", true);
-        $comprometidoProv.val("").prop("disabled", true);
-
-        // Limpiar Descuento Total
-        $("#descuentoTotal").val("");
+        $btnBuscar.prop("disabled", true);
+        $btnBorrar.prop("disabled", true);
     } else {
-        // Desbloquear ID Acuerdo Proveedor
+        // Desbloquear ID Acuerdo Proveedor (Solo la búsqueda)
         $inputProv.prop("disabled", false).attr("placeholder", "Selec...");
-        $btnProv.prop("disabled", false);
-
-        // Desbloquear % Dscto Prov. y $ Comprometido Prov.
-        $descuentoProv.prop("disabled", false);
-        $comprometidoProv.prop("disabled", false);
+        $btnBuscar.prop("disabled", false);
+        $btnBorrar.prop("disabled", false);
     }
+
+    // Llamamos a la evaluación para que bloquee los montos si se borró el ID
+    evaluarBloqueosAcuerdos();
 }
 
 // ===============================================================
@@ -626,6 +641,7 @@ $(document).ready(function () {
             $("#fondoProveedorId").val(proveedorTemporal.idAcuerdo);
             $("#fondoDisponibleProv").val(proveedorTemporal.disponible);
             $("#modalConsultaProveedor").modal("hide");
+            evaluarBloqueosAcuerdos();
         }
     });
 
@@ -639,6 +655,7 @@ $(document).ready(function () {
             $("#acuerdoPropioId").val(propioTemporal.idAcuerdo);
             $("#acuerdoPropioDisponible").val(propioTemporal.disponible);
             $("#modalConsultaAcuerdoPropio").modal("hide");
+            evaluarBloqueosAcuerdos();
         }
     });
 
@@ -648,6 +665,21 @@ $(document).ready(function () {
     });
 
     initDatepickers();
+
+    // Eventos para Botones Borradores
+    $("#btnBorrarProv").on("click", function () {
+        $("#fondoProveedorId").val("");
+        $("#fondoProveedorText").val("");
+        $("#fondoDisponibleProv").val("0");
+        evaluarBloqueosAcuerdos();
+    });
+
+    $("#btnBorrarPropio").on("click", function () {
+        $("#acuerdoPropioId").val("");
+        $("#acuerdoPropioText").val("");
+        $("#acuerdoPropioDisponible").val("0");
+        evaluarBloqueosAcuerdos();
+    });
 });
 
 // ===================================================================
@@ -853,6 +885,7 @@ function poblarFormulario(data) {
         validarBloqueoProveedor(false);
     }
 
+    evaluarBloqueosAcuerdos();
     isPopulating = false; // <-- REHABILITAMOS EL COMPORTAMIENTO NORMAL
 }
 
@@ -892,6 +925,19 @@ function cargarMotivos(callback) {
 async function guardarPromocion() {
     if (!isValidDateDDMMYYYYHHMM($('#promocionFechaInicio').val()) || !isValidDateDDMMYYYYHHMM($('#promocionFechaFin').val())) {
         return Swal.fire('Validación', 'Fechas inválidas. Use el formato dd/mm/aaaa HH:mm.', 'warning');
+    }
+
+    // NUEVA VALIDACIÓN DE NEGOCIO
+    const idProvSeleccionado = parseInt($("#fondoProveedorId").val(), 10) || 0;
+    const idPropSeleccionado = parseInt($("#acuerdoPropioId").val(), 10) || 0;
+    const descTotal = parseFloat($("#descuentoTotal").val()) || 0;
+
+    if (idProvSeleccionado === 0 && idPropSeleccionado === 0) {
+        return Swal.fire('Validación', 'Debe seleccionar al menos un Acuerdo (Proveedor o Propio).', 'warning');
+    }
+
+    if (descTotal < 1) { // Valida que sea al menos 1% como mencionaste en tu requerimiento
+        return Swal.fire('Validación', 'El % Dscto Total debe ser igual o mayor a 1. Ingrese los valores respectivos.', 'warning');
     }
 
     const combos = await consultarCombos("TPMODIFICACION");
@@ -944,44 +990,63 @@ async function guardarPromocion() {
     // ACUERDOS CONTRUIDOS DESDE LOS CAMPOS DE LA LÍNEA 4
     // ==========================================================
     const acuerdosModificados = [];
+    const acuerdosBD = (promocionTemporal && promocionTemporal.acuerdos) ? promocionTemporal.acuerdos : [];
 
-    // 1. Acuerdo Proveedor
-    const idProv = parseInt($("#fondoProveedorId").val(), 10) || 0;
-    if (idProv > 0) {
-        let idPromocionAcuerdoProv = 0;
-        if (promocionTemporal && promocionTemporal.acuerdos) {
-            const acuerdoPrev = promocionTemporal.acuerdos.find(a => a.idacuerdo === idProv);
-            if (acuerdoPrev) idPromocionAcuerdoProv = acuerdoPrev.idpromocionacuerdo;
-        }
+    // Respetamos tu orden original: [0] es Prov, [1] es Propio
+    const acProvBD = acuerdosBD.length > 0 ? acuerdosBD[0] : null;
+    const acPropBD = acuerdosBD.length > 1 ? acuerdosBD[1] : null;
 
+    // --- 1. Acuerdo Proveedor ---
+    const idProvActual = parseInt($("#fondoProveedorId").val(), 10) || 0;
+
+    if (idProvActual > 0) {
+        // Hay un proveedor seleccionado (nuevo o actualizado)
         acuerdosModificados.push({
-            accion: idPromocionAcuerdoProv > 0 ? 'U' : 'I', // 'U' para Update, 'I' para Insert
-            idpromocionacuerdo: idPromocionAcuerdoProv,
-            idacuerdo: idProv,
+            accion: (acProvBD && acProvBD.idpromocionacuerdo) ? 'U' : 'I', // 'U' Update, 'I' Insert
+            idpromocionacuerdo: (acProvBD && acProvBD.idpromocionacuerdo) ? acProvBD.idpromocionacuerdo : 0,
+            idacuerdo: idProvActual,
             porcentajedescuento: parseFloat($("#descuentoProveedor").val()) || 0,
             valorcomprometido: parseCurrencyToNumber($("#fondoValorTotal").val()),
             porcentaje_descuento: parseFloat($("#descuentoProveedor").val()) || 0,
             valor_comprometido: parseCurrencyToNumber($("#fondoValorTotal").val())
         });
+    } else if (acProvBD && acProvBD.idpromocionacuerdo) {
+        // Estaba lleno en BD, pero lo borraron en pantalla -> ELIMINAR
+        acuerdosModificados.push({
+            accion: 'D', // IMPORTANTE: Usa 'D' (Delete) o 'E' (Eliminar) según lo que reciba tu API
+            idpromocionacuerdo: acProvBD.idpromocionacuerdo,
+            idacuerdo: acProvBD.idacuerdo, // Mandamos el viejo para evitar nulos
+            porcentajedescuento: 0,
+            valorcomprometido: 0,
+            porcentaje_descuento: 0,
+            valor_comprometido: 0
+        });
     }
 
-    // 2. Acuerdo Propio
-    const idProp = parseInt($("#acuerdoPropioId").val(), 10) || 0;
-    if (idProp > 0) {
-        let idPromocionAcuerdoProp = 0;
-        if (promocionTemporal && promocionTemporal.acuerdos) {
-            const acuerdoPrev = promocionTemporal.acuerdos.find(a => a.idacuerdo === idProp);
-            if (acuerdoPrev) idPromocionAcuerdoProp = acuerdoPrev.idpromocionacuerdo;
-        }
+    // --- 2. Acuerdo Propio ---
+    const idPropActual = parseInt($("#acuerdoPropioId").val(), 10) || 0;
 
+    if (idPropActual > 0) {
+        // Hay un acuerdo propio seleccionado (nuevo o actualizado)
         acuerdosModificados.push({
-            accion: idPromocionAcuerdoProp > 0 ? 'U' : 'I',
-            idpromocionacuerdo: idPromocionAcuerdoProp,
-            idacuerdo: idProp,
+            accion: (acPropBD && acPropBD.idpromocionacuerdo) ? 'U' : 'I',
+            idpromocionacuerdo: (acPropBD && acPropBD.idpromocionacuerdo) ? acPropBD.idpromocionacuerdo : 0,
+            idacuerdo: idPropActual,
             porcentajedescuento: parseFloat($("#descuentoPropio").val()) || 0,
             valorcomprometido: parseCurrencyToNumber($("#comprometidoPropio").val()),
             porcentaje_descuento: parseFloat($("#descuentoPropio").val()) || 0,
             valor_comprometido: parseCurrencyToNumber($("#comprometidoPropio").val())
+        });
+    } else if (acPropBD && acPropBD.idpromocionacuerdo) {
+        // Estaba lleno en BD, pero lo borraron en pantalla -> ELIMINAR
+        acuerdosModificados.push({
+            accion: 'D', // IMPORTANTE: Usa 'D' o 'E' 
+            idpromocionacuerdo: acPropBD.idpromocionacuerdo,
+            idacuerdo: acPropBD.idacuerdo,
+            porcentajedescuento: 0,
+            valorcomprometido: 0,
+            porcentaje_descuento: 0,
+            valor_comprometido: 0
         });
     }
 
