@@ -471,6 +471,7 @@ namespace AppAPL.Dto.Promocion
         public int IDPROMOCION { get; set; }
         public int IDACUERDO { get; set; }
         public string descripcion_acuerdo { get; set; }
+        public string nombre_proveedor { get; set; }
         public decimal porcentaje_descuento { get; set; }
         public decimal valor_comprometido { get; set; }
         public decimal valor_disponible { get; set; }
