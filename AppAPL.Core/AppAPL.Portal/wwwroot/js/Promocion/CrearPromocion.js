@@ -142,7 +142,8 @@
     // ==========================================
 
     function initValidacionesFinancieras() {
-
+        $("#descuentoProveedorGeneral, #fondoValorTotalGeneral").prop("disabled", true);
+        $("#descuentoPropioGeneral, #comprometidoPropioGeneral").prop("disabled", true);
         // --- VALIDACIONES DE PRESUPUESTO AL SALIR DEL CAMPO (BLUR) ---
         $("#fondoValorTotalGeneral").on("blur", function () {
             let valStr = $(this).val().replace(/[^0-9.]/g, '');
@@ -313,16 +314,19 @@
 
             // Limpiar Descuento Total
             $("#descuentoTotalGeneral").val("");
-        } else {
-            // Desbloquear ID Acuerdo Proveedor
+        }   else {
+            // Desbloquear SOLO el buscador de ID Acuerdo Proveedor
             $inputProv.prop("disabled", false).attr("placeholder", "Seleccione...");
             $btnProv.prop("disabled", false);
 
-            // Desbloquear % Dscto Prov.
-            $descuentoProv.prop("disabled", false);
-
-            // Desbloquear $ Comprometido Prov.
-            $comprometidoProv.prop("disabled", false);
+            // NUEVO: Solo desbloquear montos/descuentos si YA hay un ID seleccionado
+            if ($idProv.val() !== "") {
+                $descuentoProv.prop("disabled", false);
+                $comprometidoProv.prop("disabled", false);
+            } else {
+                $descuentoProv.prop("disabled", true);
+                $comprometidoProv.prop("disabled", true);
+            }
         }
     }
 
@@ -630,12 +634,18 @@
         $("#fondoProveedorGeneral").val(f.display);
         $("#fondoProveedorIdGeneral").val(f.idAcuerdo);
         $("#fondoDisponibleHiddenGeneral").val(f.disponible);
+
+        // NUEVO: Habilitar campos porque ya se seleccionó un Proveedor
+        $("#descuentoProveedorGeneral, #fondoValorTotalGeneral").prop("disabled", false);
     }
 
     function setFondoPropioEnForm(f) {
         $("#acuerdoPropioGeneral").val(f.display);
         $("#acuerdoPropioIdGeneral").val(f.idAcuerdo);
         $("#acuerdoPropioDisponibleHiddenGeneral").val(f.disponible);
+
+        // NUEVO: Habilitar campos porque ya se seleccionó un Propio
+        $("#descuentoPropioGeneral, #comprometidoPropioGeneral").prop("disabled", false);
     }
 
     // ==========================================
@@ -656,15 +666,15 @@
         $("#fondoProveedorGeneral").next("button").prop("disabled", false);
         $("#fondoProveedorIdGeneral").val("");
         $("#fondoDisponibleHiddenGeneral").val("");
-        $("#fondoValorTotalGeneral").val("").prop("disabled", false);
-        $("#descuentoProveedorGeneral").val("").prop("disabled", false);
+        $("#fondoValorTotalGeneral").val("").prop("disabled", true);
+        $("#descuentoProveedorGeneral").val("").prop("disabled", true);;
 
         // Acuerdo Propio
         $("#acuerdoPropioGeneral").val("");
         $("#acuerdoPropioIdGeneral").val("");
-        $("#acuerdoPropioDisponibleHiddenGeneral").val("");
-        $("#comprometidoPropioGeneral").val("");
-        $("#descuentoPropioGeneral").val("");
+        $("#acuerdoPropioDisponibleHiddenGeneral").val("");        
+        $("#comprometidoPropioGeneral").val("").prop("disabled", true);
+        $("#descuentoPropioGeneral").val("").prop("disabled", true);
 
         // Descuento Total
         $("#descuentoTotalGeneral").val("");
@@ -836,11 +846,17 @@
         const desc = $(`#descripcion${sufijo}`).val();
         const fechaInicio = getFullISOString(`#fechaInicio${sufijo}`, `#timeInicio${sufijo}`);
         const fechaFin = getFullISOString(`#fechaFin${sufijo}`, `#timeFin${sufijo}`);
+        const idProvSeleccionado = parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0;
+        const idPropSeleccionado = parseInt($("#acuerdoPropioIdGeneral").val(), 10) || 0;
 
         // 1. Validaciones iniciales
-        if (!motivo || !desc || !fechaInicio || !fechaFin) {
-            Swal.fire("Error", "Faltan datos obligatorios (Motivo, Descripción, Fechas)", "warning");
-            return;
+        if (idProvSeleccionado === 0 && idPropSeleccionado === 0) {
+            Swal.fire(
+                "Proveedor Requerido",
+                "Debe seleccionar al menos un Acuerdo (Proveedor o Propio) para calcular el Descuento Total.",
+                "warning"
+            );
+            return; // Detiene el guardado
         }
 
 

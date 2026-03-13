@@ -212,6 +212,14 @@
         display: block;
         width: 100%;
     }
+
+    /* ✅ Resalta visualmente los campos bloqueados */
+    input:disabled, select:disabled {
+        background-color: #e9ecef !important;
+        color: #6c757d !important;
+        cursor: not-allowed !important;
+        opacity: 1;
+    }
 </style>
 
 <h2>Modificación - Promociones</h2>
@@ -364,44 +372,57 @@
                         <label for="descuentoProveedor" class="form-label fw-bold label-una-linea" title="% Dscto Prov.">% Dscto Prov.</label>
                         <input type="text" class="form-control form-control-sm text-end" id="descuentoProveedor" placeholder="0.00">
                     </div>
-                    <div class="col-md-2 text-center px-1">
+
+                    <div class="col-md-3 text-center px-1">
                         <label for="fondoProveedorText" class="form-label fw-bold label-una-linea" title="ID Acuerdo Prov.">ID Acuerdo Prov.</label>
                         <div class="input-group input-group-sm">
                             <input type="hidden" id="fondoProveedorId">
                             <input type="hidden" id="fondoDisponibleProv">
                             <input type="text" class="form-control" id="fondoProveedorText" placeholder="Selec..." readonly>
-                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor">
+                            <button class="btn btn-outline-secondary" type="button" id="btnBuscarProv" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor" title="Buscar Acuerdo">
                                 <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" type="button" id="btnBorrarProv" title="Quitar Selección">
+                                <i class="fa-solid fa-eraser"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="col-md-2 text-center px-1">
+
+                    <div class="col-md-1 text-center px-1">
                         <label for="fondoValorTotal" class="form-label fw-bold label-una-linea" title="$ Compr. Prov.">$ Compr. Prov.</label>
                         <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotal" placeholder="0.00">
                     </div>
+
                     <div class="col-md-1 text-center px-1">
                         <label for="descuentoPropio" class="form-label fw-bold label-una-linea" title="% Dscto Propio">% Dscto Propio</label>
                         <input type="text" class="form-control form-control-sm text-end" id="descuentoPropio" placeholder="0.00">
                     </div>
-                    <div class="col-md-2 text-center px-1">
+
+                    <div class="col-md-3 text-center px-1">
                         <label for="acuerdoPropioText" class="form-label fw-bold label-una-linea" title="ID Acuerdo Propio">ID Acuerdo Propio</label>
                         <div class="input-group input-group-sm">
                             <input type="hidden" id="acuerdoPropioId">
                             <input type="hidden" id="acuerdoPropioDisponible">
                             <input type="text" class="form-control" id="acuerdoPropioText" placeholder="Selec..." readonly>
-                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdoPropio">
+                            <button class="btn btn-outline-secondary" type="button" id="btnBuscarPropio" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdoPropio" title="Buscar Acuerdo">
                                 <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" type="button" id="btnBorrarPropio" title="Quitar Selección">
+                                <i class="fa-solid fa-eraser"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="col-md-2 text-center px-1">
+
+                    <div class="col-md-1 text-center px-1">
                         <label for="comprometidoPropio" class="form-label fw-bold label-una-linea" title="$ Compr. Propio">$ Compr. Propio</label>
                         <input type="text" class="form-control form-control-sm text-end" id="comprometidoPropio" placeholder="0.00">
                     </div>
+
                     <div class="col-md-1 text-center px-1">
                         <label for="descuentoTotal" class="form-label fw-bold label-una-linea" title="% Dscto Total">% Dscto Total</label>
                         <input type="text" class="form-control form-control-sm text-end" id="descuentoTotal" placeholder="0.00" readonly disabled>
                     </div>
+
                     <div class="col-md-1 text-center px-1">
                         <label for="promocionMarcaRegalo" class="form-label fw-bold label-una-linea" title="Regalo">Regalo</label>
                         <div class="regalo-check-container">
@@ -532,6 +553,24 @@
                 <textarea class="form-control" style="height: 300px" id="txtListaClientes" placeholder="Ingrese códigos de cliente separados por coma o salto de línea..."></textarea>
             </div>
             <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarClientesEspecificos" data-bs-dismiss="modal">Aceptar</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalTipoClienteVarios" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Seleccionar Tipos de Cliente</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row m-2" id="bodyModalTipoCliente"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarTipoCliente" data-bs-dismiss="modal">Aceptar</button>
+            </div>
         </div>
     </div>
 </div>

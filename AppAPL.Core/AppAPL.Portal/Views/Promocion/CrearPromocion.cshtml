@@ -134,6 +134,14 @@
             max-width: 95vw !important;
             width: 95vw !important;
         }
+
+        /* ✅ Resalta visualmente los campos bloqueados */
+        input:disabled, select:disabled {
+            background-color: #e9ecef !important; /* Gris claro sutil (estilo Bootstrap) */
+            color: #6c757d !important; /* Texto un poco más tenue */
+            cursor: not-allowed !important; /* Cambia el cursor para que muestre el ícono de "prohibido" */
+            opacity: 1;
+        }
     </style>
 }
 
