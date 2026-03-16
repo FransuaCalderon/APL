@@ -888,7 +888,6 @@ function poblarFormulario(data) {
         acProp = acuerdos[1];
     }
 
-<<<<<<< HEAD
     // Limpiar campos antes de poblar (opcional, para evitar basura de registros anteriores)
     $(".inputs-acuerdos").val("");
 
@@ -911,8 +910,6 @@ function poblarFormulario(data) {
         $("#descuentoPropio, #acuerdoPropioId, #acuerdoPropioText, #comprometidoPropio").val("");
     }
 
-=======
->>>>>>> 52e72063398d5eb49c213cb6c230b43b49f411a6
     calcularTotalDescuento();
 
     // NUEVO: Validar bloqueo inicial según lo que vino de la Base de Datos
