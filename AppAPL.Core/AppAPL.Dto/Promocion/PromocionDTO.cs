@@ -479,6 +479,8 @@ namespace AppAPL.Dto.Promocion
         public int id_estado_detalle { get; set; }
         public string nombre_estado_detalle { get; set; }
         public string etiqueta_estado_detalle { get; set; }
+        public string etiqueta_tipo_fondo { get; set; }
+        public string etiqueta_clase_acuerdo { get; set; }
     }
 
     public class InactivarPromocionRequest

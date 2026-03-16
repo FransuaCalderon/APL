@@ -521,19 +521,18 @@ function poblarResumenAcuerdos(acuerdos) {
         return;
     }
 
-    const acProv = acuerdos.length > 0 ? acuerdos[0] : null;
-    const acProp = acuerdos.length > 1 ? acuerdos[1] : null;
+    // Búsqueda uno a uno por su etiqueta correspondiente
+    const acProv = acuerdos.find(a => a.etiqueta_tipo_fondo === "TFPROVEDOR");
+    const acProp = acuerdos.find(a => a.etiqueta_tipo_fondo === "TFPROPIO");
 
     if (acProv) {
         $("#verDsctoProv").val((acProv.porcentaje_descuento ?? 0) + "%");
-        // Modificado: Se incluye acProv.nombre_proveedor en la concatenación
         $("#verIdAcuerdoProv").val(`${acProv.idacuerdo ?? ""} - ${acProv.nombre_proveedor ?? ""} - ${acProv.descripcion_acuerdo ?? ""}`);
         $("#verComprometidoProv").val(formatearMoneda(acProv.valor_comprometido));
     }
 
     if (acProp) {
         $("#verDsctoProp").val((acProp.porcentaje_descuento ?? 0) + "%");
-        // Modificado: Se incluye acProp.nombre_proveedor en la concatenación
         $("#verIdAcuerdoProp").val(`${acProp.idacuerdo ?? ""} - ${acProp.nombre_proveedor ?? ""} - ${acProp.descripcion_acuerdo ?? ""}`);
         $("#verComprometidoProp").val(formatearMoneda(acProp.valor_comprometido));
     }

@@ -836,59 +836,11 @@ function poblarFormulario(data) {
     const marcaRegaloVal = (cab.marcaregalo || "").toString().trim();
     $('#promocionMarcaRegalo').prop('checked', marcaRegaloVal !== "" && marcaRegaloVal !== "N");
 
-    // LÍNEA 4 (ACUERDOS) PINTAR DESDE DB
+    // LÍNEA 4 (ACUERDOS) - BÚSQUEDA DIRECTA POR ETIQUETA
+    const acProv = acuerdos.find(a => a.etiqueta_tipo_fondo === "TFPROVEDOR");
+    const acProp = acuerdos.find(a => a.etiqueta_tipo_fondo === "TFPROPIO");
 
-    /*
-    const acProv = acuerdos.length > 0 ? acuerdos[0] : null;
-    const acProp = acuerdos.length > 1 ? acuerdos[1] : null;
-
-    // 1. Llenar Fondo Proveedor
-    if (acProv) {
-        $("#descuentoProveedor").val(acProv.porcentaje_descuento || 0);
-        $("#fondoProveedorId").val(acProv.idacuerdo || "");
-
-        let textoProv = "";
-        if (acProv.idacuerdo) {
-            textoProv = acProv.nombre_proveedor
-                ? `${acProv.idacuerdo} - ${acProv.nombre_proveedor} - ${acProv.descripcion_acuerdo || ""}`
-                : `${acProv.idacuerdo} - ${acProv.descripcion_acuerdo || ""}`;
-        }
-        $("#fondoProveedorText").val(textoProv);
-
-        $("#fondoValorTotal").val(formatCurrencySpanish(acProv.valor_comprometido || 0));
-    }
-
-    // 2. Llenar Acuerdo Propio (Ahora con el mismo formato de 3 campos)
-    if (acProp) {
-        $("#descuentoPropio").val(acProp.porcentaje_descuento || 0);
-        $("#acuerdoPropioId").val(acProp.idacuerdo || "");
-
-        let textoPropio = "";
-        if (acProp.idacuerdo) {
-            textoPropio = acProp.nombre_proveedor
-                ? `${acProp.idacuerdo} - ${acProp.nombre_proveedor} - ${acProp.descripcion_acuerdo || ""}`
-                : `${acProp.idacuerdo} - ${acProp.descripcion_acuerdo || ""}`;
-        }
-        $("#acuerdoPropioText").val(textoPropio);
-
-        $("#comprometidoPropio").val(formatCurrencySpanish(acProp.valor_comprometido || 0));
-    }*/
-
-
-   
-    let acProv = null;
-    let acProp = null;
-
-    if (acuerdos.length === 1) {
-        // Si solo hay uno, se asigna directamente a PROPIO
-        acProp = acuerdos[0];
-    } else if (acuerdos.length >= 2) {
-        // Si hay dos o más, el primero es Proveedor y el segundo es Propio
-        acProv = acuerdos[0];
-        acProp = acuerdos[1];
-    }
-
-    // Limpiar campos antes de poblar (opcional, para evitar basura de registros anteriores)
+    // Limpiar campos de acuerdos
     $(".inputs-acuerdos").val("");
 
     if (acProv) {
@@ -896,9 +848,6 @@ function poblarFormulario(data) {
         $("#fondoProveedorId").val(acProv.idacuerdo || "");
         $("#fondoProveedorText").val(acProv.idacuerdo ? `${acProv.idacuerdo} - ${acProv.descripcion_acuerdo || ""}` : "");
         $("#fondoValorTotal").val(formatCurrencySpanish(acProv.valor_comprometido || 0));
-    } else {
-        // Si no hay proveedor, podrías querer resetear los campos
-        $("#descuentoProveedor, #fondoProveedorId, #fondoProveedorText, #fondoValorTotal").val("");
     }
 
     if (acProp) {
@@ -906,8 +855,6 @@ function poblarFormulario(data) {
         $("#acuerdoPropioId").val(acProp.idacuerdo || "");
         $("#acuerdoPropioText").val(acProp.idacuerdo ? `${acProp.idacuerdo} - ${acProp.descripcion_acuerdo || ""}` : "");
         $("#comprometidoPropio").val(formatCurrencySpanish(acProp.valor_comprometido || 0));
-    } else {
-        $("#descuentoPropio, #acuerdoPropioId, #acuerdoPropioText, #comprometidoPropio").val("");
     }
 
     calcularTotalDescuento();
