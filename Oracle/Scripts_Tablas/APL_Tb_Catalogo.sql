@@ -139,6 +139,9 @@ VALUES ('Fondo Rebate', '', '', 10, 1, SYSDATE, NULL, NULL, 1, 'TFREBATE');
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Fondo Propio', '', '', 10, 1, SYSDATE, NULL, NULL, 1, 'TFPROPIO');
 
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Fondo Credito', '', '', 10, 1, SYSDATE, NULL, NULL, 1, 'TFCREDITO');
+
 -- Indicador Incremento
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
@@ -157,6 +160,9 @@ VALUES ('Modificacion', '', '', 12, 1, SYSDATE, NULL, NULL, 1, 'TPMODIFICACION')
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Aprobacion', '', '', 12, 1, SYSDATE, NULL, NULL, 1, 'TPAPROBACION');
+
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('AprobacionInactivacion', '', '', 12, 1, SYSDATE, NULL, NULL, 1, 'TPAPROBACIONINACTIVACION');
 
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Inactivacion', '', '', 12, 1, SYSDATE, NULL, NULL, 1, 'TPINACTIVACION');

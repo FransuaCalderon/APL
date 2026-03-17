@@ -1,28 +1,46 @@
 CREATE OR REPLACE PROCEDURE apl_sp_ListarArtefactaProveedores (
-    p_etiqueta IN VARCHAR2,        -- 'RUCPROPIO', 'TFREBATE', 'TFPROVEDOR'
+    p_etiqueta IN VARCHAR2,
     p_cursor   OUT SYS_REFCURSOR
 )
 AS
+    v_ruc VARCHAR2(13);
 BEGIN
-    IF UPPER(p_etiqueta) = 'RUCPROPIO' THEN
-        -- Fondo Propio: Solo mostrar RUC específico
+    -- Obtener RUC una sola vez
+    SELECT SUBSTR(ADICIONAL, 1, 13)
+      INTO v_ruc
+      FROM APL_TB_CATALOGO
+     WHERE IDETIQUETA = 'RUCPROPIO'
+       AND ROWNUM = 1;
+
+    IF UPPER(p_etiqueta) IN ('TFPROPIO', 'TFCREDITO') THEN
         OPEN p_cursor FOR
-            SELECT * 
-            FROM APL_TB_ARTEFACTA_PROVEEDOR
-            WHERE IDENTIFICACION = '1790895548001';
-            
+            SELECT CODIGO,
+                   IDENTIFICACION,
+                   NOMBRE,
+                   NOMBRECONTACTO1 AS CONTACTO,
+                   MAILCONTACTO1   AS MAIL
+              FROM APL_TB_ARTEFACTA_PROVEEDOR
+             WHERE IDENTIFICACION = v_ruc
+             ORDER BY CODIGO;
+
     ELSIF UPPER(p_etiqueta) IN ('TFREBATE', 'TFPROVEDOR') THEN
-        -- Rebate o Proveedor: Ocultar ese RUC
         OPEN p_cursor FOR
-            SELECT * 
-            FROM APL_TB_ARTEFACTA_PROVEEDOR
-            WHERE IDENTIFICACION != '1790895548001';
-            
+            SELECT CODIGO,
+                   IDENTIFICACION,
+                   NOMBRE,
+                   NOMBRECONTACTO1 AS CONTACTO,
+                   MAILCONTACTO1   AS MAIL
+              FROM APL_TB_ARTEFACTA_PROVEEDOR
+             WHERE IDENTIFICACION != v_ruc
+             ORDER BY CODIGO;
     ELSE
-        -- Otros casos: Mostrar todos
         OPEN p_cursor FOR
-            SELECT * 
-            FROM APL_TB_ARTEFACTA_PROVEEDOR;
+            SELECT CODIGO,
+                   IDENTIFICACION,
+                   NOMBRE,
+                   NOMBRECONTACTO1 AS CONTACTO,
+                   MAILCONTACTO1   AS MAIL
+              FROM APL_TB_ARTEFACTA_PROVEEDOR
+             ORDER BY CODIGO;
     END IF;
-    
 END apl_sp_ListarArtefactaProveedores;
