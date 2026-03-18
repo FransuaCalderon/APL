@@ -210,6 +210,14 @@ namespace AppAPL.Api.Handlers
 
                     var descuentoTotal3 = reqModif.Acuerdos[0].ValorComprometido + reqModif.Acuerdos[1].ValorComprometido;
 
+                    // Extraemos los acuerdos de forma segura (si no existen, serán null en lugar de dar error)
+                    var acProveedorReg = reqModif.Acuerdos.ElementAtOrDefault(0);
+                    var acProveedorAnt = promocionAntiguo.acuerdos.ElementAtOrDefault(0);
+
+                    var acPropioReg = reqModif.Acuerdos.ElementAtOrDefault(1);
+                    var acPropioAnt = promocionAntiguo.acuerdos.ElementAtOrDefault(1);
+
+
                     var camposBase3 = new Dictionary<string, string>
                     {
                         { "IdPromocion", Comparar(reqModif.IdPromocion.ToString(), promocionAntiguo.cabecera.IdPromocion.ToString()) },
@@ -236,20 +244,25 @@ namespace AppAPL.Api.Handlers
                             { "MedioPago",  mediospagos2 },
 
 
-                        // ACUERDO PROVEEDOR
-                        { "AcuerdoProveedor", Comparar(reqModif.Acuerdos[0].IdAcuerdo.ToString(),
-                                                      promocionAntiguo.acuerdos[0].IDACUERDO.ToString()) },
-                        { "PorcentajeProveedor", Comparar(reqModif.Acuerdos[0].PorcentajeDescuento.ToString("N2"),
-                                                         promocionAntiguo.acuerdos[0].porcentaje_descuento.ToString("N2")) },
-                        { "ValorComprometidoProveedor", Comparar(reqModif.Acuerdos[0].ValorComprometido.ToString("N2"),
-                                                                promocionAntiguo.acuerdos[0].valor_comprometido.ToString("N2")) },
-                        // ACUERDO PROPIO
-                        { "AcuerdoPropio", Comparar(reqModif.Acuerdos[1].IdAcuerdo.ToString(),
-                                                   promocionAntiguo.acuerdos[1].IDACUERDO.ToString()) },
-                        { "PorcentajePropio", Comparar(reqModif.Acuerdos[1].PorcentajeDescuento.ToString("N2"),
-                                                      promocionAntiguo.acuerdos[1].porcentaje_descuento.ToString("N2")) },
-                        { "ValorComprometidoPropio", Comparar(reqModif.Acuerdos[1].ValorComprometido.ToString("N2"),
-                                                             promocionAntiguo.acuerdos[1].valor_comprometido.ToString("N2")) },
+                        // --- ACUERDO PROVEEDOR ---
+                        { "AcuerdoProveedor", Comparar(acProveedorReg?.IdAcuerdo.ToString() ?? "",
+                                                      acProveedorAnt?.IDACUERDO.ToString() ?? "") },
+
+                        { "PorcentajeProveedor", Comparar(acProveedorReg?.PorcentajeDescuento.ToString("N2") ?? "0.00",
+                                                         acProveedorAnt?.porcentaje_descuento.ToString("N2") ?? "0.00") },
+
+                        { "ValorComprometidoProveedor", Comparar(acProveedorReg?.ValorComprometido.ToString("N2") ?? "0.00",
+                                                                acProveedorAnt?.valor_comprometido.ToString("N2") ?? "0.00") },
+
+                        // --- ACUERDO PROPIO ---
+                        { "AcuerdoPropio", Comparar(acPropioReg?.IdAcuerdo.ToString() ?? "",
+                                                   acPropioAnt?.IDACUERDO.ToString() ?? "") },
+
+                        { "PorcentajePropio", Comparar(acPropioReg?.PorcentajeDescuento.ToString("N2") ?? "0.00",
+                                                      acPropioAnt?.porcentaje_descuento.ToString("N2") ?? "0.00") },
+
+                        { "ValorComprometidoPropio", Comparar(acPropioReg?.ValorComprometido.ToString("N2") ?? "0.00",
+                                                             acPropioAnt?.valor_comprometido.ToString("N2") ?? "0.00") },
                         { "Firma", reqModif.Promocion.NombreUsuario } // Este no suele compararse, es quien firma la modif.
                     };
 

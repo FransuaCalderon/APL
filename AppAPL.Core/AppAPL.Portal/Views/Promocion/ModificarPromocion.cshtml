@@ -7,9 +7,17 @@
 @section Scripts {
     <script>window.usuarioActual = '@usuarioActual';</script>
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
-    <script src="~/js/Promocion/ModificarPromocion.js" asp-append-version="true"></script>
+    
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
+    <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
+
+
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 
+
+    <script src="~/js/Promocion/ModificarPromocion.js" asp-append-version="true"></script>
 }
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
@@ -18,6 +26,13 @@
     /* =====================================================
            ESTILOS PARA EL FORMULARIO DE MODIFICACIÓN (ORIGINALES)
         ===================================================== */
+
+    .ui-datepicker {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 0.9rem;
+        z-index: 1056 !important;
+    }
+
     #dvPromocionGeneral .form-control,
     #dvPromocionGeneral .form-select {
         font-size: 0.8rem;
@@ -275,6 +290,7 @@
                         <label for="promocionFechaInicio" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control form-control-sm" id="promocionFechaInicio" placeholder="dd/mm/aaaa">
+                            <input type="time" class="form-control form-control-sm" id="promocionHoraInicio" value="00:00">
                             <button class="btn btn-outline-secondary" type="button" id="btnFechaInicio">
                                 <i class="fa-regular fa-calendar"></i>
                             </button>
@@ -284,6 +300,7 @@
                         <label for="promocionFechaFin" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control form-control-sm" id="promocionFechaFin" placeholder="dd/mm/aaaa">
+                            <input type="time" class="form-control form-control-sm" id="promocionHoraFin" value="23:59">
                             <button class="btn btn-outline-secondary" type="button" id="btnFechaFin">
                                 <i class="fa-regular fa-calendar"></i>
                             </button>

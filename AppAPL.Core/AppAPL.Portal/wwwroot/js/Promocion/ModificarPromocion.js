@@ -67,6 +67,47 @@ function formatearFechaHora(fechaString) {
     return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
 }
 
+// Función auxiliar para validar y convertir la fecha
+function obtenerSoloFecha(fechaString) {
+    if (!fechaString || !fechaString.includes("T")) return "";
+
+    const parteFecha = fechaString.split("T")[0]; // "2026-03-19"
+    const [anio, mes, dia] = parteFecha.split("-");
+
+    return `${dia}/${mes}/${anio}`; // "19/03/2026"
+}
+
+// Retorna solo: HH:mm
+function obtenerSoloHora(fechaString) {
+    if (!fechaString || !fechaString.includes("T")) return "00:00";
+
+    // "2026-03-19T01:11:00" -> split por "T" -> ["2026-03-19", "01:11:00"]
+    const parteHora = fechaString.split("T")[1];
+
+    // Tomamos los primeros 5 caracteres: "01:11"
+    return parteHora.substring(0, 5);
+}
+
+// PRUEBA:
+// const api = "2026-03-19T01:11:00";
+// console.log(obtenerSoloHoraLiteral(api)); // Resultado: "01:11"
+
+function unirFechaHora(idInputFecha, idInputHora) {
+    const fechaValor = $(`#${idInputFecha}`).val(); // "27/03/2026"
+    const horaValor = $(`#${idInputHora}`).val();   // "06:17"
+
+    if (!fechaValor || !horaValor) return null;
+
+    // 1. Separamos dd/mm/aaaa
+    const [dia, mes, anio] = fechaValor.split('/');
+
+    // 2. Construimos el string manualmente con el formato que acepta .NET
+    // Resultado: "2026-03-27T06:17:00"
+    const fechaFinal = `${anio}-${mes}-${dia}T${horaValor}:00`;
+
+    return fechaFinal;
+}
+
 // Validación para aceptar el formato con hora opcional
 function isValidDateDDMMYYYYHHMM(s) {
     if (!s) return false;
@@ -585,6 +626,7 @@ $(document).ready(function () {
     cargarCombosPromociones();
     initLogicaSeleccionMultiple();
     initValidacionesFinancieras();
+    initDatepickers();
 
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
@@ -664,7 +706,7 @@ $(document).ready(function () {
         esArchivoValido('#inputArchivoSoporte', '#lblArchivoActual');
     });
 
-    initDatepickers();
+    
 
     // Eventos para Botones Borradores
     $("#btnBorrarProv").on("click", function () {
@@ -805,8 +847,32 @@ function poblarFormulario(data) {
     $('#verPromocionNum').val(cab.idpromocion);
     $('#modalTipoPromocion').val(cab.etiqueta_clase_promocion || "");
     $('#promocionDescripcion').val(cab.descripcion || "");
-    $('#promocionFechaInicio').val(formatearFechaHora(cab.fecha_inicio));
-    $('#promocionFechaFin').val(formatearFechaHora(cab.fecha_fin));
+
+
+
+    const fechaInicioFormateada = obtenerSoloFecha(cab.fecha_inicio);
+    const horaInicioFormateada = obtenerSoloHora(cab.fecha_inicio);
+
+    console.log("fechaInicioFormateada: ", fechaInicioFormateada);
+    console.log("horaInicioFormateada: ", horaInicioFormateada);
+
+    // Asignar a los inputs que tienes en tu HTML
+    $('#promocionFechaInicio').val(fechaInicioFormateada);
+    $('#promocionHoraInicio').val(horaInicioFormateada);
+
+
+
+    const fechaFinFormateada = obtenerSoloFecha(cab.fecha_fin);
+    const horaFinFormateada = obtenerSoloHora(cab.fecha_fin);
+
+    console.log("fechaFinFormateada: ", fechaInicioFormateada);
+    console.log("horaFinFormateada: ", horaInicioFormateada);
+
+
+    $('#promocionFechaFin').val(fechaFinFormateada);
+    $('#promocionHoraFin').val(horaFinFormateada);
+
+
     $('#verEstadoPromocion').val(cab.nombre_estado_promocion || cab.estado || "");
 
     const rutaSoporte = cab.archivosoporte || "";
@@ -1045,8 +1111,8 @@ async function guardarPromocion() {
         promocion: {
             descripcion: $('#promocionDescripcion').val(),
             motivo: parseInt($('#promocionMotivo').val(), 10) || 0,
-            fechahorainicio: toISOFromDDMMYYYYHHMM($('#promocionFechaInicio').val()),
-            fechahorafin: toISOFromDDMMYYYYHHMM($('#promocionFechaFin').val()),
+            fechahorainicio: unirFechaHora("promocionFechaInicio", "promocionHoraInicio"),
+            fechahorafin: unirFechaHora("promocionFechaFin", "promocionHoraFin"),
             marcaregalo: $('#promocionMarcaRegalo').is(':checked') ? "✓" : "",
             idusuariomodifica: obtenerUsuarioActual(), nombreusuario: obtenerUsuarioActual()
         },
@@ -1119,10 +1185,15 @@ function esArchivoValido(inputSelector, spanSelector) {
 
 function initDatepickers() {
     if (!$.datepicker) return;
+
+
     $.datepicker.setDefaults($.datepicker.regional["es"] || {});
     $('#promocionFechaInicio').datepicker({ dateFormat: "dd/mm/yy", onSelect: function () { const d = $(this).datepicker("getDate"); if (d) { d.setDate(d.getDate() + 1); $('#promocionFechaFin').datepicker("option", "minDate", d); } } });
+
     $('#promocionFechaFin').datepicker({ dateFormat: "dd/mm/yy", minDate: 1 });
+
     $('#btnFechaInicio').click(() => $('#promocionFechaInicio').datepicker('show'));
+
     $('#btnFechaFin').click(() => $('#promocionFechaFin').datepicker('show'));
 }
 
