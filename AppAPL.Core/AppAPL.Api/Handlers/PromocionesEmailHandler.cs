@@ -52,14 +52,14 @@ namespace AppAPL.Api.Handlers
                         logger.LogWarning("No existe Response body");
                         return;
                     }
-                    
+
 
 
                     // 1. Validación de seguridad para los Acuerdos
-                    if (reqCreacion.Acuerdos == null || reqCreacion.Acuerdos.Count < 2)
+                    if (reqCreacion.Acuerdos == null || !reqCreacion.Acuerdos.Any())
                     {
-                        logger.LogWarning("No se puede procesar el envío: Faltan acuerdos (Proveedor y Propio).");
-                        return; // O lanza una excepción controlada
+                        logger.LogWarning("No se puede procesar el envío: La lista de acuerdos es nula o está vacía.");
+                        return;
                     }
 
                     //proceso para obtener los proveedores de los acuerdos
@@ -169,10 +169,10 @@ namespace AppAPL.Api.Handlers
                     }
 
 
-                    if (reqModif.Acuerdos == null || reqModif.Acuerdos.Count < 2)
+                    if (reqModif.Acuerdos == null || !reqModif.Acuerdos.Any())
                     {
-                        logger.LogWarning("No se puede procesar el envío: Faltan acuerdos (Proveedor y Propio).");
-                        return; // O lanza una excepción controlada
+                        logger.LogWarning("No se puede procesar el envío: La lista de acuerdos es nula o está vacía.");
+                        return;
                     }
 
 
