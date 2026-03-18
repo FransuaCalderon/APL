@@ -38,10 +38,7 @@ AppAPL.Core/AppAPL.Dto/obj/
 *.pubxml
 *.pubxml.user
 
-# ========================
-# Archivos de configuración
-# ========================
-**/appsettings*.json
+
 
 # ========================
 # Logs
