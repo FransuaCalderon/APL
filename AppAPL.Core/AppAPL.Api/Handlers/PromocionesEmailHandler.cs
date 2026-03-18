@@ -208,7 +208,7 @@ namespace AppAPL.Api.Handlers
 
                     var motivo2 = await catalogoRepo.ObtenerPorIdAsync(reqModif.Promocion.Motivo);
 
-                    var descuentoTotal3 = reqModif.Acuerdos[0].ValorComprometido + reqModif.Acuerdos[1].ValorComprometido;
+                    var descuentoTotal3 = reqModif.Acuerdos?.Sum(a => a.ValorComprometido) ?? 0;
 
                     // Extraemos los acuerdos de forma segura (si no existen, serán null en lugar de dar error)
                     var acProveedorReg = reqModif.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
