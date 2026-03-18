@@ -211,11 +211,11 @@ namespace AppAPL.Api.Handlers
                     var descuentoTotal3 = reqModif.Acuerdos[0].ValorComprometido + reqModif.Acuerdos[1].ValorComprometido;
 
                     // Extraemos los acuerdos de forma segura (si no existen, serán null en lugar de dar error)
-                    var acProveedorReg = reqModif.Acuerdos.ElementAtOrDefault(0);
-                    var acProveedorAnt = promocionAntiguo.acuerdos.ElementAtOrDefault(0);
+                    var acProveedorReg = reqModif.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acProveedorAnt = promocionAntiguo.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo.Trim().ToUpper() == "TFPROVEDOR");
 
-                    var acPropioReg = reqModif.Acuerdos.ElementAtOrDefault(1);
-                    var acPropioAnt = promocionAntiguo.acuerdos.ElementAtOrDefault(1);
+                    var acPropioReg = reqModif.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+                    var acPropioAnt = promocionAntiguo.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo.Trim().ToUpper() == "TFPROPIO");
 
 
                     var camposBase3 = new Dictionary<string, string>

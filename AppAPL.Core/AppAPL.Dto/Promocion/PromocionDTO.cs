@@ -534,6 +534,7 @@ namespace AppAPL.Dto.Promocion
         public int IdAcuerdo { get; set; }
         public decimal PorcentajeDescuento { get; set; }
         public decimal ValorComprometido { get; set; }
+        public string? etiqueta_tipo_fondo { get; set; }
     }
 
 

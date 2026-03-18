@@ -1042,10 +1042,15 @@ async function guardarPromocion() {
     // ==========================================================
     const acuerdosModificados = [];
     const acuerdosBD = (promocionTemporal && promocionTemporal.acuerdos) ? promocionTemporal.acuerdos : [];
+    /*
+    const acProv = acuerdos.find(a => a.etiqueta_tipo_fondo === "TFPROVEDOR");
+    const acProp = acuerdos.find(a => a.etiqueta_tipo_fondo === "TFPROPIO");*/
+
+    console.log("acuerdosBD: ", acuerdosBD);
 
     // Respetamos tu orden original: [0] es Prov, [1] es Propio
-    const acProvBD = acuerdosBD.length > 0 ? acuerdosBD[0] : null;
-    const acPropBD = acuerdosBD.length > 1 ? acuerdosBD[1] : null;
+    const acProvBD = acuerdosBD.find(a => a.etiqueta_tipo_fondo === "TFPROVEDOR");
+    const acPropBD = acuerdosBD.find(a => a.etiqueta_tipo_fondo === "TFPROPIO");
 
     // --- 1. Acuerdo Proveedor ---
     const idProvActual = parseInt($("#fondoProveedorId").val(), 10) || 0;
@@ -1059,7 +1064,8 @@ async function guardarPromocion() {
             porcentajedescuento: parseFloat($("#descuentoProveedor").val()) || 0,
             valorcomprometido: parseCurrencyToNumber($("#fondoValorTotal").val()),
             porcentaje_descuento: parseFloat($("#descuentoProveedor").val()) || 0,
-            valor_comprometido: parseCurrencyToNumber($("#fondoValorTotal").val())
+            valor_comprometido: parseCurrencyToNumber($("#fondoValorTotal").val()),
+            etiqueta_tipo_fondo: acProvBD.etiqueta_tipo_fondo
         });
     } else if (acProvBD && acProvBD.idpromocionacuerdo) {
         // Estaba lleno en BD, pero lo borraron en pantalla -> ELIMINAR
@@ -1086,7 +1092,8 @@ async function guardarPromocion() {
             porcentajedescuento: parseFloat($("#descuentoPropio").val()) || 0,
             valorcomprometido: parseCurrencyToNumber($("#comprometidoPropio").val()),
             porcentaje_descuento: parseFloat($("#descuentoPropio").val()) || 0,
-            valor_comprometido: parseCurrencyToNumber($("#comprometidoPropio").val())
+            valor_comprometido: parseCurrencyToNumber($("#comprometidoPropio").val()),
+            etiqueta_tipo_fondo: acPropBD.etiqueta_tipo_fondo
         });
     } else if (acPropBD && acPropBD.idpromocionacuerdo) {
         // Estaba lleno en BD, pero lo borraron en pantalla -> ELIMINAR
