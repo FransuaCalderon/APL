@@ -1052,6 +1052,9 @@ async function guardarPromocion() {
     const acProvBD = acuerdosBD.find(a => a.etiqueta_tipo_fondo === "TFPROVEDOR");
     const acPropBD = acuerdosBD.find(a => a.etiqueta_tipo_fondo === "TFPROPIO");
 
+    console.log("acProvBD: ", acProvBD);
+    console.log("acPropBD: ", acPropBD);
+
     // --- 1. Acuerdo Proveedor ---
     const idProvActual = parseInt($("#fondoProveedorId").val(), 10) || 0;
 
@@ -1065,7 +1068,7 @@ async function guardarPromocion() {
             valorcomprometido: parseCurrencyToNumber($("#fondoValorTotal").val()),
             porcentaje_descuento: parseFloat($("#descuentoProveedor").val()) || 0,
             valor_comprometido: parseCurrencyToNumber($("#fondoValorTotal").val()),
-            etiqueta_tipo_fondo: acProvBD.etiqueta_tipo_fondo
+            etiqueta_tipo_fondo: "TFPROVEDOR"
         });
     } else if (acProvBD && acProvBD.idpromocionacuerdo) {
         // Estaba lleno en BD, pero lo borraron en pantalla -> ELIMINAR
@@ -1093,7 +1096,7 @@ async function guardarPromocion() {
             valorcomprometido: parseCurrencyToNumber($("#comprometidoPropio").val()),
             porcentaje_descuento: parseFloat($("#descuentoPropio").val()) || 0,
             valor_comprometido: parseCurrencyToNumber($("#comprometidoPropio").val()),
-            etiqueta_tipo_fondo: acPropBD.etiqueta_tipo_fondo
+            etiqueta_tipo_fondo: "TFPROPIO"
         });
     } else if (acPropBD && acPropBD.idpromocionacuerdo) {
         // Estaba lleno en BD, pero lo borraron en pantalla -> ELIMINAR
@@ -1133,6 +1136,7 @@ async function guardarPromocion() {
     };
 
     console.log("📤 Enviando JSON Modificar Promoción:", body);
+    return;
 
     Swal.fire({
         title: 'Confirmar Modificación', html: `¿Desea guardar los cambios de la Promoción <strong>#${body.idpromocion}</strong>?`, icon: 'warning',
