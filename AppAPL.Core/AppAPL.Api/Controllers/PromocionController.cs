@@ -250,6 +250,17 @@ namespace AppAPL.Api.Controllers
             }
         }
 
+        [HttpGet("acuerdos-promocion-articulos/{etiquetaTipoFondo}/{codigoItem}")]
+        public async Task<ActionResult<List<AcuerdoPromocionArticuloDTO>>> ConsultarAcuerdoPromocionArticulos(string etiquetaTipoFondo, string codigoItem)
+        {
+
+            var lista = await servicio.ConsultarAcuerdoPromocionArticulos(etiquetaTipoFondo, codigoItem);
+
+            return lista.ToList();
+
+        }
+
+
         [HttpPost("insertar")]
         [Email("ENTPROMOCION", TipoProceso.Creacion)]
         public async Task<ActionResult<ControlErroresDTO>> Insertar([FromBody] CrearPromocionRequestDTO promocion)

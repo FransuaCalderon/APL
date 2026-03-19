@@ -402,6 +402,32 @@ namespace AppAPL.Dto.Promocion
         public string estado_etiqueta { get; set; }
     }
 
+
+    public class AcuerdoPromocionArticuloDTO
+    {
+        public int idacuerdo { get; set; }
+        public string descripcion { get; set; }
+        public int idtipofondo { get; set; }
+        public int idfondo { get; set; }
+        public string nombre_tipo_fondo { get; set; }
+        public string etiqueta_tipo_fondo { get; set; }
+        public string nombre_proveedor { get; set; }
+        public string clase_acuerdo { get; set; }
+        public string etiqueta_clase_acuerdo { get; set; }
+        public int idtipoacuerdo { get; set; }
+        public decimal valor_acuerdo { get; set; }
+        public DateTime fecha_inicio { get; set; }
+        public DateTime fecha_fin { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public string estado { get; set; }
+        public string estado_etiqueta { get; set; }
+        public decimal valor_aporte_por_items { get; set; }
+        public decimal valor_comprometido_items { get; set; }
+        public int unidades_limite { get; set; }
+    }
+
     public class AprobarPromocionRequest
     {
         public int? Entidad { get; set; }
@@ -542,6 +568,8 @@ namespace AppAPL.Dto.Promocion
         public int codigoParametro { get; set; }
         public decimal costo { get; set; }
     }
+
+
 
 
 

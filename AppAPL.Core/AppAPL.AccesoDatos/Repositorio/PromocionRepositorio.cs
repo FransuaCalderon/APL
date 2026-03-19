@@ -662,7 +662,7 @@ namespace AppAPL.AccesoDatos.Repositorio
         {
             using var connection = factory.CreateOpenConnection();
 
-            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            
             var paramObject = new
             {
                 p_usuario = usuarioAprobador
@@ -688,6 +688,41 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
             
+            return datos;
+        }
+
+        public async Task<IEnumerable<AcuerdoPromocionArticuloDTO>> ConsultarAcuerdoPromocionArticulos(string etiquetaTipoFondo, string codigoItem)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+
+            var paramObject = new
+            {
+                p_etiqueta_tipo_fondo = etiquetaTipoFondo,
+                p_codigo_item = codigoItem
+
+            };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            /*
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<AcuerdoPromocionArticuloDTO>(
+                "apl_sp_consultar_acuerdos_promocion_articulos",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            /*
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");*/
+
             return datos;
         }
 

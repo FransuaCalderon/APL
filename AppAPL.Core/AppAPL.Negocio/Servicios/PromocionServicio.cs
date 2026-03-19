@@ -92,5 +92,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<ArticuloPromocionDTO>> ConsultarArticuloPromocion(int codigoArticulo)
             => repo.ConsultarArticuloPromocion(codigoArticulo);
+
+        public Task<IEnumerable<AcuerdoPromocionArticuloDTO>> ConsultarAcuerdoPromocionArticulos(string etiquetaTipoFondo, string codigoItem)
+            => repo.ConsultarAcuerdoPromocionArticulos(etiquetaTipoFondo, codigoItem);
     }
 }
