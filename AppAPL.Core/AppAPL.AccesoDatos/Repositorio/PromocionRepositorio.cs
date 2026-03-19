@@ -913,7 +913,9 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_json_promocion = JsonSerializer.Serialize(promocion.Promocion, options),
                 p_json_acuerdos = JsonSerializer.Serialize(promocion.Acuerdos, options),
                 p_json_segmentos = JsonSerializer.Serialize(promocion.Segmentos, options),
-                
+                p_json_articulos = JsonSerializer.Serialize(promocion.Articulos, options),
+
+
                 p_idopcion = promocion.IdOpcion,
                 p_idcontrolinterfaz = promocion.IdControlInterfaz,
                 p_idevento_etiqueta = promocion.IdEventoEtiqueta,

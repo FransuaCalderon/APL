@@ -97,7 +97,14 @@ namespace AppAPL.Api.Handlers
                     var motivo = await catalogoRepo.ObtenerPorIdAsync(reqCreacion.Promocion.Motivo);
 
 
-                    var descuentoTotal = reqCreacion.Acuerdos[0].ValorComprometido + reqCreacion.Acuerdos[1].ValorComprometido;
+                    var descuentoTotal = reqCreacion.Acuerdos?.Sum(a => a.ValorComprometido) ?? 0;
+
+                    // Extraemos los acuerdos de forma segura (si no existen, serán null en lugar de dar error)
+                    var acProveedorReg = reqCreacion.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acPropioReg = reqCreacion.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+                   
+
+
                     var camposBase = new Dictionary<string, string>
                         {
                            
@@ -121,13 +128,13 @@ namespace AppAPL.Api.Handlers
                             { "TipoCliente",  tiposclientes },
                             { "MedioPago",  mediospagos },
 
-                            { "AcuerdoProveedor",  reqCreacion.Acuerdos[0].IdAcuerdo.ToString() },
-                            { "PorcentajeProveedor",  reqCreacion.Acuerdos[0].PorcentajeDescuento.ToString("N2") },
-                            { "ValorComprometidoProveedor",  reqCreacion.Acuerdos[0].ValorComprometido.ToString("N2") },
+                            { "AcuerdoProveedor",  acProveedorReg?.IdAcuerdo.ToString() ?? "" },
+                            { "PorcentajeProveedor",  acProveedorReg?.PorcentajeDescuento.ToString("N2") ?? "" },
+                            { "ValorComprometidoProveedor",  acProveedorReg?.ValorComprometido.ToString("N2") ?? "" },
 
-                            { "AcuerdoPropio",  reqCreacion.Acuerdos[1].IdAcuerdo.ToString() },
-                            { "PorcentajePropio",  reqCreacion.Acuerdos[1].PorcentajeDescuento.ToString("N2") },
-                            { "ValorComprometidoPropio",  reqCreacion.Acuerdos[1].ValorComprometido.ToString("N2") },
+                            { "AcuerdoPropio",  acPropioReg?.IdAcuerdo.ToString() ?? "" },
+                            { "PorcentajePropio",  acPropioReg?.PorcentajeDescuento.ToString("N2") ?? "" },
+                            { "ValorComprometidoPropio",  acPropioReg?.ValorComprometido.ToString("N2") ?? "" },
 
                             { "Firma",  reqCreacion.Promocion.NombreUsuario },
                         };
@@ -211,18 +218,18 @@ namespace AppAPL.Api.Handlers
                     var descuentoTotal3 = reqModif.Acuerdos?.Sum(a => a.ValorComprometido) ?? 0;
 
                     // Extraemos los acuerdos de forma segura (si no existen, serán null en lugar de dar error)
-                    var acProveedorReg = reqModif.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
-                    var acProveedorAnt = promocionAntiguo.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo.Trim().ToUpper() == "TFPROVEDOR");
+                    var acProveedorReg2 = reqModif.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acProveedorAnt2 = promocionAntiguo.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo.Trim().ToUpper() == "TFPROVEDOR");
 
-                    var acPropioReg = reqModif.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
-                    var acPropioAnt = promocionAntiguo.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo.Trim().ToUpper() == "TFPROPIO");
+                    var acPropioReg2 = reqModif.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+                    var acPropioAnt2 = promocionAntiguo.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo.Trim().ToUpper() == "TFPROPIO");
 
 
                     var camposBase3 = new Dictionary<string, string>
                     {
                         { "IdPromocion", Comparar(reqModif.IdPromocion.ToString(), promocionAntiguo.cabecera.IdPromocion.ToString()) },
                         { "Descripcion", Comparar(reqModif.Promocion.Descripcion, promocionAntiguo.cabecera.Descripcion) },
-                        { "Motivo", Comparar(motivo2.Nombre, promocionAntiguo.cabecera.nombre_motivo) },
+                        { "Motivo", Comparar(motivo2?.Nombre ?? "", promocionAntiguo.cabecera.nombre_motivo) },
                         { "FechaInicio", Comparar(reqModif.Promocion.FechaHoraInicio.ToString("yyyy-MM-dd HH:mm"),
                                                   promocionAntiguo.cabecera.fecha_inicio.ToString("yyyy-MM-dd HH:mm")) },
                         { "FechaFin", Comparar(reqModif.Promocion.FechaHoraFin.ToString("yyyy-MM-dd HH:mm"),
@@ -245,24 +252,24 @@ namespace AppAPL.Api.Handlers
 
 
                         // --- ACUERDO PROVEEDOR ---
-                        { "AcuerdoProveedor", Comparar(acProveedorReg?.IdAcuerdo.ToString() ?? "",
-                                                      acProveedorAnt?.IDACUERDO.ToString() ?? "") },
+                        { "AcuerdoProveedor", Comparar(acProveedorReg2?.IdAcuerdo.ToString() ?? "",
+                                                      acProveedorAnt2?.IDACUERDO.ToString() ?? "") },
 
-                        { "PorcentajeProveedor", Comparar(acProveedorReg?.PorcentajeDescuento.ToString("N2") ?? "0.00",
-                                                         acProveedorAnt?.porcentaje_descuento.ToString("N2") ?? "0.00") },
+                        { "PorcentajeProveedor", Comparar(acProveedorReg2?.PorcentajeDescuento.ToString("N2") ?? "0.00",
+                                                         acProveedorAnt2?.porcentaje_descuento.ToString("N2") ?? "0.00") },
 
-                        { "ValorComprometidoProveedor", Comparar(acProveedorReg?.ValorComprometido.ToString("N2") ?? "0.00",
-                                                                acProveedorAnt?.valor_comprometido.ToString("N2") ?? "0.00") },
+                        { "ValorComprometidoProveedor", Comparar(acProveedorReg2?.ValorComprometido.ToString("N2") ?? "0.00",
+                                                                acProveedorAnt2?.valor_comprometido.ToString("N2") ?? "0.00") },
 
                         // --- ACUERDO PROPIO ---
-                        { "AcuerdoPropio", Comparar(acPropioReg?.IdAcuerdo.ToString() ?? "",
-                                                   acPropioAnt?.IDACUERDO.ToString() ?? "") },
+                        { "AcuerdoPropio", Comparar(acPropioReg2?.IdAcuerdo.ToString() ?? "",
+                                                   acPropioAnt2?.IDACUERDO.ToString() ?? "") },
 
-                        { "PorcentajePropio", Comparar(acPropioReg?.PorcentajeDescuento.ToString("N2") ?? "0.00",
-                                                      acPropioAnt?.porcentaje_descuento.ToString("N2") ?? "0.00") },
+                        { "PorcentajePropio", Comparar(acPropioReg2?.PorcentajeDescuento.ToString("N2") ?? "0.00",
+                                                      acPropioAnt2?.porcentaje_descuento.ToString("N2") ?? "0.00") },
 
-                        { "ValorComprometidoPropio", Comparar(acPropioReg?.ValorComprometido.ToString("N2") ?? "0.00",
-                                                             acPropioAnt?.valor_comprometido.ToString("N2") ?? "0.00") },
+                        { "ValorComprometidoPropio", Comparar(acPropioReg2?.ValorComprometido.ToString("N2") ?? "0.00",
+                                                             acPropioAnt2?.valor_comprometido.ToString("N2") ?? "0.00") },
                         { "Firma", reqModif.Promocion.NombreUsuario } // Este no suele compararse, es quien firma la modif.
                     };
 

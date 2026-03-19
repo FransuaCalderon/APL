@@ -3,6 +3,7 @@ using AppAPL.Dto.Acuerdo;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -432,8 +433,9 @@ namespace AppAPL.Dto.Promocion
 
         // Objetos que se enviarán como JSON (CLOB) al SP
         public PromocionDataDTO Promocion { get; set; } = new();
-        public List<AcuerdoDTO>? Acuerdos { get; set; }
-        public List<SegmentoDTO>? Segmentos { get; set; }
+        public List<AcuerdoDTO> Acuerdos { get; set; }
+        public List<SegmentoDTO> Segmentos { get; set; }
+        public List<ArticuloDTO>? Articulos { get; set; }
     }
 
     public class PromocionDataDTO
@@ -455,7 +457,8 @@ namespace AppAPL.Dto.Promocion
         public int IdAcuerdo { get; set; }
         public decimal PorcentajeDescuento { get; set; }
         public decimal ValorComprometido { get; set; }
-        
+        public string? etiqueta_tipo_fondo { get; set; }
+
     }
 
     public class SegmentoDTO
@@ -464,6 +467,83 @@ namespace AppAPL.Dto.Promocion
         public string TipoAsignacion { get; set; } = "T";        // 'T' (Todos) o 'C' (Codigos)
         public List<string> Codigos { get; set; } = new();       // Array de strings ["001", "002"]
     }
+
+
+    public class ArticuloDTO
+    {
+        [Required]
+        [StringLength(10)]
+        public string codigoItem { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100)]
+        public string descripcion { get; set; } = string.Empty;
+
+        public decimal costo { get; set; }
+        public int stockBodega { get; set; }
+        public int stockTienda { get; set; }
+        public int inventarioOptimo { get; set; }
+        public int excedenteUnidad { get; set; }
+        public decimal excedenteValor { get; set; }
+        public int m0Unidades { get; set; }
+        public decimal m0Precio { get; set; }
+        public int m1Unidades { get; set; }
+        public decimal m1Precio { get; set; }
+        public int m2Unidades { get; set; }
+        public decimal m2Precio { get; set; }
+        public decimal igualarPrecio { get; set; }
+        public int diasAntiguedad { get; set; }
+        public decimal margenMinimoContado { get; set; }
+        public decimal margenMinimoTarjetaCredito { get; set; }
+        public decimal margenMinimoCredito { get; set; }
+        public decimal margenMinimoIgualar { get; set; }
+        public int unidadesLimite { get; set; }
+        public int unidadesProyeccionVentas { get; set; }
+        public decimal precioListaContado { get; set; }
+        public decimal precioListaCredito { get; set; }
+        public decimal precioPromocionContado { get; set; }
+        public decimal precioPromocionTarjetaCredito { get; set; }
+        public decimal precioPromocionCredito { get; set; }
+        public decimal precioIgualarPrecio { get; set; }
+        public decimal descuentoPromocionContado { get; set; }
+        public decimal descuentoPromocionTarjetaCredito { get; set; }
+        public decimal descuentoPromocionCredito { get; set; }
+        public decimal descuentoIgualarPrecio { get; set; }
+        public decimal margenPrecioListaContado { get; set; }
+        public decimal margenPrecioListaCredito { get; set; }
+        public decimal margenPromocionContado { get; set; }
+        public decimal margenPromocionTarjetaCredito { get; set; }
+        public decimal margenPromocionCredito { get; set; }
+        public decimal margenIgualarPrecio { get; set; }
+
+        [RegularExpression("^[SN]$")]
+        public string marcaRegalo { get; set; } = "N";
+
+        // Listas internas (Sub-entidades)
+        public List<MedioPagoDto> mediosPago { get; set; } = new List<MedioPagoDto>();
+        public List<ArticuloAcuerdoDto> acuerdos { get; set; } = new List<ArticuloAcuerdoDto>();
+        public List<OtroCostoDto>? otrosCostos { get; set; }
+    }
+
+    public class MedioPagoDto
+    {
+        public string tipoAsignacion { get; set; } = "T";
+        public List<string> codigos { get; set; } = new List<string>();
+    }
+
+    public class ArticuloAcuerdoDto
+    {
+        public int idAcuerdo { get; set; }
+        public decimal valorAporte { get; set; }
+    }
+
+    public class OtroCostoDto
+    {
+        public int codigoParametro { get; set; }
+        public decimal costo { get; set; }
+    }
+
+
 
     public class AcuerdoBandAproDTO
     {

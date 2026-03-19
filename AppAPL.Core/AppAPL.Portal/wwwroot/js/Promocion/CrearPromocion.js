@@ -964,12 +964,14 @@
                     ...(idProveedorGeneral !== 0 ? [{
                         "idacuerdo": idProveedorGeneral,
                         "porcentajedescuento": parseFloat($("#descuentoProveedorGeneral").val()) || 0,
-                        "valorcomprometido": parseCurrency($("#fondoValorTotalGeneral").val())
+                        "valorcomprometido": parseCurrency($("#fondoValorTotalGeneral").val()),
+                        "etiqueta_tipo_fondo": "TFPROVEDOR"
                     }] : []),
                     ...(idProveedorPropio !== 0 ? [{
                         "idacuerdo": idProveedorPropio,
                         "porcentajedescuento": parseFloat($("#descuentoPropioGeneral").val()) || 0,
-                        "valorcomprometido": parseCurrency($("#comprometidoPropioGeneral").val())
+                        "valorcomprometido": parseCurrency($("#comprometidoPropioGeneral").val()),
+                        "etiqueta_tipo_fondo": "TFPROPIO"
                     }] : [])
                     
                 ],
@@ -985,6 +987,7 @@
             };
 
             console.log("body: ", body);
+
             // 5. Envío vía AJAX
             $.ajax({
                 url: "/api/apigee-router-proxy",
