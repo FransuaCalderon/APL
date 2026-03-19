@@ -552,84 +552,94 @@
 <!-- ========================================== -->
 <!-- FORMULARIO ARTÍCULOS                       -->
 <!-- ========================================== -->
-<form id="formArticulos" class="row g-1 mb-1 pb-1" style="display:none;">
-    <div class="col-md-3">
+<form id="formArticulos" class="row g-2 mb-1 pb-1" style="display:none;">
+
+    <div class="col-md-3 text-center">
         <label for="descripcionArticulos" class="form-label fw-bold col-form-label-sm">Descripción de la Promoción</label>
         <input type="text" class="form-control form-control-sm" id="descripcionArticulos" placeholder="Ingrese Descripción">
     </div>
 
-    <div class="col-md-2">
+    <div class="col-md-3 text-center">
         <label for="motivoArticulos" class="form-label fw-bold col-form-label-sm">Motivo</label>
         <select id="motivoArticulos" class="form-select form-select-sm">
             <option value="">Seleccione...</option>
-            <option value="1">Excedente</option>
-            <option value="2">Lenta Rotación</option>
-            <option value="3">Día de la Madre</option>
-            <option value="4">Día del Padre</option>
-            <option value="5">Black Friday</option>
         </select>
     </div>
 
-    <div class="col-md-2">
-        <label for="fechaInicioArticulos" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
+    <div class="col-md-3 text-center">
+        <label class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
         <div class="input-group input-group-sm">
-            <input id="fechaInicioArticulos" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicioArticulos">
-                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
-            </button>
+            <input type="text" class="form-control form-control-sm" id="fechaInicioArticulos" placeholder="dd/mm/aaaa" style="max-width: 55%;">
+            <input type="time" class="form-control form-control-sm" id="timeInicioArticulos" value="00:00">
+            <button class="btn btn-outline-secondary" type="button"><i class="fa-regular fa-calendar"></i></button>
         </div>
     </div>
 
-    <div class="col-md-2">
-        <label for="fechaFinArticulos" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
+    <div class="col-md-3 text-center">
+        <label class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
         <div class="input-group input-group-sm">
-            <input id="fechaFinArticulos" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaFinArticulos">
-                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
-            </button>
+            <input type="text" class="form-control form-control-sm" id="fechaFinArticulos" placeholder="dd/mm/aaaa" style="max-width: 55%;">
+            <input type="time" class="form-control form-control-sm" id="timeFinArticulos" value="23:59">
+            <button class="btn btn-outline-secondary" type="button"><i class="fa-regular fa-calendar"></i></button>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <label class="form-label fw-bold col-form-label-sm">Canal</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroCanalArticulos">
-            <option selected>Todos</option>
-            <option>Tienda Local</option>
-            <option>Tienda Virtual</option>
-            <option>Móvil</option>
-        </select>
-    </div>
-
-    <div class="col-md-3 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">Grupo Almacenes</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroGrupoAlmacenArticulos">
-            <option selected>Todos</option>
-            <option>Grupo 1</option>
-            <option>Grupo 2</option>
-        </select>
-    </div>
-
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">Almacén</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroAlmacenArticulos">
-            <option selected>Todos</option>
-            <option>Almacén 1</option>
-            <option>Almacén 2</option>
-        </select>
-    </div>
-
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+    <div class="col-md-3 text-center">
+        <label for="filtroCanalArticulos" class="form-label fw-bold col-form-label-sm">Canal</label>
         <div class="input-group input-group-sm">
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalClientesEspecificos">
-                <img src="~/img/ico/list-check.svg" alt="Lista">
+            <button id="btnCanalArticulos" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalCanal">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroCanalArticulos">
+                <option selected value="">Seleccione...</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-3 text-center">
+        <label for="filtroGrupoAlmacenArticulos" class="form-label fw-bold col-form-label-sm">Grupo Almacén</label>
+        <div class="input-group input-group-sm">
+            <button id="btnGrupoAlmacenArticulos" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalGrupoAlmacen">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroGrupoAlmacenArticulos">
+                <option selected value="">Seleccione...</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-3 text-center">
+        <label for="filtroAlmacenArticulos" class="form-label fw-bold col-form-label-sm">Almacén</label>
+        <div class="input-group input-group-sm">
+            <button id="btnAlmacenArticulos" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalAlmacen">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroAlmacenArticulos">
+                <option selected value="">Seleccione...</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-3 text-center">
+        <label for="tipoClienteArticulos" class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+        <div class="input-group input-group-sm">
+            <button id="btnListaClienteArticulos" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClientesEspecificos">
+                <i class="fa-solid fa-list-check"></i>
             </button>
             <select class="form-select" id="tipoClienteArticulos">
-                <option selected>Todos</option>
-                <option value="1">Especiales</option>
-                <option value="2">Frecuentes</option>
-                <option value="3">Lista Específica</option>
+                <option selected value="">Seleccione...</option>
             </select>
+        </div>
+    </div>
+
+    <div class="col-md-12 text-center mt-3">
+        <label for="inputFileArticulos" class="form-label fw-bold col-form-label-sm">Adjuntar Documento Soporte</label>
+        <div class="col-12 p-0">
+            <div class="input-group input-group-sm">
+                <label class="btn btn-secondary" for="inputFileArticulos">Buscar Archivo</label>
+                <input type="file" class="form-control d-none" id="inputFileArticulos" data-max-mb="@ViewBag.MaximoTamanoMB" accept="@ViewBag.ExtensionesPermitidas">
+                <span class="form-control" id="fileNameArticulos">Ningún archivo seleccionado</span>
+            </div>
         </div>
     </div>
 
@@ -639,7 +649,10 @@
         <div class="d-flex align-items-center gap-3 pt-2 pb-1">
             <button id="btnAddItemArticulos" type="button" class="btn btn-outline-primary border-0 d-flex align-items-center gap-1"
                     data-bs-toggle="modal" data-bs-target="#modalConsultaItems">
-                <i class="fa-regular fa-square-plus"></i> Añadir Item
+                <i class="fa-regular fa-square-plus"></i> Añadir
+            </button>
+            <button id="btnModifyItem" type="button" class="btn btn-outline-warning border-0 d-flex align-items-center gap-1">
+                <i class="fa-regular fa-pen-to-square"></i> Modificar
             </button>
             <button id="btnDeleteItemArticulos" type="button" class="btn btn-outline-danger border-0 d-flex align-items-center gap-1">
                 <i class="fa-regular fa-trash-can"></i> Eliminar
@@ -663,7 +676,8 @@
                 <table class="table table-bordered table-sm">
                     <thead class="sticky-top text-nowrap">
                         <tr class="text-center tabla-items-header">
-                            <th scope="col" class="table-sticky-col" style="min-width: 200px; background-color: #a4c995;">Artículo</th>
+                            <th scope="col" style="width: 40px; background-color: #a4c995;">Sel.</th>
+                            <th scope="col" class="table-sticky-col custom-header-cons-bg" style="min-width: 200px;">Artículo</th>
                             <th scope="col" class="custom-header-cons-bg">Costo</th>
                             <th scope="col" class="custom-header-cons-bg">Stock Bodega</th>
                             <th scope="col" class="custom-header-cons-bg">Stock Tienda</th>
@@ -707,7 +721,7 @@
                             <th scope="col" class="custom-header-calc-bg">Comp. Proveedor</th>
                             <th scope="col" class="custom-header-calc-bg">Comp. Rebate</th>
                             <th scope="col" class="custom-header-calc-bg">Comp. Propio</th>
-                            <th scope="col" class="custom-header-calc-bg">Regalo</th>
+                            <th scope="col" class="custom-header-ingr-bg">Regalo</th>
                         </tr>
                     </thead>
                     <tbody id="tablaArticulosBody" class="text-nowrap tabla-items-body">
@@ -1069,7 +1083,7 @@
 <!-- MODAL CONSULTA ITEMS                       -->
 <!-- ========================================== -->
 <div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable modal-pantalla-completa">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">Consulta de Items</h1>
@@ -1081,11 +1095,11 @@
                         <div class="card-header">Criterios de Selección</div>
                         <div class="card-body">
                             <form class="row g-2">
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <label class="form-label fw-bold col-form-label-sm text-center d-block">Marca</label>
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
                                         <div class="form-check">
-                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroMarcaModal" checked>
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroMarcaModal">
                                             <label class="form-check-label fw-bold">Todas</label>
                                         </div>
                                         <hr class="my-1">
@@ -1096,36 +1110,36 @@
                                     <label class="form-label fw-bold col-form-label-sm text-center d-block">División</label>
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
                                         <div class="form-check">
-                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDivisionModal" checked>
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDivisionModal">
                                             <label class="form-check-label fw-bold">Todas</label>
                                         </div>
                                         <hr class="my-1">
                                         <div id="filtroDivisionModal"></div>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold col-form-label-sm text-center d-block">Departamento</label>
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
                                         <div class="form-check">
-                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDepartamentoModal" checked>
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDepartamentoModal">
                                             <label class="form-check-label fw-bold">Todos</label>
                                         </div>
                                         <hr class="my-1">
                                         <div id="filtroDepartamentoModal"></div>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold col-form-label-sm text-center d-block">Clase</label>
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
                                         <div class="form-check">
-                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroClaseModal" checked>
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroClaseModal">
                                             <label class="form-check-label fw-bold">Todas</label>
                                         </div>
                                         <hr class="my-1">
                                         <div id="filtroClaseModal"></div>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-1">
                                     <label class="form-label fw-bold col-form-label-sm text-center d-block">Artículo</label>
                                     <input type="text" id="filtroArticuloModal" class="form-control form-control-sm" placeholder="Buscar...">
                                 </div>

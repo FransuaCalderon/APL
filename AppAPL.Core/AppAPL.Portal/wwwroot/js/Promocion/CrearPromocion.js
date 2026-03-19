@@ -7,23 +7,29 @@
     let idCatalogoGeneral = null;
     let idCatalogoArticulo = null;
     let idCatalogoCombos = null;
-
     let proveedorTemporal = null;
     let propioTemporal = null;
+    let dtItemsConsultaPromo = null;
 
     // Configuración para el manejo unificado de "Varios"
     // Mapea: Select -> Botón Apertura -> Modal Body -> Botón Aceptar Modal -> Valor Trigger "Varios"
     const CONFIG_MULTIPLE = [
-        // Jerarquía
+        // Jerarquía General
         { id: "marca", select: "#filtroMarcaGeneral", btnOpen: "#btnMarcaGeneral", body: "#bodyModalMarca", btnAccept: "#btnAceptarMarca", triggerVal: "3" },
         { id: "division", select: "#filtroDivisionGeneral", btnOpen: "#btnDivisionGeneral", body: "#bodyModalDivision", btnAccept: "#btnAceptarDivision", triggerVal: "3" },
         { id: "depto", select: "#filtroDepartamentoGeneral", btnOpen: "#btnDepartamentoGeneral", body: "#bodyModalDepartamento", btnAccept: "#btnAceptarDepartamento", triggerVal: "3" },
         { id: "clase", select: "#filtroClaseGeneral", btnOpen: "#btnClaseGeneral", body: "#bodyModalClase", btnAccept: "#btnAceptarClase", triggerVal: "3" },
-        // Otros Filtros
+
+        // Otros Filtros General
         { id: "canal", select: "#filtroCanalGeneral", btnOpen: "#btnCanalGeneral", body: "#bodyModalCanal", btnAccept: "#btnAceptarCanal", triggerVal: "3" },
         { id: "grupo", select: "#filtroGrupoAlmacenGeneral", btnOpen: "#btnGrupoAlmacenGeneral", body: "#bodyModalGrupoAlmacen", btnAccept: "#btnAceptarGrupoAlmacen", triggerVal: "3" },
         { id: "almacen", select: "#filtroAlmacenGeneral", btnOpen: "#btnAlmacenGeneral", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" },
-        { id: "mediopago", select: "#filtroMedioPagoGeneral", btnOpen: "#btnMedioPagoGeneral", body: "#bodyModalMedioPago", btnAccept: "#btnAceptarMedioPago", triggerVal: "7" }
+        { id: "mediopago", select: "#filtroMedioPagoGeneral", btnOpen: "#btnMedioPagoGeneral", body: "#bodyModalMedioPago", btnAccept: "#btnAceptarMedioPago", triggerVal: "7" },
+
+        // --- NUEVOS: Filtros Artículos ---
+        { id: "canalArticulos", select: "#filtroCanalArticulos", btnOpen: "#btnCanalArticulos", body: "#bodyModalCanal", btnAccept: "#btnAceptarCanal", triggerVal: "3" },
+        { id: "grupoArticulos", select: "#filtroGrupoAlmacenArticulos", btnOpen: "#btnGrupoAlmacenArticulos", body: "#bodyModalGrupoAlmacen", btnAccept: "#btnAceptarGrupoAlmacen", triggerVal: "3" },
+        { id: "almacenArticulos", select: "#filtroAlmacenArticulos", btnOpen: "#btnAlmacenArticulos", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" }
     ];
 
     // ==========================================
@@ -233,7 +239,11 @@
                 if (val === conf.triggerVal) {
                     $(conf.btnOpen).removeClass("d-none");
 
-                    // NUEVO: Simular clic para abrir el modal automáticamente
+                    // NUEVO: Guardar en el botón Aceptar quién lo invocó (General o Artículos)
+                    $(conf.btnAccept).data("target-btn", conf.btnOpen);
+                    $(conf.btnAccept).data("target-body", conf.body);
+                    $(conf.btnAccept).data("target-id", conf.id);
+
                     setTimeout(() => {
                         $(conf.btnOpen)[0].click();
                     }, 50);
@@ -245,31 +255,41 @@
                     $(conf.btnOpen).removeClass("btn-success").addClass("btn-outline-secondary");
                 }
 
-                // MODIFICADO: Lógica de bloqueo para Marca
-                if (conf.id === "marca") {
+                if (conf.id === "marca" || conf.id === "marcaArticulos") {
                     if (val === "TODAS") {
-                        // "Todas" seleccionada -> Bloquear Proveedor
                         validarBloqueoProveedor(true);
-                    } else if (val === conf.triggerVal) {
-                        // "Varios" -> esperar a que el modal confirme la cantidad
-                        // No hacer nada aquí, se maneja en btnAccept
-                    } else if (val !== "" && val !== "TODAS") {
-                        // Una marca específica seleccionada -> Desbloquear
+                    } else if (val !== "" && val !== conf.triggerVal) {
                         validarBloqueoProveedor(false);
-                    } else {
-                        // "Seleccione..." (val === "") -> Desbloquear
+                    } else if (val === "") {
                         validarBloqueoProveedor(false);
                     }
                 }
             });
 
-            $(conf.btnAccept).off("click").on("click", function () {
+            // Si el usuario da clic manual al botoncito azul para reabrir
+            $(conf.btnOpen).off("click.setTarget").on("click.setTarget", function () {
+                $(conf.btnAccept).data("target-btn", conf.btnOpen);
+                $(conf.btnAccept).data("target-body", conf.body);
+                $(conf.btnAccept).data("target-id", conf.id);
+            });
+        });
+
+        // Unificar el evento 'click' para todos los botones de Aceptar (evita que se sobreescriban)
+        const uniqueAcceptBtns = [...new Set(CONFIG_MULTIPLE.map(c => c.btnAccept))];
+        uniqueAcceptBtns.forEach(btnAcceptSelector => {
+            $(btnAcceptSelector).off("click.acceptMulti").on("click.acceptMulti", function () {
+                const targetBtnSelector = $(this).data("target-btn");
+                const targetBodySelector = $(this).data("target-body");
+                const targetId = $(this).data("target-id");
+
+                if (!targetBtnSelector) return;
+
                 const seleccionados = [];
-                $(`${conf.body} input[type='checkbox']:checked`).each(function () {
+                $(`${targetBodySelector} input[type='checkbox']:checked`).each(function () {
                     seleccionados.push($(this).val());
                 });
 
-                const $btnTrigger = $(conf.btnOpen);
+                const $btnTrigger = $(targetBtnSelector);
                 $btnTrigger.data("seleccionados", seleccionados);
 
                 if (seleccionados.length > 0) {
@@ -280,12 +300,9 @@
                     $btnTrigger.html(`<i class="fa-solid fa-list-check"></i>`);
                 }
 
-                // MODIFICADO: Bloquear si más de 1 marca seleccionada en Varios
-                if (conf.id === "marca") {
+                if (targetId === "marca" || targetId === "marcaArticulos") {
                     validarBloqueoProveedor(seleccionados.length > 1);
                 }
-
-                console.log(`Guardado ${conf.id}:`, seleccionados);
             });
         });
     }
@@ -336,7 +353,6 @@
 
     function cargarTiposPromocion(callback) {
         const idOpcion = getIdOpcionSeguro();
-        if (!idOpcion) return;
         const $select = $("#promocionTipo");
 
         const payload = {
@@ -452,9 +468,11 @@
                 llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
                 llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo");
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Seleccione...", "3", "almacen");
-
-                // Usamos el arreglo filtrado
                 llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
+                
+                $("#filtroCanalArticulos").html($("#filtroCanalGeneral").html());
+                $("#filtroGrupoAlmacenArticulos").html($("#filtroGrupoAlmacenGeneral").html());
+                $("#filtroAlmacenArticulos").html($("#filtroAlmacenGeneral").html());
 
                 // Llenar Selects y Modal de Tipo Cliente
                 const $cliGen = $("#tipoClienteGeneral");
@@ -652,7 +670,6 @@
     // RESET FORMULARIO
     // ==========================================
     function resetearFormulario(sufijo) {
-        // Campos básicos
         $(`#motivo${sufijo}`).val("").trigger("change");
         $(`#descripcion${sufijo}`).val("");
         $(`#fechaInicio${sufijo}`).val("");
@@ -661,25 +678,21 @@
         $(`#timeFin${sufijo}`).val("");
         $("#regaloGeneral").prop("checked", false);
 
-        // Acuerdo Proveedor
         $("#fondoProveedorGeneral").val("").prop("disabled", false).attr("placeholder", "Seleccione...");
         $("#fondoProveedorGeneral").next("button").prop("disabled", false);
         $("#fondoProveedorIdGeneral").val("");
         $("#fondoDisponibleHiddenGeneral").val("");
         $("#fondoValorTotalGeneral").val("").prop("disabled", true);
-        $("#descuentoProveedorGeneral").val("").prop("disabled", true);;
+        $("#descuentoProveedorGeneral").val("").prop("disabled", true);
 
-        // Acuerdo Propio
         $("#acuerdoPropioGeneral").val("");
         $("#acuerdoPropioIdGeneral").val("");
-        $("#acuerdoPropioDisponibleHiddenGeneral").val("");        
+        $("#acuerdoPropioDisponibleHiddenGeneral").val("");
         $("#comprometidoPropioGeneral").val("").prop("disabled", true);
         $("#descuentoPropioGeneral").val("").prop("disabled", true);
 
-        // Descuento Total
         $("#descuentoTotalGeneral").val("");
 
-        // Filtros múltiples: selects, botones y checkboxes
         CONFIG_MULTIPLE.forEach(conf => {
             $(conf.select).val("").trigger("change");
             $(conf.btnOpen).addClass("d-none");
@@ -689,57 +702,18 @@
             $(`${conf.body} input[type='checkbox']`).prop("checked", false);
         });
 
-        // Tipo Cliente (Unificado para General, Artículos y Combos)
-        $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").off("change").on("change", function () {
-            const val = $(this).val();
-            const idSelect = $(this).attr("id");
-            let $btn;
+        $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").val("").trigger("change");
 
-            // Determinar botón
-            if (idSelect === "tipoClienteGeneral") $btn = $("#btnListaClienteGeneral");
-            else if (idSelect === "tipoClienteCombos") $btn = $("#btnListaClienteCombos");
-            else if (idSelect === "tipoClienteArticulos") $btn = $(this).parent().find("button");
-
-            if (!$btn) return;
-
-            if (val === "3") {
-                // 3: LISTA ESPECÍFICA (Archivo)
-                $btn.removeClass("d-none btn-success").addClass("btn-outline-secondary");
-                $btn.attr("data-bs-target", "#ModalClientesEspecificos");
-                $btn.html(`<i class="fa-solid fa-list-check"></i>`);
-                // Forzar apertura del modal correcto
-                $("#ModalClientesEspecificos").modal("show");
-
-            } else if (val === "4") {
-                // 4: Varios (Checkboxes)
-                $btn.removeClass("d-none");
-                $btn.attr("data-bs-target", "#ModalTipoClienteVarios");
-                // Forzar apertura del modal correcto
-                $("#ModalTipoClienteVarios").modal("show");
-
-            } else {
-                // TODOS U OTRA OPCIÓN
-                $btn.addClass("d-none");
-                $btn.removeData("seleccionados");
-                $btn.html(`<i class="fa-solid fa-list-check"></i>`);
-                $btn.removeClass("btn-success").addClass("btn-outline-secondary");
-            }
-        });
-
-        // Archivo
         $("#inputGroupFile24").val("");
         const fileNameSpan = document.getElementById("fileName");
         if (fileNameSpan) fileNameSpan.textContent = "";
 
-        // Artículo
         $("#chkArticuloGeneral").prop("checked", false).trigger("change");
         $("#articuloGeneral").val("").prop("disabled", true);
 
-        // Variables temporales
         proveedorTemporal = null;
         propioTemporal = null;
 
-        // Clases de validación visual
         $(".is-invalid").removeClass("is-invalid");
     }
 
@@ -1059,16 +1033,13 @@
             $(`${conf.body} input[type='checkbox']`).prop("checked", false);
         });
 
-        // --- Tipo Cliente ---
-        $("#tipoClienteGeneral").val("").trigger("change");
-        $("#btnListaClienteGeneral").addClass("d-none").removeData("seleccionados");
-        $("#btnListaClienteGeneral").html(`<i class="fa-solid fa-list-check"></i>`);
+        // --- Tipo Cliente (Resetea los 3 selects de golpe) ---
+        $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").val("").trigger("change");
 
         // --- Archivo ---
-        $("#inputGroupFile24").val("");
-        $("#fileName").textContent = "";  // Si usas span de nombre
-        const fileNameSpan = document.getElementById("fileName");
-        if (fileNameSpan) fileNameSpan.textContent = "";
+        $("#inputGroupFile24, #inputFileArticulos").val("");
+        if (document.getElementById("fileName")) document.getElementById("fileName").textContent = "";
+        if (document.getElementById("fileNameArticulos")) document.getElementById("fileNameArticulos").textContent = "";
 
         // --- Artículo (si aplica) ---
         $("#chkArticuloGeneral").prop("checked", false).trigger("change");
@@ -1116,6 +1087,246 @@
         // Si todo está bien
         if (fileNameSpan) fileNameSpan.textContent = file.name;
         return true;
+    }
+
+    // ==========================================
+    // CONSULTA DE ITEMS (MODAL ARTÍCULOS)
+    // ==========================================
+
+    function cargarFiltrosItemsPromocion() {
+        $("#filtroMarcaModal").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
+        $("#filtroDivisionModal").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
+        $("#filtroDepartamentoModal").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
+        $("#filtroClaseModal").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Acuerdo/consultar-combos",
+            client: "APL",
+            endpoint_query_params: ""
+        };
+
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (res) {
+                const data = res.json_response || {};
+
+                const llenarFiltro = (containerId, items, label) => {
+                    const $container = $(`#${containerId}`);
+                    $container.empty();
+                    if (Array.isArray(items) && items.length > 0) {
+                        items.forEach(item => {
+                            $container.append(`
+                            <div class="form-check">
+                                <input class="form-check-input filtro-item-checkbox" type="checkbox"
+                                       id="${containerId}_${item.codigo}" value="${item.nombre}">
+                                <label class="form-check-label" for="${containerId}_${item.codigo}">${item.nombre}</label>
+                            </div>
+                        `);
+                        });
+                    } else {
+                        $container.html(`<small class="text-muted">No hay ${label} disponibles</small>`);
+                    }
+                };
+
+                llenarFiltro("filtroMarcaModal", data.marcas, "marcas");
+                llenarFiltro("filtroDivisionModal", data.divisiones, "divisiones");
+                llenarFiltro("filtroDepartamentoModal", data.departamentos, "departamentos");
+                llenarFiltro("filtroClaseModal", data.clases, "clases");
+
+                initFiltrosModalItems();
+            },
+            error: function () {
+                const errorMsg = '<small class="text-danger">Error al cargar</small>';
+                $("#filtroMarcaModal, #filtroDivisionModal, #filtroDepartamentoModal, #filtroClaseModal").html(errorMsg);
+            }
+        });
+    }
+
+    function initFiltrosModalItems() {
+        $(".filtro-todas").off("change").on("change", function () {
+            const targetId = $(this).data("target");
+            const isChecked = $(this).is(":checked");
+            $(`#${targetId} .filtro-item-checkbox`).prop("checked", isChecked);
+        });
+
+        $(document).off("change.filtroItem", ".filtro-item-checkbox").on("change.filtroItem", ".filtro-item-checkbox", function () {
+            const $container = $(this).closest(".border.rounded");
+            const $checkboxTodas = $container.find(".filtro-todas");
+            const $todos = $container.find(".filtro-item-checkbox");
+            $checkboxTodas.prop("checked", $todos.length === $todos.filter(":checked").length);
+        });
+    }
+
+    function getSelectedFilterValuesPromo(containerId) {
+        const valores = [];
+        $(`#${containerId} .filtro-item-checkbox:checked`).each(function () {
+            valores.push($(this).val());
+        });
+        return valores;
+    }
+
+    function consultarItemsPromocion(filtros) {
+        if (dtItemsConsultaPromo) {
+            dtItemsConsultaPromo.clear().draw();
+            $('.dataTables_empty').text("Cargando resultados...");
+        }
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "POST",
+            endpoint_path: "api/Acuerdo/consultar-articulos",
+            client: "APL",
+            body_request: filtros
+        };
+
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (res) {
+                const data = res.json_response || [];
+
+                const filas = data.map(item => {
+                    return [
+                        `<input type="checkbox" class="form-check-input item-checkbox"
+                        data-codigo="${item.codigo || item.iditem || ''}"
+                        data-descripcion="${item.descripcion || item.nombre || ''}"
+                        data-costo="${item.costo || 0}"
+                        data-stock="${item.stock || 0}"
+                        data-optimo="${item.optimo || 0}"
+                        data-excedenteu="${item.excedente_u || 0}"
+                        data-excedentes="${item.excedente_s || 0}"
+                        data-m0u="${item.m0_u || 0}"
+                        data-m0s="${item.m0_s || 0}"
+                        data-m1u="${item.m1_u || 0}"
+                        data-m1s="${item.m1_s || 0}"
+                        data-m2u="${item.m2_u || 0}"
+                        data-m2s="${item.m2_s || 0}">`,
+                        item.codigo || item.iditem || "",
+                        item.descripcion || item.nombre || "",
+                        formatCurrencySpanish(item.costo || 0),
+                        item.stock || 0,
+                        item.optimo || 0,
+                        item.excedente_u || 0,
+                        formatCurrencySpanish(item.excedente_s || 0),
+                        item.m0_u || 0,
+                        formatCurrencySpanish(item.m0_s || 0),
+                        item.m1_u || 0,
+                        formatCurrencySpanish(item.m1_s || 0),
+                        item.m2_u || 0,
+                        formatCurrencySpanish(item.m2_s || 0)
+                    ];
+                });
+
+                if (dtItemsConsultaPromo) {
+                    dtItemsConsultaPromo.clear();
+                    dtItemsConsultaPromo.rows.add(filas);
+                    dtItemsConsultaPromo.draw();
+                }
+
+                $("#buscarItemModal").off("keyup").on("keyup", function () {
+                    if (dtItemsConsultaPromo) {
+                        dtItemsConsultaPromo.search($(this).val()).draw();
+                    }
+                });
+            },
+            error: function () {
+                if (dtItemsConsultaPromo) {
+                    dtItemsConsultaPromo.clear().draw();
+                    $('.dataTables_empty').html('<span class="text-danger">Error al cargar items.</span>');
+                }
+            }
+        });
+    }
+
+    function agregarItemsATablaArticulos(items) {
+        const $tbody = $("#tablaArticulosBody");
+        let itemsNuevos = 0;
+
+        items.forEach(item => {
+            const existe = $tbody.find(`tr[data-codigo="${item.codigo}"]`).length > 0;
+            if (existe) return;
+
+            itemsNuevos++;
+            const fila = `
+        <tr data-codigo="${item.codigo}">
+            <td class="text-center align-middle">
+                <input type="radio" class="form-check-input item-row-radio" name="itemArticuloSel">
+            </td>
+            <td class="align-middle table-sticky-col">${item.codigo} - ${item.descripcion}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.costo)}</td>
+            <td class="align-middle text-end">${item.stock || 0}</td>
+            <td class="align-middle text-end">0</td>
+            <td class="align-middle text-end">${item.optimo || 0}</td>
+            <td class="align-middle text-end">${item.excedenteu || 0}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.excedentes || 0)}</td>
+            <td class="align-middle text-end">${item.m0u || 0}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.m0s || 0)}</td>
+            <td class="align-middle text-end">${item.m1u || 0}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.m1s || 0)}</td>
+            <td class="align-middle text-end">${item.m2u || 0}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.m2s || 0)}</td>
+            <td class="align-middle text-end">0</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0" min="0" disabled></td>
+            <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0" min="0" disabled></td>
+            <td class="align-middle celda-editable">
+    <select class="form-select form-select-sm select-mediopago-articulo" disabled>
+        ${$("#filtroMedioPagoGeneral").html()}
+    </select>
+</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
+            <td class="align-middle celda-editable text-center"><input class="form-check-input" type="checkbox" disabled></td>
+        </tr>`;
+            $tbody.append(fila);
+        });
+
+        // Lógica de selección de radio buttons
+        $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
+            $("#tablaArticulosBody tr").removeClass("table-active");
+            $("#tablaArticulosBody .celda-editable input, #tablaArticulosBody .celda-editable button, #tablaArticulosBody .celda-editable select").prop("disabled", true);
+
+            const $fila = $(this).closest("tr");
+            $fila.addClass("table-active");
+            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").prop("disabled", false);
+        });
+
+        // Auto-seleccionar el primero si no hay ninguno seleccionado
+        if (itemsNuevos > 0 && $tbody.find(".item-row-radio:checked").length === 0) {
+            const $primeraFila = $tbody.find("tr").first();
+            $primeraFila.find(".item-row-radio").prop("checked", true).trigger("change");
+        }
     }
 
     // ==========================================
@@ -1173,29 +1384,41 @@
         });
 
         // Tipo Cliente
-        $("#tipoClienteGeneral").off("change").on("change", function () {
+        $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").off("change").on("change", function () {
             const val = $(this).val();
-            const $btn = $("#btnListaClienteGeneral");
+            const idSelect = $(this).attr("id");
+            let $btn;
+
+            if (idSelect === "tipoClienteGeneral") $btn = $("#btnListaClienteGeneral");
+            else if (idSelect === "tipoClienteArticulos") $btn = $("#btnListaClienteArticulos");
+            else if (idSelect === "tipoClienteCombos") $btn = $("#btnListaClienteCombos");
+
+            if (!$btn) return;
 
             if (val === "3") {
-                // 3: Lista Específica
-                $btn.removeClass("d-none");
+                $btn.removeClass("d-none btn-success").addClass("btn-outline-secondary");
                 $btn.attr("data-bs-target", "#ModalClientesEspecificos");
                 setTimeout(() => { $("#ModalClientesEspecificos").modal("show"); }, 50);
             } else if (val === "4") {
-                // 4: Varios
                 $btn.removeClass("d-none");
                 $btn.attr("data-bs-target", "#ModalTipoClienteVarios");
                 setTimeout(() => { $("#ModalTipoClienteVarios").modal("show"); }, 50);
             } else {
-                // Todos
                 $btn.addClass("d-none");
+                $btn.removeData("seleccionados");
+                $btn.html(`<i class="fa-solid fa-list-check"></i>`);
+                $btn.removeClass("btn-success").addClass("btn-outline-secondary");
             }
         });
 
-        // Input File
+        // Input File General ---
         $('#inputGroupFile24').on('change', function () {
             esArchivoValido('#inputGroupFile24', '#fileName');
+        });
+
+        // Input File Artículos ---
+        $('#inputFileArticulos').on('change', function () {
+            esArchivoValido('#inputFileArticulos', '#fileNameArticulos');
         });
 
         // Función auxiliar para no repetir código
@@ -1209,7 +1432,7 @@
             // Buscar cuál es el botón visible actualmente
             if ($("#tipoClienteGeneral").val() === "4") $btnTrigger = $("#btnListaClienteGeneral");
             else if ($("#tipoClienteCombos").val() === "4") $btnTrigger = $("#btnListaClienteCombos");
-            else if ($("#tipoClienteArticulos").val() === "4") $btnTrigger = $("#tipoClienteArticulos").parent().find("button");
+            else if ($("#tipoClienteArticulos").val() === "4") $btnTrigger = $("#btnListaClienteArticulos");
 
             if (!$btnTrigger) return;
 
@@ -1227,6 +1450,149 @@
                 $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary");
                 $btnTrigger.html(`<i class="fa-solid fa-list-check"></i>`);
             }
+        });
+
+        // ==========================================
+        // MODAL CONSULTA ITEMS - ARTÍCULOS
+        // ==========================================
+        $("#modalConsultaItems").on("show.bs.modal", function () {
+            cargarFiltrosItemsPromocion();
+
+            if (!dtItemsConsultaPromo) {
+                dtItemsConsultaPromo = $("#tablaItemsConsulta").DataTable({
+                    data: [],
+                    columns: [
+                        { title: "Sel", className: "text-center align-middle", orderable: false, searchable: false },
+                        { title: "Código", className: "align-middle" },
+                        { title: "Descripción", className: "align-middle" },
+                        { title: "Costo", className: "align-middle text-end" },
+                        { title: "Stock", className: "align-middle text-center" },
+                        { title: "Óptimo", className: "align-middle text-center" },
+                        { title: "Excedente(u)", className: "align-middle text-center" },
+                        { title: "Excedente($)", className: "align-middle text-end" },
+                        { title: "M-0(u)", className: "align-middle text-center" },
+                        { title: "M-0($)", className: "align-middle text-end" },
+                        { title: "M-1(u)", className: "align-middle text-center" },
+                        { title: "M-1($)", className: "align-middle text-end" },
+                        { title: "M-2(u)", className: "align-middle text-center" },
+                        { title: "M-2($)", className: "align-middle text-end" }
+                    ],
+                    deferRender: true,
+                    pageLength: 10,
+                    lengthChange: false,
+                    dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
+                    language: {
+                        emptyTable: '<div class="text-center text-muted p-4"><i class="fa-solid fa-filter"></i><br>Seleccione los criterios y presione <strong>"Procesar Selección"</strong></div>',
+                        zeroRecords: "No se encontraron items.",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ items",
+                        infoEmpty: "Sin items",
+                        infoFiltered: "(filtrado de _MAX_ totales)",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    },
+                    order: [[1, 'asc']]
+                });
+            }
+            dtItemsConsultaPromo.clear().draw();
+        });
+
+        $("#btnProcesarFiltros").on("click", function () {
+            const marcas = getSelectedFilterValuesPromo("filtroMarcaModal");
+            const divisiones = getSelectedFilterValuesPromo("filtroDivisionModal");
+            const departamentos = getSelectedFilterValuesPromo("filtroDepartamentoModal");
+            const clases = getSelectedFilterValuesPromo("filtroClaseModal");
+            const articulo = $("#filtroArticuloModal").val().trim();
+
+            if (marcas.length === 0 && divisiones.length === 0 && departamentos.length === 0 && clases.length === 0 && articulo === "") {
+                Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar al menos un criterio de búsqueda." });
+                return;
+            }
+
+            consultarItemsPromocion({
+                marcas: marcas,
+                divisiones: divisiones,
+                departamentos: departamentos,
+                clases: clases,
+                codigoarticulo: articulo
+            });
+        });
+
+        $("#checkTodosItems").on("change", function () {
+            const isChecked = $(this).is(":checked");
+            if (dtItemsConsultaPromo) {
+                $(dtItemsConsultaPromo.$(".item-checkbox")).prop("checked", isChecked);
+            }
+        });
+
+        $("#btnSeleccionarItems").on("click", function () {
+            const items = [];
+            const checkboxes = dtItemsConsultaPromo ? dtItemsConsultaPromo.$(".item-checkbox:checked") : $("#tablaItemsConsulta .item-checkbox:checked");
+
+            checkboxes.each(function () {
+                const $c = $(this);
+                items.push({
+                    codigo: $c.data("codigo"),
+                    descripcion: $c.data("descripcion"),
+                    costo: $c.data("costo"),
+                    stock: $c.data("stock"),
+                    optimo: $c.data("optimo"),
+                    excedenteu: $c.data("excedenteu"),
+                    excedentes: $c.data("excedentes"),
+                    m0u: $c.data("m0u"), m0s: $c.data("m0s"),
+                    m1u: $c.data("m1u"), m1s: $c.data("m1s"),
+                    m2u: $c.data("m2u"), m2s: $c.data("m2s")
+                });
+            });
+
+            if (items.length === 0) {
+                Swal.fire("Atención", "Seleccione al menos un item.", "info");
+                return;
+            }
+
+            agregarItemsATablaArticulos(items);
+            $("#modalConsultaItems").modal("hide");
+            $("#checkTodosItems").prop("checked", false);
+        });
+
+        $(document).on("change", ".select-mediopago-articulo", function () {
+            const val = $(this).val();
+            if (val === "7") {
+                $("#ModalMedioPago").modal("show");
+            }
+        });
+
+        $("#btnDeleteItemArticulos").on("click", function () {
+            const $radioSeleccionado = $("#tablaArticulosBody .item-row-radio:checked");
+
+            if ($radioSeleccionado.length === 0) {
+                Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un item para eliminar." });
+                return;
+            }
+
+            const $fila = $radioSeleccionado.closest("tr");
+            const descripcion = $fila.find("td:eq(1)").text();
+
+            Swal.fire({
+                title: "¿Está seguro?",
+                html: `Se eliminará el Artículo:<br><strong>${descripcion}</strong>`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Sí, Eliminar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $fila.remove();
+
+                    // Si quedan filas, seleccionar la primera automáticamente
+                    const $primeraFila = $("#tablaArticulosBody tr").first();
+                    if ($primeraFila.length) {
+                        $primeraFila.find(".item-row-radio").prop("checked", true).trigger("change");
+                    }
+
+                    Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Item eliminado", showConfirmButton: false, timer: 1500 });
+                }
+            });
         });
     });
 })();

@@ -1617,7 +1617,7 @@
 
         Swal.fire({
             title: "¿Está seguro?",
-            html: `Se eliminará el item:<br><strong>${itemDescripcion}</strong>`,
+            html: `Se eliminará el Artículo:<br><strong>${itemDescripcion}</strong>`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
