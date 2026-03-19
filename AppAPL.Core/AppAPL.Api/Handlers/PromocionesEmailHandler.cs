@@ -339,8 +339,7 @@ namespace AppAPL.Api.Handlers
 
                     var promocionAprobacion = await promocionRepo.ObtenerBandGenPromoPorId((int)reqAprobacion.Identidad);
 
-                    var descuentoTotal2 = promocionAprobacion.acuerdos[0].valor_comprometido + promocionAprobacion.acuerdos[1].valor_comprometido;
-
+                    
 
                     //proceso para obtener los proveedores de los acuerdos
                     foreach (var item in promocionAprobacion.acuerdos)
@@ -371,6 +370,11 @@ namespace AppAPL.Api.Handlers
                     string mediospagos5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGMEDIOPAGO");
 
 
+                    var descuentoTotal2 = promocionAprobacion.acuerdos?.Sum(a => a.valor_comprometido) ?? 0;
+
+                    var acProveedorReg3 = promocionAprobacion.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acPropioReg3 = promocionAprobacion.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+
                     var camposBase2 = new Dictionary<string, string>
                         {
                         //nombre
@@ -397,13 +401,13 @@ namespace AppAPL.Api.Handlers
                             { "MedioPago",  mediospagos5 },
                             
 
-                            { "AcuerdoProveedor",  promocionAprobacion.acuerdos[0].IDACUERDO.ToString() },
-                            { "PorcentajeProveedor",  promocionAprobacion.acuerdos[0].porcentaje_descuento.ToString("N2") },
-                            { "ValorComprometidoProveedor",  promocionAprobacion.acuerdos[0].valor_comprometido.ToString("N2") },
+                            { "AcuerdoProveedor",  acProveedorReg3?.IDACUERDO.ToString() ?? "" },
+                            { "PorcentajeProveedor",  acProveedorReg3?.porcentaje_descuento.ToString("N2") ?? "" },
+                            { "ValorComprometidoProveedor",  acProveedorReg3?.valor_comprometido.ToString("N2") ?? "" },
 
-                            { "AcuerdoPropio",  promocionAprobacion.acuerdos[1].IDACUERDO.ToString() },
-                            { "PorcentajePropio",  promocionAprobacion.acuerdos[1].porcentaje_descuento.ToString("N2") },
-                            { "ValorComprometidoPropio",  promocionAprobacion.acuerdos[1].valor_comprometido.ToString("N2") },
+                            { "AcuerdoPropio",  acPropioReg3?.IDACUERDO.ToString() ?? "" },
+                            { "PorcentajePropio",  acPropioReg3?.porcentaje_descuento.ToString("N2") ?? "" },
+                            { "ValorComprometidoPropio",  acPropioReg3?.valor_comprometido.ToString("N2") ?? "" },
 
                             { "Firma",  reqAprobacion.NombreUsuario },
                         };
@@ -466,8 +470,8 @@ namespace AppAPL.Api.Handlers
                         proveedores.Add(proveedor);
                     }
 
-                    var descuentoTotal4 = promocioninactivar.acuerdos[0].valor_comprometido + promocioninactivar.acuerdos[1].valor_comprometido;
-
+                    
+                    
 
                     string marcas4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGMARCA");
                     string divisiones4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGDIVISION");
@@ -479,6 +483,12 @@ namespace AppAPL.Api.Handlers
                     string almacenes4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGALMACEN");
                     string tiposclientes4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGTIPOCLIENTE");
                     string mediospagos4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGMEDIOPAGO");
+
+
+                    var descuentoTotal4 = promocioninactivar.acuerdos?.Sum(a => a.valor_comprometido) ?? 0;
+                    var acProveedorReg4 = promocioninactivar.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acPropioReg4 = promocioninactivar.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+
 
                     var camposBase4 = new Dictionary<string, string>
                         {
@@ -505,13 +515,13 @@ namespace AppAPL.Api.Handlers
                             { "MedioPago",  mediospagos4 },
                             
 
-                            { "AcuerdoProveedor",  promocioninactivar.acuerdos[0].IDACUERDO.ToString() },
-                            { "PorcentajeProveedor",  promocioninactivar.acuerdos[0].porcentaje_descuento.ToString("N2") },
-                            { "ValorComprometidoProveedor",  promocioninactivar.acuerdos[0].valor_comprometido.ToString("N2") },
+                            { "AcuerdoProveedor",  acProveedorReg4?.IDACUERDO.ToString() ?? "" },
+                            { "PorcentajeProveedor",  acProveedorReg4?.porcentaje_descuento.ToString("N2") ?? "" },
+                            { "ValorComprometidoProveedor",  acProveedorReg4?.valor_comprometido.ToString("N2") ?? "" },
 
-                            { "AcuerdoPropio",  promocioninactivar.acuerdos[1].IDACUERDO.ToString() },
-                            { "PorcentajePropio",  promocioninactivar.acuerdos[1].porcentaje_descuento.ToString("N2") },
-                            { "ValorComprometidoPropio",  promocioninactivar.acuerdos[1].valor_comprometido.ToString("N2") },
+                            { "AcuerdoPropio",  acPropioReg4?.IDACUERDO.ToString() ?? "" },
+                            { "PorcentajePropio",  acPropioReg4?.porcentaje_descuento.ToString("N2") ?? "" },
+                            { "ValorComprometidoPropio",  acPropioReg4?.valor_comprometido.ToString("N2") ?? "" },
 
                             { "Firma",  "Sistema APL" },
                         };
@@ -572,8 +582,6 @@ namespace AppAPL.Api.Handlers
 
                     var promocionAprobacion2 = await promocionRepo.ObtenerBandGenPromoPorId((int)reqAprobacion2.Identidad);
 
-                    var descuentoTotal5 = promocionAprobacion2.acuerdos[0].valor_comprometido + promocionAprobacion2.acuerdos[1].valor_comprometido;
-
 
                     //proceso para obtener los proveedores de los acuerdos
                     foreach (var item in promocionAprobacion2.acuerdos)
@@ -604,6 +612,10 @@ namespace AppAPL.Api.Handlers
                     string mediospagos6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGMEDIOPAGO");
 
 
+                    var descuentoTotal5 = promocionAprobacion2.acuerdos?.Sum(a => a.valor_comprometido) ?? 0;
+                    var acProveedorReg5 = promocionAprobacion2.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acPropioReg5 = promocionAprobacion2.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+
                     var camposBase5 = new Dictionary<string, string>
                         {
                             //nombre
@@ -629,13 +641,13 @@ namespace AppAPL.Api.Handlers
                             { "MedioPago",  mediospagos6 },
 
 
-                            { "AcuerdoProveedor",  promocionAprobacion2.acuerdos[0].IDACUERDO.ToString() },
-                            { "PorcentajeProveedor",  promocionAprobacion2.acuerdos[0].porcentaje_descuento.ToString("N2") },
-                            { "ValorComprometidoProveedor",  promocionAprobacion2.acuerdos[0].valor_comprometido.ToString("N2") },
+                            { "AcuerdoProveedor",  acProveedorReg5?.IDACUERDO.ToString() ?? "" },
+                            { "PorcentajeProveedor",  acProveedorReg5?.porcentaje_descuento.ToString("N2") ?? "" },
+                            { "ValorComprometidoProveedor",  acProveedorReg5?.valor_comprometido.ToString("N2") ?? "" },
 
-                            { "AcuerdoPropio",  promocionAprobacion2.acuerdos[1].IDACUERDO.ToString() },
-                            { "PorcentajePropio",  promocionAprobacion2.acuerdos[1].porcentaje_descuento.ToString("N2") },
-                            { "ValorComprometidoPropio",  promocionAprobacion2.acuerdos[1].valor_comprometido.ToString("N2") },
+                            { "AcuerdoPropio",  acPropioReg5?.IDACUERDO.ToString() ?? "" },
+                            { "PorcentajePropio",  acPropioReg5?.porcentaje_descuento.ToString("N2") ?? "" },
+                            { "ValorComprometidoPropio",  acPropioReg5?.valor_comprometido.ToString("N2") ?? "" },
 
                             { "Firma",  reqAprobacion2.NombreUsuario },
                         };
