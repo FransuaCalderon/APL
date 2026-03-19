@@ -521,7 +521,7 @@ namespace AppAPL.Dto.Promocion
 
         // Listas internas (Sub-entidades)
         public List<MedioPagoDto> mediosPago { get; set; } = new List<MedioPagoDto>();
-        public List<ArticuloAcuerdoDto> acuerdos { get; set; } = new List<ArticuloAcuerdoDto>();
+        public List<ArticuloAcuerdoDto>? acuerdos { get; set; }
         public List<OtroCostoDto>? otrosCostos { get; set; }
     }
 
