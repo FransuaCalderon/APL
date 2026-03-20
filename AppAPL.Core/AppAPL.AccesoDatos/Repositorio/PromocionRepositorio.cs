@@ -795,6 +795,11 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
+
+            parameters.Add("p_cursor_art_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_otros", OracleDbType.RefCursor, ParameterDirection.Output);
+
             parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
@@ -811,6 +816,10 @@ namespace AppAPL.AccesoDatos.Repositorio
             var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
             var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
 
+            var articulosSegmentos = await multi.ReadAsync<ArticuloSegmentoDTO>();
+            var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoDTO>();
+            var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosDTO>();
+
             string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
@@ -823,6 +832,9 @@ namespace AppAPL.AccesoDatos.Repositorio
                 acuerdos = acuerdos.ToList(),
                 segmentos = segmentos.ToList(),
                 articulos = articulos.ToList(),
+                articulosSegmentos = articulosSegmentos.ToList(),
+                articulosAcuerdos = articulosAcuerdos.ToList(),
+                articulosOtros = articulosOtros.ToList(),
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida

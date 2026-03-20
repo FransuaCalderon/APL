@@ -318,12 +318,15 @@ namespace AppAPL.Dto.Promocion
     {
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandAproPromoDTO? cabecera { get; set; }
+        public List<SegmentoBandejaDTO>? segmentos { get; set; }
         public List<AcuerdoBandAproDTO>? acuerdos { get; set; }
 
         // Lista para capturar el cursor p_cursor_articulos
         public List<ArticuloBandAproPromoDTO>? articulos { get; set; }
 
-        public List<SegmentoBandejaDTO>? segmentos { get; set; }
+        public List<ArticuloSegmentoDTO>? articulosSegmentos { get; set; }
+        public List<ArticuloAcuerdoPromoDTO>? articulosAcuerdos { get; set; }
+        public List<ArticuloOtrosCostosDTO>? articulosOtros { get; set; }
 
         public string? tipopromocion { get; set; }
         [JsonIgnore]
@@ -366,18 +369,114 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloBandAproPromoDTO
     {
-        public int IdPromocionAcuerdo { get; set; }
-        public int IdPromocion { get; set; }
-        public int IdAcuerdo { get; set; }
+        public int idpromocionarticulo { get; set; }
+        public int idpromocion { get; set; }
+        public int? idpromocioncombo { get; set; }
+        public string codigoitem { get; set; }
+        public string descripcion { get; set; }
+        public decimal costo { get; set; }
+        public decimal stockbodega { get; set; }
+        public decimal stocktienda { get; set; }
+        public decimal inventariooptimo { get; set; }
+        public decimal excedenteunidad { get; set; }
+        public decimal excedentevalor { get; set; }
+        public decimal m0unidades { get; set; }
+        public decimal m0precio { get; set; }
+        public decimal m1unidades { get; set; }
+        public decimal m1precio { get; set; }
+        public decimal m2unidades { get; set; }
+        public decimal m2precio { get; set; }
+        public string igualarprecio { get; set; }
+        public decimal diasantinguedad { get; set; }
+        public decimal margenminimocontado { get; set; }
+        public decimal margenminimotarjetacredito { get; set; }
+        public decimal margenminimocredito { get; set; }
+        public decimal margenminimoigualar { get; set; }
+        public decimal unidadeslimite { get; set; }
+        public decimal unidadesproyeccionventas { get; set; }
+        public decimal preciolistacontado { get; set; }
+        public decimal preciolistacredito { get; set; }
+        public decimal preciopromocioncontado { get; set; }
+        public decimal preciopromociontarjetacredito { get; set; }
+        public decimal preciopromocioncredito { get; set; }
+        public decimal precioigualarprecio { get; set; }
+        public decimal descuentopromocioncontado { get; set; }
+        public decimal descuentopromociontarjetacredito { get; set; }
+        public decimal descuentopromocioncredito { get; set; }
+        public decimal descuentoigualarprecio { get; set; }
+        public decimal margenpreciolistacontado { get; set; }
+        public decimal margenpreciolistacredito { get; set; }
+        public decimal margenpromocioncontado { get; set; }
+        public decimal margenpromociontarjetacredito { get; set; }
+        public decimal margenpromocioncredito { get; set; }
+        public decimal margenigualarprecio { get; set; }
+        public string marcaregalo { get; set; }
+        public int id_estado_articulo { get; set; }
+        public string nombre_estado_articulo { get; set; }
+        public string etiqueta_estado_articulo { get; set; }
+    }
+
+
+    public class ArticuloSegmentoDTO
+    {
+        public int idpromocionarticulosegmento { get; set; }
+        public int idpromocionarticulo { get; set; }
+        public string codigoitem { get; set; }
+        public string descripcion_articulo { get; set; }
+        public int idtiposegmento { get; set; }
+        public string nombre_tipo_segmento { get; set; }
+        public string etiqueta_tipo_segmento { get; set; }
+        public string tipoasignacion { get; set; }
+        public string descripcion_asignacion { get; set; }
+        public int id_estado_segmento { get; set; }
+        public string nombre_estado_segmento { get; set; }
+        public int? idpromocionarticulosegmentodetalle { get; set; }
+        public string codigo_detalle { get; set; }
+        public string nombre_medio_pago { get; set; }
+        public int? id_estado_detalle { get; set; }
+        public string nombre_estado_detalle { get; set; }
+    }
+
+    public class ArticuloAcuerdoPromoDTO
+    {
+        public int idpromocionarticuloacuerdo { get; set; }
+        public int idpromocionarticulo { get; set; }
+        public string codigoitem { get; set; }
+        public string descripcion_articulo { get; set; }
+        public int idacuerdo { get; set; }
         public string descripcion_acuerdo { get; set; }
-        public decimal porcentaje_descuento { get; set; }
+        public string nombre_proveedor { get; set; }
+        public string etiqueta_tipo_fondo { get; set; }
+        public string nombre_tipo_fondo { get; set; }
+        public string etiqueta_clase_acuerdo { get; set; }
+        public string nombre_clase_acuerdo { get; set; }
+        public decimal valor_aporte { get; set; }
         public decimal valor_comprometido { get; set; }
-        public decimal valor_disponible { get; set; }
         public decimal valor_liquidado { get; set; }
-        public int id_estado_detalle { get; set; }
+        public int? id_estado_detalle { get; set; }
         public string nombre_estado_detalle { get; set; }
         public string etiqueta_estado_detalle { get; set; }
     }
+
+
+    public class ArticuloOtrosCostosDTO
+    {
+        public int idpromocionotroscostos { get; set; }
+        public int idpromocionarticulo { get; set; }
+        public string codigoitem { get; set; }
+        public string descripcion_articulo { get; set; }
+        public int codigoparametro { get; set; }
+        public string nombre_parametro { get; set; }
+        public decimal costo { get; set; }
+        public int id_estado { get; set; }
+        public string nombre_estado { get; set; }
+        public string etiqueta_estado { get; set; }
+    }
+
+
+    //----------------------------------------------
+
+
 
     public class AcuerdoPromoDTO
     {
