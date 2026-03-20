@@ -386,7 +386,7 @@ namespace AppAPL.Dto.Promocion
         public decimal m1precio { get; set; }
         public decimal m2unidades { get; set; }
         public decimal m2precio { get; set; }
-        public string igualarprecio { get; set; }
+        public decimal igualarprecio { get; set; }
         public decimal diasantinguedad { get; set; }
         public decimal margenminimocontado { get; set; }
         public decimal margenminimotarjetacredito { get; set; }
