@@ -717,6 +717,32 @@
         proveedorTemporal = null;
         propioTemporal = null;
 
+        // --- Limpieza específica del formulario Artículos ---
+        $("#tablaArticulosBody").empty();
+        $("#descripcionArticulos").val("");
+        $("#motivoArticulos").val("");
+        $("#fechaInicioArticulos").val("");
+        $("#fechaFinArticulos").val("");
+        $("#timeInicioArticulos").val("00:00");
+        $("#timeFinArticulos").val("23:59");
+        $("#filtroCanalArticulos").val("");
+        $("#filtroGrupoAlmacenArticulos").val("");
+        $("#filtroAlmacenArticulos").val("");
+        $("#tipoClienteArticulos").val("");
+        $("#inputFileArticulos").val("");
+        if (document.getElementById("fileNameArticulos")) document.getElementById("fileNameArticulos").textContent = "Ningún archivo seleccionado";
+
+        // Resetear botones de selección múltiple de Artículos
+        $("#btnCanalArticulos, #btnGrupoAlmacenArticulos, #btnAlmacenArticulos, #btnListaClienteArticulos")
+            .addClass("d-none")
+            .removeData("seleccionados")
+            .html('<i class="fa-solid fa-list-check"></i>')
+            .removeClass("btn-success").addClass("btn-outline-secondary");
+
+        // Limpiar variables de acuerdos por artículo
+        acuerdoArticuloTemporal = null;
+        acuerdoArticuloContexto = null;
+
         $(".is-invalid").removeClass("is-invalid");
     }
 
@@ -1316,7 +1342,7 @@
                     </button>
                 </div>
             </td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden" value="">
                 <div class="input-group input-group-sm">
@@ -1348,8 +1374,8 @@
 
             // Habilitar la fila seleccionada
             const $fila = $(this).closest("tr");
-            $fila.addClass("table-active");
-            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").prop("disabled", false);
+            $fila.addClass("table-active");            
+            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").not(".aporte-proveedor, .aporte-rebate, .aporte-propio").prop("disabled", false);
 
             // Solo habilitar aportes si ya tienen un acuerdo seleccionado
             const tieneProvedor = $fila.find("td:eq(32) .acuerdo-id-hidden").val();
@@ -1359,9 +1385,9 @@
             if (tieneProvedor) $fila.find(".aporte-proveedor").prop("disabled", false);
             if (tieneRebate) $fila.find(".aporte-rebate").prop("disabled", false);
             if (tienePropio) $fila.find(".aporte-propio").prop("disabled", false);
-            // Checkbox Regalo: quitar disabled de TODAS las filas para que se vea el estado
-            $("#tablaArticulosBody td:last-child input[type='checkbox']").prop("disabled", true);
-            $fila.find("td:last-child input[type='checkbox']").prop("disabled", false);
+            // Checkbox Regalo: bloquear interacción visual pero mantener apariencia de marcado
+            $("#tablaArticulosBody td:last-child input[type='checkbox']").prop("disabled", false).css("pointer-events", "none");
+            $fila.find("td:last-child input[type='checkbox']").css("pointer-events", "auto");
         });
 
         // Auto-seleccionar el primero si no hay ninguno seleccionado
@@ -1371,12 +1397,68 @@
         }
     }
 
+    function recalcularFilaArticulo($fila) {
+        const costo = parseCurrency($fila.find("td:eq(2)").text());
+        const precioLista = parseCurrency($fila.find("td:eq(22)").text());
+        const precioContado = parseCurrency($fila.find("td:eq(23) input").val());
+        const precioTC = parseCurrency($fila.find("td:eq(24) input").val());
+        const precioCredito = parseCurrency($fila.find("td:eq(25) input").val());
+        const precioIgualar = parseCurrency($fila.find("td:eq(26) input").val());
+        const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
+        const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
+        const otrosCostos = 0; // TODO: cuando implementes Otros Costos
+        const unidadesLimite = parseInt($fila.find("td:eq(19) input").val()) || 0;
+        const proyeccionVtas = parseInt($fila.find("td:eq(20) input").val()) || 0;
+        const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
+
+        // Descuentos
+        const dsctoContado = precioLista - precioContado;
+        const dsctoTC = precioLista - precioTC;
+        const dsctoCredito = precioLista - precioCredito;
+        const dsctoIgualar = precioLista - precioIgualar;
+        $fila.find("td:eq(27)").text(dsctoContado.toFixed(2));
+        $fila.find("td:eq(28)").text(dsctoTC.toFixed(2));
+        $fila.find("td:eq(29)").text(dsctoCredito.toFixed(2));
+        $fila.find("td:eq(30)").text(dsctoIgualar.toFixed(2));
+
+        // Margen Precio Lista
+        const margenPL = precioLista > 0 ? ((precioLista - costo) / precioLista * 100) : 0;
+        $fila.find("td:eq(37)").text(margenPL.toFixed(2) + "%");
+
+        // Márgenes Promo
+        const calcMargen = (precio) => {
+            const denom = precio + aporteProveedor + aporteRebate;
+            return denom > 0 ? ((denom - costo - otrosCostos) / denom * 100) : 0;
+        };
+        $fila.find("td:eq(38)").text(calcMargen(precioContado).toFixed(2) + "%");
+        $fila.find("td:eq(39)").text(calcMargen(precioTC).toFixed(2) + "%");
+        $fila.find("td:eq(40)").text(calcMargen(precioCredito).toFixed(2) + "%");
+        $fila.find("td:eq(41)").text(calcMargen(precioIgualar).toFixed(2) + "%");
+
+        // Comprometidos
+        $fila.find("td:eq(42)").text(formatCurrencySpanish(aporteProveedor * unidades));
+        $fila.find("td:eq(43)").text(formatCurrencySpanish(aporteRebate * unidades));
+        const aportePropio = parseCurrency($fila.find("td:eq(35) input").val());
+        $fila.find("td:eq(44)").text(formatCurrencySpanish(aportePropio * unidades));
+
+        // Colores dinámicos para descuentos y márgenes
+        $fila.find("td:eq(27), td:eq(28), td:eq(29), td:eq(30), td:eq(37), td:eq(38), td:eq(39), td:eq(40), td:eq(41)").each(function () {
+            const valor = parseFloat($(this).text());
+            if (valor < 0) {
+                $(this).css("color", "#dc3545");
+            } else if (valor > 0) {
+                $(this).css("color", "#198754");
+            } else {
+                $(this).css("color", "#212529");
+            }
+        });
+    }
 
     // ==========================================
     // ACUERDOS POR ARTÍCULO (PROVEEDOR/REBATE/PROPIO)
     // ==========================================
 
-    function consultarAcuerdosPorArticulo(etiquetaTipoFondo, codigoItem) {
+    function consultarAcuerdosPorArticulo(etiquetaTipoFondo, codigoItem, idAcuerdoActual) {
         if (dtAcuerdosArticulo) {
             dtAcuerdosArticulo.clear().destroy();
             $("#tablaAcuerdosArticulo tbody").empty();
@@ -1410,6 +1492,8 @@
                 const fmtDate = (s) => s ? new Date(s).toLocaleDateString("es-EC") : "";
 
                 data.forEach(x => {
+                    const isChecked = (String(x.idacuerdo) === String(idAcuerdoActual)) ? 'checked' : '';
+
                     $tbody.append(`<tr class="text-nowrap">
                     <td class="text-center align-middle">
                         <input class="form-check-input acuerdo-art-radio" type="radio" name="acuerdoArticuloSel"
@@ -1419,7 +1503,9 @@
                             data-disponible="${x.valor_disponible || 0}"
                             data-aporte="${x.valor_aporte_por_items || 0}"
                             data-unidades="${x.unidades_limite || 0}"
-                            data-estado="${x.estado || ''}">
+                            data-valoracuerdo="${x.valor_acuerdo || 0}"
+                            data-estado="${x.estado || ''}"
+                            ${isChecked}>
                     </td>
                     <td class="align-middle">${x.idacuerdo}</td>
                     <td class="align-middle">${x.descripcion}</td>
@@ -1454,6 +1540,25 @@
                     }
                 });
 
+                // Resaltar fila pre-seleccionada
+                $("#tablaAcuerdosArticulo tbody input[name='acuerdoArticuloSel']:checked").closest("tr").addClass("table-active");
+
+                // Si hay uno pre-seleccionado, reconstruir el temporal
+                const $preSelected = $("#tablaAcuerdosArticulo tbody input[name='acuerdoArticuloSel']:checked");
+                if ($preSelected.length > 0) {
+                    const d = $preSelected.data();
+                    acuerdoArticuloTemporal = {
+                        idAcuerdo: d.idacuerdo,
+                        descripcion: d.descripcion,
+                        proveedor: d.proveedor,
+                        disponible: d.disponible,
+                        aporte: d.aporte,
+                        unidades: d.unidades,
+                        valorAcuerdo: d.valoracuerdo,
+                        display: `${d.idacuerdo} - ${d.proveedor}`
+                    };
+                }
+
                 $("#buscarAcuerdoArticuloInput").off("keyup").on("keyup", function () {
                     dtAcuerdosArticulo.search($(this).val()).draw();
                 });
@@ -1469,6 +1574,7 @@
                         disponible: d.disponible,
                         aporte: d.aporte,
                         unidades: d.unidades,
+                        valorAcuerdo: d.valoracuerdo,
                         display: `${d.idacuerdo} - ${d.proveedor}`
                     };
                 });
@@ -1485,14 +1591,15 @@
             tipoFondo: tipoFondo,
             codigoItem: codigoItem,
             $inputDisplay: $inputDisplay,
-            $inputId: $inputId
+            $inputId: $inputId,
+            idActual: $inputId.val()
         };
 
         $("#tituloModalAcuerdoArticulo").text(tituloModal);
         $("#buscarAcuerdoArticuloInput").val("");
         $("#modalAcuerdoArticulo").modal("show");
 
-        consultarAcuerdosPorArticulo(tipoFondo, codigoItem);
+        consultarAcuerdosPorArticulo(tipoFondo, codigoItem, $inputId.val());
     }
 
     async function guardarPromocionArticulos() {
@@ -1730,7 +1837,7 @@
                 idcontrolinterfaz: "BTNGRABAR",
                 ideventoetiqueta: "EVCLICK",
                 nombreArchivoSoporte: fileInput.name,
-                archivoSoporteBase64: base64Completo,
+                archivoSoporteBase64: base64Completo.split(",")[1] || base64Completo,
                 promocion: {
                     descripcion: desc,
                     motivo: parseInt(motivo, 10) || 0,
@@ -2082,17 +2189,19 @@
                 acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
                 acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
 
-                // Habilitar el campo de Aporte correspondiente
                 const $fila = acuerdoArticuloContexto.$inputId.closest("tr");
                 const tipo = acuerdoArticuloContexto.tipoFondo;
+                const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
 
                 if (tipo === "TFPROVEDOR") {
-                    $fila.find(".aporte-proveedor").prop("disabled", false);
+                    $fila.find(".aporte-proveedor").prop("disabled", false).attr("data-max", maxVal).val("");
                 } else if (tipo === "TFREBATE") {
-                    $fila.find(".aporte-rebate").prop("disabled", false);
+                    $fila.find(".aporte-rebate").prop("disabled", false).attr("data-max", maxVal).val("");
                 } else if (tipo === "TFPROPIO") {
-                    $fila.find(".aporte-propio").prop("disabled", false);
+                    $fila.find(".aporte-propio").prop("disabled", false).attr("data-max", maxVal).val("");
                 }
+
+                recalcularFilaArticulo($fila);
             }
 
             $("#modalAcuerdoArticulo").modal("hide");
@@ -2102,6 +2211,29 @@
         // Solo permitir números, punto y coma en todos los inputs de la tabla de Detalle de Artículos
         $(document).on("input", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
             this.value = this.value.replace(/[^0-9.,]/g, '');
+        });
+
+        // Recalcular al cambiar cualquier input editable de la fila
+        $(document).on("input change", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
+            const $fila = $(this).closest("tr");
+            recalcularFilaArticulo($fila);
+        });
+
+        // Validación de máximo en aportes según valor acuerdo
+        $(document).on("blur", "#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio", function () {
+            const max = parseFloat($(this).attr("data-max")) || 0;
+            const valor = parseCurrency($(this).val());
+
+            if (max > 0 && valor > max) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Valor Excedido',
+                    text: `El aporte ingresado ($${valor.toFixed(2)}) supera el valor del acuerdo ($${max.toFixed(2)}).`
+                });
+                $(this).val("").addClass("is-invalid");
+            } else {
+                $(this).removeClass("is-invalid");
+            }
         });
 
         $("#btnGuardarPromocionArticulos").click(() => guardarPromocionArticulos());
