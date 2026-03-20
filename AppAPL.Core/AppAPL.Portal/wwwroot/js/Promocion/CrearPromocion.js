@@ -10,6 +10,9 @@
     let proveedorTemporal = null;
     let propioTemporal = null;
     let dtItemsConsultaPromo = null;
+    let dtAcuerdosArticulo = null;
+    let acuerdoArticuloTemporal = null;
+    let acuerdoArticuloContexto = null;
 
     // Configuración para el manejo unificado de "Varios"
     // Mapea: Select -> Botón Apertura -> Modal Body -> Botón Aceptar Modal -> Valor Trigger "Varios"
@@ -707,7 +710,7 @@
         $("#inputGroupFile24").val("");
         const fileNameSpan = document.getElementById("fileName");
         if (fileNameSpan) fileNameSpan.textContent = "";
-
+        $("#tablaArticulosBody").empty();
         $("#chkArticuloGeneral").prop("checked", false).trigger("change");
         $("#articuloGeneral").val("").prop("disabled", true);
 
@@ -1293,12 +1296,36 @@
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" disabled>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </td>
+           <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-rebate" placeholder="0.00" disabled></td>
+           <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFREBATE" disabled>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" disabled>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
@@ -1314,12 +1341,27 @@
 
         // Lógica de selección de radio buttons
         $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
+            // Bloquear todo
             $("#tablaArticulosBody tr").removeClass("table-active");
             $("#tablaArticulosBody .celda-editable input, #tablaArticulosBody .celda-editable button, #tablaArticulosBody .celda-editable select").prop("disabled", true);
+            $("#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio").prop("disabled", true);
 
+            // Habilitar la fila seleccionada
             const $fila = $(this).closest("tr");
             $fila.addClass("table-active");
             $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").prop("disabled", false);
+
+            // Solo habilitar aportes si ya tienen un acuerdo seleccionado
+            const tieneProvedor = $fila.find("td:eq(32) .acuerdo-id-hidden").val();
+            const tieneRebate = $fila.find("td:eq(34) .acuerdo-id-hidden").val();
+            const tienePropio = $fila.find("td:eq(36) .acuerdo-id-hidden").val();
+
+            if (tieneProvedor) $fila.find(".aporte-proveedor").prop("disabled", false);
+            if (tieneRebate) $fila.find(".aporte-rebate").prop("disabled", false);
+            if (tienePropio) $fila.find(".aporte-propio").prop("disabled", false);
+            // Checkbox Regalo: quitar disabled de TODAS las filas para que se vea el estado
+            $("#tablaArticulosBody td:last-child input[type='checkbox']").prop("disabled", true);
+            $fila.find("td:last-child input[type='checkbox']").prop("disabled", false);
         });
 
         // Auto-seleccionar el primero si no hay ninguno seleccionado
@@ -1328,6 +1370,418 @@
             $primeraFila.find(".item-row-radio").prop("checked", true).trigger("change");
         }
     }
+
+
+    // ==========================================
+    // ACUERDOS POR ARTÍCULO (PROVEEDOR/REBATE/PROPIO)
+    // ==========================================
+
+    function consultarAcuerdosPorArticulo(etiquetaTipoFondo, codigoItem) {
+        if (dtAcuerdosArticulo) {
+            dtAcuerdosArticulo.clear().destroy();
+            $("#tablaAcuerdosArticulo tbody").empty();
+        }
+
+        $("#tablaAcuerdosArticulo tbody").html('<tr><td colspan="16" class="text-center">Cargando...</td></tr>');
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Promocion/acuerdos-promocion-articulos",
+            client: "APL",
+            endpoint_query_params: `/${etiquetaTipoFondo}/${codigoItem}`
+        };
+
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (res) {
+                const data = res.json_response || [];
+                const $tbody = $("#tablaAcuerdosArticulo tbody");
+                $tbody.empty();
+
+                if (!data.length) {
+                    $tbody.html('<tr><td colspan="16" class="text-center">No hay acuerdos disponibles.</td></tr>');
+                    return;
+                }
+
+                const fmtDate = (s) => s ? new Date(s).toLocaleDateString("es-EC") : "";
+
+                data.forEach(x => {
+                    $tbody.append(`<tr class="text-nowrap">
+                    <td class="text-center align-middle">
+                        <input class="form-check-input acuerdo-art-radio" type="radio" name="acuerdoArticuloSel"
+                            data-idacuerdo="${x.idacuerdo || ''}"
+                            data-descripcion="${x.descripcion || ''}"
+                            data-proveedor="${x.nombre_proveedor || ''}"
+                            data-disponible="${x.valor_disponible || 0}"
+                            data-aporte="${x.valor_aporte_por_items || 0}"
+                            data-unidades="${x.unidades_limite || 0}"
+                            data-estado="${x.estado || ''}">
+                    </td>
+                    <td class="align-middle">${x.idacuerdo}</td>
+                    <td class="align-middle">${x.descripcion}</td>
+                    <td class="align-middle">${x.idfondo}</td>
+                    <td class="align-middle">${x.nombre_proveedor}</td>
+                    <td class="align-middle">${x.nombre_tipo_fondo}</td>
+                    <td class="align-middle">${x.clase_acuerdo}</td>
+                    <td class="align-middle text-end">${formatCurrencySpanish(x.valor_acuerdo)}</td>
+                    <td class="align-middle">${fmtDate(x.fecha_inicio)}</td>
+                    <td class="align-middle">${fmtDate(x.fecha_fin)}</td>
+                    <td class="align-middle text-end">${formatCurrencySpanish(x.valor_disponible)}</td>
+                    <td class="align-middle text-end">${formatCurrencySpanish(x.valor_comprometido)}</td>
+                    <td class="align-middle text-end">${formatCurrencySpanish(x.valor_liquidado)}</td>
+                    <td class="align-middle text-end">${formatCurrencySpanish(x.valor_aporte_por_items)}</td>
+                    <td class="align-middle text-end">${x.unidades_limite}</td>
+                    <td class="align-middle">${x.estado}</td>
+                </tr>`);
+                });
+
+                dtAcuerdosArticulo = $("#tablaAcuerdosArticulo").DataTable({
+                    destroy: true,
+                    deferRender: true,
+                    pageLength: 10,
+                    lengthChange: false,
+                    dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
+                    language: {
+                        zeroRecords: "No se encontraron acuerdos.",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ acuerdos",
+                        infoEmpty: "Sin acuerdos",
+                        infoFiltered: "(filtrado de _MAX_ totales)",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
+                });
+
+                $("#buscarAcuerdoArticuloInput").off("keyup").on("keyup", function () {
+                    dtAcuerdosArticulo.search($(this).val()).draw();
+                });
+
+                $("#tablaAcuerdosArticulo tbody").off("change", ".acuerdo-art-radio").on("change", ".acuerdo-art-radio", function () {
+                    $("#tablaAcuerdosArticulo tbody tr").removeClass("table-active");
+                    $(this).closest("tr").addClass("table-active");
+                    const d = $(this).data();
+                    acuerdoArticuloTemporal = {
+                        idAcuerdo: d.idacuerdo,
+                        descripcion: d.descripcion,
+                        proveedor: d.proveedor,
+                        disponible: d.disponible,
+                        aporte: d.aporte,
+                        unidades: d.unidades,
+                        display: `${d.idacuerdo} - ${d.proveedor}`
+                    };
+                });
+            },
+            error: function () {
+                $("#tablaAcuerdosArticulo tbody").html('<tr><td colspan="16" class="text-center text-danger">Error al consultar.</td></tr>');
+            }
+        });
+    }
+
+    function abrirModalAcuerdoArticulo(tipoFondo, tituloModal, codigoItem, $inputDisplay, $inputId) {
+        acuerdoArticuloTemporal = null;
+        acuerdoArticuloContexto = {
+            tipoFondo: tipoFondo,
+            codigoItem: codigoItem,
+            $inputDisplay: $inputDisplay,
+            $inputId: $inputId
+        };
+
+        $("#tituloModalAcuerdoArticulo").text(tituloModal);
+        $("#buscarAcuerdoArticuloInput").val("");
+        $("#modalAcuerdoArticulo").modal("show");
+
+        consultarAcuerdosPorArticulo(tipoFondo, codigoItem);
+    }
+
+    async function guardarPromocionArticulos() {
+        const motivo = $("#motivoArticulos").val();
+        const desc = $("#descripcionArticulos").val();
+        const fechaInicio = getFullISOString("#fechaInicioArticulos", "#timeInicioArticulos");
+        const fechaFin = getFullISOString("#fechaFinArticulos", "#timeFinArticulos");
+
+        // Validaciones básicas
+        if (!desc || desc.trim().length < 3) {
+            Swal.fire("Validación", "Debe ingresar una descripción.", "warning"); return;
+        }
+        if (!motivo) {
+            Swal.fire("Validación", "Debe seleccionar un motivo.", "warning"); return;
+        }
+        if (!fechaInicio || !fechaFin) {
+            Swal.fire("Validación", "Debe ingresar las fechas de inicio y fin.", "warning"); return;
+        }
+
+        const $filas = $("#tablaArticulosBody tr");
+        if ($filas.length === 0) {
+            Swal.fire("Validación", "Debe agregar al menos un artículo en el detalle.", "warning"); return;
+        }
+
+        // Validar archivo
+        if (!esArchivoValido('#inputFileArticulos', '#fileNameArticulos')) {
+            if ($('#inputFileArticulos')[0].files.length === 0) {
+                Swal.fire("Archivo requerido", "Debe adjuntar el soporte", "warning");
+            }
+            return;
+        }
+
+        const fileInput = $('#inputFileArticulos')[0].files[0];
+        if (!fileInput) {
+            Swal.fire("Archivo requerido", "Debe adjuntar el soporte de la promoción", "warning"); return;
+        }
+
+        const leerArchivo = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = e => reject(e);
+        });
+
+        Swal.fire({ title: 'Procesando...', didOpen: () => Swal.showLoading() });
+
+        try {
+            const base64Completo = await leerArchivo(fileInput);
+
+            // Construir artículos desde la tabla
+            const articulos = [];
+            let errorFila = "";
+
+            $filas.each(function (index) {
+                const $fila = $(this);
+                const numFila = index + 1;
+                const codigo = String($fila.data("codigo"));
+
+                // Leer todos los inputs de la fila en orden
+                const $inputs = $fila.find("input, select, button");
+
+                // Valores de consulta (no editables)
+                const costo = parseCurrency($fila.find("td:eq(2)").text());
+                const stockBodega = parseInt($fila.find("td:eq(3)").text()) || 0;
+                const stockTienda = parseInt($fila.find("td:eq(4)").text()) || 0;
+                const invOptimo = parseInt($fila.find("td:eq(5)").text()) || 0;
+                const excedenteU = parseInt($fila.find("td:eq(6)").text()) || 0;
+                const excedenteV = parseCurrency($fila.find("td:eq(7)").text());
+                const m0u = parseInt($fila.find("td:eq(8)").text()) || 0;
+                const m0p = parseCurrency($fila.find("td:eq(9)").text());
+                const m1u = parseInt($fila.find("td:eq(10)").text()) || 0;
+                const m1p = parseCurrency($fila.find("td:eq(11)").text());
+                const m2u = parseInt($fila.find("td:eq(12)").text()) || 0;
+                const m2p = parseCurrency($fila.find("td:eq(13)").text());
+                const igualarPrecio = parseCurrency($fila.find("td:eq(14)").text());
+
+                // Márgenes mínimos (consulta)
+                const margenMinContado = parseFloat($fila.find("td:eq(15)").text()) || 0;
+                const margenMinTC = parseFloat($fila.find("td:eq(16)").text()) || 0;
+                const margenMinCredito = parseFloat($fila.find("td:eq(17)").text()) || 0;
+                const margenMinIgualar = parseFloat($fila.find("td:eq(18)").text()) || 0;
+
+                // Campos editables (inputs)
+                const unidadesLimite = parseInt($fila.find("td:eq(19) input").val()) || 0;
+                const proyeccionVtas = parseInt($fila.find("td:eq(20) input").val()) || 0;
+
+                if (unidadesLimite > 0 && proyeccionVtas > 0) {
+                    errorFila = `Fila ${numFila}: Solo debe ingresar valor en Unidades Límite O Proyección Vtas, no en ambas.`;
+                    return false;
+                }
+                if (unidadesLimite === 0 && proyeccionVtas === 0) {
+                    errorFila = `Fila ${numFila}: Debe ingresar valor en Unidades Límite o Proyección Vtas.`;
+                    return false;
+                }
+
+                // Medio de Pago
+                const $selectMedioPago = $fila.find("td:eq(21) select");
+                const medioPagoVal = $selectMedioPago.val();
+
+                // Precio Lista (consulta)
+                const precioLista = parseCurrency($fila.find("td:eq(22)").text());
+
+                // Precios promo (editables)
+                const precioPromoContado = parseCurrency($fila.find("td:eq(23) input").val());
+                const precioPromoTC = parseCurrency($fila.find("td:eq(24) input").val());
+                const precioPromoCredito = parseCurrency($fila.find("td:eq(25) input").val());
+                const precioIgualar = parseCurrency($fila.find("td:eq(26) input").val());
+
+                // Descuentos (cálculo)
+                const dsctoContado = parseFloat($fila.find("td:eq(27)").text()) || 0;
+                const dsctoTC = parseFloat($fila.find("td:eq(28)").text()) || 0;
+                const dsctoCredito = parseFloat($fila.find("td:eq(29)").text()) || 0;
+                const dsctoIgualar = parseFloat($fila.find("td:eq(30)").text()) || 0;
+
+                // Aportes y sus IDs
+                const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
+                const idAcuerdoProveedor = parseInt($fila.find("td:eq(32) .acuerdo-id-hidden").val()) || 0;
+                const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
+                const idAcuerdoRebate = parseInt($fila.find("td:eq(34) .acuerdo-id-hidden").val()) || 0;
+                const aportePropio = parseCurrency($fila.find(".aporte-propio").val());
+                const idAcuerdoPropio = parseInt($fila.find("td:eq(36) .acuerdo-id-hidden").val()) || 0;
+
+                // Márgenes (cálculo)
+                const margenPrecioLista = parseFloat($fila.find("td:eq(37)").text()) || 0;
+                const margenPromoContado = parseFloat($fila.find("td:eq(38)").text()) || 0;
+                const margenPromoTC = parseFloat($fila.find("td:eq(39)").text()) || 0;
+                const margenPromoCredito = parseFloat($fila.find("td:eq(40)").text()) || 0;
+                const margenIgualar = parseFloat($fila.find("td:eq(41)").text()) || 0;
+
+                // Comprometidos (cálculo)
+                const compProveedor = parseCurrency($fila.find("td:eq(42)").text());
+                const compRebate = parseCurrency($fila.find("td:eq(43)").text());
+                const compPropio = parseCurrency($fila.find("td:eq(44)").text());
+
+                // Regalo
+                const regalo = $fila.find("td:eq(45) input[type='checkbox']").is(":checked") ? "S" : "N";
+
+                // Construir acuerdos del artículo
+                const acuerdosArticulo = [];
+                if (idAcuerdoProveedor > 0) {
+                    acuerdosArticulo.push({ idAcuerdo: idAcuerdoProveedor, valorAporte: aporteProveedor });
+                }
+                if (idAcuerdoRebate > 0) {
+                    acuerdosArticulo.push({ idAcuerdo: idAcuerdoRebate, valorAporte: aporteRebate });
+                }
+                if (idAcuerdoPropio > 0) {
+                    acuerdosArticulo.push({ idAcuerdo: idAcuerdoPropio, valorAporte: aportePropio });
+                }
+
+                // Construir medios de pago
+                const mediosPago = [];
+                if (medioPagoVal && medioPagoVal !== "" && medioPagoVal !== "TODAS") {
+                    mediosPago.push({
+                        tipoAsignacion: "C",
+                        codigos: [medioPagoVal]
+                    });
+                } else {
+                    mediosPago.push({ tipoAsignacion: "T", codigos: [] });
+                }
+
+                articulos.push({
+                    codigoItem: String(codigo),
+                    descripcion: $fila.find("td:eq(1)").text(),
+                    costo: costo,
+                    stockBodega: stockBodega,
+                    stockTienda: stockTienda,
+                    inventarioOptimo: invOptimo,
+                    excedenteUnidad: excedenteU,
+                    excedenteValor: excedenteV,
+                    m0Unidades: m0u,
+                    m0Precio: m0p,
+                    m1Unidades: m1u,
+                    m1Precio: m1p,
+                    m2Unidades: m2u,
+                    m2Precio: m2p,
+                    igualarPrecio: igualarPrecio,
+                    margenMinimoContado: margenMinContado,
+                    margenMinimoTarjetaCredito: margenMinTC,
+                    margenMinimoCredito: margenMinCredito,
+                    margenMinimoIgualar: margenMinIgualar,
+                    unidadesLimite: unidadesLimite,
+                    unidadesProyeccionVentas: proyeccionVtas,
+                    precioListaContado: precioLista,
+                    precioPromocionContado: precioPromoContado,
+                    precioPromocionTarjetaCredito: precioPromoTC,
+                    precioPromocionCredito: precioPromoCredito,
+                    precioIgualarPrecio: precioIgualar,
+                    descuentoPromocionContado: dsctoContado,
+                    descuentoPromocionTarjetaCredito: dsctoTC,
+                    descuentoPromocionCredito: dsctoCredito,
+                    descuentoIgualarPrecio: dsctoIgualar,
+                    margenPrecioListaContado: margenPrecioLista,
+                    margenPromocionContado: margenPromoContado,
+                    margenPromocionTarjetaCredito: margenPromoTC,
+                    margenPromocionCredito: margenPromoCredito,
+                    margenIgualarPrecio: margenIgualar,
+                    marcaRegalo: regalo,
+                    mediosPago: mediosPago,
+                    acuerdos: acuerdosArticulo,
+                    otrosCostos: []
+                });
+            });
+
+            if (errorFila) {
+                Swal.fire("Validación de Detalle", errorFila, "warning"); return;
+            }
+
+            // Segmentos de Artículos
+            const determinarAsignacion = (idSelector) => {
+                const val = $(idSelector).val();
+                if (val === "TODAS" || val === "TODOS" || !val || val === "") return "T";
+                if (val === "3") return "D";
+                return "C";
+            };
+
+            const segmentos = [
+                { tiposegmento: "SEGCANAL", codigos: obtenerValorCampo("canalArticulos", "#filtroCanalArticulos", "3"), tipoasignacion: determinarAsignacion("#filtroCanalArticulos") },
+                { tiposegmento: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupoArticulos", "#filtroGrupoAlmacenArticulos", "3"), tipoasignacion: determinarAsignacion("#filtroGrupoAlmacenArticulos") },
+                { tiposegmento: "SEGALMACEN", codigos: obtenerValorCampo("almacenArticulos", "#filtroAlmacenArticulos", "3"), tipoasignacion: determinarAsignacion("#filtroAlmacenArticulos") },
+                { tiposegmento: "SEGTIPOCLIENTE", codigos: (function () {
+                    const val = $("#tipoClienteArticulos").val();
+                    if (val === "4") {
+                        return $("#btnListaClienteArticulos").data("seleccionados") || [];
+                    } else if (val && val !== "" && val !== "TODOS") {
+                        return [val];
+                    }
+                    return [];
+                  })(), tipoasignacion: determinarAsignacion("#tipoClienteArticulos")
+                }
+            ];
+
+            const body = {
+                tipoclaseetiqueta: "PRARTICULO",
+                idopcion: getIdOpcionSeguro(),
+                idcontrolinterfaz: "BTNGRABAR",
+                ideventoetiqueta: "EVCLICK",
+                nombreArchivoSoporte: fileInput.name,
+                archivoSoporteBase64: base64Completo,
+                promocion: {
+                    descripcion: desc,
+                    motivo: parseInt(motivo, 10) || 0,
+                    clasepromocion: parseInt($("#promocionTipo").val(), 10) || 0,
+                    fechahorainicio: fechaInicio,
+                    fechahorafin: fechaFin,
+                    marcaregalo: "",
+                    marcaprocesoaprobacion: "",
+                    idusuarioingreso: getUsuario(),
+                    nombreusuario: getUsuario()
+                },
+                acuerdos: [],
+                segmentos: segmentos,
+                articulos: articulos
+            };
+
+            const payload = {
+                code_app: "APP20260128155212346",
+                http_method: "POST",
+                endpoint_path: "api/promocion/insertar",
+                client: "APL",
+                body_request: body
+            };
+
+            console.log("body articulos: ", body);
+
+            $.ajax({
+                url: "/api/apigee-router-proxy",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    const respuesta = res.json_response || res;
+                    if (respuesta.codigoretorno == 1) {
+                        Swal.fire("Éxito", "Promoción por Artículos Guardada: " + respuesta.mensaje, "success")
+                            .then(() => resetearFormulario("Articulos"));
+                    } else {
+                        Swal.fire("Atención", respuesta.mensaje || "Error en base de datos", "warning");
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire("Error", "Error de comunicación: " + xhr.statusText, "error");
+                }
+            });
+
+        } catch (error) {
+            console.error(error);
+            Swal.fire("Error", "No se pudo procesar el archivo seleccionado", "error");
+        }
+    }
+
 
     // ==========================================
     // INIT
@@ -1594,5 +2048,62 @@
                 }
             });
         });
+
+        // ==========================================
+        // EVENTOS ACUERDOS POR ARTÍCULO
+        // ==========================================
+
+        // Click en lupitas de Aporte Prov. ID Acuerdo / Rebate / Propio
+        $(document).on("click", ".btn-buscar-acuerdo-art", function () {
+            const $btn = $(this);
+            const tipoFondo = $btn.data("tipofondo");
+            const $fila = $btn.closest("tr");
+            const codigoItem = $fila.data("codigo");
+            const $inputDisplay = $btn.closest(".input-group").find("input");
+            const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
+
+            const titulos = {
+                "TFPROVEDOR": "Acuerdos - Fondo Proveedor",
+                "TFREBATE": "Acuerdos - Fondo Rebate",
+                "TFPROPIO": "Acuerdos - Fondo Propio"
+            };
+
+            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId);
+        });
+
+        // Aceptar selección del modal
+        $("#btnAceptarAcuerdoArticulo").on("click", function () {
+            if (!acuerdoArticuloTemporal) {
+                Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." });
+                return;
+            }
+
+            if (acuerdoArticuloContexto) {
+                acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
+                acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
+
+                // Habilitar el campo de Aporte correspondiente
+                const $fila = acuerdoArticuloContexto.$inputId.closest("tr");
+                const tipo = acuerdoArticuloContexto.tipoFondo;
+
+                if (tipo === "TFPROVEDOR") {
+                    $fila.find(".aporte-proveedor").prop("disabled", false);
+                } else if (tipo === "TFREBATE") {
+                    $fila.find(".aporte-rebate").prop("disabled", false);
+                } else if (tipo === "TFPROPIO") {
+                    $fila.find(".aporte-propio").prop("disabled", false);
+                }
+            }
+
+            $("#modalAcuerdoArticulo").modal("hide");
+            acuerdoArticuloTemporal = null;
+            acuerdoArticuloContexto = null;
+        });
+        // Solo permitir números, punto y coma en todos los inputs de la tabla de Detalle de Artículos
+        $(document).on("input", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
+            this.value = this.value.replace(/[^0-9.,]/g, '');
+        });
+
+        $("#btnGuardarPromocionArticulos").click(() => guardarPromocionArticulos());
     });
 })();

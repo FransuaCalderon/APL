@@ -1341,3 +1341,52 @@
 <div class="modal fade" id="modalOtrosCostos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h1 class="modal-title fs-5">Otros Costos</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Contenido...</div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div></div></div>
 </div>
+
+<!-- ========================================== -->
+<!-- MODAL ACUERDOS POR ARTÍCULO (REUTILIZABLE) -->
+<!-- ========================================== -->
+<div class="modal fade" id="modalAcuerdoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-pantalla-completa">
+        <div class="modal-content" style="height: 90vh; max-height: 90vh;">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="tituloModalAcuerdoArticulo">Consulta de Acuerdos</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">Seleccione un Acuerdo</span>
+                    <input type="text" id="buscarAcuerdoArticuloInput" class="form-control form-control-sm" placeholder="Buscar..." style="width: 300px;">
+                </div>
+                <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
+                    <table id="tablaAcuerdosArticulo" class="table table-hover table-sm table-bordered mb-0" style="width:100%">
+                        <thead class="table-success sticky-top">
+                            <tr class="text-nowrap">
+                                <th class="text-center align-middle" style="min-width: 70px;">Sel.</th>
+                                <th class="align-middle" style="min-width: 90px;">ID Acuerdo</th>
+                                <th class="align-middle" style="min-width: 220px;">Descripción</th>
+                                <th class="align-middle" style="min-width: 90px;">ID Fondo</th>
+                                <th class="align-middle" style="min-width: 220px;">Proveedor</th>
+                                <th class="align-middle" style="min-width: 130px;">Tipo Fondo</th>
+                                <th class="align-middle" style="min-width: 130px;">Clase Acuerdo</th>
+                                <th class="align-middle text-end" style="min-width: 120px;">Valor Acuerdo</th>
+                                <th class="align-middle" style="min-width: 120px;">Inicio</th>
+                                <th class="align-middle" style="min-width: 120px;">Fin</th>
+                                <th class="align-middle text-end" style="min-width: 130px;">Disponible</th>
+                                <th class="align-middle text-end" style="min-width: 150px;">Comprometido</th>
+                                <th class="align-middle text-end" style="min-width: 130px;">Liquidado</th>
+                                <th class="align-middle text-end" style="min-width: 120px;">Aporte x Item</th>
+                                <th class="align-middle text-end" style="min-width: 120px;">Uds. Límite</th>
+                                <th class="align-middle" style="min-width: 110px;">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarAcuerdoArticulo">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
