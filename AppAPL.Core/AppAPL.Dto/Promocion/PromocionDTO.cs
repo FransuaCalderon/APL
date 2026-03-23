@@ -251,6 +251,12 @@ namespace AppAPL.Dto.Promocion
         public List<SegmentoBandejaDTO> segmentos { get; set; }
         public List<AcuerdoBandAproDTO>? acuerdos { get; set; }
 
+        public List<ArticuloBandAproPromoDTO>? articulos { get; set; }
+        public List<ArticuloSegmentoDTO>? articulosSegmentos { get; set; }
+        public List<ArticuloAcuerdoPromoDTO>? articulosAcuerdos { get; set; }
+        public List<ArticuloOtrosCostosDTO>? articulosOtros { get; set; }
+
+
         public string? tipopromocion { get; set; }
         [JsonIgnore]
         public int? codigoSalida { get; set; }
@@ -264,6 +270,11 @@ namespace AppAPL.Dto.Promocion
         public CabeceraBandInacPromoDTO? cabecera { get; set; }
         public List<SegmentoBandejaDTO>? segmentos { get; set; }
         public List<AcuerdoBandAproDTO>? acuerdos { get; set; }
+
+        public List<ArticuloBandAproPromoDTO>? articulos { get; set; }
+        public List<ArticuloSegmentoDTO>? articulosSegmentos { get; set; }
+        public List<ArticuloAcuerdoPromoDTO>? articulosAcuerdos { get; set; }
+        public List<ArticuloOtrosCostosDTO>? articulosOtros { get; set; }
 
         public string? clase_promocion { get; set; }
         [JsonIgnore]
@@ -304,8 +315,12 @@ namespace AppAPL.Dto.Promocion
         public List<AcuerdoBandAproDTO>? acuerdos { get; set; }
         public List<SegmentoBandejaDTO>? segmentos { get; set; }
 
-        // Lista para capturar el cursor p_cursor_articulos
-        //public IEnumerable<ArticuloBandAproPromoDTO>? articulos { get; set; }
+
+        public List<ArticuloBandAproPromoDTO>? articulos { get; set; }
+
+        public List<ArticuloSegmentoDTO>? articulosSegmentos { get; set; }
+        public List<ArticuloAcuerdoPromoDTO>? articulosAcuerdos { get; set; }
+        public List<ArticuloOtrosCostosDTO>? articulosOtros { get; set; }
 
         public string? tipopromocion { get; set; }
         [JsonIgnore]
