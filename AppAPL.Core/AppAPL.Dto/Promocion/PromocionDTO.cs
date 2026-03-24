@@ -93,11 +93,10 @@ namespace AppAPL.Dto.Promocion
 
     public class OtrosCostosDTO
     {
-        public string GRUPO { get; set; }
-        public string SUBGRUPO { get; set; }
-        public int SECUENCIAL { get; set; }
-        public decimal PRECIO { get; set; }
-        public string DESCRIPCION { get; set; }
+        public int CODIGO { get; set; }
+        public string NOMBRE { get; set; }
+        public decimal VALOR { get; set; }
+
     }
 
     public class GrupoAlmacenDTO
@@ -115,15 +114,47 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloPrecioCompetenciaDTO
     {
-        public string CODIGOARTICULO { get; set; }
-        public string NOMBREEMPRESA { get; set; }
-        public decimal VALOR { get; set; }
+        public string ARTICULO { get; set; }
+        public string NOMBRE_COMPETENCIA { get; set; }
+        public decimal PRECIO_CONTADO { get; set; }
     }
 
     public class ArticuloEquivalenteDTO
     {
-        public string CODIGOARTICULO { get; set; }
-        public string CODIGOARTICULOEQUIVALENTE { get; set; }
+        public string codigo { get; set; }
+        public string descripcion { get; set; }
+        public decimal costo { get; set; }
+        public int stock_bodega { get; set; }
+        public int stock_tiendas { get; set; }
+        public int unidades_disponibles { get; set; }
+        public int inventario_optimo { get; set; }
+        public decimal excedentes_unidades { get; set; }
+        public decimal excedentes_dolares { get; set; }
+
+        public int m0_unidades { get; set; }
+        public decimal m0_dolares { get; set; }
+        public int m1_unidades { get; set; }
+        public decimal m1_dolares { get; set; }
+        public int m2_unidades { get; set; }
+        public decimal m2_dolares { get; set; }
+        public int m12_unidades { get; set; }
+        public decimal m12_dolares { get; set; }
+
+        public decimal igualar_precio { get; set; }
+        public decimal dias_antiguedad { get; set; }
+
+        public decimal margen_min_contado { get; set; }
+        public decimal margen_min_tarjeta_credito { get; set; }
+        public decimal margen_min_precio_credito { get; set; }
+        public decimal margen_min_igualar { get; set; }
+
+        public decimal precio_lista_contado { get; set; }
+        public decimal precio_lista_credito { get; set; }
+
+        public string marca { get; set; }
+        public string division { get; set; }
+        public string departamento { get; set; }
+        public string clase { get; set; }
     }
 
     public class AlmacenDTO
@@ -390,17 +421,19 @@ namespace AppAPL.Dto.Promocion
         public string codigoitem { get; set; }
         public string descripcion { get; set; }
         public decimal costo { get; set; }
-        public decimal stockbodega { get; set; }
-        public decimal stocktienda { get; set; }
-        public decimal inventariooptimo { get; set; }
+        public int stockbodega { get; set; }
+        public int stocktienda { get; set; }
+        public int inventariooptimo { get; set; }
         public decimal excedenteunidad { get; set; }
         public decimal excedentevalor { get; set; }
-        public decimal m0unidades { get; set; }
+
+        public int m0unidades { get; set; }
         public decimal m0precio { get; set; }
-        public decimal m1unidades { get; set; }
+        public int m1unidades { get; set; }
         public decimal m1precio { get; set; }
-        public decimal m2unidades { get; set; }
+        public int m2unidades { get; set; }
         public decimal m2precio { get; set; }
+
         public decimal igualarprecio { get; set; }
         public decimal diasantinguedad { get; set; }
         public decimal margenminimocontado { get; set; }
@@ -489,8 +522,8 @@ namespace AppAPL.Dto.Promocion
     }
 
 
-    //----------------------------------------------
 
+    //------------------------------------------------------------------
 
 
     public class AcuerdoPromoDTO

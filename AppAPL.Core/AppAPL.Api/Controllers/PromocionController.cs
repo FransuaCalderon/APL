@@ -67,22 +67,6 @@ namespace AppAPL.Api.Controllers
             return listaAlmacen.ToList();
         }
 
-        [HttpGet("consultar-articulo-equivalente")]
-        public async Task<ActionResult<List<ArticuloEquivalenteDTO>>> ConsultarArticuloEquivalente()
-        {
-            var listaArtEq = await servicio.ConsultarArticuloEquivalente();
-
-            return listaArtEq.ToList();
-        }
-
-        [HttpGet("consultar-articulo-precio-competencia")]
-        public async Task<ActionResult<List<ArticuloPrecioCompetenciaDTO>>> ConsultarArticuloPrecioCompetencia()
-        {
-            var listaArtPreCom = await servicio.ConsultarArticuloPrecioCompetencia();
-
-            return listaArtPreCom.ToList();
-        }
-
         [HttpGet("consultar-canal")]
         public async Task<ActionResult<List<CanalDTO>>> ConsultarCanal()
         {
@@ -99,10 +83,28 @@ namespace AppAPL.Api.Controllers
             return listaGruAlm.ToList();
         }
 
-        [HttpGet("consultar-otros-costos")]
-        public async Task<ActionResult<List<OtrosCostosDTO>>> ConsultarOtrosCostos()
+        [HttpGet("consultar-articulo-equivalente/{codigo}")]
+        public async Task<ActionResult<List<ArticuloEquivalenteDTO>>> ConsultarArticuloEquivalente(string codigo)
         {
-            var listaOtCs = await servicio.ConsultarOtrosCostos();
+            var listaArtEq = await servicio.ConsultarArticulosEquivalentes(codigo);
+
+            return listaArtEq.ToList();
+        }
+
+        [HttpGet("consultar-articulo-precio-competencia/{codigo}")]
+        public async Task<ActionResult<List<ArticuloPrecioCompetenciaDTO>>> ConsultarArticuloPrecioCompetencia(string codigo)
+        {
+            var listaArtPreCom = await servicio.ConsultarArticuloPrecioCompetencia(codigo);
+
+            return listaArtPreCom.ToList();
+        }
+
+        
+
+        [HttpGet("consultar-otros-costos/{codigo}")]
+        public async Task<ActionResult<List<OtrosCostosDTO>>> ConsultarOtrosCostos(string codigo)
+        {
+            var listaOtCs = await servicio.ConsultarOtrosCostos(codigo);
 
             return listaOtCs.ToList();
         }

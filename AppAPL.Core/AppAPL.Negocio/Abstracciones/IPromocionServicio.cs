@@ -12,11 +12,11 @@ namespace AppAPL.Negocio.Abstracciones
     public interface IPromocionServicio
     {
         Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen();
-        Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente();
-        Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia();
+        //Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente();
+        Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia(string codigo);
         Task<IEnumerable<CanalDTO>> ConsultarCanal();
         Task<IEnumerable<GrupoAlmacenDTO>> ConsultarGrupoAlmacen();
-        Task<IEnumerable<OtrosCostosDTO>> ConsultarOtrosCostos();
+        Task<IEnumerable<OtrosCostosDTO>> ConsultarOtrosCostos(string codigo);
         Task<IEnumerable<TipoClienteDTO>> ConsultarTipoCliente();
         Task<IEnumerable<PromocionDTO>> ConsultarPromocion();
         Task<IEnumerable<PromocionAcuerdoDTO>> ConsultarPromocionAcuerdo();
@@ -39,5 +39,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<ControlErroresDTO> InactivarPromocion(InactivarPromocionRequest promocion);
         Task<ControlErroresDTO> ActualizarAsync(ActualizarPromocionRequest promocion);
         Task<IEnumerable<AcuerdoPromocionArticuloDTO>> ConsultarAcuerdoPromocionArticulos(string etiquetaTipoFondo, string codigoItem);
+        Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticulosEquivalentes(string codigo);
     }
 }

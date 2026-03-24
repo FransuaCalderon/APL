@@ -230,12 +230,12 @@ namespace AppAPL.AccesoDatos.Repositorio
 
         }
 
-
+        /*
         public async Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente()
         {
             using var connection = factory.CreateOpenConnection();
 
-            /*
+            
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
             var paramObject = new { p_idfondo = idFondo };
             var parameters = new OracleDynamicParameters(paramObject);
@@ -244,7 +244,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
-            */
+            
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<ArticuloEquivalenteDTO>(
@@ -254,38 +254,39 @@ namespace AppAPL.AccesoDatos.Repositorio
             );
 
 
-            /*
+            
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
 
             logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
-            */
+            
 
             return datos;
 
-        }
+        }*/
 
 
-        public async Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia()
+        public async Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia(string codigo)
         {
             using var connection = factory.CreateOpenConnection();
 
-            /*
+            
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
-            var paramObject = new { p_idfondo = idFondo };
+            var paramObject = new { p_codigo = codigo };
             var parameters = new OracleDynamicParameters(paramObject);
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            /*
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
-            */
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<ArticuloPrecioCompetenciaDTO>(
-                "select * from apl_tb_artefacta_articuloprecioscompetencia",
-                null, //aqui van los parametros
-                commandType: CommandType.Text
+                "apl_sp_consulta_precios_competencia",
+                parameters, //aqui van los parametros
+                commandType: CommandType.StoredProcedure
             );
 
 
@@ -368,26 +369,27 @@ namespace AppAPL.AccesoDatos.Repositorio
 
         }
 
-        public async Task<IEnumerable<OtrosCostosDTO>> ConsultarOtrosCostos()
+        public async Task<IEnumerable<OtrosCostosDTO>> ConsultarOtrosCostos(string codigo)
         {
             using var connection = factory.CreateOpenConnection();
 
-            /*
+            
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
-            var paramObject = new { p_idfondo = idFondo };
+            var paramObject = new { p_codigo = codigo };
             var parameters = new OracleDynamicParameters(paramObject);
 
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            /*
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
-            */
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<OtrosCostosDTO>(
-                "select * from apl_tb_artefacta_otroscostos",
-                null, //aqui van los parametros
-                commandType: CommandType.Text
+                "apl_sp_consulta_otros_costos",
+                parameters, //aqui van los parametros
+                commandType: CommandType.StoredProcedure
             );
 
 
@@ -982,6 +984,40 @@ namespace AppAPL.AccesoDatos.Repositorio
             };
 
             return resultado;
+        }
+
+        public async Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticulosEquivalentes(string codigo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_codigo = codigo
+            };
+
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            /*
+            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<ArticuloEquivalenteDTO>(
+                "apl_sp_consulta_articulos_equivalentes",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            /*
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
+            int? codigoSalida = parameters.Get<int>("p_codigo_salida");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}, clasePromocion: {clasePromocion}");*/
+
+            return datos;
         }
 
         public async Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion)

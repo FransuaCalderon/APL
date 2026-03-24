@@ -15,11 +15,13 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen()
             => repo.ConsultarAlmacen();
 
+        /*
         public Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente()
-            => repo.ConsultarArticuloEquivalente();
+            => repo.ConsultarArticuloEquivalente();*/
 
-        public Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia()
-            => repo.ConsultarArticuloPrecioCompetencia();
+
+        public Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia(string codigo)
+            => repo.ConsultarArticuloPrecioCompetencia(codigo);
 
         public Task<IEnumerable<CanalDTO>> ConsultarCanal()
             => repo.ConsultarCanal();
@@ -27,8 +29,8 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<GrupoAlmacenDTO>> ConsultarGrupoAlmacen()
             => repo.ConsultarGrupoAlmacen();
 
-        public Task<IEnumerable<OtrosCostosDTO>> ConsultarOtrosCostos()
-            => repo.ConsultarOtrosCostos();
+        public Task<IEnumerable<OtrosCostosDTO>> ConsultarOtrosCostos(string codigo)
+            => repo.ConsultarOtrosCostos(codigo);
 
         public Task<IEnumerable<TipoClienteDTO>> ConsultarTipoCliente()
             => repo.ConsultarTipoCliente();
@@ -95,5 +97,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<AcuerdoPromocionArticuloDTO>> ConsultarAcuerdoPromocionArticulos(string etiquetaTipoFondo, string codigoItem)
             => repo.ConsultarAcuerdoPromocionArticulos(etiquetaTipoFondo, codigoItem);
+
+        public Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticulosEquivalentes(string codigo)
+            => repo.ConsultarArticulosEquivalentes(codigo);
     }
 }
