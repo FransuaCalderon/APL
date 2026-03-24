@@ -14,22 +14,15 @@
     let acuerdoArticuloTemporal = null;
     let acuerdoArticuloContexto = null;
 
-    // Configuración para el manejo unificado de "Varios"
-    // Mapea: Select -> Botón Apertura -> Modal Body -> Botón Aceptar Modal -> Valor Trigger "Varios"
     const CONFIG_MULTIPLE = [
-        // Jerarquía General
         { id: "marca", select: "#filtroMarcaGeneral", btnOpen: "#btnMarcaGeneral", body: "#bodyModalMarca", btnAccept: "#btnAceptarMarca", triggerVal: "3" },
         { id: "division", select: "#filtroDivisionGeneral", btnOpen: "#btnDivisionGeneral", body: "#bodyModalDivision", btnAccept: "#btnAceptarDivision", triggerVal: "3" },
         { id: "depto", select: "#filtroDepartamentoGeneral", btnOpen: "#btnDepartamentoGeneral", body: "#bodyModalDepartamento", btnAccept: "#btnAceptarDepartamento", triggerVal: "3" },
         { id: "clase", select: "#filtroClaseGeneral", btnOpen: "#btnClaseGeneral", body: "#bodyModalClase", btnAccept: "#btnAceptarClase", triggerVal: "3" },
-
-        // Otros Filtros General
         { id: "canal", select: "#filtroCanalGeneral", btnOpen: "#btnCanalGeneral", body: "#bodyModalCanal", btnAccept: "#btnAceptarCanal", triggerVal: "3" },
         { id: "grupo", select: "#filtroGrupoAlmacenGeneral", btnOpen: "#btnGrupoAlmacenGeneral", body: "#bodyModalGrupoAlmacen", btnAccept: "#btnAceptarGrupoAlmacen", triggerVal: "3" },
         { id: "almacen", select: "#filtroAlmacenGeneral", btnOpen: "#btnAlmacenGeneral", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" },
         { id: "mediopago", select: "#filtroMedioPagoGeneral", btnOpen: "#btnMedioPagoGeneral", body: "#bodyModalMedioPago", btnAccept: "#btnAceptarMedioPago", triggerVal: "7" },
-
-        // --- NUEVOS: Filtros Artículos ---
         { id: "canalArticulos", select: "#filtroCanalArticulos", btnOpen: "#btnCanalArticulos", body: "#bodyModalCanal", btnAccept: "#btnAceptarCanal", triggerVal: "3" },
         { id: "grupoArticulos", select: "#filtroGrupoAlmacenArticulos", btnOpen: "#btnGrupoAlmacenArticulos", body: "#bodyModalGrupoAlmacen", btnAccept: "#btnAceptarGrupoAlmacen", triggerVal: "3" },
         { id: "almacenArticulos", select: "#filtroAlmacenArticulos", btnOpen: "#btnAlmacenArticulos", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" }
@@ -102,38 +95,25 @@
 
     function togglePromocionForm() {
         const idSeleccionado = getTipoPromocion();
-
-        console.log('tipo: ', idSeleccionado);
-
-        // Comparamos contra las variables que llenaste en el AJAX
         $("#formGeneral").toggle(idSeleccionado == idCatalogoGeneral);
         $("#formArticulos").toggle(idSeleccionado == idCatalogoArticulo);
         $("#formCombos").toggle(idSeleccionado == idCatalogoCombos);
     }
 
-    // Helper para llenar Select y Modal simultáneamente
-    // MODIFICADO: Se agrega parámetro opcional textoTodas para insertar opción "Todas"/"Todos" después de "Seleccione..."
     const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo, textoTodas = null) => {
         $select.empty();
         $select.append(`<option selected value="">${labelDefault}</option>`);
-
-        // Si se pasa textoTodas, agregar opción "Todas"/"Todos" con valor "TODAS"
         if (textoTodas) {
             $select.append(`<option value="TODAS">${textoTodas}</option>`);
         }
-
         $select.append(`<option value="${valorVarios}" class="fw-bold text-success">-- VARIOS --</option>`);
-
         $modalBody.empty();
         const $ul = $('<ul class="list-group w-100"></ul>');
-
         if (Array.isArray(items)) {
             items.forEach(i => {
                 const codigo = i.codigo || i.id || i.valor;
                 const texto = i.nombre || i.descripcion || i.codigo;
-
                 $select.append($("<option>", { value: codigo, text: texto }));
-
                 const chkId = `chk_${idPrefijo}_${codigo}`;
                 const li = `
                     <li class="list-group-item">
@@ -149,11 +129,10 @@
     // ==========================================
     // LÓGICA DE NEGOCIO Y VALIDACIONES
     // ==========================================
-
     function initValidacionesFinancieras() {
         $("#descuentoProveedorGeneral, #fondoValorTotalGeneral").prop("disabled", true);
         $("#descuentoPropioGeneral, #comprometidoPropioGeneral").prop("disabled", true);
-        // --- VALIDACIONES DE PRESUPUESTO AL SALIR DEL CAMPO (BLUR) ---
+
         $("#fondoValorTotalGeneral").on("blur", function () {
             let valStr = $(this).val().replace(/[^0-9.]/g, '');
             let valorIngresado = parseFloat(valStr) || 0;
@@ -166,11 +145,9 @@
                     title: 'Presupuesto Excedido',
                     text: `El valor comprometido ($${valorIngresado}) es mayor al disponible del acuerdo ($${disponible}).`
                 });
-                $(this).val("");
-                $(this).addClass("is-invalid");
+                $(this).val("").addClass("is-invalid");
             } else {
-                $(this).removeClass("is-invalid");
-                $(this).val(formatCurrencySpanish(valorIngresado));
+                $(this).removeClass("is-invalid").val(formatCurrencySpanish(valorIngresado));
             }
         });
 
@@ -186,29 +163,20 @@
                     title: 'Presupuesto Excedido',
                     text: `El valor propio ($${valorIngresado}) excede el disponible del acuerdo propio ($${disponible}).`
                 });
-                $(this).val("");
-                $(this).addClass("is-invalid");
+                $(this).val("").addClass("is-invalid");
             } else {
-                $(this).removeClass("is-invalid");
-                $(this).val(formatCurrencySpanish(valorIngresado));
+                $(this).removeClass("is-invalid").val(formatCurrencySpanish(valorIngresado));
             }
         });
 
-        // NUEVO: Bloquear letras mientras se escribe en los campos de dólares (solo números, punto y coma)
         $("#fondoValorTotalGeneral, #comprometidoPropioGeneral").on("input", function () {
             this.value = this.value.replace(/[^0-9.,]/g, '');
         });
 
-        // --- VALIDACIONES DE DESCUENTO ---
         const soloNumerosDescuento = function (e) {
-            // Solo permite números y puntos
             this.value = this.value.replace(/[^0-9.]/g, '');
-
-            // NUEVO: Validar que no sobrepase el 100%
             let val = parseFloat(this.value);
-            if (val > 100) {
-                this.value = "100";
-            }
+            if (val > 100) this.value = "100";
             calcularTotalDescuento();
         };
 
@@ -219,7 +187,6 @@
             let descProv = parseFloat($("#descuentoProveedorGeneral").val()) || 0;
             let descProp = parseFloat($("#descuentoPropioGeneral").val()) || 0;
             let total = descProv + descProp;
-            // Opcional: si la suma de ambos supera 100, puedes limitarla también si tu negocio lo requiere.
             $("#descuentoTotalGeneral").val(total.toFixed(2) + "%");
         }
 
@@ -238,38 +205,25 @@
         CONFIG_MULTIPLE.forEach(conf => {
             $(conf.select).off("change").on("change", function () {
                 const val = $(this).val();
-
                 if (val === conf.triggerVal) {
                     $(conf.btnOpen).removeClass("d-none");
-
-                    // NUEVO: Guardar en el botón Aceptar quién lo invocó (General o Artículos)
                     $(conf.btnAccept).data("target-btn", conf.btnOpen);
                     $(conf.btnAccept).data("target-body", conf.body);
                     $(conf.btnAccept).data("target-id", conf.id);
-
-                    setTimeout(() => {
-                        $(conf.btnOpen)[0].click();
-                    }, 50);
-
+                    setTimeout(() => { $(conf.btnOpen)[0].click(); }, 50);
                 } else {
-                    $(conf.btnOpen).addClass("d-none");
-                    $(conf.btnOpen).removeData("seleccionados");
-                    $(conf.btnOpen).html(`<i class="fa-solid fa-list-check"></i>`);
-                    $(conf.btnOpen).removeClass("btn-success").addClass("btn-outline-secondary");
+                    $(conf.btnOpen).addClass("d-none").removeData("seleccionados")
+                        .html(`<i class="fa-solid fa-list-check"></i>`)
+                        .removeClass("btn-success").addClass("btn-outline-secondary");
                 }
 
                 if (conf.id === "marca" || conf.id === "marcaArticulos") {
-                    if (val === "TODAS") {
-                        validarBloqueoProveedor(true);
-                    } else if (val !== "" && val !== conf.triggerVal) {
-                        validarBloqueoProveedor(false);
-                    } else if (val === "") {
-                        validarBloqueoProveedor(false);
-                    }
+                    if (val === "TODAS") validarBloqueoProveedor(true);
+                    else if (val !== "" && val !== conf.triggerVal) validarBloqueoProveedor(false);
+                    else if (val === "") validarBloqueoProveedor(false);
                 }
             });
 
-            // Si el usuario da clic manual al botoncito azul para reabrir
             $(conf.btnOpen).off("click.setTarget").on("click.setTarget", function () {
                 $(conf.btnAccept).data("target-btn", conf.btnOpen);
                 $(conf.btnAccept).data("target-body", conf.body);
@@ -277,7 +231,6 @@
             });
         });
 
-        // Unificar el evento 'click' para todos los botones de Aceptar (evita que se sobreescriban)
         const uniqueAcceptBtns = [...new Set(CONFIG_MULTIPLE.map(c => c.btnAccept))];
         uniqueAcceptBtns.forEach(btnAcceptSelector => {
             $(btnAcceptSelector).off("click.acceptMulti").on("click.acceptMulti", function () {
@@ -296,11 +249,11 @@
                 $btnTrigger.data("seleccionados", seleccionados);
 
                 if (seleccionados.length > 0) {
-                    $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success");
-                    $btnTrigger.html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+                    $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success")
+                        .html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
                 } else {
-                    $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary");
-                    $btnTrigger.html(`<i class="fa-solid fa-list-check"></i>`);
+                    $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary")
+                        .html(`<i class="fa-solid fa-list-check"></i>`);
                 }
 
                 if (targetId === "marca" || targetId === "marcaArticulos") {
@@ -310,7 +263,6 @@
         });
     }
 
-    // MODIFICADO: Ahora recibe un booleano (bloquear) y además bloquea/desbloquea % Dscto Prov. y $ Comprometido Prov.
     function validarBloqueoProveedor(bloquear) {
         const $inputProv = $("#fondoProveedorGeneral");
         const $btnProv = $inputProv.next("button");
@@ -320,26 +272,16 @@
         const $comprometidoProv = $("#fondoValorTotalGeneral");
 
         if (bloquear) {
-            // Bloquear ID Acuerdo Proveedor
             $inputProv.val("").prop("disabled", true).attr("placeholder", "");
             $idProv.val("");
             $idHidden.val("0");
             $btnProv.prop("disabled", true);
-
-            // Bloquear % Dscto Prov.
             $descuentoProv.val("").prop("disabled", true);
-
-            // Bloquear $ Comprometido Prov.
             $comprometidoProv.val("").prop("disabled", true);
-
-            // Limpiar Descuento Total
             $("#descuentoTotalGeneral").val("");
-        }   else {
-            // Desbloquear SOLO el buscador de ID Acuerdo Proveedor
+        } else {
             $inputProv.prop("disabled", false).attr("placeholder", "Seleccione...");
             $btnProv.prop("disabled", false);
-
-            // NUEVO: Solo desbloquear montos/descuentos si YA hay un ID seleccionado
             if ($idProv.val() !== "") {
                 $descuentoProv.prop("disabled", false);
                 $comprometidoProv.prop("disabled", false);
@@ -353,11 +295,9 @@
     // ==========================================
     // CARGA DE DATOS (APIS)
     // ==========================================
-
     function cargarTiposPromocion(callback) {
         const idOpcion = getIdOpcionSeguro();
         const $select = $("#promocionTipo");
-
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "GET",
@@ -365,7 +305,6 @@
             client: "APL",
             endpoint_query_params: "/CLASEPROMOCION"
         };
-
         $.ajax({
             url: "/api/apigee-router-proxy",
             method: "POST",
@@ -428,7 +367,6 @@
             client: "APL",
             endpoint_query_params: ""
         };
-
         $.ajax({
             url: "/api/apigee-router-proxy",
             method: "POST",
@@ -436,7 +374,6 @@
             data: JSON.stringify(payload),
             success: function (res) {
                 const data = res.json_response || {};
-                // MODIFICADO: "Seleccione..." como default + opción "Todas"/"Todos" separada
                 llenarComboYModal($("#filtroMarcaGeneral"), $("#bodyModalMarca"), data.marcas, "Seleccione...", "3", "marca", "Todas");
                 llenarComboYModal($("#filtroDivisionGeneral"), $("#bodyModalDivision"), data.divisiones, "Seleccione...", "3", "division", "Todas");
                 llenarComboYModal($("#filtroDepartamentoGeneral"), $("#bodyModalDepartamento"), data.departamentos, "Seleccione...", "3", "depto", "Todos");
@@ -453,7 +390,6 @@
             client: "APL",
             endpoint_query_params: ""
         };
-
         $.ajax({
             url: "/api/apigee-router-proxy",
             method: "POST",
@@ -461,8 +397,6 @@
             data: JSON.stringify(payload),
             success: function (response) {
                 const data = response.json_response || {};
-
-                // 1. Filtrar "Todos" o "0" del Medio de Pago para que no aparezca
                 let mediosPagoFiltrados = (data.mediospagos || []).filter(m => {
                     let nom = (m.nombre || "").toUpperCase();
                     return nom !== "TODOS" && nom !== "TODAS" && m.codigo !== "0";
@@ -472,18 +406,16 @@
                 llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo");
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Seleccione...", "3", "almacen");
                 llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
-                
+
                 $("#filtroCanalArticulos").html($("#filtroCanalGeneral").html());
                 $("#filtroGrupoAlmacenArticulos").html($("#filtroGrupoAlmacenGeneral").html());
                 $("#filtroAlmacenArticulos").html($("#filtroAlmacenGeneral").html());
 
-                // Llenar Selects y Modal de Tipo Cliente
                 const $cliGen = $("#tipoClienteGeneral");
                 const $cliArt = $("#tipoClienteArticulos");
                 const $cliCom = $("#tipoClienteCombos");
                 const $modalBodyCli = $("#bodyModalTipoCliente");
 
-                // 2. Opciones Iniciales agregando explícitamente "Todos"
                 const opcionesBase = `
                     <option selected value="">Seleccione...</option>
                     <option value="TODOS">Todos</option>
@@ -520,14 +452,7 @@
         });
     }
 
-    // ==========================================
-    // CONSULTA ACUERDOS (PROVEEDOR / PROPIO)
-    // ==========================================
-    // ==========================================
-    // CONSULTA ACUERDOS (PROVEEDOR / PROPIO)
-    // ==========================================
     function consultarAcuerdos(tipoFondo, tablaId, onSeleccion) {
-        // Destruir DataTable si ya existe para evitar que "se quede pegado" con datos viejos
         if ($.fn.DataTable.isDataTable(`#${tablaId}`)) {
             $(`#${tablaId}`).DataTable().clear().destroy();
         }
@@ -537,8 +462,6 @@
         const claseAcuerdo = getClaseAcuerdo();
 
         let endpointParams = "/" + tipoFondo + "/" + claseAcuerdo;
-
-        // Condición: Solo mandar parámetro de Marca si es Fondo Proveedor
         if (tipoFondo === "TFPROVEDOR") {
             let marcas = obtenerValorCampo("marca", "#filtroMarcaGeneral", "3");
             let parametroMarca = "0";
@@ -571,8 +494,6 @@
                 }
 
                 const fmtDate = (s) => s ? new Date(s).toLocaleDateString("es-EC") : "";
-
-                // Generar filas con las clases align-middle
                 data.forEach(x => {
                     const row = `<tr class="text-nowrap">
                         <td class="text-center align-middle">
@@ -599,7 +520,6 @@
                     $tbody.append(row);
                 });
 
-                // Inicialización idéntica a la tabla de Consulta en CrearAcuerdo
                 let dt = $(`#${tablaId}`).DataTable({
                     destroy: true,
                     deferRender: true,
@@ -625,7 +545,6 @@
                     }
                 });
 
-                // Enlazar los inputs de búsqueda creados arriba de la tabla en el modal
                 if (tablaId === "tablaProveedores") {
                     $("#buscarProveedorInput").off("keyup").on("keyup", function () {
                         dt.search($(this).val()).draw();
@@ -636,7 +555,6 @@
                     });
                 }
 
-                // Delegación de eventos para que detecte el click aunque esté en la página 2 o 3 de la tabla
                 $(`#${tablaId} tbody`).off('change', '.acuerdo-radio').on('change', '.acuerdo-radio', function () {
                     $(`#${tablaId} tbody tr`).removeClass("table-active");
                     $(this).closest("tr").addClass("table-active");
@@ -655,8 +573,6 @@
         $("#fondoProveedorGeneral").val(f.display);
         $("#fondoProveedorIdGeneral").val(f.idAcuerdo);
         $("#fondoDisponibleHiddenGeneral").val(f.disponible);
-
-        // NUEVO: Habilitar campos porque ya se seleccionó un Proveedor
         $("#descuentoProveedorGeneral, #fondoValorTotalGeneral").prop("disabled", false);
     }
 
@@ -664,22 +580,17 @@
         $("#acuerdoPropioGeneral").val(f.display);
         $("#acuerdoPropioIdGeneral").val(f.idAcuerdo);
         $("#acuerdoPropioDisponibleHiddenGeneral").val(f.disponible);
-
-        // NUEVO: Habilitar campos porque ya se seleccionó un Propio
         $("#descuentoPropioGeneral, #comprometidoPropioGeneral").prop("disabled", false);
     }
 
-    // ==========================================
-    // RESET FORMULARIO
-    // ==========================================
     function resetearFormulario(sufijo) {
         $(`#motivo${sufijo}`).val("").trigger("change");
         $(`#descripcion${sufijo}`).val("");
         $(`#fechaInicio${sufijo}`).val("");
         $(`#fechaFin${sufijo}`).val("");
-        $(`#timeInicio${sufijo}`).val("");
-        $(`#timeFin${sufijo}`).val("");
-        $("#regaloGeneral").prop("checked", false);
+        $(`#timeInicio${sufijo}`).val("00:00");
+        $(`#timeFin${sufijo}`).val("23:59");
+        $(`#regaloGeneral`).prop("checked", false);
 
         $("#fondoProveedorGeneral").val("").prop("disabled", false).attr("placeholder", "Seleccione...");
         $("#fondoProveedorGeneral").next("button").prop("disabled", false);
@@ -698,57 +609,31 @@
 
         CONFIG_MULTIPLE.forEach(conf => {
             $(conf.select).val("").trigger("change");
-            $(conf.btnOpen).addClass("d-none");
-            $(conf.btnOpen).removeData("seleccionados");
-            $(conf.btnOpen).html(`<i class="fa-solid fa-list-check"></i>`);
-            $(conf.btnOpen).removeClass("btn-success").addClass("btn-outline-secondary");
+            $(conf.btnOpen).addClass("d-none").removeData("seleccionados")
+                .html(`<i class="fa-solid fa-list-check"></i>`)
+                .removeClass("btn-success").addClass("btn-outline-secondary");
             $(`${conf.body} input[type='checkbox']`).prop("checked", false);
         });
 
         $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").val("").trigger("change");
 
-        $("#inputGroupFile24").val("");
-        const fileNameSpan = document.getElementById("fileName");
-        if (fileNameSpan) fileNameSpan.textContent = "";
+        $("#inputGroupFile24, #inputFileArticulos").val("");
+        if (document.getElementById("fileName")) document.getElementById("fileName").textContent = "";
+        if (document.getElementById("fileNameArticulos")) document.getElementById("fileNameArticulos").textContent = "";
+
         $("#tablaArticulosBody").empty();
+        $("#tablaCombosBody").empty();
+
         $("#chkArticuloGeneral").prop("checked", false).trigger("change");
         $("#articuloGeneral").val("").prop("disabled", true);
 
         proveedorTemporal = null;
         propioTemporal = null;
-
-        // --- Limpieza específica del formulario Artículos ---
-        $("#tablaArticulosBody").empty();
-        $("#descripcionArticulos").val("");
-        $("#motivoArticulos").val("");
-        $("#fechaInicioArticulos").val("");
-        $("#fechaFinArticulos").val("");
-        $("#timeInicioArticulos").val("00:00");
-        $("#timeFinArticulos").val("23:59");
-        $("#filtroCanalArticulos").val("");
-        $("#filtroGrupoAlmacenArticulos").val("");
-        $("#filtroAlmacenArticulos").val("");
-        $("#tipoClienteArticulos").val("");
-        $("#inputFileArticulos").val("");
-        if (document.getElementById("fileNameArticulos")) document.getElementById("fileNameArticulos").textContent = "Ningún archivo seleccionado";
-
-        // Resetear botones de selección múltiple de Artículos
-        $("#btnCanalArticulos, #btnGrupoAlmacenArticulos, #btnAlmacenArticulos, #btnListaClienteArticulos")
-            .addClass("d-none")
-            .removeData("seleccionados")
-            .html('<i class="fa-solid fa-list-check"></i>')
-            .removeClass("btn-success").addClass("btn-outline-secondary");
-
-        // Limpiar variables de acuerdos por artículo
         acuerdoArticuloTemporal = null;
         acuerdoArticuloContexto = null;
 
         $(".is-invalid").removeClass("is-invalid");
     }
-
-    // ==========================================
-    // LOGICA GUARDAR Y ARTICULOS
-    // ==========================================
 
     function initLogicaArticuloGeneral() {
         $("#chkArticuloGeneral").on("change", function () {
@@ -766,7 +651,6 @@
             }
         });
 
-        // NUEVO: Permitir solo ingreso de números en el input de Artículo
         $("#articuloGeneral").on("input", function () {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
@@ -781,46 +665,38 @@
             changeYear: true
         };
 
-        // Datepicker Fecha Inicio
         $("#fechaInicioGeneral, #fechaInicioArticulos, #fechaInicioCombos").datepicker({
             ...commonOptions,
-            minDate: 0, // 0 significa "desde el día de hoy"
+            minDate: 0,
             onSelect: function (dateText, inst) {
                 const startDate = $(this).datepicker("getDate");
-                const idFin = this.id.replace("Inicio", "Fin"); // Obtiene el ID correspondiente del Fin
+                const idFin = this.id.replace("Inicio", "Fin");
 
                 if (startDate) {
-                    // La fecha fin solo puede seleccionarse desde la fecha inicio en adelante
                     $("#" + idFin).datepicker("option", "minDate", startDate);
-
                     const currentEndDate = $("#" + idFin).datepicker("getDate");
                     if (currentEndDate && currentEndDate < startDate) {
-                        $("#" + idFin).val(""); // Borra la fecha fin si quedó obsoleta
+                        $("#" + idFin).val("");
                     }
                 }
             }
         });
 
-        // Datepicker Fecha Fin
         $("#fechaFinGeneral, #fechaFinArticulos, #fechaFinCombos").datepicker({
             ...commonOptions,
             minDate: 0
         });
 
-        // Mostrar datepicker al dar clic en el ícono de calendario
-        $(".btn-outline-secondary:has(.fa-calendar), .btn-outline-secondary:has(img[alt='Calendario'])").click(function () {
+        $(".btn-outline-secondary:has(.fa-calendar), .btn-outline-secondary:has(img[alt='Calendario'])").on("click", function () {
             $(this).parent().find("input[type='text']").datepicker("show");
         });
     }
 
     function obtenerValorCampo(configId, selectId, triggerVal) {
         const valSelect = $(selectId).val();
-
-        // Agregamos "TODOS" a la validación de arreglos vacíos
         if (!valSelect || valSelect === "" || valSelect === "TODAS" || valSelect === "TODOS") {
             return [];
         }
-
         if (valSelect === triggerVal) {
             const conf = CONFIG_MULTIPLE.find(c => c.id === configId);
             if (conf) {
@@ -828,20 +704,43 @@
                 return seleccionados || [];
             }
         }
-
         if (valSelect && valSelect !== "") {
             return [valSelect];
         }
-
         return [];
     }
 
-    const archivoToBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
+    function esArchivoValido(inputSelector, spanSelector) {
+        const $input = $(inputSelector);
+        const fileNameSpan = $(spanSelector)[0];
+        const file = $input[0].files[0];
+
+        if (!file) return false;
+
+        const tamanoMaxMB = parseFloat($input.data('max-mb')) || 5;
+        const tamanoMaxBytes = tamanoMaxMB * 1024 * 1024;
+        const acceptAttr = $input.attr('accept') || "";
+
+        const extensionesPermitidas = acceptAttr.replace(/\./g, '').split(',').map(ext => ext.trim().toLowerCase());
+        const extensionArchivo = file.name.split('.').pop().toLowerCase();
+
+        if (acceptAttr !== "" && !extensionesPermitidas.includes(extensionArchivo)) {
+            Swal.fire("Extensión no permitida", `Solo se aceptan: ${acceptAttr}`, "error");
+            $input.val('');
+            if (fileNameSpan) fileNameSpan.textContent = "Archivo no válido";
+            return false;
+        }
+
+        if (file.size > tamanoMaxBytes) {
+            Swal.fire("Archivo muy pesado", `El límite es de ${tamanoMaxMB}MB`, "error");
+            $input.val('');
+            if (fileNameSpan) fileNameSpan.textContent = "Archivo muy pesado";
+            return false;
+        }
+
+        if (fileNameSpan) fileNameSpan.textContent = file.name;
+        return true;
+    }
 
     async function guardarPromocion(tipo) {
         const sufijo = tipo;
@@ -852,33 +751,19 @@
         const idProvSeleccionado = parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0;
         const idPropSeleccionado = parseInt($("#acuerdoPropioIdGeneral").val(), 10) || 0;
 
-        // 1. Validaciones iniciales
         if (idProvSeleccionado === 0 && idPropSeleccionado === 0) {
-            Swal.fire(
-                "Proveedor Requerido",
-                "Debe seleccionar al menos un Acuerdo (Proveedor o Propio) para calcular el Descuento Total.",
-                "warning"
-            );
-            return; // Detiene el guardado
-        }
-
-
-        // Validamos el archivo antes de seguir
-        if (!esArchivoValido('#inputGroupFile24', '#fileName')) {
-            // Si no hay archivo o es inválido, mostramos alerta si está vacío
-            if ($('#inputGroupFile24')[0].files.length === 0) {
-                Swal.fire("Archivo requerido", "Debe adjuntar el soporte", "warning");
-            }
-            return; // Detenemos la ejecución
-        }
-
-        // 2. Manejo del Archivo
-        const fileInput = $('#inputGroupFile24')[0].files[0];
-        if (!fileInput) {
-            Swal.fire("Archivo requerido", "Debe adjuntar el soporte de la promoción", "warning");
+            Swal.fire("Proveedor Requerido", "Debe seleccionar al menos un Acuerdo (Proveedor o Propio) para calcular el Descuento Total.", "warning");
             return;
         }
 
+        if (!esArchivoValido('#inputGroupFile24', '#fileName')) {
+            if ($('#inputGroupFile24')[0].files.length === 0) {
+                Swal.fire("Archivo requerido", "Debe adjuntar el soporte", "warning");
+            }
+            return;
+        }
+
+        const fileInput = $('#inputGroupFile24')[0].files[0];
         const leerArchivo = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -891,22 +776,11 @@
         try {
             const base64Completo = await leerArchivo(fileInput);
 
-            // Definimos una función auxiliar para determinar el tipo de asignación
             const determinarAsignacion = (idSelector) => {
                 const selector = $(idSelector);
                 const valorSeleccionado = selector.val();
-
-                // Si dice TODOS, TODAS o está vacío, es asignación "T" (Todos)
-                if (valorSeleccionado === "TODAS" || valorSeleccionado === "TODOS" || !valorSeleccionado || valorSeleccionado.length === 0) {
-                    return "T";
-                }
-
-                // Asignación de Detalle "D" si es Varios (3 normal, 4 tipo cliente, 7 medio pago) 
-                // o si es Lista Específica en Tipo Cliente (3)
-                if (valorSeleccionado === "3" || valorSeleccionado === "4" || valorSeleccionado === "7") {
-                    return "D";
-                }
-
+                if (valorSeleccionado === "TODAS" || valorSeleccionado === "TODOS" || !valorSeleccionado || valorSeleccionado.length === 0) return "T";
+                if (valorSeleccionado === "3" || valorSeleccionado === "4" || valorSeleccionado === "7") return "D";
                 return "C";
             };
 
@@ -914,47 +788,36 @@
                 { tipo: "SEGMARCA", codigos: obtenerValorCampo("marca", "#filtroMarcaGeneral", "3"), id: "#filtroMarcaGeneral" },
                 { tipo: "SEGDIVISION", codigos: obtenerValorCampo("division", "#filtroDivisionGeneral", "3"), id: "#filtroDivisionGeneral" },
                 { tipo: "SEGCLASE", codigos: obtenerValorCampo("clase", "#filtroClaseGeneral", "3"), id: "#filtroClaseGeneral" },
-                // CORRECCIÓN: "departamento" -> "depto"
                 { tipo: "SEGDEPARTAMENTO", codigos: obtenerValorCampo("depto", "#filtroDepartamentoGeneral", "3"), id: "#filtroDepartamentoGeneral" },
                 { tipo: "SEGCANAL", codigos: obtenerValorCampo("canal", "#filtroCanalGeneral", "3"), id: "#filtroCanalGeneral" },
-                // CORRECCIÓN: "grupoalmacen" -> "grupo"
                 { tipo: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupo", "#filtroGrupoAlmacenGeneral", "3"), id: "#filtroGrupoAlmacenGeneral" },
                 { tipo: "SEGALMACEN", codigos: obtenerValorCampo("almacen", "#filtroAlmacenGeneral", "3"), id: "#filtroAlmacenGeneral" },
-                // CORRECCIÓN: Lógica manual para Tipo de Cliente ya que los elegidos están en el botón #btnListaClienteGeneral
                 {
                     tipo: "SEGTIPOCLIENTE", codigos: (function () {
                         const val = $("#tipoClienteGeneral").val();
                         if (val === "4") return $("#btnListaClienteGeneral").data("seleccionados") || [];
-                        if (val && val !== "" && val !== "TODOS" && val !== "3") return [val]; // 3 es Lista Específica
+                        if (val && val !== "" && val !== "TODOS" && val !== "3") return [val];
                         return [];
                     })(), id: "#tipoClienteGeneral"
                 },
-                // CORRECCIÓN: El valor Varios para MedioPago es "7", no "3"
                 { tipo: "SEGMEDIOPAGO", codigos: obtenerValorCampo("mediopago", "#filtroMedioPagoGeneral", "7"), id: "#filtroMedioPagoGeneral" }
             ];
+
             const segmentosValidados = segmentosConfig.map(seg => ({
                 tiposegmento: seg.tipo,
                 codigos: seg.codigos,
                 tipoasignacion: determinarAsignacion(seg.id)
             }));
 
-            // --- NUEVA VALIDACIÓN FRONTEND ---
-            // Buscamos si hay algún segmento que sea "D" pero tenga el arreglo de códigos vacío
             const segmentoInvalido = segmentosValidados.find(seg => seg.tipoasignacion === "D" && (!seg.codigos || seg.codigos.length === 0));
-
             if (segmentoInvalido) {
-                Swal.fire(
-                    "Atención",
-                    `Has seleccionado "Varios" en el filtro de ${segmentoInvalido.tiposegmento.replace('SEG', '')}, pero no has marcado ningún elemento en la lista.`,
-                    "warning"
-                );
-                return; // Detenemos la ejecución para que no haga la petición AJAX
+                Swal.fire("Atención", `Has seleccionado "Varios" en el filtro de ${segmentoInvalido.tiposegmento.replace('SEG', '')}, pero no has marcado ningún elemento en la lista.`, "warning");
+                return;
             }
 
             const idProveedorGeneral = parseInt($("#fondoProveedorIdGeneral").val(), 10) || 0;
             const idProveedorPropio = parseInt($("#acuerdoPropioIdGeneral").val(), 10) || 0;
 
-            // 4. Construcción del Body
             const body = {
                 "tipoclaseetiqueta": "PRGENERAL",
                 "idopcion": getIdOpcionSeguro(),
@@ -974,7 +837,6 @@
                     "nombreusuario": getUsuario(),
                 },
                 "acuerdos": [
-                    // Validamos solo el de Proveedor General
                     ...(idProveedorGeneral !== 0 ? [{
                         "idacuerdo": idProveedorGeneral,
                         "porcentajedescuento": parseFloat($("#descuentoProveedorGeneral").val()) || 0,
@@ -987,7 +849,6 @@
                         "valorcomprometido": parseCurrency($("#comprometidoPropioGeneral").val()),
                         "etiqueta_tipo_fondo": "TFPROPIO"
                     }] : [])
-                    
                 ],
                 "segmentos": segmentosValidados
             };
@@ -1000,23 +861,17 @@
                 "body_request": body
             };
 
-            console.log("body: ", body);
-
-            // 5. Envío vía AJAX
             $.ajax({
                 url: "/api/apigee-router-proxy",
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify(payload),
                 success: function (res) {
-                    console.log(res);
                     const respuestaNegocio = res.json_response || res;
-
                     if (respuestaNegocio.codigoretorno == 1) {
-                        Swal.fire("Éxito", "Promoción Guardada: " + respuestaNegocio.mensaje, "success")
-                            .then(() => {
-                                resetearFormulario(tipo); // ← AQUÍ, después de que el usuario cierra el Swal
-                            });
+                        Swal.fire("Éxito", "Promoción Guardada: " + respuestaNegocio.mensaje, "success").then(() => {
+                            resetearFormulario(tipo);
+                        });
                     } else {
                         Swal.fire("Atención", respuestaNegocio.mensaje || "Error en base de datos", "warning");
                     }
@@ -1025,127 +880,14 @@
                     Swal.fire("Error", "Error de comunicación: " + xhr.statusText, "error");
                 }
             });
-
         } catch (error) {
             console.error(error);
             Swal.fire("Error", "No se pudo procesar el archivo seleccionado", "error");
         }
     }
 
-    function resetearFormulario(sufijo) {
-        console.log('resetearFormulario sufijo: ', sufijo);
-        // --- Campos de texto / select básicos ---
-        $(`#motivo${sufijo}`).val("").trigger("change");
-        $(`#descripcion${sufijo}`).val("");
-        $(`#fechaInicio${sufijo}`).val("");
-        $(`#fechaFin${sufijo}`).val("");
-        $(`#timeInicio${sufijo}`).val("00:00");
-        $(`#timeFin${sufijo}`).val("23:59");
-        $(`#regaloGeneral`).prop("checked", false);
-
-        // --- Acuerdo Proveedor (incluye desbloqueo) ---
-        $("#fondoProveedorGeneral").val("").prop("disabled", false);
-        $("#fondoProveedorIdGeneral").val("");
-        $("#fondoDisponibleHiddenGeneral").val("");
-        $("#fondoValorTotalGeneral").val("").prop("disabled", false);
-        $("#descuentoProveedorGeneral").val("").prop("disabled", false);
-
-        // --- Acuerdo Propio ---
-        $("#acuerdoPropioGeneral").val("");
-        $("#acuerdoPropioIdGeneral").val("");
-        $("#acuerdoPropioDisponibleHiddenGeneral").val("");
-        $("#comprometidoPropioGeneral").val("");
-        $("#descuentoPropioGeneral").val("");
-
-        // --- Descuento Total ---
-        $("#descuentoTotalGeneral").val("");
-
-        // --- Filtros Jerarquía y Combos (Selects + Botones múltiple) ---
-        CONFIG_MULTIPLE.forEach(conf => {
-            $(conf.select).val("").trigger("change");         // Reset select
-            $(conf.btnOpen).addClass("d-none");               // Ocultar botón Varios
-            $(conf.btnOpen).removeData("seleccionados");      // Limpiar selección guardada
-            $(conf.btnOpen).html(`<i class="fa-solid fa-list-check"></i>`);
-            $(conf.btnOpen).removeClass("btn-success").addClass("btn-outline-secondary");
-
-            // Desmarcar todos los checkboxes del modal correspondiente
-            $(`${conf.body} input[type='checkbox']`).prop("checked", false);
-        });
-
-        // --- Tipo Cliente (Resetea los 3 selects de golpe) ---
-        $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").val("").trigger("change");
-
-        // --- Archivo ---
-        $("#inputGroupFile24, #inputFileArticulos").val("");
-        if (document.getElementById("fileName")) document.getElementById("fileName").textContent = "";
-        if (document.getElementById("fileNameArticulos")) document.getElementById("fileNameArticulos").textContent = "";
-
-        // ==========================================
-        // 👇 SOLUCIÓN: LIMPIAR LAS TABLAS DE DETALLE 👇
-        // ==========================================
-        $("#tablaArticulosBody").empty();
-        $("#tablaCombosBody").empty(); // Opcional: si también quieres limpiar la de combos
-        // ==========================================
-
-        // --- Artículo (si aplica) ---
-        $("#chkArticuloGeneral").prop("checked", false).trigger("change");
-        $("#articuloGeneral").val("").prop("disabled", true);
-
-        // --- Limpiar variables temporales globales ---
-        proveedorTemporal = null;
-        propioTemporal = null;
-        acuerdoArticuloTemporal = null; // <- Agregado para Artículos
-        acuerdoArticuloContexto = null; // <- Agregado para Artículos
-
-        // --- Quitar clases de validación visual ---
-        $(".is-invalid").removeClass("is-invalid");
-    }
-
-    function esArchivoValido(inputSelector, spanSelector) {
-        const $input = $(inputSelector);
-        const fileNameSpan = $(spanSelector)[0];
-        const file = $input[0].files[0];
-
-        if (!file) return false;
-
-        // Obtener parámetros dinámicos del ViewBag
-        const tamanoMaxMB = parseFloat($input.data('max-mb')) || 5;
-        const tamanoMaxBytes = tamanoMaxMB * 1024 * 1024;
-        const acceptAttr = $input.attr('accept') || "";
-
-        const extensionesPermitidas = acceptAttr.replace(/\./g, '').split(',').map(ext => ext.trim().toLowerCase());
-        const extensionArchivo = file.name.split('.').pop().toLowerCase();
-
-        // Validación: Extensión
-        if (acceptAttr !== "" && !extensionesPermitidas.includes(extensionArchivo)) {
-            Swal.fire("Extensión no permitida", `Solo se aceptan: ${acceptAttr}`, "error");
-            $input.val('');
-            if (fileNameSpan) fileNameSpan.textContent = "Archivo no válido";
-            return false;
-        }
-
-        // Validación: Tamaño
-        if (file.size > tamanoMaxBytes) {
-            Swal.fire("Archivo muy pesado", `El límite es de ${tamanoMaxMB}MB`, "error");
-            $input.val('');
-            if (fileNameSpan) fileNameSpan.textContent = "Archivo muy pesado";
-            return false;
-        }
-
-        // Si todo está bien
-        if (fileNameSpan) fileNameSpan.textContent = file.name;
-        return true;
-    }
-
-    // ==========================================
-    // CONSULTA DE ITEMS (MODAL ARTÍCULOS)
-    // ==========================================
-
     function cargarFiltrosItemsPromocion() {
-        $("#filtroMarcaModal").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
-        $("#filtroDivisionModal").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
-        $("#filtroDepartamentoModal").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
-        $("#filtroClaseModal").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
+        $("#filtroMarcaModal, #filtroDivisionModal, #filtroDepartamentoModal, #filtroClaseModal").html('<div class="text-center"><small class="text-muted">Cargando...</small></div>');
 
         const payload = {
             code_app: "APP20260128155212346",
@@ -1170,11 +912,9 @@
                         items.forEach(item => {
                             $container.append(`
                             <div class="form-check">
-                                <input class="form-check-input filtro-item-checkbox" type="checkbox"
-                                       id="${containerId}_${item.codigo}" value="${item.nombre}">
+                                <input class="form-check-input filtro-item-checkbox" type="checkbox" id="${containerId}_${item.codigo}" value="${item.nombre}">
                                 <label class="form-check-label" for="${containerId}_${item.codigo}">${item.nombre}</label>
-                            </div>
-                        `);
+                            </div>`);
                         });
                     } else {
                         $container.html(`<small class="text-muted">No hay ${label} disponibles</small>`);
@@ -1189,8 +929,7 @@
                 initFiltrosModalItems();
             },
             error: function () {
-                const errorMsg = '<small class="text-danger">Error al cargar</small>';
-                $("#filtroMarcaModal, #filtroDivisionModal, #filtroDepartamentoModal, #filtroClaseModal").html(errorMsg);
+                $("#filtroMarcaModal, #filtroDivisionModal, #filtroDepartamentoModal, #filtroClaseModal").html('<small class="text-danger">Error al cargar</small>');
             }
         });
     }
@@ -1328,10 +1067,10 @@
             <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0" min="0" disabled></td>
             <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0" min="0" disabled></td>
             <td class="align-middle celda-editable">
-    <select class="form-select form-select-sm select-mediopago-articulo" disabled>
-        ${$("#filtroMedioPagoGeneral").html()}
-    </select>
-</td>
+                <select class="form-select form-select-sm select-mediopago-articulo" disabled>
+                    ${$("#filtroMedioPagoGeneral").html()}
+                </select>
+            </td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
@@ -1384,32 +1123,6 @@
             $tbody.append(fila);
         });
 
-        // Lógica de selección de radio buttons
-        $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
-            // Bloquear todo
-            $("#tablaArticulosBody tr").removeClass("table-active");
-            $("#tablaArticulosBody .celda-editable input, #tablaArticulosBody .celda-editable button, #tablaArticulosBody .celda-editable select").prop("disabled", true);
-            $("#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio").prop("disabled", true);
-
-            // Habilitar la fila seleccionada
-            const $fila = $(this).closest("tr");
-            $fila.addClass("table-active");            
-            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").not(".aporte-proveedor, .aporte-rebate, .aporte-propio").prop("disabled", false);
-
-            // Solo habilitar aportes si ya tienen un acuerdo seleccionado
-            const tieneProvedor = $fila.find("td:eq(32) .acuerdo-id-hidden").val();
-            const tieneRebate = $fila.find("td:eq(34) .acuerdo-id-hidden").val();
-            const tienePropio = $fila.find("td:eq(36) .acuerdo-id-hidden").val();
-
-            if (tieneProvedor) $fila.find(".aporte-proveedor").prop("disabled", false);
-            if (tieneRebate) $fila.find(".aporte-rebate").prop("disabled", false);
-            if (tienePropio) $fila.find(".aporte-propio").prop("disabled", false);
-            // Checkbox Regalo: bloquear interacción visual pero mantener apariencia de marcado
-            $("#tablaArticulosBody td:last-child input[type='checkbox']").prop("disabled", false).css("pointer-events", "none");
-            $fila.find("td:last-child input[type='checkbox']").css("pointer-events", "auto");
-        });
-
-        // Auto-seleccionar el primero si no hay ninguno seleccionado
         if (itemsNuevos > 0 && $tbody.find(".item-row-radio:checked").length === 0) {
             const $primeraFila = $tbody.find("tr").first();
             $primeraFila.find(".item-row-radio").prop("checked", true).trigger("change");
@@ -1425,12 +1138,11 @@
         const precioIgualar = parseCurrency($fila.find("td:eq(26) input").val());
         const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
         const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
-        const otrosCostos = 0; // TODO: cuando implementes Otros Costos
+        const otrosCostos = 0;
         const unidadesLimite = parseInt($fila.find("td:eq(19) input").val()) || 0;
         const proyeccionVtas = parseInt($fila.find("td:eq(20) input").val()) || 0;
         const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
 
-        // Descuentos
         const dsctoContado = precioLista - precioContado;
         const dsctoTC = precioLista - precioTC;
         const dsctoCredito = precioLista - precioCredito;
@@ -1440,11 +1152,9 @@
         $fila.find("td:eq(29)").text(dsctoCredito.toFixed(2));
         $fila.find("td:eq(30)").text(dsctoIgualar.toFixed(2));
 
-        // Margen Precio Lista
         const margenPL = precioLista > 0 ? ((precioLista - costo) / precioLista * 100) : 0;
         $fila.find("td:eq(37)").text(margenPL.toFixed(2) + "%");
 
-        // Márgenes Promo
         const calcMargen = (precio) => {
             const denom = precio + aporteProveedor + aporteRebate;
             return denom > 0 ? ((denom - costo - otrosCostos) / denom * 100) : 0;
@@ -1454,13 +1164,11 @@
         $fila.find("td:eq(40)").text(calcMargen(precioCredito).toFixed(2) + "%");
         $fila.find("td:eq(41)").text(calcMargen(precioIgualar).toFixed(2) + "%");
 
-        // Comprometidos
         $fila.find("td:eq(42)").text(formatCurrencySpanish(aporteProveedor * unidades));
         $fila.find("td:eq(43)").text(formatCurrencySpanish(aporteRebate * unidades));
         const aportePropio = parseCurrency($fila.find("td:eq(35) input").val());
         $fila.find("td:eq(44)").text(formatCurrencySpanish(aportePropio * unidades));
 
-        // Colores dinámicos para descuentos y márgenes
         $fila.find("td:eq(27), td:eq(28), td:eq(29), td:eq(30), td:eq(37), td:eq(38), td:eq(39), td:eq(40), td:eq(41)").each(function () {
             const valor = parseFloat($(this).text());
             if (valor < 0) {
@@ -1472,10 +1180,6 @@
             }
         });
     }
-
-    // ==========================================
-    // ACUERDOS POR ARTÍCULO (PROVEEDOR/REBATE/PROPIO)
-    // ==========================================
 
     function consultarAcuerdosPorArticulo(etiquetaTipoFondo, codigoItem, idAcuerdoActual) {
         if (dtAcuerdosArticulo) {
@@ -1559,10 +1263,8 @@
                     }
                 });
 
-                // Resaltar fila pre-seleccionada
                 $("#tablaAcuerdosArticulo tbody input[name='acuerdoArticuloSel']:checked").closest("tr").addClass("table-active");
 
-                // Si hay uno pre-seleccionado, reconstruir el temporal
                 const $preSelected = $("#tablaAcuerdosArticulo tbody input[name='acuerdoArticuloSel']:checked");
                 if ($preSelected.length > 0) {
                     const d = $preSelected.data();
@@ -1627,7 +1329,6 @@
         const fechaInicio = getFullISOString("#fechaInicioArticulos", "#timeInicioArticulos");
         const fechaFin = getFullISOString("#fechaFinArticulos", "#timeFinArticulos");
 
-        // Validaciones básicas
         if (!desc || desc.trim().length < 3) {
             Swal.fire("Validación", "Debe ingresar una descripción.", "warning"); return;
         }
@@ -1643,7 +1344,6 @@
             Swal.fire("Validación", "Debe agregar al menos un artículo en el detalle.", "warning"); return;
         }
 
-        // Validar archivo
         if (!esArchivoValido('#inputFileArticulos', '#fileNameArticulos')) {
             if ($('#inputFileArticulos')[0].files.length === 0) {
                 Swal.fire("Archivo requerido", "Debe adjuntar el soporte", "warning");
@@ -1667,8 +1367,6 @@
 
         try {
             const base64Completo = await leerArchivo(fileInput);
-
-            // Construir artículos desde la tabla
             const articulos = [];
             let errorFila = "";
 
@@ -1677,10 +1375,6 @@
                 const numFila = index + 1;
                 const codigo = String($fila.data("codigo"));
 
-                // Leer todos los inputs de la fila en orden
-                const $inputs = $fila.find("input, select, button");
-
-                // Valores de consulta (no editables)
                 const costo = parseCurrency($fila.find("td:eq(2)").text());
                 const stockBodega = parseInt($fila.find("td:eq(3)").text()) || 0;
                 const stockTienda = parseInt($fila.find("td:eq(4)").text()) || 0;
@@ -1695,13 +1389,11 @@
                 const m2p = parseCurrency($fila.find("td:eq(13)").text());
                 const igualarPrecio = parseCurrency($fila.find("td:eq(14)").text());
 
-                // Márgenes mínimos (consulta)
                 const margenMinContado = parseFloat($fila.find("td:eq(15)").text()) || 0;
                 const margenMinTC = parseFloat($fila.find("td:eq(16)").text()) || 0;
                 const margenMinCredito = parseFloat($fila.find("td:eq(17)").text()) || 0;
                 const margenMinIgualar = parseFloat($fila.find("td:eq(18)").text()) || 0;
 
-                // Campos editables (inputs)
                 const unidadesLimite = parseInt($fila.find("td:eq(19) input").val()) || 0;
                 const proyeccionVtas = parseInt($fila.find("td:eq(20) input").val()) || 0;
 
@@ -1714,26 +1406,20 @@
                     return false;
                 }
 
-                // Medio de Pago
                 const $selectMedioPago = $fila.find("td:eq(21) select");
                 const medioPagoVal = $selectMedioPago.val();
 
-                // Precio Lista (consulta)
                 const precioLista = parseCurrency($fila.find("td:eq(22)").text());
-
-                // Precios promo (editables)
                 const precioPromoContado = parseCurrency($fila.find("td:eq(23) input").val());
                 const precioPromoTC = parseCurrency($fila.find("td:eq(24) input").val());
                 const precioPromoCredito = parseCurrency($fila.find("td:eq(25) input").val());
                 const precioIgualar = parseCurrency($fila.find("td:eq(26) input").val());
 
-                // Descuentos (cálculo)
                 const dsctoContado = parseFloat($fila.find("td:eq(27)").text()) || 0;
                 const dsctoTC = parseFloat($fila.find("td:eq(28)").text()) || 0;
                 const dsctoCredito = parseFloat($fila.find("td:eq(29)").text()) || 0;
                 const dsctoIgualar = parseFloat($fila.find("td:eq(30)").text()) || 0;
 
-                // Aportes y sus IDs
                 const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
                 const idAcuerdoProveedor = parseInt($fila.find("td:eq(32) .acuerdo-id-hidden").val()) || 0;
                 const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
@@ -1741,106 +1427,55 @@
                 const aportePropio = parseCurrency($fila.find(".aporte-propio").val());
                 const idAcuerdoPropio = parseInt($fila.find("td:eq(36) .acuerdo-id-hidden").val()) || 0;
 
-                // Márgenes (cálculo)
                 const margenPrecioLista = parseFloat($fila.find("td:eq(37)").text()) || 0;
                 const margenPromoContado = parseFloat($fila.find("td:eq(38)").text()) || 0;
                 const margenPromoTC = parseFloat($fila.find("td:eq(39)").text()) || 0;
                 const margenPromoCredito = parseFloat($fila.find("td:eq(40)").text()) || 0;
                 const margenIgualar = parseFloat($fila.find("td:eq(41)").text()) || 0;
 
-                // Comprometidos (cálculo)
                 const compProveedor = parseCurrency($fila.find("td:eq(42)").text());
                 const compRebate = parseCurrency($fila.find("td:eq(43)").text());
                 const compPropio = parseCurrency($fila.find("td:eq(44)").text());
 
-                // Regalo
                 const regalo = $fila.find("td:eq(45) input[type='checkbox']").is(":checked") ? "S" : "N";
 
-                // Construir acuerdos del artículo
                 const acuerdosArticulo = [];
-                if (idAcuerdoProveedor > 0) {
-                    acuerdosArticulo.push({ idAcuerdo: idAcuerdoProveedor, valorAporte: aporteProveedor });
-                }
-                if (idAcuerdoRebate > 0) {
-                    acuerdosArticulo.push({ idAcuerdo: idAcuerdoRebate, valorAporte: aporteRebate });
-                }
-                if (idAcuerdoPropio > 0) {
-                    acuerdosArticulo.push({ idAcuerdo: idAcuerdoPropio, valorAporte: aportePropio });
-                }
+                if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idAcuerdo: idAcuerdoProveedor, valorAporte: aporteProveedor });
+                if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idAcuerdo: idAcuerdoRebate, valorAporte: aporteRebate });
+                if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idAcuerdo: idAcuerdoPropio, valorAporte: aportePropio });
 
-                // Construir medios de pago
                 const mediosPago = [];
                 const mediosPagoSeleccionados = $selectMedioPago.data("seleccionados") || [];
 
-                // Validación: bloquea el guardado si escogió Varios pero no marcó nada
                 if (medioPagoVal === "7" && mediosPagoSeleccionados.length === 0) {
                     errorFila = `Fila ${numFila}: Seleccionaste "Varios" en Medio de Pago, pero no marcaste elementos en la lista.`;
                     return false;
                 }
 
                 if (medioPagoVal === "7") {
-                    mediosPago.push({
-                        tiposegmento: "SEGMEDIOPAGO",
-                        tipoasignacion: "D",
-                        tipoAsignacion: "D", // Enviamos ambas por seguridad
-                        codigos: mediosPagoSeleccionados
-                    });
+                    mediosPago.push({ tiposegmento: "SEGMEDIOPAGO", tipoasignacion: "D", tipoAsignacion: "D", codigos: mediosPagoSeleccionados });
                 } else if (medioPagoVal && medioPagoVal !== "" && medioPagoVal !== "TODAS" && medioPagoVal !== "TODOS") {
-                    mediosPago.push({
-                        tiposegmento: "SEGMEDIOPAGO",
-                        tipoasignacion: "C",
-                        tipoAsignacion: "C",
-                        codigos: [medioPagoVal]
-                    });
+                    mediosPago.push({ tiposegmento: "SEGMEDIOPAGO", tipoasignacion: "C", tipoAsignacion: "C", codigos: [medioPagoVal] });
                 } else {
-                    mediosPago.push({
-                        tiposegmento: "SEGMEDIOPAGO",
-                        tipoasignacion: "T",
-                        tipoAsignacion: "T",
-                        codigos: []
-                    });
+                    mediosPago.push({ tiposegmento: "SEGMEDIOPAGO", tipoasignacion: "T", tipoAsignacion: "T", codigos: [] });
                 }
 
                 articulos.push({
-                    codigoItem: String(codigo),
-                    descripcion: $fila.find("td:eq(1)").text(),
-                    costo: costo,
-                    stockBodega: stockBodega,
-                    stockTienda: stockTienda,
-                    inventarioOptimo: invOptimo,
-                    excedenteUnidad: excedenteU,
-                    excedenteValor: excedenteV,
-                    m0Unidades: m0u,
-                    m0Precio: m0p,
-                    m1Unidades: m1u,
-                    m1Precio: m1p,
-                    m2Unidades: m2u,
-                    m2Precio: m2p,
-                    igualarPrecio: igualarPrecio,
-                    margenMinimoContado: margenMinContado,
-                    margenMinimoTarjetaCredito: margenMinTC,
-                    margenMinimoCredito: margenMinCredito,
-                    margenMinimoIgualar: margenMinIgualar,
-                    unidadesLimite: unidadesLimite,
-                    unidadesProyeccionVentas: proyeccionVtas,
-                    precioListaContado: precioLista,
-                    precioPromocionContado: precioPromoContado,
-                    precioPromocionTarjetaCredito: precioPromoTC,
-                    precioPromocionCredito: precioPromoCredito,
-                    precioIgualarPrecio: precioIgualar,
-                    descuentoPromocionContado: dsctoContado,
-                    descuentoPromocionTarjetaCredito: dsctoTC,
-                    descuentoPromocionCredito: dsctoCredito,
-                    descuentoIgualarPrecio: dsctoIgualar,
-                    margenPrecioListaContado: margenPrecioLista,
-                    margenPromocionContado: margenPromoContado,
-                    margenPromocionTarjetaCredito: margenPromoTC,
-                    margenPromocionCredito: margenPromoCredito,
-                    margenIgualarPrecio: margenIgualar,
-                    marcaRegalo: regalo,
-                    mediosPago: mediosPago,
-                    acuerdos: acuerdosArticulo,
-                    otrosCostos: []
+                    codigoItem: String(codigo), descripcion: $fila.find("td:eq(1)").text(),
+                    costo: costo, stockBodega: stockBodega, stockTienda: stockTienda, inventarioOptimo: invOptimo,
+                    excedenteUnidad: excedenteU, excedenteValor: excedenteV, m0Unidades: m0u, m0Precio: m0p,
+                    m1Unidades: m1u, m1Precio: m1p, m2Unidades: m2u, m2Precio: m2p, igualarPrecio: igualarPrecio,
+                    margenMinimoContado: margenMinContado, margenMinimoTarjetaCredito: margenMinTC,
+                    margenMinimoCredito: margenMinCredito, margenMinimoIgualar: margenMinIgualar,
+                    unidadesLimite: unidadesLimite, unidadesProyeccionVentas: proyeccionVtas,
+                    precioListaContado: precioLista, precioPromocionContado: precioPromoContado,
+                    precioPromocionTarjetaCredito: precioPromoTC, precioPromocionCredito: precioPromoCredito,
+                    precioIgualarPrecio: precioIgualar, descuentoPromocionContado: dsctoContado,
+                    descuentoPromocionTarjetaCredito: dsctoTC, descuentoPromocionCredito: dsctoCredito,
+                    descuentoIgualarPrecio: dsctoIgualar, margenPrecioListaContado: margenPrecioLista,
+                    margenPromocionContado: margenPromoContado, margenPromocionTarjetaCredito: margenPromoTC,
+                    margenPromocionCredito: margenPromoCredito, margenIgualarPrecio: margenIgualar,
+                    marcaRegalo: regalo, mediosPago: mediosPago, acuerdos: acuerdosArticulo, otrosCostos: []
                 });
             });
 
@@ -1848,7 +1483,6 @@
                 Swal.fire("Validación de Detalle", errorFila, "warning"); return;
             }
 
-            // Segmentos de Artículos
             const determinarAsignacion = (idSelector) => {
                 const val = $(idSelector).val();
                 if (val === "TODAS" || val === "TODOS" || !val || val === "") return "T";
@@ -1868,7 +1502,6 @@
                         return [];
                     })(), tipoasignacion: determinarAsignacion("#tipoClienteArticulos")
                 },
-                // --- AÑADIMOS LOS FALTANTES PARA EVITAR NULOS EN BD ---
                 { tiposegmento: "SEGMARCA", codigos: [], tipoasignacion: "T" },
                 { tiposegmento: "SEGDIVISION", codigos: [], tipoasignacion: "T" },
                 { tiposegmento: "SEGDEPARTAMENTO", codigos: [], tipoasignacion: "T" },
@@ -1884,30 +1517,17 @@
                 nombreArchivoSoporte: fileInput.name,
                 archivoSoporteBase64: base64Completo.split(",")[1] || base64Completo,
                 promocion: {
-                    descripcion: desc,
-                    motivo: parseInt(motivo, 10) || 0,
-                    clasepromocion: parseInt($("#promocionTipo").val(), 10) || 0,
-                    fechahorainicio: fechaInicio,
-                    fechahorafin: fechaFin,
-                    marcaregalo: "",
-                    marcaprocesoaprobacion: "",
-                    idusuarioingreso: getUsuario(),
-                    nombreusuario: getUsuario()
+                    descripcion: desc, motivo: parseInt(motivo, 10) || 0, clasepromocion: parseInt($("#promocionTipo").val(), 10) || 0,
+                    fechahorainicio: fechaInicio, fechahorafin: fechaFin, marcaregalo: "", marcaprocesoaprobacion: "",
+                    idusuarioingreso: getUsuario(), nombreusuario: getUsuario()
                 },
-                acuerdos: [],
-                segmentos: segmentos,
-                articulos: articulos
+                acuerdos: [], segmentos: segmentos, articulos: articulos
             };
 
             const payload = {
-                code_app: "APP20260128155212346",
-                http_method: "POST",
-                endpoint_path: "api/promocion/insertar",
-                client: "APL",
-                body_request: body
+                code_app: "APP20260128155212346", http_method: "POST",
+                endpoint_path: "api/promocion/insertar", client: "APL", body_request: body
             };
-
-            console.log("body articulos: ", body);
 
             $.ajax({
                 url: "/api/apigee-router-proxy",
@@ -1934,11 +1554,135 @@
         }
     }
 
+    // ==========================================
+    // LÓGICA DE BOTONES: EQUIVALENTES, PRECIOS COMPETENCIA, OTROS COSTOS
+    // ==========================================
+    function obtenerCodigoArticuloSeleccionado() {
+        const $radio = $("#tablaArticulosBody .item-row-radio:checked");
+        if ($radio.length === 0) {
+            Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un artículo de la tabla primero." });
+            return null;
+        }
+        return $radio.closest("tr").data("codigo");
+    }
+
+    function consultarServicioAdicional(endpoint_path, codigoArticulo, callbackExito) {
+        Swal.fire({ title: 'Consultando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: endpoint_path,
+            client: "APL",
+            endpoint_query_params: "/" + codigoArticulo
+        };
+
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (res) {
+                Swal.close();
+                const data = res.json_response || [];
+                callbackExito(data);
+            },
+            error: function () {
+                Swal.fire("Error", "No se pudo obtener la información de este servicio.", "error");
+            }
+        });
+    }
+
+    function initBotonesServiciosArticulos() {
+        $("#btnEquivalentes").on("click", function () {
+            const codigo = obtenerCodigoArticuloSeleccionado();
+            if (!codigo) return;
+
+            consultarServicioAdicional("api/Promocion/consultar-articulo-equivalente", codigo, function (data) {
+                const $tbody = $("#tbodyEquivalentes");
+                $tbody.empty();
+
+                if (!data.length) {
+                    $tbody.html('<tr><td colspan="14" class="text-center text-muted">No existen equivalentes para este artículo.</td></tr>');
+                } else {
+                    data.forEach(item => {
+                        $tbody.append(`
+                            <tr>
+                                <td>${item.codigo || ''} - ${item.descripcion || ''}</td>
+                                <td class="text-end">${formatCurrencySpanish(item.costo)}</td>
+                                <td class="text-center">${item.stock_bodega || 0}</td>
+                                <td class="text-center">${item.stock_tiendas || 0}</td>
+                                <td class="text-center">${item.inventario_optimo || 0}</td>
+                                <td class="text-center">${item.excedentes_unidades || 0}</td>
+                                <td class="text-end">${formatCurrencySpanish(item.excedentes_dolares)}</td>
+                                <td class="text-center">${item.dias_antiguedad || 0}</td> 
+                                <td class="text-center">${item.m0_unidades || 0}</td>
+                                <td class="text-end">${formatCurrencySpanish(item.m0_dolares)}</td>
+                                <td class="text-center">${item.m1_unidades || 0}</td>
+                                <td class="text-end">${formatCurrencySpanish(item.m1_dolares)}</td>
+                                <td class="text-center">${item.m2_unidades || 0}</td>
+                                <td class="text-end">${formatCurrencySpanish(item.m2_dolares)}</td>
+                            </tr>
+                        `);
+                    });
+                }
+                $("#modalEquivalentes").modal("show");
+            });
+        });
+
+        $("#btnPreciosCompetencia").on("click", function () {
+            const codigo = obtenerCodigoArticuloSeleccionado();
+            if (!codigo) return;
+
+            consultarServicioAdicional("api/Promocion/consultar-articulo-precio-competencia", codigo, function (data) {
+                const $tbody = $("#tbodyPreciosCompetencia");
+                $tbody.empty();
+
+                if (!data.length) {
+                    $tbody.html('<tr><td colspan="2" class="text-center text-muted">No hay precios de competencia registrados.</td></tr>');
+                } else {
+                    data.forEach(item => {
+                        $tbody.append(`
+                            <tr>
+                                <td>${item.nombre_competencia || ''}</td>
+                                <td class="text-end">${formatCurrencySpanish(item.precio_contado)}</td>
+                            </tr>
+                        `);
+                    });
+                }
+                $("#modalPreciosCompetencia").modal("show");
+            });
+        });
+
+        $("#btnOtrosCostos").on("click", function () {
+            const codigo = obtenerCodigoArticuloSeleccionado();
+            if (!codigo) return;
+
+            consultarServicioAdicional("api/Promocion/consultar-otros-costos", codigo, function (data) {
+                const $tbody = $("#tbodyOtrosCostos");
+                $tbody.empty();
+
+                if (!data.length) {
+                    $tbody.html('<tr><td colspan="2" class="text-center text-muted">No hay otros costos aplicables.</td></tr>');
+                } else {
+                    data.forEach(item => {
+                        $tbody.append(`
+                            <tr>
+                                <td>${item.nombre || ''}</td>
+                                <td class="text-end">${formatCurrencySpanish(item.valor)}</td>
+                            </tr>
+                        `);
+                    });
+                }
+                $("#modalOtrosCostos").modal("show");
+            });
+        });
+    }
 
     // ==========================================
     // INIT
     // ==========================================
-    $(document).ready(function () {
+    $(function () {
         console.log("=== CrearPromocion JS Loaded ===");
 
         togglePromocionForm();
@@ -1946,31 +1690,29 @@
         initLogicaSeleccionMultiple();
         initValidacionesFinancieras();
         initDatepickers();
+        initBotonesServiciosArticulos(); // <-- AQUI INICIALIZAMOS LOS BOTONES
 
-        $("#promocionTipo").change(function () {
+        $("#promocionTipo").on("change", function () {
             togglePromocionForm();
             const tipo = getTipoPromocion();
             if (tipo == idCatalogoArticulo) cargarMotivosPromociones("#motivoArticulos");
             if (tipo == idCatalogoCombos) cargarMotivosPromociones("#motivoCombos");
         });
 
-        // Carga inicial
         cargarTiposPromocion(function () {
             cargarMotivosPromociones("#motivoGeneral");
             cargarFiltrosJerarquia();
             cargarCombosPromociones();
         });
 
-        // Eventos Botones Guardar
-        $("#btnGuardarPromocionGeneral").click(() => guardarPromocion("General"));
+        $("#btnGuardarPromocionGeneral").on("click", () => guardarPromocion("General"));
 
-        // Modales de Acuerdo
         $("#modalConsultaProveedor").on("show.bs.modal", function () {
-            $("#buscarProveedorInput").val(""); // <-- AÑADIR ESTA LÍNEA
+            $("#buscarProveedorInput").val("");
             proveedorTemporal = null;
             consultarAcuerdos("TFPROVEDOR", "tablaProveedores", (s) => proveedorTemporal = s);
         });
-        $("#btnAceptarProveedor").click(function () {
+        $("#btnAceptarProveedor").on("click", function () {
             if (proveedorTemporal) {
                 setFondoProveedorEnForm(proveedorTemporal);
                 $("#modalConsultaProveedor").modal("hide");
@@ -1978,19 +1720,18 @@
         });
 
         $("#modalConsultaAcuerdoPropio").on("show.bs.modal", function () {
-            $("#buscarAcuerdoPropioInput").val(""); // <-- AÑADIR ESTA LÍNEA
+            $("#buscarAcuerdoPropioInput").val("");
             propioTemporal = null;
             consultarAcuerdos("TFPROPIO", "tablaAcuerdosPropios", (s) => propioTemporal = s);
         });
-        $("#btnAceptarAcuerdoPropio").click(function () {
+        $("#btnAceptarAcuerdoPropio").on("click", function () {
             if (propioTemporal) {
                 setFondoPropioEnForm(propioTemporal);
                 $("#modalConsultaAcuerdoPropio").modal("hide");
             }
         });
 
-        // Tipo Cliente
-        $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").off("change").on("change", function () {
+        $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").on("change", function () {
             const val = $(this).val();
             const idSelect = $(this).attr("id");
             let $btn;
@@ -2010,32 +1751,24 @@
                 $btn.attr("data-bs-target", "#ModalTipoClienteVarios");
                 setTimeout(() => { $("#ModalTipoClienteVarios").modal("show"); }, 50);
             } else {
-                $btn.addClass("d-none");
-                $btn.removeData("seleccionados");
-                $btn.html(`<i class="fa-solid fa-list-check"></i>`);
-                $btn.removeClass("btn-success").addClass("btn-outline-secondary");
+                $btn.addClass("d-none").removeData("seleccionados")
+                    .html(`<i class="fa-solid fa-list-check"></i>`)
+                    .removeClass("btn-success").addClass("btn-outline-secondary");
             }
         });
 
-        // Input File General ---
         $('#inputGroupFile24').on('change', function () {
             esArchivoValido('#inputGroupFile24', '#fileName');
         });
 
-        // Input File Artículos ---
         $('#inputFileArticulos').on('change', function () {
             esArchivoValido('#inputFileArticulos', '#fileNameArticulos');
         });
 
-        // Función auxiliar para no repetir código
+        $(".btn-secondary[id^='btnCancelar']").on("click", () => location.reload());
 
-
-        $(".btn-secondary[id^='btnCancelar']").click(() => location.reload());
-        // Aceptar Selección de "Varios" Tipos de Clientes
-        $("#btnAceptarTipoCliente").off("click").on("click", function () {
+        $("#btnAceptarTipoCliente").on("click", function () {
             let $btnTrigger;
-
-            // Buscar cuál es el botón visible actualmente
             if ($("#tipoClienteGeneral").val() === "4") $btnTrigger = $("#btnListaClienteGeneral");
             else if ($("#tipoClienteCombos").val() === "4") $btnTrigger = $("#btnListaClienteCombos");
             else if ($("#tipoClienteArticulos").val() === "4") $btnTrigger = $("#btnListaClienteArticulos");
@@ -2050,20 +1783,16 @@
             $btnTrigger.data("seleccionados", seleccionados);
 
             if (seleccionados.length > 0) {
-                $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success");
-                $btnTrigger.html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+                $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success")
+                    .html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
             } else {
-                $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary");
-                $btnTrigger.html(`<i class="fa-solid fa-list-check"></i>`);
+                $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary")
+                    .html(`<i class="fa-solid fa-list-check"></i>`);
             }
         });
 
-        // ==========================================
-        // MODAL CONSULTA ITEMS - ARTÍCULOS
-        // ==========================================
         $("#modalConsultaItems").on("show.bs.modal", function () {
             cargarFiltrosItemsPromocion();
-
             if (!dtItemsConsultaPromo) {
                 dtItemsConsultaPromo = $("#tablaItemsConsulta").DataTable({
                     data: [],
@@ -2114,11 +1843,8 @@
             }
 
             consultarItemsPromocion({
-                marcas: marcas,
-                divisiones: divisiones,
-                departamentos: departamentos,
-                clases: clases,
-                codigoarticulo: articulo
+                marcas: marcas, divisiones: divisiones, departamentos: departamentos,
+                clases: clases, codigoarticulo: articulo
             });
         });
 
@@ -2136,22 +1862,16 @@
             checkboxes.each(function () {
                 const $c = $(this);
                 items.push({
-                    codigo: $c.data("codigo"),
-                    descripcion: $c.data("descripcion"),
-                    costo: $c.data("costo"),
-                    stock: $c.data("stock"),
-                    optimo: $c.data("optimo"),
-                    excedenteu: $c.data("excedenteu"),
-                    excedentes: $c.data("excedentes"),
-                    m0u: $c.data("m0u"), m0s: $c.data("m0s"),
-                    m1u: $c.data("m1u"), m1s: $c.data("m1s"),
+                    codigo: $c.data("codigo"), descripcion: $c.data("descripcion"),
+                    costo: $c.data("costo"), stock: $c.data("stock"), optimo: $c.data("optimo"),
+                    excedenteu: $c.data("excedenteu"), excedentes: $c.data("excedentes"),
+                    m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"),
                     m2u: $c.data("m2u"), m2s: $c.data("m2s")
                 });
             });
 
             if (items.length === 0) {
-                Swal.fire("Atención", "Seleccione al menos un item.", "info");
-                return;
+                Swal.fire("Atención", "Seleccione al menos un item.", "info"); return;
             }
 
             agregarItemsATablaArticulos(items);
@@ -2166,15 +1886,11 @@
             const val = $select.val();
 
             if (val === "7") {
-                // Guardamos qué fila disparó el modal
                 filaActualMedioPago = $select.closest("tr");
-
-                // (Opcional visual) Si ya había selecciones previas, las marcamos en el modal
                 const guardados = $select.data("seleccionados") || [];
                 $("#bodyModalMedioPago input[type='checkbox']").prop("checked", false);
                 guardados.forEach(v => $(`#bodyModalMedioPago input[value='${v}']`).prop("checked", true));
 
-                // Asignamos el click al botón de Aceptar del Modal SOLO para la tabla de artículos
                 $("#btnAceptarMedioPago").off("click.articulo").on("click.articulo", function () {
                     if (filaActualMedioPago) {
                         const seleccionados = [];
@@ -2182,28 +1898,21 @@
                             seleccionados.push($(this).val());
                         });
 
-                        // Guardamos el arreglo de códigos oculto en el select de la fila
                         filaActualMedioPago.find(".select-mediopago-articulo").data("seleccionados", seleccionados);
-
-                        // Si el usuario acepta sin seleccionar nada, regresamos el select a vacío
                         if (seleccionados.length === 0) {
                             filaActualMedioPago.find(".select-mediopago-articulo").val("");
                         }
-
-                        filaActualMedioPago = null; // Limpiamos la variable
+                        filaActualMedioPago = null;
                     }
                 });
-
                 $("#ModalMedioPago").modal("show");
             } else {
-                // Si elige un medio de pago único, limpiamos la memoria oculta de "Varios"
                 $select.removeData("seleccionados");
             }
         });
 
         $("#btnDeleteItemArticulos").on("click", function () {
             const $radioSeleccionado = $("#tablaArticulosBody .item-row-radio:checked");
-
             if ($radioSeleccionado.length === 0) {
                 Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un item para eliminar." });
                 return;
@@ -2213,34 +1922,21 @@
             const descripcion = $fila.find("td:eq(1)").text();
 
             Swal.fire({
-                title: "¿Está seguro?",
-                html: `Se eliminará el Artículo:<br><strong>${descripcion}</strong>`,
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#6c757d",
-                confirmButtonText: "Sí, Eliminar",
-                cancelButtonText: "Cancelar"
+                title: "¿Está seguro?", html: `Se eliminará el Artículo:<br><strong>${descripcion}</strong>`,
+                icon: "warning", showCancelButton: true, confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d", confirmButtonText: "Sí, Eliminar", cancelButtonText: "Cancelar"
             }).then((result) => {
                 if (result.isConfirmed) {
                     $fila.remove();
-
-                    // Si quedan filas, seleccionar la primera automáticamente
                     const $primeraFila = $("#tablaArticulosBody tr").first();
                     if ($primeraFila.length) {
                         $primeraFila.find(".item-row-radio").prop("checked", true).trigger("change");
                     }
-
                     Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Item eliminado", showConfirmButton: false, timer: 1500 });
                 }
             });
         });
 
-        // ==========================================
-        // EVENTOS ACUERDOS POR ARTÍCULO
-        // ==========================================
-
-        // Click en lupitas de Aporte Prov. ID Acuerdo / Rebate / Propio
         $(document).on("click", ".btn-buscar-acuerdo-art", function () {
             const $btn = $(this);
             const tipoFondo = $btn.data("tipofondo");
@@ -2249,20 +1945,13 @@
             const $inputDisplay = $btn.closest(".input-group").find("input");
             const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
 
-            const titulos = {
-                "TFPROVEDOR": "Acuerdos - Fondo Proveedor",
-                "TFREBATE": "Acuerdos - Fondo Rebate",
-                "TFPROPIO": "Acuerdos - Fondo Propio"
-            };
-
+            const titulos = { "TFPROVEDOR": "Acuerdos - Fondo Proveedor", "TFREBATE": "Acuerdos - Fondo Rebate", "TFPROPIO": "Acuerdos - Fondo Propio" };
             abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId);
         });
 
-        // Aceptar selección del modal
         $("#btnAceptarAcuerdoArticulo").on("click", function () {
             if (!acuerdoArticuloTemporal) {
-                Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." });
-                return;
+                Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return;
             }
 
             if (acuerdoArticuloContexto) {
@@ -2273,41 +1962,33 @@
                 const tipo = acuerdoArticuloContexto.tipoFondo;
                 const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
 
-                if (tipo === "TFPROVEDOR") {
-                    $fila.find(".aporte-proveedor").prop("disabled", false).attr("data-max", maxVal).val("");
-                } else if (tipo === "TFREBATE") {
-                    $fila.find(".aporte-rebate").prop("disabled", false).attr("data-max", maxVal).val("");
-                } else if (tipo === "TFPROPIO") {
-                    $fila.find(".aporte-propio").prop("disabled", false).attr("data-max", maxVal).val("");
-                }
+                if (tipo === "TFPROVEDOR") $fila.find(".aporte-proveedor").prop("disabled", false).attr("data-max", maxVal).val("");
+                else if (tipo === "TFREBATE") $fila.find(".aporte-rebate").prop("disabled", false).attr("data-max", maxVal).val("");
+                else if (tipo === "TFPROPIO") $fila.find(".aporte-propio").prop("disabled", false).attr("data-max", maxVal).val("");
 
                 recalcularFilaArticulo($fila);
             }
-
             $("#modalAcuerdoArticulo").modal("hide");
             acuerdoArticuloTemporal = null;
             acuerdoArticuloContexto = null;
         });
-        // Solo permitir números, punto y coma en todos los inputs de la tabla de Detalle de Artículos
+
         $(document).on("input", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
             this.value = this.value.replace(/[^0-9.,]/g, '');
         });
 
-        // Recalcular al cambiar cualquier input editable de la fila
         $(document).on("input change", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
             const $fila = $(this).closest("tr");
             recalcularFilaArticulo($fila);
         });
 
-        // Validación de máximo en aportes según valor acuerdo
         $(document).on("blur", "#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio", function () {
             const max = parseFloat($(this).attr("data-max")) || 0;
             const valor = parseCurrency($(this).val());
 
             if (max > 0 && valor > max) {
                 Swal.fire({
-                    icon: 'warning',
-                    title: 'Valor Excedido',
+                    icon: 'warning', title: 'Valor Excedido',
                     text: `El aporte ingresado ($${valor.toFixed(2)}) supera el valor del acuerdo ($${max.toFixed(2)}).`
                 });
                 $(this).val("").addClass("is-invalid");
@@ -2316,6 +1997,6 @@
             }
         });
 
-        $("#btnGuardarPromocionArticulos").click(() => guardarPromocionArticulos());
+        $("#btnGuardarPromocionArticulos").on("click", () => guardarPromocionArticulos());
     });
 })();

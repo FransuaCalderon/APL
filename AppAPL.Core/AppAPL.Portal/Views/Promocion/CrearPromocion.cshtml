@@ -657,16 +657,13 @@
             <button id="btnDeleteItemArticulos" type="button" class="btn btn-outline-danger border-0 d-flex align-items-center gap-1">
                 <i class="fa-regular fa-trash-can"></i> Eliminar
             </button>
-            <button type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1"
-                    data-bs-toggle="modal" data-bs-target="#modalEquivalentes">
+            <button id="btnEquivalentes" type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1">
                 <i class="fa-solid fa-arrows-left-right"></i> Equivalentes
             </button>
-            <button type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1"
-                    data-bs-toggle="modal" data-bs-target="#modalPreciosCompetencia">
+            <button id="btnPreciosCompetencia" type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1">
                 <i class="fa-solid fa-tags"></i> Precios Competencia
             </button>
-            <button type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1"
-                    data-bs-toggle="modal" data-bs-target="#modalOtrosCostos">
+            <button id="btnOtrosCostos" type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1">
                 <i class="fa-solid fa-coins"></i> Otros Costos
             </button>
         </div>
@@ -1333,13 +1330,96 @@
 <!-- MODALES PLACEHOLDER                        -->
 <!-- ========================================== -->
 <div class="modal fade" id="modalEquivalentes" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h1 class="modal-title fs-5">Equivalentes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Contenido...</div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Artículos Equivalentes</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive small border">
+                    <table class="table table-bordered table-sm table-hover mb-0">
+                        <thead class="table-success sticky-top text-nowrap text-center">
+                            <tr>
+                                <th>ARTÍCULO - CÓDIGO / NOMBRE</th>
+                                <th>COSTO</th>
+                                <th>STOCK DE BODEGA</th>
+                                <th>STOCK DE TIENDA</th>
+                                <th>INV. ÓPTIMO</th>
+                                <th>EXCEDENTE (u)</th>
+                                <th>EXCEDENTE ($)</th>
+                                <th>HISTÓRICO</th>
+                                <th>Vta M-0(u)</th>
+                                <th>Vta M-0($)</th>
+                                <th>Vta M-1(u)</th>
+                                <th>Vta M-1($)</th>
+                                <th>Vta M-2(u)</th>
+                                <th>Vta M-2($)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyEquivalentes"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
+
 <div class="modal fade" id="modalPreciosCompetencia" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h1 class="modal-title fs-5">Precios Competencia</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Contenido...</div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Precios Competencia</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive small border">
+                    <table class="table table-bordered table-sm table-hover mb-0">
+                        <thead class="table-success sticky-top text-nowrap text-center">
+                            <tr>
+                                <th>NOMBRE COMPETENCIA</th>
+                                <th>PRECIO DE VENTA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyPreciosCompetencia"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
+
 <div class="modal fade" id="modalOtrosCostos" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h1 class="modal-title fs-5">Otros Costos</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Contenido...</div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Otros Costos</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive small border">
+                    <table class="table table-bordered table-sm table-hover mb-0">
+                        <thead class="table-success sticky-top text-nowrap text-center">
+                            <tr>
+                                <th>RUBRO (DESCRIPCIÓN)</th>
+                                <th>COSTO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyOtrosCostos"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ========================================== -->
