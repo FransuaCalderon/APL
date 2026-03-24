@@ -901,8 +901,9 @@
                     return "T";
                 }
 
-                // Lista Específica
-                if (valorSeleccionado === "3") {
+                // Asignación de Detalle "D" si es Varios (3 normal, 4 tipo cliente, 7 medio pago) 
+                // o si es Lista Específica en Tipo Cliente (3)
+                if (valorSeleccionado === "3" || valorSeleccionado === "4" || valorSeleccionado === "7") {
                     return "D";
                 }
 
@@ -913,14 +914,24 @@
                 { tipo: "SEGMARCA", codigos: obtenerValorCampo("marca", "#filtroMarcaGeneral", "3"), id: "#filtroMarcaGeneral" },
                 { tipo: "SEGDIVISION", codigos: obtenerValorCampo("division", "#filtroDivisionGeneral", "3"), id: "#filtroDivisionGeneral" },
                 { tipo: "SEGCLASE", codigos: obtenerValorCampo("clase", "#filtroClaseGeneral", "3"), id: "#filtroClaseGeneral" },
-                { tipo: "SEGDEPARTAMENTO", codigos: obtenerValorCampo("departamento", "#filtroDepartamentoGeneral", "3"), id: "#filtroDepartamentoGeneral" },
+                // CORRECCIÓN: "departamento" -> "depto"
+                { tipo: "SEGDEPARTAMENTO", codigos: obtenerValorCampo("depto", "#filtroDepartamentoGeneral", "3"), id: "#filtroDepartamentoGeneral" },
                 { tipo: "SEGCANAL", codigos: obtenerValorCampo("canal", "#filtroCanalGeneral", "3"), id: "#filtroCanalGeneral" },
-                { tipo: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupoalmacen", "#filtroGrupoAlmacenGeneral", "3"), id: "#filtroGrupoAlmacenGeneral" },
+                // CORRECCIÓN: "grupoalmacen" -> "grupo"
+                { tipo: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupo", "#filtroGrupoAlmacenGeneral", "3"), id: "#filtroGrupoAlmacenGeneral" },
                 { tipo: "SEGALMACEN", codigos: obtenerValorCampo("almacen", "#filtroAlmacenGeneral", "3"), id: "#filtroAlmacenGeneral" },
-                { tipo: "SEGTIPOCLIENTE", codigos: obtenerValorCampo("tipocliente", "#tipoClienteGeneral", "3"), id: "#tipoClienteGeneral" },
-                { tipo: "SEGMEDIOPAGO", codigos: obtenerValorCampo("mediopago", "#filtroMedioPagoGeneral", "3"), id: "#filtroMedioPagoGeneral" }
+                // CORRECCIÓN: Lógica manual para Tipo de Cliente ya que los elegidos están en el botón #btnListaClienteGeneral
+                {
+                    tipo: "SEGTIPOCLIENTE", codigos: (function () {
+                        const val = $("#tipoClienteGeneral").val();
+                        if (val === "4") return $("#btnListaClienteGeneral").data("seleccionados") || [];
+                        if (val && val !== "" && val !== "TODOS" && val !== "3") return [val]; // 3 es Lista Específica
+                        return [];
+                    })(), id: "#tipoClienteGeneral"
+                },
+                // CORRECCIÓN: El valor Varios para MedioPago es "7", no "3"
+                { tipo: "SEGMEDIOPAGO", codigos: obtenerValorCampo("mediopago", "#filtroMedioPagoGeneral", "7"), id: "#filtroMedioPagoGeneral" }
             ];
-
             const segmentosValidados = segmentosConfig.map(seg => ({
                 tiposegmento: seg.tipo,
                 codigos: seg.codigos,
@@ -1023,14 +1034,13 @@
 
     function resetearFormulario(sufijo) {
         console.log('resetearFormulario sufijo: ', sufijo);
-
         // --- Campos de texto / select básicos ---
         $(`#motivo${sufijo}`).val("").trigger("change");
         $(`#descripcion${sufijo}`).val("");
         $(`#fechaInicio${sufijo}`).val("");
         $(`#fechaFin${sufijo}`).val("");
-        $(`#timeInicio${sufijo}`).val("");
-        $(`#timeFin${sufijo}`).val("");
+        $(`#timeInicio${sufijo}`).val("00:00");
+        $(`#timeFin${sufijo}`).val("23:59");
         $(`#regaloGeneral`).prop("checked", false);
 
         // --- Acuerdo Proveedor (incluye desbloqueo) ---
@@ -1070,6 +1080,13 @@
         if (document.getElementById("fileName")) document.getElementById("fileName").textContent = "";
         if (document.getElementById("fileNameArticulos")) document.getElementById("fileNameArticulos").textContent = "";
 
+        // ==========================================
+        // 👇 SOLUCIÓN: LIMPIAR LAS TABLAS DE DETALLE 👇
+        // ==========================================
+        $("#tablaArticulosBody").empty();
+        $("#tablaCombosBody").empty(); // Opcional: si también quieres limpiar la de combos
+        // ==========================================
+
         // --- Artículo (si aplica) ---
         $("#chkArticuloGeneral").prop("checked", false).trigger("change");
         $("#articuloGeneral").val("").prop("disabled", true);
@@ -1077,6 +1094,8 @@
         // --- Limpiar variables temporales globales ---
         proveedorTemporal = null;
         propioTemporal = null;
+        acuerdoArticuloTemporal = null; // <- Agregado para Artículos
+        acuerdoArticuloContexto = null; // <- Agregado para Artículos
 
         // --- Quitar clases de validación visual ---
         $(".is-invalid").removeClass("is-invalid");
@@ -1751,13 +1770,35 @@
 
                 // Construir medios de pago
                 const mediosPago = [];
-                if (medioPagoVal && medioPagoVal !== "" && medioPagoVal !== "TODAS") {
+                const mediosPagoSeleccionados = $selectMedioPago.data("seleccionados") || [];
+
+                // Validación: bloquea el guardado si escogió Varios pero no marcó nada
+                if (medioPagoVal === "7" && mediosPagoSeleccionados.length === 0) {
+                    errorFila = `Fila ${numFila}: Seleccionaste "Varios" en Medio de Pago, pero no marcaste elementos en la lista.`;
+                    return false;
+                }
+
+                if (medioPagoVal === "7") {
                     mediosPago.push({
+                        tiposegmento: "SEGMEDIOPAGO",
+                        tipoasignacion: "D",
+                        tipoAsignacion: "D", // Enviamos ambas por seguridad
+                        codigos: mediosPagoSeleccionados
+                    });
+                } else if (medioPagoVal && medioPagoVal !== "" && medioPagoVal !== "TODAS" && medioPagoVal !== "TODOS") {
+                    mediosPago.push({
+                        tiposegmento: "SEGMEDIOPAGO",
+                        tipoasignacion: "C",
                         tipoAsignacion: "C",
                         codigos: [medioPagoVal]
                     });
                 } else {
-                    mediosPago.push({ tipoAsignacion: "T", codigos: [] });
+                    mediosPago.push({
+                        tiposegmento: "SEGMEDIOPAGO",
+                        tipoasignacion: "T",
+                        tipoAsignacion: "T",
+                        codigos: []
+                    });
                 }
 
                 articulos.push({
@@ -1811,7 +1852,7 @@
             const determinarAsignacion = (idSelector) => {
                 const val = $(idSelector).val();
                 if (val === "TODAS" || val === "TODOS" || !val || val === "") return "T";
-                if (val === "3") return "D";
+                if (val === "3" || val === "4" || val === "7") return "D";
                 return "C";
             };
 
@@ -1819,16 +1860,20 @@
                 { tiposegmento: "SEGCANAL", codigos: obtenerValorCampo("canalArticulos", "#filtroCanalArticulos", "3"), tipoasignacion: determinarAsignacion("#filtroCanalArticulos") },
                 { tiposegmento: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupoArticulos", "#filtroGrupoAlmacenArticulos", "3"), tipoasignacion: determinarAsignacion("#filtroGrupoAlmacenArticulos") },
                 { tiposegmento: "SEGALMACEN", codigos: obtenerValorCampo("almacenArticulos", "#filtroAlmacenArticulos", "3"), tipoasignacion: determinarAsignacion("#filtroAlmacenArticulos") },
-                { tiposegmento: "SEGTIPOCLIENTE", codigos: (function () {
-                    const val = $("#tipoClienteArticulos").val();
-                    if (val === "4") {
-                        return $("#btnListaClienteArticulos").data("seleccionados") || [];
-                    } else if (val && val !== "" && val !== "TODOS") {
-                        return [val];
-                    }
-                    return [];
-                  })(), tipoasignacion: determinarAsignacion("#tipoClienteArticulos")
-                }
+                {
+                    tiposegmento: "SEGTIPOCLIENTE", codigos: (function () {
+                        const val = $("#tipoClienteArticulos").val();
+                        if (val === "4") return $("#btnListaClienteArticulos").data("seleccionados") || [];
+                        if (val && val !== "" && val !== "TODOS" && val !== "3") return [val];
+                        return [];
+                    })(), tipoasignacion: determinarAsignacion("#tipoClienteArticulos")
+                },
+                // --- AÑADIMOS LOS FALTANTES PARA EVITAR NULOS EN BD ---
+                { tiposegmento: "SEGMARCA", codigos: [], tipoasignacion: "T" },
+                { tiposegmento: "SEGDIVISION", codigos: [], tipoasignacion: "T" },
+                { tiposegmento: "SEGDEPARTAMENTO", codigos: [], tipoasignacion: "T" },
+                { tiposegmento: "SEGCLASE", codigos: [], tipoasignacion: "T" },
+                { tiposegmento: "SEGMEDIOPAGO", codigos: [], tipoasignacion: "T" }
             ];
 
             const body = {
@@ -2114,10 +2159,45 @@
             $("#checkTodosItems").prop("checked", false);
         });
 
+        let filaActualMedioPago = null;
+
         $(document).on("change", ".select-mediopago-articulo", function () {
-            const val = $(this).val();
+            const $select = $(this);
+            const val = $select.val();
+
             if (val === "7") {
+                // Guardamos qué fila disparó el modal
+                filaActualMedioPago = $select.closest("tr");
+
+                // (Opcional visual) Si ya había selecciones previas, las marcamos en el modal
+                const guardados = $select.data("seleccionados") || [];
+                $("#bodyModalMedioPago input[type='checkbox']").prop("checked", false);
+                guardados.forEach(v => $(`#bodyModalMedioPago input[value='${v}']`).prop("checked", true));
+
+                // Asignamos el click al botón de Aceptar del Modal SOLO para la tabla de artículos
+                $("#btnAceptarMedioPago").off("click.articulo").on("click.articulo", function () {
+                    if (filaActualMedioPago) {
+                        const seleccionados = [];
+                        $("#bodyModalMedioPago input[type='checkbox']:checked").each(function () {
+                            seleccionados.push($(this).val());
+                        });
+
+                        // Guardamos el arreglo de códigos oculto en el select de la fila
+                        filaActualMedioPago.find(".select-mediopago-articulo").data("seleccionados", seleccionados);
+
+                        // Si el usuario acepta sin seleccionar nada, regresamos el select a vacío
+                        if (seleccionados.length === 0) {
+                            filaActualMedioPago.find(".select-mediopago-articulo").val("");
+                        }
+
+                        filaActualMedioPago = null; // Limpiamos la variable
+                    }
+                });
+
                 $("#ModalMedioPago").modal("show");
+            } else {
+                // Si elige un medio de pago único, limpiamos la memoria oculta de "Varios"
+                $select.removeData("seleccionados");
             }
         });
 

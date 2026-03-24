@@ -16,9 +16,9 @@
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
 <style>
-    /* =====================================================
-           GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN
-        ===================================================== */
+    /* ===================================================== */
+    /* GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN             */
+    /* ===================================================== */
     .promo-form-grid {
         border: 1px solid #ccc;
         background: #fff;
@@ -34,49 +34,49 @@
         background: #fff;
     }
 
-        .promo-header-row .promo-label {
-            font-weight: 700;
-            white-space: nowrap;
-            font-size: 0.8rem;
-            color: #222;
-        }
+    .promo-header-row .promo-label {
+        font-weight: 700;
+        white-space: nowrap;
+        font-size: 0.8rem;
+        color: #222;
+    }
 
-        .promo-header-row .promo-id-input {
-            flex: 1;
-            border: 1px solid #ccc;
-            padding: 3px 6px;
-            font-size: 0.8rem;
-            background: #f0f0f0;
-            color: #333;
-            border-radius: 2px;
-        }
+    .promo-header-row .promo-id-input {
+        flex: 1;
+        border: 1px solid #ccc;
+        padding: 3px 6px;
+        font-size: 0.8rem;
+        background: #f0f0f0;
+        color: #333;
+        border-radius: 2px;
+    }
 
-        .promo-header-row .promo-icons {
-            display: flex;
-            gap: 4px;
-        }
+    .promo-header-row .promo-icons {
+        display: flex;
+        gap: 4px;
+    }
 
-        .promo-header-row .promo-icon-btn {
-            width: 28px;
-            height: 28px;
-            border: 1px solid #bbb;
-            background: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 2px;
-            color: #555;
-            font-size: 0.8rem;
-        }
+    .promo-header-row .promo-icon-btn {
+        width: 28px;
+        height: 28px;
+        border: 1px solid #bbb;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        color: #555;
+        font-size: 0.8rem;
+    }
 
     .promo-section {
         display: flex;
         border-bottom: 1px solid #ccc;
     }
 
-        .promo-section:last-child {
-            border-bottom: none;
-        }
+    .promo-section:last-child {
+        border-bottom: none;
+    }
 
     .promo-col {
         flex: 1;
@@ -85,9 +85,9 @@
         flex-direction: column;
     }
 
-        .promo-col:last-child {
-            border-right: none;
-        }
+    .promo-col:last-child {
+        border-right: none;
+    }
 
     .promo-col-header {
         font-weight: 700;
@@ -104,20 +104,20 @@
         background: #fff;
     }
 
-        .promo-col-value input[type="text"], .promo-col-value select {
-            width: 100%;
-            border: 1px solid #ccc;
-            padding: 3px 6px;
-            font-size: 0.78rem;
-            background: #f0f0f0;
-            color: #333;
-            border-radius: 2px;
-            height: 28px;
-        }
+    .promo-col-value input[type="text"], .promo-col-value select {
+        width: 100%;
+        border: 1px solid #ccc;
+        padding: 3px 6px;
+        font-size: 0.78rem;
+        background: #f0f0f0;
+        color: #333;
+        border-radius: 2px;
+        height: 28px;
+    }
 
-            .promo-col-value input[type="text"]:focus, .promo-col-value select:focus {
-                outline: none;
-            }
+    .promo-col-value input[type="text"]:focus, .promo-col-value select:focus {
+        outline: none;
+    }
 
     .promo-col.col-xs {
         flex: 0 0 80px;
@@ -139,25 +139,27 @@
         gap: 0;
     }
 
-        .input-with-icon input {
-            border-right: none !important;
-            border-radius: 2px 0 0 2px !important;
-        }
+    /* El input ahora va a la derecha, quitamos el borde izquierdo */
+    .input-with-icon input {
+        border-left: none !important;
+        border-radius: 0 2px 2px 0 !important;
+    }
 
-        .input-with-icon .icon-btn {
-            width: 28px;
-            min-width: 28px;
-            height: 28px;
-            border: 1px solid #ccc;
-            border-left: none;
-            background: #e8e8e8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0 2px 2px 0;
-            color: #666;
-            font-size: 0.75rem;
-        }
+    /* El botón ahora va a la izquierda, quitamos el borde derecho */
+    .input-with-icon .icon-btn {
+        min-width: 28px; /* Cambiamos width fijo por min-width */
+        padding: 0 6px; /* Damos espacio para que el número de "Varios" respire */
+        height: 28px;
+        border: 1px solid #ccc;
+        border-right: none; /* Fusión con el input */
+        background: #e8e8e8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px 0 0 2px;
+        color: #666;
+        font-size: 0.75rem;
+    }
 
     .promo-col-value.center-value {
         display: flex;
@@ -173,9 +175,52 @@
         cursor: default;
     }
 
-    /* =====================================================
-           MODAL VISOR PDF
-        ===================================================== */
+    /* ===================================================== */
+    /* ESTILOS TABLA ARTÍCULOS                               */
+    /* ===================================================== */
+    .tabla-items-header th {
+        background-color: #a4c995;
+        color: #343a40;
+        font-weight: bold;
+        vertical-align: middle;
+        text-align: center;
+        border: 1px solid #dee2e6;
+        font-size: 0.75rem;
+    }
+
+    .custom-header-cons-bg {
+        background-color: #a4c995 !important;
+        color: #343a40 !important;
+    }
+
+    .custom-header-ingr-bg {
+        background-color: #FFEC99 !important;
+        color: #343a40 !important;
+    }
+
+    .custom-header-calc-bg {
+        background-color: #FFBF47 !important;
+        color: #343a40 !important;
+    }
+
+    .tabla-items-body td {
+        font-size: 0.78rem;
+        vertical-align: middle;
+    }
+
+    .detalle-header-articulos {
+        background-color: #343a40;
+        color: white;
+        padding: 6px 15px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 0.95rem;
+        border-radius: 4px;
+    }
+
+    /* ===================================================== */
+    /* MODAL VISOR PDF                                       */
+    /* ===================================================== */
     #modalVisorPdf .modal-dialog {
         max-width: 90vw;
         height: 90vh;
@@ -194,9 +239,9 @@
         border-bottom: none;
     }
 
-        #modalVisorPdf .modal-header .btn-close {
-            filter: invert(1);
-        }
+    #modalVisorPdf .modal-header .btn-close {
+        filter: invert(1);
+    }
 
     #modalVisorPdf .modal-body {
         padding: 0;
@@ -249,6 +294,24 @@
         padding: 20px;
         text-align: center;
     }
+
+    /* ===================================================== */
+    /* ALINEACIÓN DE BOTONES DEL FOOTER                      */
+    /* ===================================================== */
+    .btn-uniforme {
+        min-width: 130px; /* Asegura que tengan el mismo ancho */
+        height: 38px; /* Fija la misma altura para los tres */
+        display: inline-flex; /* Permite alinear el ícono y el texto */
+        align-items: center; /* Centra verticalmente */
+        justify-content: center; /* Centra horizontalmente */
+        gap: 6px; /* Da un espacio limpio entre el ícono y el texto */
+        padding: 0 15px;
+    }
+
+    /* Quitamos márgenes extra de los íconos si los tienen para usar el 'gap' */
+    .btn-uniforme i {
+        margin: 0 !important;
+    }
 </style>
 
 <h2>Aprobar - Promociones</h2>
@@ -269,6 +332,10 @@
 
         <div class="card-body p-2">
             <form id="formVisualizar">
+
+                <!-- ===================================================== -->
+                <!-- CABECERA COMÚN                                        -->
+                <!-- ===================================================== -->
                 <div class="promo-form-grid">
                     <div class="promo-header-row">
                         <span class="promo-label">Promoción</span>
@@ -279,194 +346,102 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="promo-section">
-                        <div class="promo-col">
-                            <div class="promo-col-header">Descripción</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verDescripcion" readonly>
-                            </div>
-                        </div>
-                        <div class="promo-col col-md">
-                            <div class="promo-col-header">Motivo</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verMotivo" readonly>
-                            </div>
-                        </div>
-                        <div class="promo-col col-md">
-                            <div class="promo-col-header">Inicio: Fecha - Hora</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verFechaInicio" readonly>
-                            </div>
-                        </div>
-                        <div class="promo-col col-md">
-                            <div class="promo-col-header">Fin: Fecha - Hora</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verFechaFin" readonly>
-                            </div>
-                        </div>
-                        <div class="promo-col col-md">
-                            <div class="promo-col-header">Estado</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verEstado" readonly>
-                            </div>
-                        </div>
+                        <div class="promo-col"><div class="promo-col-header">Descripción</div><div class="promo-col-value"><input type="text" id="verDescripcion" readonly></div></div>
+                        <div class="promo-col col-md"><div class="promo-col-header">Motivo</div><div class="promo-col-value"><input type="text" id="verMotivo" readonly></div></div>
+                        <div class="promo-col col-md"><div class="promo-col-header">Inicio: Fecha - Hora</div><div class="promo-col-value"><input type="text" id="verFechaInicio" readonly></div></div>
+                        <div class="promo-col col-md"><div class="promo-col-header">Fin: Fecha - Hora</div><div class="promo-col-value"><input type="text" id="verFechaFin" readonly></div></div>
+                        <div class="promo-col col-md"><div class="promo-col-header">Estado</div><div class="promo-col-value"><input type="text" id="verEstado" readonly></div></div>
                     </div>
+                </div>
 
-                    <div class="promo-section">
-                        <div class="promo-col">
-                            <div class="promo-col-header">Marca</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verMarca" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                            </div>
+                <!-- ===================================================== -->
+                <!-- SECCIÓN DETALLE GENERAL                               -->
+                <!-- ===================================================== -->
+                <div id="seccion-detalle-general" style="display:none;">
+                    <div class="promo-form-grid mt-2">
+                        <div class="promo-section">
+                            <div class="promo-col"><div class="promo-col-header">Marca</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerMarca" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verMarca" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">División</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerDivision" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verDivision" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Departamento</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerDepartamento" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verDepartamento" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Clase</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerClase" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verClase" readonly></div></div></div>
+                            <div class="promo-col col-md"><div class="promo-col-header">Artículo</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerArticuloGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verArticulo" readonly></div></div></div>
                         </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header">División</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verDivision" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                            </div>
+                        <div class="promo-section">
+                            <div class="promo-col"><div class="promo-col-header">Canal</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerCanalGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verCanal" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Grupo</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerGrupoAlmacenGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verGrupoAlmacen" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Almacén</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerAlmacenGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verAlmacen" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Tipo de Cliente</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerTipoClienteGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verTipoCliente" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Medio Pago</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerMedioPagoGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verMedioPago" readonly></div></div></div>
                         </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header">Departamento</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verDepartamento" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header">Clase</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verClase" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="promo-col col-md">
-                            <div class="promo-col-header">Artículo</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verArticulo" readonly>
-                                    <span class="icon-btn"><i class="fa-regular fa-square-check"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="promo-section">
-                        <div class="promo-col">
-                            <div class="promo-col-header">Canal</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verCanal" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header">Grupo</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verGrupoAlmacen" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header">Almacén</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verAlmacen" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header">Tipo de Cliente</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verTipoCliente" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header">Medio Pago</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verMedioPago" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-list-check"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="promo-section">
-                        <div class="promo-col">
-                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Prov.</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verDsctoProv" readonly>
-                            </div>
-                        </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header" style="white-space: nowrap;">ID Acuerdo Proveedor</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verIdAcuerdoProv" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="promo-col col-md">
-                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">$ Comprometido Proveed.</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verComprometidoProv" readonly>
-                            </div>
-                        </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Prop.</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verDsctoProp" readonly>
-                            </div>
-                        </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header" style="white-space: nowrap;">ID Acuerdo Propio</div>
-                            <div class="promo-col-value">
-                                <div class="input-with-icon">
-                                    <input type="text" id="verIdAcuerdoProp" readonly>
-                                    <span class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="promo-col col-md">
-                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">$ Comprometido Propio</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verComprometidoProp" readonly>
-                            </div>
-                        </div>
-                        <div class="promo-col">
-                            <div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Total</div>
-                            <div class="promo-col-value">
-                                <input type="text" id="verDsctoTotal" readonly>
-                            </div>
-                        </div>
-
-                        <div class="promo-col col-xs">
-                            <div class="promo-col-header" style="text-align: center;">Regalo</div>
-                            <div class="promo-col-value center-value">
-                                <input type="checkbox" id="verRegalo" onclick="return false;">
-                            </div>
+                        <div class="promo-section">
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Prov.</div><div class="promo-col-value"><input type="text" id="verDsctoProv" readonly></div></div>
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap;">ID Acuerdo Proveedor</div><div class="promo-col-value"><div class="input-with-icon"><span class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></span><input type="text" id="verIdAcuerdoProv" readonly></div></div></div>
+                            <div class="promo-col col-md"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">$ Comprometido Proveed.</div><div class="promo-col-value"><input type="text" id="verComprometidoProv" readonly></div></div>
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Prop.</div><div class="promo-col-value"><input type="text" id="verDsctoProp" readonly></div></div>
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap;">ID Acuerdo Propio</div><div class="promo-col-value"><div class="input-with-icon"><span class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></span><input type="text" id="verIdAcuerdoProp" readonly></div></div></div>
+                            <div class="promo-col col-md"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">$ Comprometido Propio</div><div class="promo-col-value"><input type="text" id="verComprometidoProp" readonly></div></div>
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Total</div><div class="promo-col-value"><input type="text" id="verDsctoTotal" readonly></div></div>
+                            <div class="promo-col col-xs"><div class="promo-col-header" style="text-align: center;">Regalo</div><div class="promo-col-value center-value"><input type="checkbox" id="verRegalo" onclick="return false;"></div></div>
                         </div>
                     </div>
                 </div>
+
+                <!-- ===================================================== -->
+                <!-- SECCIÓN DETALLE POR ARTÍCULO                          -->
+                <!-- Con botones "Varios" estilo CrearPromocion            -->
+                <!-- ===================================================== -->
+                <div id="seccion-detalle-articulos" style="display:none;">
+                    <div class="row g-1 mt-2">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold col-form-label-sm mb-0">Canal</label>
+                            <div class="input-group input-group-sm">
+                                <button id="btnVerCanalArt" class="btn btn-outline-secondary btn-sm d-none" type="button">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </button>
+                                <input type="text" class="form-control form-control-sm" id="verCanalArt" readonly disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold col-form-label-sm mb-0">Grupo Almacén</label>
+                            <div class="input-group input-group-sm">
+                                <button id="btnVerGrupoAlmacenArt" class="btn btn-outline-secondary btn-sm d-none" type="button">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </button>
+                                <input type="text" class="form-control form-control-sm" id="verGrupoAlmacenArt" readonly disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold col-form-label-sm mb-0">Almacén</label>
+                            <div class="input-group input-group-sm">
+                                <button id="btnVerAlmacenArt" class="btn btn-outline-secondary btn-sm d-none" type="button">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </button>
+                                <input type="text" class="form-control form-control-sm" id="verAlmacenArt" readonly disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold col-form-label-sm mb-0">Tipo de Cliente</label>
+                            <div class="input-group input-group-sm">
+                                <button id="btnVerTipoClienteArt" class="btn btn-outline-secondary btn-sm d-none" type="button">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </button>
+                                <input type="text" class="form-control form-control-sm" id="verTipoClienteArt" readonly disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detalle-header-articulos mt-3">
+                        <i class="fa-solid fa-boxes-stacked me-1"></i> Detalle de los Artículos
+                    </div>
+                </div>
+
+                <!-- ===================================================== -->
+                <!-- CONTENEDOR DE TABLAS                                  -->
+                <!-- ===================================================== -->
+                <div class="col-12 mt-2" id="contenedor-tabla-articulos" style="display:none;"></div>
+                <div class="col-12 mt-2" id="contenedor-tabla-combos" style="display:none;"></div>
+
                 <hr class="mt-3 mb-2" />
 
                 <div class="custom-form-row mt-4">
@@ -484,26 +459,51 @@
             </h5>
             <div class="custom-table-container mb-3">
                 <div id="tabla-aprobaciones-promocion"></div>
-            </div>            
+            </div>
         </div>
 
-        <div class="card-footer text-end">
-            <button type="button" class="btn btn-secondary" id="btnVolverAbajo">Cancelar</button>
-            <button type="button" class="custom-btn-danger" id="btnRechazarPromocion">
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary btn-uniforme" id="btnVolverAbajo">
+                Cancelar
+            </button>
+            <button type="button" class="custom-btn-danger btn-uniforme" id="btnRechazarPromocion">
                 <i class="fa-solid fa-circle-xmark custom-btn-icon"></i> Rechazar
             </button>
-            <button type="button" class="custom-btn-primary" id="btnAprobarPromocion">
+            <button type="button" class="custom-btn-primary btn-uniforme" id="btnAprobarPromocion">
                 <i class="fa-solid fa-circle-check custom-btn-icon"></i> Aprobar
             </button>
         </div>
     </div>
 </div>
 
+<!-- ===================================================== -->
+<!-- MODAL VISUALIZAR SEGMENTO (Solo Lectura)              -->
+<!-- ===================================================== -->
+<div class="modal fade" id="modalVerSegmento" tabindex="-1" aria-labelledby="modalVerSegmentoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalVerSegmentoLabel">Elementos Seleccionados</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row m-2" id="bodyModalVerSegmento">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================================================== -->
+<!-- MODAL VISOR PDF                                       -->
+<!-- ===================================================== -->
 <div class="modal fade" id="modalVisorPdf" tabindex="-1" aria-labelledby="modalVisorPdfLabel" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h6 class="modal-title fw-bold mb-0" id="modalVisorPdfLabel">
                     <i class="fa-regular fa-file-pdf me-2"></i>
@@ -511,29 +511,22 @@
                 </h6>
                 <button type="button" class="btn-close" id="btnCerrarVisorPdf" aria-label="Cerrar"></button>
             </div>
-
             <div class="modal-body">
                 <div id="pdfSpinner" style="display:none;">
-                    <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
+                    <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;"><span class="visually-hidden">Cargando...</span></div>
                     <p class="mt-3 text-light small">Cargando documento...</p>
                 </div>
-
                 <div id="pdfVisorError" style="display:none;"></div>
-
                 <div id="pdfVisorContenido" style="display:none; flex:1; width:100%;">
                     <iframe id="pdfIframe" src="about:blank"></iframe>
                 </div>
             </div>
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-outline-primary" id="btnDescargarPdf" style="display:none;">
                     <i class="fa-solid fa-download me-1"></i> Descargar
                 </button>
                 <button type="button" class="btn btn-sm btn-secondary" id="btnCerrarVisorPdfFooter">Cerrar</button>
             </div>
-
         </div>
     </div>
 </div>
