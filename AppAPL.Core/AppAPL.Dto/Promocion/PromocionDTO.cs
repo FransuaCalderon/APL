@@ -509,16 +509,12 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloOtrosCostosDTO
     {
-        public int idpromocionotroscostos { get; set; }
+        public int idpromocionarticulootroscostos { get; set; }
         public int idpromocionarticulo { get; set; }
-        public string codigoitem { get; set; }
-        public string descripcion_articulo { get; set; }
         public int codigoparametro { get; set; }
-        public string nombre_parametro { get; set; }
+        public string Descripcion { get; set; }
         public decimal costo { get; set; }
-        public int id_estado { get; set; }
-        public string nombre_estado { get; set; }
-        public string etiqueta_estado { get; set; }
+        public int estadoregistro { get; set; }
     }
 
 
