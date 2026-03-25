@@ -15,6 +15,9 @@
 
     <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
 
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
@@ -142,6 +145,41 @@
             cursor: not-allowed !important; /* Cambia el cursor para que muestre el ícono de "prohibido" */
             opacity: 1;
         }
+
+        /* ✅ ESTILOS SELECT2 PARA INTEGRAR CON BOOTSTRAP 5 */
+        .select2-container .select2-selection--single {
+            height: 31px !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 0.2rem !important;
+            display: flex;
+            align-items: center;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: normal !important;
+            font-size: 0.875rem;
+            padding-left: 0.5rem;
+            color: #212529;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 29px !important;
+            right: 4px;
+        }
+        /* Ajuste para que Select2 se comporte bien dentro de input-group */
+        .input-group > .select2-container {
+            flex: 1 1 auto;
+            width: 1% !important;
+        }
+        /* Cuando el botón (Ej. Varios) está visible, le quitamos los bordes izquierdos al select2 */
+        .input-group > button:not(.d-none) + .select2-container .select2-selection {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+        }
+
+        .select2-results__option {
+            font-size: 0.875rem;
+        }
     </style>
 }
 
@@ -158,9 +196,6 @@
 
 <hr />
 
-<!-- ========================================== -->
-<!-- FORMULARIO GENERAL                         -->
-<!-- ========================================== -->
 <form id="formGeneral" class="row g-2">
 
     <input type="hidden" id="fondoProveedorIdGeneral">
@@ -342,7 +377,6 @@
         <input type="text" class="form-control form-control-sm text-end" id="descuentoPropioGeneral" placeholder="0.00%">
     </div>
 
-    <!-- ✅ ID Acuerdo Propio - Ahora con botón que abre modal de consulta -->
     <div class="col-md-2 text-center">
         <label for="acuerdoPropioGeneral" class="form-label fw-bold col-form-label-sm">ID Acuerdo Propio</label>
         <div class="input-group input-group-sm">
@@ -382,14 +416,11 @@
     </div>
 
     <div class="col-12 mt-4 border-top pt-3">
-        <button type="button" class="btn btn-primary" id="btnGuardarPromocionGeneral">Grabar</button>
         <button type="button" class="btn btn-secondary" id="btnCancelarGeneral">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnGuardarPromocionGeneral">Grabar</button>
     </div>
 </form>
 
-<!-- ========================================== -->
-<!-- MODAL CANAL                                -->
-<!-- ========================================== -->
 <div class="modal fade" id="ModalCanal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -405,9 +436,6 @@
     </div>
 </div>
 
-<!-- ===================================================== -->
-<!-- MODAL Marca - Division - Departamento - clase         -->
-<!-- ===================================================== -->
 <div class="modal fade" id="ModalMarca" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -477,9 +505,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL CLIENTES ESPECÍFICOS                 -->
-<!-- ========================================== -->
 <div class="modal fade" id="ModalClientesEspecificos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -517,9 +542,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL GRUPO ALMACÉN                        -->
-<!-- ========================================== -->
 <div class="modal fade" id="ModalGrupoAlmacen" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -533,9 +555,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL ALMACÉN                              -->
-<!-- ========================================== -->
 <div class="modal fade" id="ModalAlmacen" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -549,9 +568,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- FORMULARIO ARTÍCULOS                       -->
-<!-- ========================================== -->
 <form id="formArticulos" class="row g-2 mb-1 pb-1" style="display:none;">
 
     <div class="col-md-3 text-center">
@@ -736,9 +752,6 @@
     </div>
 </form>
 
-<!-- ========================================== -->
-<!-- FORMULARIO COMBOS                          -->
-<!-- ========================================== -->
 <form id="formCombos" class="row g-1 mb-1 pb-1" style="display:none;">
 
     <div class="col-md-3">
@@ -1076,9 +1089,6 @@
     </div>
 </form>
 
-<!-- ========================================== -->
-<!-- MODAL CONSULTA ITEMS                       -->
-<!-- ========================================== -->
 <div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-pantalla-completa">
         <div class="modal-content">
@@ -1196,9 +1206,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL CONSULTA PROVEEDOR (TFPROVEDOR)      -->
-<!-- ========================================== -->
 <div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-pantalla-completa">
         <div class="modal-content" style="height: 90vh; max-height: 90vh;">
@@ -1242,9 +1249,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- ✅ MODAL CONSULTA ACUERDO PROPIO (TFPROPIO) -->
-<!-- ========================================== -->
 <div class="modal fade" id="modalConsultaAcuerdoPropio" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-pantalla-completa">
         <div class="modal-content" style="height: 90vh; max-height: 90vh;">
@@ -1288,9 +1292,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL Tipo de Cliente                      -->
-<!-- ========================================== -->
 <div class="modal fade" id="ModalTipoClienteVarios" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -1310,9 +1311,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL MEDIOS DE PAGO                       -->
-<!-- ========================================== -->
 <div class="modal fade" id="ModalMedioPago" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -1326,9 +1324,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODALES PLACEHOLDER                        -->
-<!-- ========================================== -->
 <div class="modal fade" id="modalEquivalentes" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
@@ -1407,6 +1402,7 @@
                     <table class="table table-bordered table-sm table-hover mb-0">
                         <thead class="table-success sticky-top text-nowrap text-center">
                             <tr>
+                                <th style="width: 50px;">Sel.</th>
                                 <th>RUBRO (DESCRIPCIÓN)</th>
                                 <th>COSTO</th>
                             </tr>
@@ -1416,15 +1412,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnAplicarOtrosCostos">Aplicar</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL ACUERDOS POR ARTÍCULO (REUTILIZABLE) -->
-<!-- ========================================== -->
 <div class="modal fade" id="modalAcuerdoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-pantalla-completa">
         <div class="modal-content" style="height: 90vh; max-height: 90vh;">

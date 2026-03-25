@@ -31,6 +31,13 @@
     // ==========================================
     // HELPERS & UTILS
     // ==========================================
+    function aplicarSelect2($el) {
+        if ($el.hasClass("select2-hidden-accessible")) {
+            $el.select2('destroy');
+        }
+        $el.select2({ width: '100%' });
+    }
+
     function getUsuario() {
         return window.usuarioActual || "admin";
     }
@@ -101,12 +108,16 @@
     }
 
     const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo, textoTodas = null) => {
+        if ($select.hasClass("select2-hidden-accessible")) {
+            $select.select2('destroy');
+        }
         $select.empty();
         $select.append(`<option selected value="">${labelDefault}</option>`);
         if (textoTodas) {
             $select.append(`<option value="TODAS">${textoTodas}</option>`);
         }
         $select.append(`<option value="${valorVarios}" class="fw-bold text-success">-- VARIOS --</option>`);
+
         $modalBody.empty();
         const $ul = $('<ul class="list-group w-100"></ul>');
         if (Array.isArray(items)) {
@@ -124,6 +135,8 @@
             });
         }
         $modalBody.append($ul);
+
+        aplicarSelect2($select);
     };
 
     // ==========================================
@@ -312,8 +325,10 @@
             data: JSON.stringify(payload),
             success: function (res) {
                 const data = res.json_response || [];
+                if ($select.hasClass("select2-hidden-accessible")) $select.select2('destroy');
                 $select.empty();
-                if (!data.length) { $select.append("<option>Sin datos</option>"); return; }
+
+                if (!data.length) { $select.append("<option>Sin datos</option>"); aplicarSelect2($select); return; }
 
                 data.forEach(function (item) {
                     const etiqueta = (item.idetiqueta_catalogo || "").toUpperCase();
@@ -331,6 +346,8 @@
 
                 const promocionGeneral = data.find(x => x.idetiqueta_catalogo == 'PRGENERAL');
                 $select.val(promocionGeneral.idcatalogo);
+                aplicarSelect2($select);
+
                 togglePromocionForm();
                 if (callback) callback();
             }
@@ -353,8 +370,10 @@
             data: JSON.stringify(payload),
             success: function (res) {
                 const data = res.json_response || [];
+                if ($select.hasClass("select2-hidden-accessible")) $select.select2('destroy');
                 $select.empty().append('<option value="">Seleccione...</option>');
                 data.forEach(item => $select.append($("<option>").val(item.idcatalogo).text(item.nombre_catalogo)));
+                aplicarSelect2($select);
             }
         });
     }
@@ -408,13 +427,20 @@
                 llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
 
                 $("#filtroCanalArticulos").html($("#filtroCanalGeneral").html());
+                aplicarSelect2($("#filtroCanalArticulos"));
                 $("#filtroGrupoAlmacenArticulos").html($("#filtroGrupoAlmacenGeneral").html());
+                aplicarSelect2($("#filtroGrupoAlmacenArticulos"));
                 $("#filtroAlmacenArticulos").html($("#filtroAlmacenGeneral").html());
+                aplicarSelect2($("#filtroAlmacenArticulos"));
 
                 const $cliGen = $("#tipoClienteGeneral");
                 const $cliArt = $("#tipoClienteArticulos");
                 const $cliCom = $("#tipoClienteCombos");
                 const $modalBodyCli = $("#bodyModalTipoCliente");
+
+                if ($cliGen.hasClass("select2-hidden-accessible")) $cliGen.select2('destroy');
+                if ($cliArt.hasClass("select2-hidden-accessible")) $cliArt.select2('destroy');
+                if ($cliCom.hasClass("select2-hidden-accessible")) $cliCom.select2('destroy');
 
                 const opcionesBase = `
                     <option selected value="">Seleccione...</option>
@@ -448,6 +474,10 @@
 
                 const opcionFinal = '<option value="3">Lista Específica</option>';
                 $cliGen.append(opcionFinal); $cliArt.append(opcionFinal); $cliCom.append(opcionFinal);
+
+                aplicarSelect2($cliGen);
+                aplicarSelect2($cliArt);
+                aplicarSelect2($cliCom);
             }
         });
     }
@@ -646,7 +676,7 @@
 
             $jerarquia.prop("disabled", isChecked);
             if (isChecked) {
-                $jerarquia.val([]);
+                $jerarquia.val([]).trigger("change");
                 $btns.addClass("d-none");
             }
         });
@@ -1130,19 +1160,29 @@
     }
 
     function recalcularFilaArticulo($fila) {
+        // 1. Extraemos los valores de consulta de la tabla
         const costo = parseCurrency($fila.find("td:eq(2)").text());
         const precioLista = parseCurrency($fila.find("td:eq(22)").text());
+
+        // 2. Extraemos los precios ingresados por el usuario
         const precioContado = parseCurrency($fila.find("td:eq(23) input").val());
         const precioTC = parseCurrency($fila.find("td:eq(24) input").val());
         const precioCredito = parseCurrency($fila.find("td:eq(25) input").val());
         const precioIgualar = parseCurrency($fila.find("td:eq(26) input").val());
+
+        // 3. Extraemos los aportes
         const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
         const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
-        const otrosCostos = 0;
+
+        // ✅ 4. Recuperamos los "Otros Costos" que se guardaron al darle "Aplicar" en el modal
+        const otrosCostos = parseFloat($fila.data("total-otros-costos")) || 0;
+
+        // Unidades para proyecciones
         const unidadesLimite = parseInt($fila.find("td:eq(19) input").val()) || 0;
         const proyeccionVtas = parseInt($fila.find("td:eq(20) input").val()) || 0;
         const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
 
+        // --- CÁLCULO DE DESCUENTOS ---
         const dsctoContado = precioLista - precioContado;
         const dsctoTC = precioLista - precioTC;
         const dsctoCredito = precioLista - precioCredito;
@@ -1152,31 +1192,44 @@
         $fila.find("td:eq(29)").text(dsctoCredito.toFixed(2));
         $fila.find("td:eq(30)").text(dsctoIgualar.toFixed(2));
 
+        // --- CÁLCULO DE MARGEN PRECIO LISTA ---
         const margenPL = precioLista > 0 ? ((precioLista - costo) / precioLista * 100) : 0;
         $fila.find("td:eq(37)").text(margenPL.toFixed(2) + "%");
 
-        const calcMargen = (precio) => {
-            const denom = precio + aporteProveedor + aporteRebate;
-            return denom > 0 ? ((denom - costo - otrosCostos) / denom * 100) : 0;
+        // ✅ CÁLCULO DE MÁRGENES (FÓRMULA EXACTA DEL NEGOCIO)
+        const calcMargen = (precioPromocion) => {
+            // Denominador = (Precio + Aporte proveedor + Aporte rebate)
+            const denominador = precioPromocion + aporteProveedor + aporteRebate;
+
+            // Verificamos que no sea 0 para evitar divisiones infinitas (NaN / Infinity)
+            if (denominador > 0) {
+                // Numerador = (Denominador - Costo - Otros Costos)
+                return ((denominador - costo - otrosCostos) / denominador) * 100;
+            }
+            return 0;
         };
+
+        // Aplicamos la fórmula a cada columna de margen
         $fila.find("td:eq(38)").text(calcMargen(precioContado).toFixed(2) + "%");
         $fila.find("td:eq(39)").text(calcMargen(precioTC).toFixed(2) + "%");
         $fila.find("td:eq(40)").text(calcMargen(precioCredito).toFixed(2) + "%");
         $fila.find("td:eq(41)").text(calcMargen(precioIgualar).toFixed(2) + "%");
 
+        // --- CÁLCULO DE COMPROMETIDOS ---
         $fila.find("td:eq(42)").text(formatCurrencySpanish(aporteProveedor * unidades));
         $fila.find("td:eq(43)").text(formatCurrencySpanish(aporteRebate * unidades));
         const aportePropio = parseCurrency($fila.find("td:eq(35) input").val());
         $fila.find("td:eq(44)").text(formatCurrencySpanish(aportePropio * unidades));
 
+        // --- FORMATO VISUAL (Colores) ---
         $fila.find("td:eq(27), td:eq(28), td:eq(29), td:eq(30), td:eq(37), td:eq(38), td:eq(39), td:eq(40), td:eq(41)").each(function () {
             const valor = parseFloat($(this).text());
             if (valor < 0) {
-                $(this).css("color", "#dc3545");
+                $(this).css("color", "#dc3545"); // Rojo si es negativo
             } else if (valor > 0) {
-                $(this).css("color", "#198754");
+                $(this).css("color", "#198754"); // Verde si es positivo
             } else {
-                $(this).css("color", "#212529");
+                $(this).css("color", "#212529"); // Negro si es 0
             }
         });
     }
@@ -1413,7 +1466,9 @@
                 const precioPromoContado = parseCurrency($fila.find("td:eq(23) input").val());
                 const precioPromoTC = parseCurrency($fila.find("td:eq(24) input").val());
                 const precioPromoCredito = parseCurrency($fila.find("td:eq(25) input").val());
-                const precioIgualar = parseCurrency($fila.find("td:eq(26) input").val());
+
+                // Variable renombrada
+                const precioIgualarPromo = parseCurrency($fila.find("td:eq(26) input").val());
 
                 const dsctoContado = parseFloat($fila.find("td:eq(27)").text()) || 0;
                 const dsctoTC = parseFloat($fila.find("td:eq(28)").text()) || 0;
@@ -1433,17 +1488,15 @@
                 const margenPromoCredito = parseFloat($fila.find("td:eq(40)").text()) || 0;
                 const margenIgualar = parseFloat($fila.find("td:eq(41)").text()) || 0;
 
-                const compProveedor = parseCurrency($fila.find("td:eq(42)").text());
-                const compRebate = parseCurrency($fila.find("td:eq(43)").text());
-                const compPropio = parseCurrency($fila.find("td:eq(44)").text());
-
                 const regalo = $fila.find("td:eq(45) input[type='checkbox']").is(":checked") ? "S" : "N";
 
+                // Formateo de acuerdos
                 const acuerdosArticulo = [];
-                if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idAcuerdo: idAcuerdoProveedor, valorAporte: aporteProveedor });
-                if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idAcuerdo: idAcuerdoRebate, valorAporte: aporteRebate });
-                if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idAcuerdo: idAcuerdoPropio, valorAporte: aportePropio });
+                if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor });
+                if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoRebate, valoraporte: aporteRebate });
+                if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio, valoraporte: aportePropio });
 
+                // Formateo de medios de pago alineado a tu JSON
                 const mediosPago = [];
                 const mediosPagoSeleccionados = $selectMedioPago.data("seleccionados") || [];
 
@@ -1453,29 +1506,66 @@
                 }
 
                 if (medioPagoVal === "7") {
-                    mediosPago.push({ tiposegmento: "SEGMEDIOPAGO", tipoasignacion: "D", tipoAsignacion: "D", codigos: mediosPagoSeleccionados });
+                    mediosPago.push({ tipoasignacion: "D", codigos: mediosPagoSeleccionados });
                 } else if (medioPagoVal && medioPagoVal !== "" && medioPagoVal !== "TODAS" && medioPagoVal !== "TODOS") {
-                    mediosPago.push({ tiposegmento: "SEGMEDIOPAGO", tipoasignacion: "C", tipoAsignacion: "C", codigos: [medioPagoVal] });
+                    mediosPago.push({ tipoasignacion: "C", codigos: [medioPagoVal] });
                 } else {
-                    mediosPago.push({ tiposegmento: "SEGMEDIOPAGO", tipoasignacion: "T", tipoAsignacion: "T", codigos: [] });
+                    mediosPago.push({ tipoasignacion: "T", codigos: [] });
                 }
 
+                // 👇 LÓGICA DE OTROS COSTOS: Mapeo de "codigo" a "codigoparametro" y "valor" a "costo"
+                const otrosCostosGuardados = $fila.data("detalle-otros-costos") || [];
+                const otrosCostosMapeados = otrosCostosGuardados.map(oc => {
+                    return {
+                        codigoparametro: parseInt(oc.codigo, 10) || 0,
+                        costo: parseFloat(oc.valor) || 0
+                    };
+                });
+
+                // Construcción de la fila de artículo con todo en MINÚSCULAS igual que en tu JSON
                 articulos.push({
-                    codigoItem: String(codigo), descripcion: $fila.find("td:eq(1)").text(),
-                    costo: costo, stockBodega: stockBodega, stockTienda: stockTienda, inventarioOptimo: invOptimo,
-                    excedenteUnidad: excedenteU, excedenteValor: excedenteV, m0Unidades: m0u, m0Precio: m0p,
-                    m1Unidades: m1u, m1Precio: m1p, m2Unidades: m2u, m2Precio: m2p, igualarPrecio: igualarPrecio,
-                    margenMinimoContado: margenMinContado, margenMinimoTarjetaCredito: margenMinTC,
-                    margenMinimoCredito: margenMinCredito, margenMinimoIgualar: margenMinIgualar,
-                    unidadesLimite: unidadesLimite, unidadesProyeccionVentas: proyeccionVtas,
-                    precioListaContado: precioLista, precioPromocionContado: precioPromoContado,
-                    precioPromocionTarjetaCredito: precioPromoTC, precioPromocionCredito: precioPromoCredito,
-                    precioIgualarPrecio: precioIgualar, descuentoPromocionContado: dsctoContado,
-                    descuentoPromocionTarjetaCredito: dsctoTC, descuentoPromocionCredito: dsctoCredito,
-                    descuentoIgualarPrecio: dsctoIgualar, margenPrecioListaContado: margenPrecioLista,
-                    margenPromocionContado: margenPromoContado, margenPromocionTarjetaCredito: margenPromoTC,
-                    margenPromocionCredito: margenPromoCredito, margenIgualarPrecio: margenIgualar,
-                    marcaRegalo: regalo, mediosPago: mediosPago, acuerdos: acuerdosArticulo, otrosCostos: []
+                    codigoitem: String(codigo),
+                    descripcion: $fila.find("td:eq(1)").text(),
+                    costo: costo,
+                    stockbodega: stockBodega,
+                    stocktienda: stockTienda,
+                    inventariooptimo: invOptimo,
+                    excedenteunidad: excedenteU,
+                    excedentevalor: excedenteV,
+                    m0unidades: m0u,
+                    m0precio: m0p,
+                    m1unidades: m1u,
+                    m1precio: m1p,
+                    m2unidades: m2u,
+                    m2precio: m2p,
+                    igualarprecio: igualarPrecio,
+                    diasantiguedad: 0,
+                    margenminimocontado: margenMinContado,
+                    margenminimotarjetacredito: margenMinTC,
+                    margenminimocredito: margenMinCredito,
+                    margenminimoigualar: margenMinIgualar,
+                    unidadeslimite: unidadesLimite,
+                    unidadesproyeccionventas: proyeccionVtas,
+                    preciolistacontado: precioLista,
+                    preciolistacredito: precioLista,
+                    preciopromocioncontado: precioPromoContado,
+                    preciopromociontarjetacredito: precioPromoTC,
+                    preciopromocioncredito: precioPromoCredito,
+                    precioigualarprecio: precioIgualarPromo,
+                    descuentopromocioncontado: dsctoContado,
+                    descuentopromociontarjetacredito: dsctoTC,
+                    descuentopromocioncredito: dsctoCredito,
+                    descuentoigualarprecio: dsctoIgualar,
+                    margenpreciolistacontado: margenPrecioLista,
+                    margenpreciolistacredito: margenPrecioLista,
+                    margenpromocioncontado: margenPromoContado,
+                    margenpromociontarjetacredito: margenPromoTC,
+                    margenpromocioncredito: margenPromoCredito,
+                    margenigualarprecio: margenIgualar,
+                    marcaregalo: regalo,
+                    mediospago: mediosPago,
+                    acuerdos: acuerdosArticulo,
+                    otroscostos: otrosCostosMapeados // El arreglo formateado
                 });
             });
 
@@ -1514,19 +1604,30 @@
                 idopcion: getIdOpcionSeguro(),
                 idcontrolinterfaz: "BTNGRABAR",
                 ideventoetiqueta: "EVCLICK",
-                nombreArchivoSoporte: fileInput.name,
-                archivoSoporteBase64: base64Completo.split(",")[1] || base64Completo,
+                nombrearchivosoporte: fileInput.name,
+                archivosoportebase64: base64Completo.split(",")[1] || base64Completo,
                 promocion: {
-                    descripcion: desc, motivo: parseInt(motivo, 10) || 0, clasepromocion: parseInt($("#promocionTipo").val(), 10) || 0,
-                    fechahorainicio: fechaInicio, fechahorafin: fechaFin, marcaregalo: "", marcaprocesoaprobacion: "",
-                    idusuarioingreso: getUsuario(), nombreusuario: getUsuario()
+                    descripcion: desc,
+                    motivo: parseInt(motivo, 10) || 0,
+                    clasepromocion: parseInt($("#promocionTipo").val(), 10) || 0,
+                    fechahorainicio: fechaInicio,
+                    fechahorafin: fechaFin,
+                    marcaregalo: "",
+                    marcaprocesoaprobacion: "",
+                    idusuarioingreso: getUsuario(),
+                    nombreusuario: getUsuario()
                 },
-                acuerdos: [], segmentos: segmentos, articulos: articulos
+                acuerdos: [],
+                segmentos: segmentos,
+                articulos: articulos
             };
 
             const payload = {
-                code_app: "APP20260128155212346", http_method: "POST",
-                endpoint_path: "api/promocion/insertar", client: "APL", body_request: body
+                code_app: "APP20260128155212346",
+                http_method: "POST",
+                endpoint_path: "api/promocion/insertar",
+                client: "APL",
+                body_request: body
             };
 
             $.ajax({
@@ -1654,6 +1755,7 @@
             });
         });
 
+        // --- OTROS COSTOS ---
         $("#btnOtrosCostos").on("click", function () {
             const codigo = obtenerCodigoArticuloSeleccionado();
             if (!codigo) return;
@@ -1663,19 +1765,58 @@
                 $tbody.empty();
 
                 if (!data.length) {
-                    $tbody.html('<tr><td colspan="2" class="text-center text-muted">No hay otros costos aplicables.</td></tr>');
+                    // ✅ Cambiamos el colspan a 3
+                    $tbody.html('<tr><td colspan="3" class="text-center text-muted">No hay otros costos aplicables.</td></tr>');
                 } else {
                     data.forEach(item => {
                         $tbody.append(`
                             <tr>
-                                <td>${item.nombre || ''}</td>
-                                <td class="text-end">${formatCurrencySpanish(item.valor)}</td>
+                                <td class="text-center align-middle">
+                                    <input class="form-check-input chk-otro-costo" type="checkbox" 
+                                           data-codigo="${item.codigo}" 
+                                           data-nombre="${item.nombre}" 
+                                           data-valor="${item.valor}">
+                                </td>
+                                <td class="align-middle">${item.nombre || ''}</td>
+                                <td class="text-end align-middle">${formatCurrencySpanish(item.valor)}</td>
                             </tr>
                         `);
                     });
                 }
                 $("#modalOtrosCostos").modal("show");
             });
+        });
+
+        // ✅ NUEVO: LÓGICA PARA EL BOTÓN APLICAR
+        $("#btnAplicarOtrosCostos").off("click").on("click", function () {
+            let totalOtrosCostos = 0;
+            let seleccionados = [];
+
+            // Sumamos los valores de los checkboxes marcados
+            $("#tbodyOtrosCostos .chk-otro-costo:checked").each(function () {
+                const valor = parseFloat($(this).data("valor")) || 0;
+                totalOtrosCostos += valor;
+
+                seleccionados.push({
+                    codigo: $(this).data("codigo"),
+                    nombre: $(this).data("nombre"),
+                    valor: valor
+                });
+            });
+
+            // Guardamos el total y el arreglo en la fila del artículo activo
+            const $filaArticulo = $("#tablaArticulosBody .item-row-radio:checked").closest("tr");
+            $filaArticulo.data("total-otros-costos", totalOtrosCostos);
+            $filaArticulo.data("detalle-otros-costos", seleccionados); // Por si necesitas enviar este detalle a BD luego
+
+            // Mandamos a recalcular los márgenes de esa fila
+            recalcularFilaArticulo($filaArticulo);
+
+            $("#modalOtrosCostos").modal("hide");
+
+            if (totalOtrosCostos > 0) {
+                Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Otros costos aplicados: ${formatCurrencySpanish(totalOtrosCostos)}`, showConfirmButton: false, timer: 2000 });
+            }
         });
     }
 
@@ -1684,13 +1825,49 @@
     // ==========================================
     $(function () {
         console.log("=== CrearPromocion JS Loaded ===");
+        // ==========================================
+        // LÓGICA DE SELECCIÓN DE FILA (HABILITAR CAMPOS AMARILLOS)
+        // ==========================================
+        $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
+            // 1. Bloquear todas las filas de la tabla
+            $("#tablaArticulosBody tr").removeClass("table-active");
+            $("#tablaArticulosBody .celda-editable input, #tablaArticulosBody .celda-editable button, #tablaArticulosBody .celda-editable select").prop("disabled", true);
+            $("#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio").prop("disabled", true);
+
+            // Bloquear visualmente el checkbox de regalo
+            $("#tablaArticulosBody td:last-child input[type='checkbox']").prop("disabled", true).css("pointer-events", "none");
+
+            // 2. Habilitar SOLO la fila seleccionada
+            const $fila = $(this).closest("tr");
+            $fila.addClass("table-active");
+
+            // Habilitar los campos amarillos estándar
+            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").not(".aporte-proveedor, .aporte-rebate, .aporte-propio").prop("disabled", false);
+
+            // 3. Habilitar los montos de aportes SOLO si ya tienen un ID de acuerdo asociado
+            const tieneProvedor = $fila.find("td:eq(32) .acuerdo-id-hidden").val();
+            const tieneRebate = $fila.find("td:eq(34) .acuerdo-id-hidden").val();
+            const tienePropio = $fila.find("td:eq(36) .acuerdo-id-hidden").val();
+
+            if (tieneProvedor) $fila.find(".aporte-proveedor").prop("disabled", false);
+            if (tieneRebate) $fila.find(".aporte-rebate").prop("disabled", false);
+            if (tienePropio) $fila.find(".aporte-propio").prop("disabled", false);
+
+            // Habilitar el checkbox de regalo de la fila activa
+            $fila.find("td:last-child input[type='checkbox']").prop("disabled", false).css("pointer-events", "auto");
+        });
+
+        // INICIALIZACIÓN SELECT2 PARA COMBOS (ya que son estáticos en HTML)
+        aplicarSelect2($("#filtroCanalCombos"));
+        aplicarSelect2($("#filtroGrupoAlmacenCombos"));
+        aplicarSelect2($("#filtroAlmacenCombos"));
 
         togglePromocionForm();
         initLogicaArticuloGeneral();
         initLogicaSeleccionMultiple();
         initValidacionesFinancieras();
         initDatepickers();
-        initBotonesServiciosArticulos(); // <-- AQUI INICIALIZAMOS LOS BOTONES
+        initBotonesServiciosArticulos();
 
         $("#promocionTipo").on("change", function () {
             togglePromocionForm();
