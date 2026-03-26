@@ -214,6 +214,36 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
     return "Todos";
 }
 
+// ===============================================================
+// NUEVO: Generar HTML para Otros Costos
+// ===============================================================
+function generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo) {
+    if (!articulosotros || !Array.isArray(articulosotros)) return "N/A";
+
+    // Filtrar usando 'idpromocionarticulo'
+    const items = articulosotros.filter(s => s.idpromocionarticulo === idPromocionArticulo);
+
+    if (items.length === 0) return "N/A";
+
+    const detalles = items.map(item => {
+        return {
+            codigo: item.descripcion || "Costo",
+            nombre: `$${parseFloat(item.costo || 0).toFixed(2)}`
+        };
+    });
+
+    if (detalles.length > 1) {
+        const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
+        return `<button type="button" class="btn btn-success btn-sm btn-ver-otroscostos-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
+    }
+
+    if (detalles.length === 1) {
+        return `${detalles[0].codigo}: ${detalles[0].nombre}`;
+    }
+
+    return "N/A";
+}
+
 function obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo) {
     if (!articulosacuerdos || !Array.isArray(articulosacuerdos)) return { proveedor: null, rebate: null, propio: null };
     const acuerdos = articulosacuerdos.filter(a => a.idpromocionarticulo === idPromocionArticulo);
@@ -268,6 +298,12 @@ $(document).ready(function () {
     $(document).on("click", ".btn-ver-mediopago-grid", function () {
         const detalles = $(this).data("detalles");
         abrirModalVisualizarSegmento("Medios de Pago Seleccionados", detalles);
+    });
+
+    // NUEVO: Evento dinámico Otros Costos en Grilla
+    $(document).on("click", ".btn-ver-otroscostos-grid", function () {
+        const detalles = $(this).data("detalles");
+        abrirModalVisualizarSegmento("Otros Costos Seleccionados", detalles);
     });
 });
 
@@ -381,6 +417,7 @@ function abrirModalEditar(idPromocion) {
                 const cab = data?.cabecera || {};
                 const segmentos = data?.segmentos || [];
                 const acuerdos = data?.acuerdos || [];
+                const articulosotros = data?.articulosotros || []; // NUEVO: Capturar del JSON
                 const tipoPromocion = (cab.etiqueta_clase_promocion || data.tipopromocion || "").toUpperCase();
 
                 // Cabecera principal
@@ -406,7 +443,8 @@ function abrirModalEditar(idPromocion) {
                     configurarCampoSegmentoArticulo("#verTipoClienteArt", "#btnVerTipoClienteArt", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
 
                     if (data.articulos && data.articulos.length > 0) {
-                        renderizarTablaArticulosCompleta(data.articulos, data.articulossegmentos || [], data.articulosacuerdos || []);
+                        // NUEVO: Pasamos el array de otros costos
+                        renderizarTablaArticulosCompleta(data.articulos, data.articulossegmentos || [], data.articulosacuerdos || [], articulosotros);
                     } else {
                         $('#contenedor-tabla-articulos').html('<div class="alert alert-info text-center">No hay artículos en esta promoción.</div>').show();
                     }
@@ -483,7 +521,8 @@ function renderizarTablaArticulosSimple(articulos) {
     $('#contenedor-tabla-articulos').html(html).fadeIn();
 }
 
-function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articulosacuerdos) {
+// NUEVO: Se agregó el parámetro articulosotros
+function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articulosacuerdos, articulosotros) {
     let html = `
         <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
             <input type="text" id="buscarArticuloDetalle" class="form-control form-control-sm ms-auto" placeholder="Buscar artículo..." style="width: 280px;">
@@ -507,7 +546,7 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
                     <th class="custom-header-ingr-bg">Uds. Límite</th>
                     <th class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                     <th class="custom-header-ingr-bg">Medio de Pago</th>
-                    <th class="custom-header-cons-bg">Precio Lista</th>
+                    <th class="custom-header-ingr-bg">Otros Costos</th> <th class="custom-header-cons-bg">Precio Lista</th>
                     <th class="custom-header-ingr-bg">Precio Promo Contado</th>
                     <th class="custom-header-ingr-bg">Precio Promo TC</th>
                     <th class="custom-header-ingr-bg">Precio Promo Crédito</th>
@@ -535,6 +574,7 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
         const codigoItem = art.codigoitem || "";
         const idPromocionArticulo = art.idpromocionarticulo || 0;
         const medioPagoHtml = generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem);
+        const otrosCostosHtml = generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo); // NUEVO
         const ac = obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo);
         const esRegalo = (art.marcaregalo ?? "").toString().trim().toUpperCase() === "S";
 
@@ -562,7 +602,7 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
             <td class="text-end">${art.unidadeslimite || 0}</td>
             <td class="text-end">${art.unidadesproyeccionventas || 0}</td>
             <td class="text-center align-middle">${medioPagoHtml}</td>
-            <td class="text-end">${formatearMoneda(art.preciolistacontado)}</td>
+            <td class="text-center align-middle">${otrosCostosHtml}</td> <td class="text-end">${formatearMoneda(art.preciolistacontado)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromocioncontado)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromociontarjetacredito)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromocioncredito)}</td>

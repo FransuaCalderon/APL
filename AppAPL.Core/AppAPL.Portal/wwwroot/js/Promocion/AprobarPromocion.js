@@ -84,7 +84,6 @@ function obtenerNombreArchivoConGuid(rutaCompleta) {
 
 function obtenerTextoSegmento(segmentos, etiqueta) {
     if (!segmentos || !Array.isArray(segmentos) || segmentos.length === 0) {
-        // Si no viene nada (como en Artículos), lo dejamos vacío en lugar de "Todos"
         return "";
     }
 
@@ -93,25 +92,21 @@ function obtenerTextoSegmento(segmentos, etiqueta) {
         return tag.toUpperCase() === etiqueta.toUpperCase();
     });
 
-    if (items.length === 0) return ""; // Vacío si no hay items
+    if (items.length === 0) return "";
 
     const primerItem = items[0];
     const tipoAsig = (primerItem.tipoasignacion || primerItem.tipoAsignacion || "").toString().toUpperCase();
     if (tipoAsig === "T") return "Todos";
 
-    // 1. Si la lista trae múltiples elementos reales (El escenario ideal)
     if (items.length > 1) return `Varios (${items.length})`;
 
     let cod = (primerItem.codigo_detalle || primerItem.codigoDetalle || "").toString().trim();
     let nom = (primerItem.nombre_detalle || primerItem.nombreDetalle || "").toString().trim();
 
-    // 2. PARCHE PARA EL BACKEND: Si solo viene 1 item, el nombre es null, 
-    // y el código es un número mayor a 1, asumimos que es una cantidad.
     if (!nom && !isNaN(cod) && parseInt(cod) > 1) {
         return `Varios (${cod})`;
     }
 
-    // 3. Comportamiento normal para 1 solo item válido
     if (cod.toUpperCase() === "TODOS") return "Todos";
     if (cod && nom) return `${cod} - ${nom}`;
     return cod || nom || "Todos";
@@ -121,26 +116,22 @@ function obtenerDetallesSegmento(segmentos, etiqueta) {
     if (!segmentos || !Array.isArray(segmentos) || segmentos.length === 0) return [];
 
     const items = segmentos.filter(s => {
-        // CORRECCIÓN: Se agregan los fallbacks de propiedades
         const tag = s.etiqueta_tipo_segmento || s.etiquetaTipoSegmento || s.etiqueta || "";
         return tag.toUpperCase() === etiqueta.toUpperCase();
     });
 
     if (items.length === 0) return [];
 
-    // CORRECCIÓN: Se agregan los fallbacks para tipoasignacion
     const tipoAsig = (items[0].tipoasignacion || items[0].tipoAsignacion || "").toString().toUpperCase();
     if (tipoAsig === "T") return [];
 
     const mapa = {};
     items.forEach(i => {
-        // CORRECCIÓN: Se agregan los fallbacks para el código y el nombre
         const cod = (i.codigo_detalle || i.codigoDetalle || "").toString().trim();
         const nom = (i.nombre_detalle || i.nombreDetalle || "").toString().trim();
 
-        if (cod.toUpperCase() === "TODOS") return; // Ignoramos si es "Todos"
+        if (cod.toUpperCase() === "TODOS") return;
 
-        // Si el backend los envió separados por coma
         if (cod.includes(",")) {
             const cods = cod.split(",");
             const noms = nom.split(",");
@@ -162,37 +153,6 @@ function obtenerDetallesSegmento(segmentos, etiqueta) {
     return Object.values(mapa);
 }
 
-/**
- * Extrae la lista de detalles únicos de un segmento específico.
- */
-function obtenerDetallesSegmento(segmentos, etiqueta) {
-    if (!segmentos || !Array.isArray(segmentos) || segmentos.length === 0) return [];
-
-    const items = segmentos.filter(s => {
-        const tag = (s.etiqueta_tipo_segmento || "").toUpperCase();
-        return tag === etiqueta.toUpperCase();
-    });
-
-    if (items.length === 0) return [];
-
-    const tipoAsig = (items[0].tipoasignacion || "").toString().toUpperCase();
-    if (tipoAsig === "T") return [];
-
-    const mapa = {};
-    items.forEach(i => {
-        const cod = (i.codigo_detalle || "").toString().trim();
-        const nom = (i.nombre_detalle || "").toString().trim();
-        if (cod && !mapa[cod]) {
-            mapa[cod] = { codigo: cod, nombre: nom };
-        }
-    });
-
-    return Object.values(mapa);
-}
-
-/**
- * Configura un campo de segmento con botón "Varios" estilo CrearPromocion.
- */
 function configurarCampoSegmentoArticulo(inputId, btnId, segmentos, etiqueta, tituloModal) {
     const texto = obtenerTextoSegmento(segmentos, etiqueta);
     const detalles = obtenerDetallesSegmento(segmentos, etiqueta);
@@ -218,9 +178,6 @@ function configurarCampoSegmentoArticulo(inputId, btnId, segmentos, etiqueta, ti
     }
 }
 
-/**
- * Abre el modal genérico de visualización de segmento (solo lectura).
- */
 function abrirModalVisualizarSegmento(titulo, detalles) {
     $("#modalVerSegmentoLabel").text(titulo);
     const $body = $("#bodyModalVerSegmento");
@@ -245,12 +202,6 @@ function abrirModalVisualizarSegmento(titulo, detalles) {
     modal.show();
 }
 
-/**
- * Obtiene el texto del medio de pago de un artículo
- */
-/**
- * Obtiene el HTML del medio de pago (Texto o Botón) para la grilla de artículos
- */
 function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
     if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
 
@@ -264,7 +215,6 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
     const tipoAsig = (primerItem.tipoasignacion || "").toString().toUpperCase();
     if (tipoAsig === "T") return "Todos";
 
-    // Extraer todos los detalles únicos (incluso si vienen separados por comas)
     const mapa = {};
     items.forEach(i => {
         const cod = (i.codigo_detalle || "").toString().trim();
@@ -288,19 +238,16 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
 
     const detalles = Object.values(mapa);
 
-    // Si hay más de uno, devolvemos el botón verde
     if (detalles.length > 1) {
-        // Formateamos el JSON para que sea seguro ponerlo dentro de un atributo HTML
         const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
         return `<button type="button" class="btn btn-success btn-sm btn-ver-mediopago-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
     }
 
-    // Si hay solo uno
     if (detalles.length === 1) {
         let cod = detalles[0].codigo;
         let nom = detalles[0].nombre;
         if (!nom && !isNaN(cod) && parseInt(cod) > 1) {
-            return `Varios (${cod})`; // Parche por si el backend mandó la cantidad directo
+            return `Varios (${cod})`;
         }
         if (cod.toUpperCase() === "TODOS") return "Todos";
         if (cod && nom) return `${cod} - ${nom}`;
@@ -310,9 +257,36 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
     return "Todos";
 }
 
-/**
- * Obtiene los acuerdos de un artículo agrupados por tipo de fondo
- */
+// ===============================================================
+// NUEVO: Generar HTML para Otros Costos
+// ===============================================================
+function generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo) {
+    if (!articulosotros || !Array.isArray(articulosotros)) return "N/A";
+
+    // Filtrar usando 'idpromocionarticulo'
+    const items = articulosotros.filter(s => s.idpromocionarticulo === idPromocionArticulo);
+
+    if (items.length === 0) return "N/A";
+
+    const detalles = items.map(item => {
+        return {
+            codigo: item.descripcion || "Costo",
+            nombre: `$${parseFloat(item.costo || 0).toFixed(2)}`
+        };
+    });
+
+    if (detalles.length > 1) {
+        const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
+        return `<button type="button" class="btn btn-success btn-sm btn-ver-otroscostos-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
+    }
+
+    if (detalles.length === 1) {
+        return `${detalles[0].codigo}: ${detalles[0].nombre}`;
+    }
+
+    return "N/A";
+}
+
 function obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo) {
     if (!articulosacuerdos || !Array.isArray(articulosacuerdos)) return { proveedor: null, rebate: null, propio: null };
 
@@ -377,6 +351,12 @@ $(document).ready(function () {
     $(document).on("click", ".btn-ver-mediopago-grid", function () {
         const detalles = $(this).data("detalles");
         abrirModalVisualizarSegmento("Medios de Pago Seleccionados", detalles);
+    });
+
+    // NUEVO: Evento dinámico Otros Costos en Grilla
+    $(document).on("click", ".btn-ver-otroscostos-grid", function () {
+        const detalles = $(this).data("detalles");
+        abrirModalVisualizarSegmento("Otros Costos Seleccionados", detalles);
     });
 });
 
@@ -525,6 +505,7 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                 const cab = data.cabecera || {};
                 const segmentos = data.segmentos || [];
                 const acuerdos = data.acuerdos || [];
+                const articulosotros = data.articulosotros || []; // NUEVO: Extraer articulosotros
                 const tipoPromocion = (cab.etiqueta_clase_promocion || data.tipopromocion || "").toUpperCase();
 
                 datosAprobacionActual = {
@@ -553,14 +534,14 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                     $('#seccion-detalle-general').hide();
                     $('#seccion-detalle-articulos').show();
 
-                    // Configurar segmentos con botón "Varios" si aplica
                     configurarCampoSegmentoArticulo("#verCanalArt", "#btnVerCanalArt", segmentos, "SEGCANAL", "Canales Seleccionados");
                     configurarCampoSegmentoArticulo("#verGrupoAlmacenArt", "#btnVerGrupoAlmacenArt", segmentos, "SEGGRUPOALMACEN", "Grupos Almacén Seleccionados");
                     configurarCampoSegmentoArticulo("#verAlmacenArt", "#btnVerAlmacenArt", segmentos, "SEGALMACEN", "Almacenes Seleccionados");
                     configurarCampoSegmentoArticulo("#verTipoClienteArt", "#btnVerTipoClienteArt", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
 
                     if (data.articulos && data.articulos.length > 0) {
-                        renderizarTablaArticulosCompleta(data.articulos, data.articulossegmentos || [], data.articulosacuerdos || []);
+                        // NUEVO: Pasar articulosotros a la funcion
+                        renderizarTablaArticulosCompleta(data.articulos, data.articulossegmentos || [], data.articulosacuerdos || [], articulosotros);
                     } else {
                         $('#contenedor-tabla-articulos').html('<div class="alert alert-info text-center">No hay artículos en esta promoción.</div>').show();
                     }
@@ -641,7 +622,8 @@ function renderizarTablaArticulosSimple(articulos) {
 // ===================================================================
 // TABLA ARTÍCULOS COMPLETA (para PRARTICULO) - DataTable con búsqueda y paginación
 // ===================================================================
-function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articulosacuerdos) {
+// NUEVO: Agregado parametro articulosotros
+function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articulosacuerdos, articulosotros) {
     let html = `
         <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
             <input type="text" id="buscarArticuloDetalle" class="form-control form-control-sm ms-auto" placeholder="Buscar artículo..." style="width: 280px;">
@@ -665,7 +647,7 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
                     <th class="custom-header-ingr-bg">Uds. Límite</th>
                     <th class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                     <th class="custom-header-ingr-bg">Medio de Pago</th>
-                    <th class="custom-header-cons-bg">Precio Lista</th>
+                    <th class="custom-header-ingr-bg">Otros Costos</th> <th class="custom-header-cons-bg">Precio Lista</th>
                     <th class="custom-header-ingr-bg">Precio Promo Contado</th>
                     <th class="custom-header-ingr-bg">Precio Promo TC</th>
                     <th class="custom-header-ingr-bg">Precio Promo Crédito</th>
@@ -693,6 +675,7 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
         const codigoItem = art.codigoitem || "";
         const idPromocionArticulo = art.idpromocionarticulo || 0;
         const medioPagoHtml = generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem);
+        const otrosCostosHtml = generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo); // NUEVO
         const ac = obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo);
         const esRegalo = (art.marcaregalo ?? "").toString().trim().toUpperCase() === "S";
 
@@ -720,7 +703,7 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
             <td class="text-end">${art.unidadeslimite || 0}</td>
             <td class="text-end">${art.unidadesproyeccionventas || 0}</td>
             <td class="text-center align-middle">${medioPagoHtml}</td>
-            <td class="text-end">${formatearMoneda(art.preciolistacontado)}</td>
+            <td class="text-center align-middle">${otrosCostosHtml}</td> <td class="text-end">${formatearMoneda(art.preciolistacontado)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromocioncontado)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromociontarjetacredito)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromocioncredito)}</td>
@@ -889,10 +872,6 @@ function ejecutarAprobacionPromocion(accion, nuevoEstado, comentario) {
     });
 }
 
-/**
-* Configura un campo de segmento para la vista general (estilo grid).
-* No oculta el botón para no romper el estilo, solo lo habilita/deshabilita.
-*/
 function configurarCampoSegmentoGeneral(inputId, btnId, segmentos, etiqueta, tituloModal) {
     const texto = obtenerTextoSegmento(segmentos, etiqueta);
     const detalles = obtenerDetallesSegmento(segmentos, etiqueta);
@@ -916,4 +895,3 @@ function configurarCampoSegmentoGeneral(inputId, btnId, segmentos, etiqueta, tit
             .off("click");
     }
 }
-
