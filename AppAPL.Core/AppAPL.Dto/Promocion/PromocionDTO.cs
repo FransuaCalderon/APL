@@ -714,6 +714,62 @@ namespace AppAPL.Dto.Promocion
 
 
 
+    // modificar promocion articulo dto -------------------------------------
+
+    public class ArticuloModPromocionDTO
+    {
+        public string accion { get; set; } // 'I', 'U', 'D'
+        public long? idPromocionArticulo { get; set; }
+        public string codigoItem { get; set; }
+        public string descripcion { get; set; }
+        public decimal costo { get; set; }
+        public int stockBodega { get; set; }
+        public int stockTienda { get; set; }
+        public int inventarioOptimo { get; set; }
+        public int excedenteUnidad { get; set; }
+        public decimal excedenteValor { get; set; }
+        public int m0Unidades { get; set; }
+        public decimal m0Precio { get; set; }
+        public int m1Unidades { get; set; }
+        public decimal m1Precio { get; set; }
+        public int m2Unidades { get; set; }
+        public decimal m2Precio { get; set; }
+        public decimal igualarPrecio { get; set; }
+        public int diasAntiguedad { get; set; }
+        public decimal margenMinimoContado { get; set; }
+        public decimal margenMinimoTarjetaCredito { get; set; }
+        public decimal margenMinimoCredito { get; set; }
+        public decimal margenMinimoIgualar { get; set; }
+        public int unidadesLimite { get; set; }
+        public int unidadesProyeccionVentas { get; set; }
+        public decimal precioListaContado { get; set; }
+        public decimal precioListaCredito { get; set; }
+        public decimal precioPromocionContado { get; set; }
+        public decimal precioPromocionTarjetaCredito { get; set; }
+        public decimal precioPromocionCredito { get; set; }
+        public decimal precioIgualarPrecio { get; set; }
+        public decimal descuentoPromocionContado { get; set; }
+        public decimal descuentoPromocionTarjetaCredito { get; set; }
+        public decimal descuentoPromocionCredito { get; set; }
+        public decimal descuentoIgualarPrecio { get; set; }
+        public decimal margenPrecioListaContado { get; set; }
+        public decimal margenPrecioListaCredito { get; set; }
+        public decimal margenPromocionContado { get; set; }
+        public decimal margenPromocionTarjetaCredito { get; set; }
+        public decimal margenPromocionCredito { get; set; }
+        public decimal margenIgualarPrecio { get; set; }
+        public string marcaRegalo { get; set; }
+
+        // Objetos anidados
+        public List<MedioPagoDto> mediosPago { get; set; } = new();
+        public List<ArticuloAcuerdoDto> acuerdos { get; set; } = new();
+        public List<OtroCostoDto> otrosCostos { get; set; } = new();
+    }
+
+
+
+    //--------------------------
+
 
 
     public class AcuerdoBandAproDTO
@@ -754,6 +810,7 @@ namespace AppAPL.Dto.Promocion
         public PromocionModDto Promocion { get; set; }
         public List<AcuerdoModDto> Acuerdos { get; set; }
         public List<SegmentoDTO> Segmentos { get; set; }
+        public List<ArticuloModPromocionDTO>? Articulos { get; set; }
         public string? NombreArchivoSoporte { get; set; }
         public string? ArchivoSoporteBase64 { get; set; }
         public string? rutaArchivoAntiguo { get; set; }
