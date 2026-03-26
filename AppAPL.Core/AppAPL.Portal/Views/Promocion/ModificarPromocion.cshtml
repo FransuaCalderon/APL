@@ -7,34 +7,23 @@
 @section Scripts {
     <script>window.usuarioActual = '@usuarioActual';</script>
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
-    
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
-
     <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
-
-
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-
-
     <script src="~/js/Promocion/ModificarPromocion.js" asp-append-version="true"></script>
 }
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
 <style>
-    /* =====================================================
-           ESTILOS PARA EL FORMULARIO DE MODIFICACIÓN (ORIGINALES)
-        ===================================================== */
-
     .ui-datepicker {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 0.9rem;
         z-index: 1056 !important;
     }
 
-    #dvPromocionGeneral .form-control,
-    #dvPromocionGeneral .form-select {
+    #dvPromocionGeneral .form-control, #dvPromocionGeneral .form-select {
         font-size: 0.8rem;
         height: 31px;
     }
@@ -55,10 +44,10 @@
         border-color: #6c757d;
     }
 
-    #dvPromocionGeneral .btn-outline-secondary img {
-        width: 14px;
-        height: 14px;
-    }
+        #dvPromocionGeneral .btn-outline-secondary img {
+            width: 14px;
+            height: 14px;
+        }
 
     .promo-top-row {
         border-bottom: 1px solid #dee2e6;
@@ -66,31 +55,19 @@
         margin-bottom: 4px;
     }
 
-    .promo-top-row .input-group-text {
-        font-weight: 700;
-        font-size: 0.82rem;
-    }
-
-    .promo-top-row .btn-group .btn {
-        font-size: 0.75rem;
-        padding: 4px 8px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .promo-top-row .btn-group .btn i {
-        font-size: 0.85rem;
-    }
+        .promo-top-row .input-group-text {
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
 
     .seg-input-group .btn {
         padding: 0.25rem 0.35rem;
         line-height: 1;
     }
 
-    .seg-input-group .btn i {
-        font-size: 0.75rem;
-    }
+        .seg-input-group .btn i {
+            font-size: 0.75rem;
+        }
 
     .soporte-section {
         border-top: 1px solid #dee2e6;
@@ -98,16 +75,16 @@
         margin-top: 6px;
     }
 
-    .soporte-section .btn-buscar {
-        font-size: 0.78rem;
-        padding: 4px 10px;
-        white-space: nowrap;
-    }
+        .soporte-section .btn-buscar {
+            font-size: 0.78rem;
+            padding: 4px 10px;
+            white-space: nowrap;
+        }
 
-    .soporte-section .soporte-nombre {
-        font-size: 0.78rem;
-        background: #e9ecef;
-    }
+        .soporte-section .soporte-nombre {
+            font-size: 0.78rem;
+            background: #e9ecef;
+        }
 
     .regalo-check-container {
         display: flex;
@@ -116,12 +93,12 @@
         height: 31px;
     }
 
-    .regalo-check-container input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        accent-color: #0d6efd;
-        cursor: pointer;
-    }
+        .regalo-check-container input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0d6efd;
+            cursor: pointer;
+        }
 
     .articulo-group .input-group-text {
         padding: 0.25rem 0.4rem;
@@ -134,7 +111,6 @@
         cursor: pointer;
     }
 
-    /* Clase para el botón de Varios seleccionado */
     .btn-success-custom {
         background-color: #198754;
         color: white;
@@ -142,9 +118,90 @@
         font-size: 0.78rem;
         padding: 0.25rem 0.4rem;
     }
-    /* =====================================================
-                       MODAL VISOR PDF
-        ===================================================== */
+
+    .label-una-linea {
+        white-space: nowrap;
+        font-size: 0.68rem !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        width: 100%;
+    }
+
+    input:disabled, select:disabled {
+        background-color: #e9ecef !important;
+        color: #6c757d !important;
+        cursor: not-allowed !important;
+        opacity: 1;
+    }
+
+    /* ESTILOS TABLA ARTÍCULOS */
+    .detalle-header {
+        background-color: #343a40;
+        color: white;
+        padding: 6px 15px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 0.95rem;
+        border-radius: 4px;
+    }
+
+    .tabla-items-header th {
+        background-color: #a4c995;
+        color: #343a40;
+        font-weight: bold;
+        vertical-align: middle;
+        text-align: center;
+        border: 1px solid #dee2e6;
+        font-size: 0.75rem;
+    }
+
+    .custom-header-cons-bg {
+        background-color: #a4c995 !important;
+        color: #343a40 !important;
+    }
+
+    .custom-header-ingr-bg {
+        background-color: #FFEC99 !important;
+        color: #343a40 !important;
+    }
+
+    .custom-header-calc-bg {
+        background-color: #FFBF47 !important;
+        color: #343a40 !important;
+    }
+
+    .tabla-items-body input[type="text"], .tabla-items-body input[type="number"] {
+        text-align: right;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        height: 28px;
+        border: 1px solid #ced4da;
+        border-radius: 0.2rem;
+    }
+
+    .tabla-items-body td {
+        font-size: 0.78rem;
+        vertical-align: middle;
+    }
+
+    .table-sticky-col {
+        position: sticky;
+        left: 0;
+        background-color: #fff;
+        z-index: 1;
+    }
+
+    thead .table-sticky-col {
+        z-index: 2;
+    }
+
+    .modal-pantalla-completa {
+        max-width: 95vw !important;
+        width: 95vw !important;
+    }
+
+    /* MODAL VISOR PDF */
     #modalVisorPdf .modal-dialog {
         max-width: 90vw;
         height: 90vh;
@@ -163,9 +220,9 @@
         border-bottom: none;
     }
 
-    #modalVisorPdf .modal-header .btn-close {
-        filter: invert(1);
-    }
+        #modalVisorPdf .modal-header .btn-close {
+            filter: invert(1);
+        }
 
     #modalVisorPdf .modal-body {
         padding: 0;
@@ -218,23 +275,6 @@
         padding: 20px;
         text-align: center;
     }
-
-    .label-una-linea {
-        white-space: nowrap; /* Prohíbe que el texto salte abajo */
-        font-size: 0.68rem !important; /* Letra un pelín más pequeña para que entre */
-        overflow: hidden; /* Evita que invada la columna vecina */
-        text-overflow: ellipsis; /* Si la pantalla es muy chica, pone '...' */
-        display: block;
-        width: 100%;
-    }
-
-    /* ✅ Resalta visualmente los campos bloqueados */
-    input:disabled, select:disabled {
-        background-color: #e9ecef !important;
-        color: #6c757d !important;
-        cursor: not-allowed !important;
-        opacity: 1;
-    }
 </style>
 
 <h2>Modificación - Promociones</h2>
@@ -245,13 +285,10 @@
 </div>
 
 <div id="vistaDetalle" style="display:none;">
-
     <div class="card border-secondary mb-3">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0 text-dark">Modificar Promoción #<span id="lblIdPromocion"></span></h5>
-            <button type="button" class="btn btn-sm btn-outline-dark" id="btnVolverTabla">
-                <i class="fa-solid fa-arrow-left"></i> Volver a la Bandeja
-            </button>
+            <button type="button" class="btn btn-sm btn-outline-dark" id="btnVolverTabla"><i class="fa-solid fa-arrow-left"></i> Volver a la Bandeja</button>
         </div>
 
         <div class="card-body p-3">
@@ -259,6 +296,7 @@
             <input type="hidden" id="modalTipoPromocion">
 
             <div id="dvPromocionGeneral">
+                <!-- FILA SUPERIOR: Promoción + No. Promoción -->
                 <div class="row g-1 promo-top-row justify-content-between">
                     <div class="col">
                         <div class="input-group input-group-sm">
@@ -268,365 +306,332 @@
                     </div>
                     <div class="col-auto">
                         <div class="input-group input-group-sm mb-1">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">No. Promoción</span>
-                            <input type="text" class="form-control text-center" id="verPromocionNum" style="max-width: 100px;" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" readonly>
+                            <span class="input-group-text">No. Promoción</span>
+                            <input type="text" class="form-control text-center" id="verPromocionNum" style="max-width: 100px;" readonly>
                         </div>
                     </div>
                 </div>
 
                 <form id="formPromocion" class="row g-2 mt-1">
-
+                    <!-- CAMPOS COMUNES (Descripción, Motivo, Fechas, Estado) -->
                     <div class="col-md-3 text-center">
                         <label for="promocionDescripcion" class="form-label fw-bold col-form-label-sm">Descripción</label>
                         <input type="text" class="form-control form-control-sm" id="promocionDescripcion" placeholder="Descripción de promoción" maxlength="200">
                     </div>
-                    <div class="col-md-3 text-center">
-                        <label for="promocionMotivo" class="form-label fw-bold col-form-label-sm">Motivo</label>
-                        <select id="promocionMotivo" class="form-select form-select-sm">
-                            <option value="">Cargando...</option>
-                        </select>
-                    </div>
                     <div class="col-md-2 text-center">
-                        <label for="promocionFechaInicio" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
+                        <label for="promocionMotivo" class="form-label fw-bold col-form-label-sm">Motivo</label>
+                        <select id="promocionMotivo" class="form-select form-select-sm"><option value="">Cargando...</option></select>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <label class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control form-control-sm" id="promocionFechaInicio" placeholder="dd/mm/aaaa">
                             <input type="time" class="form-control form-control-sm" id="promocionHoraInicio" value="00:00">
-                            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicio">
-                                <i class="fa-regular fa-calendar"></i>
-                            </button>
+                            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicio"><i class="fa-regular fa-calendar"></i></button>
                         </div>
                     </div>
-                    <div class="col-md-2 text-center">
-                        <label for="promocionFechaFin" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
+                    <div class="col-md-3 text-center">
+                        <label class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control form-control-sm" id="promocionFechaFin" placeholder="dd/mm/aaaa">
                             <input type="time" class="form-control form-control-sm" id="promocionHoraFin" value="23:59">
-                            <button class="btn btn-outline-secondary" type="button" id="btnFechaFin">
-                                <i class="fa-regular fa-calendar"></i>
-                            </button>
+                            <button class="btn btn-outline-secondary" type="button" id="btnFechaFin"><i class="fa-regular fa-calendar"></i></button>
                         </div>
                     </div>
-                    <div class="col-md-2 text-center">
-                        <label for="verEstadoPromocion" class="form-label fw-bold col-form-label-sm">Estado</label>
+                    <div class="col-md-1 text-center">
+                        <label class="form-label fw-bold col-form-label-sm">Estado</label>
                         <input type="text" class="form-control form-control-sm" id="verEstadoPromocion" readonly disabled>
                     </div>
 
-                    <div class="col-md-2 text-center">
-                        <label for="segMarca" class="form-label fw-bold col-form-label-sm">Marca</label>
-                        <div class="input-group input-group-sm seg-input-group">
-                            <button id="btnMarca" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalMarca"><i class="fa-solid fa-list-check"></i></button>
-                            <select id="segMarca" class="form-select form-select-sm"><option value="" selected>Todas</option></select>
-                        </div>
-                    </div>
-                    <div class="col-md-2 text-center">
-                        <label for="segDivision" class="form-label fw-bold col-form-label-sm">División</label>
-                        <div class="input-group input-group-sm seg-input-group">
-                            <button id="btnDivision" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalDivision"><i class="fa-solid fa-list-check"></i></button>
-                            <select id="segDivision" class="form-select form-select-sm"><option value="" selected>Todas</option></select>
-                        </div>
-                    </div>
-                    <div class="col-md-2 text-center">
-                        <label for="segDepartamento" class="form-label fw-bold col-form-label-sm">Departamento</label>
-                        <div class="input-group input-group-sm seg-input-group">
-                            <button id="btnDepartamento" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalDepartamento"><i class="fa-solid fa-list-check"></i></button>
-                            <select id="segDepartamento" class="form-select form-select-sm"><option value="" selected>Todos</option></select>
-                        </div>
-                    </div>
-                    <div class="col-md-2 text-center">
-                        <label for="segClase" class="form-label fw-bold col-form-label-sm">Clase</label>
-                        <div class="input-group input-group-sm seg-input-group">
-                            <button id="btnClase" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClase"><i class="fa-solid fa-list-check"></i></button>
-                            <select id="segClase" class="form-select form-select-sm"><option value="" selected>Todas</option></select>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-center">
-                        <label for="segArticulo" class="form-label fw-bold col-form-label-sm">Artículo</label>
-                        <div class="input-group input-group-sm articulo-group">
-                            <div class="input-group-text">
-                                <input class="form-check-input mt-0" type="checkbox" id="chkArticulo">
+                    <!-- ============================================================= -->
+                    <!-- SECCIÓN GENERAL: Segmentos de jerarquía + Artículo checkbox -->
+                    <!-- ============================================================= -->
+                    <div id="seccionGeneralSegmentos">
+                        <div class="row g-2">
+                            <div class="col-md-2 text-center">
+                                <label class="form-label fw-bold col-form-label-sm">Marca</label>
+                                <div class="input-group input-group-sm seg-input-group">
+                                    <button id="btnMarca" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalMarca"><i class="fa-solid fa-list-check"></i></button>
+                                    <select id="segMarca" class="form-select form-select-sm"><option value="" selected>Todas</option></select>
+                                </div>
                             </div>
-                            <input type="text" class="form-control" id="segArticulo" disabled>
+                            <div class="col-md-2 text-center">
+                                <label class="form-label fw-bold col-form-label-sm">División</label>
+                                <div class="input-group input-group-sm seg-input-group">
+                                    <button id="btnDivision" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalDivision"><i class="fa-solid fa-list-check"></i></button>
+                                    <select id="segDivision" class="form-select form-select-sm"><option value="" selected>Todas</option></select>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <label class="form-label fw-bold col-form-label-sm">Departamento</label>
+                                <div class="input-group input-group-sm seg-input-group">
+                                    <button id="btnDepartamento" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalDepartamento"><i class="fa-solid fa-list-check"></i></button>
+                                    <select id="segDepartamento" class="form-select form-select-sm"><option value="" selected>Todos</option></select>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <label class="form-label fw-bold col-form-label-sm">Clase</label>
+                                <div class="input-group input-group-sm seg-input-group">
+                                    <button id="btnClase" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClase"><i class="fa-solid fa-list-check"></i></button>
+                                    <select id="segClase" class="form-select form-select-sm"><option value="" selected>Todas</option></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <label class="form-label fw-bold col-form-label-sm">Artículo</label>
+                                <div class="input-group input-group-sm articulo-group">
+                                    <div class="input-group-text"><input class="form-check-input mt-0" type="checkbox" id="chkArticulo"></div>
+                                    <input type="text" class="form-control" id="segArticulo" disabled>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-md-2 text-center">
-                        <label for="segCanal" class="form-label fw-bold col-form-label-sm">Canal</label>
+                    <!-- Segmentos comunes: Canal, Grupo, Almacén, Tipo Cliente, Medio Pago -->
+                    <!-- (Se muestran tanto para General como Artículos, pero Medio Pago solo en General) -->
+                    <div id="seccionArticuloSegmentos" style="display:none;">
+                        <!-- Nota: Para artículos se reutilizan los mismos IDs de segCanal, segGrupoAlmacen, etc. -->
+                    </div>
+
+                    <div class="col-md-3 text-center">
+                        <label class="form-label fw-bold col-form-label-sm">Canal</label>
                         <div class="input-group input-group-sm seg-input-group">
                             <button id="btnCanal" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalCanal"><i class="fa-solid fa-list-check"></i></button>
                             <select class="form-select form-select-sm" id="segCanal"><option value="" selected>Todos</option></select>
                         </div>
                     </div>
-                    <div class="col-md-2 text-center">
-                        <label for="segGrupoAlmacen" class="form-label fw-bold col-form-label-sm">Grupo</label>
+                    <div class="col-md-3 text-center">
+                        <label class="form-label fw-bold col-form-label-sm">Grupo</label>
                         <div class="input-group input-group-sm seg-input-group">
                             <button id="btnGrupoAlmacen" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalGrupoAlmacen"><i class="fa-solid fa-list-check"></i></button>
                             <select class="form-select form-select-sm" id="segGrupoAlmacen"><option value="" selected>Todos</option></select>
                         </div>
                     </div>
-                    <div class="col-md-2 text-center">
-                        <label for="segAlmacen" class="form-label fw-bold col-form-label-sm">Almacén</label>
+                    <div class="col-md-3 text-center">
+                        <label class="form-label fw-bold col-form-label-sm">Almacén</label>
                         <div class="input-group input-group-sm seg-input-group">
                             <button id="btnAlmacen" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalAlmacen"><i class="fa-solid fa-list-check"></i></button>
                             <select class="form-select form-select-sm" id="segAlmacen"><option value="" selected>Todos</option></select>
                         </div>
                     </div>
                     <div class="col-md-3 text-center">
-                        <label for="segTipoCliente" class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
+                        <label class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
                         <div class="input-group input-group-sm seg-input-group">
                             <button id="btnTipoCliente" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClientesEspecificos"><i class="fa-solid fa-list-check"></i></button>
                             <select class="form-select form-select-sm" id="segTipoCliente"><option value="" selected>Todos</option></select>
                         </div>
                     </div>
-                    <div class="col-md-3 text-center">
-                        <label for="segMedioPago" class="form-label fw-bold col-form-label-sm">Medio Pago</label>
-                        <div class="input-group input-group-sm seg-input-group">
-                            <button id="btnMedioPago" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalMedioPago"><i class="fa-solid fa-list-check"></i></button>
-                            <select class="form-select form-select-sm" id="segMedioPago"><option value="" selected>Todos</option></select>
+
+                    <!-- ============================================================= -->
+                    <!-- SECCIÓN GENERAL: Acuerdos (Proveedor + Propio + Regalo) -->
+                    <!-- ============================================================= -->
+                    <div id="seccionGeneralAcuerdos" class="row g-2">
+                        <div class="col-md-1 text-center px-1">
+                            <label class="form-label fw-bold label-una-linea" title="% Dscto Prov.">% Dscto Prov.</label>
+                            <input type="text" class="form-control form-control-sm text-end" id="descuentoProveedor" placeholder="0.00">
+                        </div>
+                        <div class="col-md-3 text-center px-1">
+                            <label class="form-label fw-bold label-una-linea" title="ID Acuerdo Prov.">ID Acuerdo Prov.</label>
+                            <div class="input-group input-group-sm">
+                                <input type="hidden" id="fondoProveedorId"><input type="hidden" id="fondoDisponibleProv">
+                                <input type="text" class="form-control" id="fondoProveedorText" placeholder="Selec..." readonly>
+                                <button class="btn btn-outline-secondary" type="button" id="btnBuscarProv" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor" title="Buscar Acuerdo"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                <button class="btn btn-outline-danger" type="button" id="btnBorrarProv" title="Quitar Selección"><i class="fa-solid fa-eraser"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center px-1">
+                            <label class="form-label fw-bold label-una-linea" title="$ Compr. Prov.">$ Compr. Prov.</label>
+                            <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotal" placeholder="0.00">
+                        </div>
+                        <div class="col-md-1 text-center px-1">
+                            <label class="form-label fw-bold label-una-linea" title="% Dscto Propio">% Dscto Propio</label>
+                            <input type="text" class="form-control form-control-sm text-end" id="descuentoPropio" placeholder="0.00">
+                        </div>
+                        <div class="col-md-3 text-center px-1">
+                            <label class="form-label fw-bold label-una-linea" title="ID Acuerdo Propio">ID Acuerdo Propio</label>
+                            <div class="input-group input-group-sm">
+                                <input type="hidden" id="acuerdoPropioId"><input type="hidden" id="acuerdoPropioDisponible">
+                                <input type="text" class="form-control" id="acuerdoPropioText" placeholder="Selec..." readonly>
+                                <button class="btn btn-outline-secondary" type="button" id="btnBuscarPropio" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdoPropio" title="Buscar Acuerdo"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                <button class="btn btn-outline-danger" type="button" id="btnBorrarPropio" title="Quitar Selección"><i class="fa-solid fa-eraser"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center px-1">
+                            <label class="form-label fw-bold label-una-linea" title="$ Compr. Propio">$ Compr. Propio</label>
+                            <input type="text" class="form-control form-control-sm text-end" id="comprometidoPropio" placeholder="0.00">
+                        </div>
+                        <div class="col-md-1 text-center px-1">
+                            <label class="form-label fw-bold label-una-linea" title="% Dscto Total">% Dscto Total</label>
+                            <input type="text" class="form-control form-control-sm text-end" id="descuentoTotal" placeholder="0.00" readonly disabled>
+                        </div>
+                        <div class="col-md-1 text-center px-1">
+                            <label class="form-label fw-bold label-una-linea" title="Regalo">Regalo</label>
+                            <div class="regalo-check-container"><input class="form-check-input" type="checkbox" id="promocionMarcaRegalo"></div>
                         </div>
                     </div>
 
-                    <div class="col-md-1 text-center px-1">
-                        <label for="descuentoProveedor" class="form-label fw-bold label-una-linea" title="% Dscto Prov.">% Dscto Prov.</label>
-                        <input type="text" class="form-control form-control-sm text-end" id="descuentoProveedor" placeholder="0.00">
-                    </div>
-
-                    <div class="col-md-3 text-center px-1">
-                        <label for="fondoProveedorText" class="form-label fw-bold label-una-linea" title="ID Acuerdo Prov.">ID Acuerdo Prov.</label>
-                        <div class="input-group input-group-sm">
-                            <input type="hidden" id="fondoProveedorId">
-                            <input type="hidden" id="fondoDisponibleProv">
-                            <input type="text" class="form-control" id="fondoProveedorText" placeholder="Selec..." readonly>
-                            <button class="btn btn-outline-secondary" type="button" id="btnBuscarProv" data-bs-toggle="modal" data-bs-target="#modalConsultaProveedor" title="Buscar Acuerdo">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
-                            <button class="btn btn-outline-danger" type="button" id="btnBorrarProv" title="Quitar Selección">
-                                <i class="fa-solid fa-eraser"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-md-1 text-center px-1">
-                        <label for="fondoValorTotal" class="form-label fw-bold label-una-linea" title="$ Compr. Prov.">$ Compr. Prov.</label>
-                        <input type="text" class="form-control form-control-sm text-end" id="fondoValorTotal" placeholder="0.00">
-                    </div>
-
-                    <div class="col-md-1 text-center px-1">
-                        <label for="descuentoPropio" class="form-label fw-bold label-una-linea" title="% Dscto Propio">% Dscto Propio</label>
-                        <input type="text" class="form-control form-control-sm text-end" id="descuentoPropio" placeholder="0.00">
-                    </div>
-
-                    <div class="col-md-3 text-center px-1">
-                        <label for="acuerdoPropioText" class="form-label fw-bold label-una-linea" title="ID Acuerdo Propio">ID Acuerdo Propio</label>
-                        <div class="input-group input-group-sm">
-                            <input type="hidden" id="acuerdoPropioId">
-                            <input type="hidden" id="acuerdoPropioDisponible">
-                            <input type="text" class="form-control" id="acuerdoPropioText" placeholder="Selec..." readonly>
-                            <button class="btn btn-outline-secondary" type="button" id="btnBuscarPropio" data-bs-toggle="modal" data-bs-target="#modalConsultaAcuerdoPropio" title="Buscar Acuerdo">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
-                            <button class="btn btn-outline-danger" type="button" id="btnBorrarPropio" title="Quitar Selección">
-                                <i class="fa-solid fa-eraser"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-md-1 text-center px-1">
-                        <label for="comprometidoPropio" class="form-label fw-bold label-una-linea" title="$ Compr. Propio">$ Compr. Propio</label>
-                        <input type="text" class="form-control form-control-sm text-end" id="comprometidoPropio" placeholder="0.00">
-                    </div>
-
-                    <div class="col-md-1 text-center px-1">
-                        <label for="descuentoTotal" class="form-label fw-bold label-una-linea" title="% Dscto Total">% Dscto Total</label>
-                        <input type="text" class="form-control form-control-sm text-end" id="descuentoTotal" placeholder="0.00" readonly disabled>
-                    </div>
-
-                    <div class="col-md-1 text-center px-1">
-                        <label for="promocionMarcaRegalo" class="form-label fw-bold label-una-linea" title="Regalo">Regalo</label>
-                        <div class="regalo-check-container">
-                            <input class="form-check-input" type="checkbox" id="promocionMarcaRegalo">
-                        </div>
-                    </div>
-
+                    <!-- SOPORTE -->
                     <div class="col-12 soporte-section">
                         <div class="row align-items-center g-1">
-                            <div class="col-auto">
-                                <label class="form-label fw-bold col-form-label-sm mb-0">Adjuntar Documento Soporte</label>
-                            </div>
+                            <div class="col-auto"><label class="form-label fw-bold col-form-label-sm mb-0">Adjuntar Documento Soporte</label></div>
                             <div class="col">
                                 <div class="input-group input-group-sm">
-                                    <label class="btn btn-secondary btn-sm soporte-buscar mb-0" for="inputArchivoSoporte"
-                                           style="cursor:pointer; line-height: 1.5;">
-                                        Buscar Archivo
-                                    </label>
-                                    <input type="file" id="inputArchivoSoporte" class="d-none"
-                                           accept="@ViewBag.ExtensionesPermitidas"
-                                           data-max-mb="@ViewBag.MaximoTamanoMB">
-                                    <!--onchange="document.getElementById('lblArchivoActual').value = this.files[0] ? this.files[0].name : 'Ningún archivo seleccionado'"-->
+                                    <label class="btn btn-secondary btn-sm soporte-buscar mb-0" for="inputArchivoSoporte" style="cursor:pointer; line-height: 1.5;">Buscar Archivo</label>
+                                    <input type="file" id="inputArchivoSoporte" class="d-none" accept="@ViewBag.ExtensionesPermitidas" data-max-mb="@ViewBag.MaximoTamanoMB">
                                     <span class="form-control" id="lblArchivoActual">Ningún archivo seleccionado</span>
-                                    <button class="btn btn-outline-secondary" type="button" id="btnVerSoporteActual"
-                                            title="Ver Documento">
-                                        <i class="fa-regular fa-file-lines"></i>
-                                    </button>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnVerSoporteActual" title="Ver Documento"><i class="fa-regular fa-file-lines"></i></button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- ============================================================= -->
+                    <!-- SECCIÓN ARTÍCULOS: Detalle editable -->
+                    <!-- ============================================================= -->
+                    <div id="seccionArticuloDetalle" class="col-12" style="display:none;">
+                        <div class="detalle-header mt-2"><i class="fa-solid fa-boxes-stacked me-1"></i> Detalle de los Artículos</div>
+                        <div class="d-flex align-items-center gap-3 pt-2 pb-1">
+                            <button id="btnAddItemArticulos" type="button" class="btn btn-outline-primary border-0 d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-regular fa-square-plus"></i> Añadir</button>
+                            <button id="btnDeleteItemArticulos" type="button" class="btn btn-outline-danger border-0 d-flex align-items-center gap-1"><i class="fa-regular fa-trash-can"></i> Eliminar</button>
+                            <button id="btnEquivalentes" type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</button>
+                            <button id="btnPreciosCompetencia" type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1"><i class="fa-solid fa-tags"></i> Precios Competencia</button>
+                            <button id="btnOtrosCostos" type="button" class="btn btn-outline-secondary border-0 d-flex align-items-center gap-1"><i class="fa-solid fa-coins"></i> Otros Costos</button>
+                        </div>
+                        <div class="col-12">
+                            <div class="table-responsive small border" style="height: 350px; overflow: auto;">
+                                <table class="table table-bordered table-sm">
+                                    <thead class="sticky-top text-nowrap">
+                                        <tr class="text-center tabla-items-header">
+                                            <th style="width: 40px; background-color: #a4c995;">Sel.</th>
+                                            <th class="table-sticky-col custom-header-cons-bg" style="min-width: 200px;">Artículo</th>
+                                            <th class="custom-header-cons-bg">Costo</th>
+                                            <th class="custom-header-cons-bg">Stock Bodega</th>
+                                            <th class="custom-header-cons-bg">Stock Tienda</th>
+                                            <th class="custom-header-cons-bg">Inv. Óptimo</th>
+                                            <th class="custom-header-cons-bg">Excedente(u)</th>
+                                            <th class="custom-header-cons-bg">Excedente($)</th>
+                                            <th class="custom-header-cons-bg">Vta M-0(u)</th>
+                                            <th class="custom-header-cons-bg">Vta M-0($)</th>
+                                            <th class="custom-header-cons-bg">Vta M-1(u)</th>
+                                            <th class="custom-header-cons-bg">Vta M-1($)</th>
+                                            <th class="custom-header-cons-bg">Vta M-2(u)</th>
+                                            <th class="custom-header-cons-bg">Vta M-2($)</th>
+                                            <th class="custom-header-cons-bg">Vta Igualar</th>
+                                            <th class="custom-header-cons-bg">Marg.Min Contado</th>
+                                            <th class="custom-header-cons-bg">Marg.Min TC</th>
+                                            <th class="custom-header-cons-bg">Marg.Min Crédito</th>
+                                            <th class="custom-header-cons-bg">Marg.Min Igualar</th>
+                                            <th class="custom-header-ingr-bg">Unidades Límite</th>
+                                            <th class="custom-header-ingr-bg">Proyección Vtas(u)</th>
+                                            <th class="custom-header-ingr-bg">Medio de Pago</th>
+                                            <th class="custom-header-ingr-bg">Otros Costos</th>
+                                            <th class="custom-header-cons-bg">Precio Lista</th>
+                                            <th class="custom-header-cons-bg">Precio Lista</th>
+                                            <th class="custom-header-ingr-bg">Precio Promo Contado</th>
+                                            <th class="custom-header-ingr-bg">Precio Promo TC</th>
+                                            <th class="custom-header-ingr-bg">Precio Promo Crédito</th>
+                                            <th class="custom-header-ingr-bg">Precio Igualar</th>
+                                            <th class="custom-header-calc-bg">Dscto Promo Contado</th>
+                                            <th class="custom-header-calc-bg">Dscto Promo TC</th>
+                                            <th class="custom-header-calc-bg">Dscto Promo Crédito</th>
+                                            <th class="custom-header-calc-bg">Dscto Igualar</th>
+                                            <th class="custom-header-ingr-bg">Aporte Proveedor</th>
+                                            <th class="custom-header-ingr-bg">Aporte Prov. ID Acuerdo</th>
+                                            <th class="custom-header-ingr-bg">Aporte Rebate</th>
+                                            <th class="custom-header-ingr-bg">Aporte Rebate ID Acuerdo</th>
+                                            <th class="custom-header-ingr-bg">Aporte Propio</th>
+                                            <th class="custom-header-ingr-bg">Aporte Propio ID Acuerdo</th>
+                                            <th class="custom-header-calc-bg">Margen Precio Lista</th>
+                                            <th class="custom-header-calc-bg">Margen Promo Contado</th>
+                                            <th class="custom-header-calc-bg">Margen Promo TC</th>
+                                            <th class="custom-header-calc-bg">Margen Promo Crédito</th>
+                                            <th class="custom-header-calc-bg">Margen Igualar</th>
+                                            <th class="custom-header-calc-bg">Comp. Proveedor</th>
+                                            <th class="custom-header-calc-bg">Comp. Rebate</th>
+                                            <th class="custom-header-calc-bg">Comp. Propio</th>
+                                            <th class="custom-header-ingr-bg">Regalo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaArticulosBody" class="text-nowrap tabla-items-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 </form>
             </div>
-
-        </div><div class="card-footer text-end">
-            <button type="button" class="btn btn-secondary" id="btnVolverAbajo">Cerrar</button>
-            <button type="button" class="custom-btn-primary" id="btnGuardarModificacion" style="background-color: #0d6efd; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 0.25rem;">
-                <i class="fa-solid fa-floppy-disk custom-btn-icon"></i> Guardar Modificación
+        </div>
+        <div class="card-footer text-end">
+            <button type="button" class="btn btn-secondary" id="btnVolverAbajo" style="min-width: 160px;">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="btnGuardarModificacion" style="min-width: 160px;">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Modificación
             </button>
         </div>
     </div>
 </div>
-<div class="modal fade" id="ModalCanal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h1 class="modal-title fs-5">Canales</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2" id="bodyModalCanal"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarCanal" data-bs-dismiss="modal">Aceptar</button></div>
+
+<!-- ============================================================= -->
+<!-- MODALES DE SEGMENTOS (Existentes) -->
+<!-- ============================================================= -->
+@foreach (var m in new[] {
+    new { Id = "ModalCanal", Title = "Canales", Body = "bodyModalCanal", Btn = "btnAceptarCanal" },
+    new { Id = "ModalMarca", Title = "Marcas", Body = "bodyModalMarca", Btn = "btnAceptarMarca" },
+    new { Id = "ModalDivision", Title = "Divisiones", Body = "bodyModalDivision", Btn = "btnAceptarDivision" },
+    new { Id = "ModalDepartamento", Title = "Departamentos", Body = "bodyModalDepartamento", Btn = "btnAceptarDepartamento" },
+    new { Id = "ModalClase", Title = "Clases", Body = "bodyModalClase", Btn = "btnAceptarClase" },
+    new { Id = "ModalGrupoAlmacen", Title = "Grupos Almacenes", Body = "bodyModalGrupoAlmacen", Btn = "btnAceptarGrupoAlmacen" },
+    new { Id = "ModalAlmacen", Title = "Almacenes", Body = "bodyModalAlmacen", Btn = "btnAceptarAlmacen" },
+    new { Id = "ModalMedioPago", Title = "Medios de Pago", Body = "bodyModalMedioPago", Btn = "btnAceptarMedioPago" }
+})
+{
+    <div class="modal fade" id="@m.Id" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header"><h1 class="modal-title fs-5">@m.Title</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body"><div class="row m-2" id="@m.Body"></div></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="@m.Btn" data-bs-dismiss="modal">Aceptar</button></div>
+            </div>
         </div>
     </div>
-</div>
+}
 
-<div class="modal fade" id="ModalMarca" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h1 class="modal-title fs-5">Marcas</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2" id="bodyModalMarca"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarMarca" data-bs-dismiss="modal">Aceptar</button></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="ModalDivision" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h1 class="modal-title fs-5">Divisiones</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2" id="bodyModalDivision"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarDivision" data-bs-dismiss="modal">Aceptar</button></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="ModalDepartamento" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h1 class="modal-title fs-5">Departamentos</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2" id="bodyModalDepartamento"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarDepartamento" data-bs-dismiss="modal">Aceptar</button></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="ModalClase" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h1 class="modal-title fs-5">Clases</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2" id="bodyModalClase"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarClase" data-bs-dismiss="modal">Aceptar</button></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="ModalGrupoAlmacen" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h1 class="modal-title fs-5">Grupos Almacenes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2" id="bodyModalGrupoAlmacen"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarGrupoAlmacen" data-bs-dismiss="modal">Aceptar</button></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="ModalAlmacen" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h1 class="modal-title fs-5">Almacenes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2" id="bodyModalAlmacen"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarAlmacen" data-bs-dismiss="modal">Aceptar</button></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="ModalMedioPago" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h1 class="modal-title fs-5">Medios de Pago</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><div class="row m-2" id="bodyModalMedioPago"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarMedioPago" data-bs-dismiss="modal">Aceptar</button></div>
-        </div>
-    </div>
-</div>
-
+<!-- Modal Clientes Específicos -->
 <div class="modal fade" id="ModalClientesEspecificos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header"><h1 class="modal-title fs-5">Lista Específica de Clientes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body">
-                <textarea class="form-control" style="height: 300px" id="txtListaClientes" placeholder="Ingrese códigos de cliente separados por coma o salto de línea..."></textarea>
-            </div>
+            <div class="modal-body"><textarea class="form-control" style="height: 300px" id="txtListaClientes" placeholder="Ingrese códigos de cliente separados por coma o salto de línea..."></textarea></div>
             <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarClientesEspecificos" data-bs-dismiss="modal">Aceptar</button></div>
         </div>
     </div>
 </div>
 
+<!-- Modal Tipo Cliente Varios -->
 <div class="modal fade" id="ModalTipoClienteVarios" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Seleccionar Tipos de Cliente</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row m-2" id="bodyModalTipoCliente"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="btnAceptarTipoCliente" data-bs-dismiss="modal">Aceptar</button>
-            </div>
+            <div class="modal-header"><h1 class="modal-title fs-5">Seleccionar Tipos de Cliente</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><div class="row m-2" id="bodyModalTipoCliente"></div></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarTipoCliente" data-bs-dismiss="modal">Aceptar</button></div>
         </div>
     </div>
 </div>
 
+<!-- ============================================================= -->
+<!-- MODALES DE ACUERDOS GENERALES -->
+<!-- ============================================================= -->
 <div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Consulta de Acuerdos - Fondo Proveedor</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+            <div class="modal-header"><h1 class="modal-title fs-5">Consulta de Acuerdos - Fondo Proveedor</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="table-responsive border rounded" style="max-height: 350px; overflow-y: auto;">
                     <table id="tablaProveedores" class="table table-hover table-sm table-bordered mb-0">
-                        <thead class="table-success sticky-top">
-                            <tr class="text-nowrap">
-                                <th class="text-center">Sel.</th>
-                                <th>ID Acuerdo</th>
-                                <th>Descripción</th>
-                                <th>ID Fondo</th>
-                                <th>Proveedor</th>
-                                <th>Tipo Fondo</th>
-                                <th class="text-end">Valor Acuerdo</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                                <th class="text-end">Disponible</th>
-                                <th class="text-end">Comprometido</th>
-                                <th class="text-end">Liquidado</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
+                        <thead class="table-success sticky-top"><tr class="text-nowrap"><th class="text-center">Sel.</th><th>ID Acuerdo</th><th>Descripción</th><th>ID Fondo</th><th>Proveedor</th><th>Tipo Fondo</th><th class="text-end">Valor Acuerdo</th><th>Inicio</th><th>Fin</th><th class="text-end">Disponible</th><th class="text-end">Comprometido</th><th class="text-end">Liquidado</th><th>Estado</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="btnAceptarProveedor">Aceptar</button>
-            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarProveedor">Aceptar</button></div>
         </div>
     </div>
 </div>
@@ -634,68 +639,182 @@
 <div class="modal fade" id="modalConsultaAcuerdoPropio" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Consulta de Acuerdos - Fondo Propio</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+            <div class="modal-header"><h1 class="modal-title fs-5">Consulta de Acuerdos - Fondo Propio</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="table-responsive border rounded" style="max-height: 350px; overflow-y: auto;">
                     <table id="tablaAcuerdosPropios" class="table table-hover table-sm table-bordered mb-0">
-                        <thead class="table-warning sticky-top">
-                            <tr class="text-nowrap">
-                                <th class="text-center">Sel.</th>
-                                <th>ID Acuerdo</th>
-                                <th>Descripción</th>
-                                <th>ID Fondo</th>
-                                <th>Proveedor</th>
-                                <th>Tipo Fondo</th>
-                                <th class="text-end">Valor Acuerdo</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                                <th class="text-end">Disponible</th>
-                                <th class="text-end">Comprometido</th>
-                                <th class="text-end">Liquidado</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
+                        <thead class="table-warning sticky-top"><tr class="text-nowrap"><th class="text-center">Sel.</th><th>ID Acuerdo</th><th>Descripción</th><th>ID Fondo</th><th>Proveedor</th><th>Tipo Fondo</th><th class="text-end">Valor Acuerdo</th><th>Inicio</th><th>Fin</th><th class="text-end">Disponible</th><th class="text-end">Comprometido</th><th class="text-end">Liquidado</th><th>Estado</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="btnAceptarAcuerdoPropio">Aceptar</button>
-            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarAcuerdoPropio">Aceptar</button></div>
         </div>
     </div>
 </div>
 
+<!-- ============================================================= -->
+<!-- MODAL CONSULTA DE ITEMS (PARA ARTÍCULOS) -->
+<!-- ============================================================= -->
+<div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-pantalla-completa">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Consulta de Items</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="row m-2">
+                    <div class="card border-secondary p-0">
+                        <div class="card-header">Criterios de Selección</div>
+                        <div class="card-body">
+                            <form class="row g-2">
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Marca</label>
+                                    <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check"><input class="form-check-input filtro-todas" type="checkbox" data-target="filtroMarcaModal"><label class="form-check-label fw-bold">Todas</label></div><hr class="my-1"><div id="filtroMarcaModal"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">División</label>
+                                    <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check"><input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDivisionModal"><label class="form-check-label fw-bold">Todas</label></div><hr class="my-1"><div id="filtroDivisionModal"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Departamento</label>
+                                    <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check"><input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDepartamentoModal"><label class="form-check-label fw-bold">Todos</label></div><hr class="my-1"><div id="filtroDepartamentoModal"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Clase</label>
+                                    <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
+                                        <div class="form-check"><input class="form-check-input filtro-todas" type="checkbox" data-target="filtroClaseModal"><label class="form-check-label fw-bold">Todas</label></div><hr class="my-1"><div id="filtroClaseModal"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Artículo</label>
+                                    <input type="text" id="filtroArticuloModal" class="form-control form-control-sm" placeholder="Buscar...">
+                                </div>
+                                <div class="col-12 mt-2"><button type="button" id="btnProcesarFiltros" class="btn btn-secondary btn-sm w-100"><i class="fa-solid fa-filter"></i> Procesar Selección</button></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="row m-2">
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="form-check form-check-sm"><input class="form-check-input" type="checkbox" id="checkTodosItems"><label class="form-check-label" for="checkTodosItems">Todos</label></div>
+                        <div class="flex-grow-1"></div>
+                        <input type="text" class="form-control w-25" id="buscarItemModal" placeholder="Buscar en tabla...">
+                    </div>
+                </div>
+                <div class="row m-2">
+                    <div class="table-responsive small p-1 border border-secondary" style="max-height: 300px; overflow-y: auto;">
+                        <table id="tablaItemsConsulta" class="table table-hover table-bordered w-100">
+                            <thead class="sticky-top table-success text-nowrap"><tr><th>Sel</th><th>Código</th><th>Descripción</th><th>Costo</th><th>Stock</th><th>Óptimo</th><th>Excedente(u)</th><th>Excedente($)</th><th>M-0(u)</th><th>M-0($)</th><th>M-1(u)</th><th>M-1($)</th><th>M-2(u)</th><th>M-2($)</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnSeleccionarItems">Seleccionar</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- MODAL ACUERDOS POR ARTÍCULO -->
+<!-- ============================================================= -->
+<div class="modal fade" id="modalAcuerdoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-pantalla-completa">
+        <div class="modal-content" style="height: 90vh; max-height: 90vh;">
+            <div class="modal-header"><h1 class="modal-title fs-5" id="tituloModalAcuerdoArticulo">Consulta de Acuerdos</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body d-flex flex-column" style="height: calc(90vh - 120px);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">Seleccione un Acuerdo</span>
+                    <input type="text" id="buscarAcuerdoArticuloInput" class="form-control form-control-sm" placeholder="Buscar..." style="width: 300px;">
+                </div>
+                <div class="table-responsive flex-grow-1 border rounded" style="overflow-y: auto;">
+                    <table id="tablaAcuerdosArticulo" class="table table-hover table-sm table-bordered mb-0" style="width:100%">
+                        <thead class="table-success sticky-top"><tr class="text-nowrap"><th class="text-center" style="min-width: 70px;">Sel.</th><th style="min-width: 90px;">ID Acuerdo</th><th style="min-width: 220px;">Descripción</th><th style="min-width: 90px;">ID Fondo</th><th style="min-width: 220px;">Proveedor</th><th style="min-width: 130px;">Tipo Fondo</th><th style="min-width: 130px;">Clase Acuerdo</th><th class="text-end" style="min-width: 120px;">Valor Acuerdo</th><th style="min-width: 120px;">Inicio</th><th style="min-width: 120px;">Fin</th><th class="text-end" style="min-width: 130px;">Disponible</th><th class="text-end" style="min-width: 150px;">Comprometido</th><th class="text-end" style="min-width: 130px;">Liquidado</th><th class="text-end" style="min-width: 120px;">Aporte x Item</th><th class="text-end" style="min-width: 120px;">Uds. Límite</th><th style="min-width: 110px;">Estado</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary" id="btnAceptarAcuerdoArticulo">Aceptar</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- MODALES: Equivalentes, Precios Competencia, Otros Costos -->
+<!-- ============================================================= -->
+<div class="modal fade" id="modalEquivalentes" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Artículos Equivalentes</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="table-responsive small border">
+                    <table class="table table-bordered table-sm table-hover mb-0">
+                        <thead class="table-success sticky-top text-nowrap text-center"><tr><th>ARTÍCULO</th><th>COSTO</th><th>STOCK BODEGA</th><th>STOCK TIENDA</th><th>INV. ÓPTIMO</th><th>EXCEDENTE(u)</th><th>EXCEDENTE($)</th><th>HISTÓRICO</th><th>Vta M-0(u)</th><th>Vta M-0($)</th><th>Vta M-1(u)</th><th>Vta M-1($)</th><th>Vta M-2(u)</th><th>Vta M-2($)</th></tr></thead>
+                        <tbody id="tbodyEquivalentes"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPreciosCompetencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Precios Competencia</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="table-responsive small border">
+                    <table class="table table-bordered table-sm table-hover mb-0">
+                        <thead class="table-success sticky-top text-nowrap text-center"><tr><th>NOMBRE COMPETENCIA</th><th>PRECIO DE VENTA</th></tr></thead>
+                        <tbody id="tbodyPreciosCompetencia"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalOtrosCostos" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h1 class="modal-title fs-5">Otros Costos</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="table-responsive small border">
+                    <table class="table table-bordered table-sm table-hover mb-0">
+                        <thead class="table-success sticky-top text-nowrap text-center"><tr><th style="width: 50px;">Sel.</th><th>RUBRO (DESCRIPCIÓN)</th><th>COSTO</th></tr></thead>
+                        <tbody id="tbodyOtrosCostos"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary" id="btnAplicarOtrosCostos">Aplicar</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- MODAL VISOR PDF -->
+<!-- ============================================================= -->
 <div class="modal fade" id="modalVisorPdf" tabindex="-1" aria-labelledby="modalVisorPdfLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title fw-bold mb-0" id="modalVisorPdfLabel">
-                    <i class="fa-regular fa-file-pdf me-2"></i>
-                    <span class="pdf-nombre-archivo">Soporte</span>
-                </h6>
+                <h6 class="modal-title fw-bold mb-0" id="modalVisorPdfLabel"><i class="fa-regular fa-file-pdf me-2"></i><span class="pdf-nombre-archivo">Soporte</span></h6>
                 <button type="button" class="btn-close" id="btnCerrarVisorPdf" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <div id="pdfSpinner" style="display:none;">
-                    <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                    <p class="mt-3 text-light small">Cargando documento...</p>
-                </div>
+                <div id="pdfSpinner" style="display:none;"><div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;"><span class="visually-hidden">Cargando...</span></div><p class="mt-3 text-light small">Cargando documento...</p></div>
                 <div id="pdfVisorError" style="display:none;"></div>
-                <div id="pdfVisorContenido" style="display:none; flex:1; width:100%;">
-                    <iframe id="pdfIframe" src="about:blank"></iframe>
-                </div>
+                <div id="pdfVisorContenido" style="display:none; flex:1; width:100%;"><iframe id="pdfIframe" src="about:blank"></iframe></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-outline-primary" id="btnDescargarPdf" style="display:none;">
-                    <i class="fa-solid fa-download me-1"></i> Descargar
-                </button>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="btnDescargarPdf" style="display:none;"><i class="fa-solid fa-download me-1"></i> Descargar</button>
                 <button type="button" class="btn btn-sm btn-secondary" id="btnCerrarVisorPdfFooter">Cerrar</button>
             </div>
         </div>
