@@ -59,10 +59,14 @@ namespace AppAPL.Api.Controllers
         }
 
 
-        [HttpGet("consultar-almacen")]
-        public async Task<ActionResult<List<AlmacenDTO>>> ConsultarAlmacen()
+        [HttpGet("consultar-almacen/{codigoAlmacen?}")]
+        public async Task<ActionResult<List<AlmacenDTO>>> ConsultarAlmacen(
+            [SwaggerParameter(Description = "Parámetro opcional", Required = false)] string? codigoAlmacen = null)
         {
-            var listaAlmacen = await servicio.ConsultarAlmacen();
+            string? codigoAlmacenReal = (string.IsNullOrWhiteSpace(codigoAlmacen) || codigoAlmacen == "{codigoAlmacen}") ? null : codigoAlmacen.Trim();
+
+            logger.LogInformation($"valor de codigoAlmacen: {codigoAlmacenReal}");
+            var listaAlmacen = await servicio.ConsultarAlmacen(codigoAlmacenReal);
 
             return listaAlmacen.ToList();
         }

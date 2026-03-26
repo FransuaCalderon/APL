@@ -17,6 +17,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -196,26 +197,37 @@ namespace AppAPL.AccesoDatos.Repositorio
 
         }
 
-        public async Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen()
+        public async Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen(string? codigoAlmacen = null)
         {
             using var connection = factory.CreateOpenConnection();
 
-            /*
+            
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
-            var paramObject = new { p_idfondo = idFondo };
-            var parameters = new OracleDynamicParameters(paramObject);
+            //var paramObject = new { p_idfondo = idFondo };
+            var parameters = new OracleDynamicParameters();
+
+            if (!string.IsNullOrEmpty(codigoAlmacen))
+            {
+                parameters.Add("p_codigoAlmacen", OracleDbType.Varchar2, ParameterDirection.Input, value: codigoAlmacen.Trim());
+                logger.LogInformation($"valor de codigoAlmacen: {codigoAlmacen}");
+                logger.LogInformation("p_codigoAlmacen es diferente de null");
+            }
+            else
+            {
+                logger.LogInformation($"valor de codigoAlmacen es null");
+            }
 
             // 🔹 Agregar los parámetros de salida
-            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
-            */
+            parameters.Add("p_rc_almacen", OracleDbType.RefCursor, ParameterDirection.Output);
+            //parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            //parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<AlmacenDTO>(
-                "select * from apl_tb_artefacta_almacen",
-                null, //aqui van los parametros
-                commandType: CommandType.Text
+                "apl_sp_consulta_alamacenes_Artefacta",
+                parameters, //aqui van los parametros
+                commandType: CommandType.StoredProcedure
             );
 
 
@@ -448,7 +460,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // Agregar los 4 RefCursors como parámetros de salida
             parameters.Add("p_rc_canal", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_rc_grupo", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_rc_almacen", OracleDbType.RefCursor, ParameterDirection.Output);
+            //parameters.Add("p_rc_almacen", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_rc_tipocliente", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_rc_mediopago", OracleDbType.RefCursor, ParameterDirection.Output);
 
@@ -477,7 +489,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             {
                 Canales = await multi.ReadAsync<CanalDTO>(),
                 GruposAlmacenes = await multi.ReadAsync<GrupoAlmacenDTO>(),
-                Almacenes = await multi.ReadAsync<AlmacenDTO>(),
+                //Almacenes = await multi.ReadAsync<AlmacenDTO>(),
                 TiposClientes = await multi.ReadAsync<TipoClienteDTO>(),
                 MediosPagos = await multi.ReadAsync<MedioPagoDTO>()
             };

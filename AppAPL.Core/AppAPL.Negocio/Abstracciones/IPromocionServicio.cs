@@ -11,7 +11,7 @@ namespace AppAPL.Negocio.Abstracciones
 {
     public interface IPromocionServicio
     {
-        Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen();
+        Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen(string? codigoAlmacen = null);
         //Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente();
         Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia(string codigo);
         Task<IEnumerable<CanalDTO>> ConsultarCanal();

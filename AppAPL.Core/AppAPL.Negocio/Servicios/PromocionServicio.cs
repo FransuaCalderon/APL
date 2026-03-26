@@ -12,8 +12,8 @@ namespace AppAPL.Negocio.Servicios
 {
     public class PromocionServicio (IPromocionRepositorio repo) : IPromocionServicio
     {
-        public Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen()
-            => repo.ConsultarAlmacen();
+        public Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen(string? codigoAlmacen = null)
+            => repo.ConsultarAlmacen(codigoAlmacen);
 
         /*
         public Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente()

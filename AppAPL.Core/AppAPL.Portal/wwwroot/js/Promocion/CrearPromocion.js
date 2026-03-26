@@ -122,8 +122,8 @@
         const $ul = $('<ul class="list-group w-100"></ul>');
         if (Array.isArray(items)) {
             items.forEach(i => {
-                const codigo = i.codigo || i.id || i.valor;
-                const texto = i.nombre || i.descripcion || i.codigo;
+                const codigo = i.codigo || i.id || i.valor || i.codigoalmacen;
+                const texto = i.nombre || i.descripcion || i.nombrealmacen;
                 $select.append($("<option>", { value: codigo, text: texto }));
                 const chkId = `chk_${idPrefijo}_${codigo}`;
                 const li = `
@@ -401,7 +401,7 @@
         });
     }
 
-    function cargarCombosPromociones() {
+    async function cargarCombosPromociones() {
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "GET",
@@ -414,16 +414,21 @@
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify(payload),
-            success: function (response) {
+            success: async function (response) {
                 const data = response.json_response || {};
                 let mediosPagoFiltrados = (data.mediospagos || []).filter(m => {
                     let nom = (m.nombre || "").toUpperCase();
                     return nom !== "TODOS" && nom !== "TODAS" && m.codigo !== "0";
                 });
+                /*
+                const resAlmacenes = await consultarAlmacenes();
+                const listaAlmacenes = resAlmacenes.json_response || [];*/
 
                 llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
                 llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo");
-                llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), data.almacenes, "Seleccione...", "3", "almacen");
+
+                consultarAlmacenes();
+
                 llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
 
                 $("#filtroCanalArticulos").html($("#filtroCanalGeneral").html());
@@ -478,6 +483,28 @@
                 aplicarSelect2($cliGen);
                 aplicarSelect2($cliArt);
                 aplicarSelect2($cliCom);
+            }
+        });
+    }
+
+    function consultarAlmacenes(codigoAlmacen = undefined) {
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/Promocion/consultar-almacen",
+            client: "APL",
+            endpoint_query_params: codigoAlmacen ? `/${codigoAlmacen}` : ""
+        };
+
+        // Retornamos el $.ajax directamente (que es una Promesa)
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (response) {
+                const listaAlmacenes = response.json_response || []
+                llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen");
             }
         });
     }
@@ -1823,8 +1850,13 @@
     // ==========================================
     // INIT
     // ==========================================
+
+    //AQUI SERIA EL DOCUMENT READY
     $(function () {
         console.log("=== CrearPromocion JS Loaded ===");
+
+        
+
         // ==========================================
         // LÓGICA DE SELECCIÓN DE FILA (HABILITAR CAMPOS AMARILLOS)
         // ==========================================
@@ -1869,6 +1901,14 @@
         initDatepickers();
         initBotonesServiciosArticulos();
 
+
+        $("#filtroGrupoAlmacenGeneral").on("change", function () {
+            console.log("change de filtroGrupoAlmacenGeneral");
+            const codigoAlmacen = $("#filtroGrupoAlmacenGeneral").val();
+            console.log("valorGrupo", codigoAlmacen);
+            consultarAlmacenes(codigoAlmacen);
+        });
+
         $("#promocionTipo").on("change", function () {
             togglePromocionForm();
             const tipo = getTipoPromocion();
@@ -1876,10 +1916,10 @@
             if (tipo == idCatalogoCombos) cargarMotivosPromociones("#motivoCombos");
         });
 
-        cargarTiposPromocion(function () {
+        cargarTiposPromocion(async function () {
             cargarMotivosPromociones("#motivoGeneral");
             cargarFiltrosJerarquia();
-            cargarCombosPromociones();
+            await cargarCombosPromociones();
         });
 
         $("#btnGuardarPromocionGeneral").on("click", () => guardarPromocion("General"));

@@ -101,9 +101,10 @@ namespace AppAPL.Dto.Promocion
 
     public class GrupoAlmacenDTO
     {
-        public string CODIGO { get; set; }
-        public string NOMBRE { get; set; }
+        public string CODIGOGRUPO { get; set; }
+        public string NOMBREGRUPO { get; set; }
         public string CODIGOALMACEN { get; set; }
+        public string NOMBREALMACEN { get; set; }
     }
 
     public class CanalDTO
@@ -173,7 +174,7 @@ namespace AppAPL.Dto.Promocion
     public class GruposPromocionesDTO
     {
         public IEnumerable<CanalDTO> Canales { get; set; } = Enumerable.Empty<CanalDTO>();
-        public IEnumerable<AlmacenDTO> Almacenes { get; set; } = Enumerable.Empty<AlmacenDTO>();
+        //public IEnumerable<AlmacenDTO> Almacenes { get; set; } = Enumerable.Empty<AlmacenDTO>();
         public IEnumerable<GrupoAlmacenDTO> GruposAlmacenes { get; set; } = Enumerable.Empty<GrupoAlmacenDTO>();
         public IEnumerable<TipoClienteDTO> TiposClientes { get; set; } = Enumerable.Empty<TipoClienteDTO>();
         public IEnumerable<MedioPagoDTO> MediosPagos { get; set; } = Enumerable.Empty<MedioPagoDTO>();
