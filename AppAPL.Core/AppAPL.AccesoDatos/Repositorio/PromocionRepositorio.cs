@@ -197,7 +197,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
         }
 
-        public async Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen(string? codigoAlmacen = null)
+        public async Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen(int? codigoGrupo = null)
         {
             using var connection = factory.CreateOpenConnection();
 
@@ -206,15 +206,15 @@ namespace AppAPL.AccesoDatos.Repositorio
             //var paramObject = new { p_idfondo = idFondo };
             var parameters = new OracleDynamicParameters();
 
-            if (!string.IsNullOrEmpty(codigoAlmacen))
+            if (codigoGrupo.HasValue && codigoGrupo.Value > 0)
             {
-                parameters.Add("p_codigoAlmacen", OracleDbType.Varchar2, ParameterDirection.Input, value: codigoAlmacen.Trim());
-                logger.LogInformation($"valor de codigoAlmacen: {codigoAlmacen}");
-                logger.LogInformation("p_codigoAlmacen es diferente de null");
+                parameters.Add("p_codigoGrupo", OracleDbType.Int32, ParameterDirection.Input, value: codigoGrupo);
+                logger.LogInformation($"valor de codigoGrupo: {codigoGrupo}");
+                logger.LogInformation("p_codigoGrupo es diferente de null");
             }
             else
             {
-                logger.LogInformation($"valor de codigoAlmacen es null");
+                logger.LogInformation($"valor de codigoGrupo es null");
             }
 
             // 🔹 Agregar los parámetros de salida

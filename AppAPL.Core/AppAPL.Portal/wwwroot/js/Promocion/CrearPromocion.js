@@ -122,8 +122,8 @@
         const $ul = $('<ul class="list-group w-100"></ul>');
         if (Array.isArray(items)) {
             items.forEach(i => {
-                const codigo = i.codigo || i.id || i.valor || i.codigoalmacen;
-                const texto = i.nombre || i.descripcion || i.nombrealmacen;
+                const codigo = i.codigo || i.id || i.valor || i.codigogrupo || i.codigoalmacen;
+                const texto = i.nombre || i.descripcion || i.nombregrupo || i.nombrealmacen;
                 $select.append($("<option>", { value: codigo, text: texto }));
                 const chkId = `chk_${idPrefijo}_${codigo}`;
                 const li = `
@@ -487,13 +487,13 @@
         });
     }
 
-    function consultarAlmacenes(codigoAlmacen = undefined) {
+    function consultarAlmacenes(codigoGrupo = undefined) {
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "GET",
             endpoint_path: "api/Promocion/consultar-almacen",
             client: "APL",
-            endpoint_query_params: codigoAlmacen ? `/${codigoAlmacen}` : ""
+            endpoint_query_params: codigoGrupo ? `/${codigoGrupo}` : ""
         };
 
         // Retornamos el $.ajax directamente (que es una Promesa)
@@ -504,6 +504,9 @@
             data: JSON.stringify(payload),
             success: function (response) {
                 const listaAlmacenes = response.json_response || []
+
+                console.log("cantidad de almacenes consultados: ", listaAlmacenes.length);
+
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen");
             }
         });

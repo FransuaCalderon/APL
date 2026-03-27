@@ -103,8 +103,8 @@ namespace AppAPL.Dto.Promocion
     {
         public string CODIGOGRUPO { get; set; }
         public string NOMBREGRUPO { get; set; }
-        public string CODIGOALMACEN { get; set; }
-        public string NOMBREALMACEN { get; set; }
+        //public string CODIGOALMACEN { get; set; }
+        //public string NOMBREALMACEN { get; set; }
     }
 
     public class CanalDTO
@@ -160,8 +160,10 @@ namespace AppAPL.Dto.Promocion
 
     public class AlmacenDTO
     {
-        public string CODIGO { get; set; }
-        public string NOMBRE { get; set; }
+        //public string CODIGOGRUPO { get; set; }
+        //public string NOMBREGRUPO { get; set; }
+        public string CODIGOALMACEN { get; set; }
+        public string NOMBREALMACEN { get; set; }
     }
 
     public class MedioPagoDTO

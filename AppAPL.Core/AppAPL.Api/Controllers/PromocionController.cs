@@ -59,14 +59,22 @@ namespace AppAPL.Api.Controllers
         }
 
 
-        [HttpGet("consultar-almacen/{codigoAlmacen?}")]
+        [HttpGet("consultar-almacen/{codigoGrupo?}")]
         public async Task<ActionResult<List<AlmacenDTO>>> ConsultarAlmacen(
-            [SwaggerParameter(Description = "Parámetro opcional", Required = false)] string? codigoAlmacen = null)
+            [SwaggerParameter(Description = "Parámetro opcional", Required = false)] string? codigoGrupo = null)
         {
-            string? codigoAlmacenReal = (string.IsNullOrWhiteSpace(codigoAlmacen) || codigoAlmacen == "{codigoAlmacen}") ? null : codigoAlmacen.Trim();
+            int? codigoGrupoReal = null;
 
-            logger.LogInformation($"valor de codigoAlmacen: {codigoAlmacenReal}");
-            var listaAlmacen = await servicio.ConsultarAlmacen(codigoAlmacenReal);
+            // Intentamos convertirlo. Si es "{codigoGrupo}" o cualquier texto, TryParse devolverá false.
+            if (int.TryParse(codigoGrupo, out int resultado))
+            {
+                // Solo si es un número válido y mayor a 0
+                if (resultado > 0) codigoGrupoReal = resultado;
+            }
+
+            logger.LogInformation($"Valor original: {codigoGrupo} -> Procesado como: {codigoGrupoReal}");
+
+            var listaAlmacen = await servicio.ConsultarAlmacen(codigoGrupoReal);
 
             return listaAlmacen.ToList();
         }

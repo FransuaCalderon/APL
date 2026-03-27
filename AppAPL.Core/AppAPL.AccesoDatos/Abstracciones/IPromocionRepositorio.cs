@@ -16,7 +16,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<GruposPromocionesDTO> CargarCombosPromociones();
         Task<IEnumerable<AcuerdoPromoDTO>> ConsultarAcuerdo(string tipoFondo, string claseAcuerdo, string? marca = null);
         Task<IEnumerable<AcuerdoPromocionArticuloDTO>> ConsultarAcuerdoPromocionArticulos(string etiquetaTipoFondo, string codigoItem);
-        Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen(string? codigoAlmacen = null);
+        Task<IEnumerable<AlmacenDTO>> ConsultarAlmacen(int? codigoGrupo = null);
         //Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticuloEquivalente();
         Task<IEnumerable<ArticuloPrecioCompetenciaDTO>> ConsultarArticuloPrecioCompetencia(string codigo);
         Task<IEnumerable<ArticuloPromocionDTO>> ConsultarArticuloPromocion(int codigoArticulo);
