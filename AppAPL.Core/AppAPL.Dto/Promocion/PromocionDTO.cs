@@ -816,7 +816,7 @@ namespace AppAPL.Dto.Promocion
         public List<ArticuloModPromocionDTO>? Articulos { get; set; }
         public string? NombreArchivoSoporte { get; set; }
         public string? ArchivoSoporteBase64 { get; set; }
-        public string? rutaArchivoAntiguo { get; set; }
+        public string rutaArchivoAntiguo { get; set; }
 
         //public string ArchivoSoporte { get; set; }
         public int IdTipoProceso { get; set; }

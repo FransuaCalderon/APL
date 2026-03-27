@@ -1842,8 +1842,9 @@ async function guardarPromocionArticulos() {
         ...(base64Completo ? {
             archivosoportebase64: base64Completo,
             nombrearchivosoporte: fileInput.name,
-            rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte
+            
         } : {}),
+        rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
         idopcion: getIdOpcionSeguro(), idcontrolinterfaz: "BTNGRABAR", ideventoetiqueta: "EVCLICK"
     };
