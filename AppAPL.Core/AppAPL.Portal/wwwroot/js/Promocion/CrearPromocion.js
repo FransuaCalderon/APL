@@ -425,7 +425,7 @@
                 const listaAlmacenes = resAlmacenes.json_response || [];*/
 
                 llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
-                llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo");
+                llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo", "Todos");
 
                 consultarAlmacenes();
 
@@ -506,8 +506,9 @@
                 const listaAlmacenes = response.json_response || []
 
                 console.log("cantidad de almacenes consultados: ", listaAlmacenes.length);
-
-                llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen");
+                llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen", "Todos");
+                $("#filtroAlmacenArticulos").html($("#filtroAlmacenGeneral").html());
+                aplicarSelect2($("#filtroAlmacenArticulos"));
             }
         });
     }
@@ -813,6 +814,18 @@
 
         if (idProvSeleccionado === 0 && idPropSeleccionado === 0) {
             Swal.fire("Proveedor Requerido", "Debe seleccionar al menos un Acuerdo (Proveedor o Propio) para calcular el Descuento Total.", "warning");
+            return;
+        }
+
+        const grupoVal = $(`#filtroGrupoAlmacen${sufijo}`).val();
+        if (!grupoVal || grupoVal === "") {
+            Swal.fire("Validación", "Debe seleccionar un Grupo de Almacén.", "warning");
+            return;
+        }
+
+        const almacenVal = $(`#filtroAlmacen${sufijo}`).val();
+        if (!almacenVal || almacenVal === "") {
+            Swal.fire("Validación", "Debe seleccionar un Almacén.", "warning");
             return;
         }
 
@@ -1422,6 +1435,18 @@
             Swal.fire("Validación", "Debe ingresar las fechas de inicio y fin.", "warning"); return;
         }
 
+        const grupoArtVal = $("#filtroGrupoAlmacenArticulos").val();
+        if (!grupoArtVal || grupoArtVal === "") {
+            Swal.fire("Validación", "Debe seleccionar un Grupo de Almacén.", "warning");
+            return;
+        }
+
+        const almacenArtVal = $("#filtroAlmacenArticulos").val();
+        if (!almacenArtVal || almacenArtVal === "") {
+            Swal.fire("Validación", "Debe seleccionar un Almacén.", "warning");
+            return;
+        }
+
         const $filas = $("#tablaArticulosBody tr");
         if ($filas.length === 0) {
             Swal.fire("Validación", "Debe agregar al menos un artículo en el detalle.", "warning"); return;
@@ -1905,10 +1930,8 @@
         initBotonesServiciosArticulos();
 
 
-        $("#filtroGrupoAlmacenGeneral").on("change", function () {
-            console.log("change de filtroGrupoAlmacenGeneral");
-            const codigoAlmacen = $("#filtroGrupoAlmacenGeneral").val();
-            console.log("valorGrupo", codigoAlmacen);
+        $("#filtroGrupoAlmacenGeneral, #filtroGrupoAlmacenArticulos").on("change", function () {
+            const codigoAlmacen = $(this).val();
             consultarAlmacenes(codigoAlmacen);
         });
 

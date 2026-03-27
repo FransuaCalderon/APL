@@ -50,13 +50,11 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
     if (!articulossegmentos) return "Todos";
     const items = articulossegmentos.filter(s => s.codigoitem === codigoItem && s.etiqueta_tipo_segmento === "SEGMEDIOPAGO");
 
-    // Si es modificación y hay varios, devolvemos el botón verde
     if (items.length > 1) {
         const codigos = items.map(i => i.codigo_detalle);
         return `<button type="button" class="btn btn-success btn-sm select-mediopago-articulo" style="font-size:0.7rem;" data-seleccionados='${JSON.stringify(codigos)}'><i class="fa-solid fa-list-check"></i> Varios (${items.length})</button>`;
     }
 
-    // Si es uno solo, generamos el select normal
     const opciones = generarOpcionesMedioPago();
     const valor = items.length === 1 ? items[0].codigo_detalle : "";
     return `<select class="form-select form-select-sm select-mediopago-articulo" disabled>${opciones}</select>`;
@@ -66,97 +64,12 @@ function generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo) {
     const items = (articulosotros || []).filter(s => s.idpromocionarticulo === idPromocionArticulo);
     const total = items.reduce((sum, oc) => sum + (parseFloat(oc.costo) || 0), 0);
 
-    // Guardamos el detalle en un data-attribute para que el botón de "Otros Costos" pueda leerlo
     const detalleJson = JSON.stringify(items.map(i => ({ codigo: i.idpromocionarticulo, nombre: i.descripcion, valor: i.costo })));
 
     if (items.length > 0) {
         return `<button type="button" class="btn btn-success btn-sm btn-ver-otroscostos-fila" style="font-size:0.7rem;" data-detalle='${detalleJson}' data-total="${total}"><i class="fa-solid fa-coins"></i> $${total.toFixed(2)}</button>`;
     }
     return `<span class="text-muted">N/A</span>`;
-}
-
-// ===============================================================
-// POBLAR ARTÍCULOS (MODIFICADO)
-// ===============================================================
-
-function poblarArticulosDesdeAPI(data) {
-    const articulos = data.articulos || [];
-    const articulosacuerdos = data.articulosacuerdos || [];
-    const articulossegmentos = data.articulossegmentos || [];
-    const articulosotros = data.articulosotros || [];
-
-    const $tbody = $("#tablaArticulosBody");
-    $tbody.empty();
-    const opcionesMedioPago = generarOpcionesMedioPago();
-
-    articulos.forEach(art => {
-        const codigoItem = art.codigoitem || "";
-        const idPromocionArticulo = art.idpromocionarticulo || 0;
-
-        // Acuerdos
-        const ac = obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo);
-
-        // Lógica de Medios de Pago (Select o Botón Varios)
-        const mpItems = articulossegmentos.filter(s => s.codigoitem === codigoItem && s.etiqueta_tipo_segmento === "SEGMEDIOPAGO");
-        let medioPagoCell = "";
-        if (mpItems.length > 1) {
-            const codigos = mpItems.map(i => i.codigo_detalle);
-            medioPagoCell = `<button type="button" class="btn btn-success btn-sm select-mediopago-articulo" style="font-size:0.7rem; width:100%;" data-seleccionados='${JSON.stringify(codigos)}'><i class="fa-solid fa-list-check"></i> Varios (${mpItems.length})</button>`;
-        } else {
-            const valSel = mpItems.length === 1 ? mpItems[0].codigo_detalle : "";
-            medioPagoCell = `<select class="form-select form-select-sm select-mediopago-articulo" disabled>${opcionesMedioPago}</select>`;
-        }
-
-        // Lógica de Otros Costos
-        const otrosCostosHtml = generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo);
-        const totalOtrosCostos = articulosotros.filter(o => o.idpromocionarticulo === idPromocionArticulo).reduce((s, o) => s + (parseFloat(o.costo) || 0), 0);
-
-        const fila = `
-        <tr data-codigo="${codigoItem}" data-accion="U" data-idpromocionarticulo="${idPromocionArticulo}">
-            <td class="text-center align-middle"><input type="radio" class="form-check-input item-row-radio" name="itemArticuloSel"></td>
-            <td class="align-middle table-sticky-col">${art.descripcion || (codigoItem + ' - ')}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(art.costo || 0)}</td>
-            <td class="align-middle text-end">${art.stockbodega || 0}</td>
-            <td class="align-middle text-end">${art.stocktienda || 0}</td>
-            <td class="align-middle text-end">${art.inventariooptimo || 0}</td>
-            <td class="align-middle text-end">${art.excedenteunidad || 0}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(art.excedentevalor || 0)}</td>
-            <td class="align-middle text-end">${art.m0unidades || 0}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(art.m0precio || 0)}</td>
-            <td class="align-middle text-end">${art.m1unidades || 0}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(art.m1precio || 0)}</td>
-            <td class="align-middle text-end">${art.m2unidades || 0}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(art.m2precio || 0)}</td>
-            <td class="align-middle text-end">${art.igualarprecio || 0}</td>
-            <td class="align-middle text-end">${(art.margenminimocontado || 0).toFixed(2)}%</td>
-            <td class="align-middle text-end">${(art.margenminimotarjetacredito || 0).toFixed(2)}%</td>
-            <td class="align-middle text-end">${(art.margenminimocredito || 0).toFixed(2)}%</td>
-            <td class="align-middle text-end">${(art.margenminimoigualar || 0).toFixed(2)}%</td>
-            <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" value="${art.unidadeslimite || ''}" disabled></td>
-            <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" value="${art.unidadesproyeccionventas || ''}" disabled></td>
-            <td class="align-middle celda-editable text-center">${medioPagoCell}</td>
-            <td class="align-middle text-center">${otrosCostosHtml}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(art.preciolistacontado || 0)}</td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${art.preciopromocioncontado || ''}" disabled></td>
-            @* ... resto de celdas de precios y aportes ... *@
-        </tr>`;
-
-        const $filaObj = $(fila);
-        // Seteamos el valor del select si es que no es "Varios"
-        if (mpItems.length === 1) $filaObj.find('select').val(mpItems[0].codigo_detalle);
-
-        // Inyectamos datos de otros costos
-        $filaObj.data("total-otros-costos", totalOtrosCostos);
-        $filaObj.data("detalle-otros-costos", articulosotros.filter(o => o.idpromocionarticulo === idPromocionArticulo).map(o => ({ codigo: o.idpromocionarticulo, nombre: o.descripcion, valor: o.costo })));
-
-        $tbody.append($filaObj);
-    });
-
-    // Evento para los botones de Otros Costos dentro de la grilla
-    $tbody.find(".btn-ver-otroscostos-fila").on("click", function () {
-        $(this).closest("tr").find(".item-row-radio").prop("checked", true).trigger("change");
-        $("#btnOtrosCostos").click(); // Disparamos el botón principal de la barra de herramientas
-    });
 }
 
 // ===============================================================
@@ -167,7 +80,6 @@ $(document).on("click", ".select-mediopago-articulo", function () {
     const $this = $(this);
     const isButton = $this.is('button');
 
-    // Marcamos la fila como seleccionada
     filaActualMedioPago = $this.closest("tr");
     filaActualMedioPago.find(".item-row-radio").prop("checked", true).trigger("change");
 
@@ -184,12 +96,10 @@ $(document).on("click", ".select-mediopago-articulo", function () {
                 const $target = filaActualMedioPago.find(".select-mediopago-articulo");
                 $target.data("seleccionados", sel);
 
-                // Si seleccionó varios, transformamos a botón si era select, o actualizamos texto
                 if (sel.length > 1) {
                     const btnHtml = `<button type="button" class="btn btn-success btn-sm select-mediopago-articulo" style="font-size:0.7rem; width:100%;" data-seleccionados='${JSON.stringify(sel)}'><i class="fa-solid fa-list-check"></i> Varios (${sel.length})</button>`;
                     $target.parent().html(btnHtml);
                 } else {
-                    // Si seleccionó uno o ninguno, volvemos al select normal
                     const opciones = generarOpcionesMedioPago();
                     const selectHtml = `<select class="form-select form-select-sm select-mediopago-articulo">${opciones}</select>`;
                     $target.parent().html(selectHtml);
@@ -341,13 +251,38 @@ function cargarFiltrosJerarquia() {
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
         success: function (res) {
             const data = res.json_response || {};
-            llenarComboYModal($("#segMarca"), $("#bodyModalMarca"), data.marcas, "Todas", "3", "marca");
-            llenarComboYModal($("#segDivision"), $("#bodyModalDivision"), data.divisiones, "Todas", "3", "division");
-            llenarComboYModal($("#segDepartamento"), $("#bodyModalDepartamento"), data.departamentos, "Todos", "3", "depto");
-            llenarComboYModal($("#segClase"), $("#bodyModalClase"), data.clases, "Todas", "3", "clase");
+            llenarComboYModal($("#segMarca"), $("#bodyModalMarca"), data.marcas, "Seleccione...", "3", "marca", "Todas");
+            llenarComboYModal($("#segDivision"), $("#bodyModalDivision"), data.divisiones, "Seleccione...", "3", "division", "Todas");
+            llenarComboYModal($("#segDepartamento"), $("#bodyModalDepartamento"), data.departamentos, "Seleccione...", "3", "depto", "Todos");
+            llenarComboYModal($("#segClase"), $("#bodyModalClase"), data.clases, "Seleccione...", "3", "clase", "Todas");
 
             // Guardar datos para el modal de Items
             window._filtrosJerarquiaData = data;
+        }
+    });
+}
+
+// ===============================================================
+// CONSULTAR ALMACENES (FILTRADO POR GRUPO)
+// ===============================================================
+function consultarAlmacenes(codigoGrupo = undefined) {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Promocion/consultar-almacen",
+        client: "APL",
+        endpoint_query_params: codigoGrupo ? `/${codigoGrupo}` : ""
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            const listaAlmacenes = response.json_response || [];
+            console.log("cantidad de almacenes consultados: ", listaAlmacenes.length);
+            llenarComboYModal($("#segAlmacen"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen", "Todos");
         }
     });
 }
@@ -359,13 +294,22 @@ function cargarCombosPromociones() {
         success: function (res) {
             const data = res.json_response || {};
 
-            // Guardar medios de pago para uso en artículos
-            window._mediosPagoData = data.mediospagos || [];
+            // Filtrar medios de pago (excluir "TODOS"/"TODAS" y código "0")
+            let mediosPagoFiltrados = (data.mediospagos || []).filter(m => {
+                let nom = (m.nombre || "").toUpperCase();
+                return nom !== "TODOS" && nom !== "TODAS" && m.codigo !== "0";
+            });
 
-            llenarComboYModal($("#segCanal"), $("#bodyModalCanal"), data.canales, "Todos", "3", "canal");
-            llenarComboYModal($("#segGrupoAlmacen"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Todos", "3", "grupo");
-            llenarComboYModal($("#segAlmacen"), $("#bodyModalAlmacen"), data.almacenes, "Todos", "3", "almacen");
-            llenarComboYModal($("#segMedioPago"), $("#bodyModalMedioPago"), data.mediospagos, "Todos", "7", "mediopago");
+            // Guardar medios de pago filtrados para uso en artículos
+            window._mediosPagoData = mediosPagoFiltrados;
+
+            llenarComboYModal($("#segCanal"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
+            llenarComboYModal($("#segGrupoAlmacen"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo", "Todos");
+
+            // Almacenes se cargan por separado (filtrados por grupo)
+            consultarAlmacenes();
+
+            llenarComboYModal($("#segMedioPago"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
 
             const $cli = $("#segTipoCliente");
             const $modalBodyCli = $("#bodyModalTipoCliente");
@@ -390,16 +334,19 @@ function cargarCombosPromociones() {
     });
 }
 
-const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo) => {
+const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo, textoTodas = null) => {
     $select.empty();
     $select.append(`<option selected value="">${labelDefault}</option>`);
+    if (textoTodas) {
+        $select.append(`<option value="TODAS">${textoTodas}</option>`);
+    }
     $select.append(`<option value="${valorVarios}" class="fw-bold text-success">-- VARIOS --</option>`);
     $modalBody.empty();
     const $ul = $('<ul class="list-group w-100"></ul>');
     if (Array.isArray(items)) {
         items.forEach(i => {
-            const codigo = i.codigo || i.id || i.valor;
-            const texto = i.nombre || i.descripcion || i.codigo;
+            const codigo = i.codigo || i.id || i.valor || i.codigogrupo || i.codigoalmacen;
+            const texto = i.nombre || i.descripcion || i.codigo || i.nombregrupo || i.nombrealmacen;
             $select.append($("<option>", { value: codigo, text: texto }));
             const chkId = `chk_${idPrefijo}_${codigo}`;
             $ul.append(`<li class="list-group-item"><input class="form-check-input me-1 chk-seleccion-multiple" type="checkbox" value="${codigo}" id="${chkId}"><label class="form-check-label stretched-link" for="${chkId}">${texto}</label></li>`);
@@ -931,7 +878,6 @@ function poblarArticulosDesdeAPI(data) {
             if (tipoAsig !== "T") {
                 const codigos = mpItems.map(mp => mp.codigo_detalle).filter(c => c);
                 if (codigos.length > 1) {
-                    // *** Reemplazar el <select> por un botón verde "Varios (N)" ***
                     const btnHtml = `<button type="button" class="btn btn-success btn-sm select-mediopago-articulo" style="font-size:0.7rem; width:100%;" data-seleccionados='${JSON.stringify(codigos)}'><i class="fa-solid fa-list-check"></i> Varios (${codigos.length})</button>`;
                     $filaAppended.find(".select-mediopago-articulo").replaceWith(btnHtml);
                 } else if (codigos.length === 1) {
@@ -1164,6 +1110,16 @@ $(document).ready(function () {
         if (url) { const a = document.createElement("a"); a.href = url; a.download = nombre || "soporte.pdf"; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
     });
 
+    // Recargar almacenes al cambiar Grupo Almacén
+    $("#segGrupoAlmacen").on("change", function () {
+        const codigoGrupo = $(this).val();
+        if (codigoGrupo && codigoGrupo !== "" && codigoGrupo !== "TODAS" && codigoGrupo !== "3") {
+            consultarAlmacenes(codigoGrupo);
+        } else if (codigoGrupo === "TODAS" || codigoGrupo === "") {
+            consultarAlmacenes();
+        }
+    });
+
     // Modales de Acuerdo (General)
     $("#modalConsultaProveedor").on("show.bs.modal", function () {
         proveedorTemporal = null;
@@ -1383,12 +1339,11 @@ $(document).ready(function () {
             if (!data.length) { $tbody.html('<tr><td colspan="3" class="text-center text-muted">No hay otros costos.</td></tr>'); }
             else { data.forEach(item => { $tbody.append(`<tr><td class="text-center align-middle"><input class="form-check-input chk-otro-costo" type="checkbox" data-codigo="${item.codigo}" data-nombre="${item.nombre}" data-valor="${item.valor}"></td><td class="align-middle">${item.nombre || ''}</td><td class="text-end align-middle">${formatCurrencySpanish(item.valor)}</td></tr>`); }); }
 
-            // *** PRE-MARCAR los otros costos ya guardados en la fila del artículo ***
+            // PRE-MARCAR los otros costos ya guardados en la fila del artículo
             const $filaArticulo = $("#tablaArticulosBody .item-row-radio:checked").closest("tr");
             const otrosCostosGuardados = $filaArticulo.data("detalle-otros-costos") || [];
             otrosCostosGuardados.forEach(function (oc) {
                 $("#tbodyOtrosCostos .chk-otro-costo").each(function () {
-                    // Comparar por código o por nombre según lo que venga
                     if (String($(this).data("codigo")) === String(oc.codigo) ||
                         $(this).data("nombre") === oc.nombre) {
                         $(this).prop("checked", true);
@@ -1503,29 +1458,24 @@ function poblarFormulario(data) {
     // TOGGLE SECCIONES SEGÚN TIPO
     // ===================================================================
     if (tipoPromocion === "PRARTICULO") {
-        // Ocultar sección General, mostrar Artículos
         $("#seccionGeneralSegmentos").hide();
         $("#seccionGeneralAcuerdos").hide();
         $("#seccionArticuloSegmentos").show();
         $("#seccionArticuloDetalle").show();
 
-        // Poblar segmentos de artículos (canal, grupo, almacen, tipocliente)
         poblarSelectSegmento("canal", segmentos, "SEGCANAL");
         poblarSelectSegmento("grupo", segmentos, "SEGGRUPOALMACEN");
         poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
         poblarSelectSegmento("tipocliente", segmentos, "SEGTIPOCLIENTE");
 
-        // Poblar tabla de artículos
         poblarArticulosDesdeAPI(data);
 
     } else {
-        // Tipo General - Mostrar sección General, ocultar Artículos
         $("#seccionGeneralSegmentos").show();
         $("#seccionGeneralAcuerdos").show();
         $("#seccionArticuloSegmentos").hide();
         $("#seccionArticuloDetalle").hide();
 
-        // Segmentos General
         poblarSelectSegmento("marca", segmentos, "SEGMARCA");
         poblarSelectSegmento("division", segmentos, "SEGDIVISION");
         poblarSelectSegmento("depto", segmentos, "SEGDEPARTAMENTO");
@@ -1536,14 +1486,12 @@ function poblarFormulario(data) {
         poblarSelectSegmento("tipocliente", segmentos, "SEGTIPOCLIENTE");
         poblarSelectSegmento("mediopago", segmentos, "SEGMEDIOPAGO");
 
-        // ARTÍCULO (checkbox)
         const artItems = segmentos.filter(s => s.etiqueta_tipo_segmento === "SEGARTICULO");
         if (artItems.length > 0 && artItems[0].codigo_detalle) {
             $('#chkArticulo').prop('checked', true).trigger("change");
             $('#segArticulo').val(artItems[0].codigo_detalle);
         }
 
-        // Acuerdos General
         const acProv = acuerdos.find(a => a.etiqueta_tipo_fondo === "TFPROVEDOR");
         const acProp = acuerdos.find(a => a.etiqueta_tipo_fondo === "TFPROPIO");
         $(".inputs-acuerdos").val("");
@@ -1584,10 +1532,8 @@ function resetFormulario() {
     acuerdoArticuloTemporal = null;
     acuerdoArticuloContexto = null;
 
-    // Limpiar tabla de artículos
     $("#tablaArticulosBody").empty();
 
-    // Reset secciones
     $("#seccionGeneralSegmentos, #seccionGeneralAcuerdos").show();
     $("#seccionArticuloSegmentos, #seccionArticuloDetalle").hide();
 
@@ -1662,7 +1608,7 @@ async function guardarPromocionGeneral() {
 
     const fileInput = $('#inputArchivoSoporte')[0].files[0];
     const leerArchivo = file => new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = e => reject(e); });
-    const base64Completo = fileInput ? await leerArchivo(fileInput) : "";
+    const base64Completo = fileInput ? await leerArchivo(fileInput) : null;
 
     const segmentosConfig = [
         { tipo: "SEGMARCA", codigos: obtenerValorCampo("marca", "#segMarca", "3"), id: "#segMarca" },
@@ -1678,7 +1624,6 @@ async function guardarPromocionGeneral() {
     const segmentosValidados = segmentosConfig.map(seg => ({ tiposegmento: seg.tipo, codigos: seg.codigos, tipoasignacion: determinarAsignacion(seg.id) }));
     if ($('#chkArticulo').is(':checked')) segmentosValidados.push({ tiposegmento: "SEGARTICULO", codigos: [$('#segArticulo').val()], tipoasignacion: "C" });
 
-    // Acuerdos
     const acuerdosModificados = [];
     const acuerdosBD = (promocionTemporal && promocionTemporal.acuerdos) ? promocionTemporal.acuerdos : [];
     const acProvBD = acuerdosBD.find(a => a.etiqueta_tipo_fondo === "TFPROVEDOR");
@@ -1709,8 +1654,11 @@ async function guardarPromocionGeneral() {
             idusuariomodifica: obtenerUsuarioActual(), nombreusuario: obtenerUsuarioActual()
         },
         acuerdos: acuerdosModificados, segmentos: segmentosValidados,
-        archivosoportebase64: base64Completo, nombrearchivosoporte: fileInput ? fileInput.name : "",
-        rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
+        ...(base64Completo ? {
+            archivosoportebase64: base64Completo,
+            nombrearchivosoporte: fileInput.name,
+            rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte
+        } : {}),
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
         idopcion: getIdOpcionSeguro(), idcontrolinterfaz: "BTNGRABAR", ideventoetiqueta: "EVCLICK"
     };
@@ -1729,7 +1677,7 @@ async function guardarPromocionArticulos() {
 
     const fileInput = $('#inputArchivoSoporte')[0].files[0];
     const leerArchivo = file => new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = e => reject(e); });
-    const base64Completo = fileInput ? await leerArchivo(fileInput) : "";
+    const base64Completo = fileInput ? await leerArchivo(fileInput) : null;
 
     const obtenerValorCampo = (configId, selectId, triggerVal) => {
         const valSelect = $(selectId).val();
@@ -1747,7 +1695,6 @@ async function guardarPromocionArticulos() {
         return "C";
     };
 
-    // Segmentos (solo los de artículos)
     const segmentos = [
         { tiposegmento: "SEGCANAL", codigos: obtenerValorCampo("canal", "#segCanal", "3"), tipoasignacion: determinarAsignacion("#segCanal") },
         { tiposegmento: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupo", "#segGrupoAlmacen", "3"), tipoasignacion: determinarAsignacion("#segGrupoAlmacen") },
@@ -1760,7 +1707,6 @@ async function guardarPromocionArticulos() {
         { tiposegmento: "SEGMEDIOPAGO", codigos: [], tipoasignacion: "T" }
     ];
 
-    // Construir artículos
     const articulos = [];
     let errorFila = "";
 
@@ -1820,19 +1766,16 @@ async function guardarPromocionArticulos() {
 
         const regalo = $fila.find("td:eq(45) input[type='checkbox']").is(":checked") ? "S" : "N";
 
-        // Acuerdos del artículo
         const acuerdosArticulo = [];
         if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor });
         if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoRebate, valoraporte: aporteRebate });
         if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio, valoraporte: aportePropio });
 
-        // Medios de pago
         const mediosPago = [];
         if (medioPagoVal === "7") { mediosPago.push({ tipoasignacion: "D", codigos: mediosPagoSeleccionados }); }
         else if (medioPagoVal && medioPagoVal !== "" && medioPagoVal !== "TODAS" && medioPagoVal !== "TODOS") { mediosPago.push({ tipoasignacion: "C", codigos: [medioPagoVal] }); }
         else { mediosPago.push({ tipoasignacion: "T", codigos: [] }); }
 
-        // Otros costos
         const otrosCostosGuardados = $fila.data("detalle-otros-costos") || [];
         const otrosCostosMapeados = otrosCostosGuardados.map(oc => ({ codigoparametro: parseInt(oc.codigo, 10) || 0, costo: parseFloat(oc.valor) || 0 }));
 
@@ -1859,7 +1802,6 @@ async function guardarPromocionArticulos() {
 
     if (errorFila) { return Swal.fire("Validación de Detalle", errorFila, "warning"); }
 
-    // Detectar artículos eliminados (estaban en BD pero no en tabla)
     const articulosBD = (promocionTemporal && promocionTemporal.articulos) ? promocionTemporal.articulos : [];
     const codigosEnTabla = articulos.map(a => a.codigoitem);
     articulosBD.forEach(artBD => {
@@ -1897,8 +1839,11 @@ async function guardarPromocionArticulos() {
         acuerdos: [],
         segmentos: segmentos,
         articulos: articulos,
-        archivosoportebase64: base64Completo, nombrearchivosoporte: fileInput ? fileInput.name : "",
-        rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
+        ...(base64Completo ? {
+            archivosoportebase64: base64Completo,
+            nombrearchivosoporte: fileInput.name,
+            rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte
+        } : {}),
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
         idopcion: getIdOpcionSeguro(), idcontrolinterfaz: "BTNGRABAR", ideventoetiqueta: "EVCLICK"
     };
