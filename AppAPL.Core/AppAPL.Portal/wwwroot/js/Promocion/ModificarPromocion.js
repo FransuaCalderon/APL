@@ -265,7 +265,7 @@ function cargarFiltrosJerarquia() {
 // ===============================================================
 // CONSULTAR ALMACENES (FILTRADO POR GRUPO)
 // ===============================================================
-function consultarAlmacenes(codigoGrupo = undefined) {
+function consultarAlmacenes(codigoGrupo = undefined, callback = null) {
     const payload = {
         code_app: "APP20260128155212346",
         http_method: "GET",
@@ -284,6 +284,11 @@ function consultarAlmacenes(codigoGrupo = undefined) {
             console.log("cantidad de almacenes consultados: ", listaAlmacenes.length);
             //console.log("llamando llenarComboYModal de consultar almacen");
             llenarComboYModal($("#segAlmacen"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen", "Todos");
+
+            // Ejecutar el callback si existe
+            if (callback && typeof callback === "function") {
+                callback();
+            }
         }
     });
 }
@@ -1464,6 +1469,23 @@ function poblarFormulario(data) {
     const marcaRegaloVal = (cab.marcaregalo || "").toString().trim();
     $('#promocionMarcaRegalo').prop('checked', marcaRegaloVal !== "" && marcaRegaloVal !== "N");
 
+
+
+
+    // ===================================================================
+    // LÓGICA DE SEGMENTOS (CORREGIDA)
+    // ===================================================================
+    // 1. Identificamos si existe un Grupo de Almacén guardado para filtrar los almacenes
+    const segGrupo = segmentos.find(s => s.etiqueta_tipo_segmento === "SEGGRUPOALMACEN");
+    const codigoGrupo = (segGrupo && segGrupo.codigo_detalle) ? segGrupo.codigo_detalle : undefined;
+
+    // 2. Cargamos los almacenes PRIMERO, y cuando termine, seleccionamos el valor
+    consultarAlmacenes(codigoGrupo, function () {
+        // Esta parte se ejecuta SOLO cuando la API de almacenes ya respondió
+        poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
+    });
+
+
     // ===================================================================
     // TOGGLE SECCIONES SEGÚN TIPO
     // ===================================================================
@@ -1475,7 +1497,7 @@ function poblarFormulario(data) {
 
         poblarSelectSegmento("canal", segmentos, "SEGCANAL");
         poblarSelectSegmento("grupo", segmentos, "SEGGRUPOALMACEN");
-        poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
+        //poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
         poblarSelectSegmento("tipocliente", segmentos, "SEGTIPOCLIENTE");
 
         poblarArticulosDesdeAPI(data);
@@ -1492,7 +1514,7 @@ function poblarFormulario(data) {
         poblarSelectSegmento("clase", segmentos, "SEGCLASE");
         poblarSelectSegmento("canal", segmentos, "SEGCANAL");
         poblarSelectSegmento("grupo", segmentos, "SEGGRUPOALMACEN");
-        poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
+        //poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
         poblarSelectSegmento("tipocliente", segmentos, "SEGTIPOCLIENTE");
         poblarSelectSegmento("mediopago", segmentos, "SEGMEDIOPAGO");
 
@@ -1530,7 +1552,7 @@ function poblarFormulario(data) {
     }
 
     // Al final del todo:
-    setTimeout(() => { isPopulating = false; }, 100);
+    setTimeout(() => { isPopulating = false; }, 500);
 }
 
 function resetFormulario() {
@@ -1667,9 +1689,10 @@ async function guardarPromocionGeneral() {
         acuerdos: acuerdosModificados, segmentos: segmentosValidados,
         ...(base64Completo ? {
             archivosoportebase64: base64Completo,
-            nombrearchivosoporte: fileInput.name,
-            rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte
+            nombrearchivosoporte: fileInput.name
+            
         } : {}),
+        rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
         idopcion: getIdOpcionSeguro(), idcontrolinterfaz: "BTNGRABAR", ideventoetiqueta: "EVCLICK"
     };
