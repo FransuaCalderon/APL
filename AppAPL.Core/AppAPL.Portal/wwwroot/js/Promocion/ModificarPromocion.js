@@ -282,6 +282,7 @@ function consultarAlmacenes(codigoGrupo = undefined) {
         success: function (response) {
             const listaAlmacenes = response.json_response || [];
             console.log("cantidad de almacenes consultados: ", listaAlmacenes.length);
+            //console.log("llamando llenarComboYModal de consultar almacen");
             llenarComboYModal($("#segAlmacen"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen", "Todos");
         }
     });
@@ -307,7 +308,8 @@ function cargarCombosPromociones() {
             llenarComboYModal($("#segGrupoAlmacen"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo", "Todos");
 
             // Almacenes se cargan por separado (filtrados por grupo)
-            consultarAlmacenes();
+            //console.log("llamar consultarAlmacenes en cargarCombosPromociones");
+            //consultarAlmacenes();
 
             llenarComboYModal($("#segMedioPago"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
 
@@ -335,10 +337,11 @@ function cargarCombosPromociones() {
 }
 
 const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo, textoTodas = null) => {
+    //console.log("textoTodas: ", textoTodas);
     $select.empty();
     $select.append(`<option selected value="">${labelDefault}</option>`);
     if (textoTodas) {
-        $select.append(`<option value="TODAS">${textoTodas}</option>`);
+        $select.append(`<option value="TODOS">${textoTodas}</option>`);
     }
     $select.append(`<option value="${valorVarios}" class="fw-bold text-success">-- VARIOS --</option>`);
     $modalBody.empty();
@@ -453,6 +456,7 @@ function initLogicaSeleccionMultiple() {
 
 function poblarSelectSegmento(configId, segmentos, etiqueta) {
     const conf = CONFIG_MULTIPLE.find(c => c.id === configId);
+    //console.log("conf: ", conf);
     if (!conf) return;
 
     const $select = $(conf.select);
@@ -474,7 +478,7 @@ function poblarSelectSegmento(configId, segmentos, etiqueta) {
     const primerItem = items[0];
 
     if (primerItem.tipoasignacion === "T" || primerItem.tipoasignacion === "TODOS") {
-        $select.val("").trigger("change");
+        $select.val("TODOS").trigger("change");
         return;
     }
 
@@ -1112,7 +1116,12 @@ $(document).ready(function () {
 
     // Recargar almacenes al cambiar Grupo Almacén
     $("#segGrupoAlmacen").on("change", function () {
+        // AÑADE ESTA LÍNEA:
+        if (isPopulating) return;
+
+
         const codigoGrupo = $(this).val();
+        console.log("llamar consultarAlmacenes en segGrupoAlmacen change");
         if (codigoGrupo && codigoGrupo !== "" && codigoGrupo !== "TODAS" && codigoGrupo !== "3") {
             consultarAlmacenes(codigoGrupo);
         } else if (codigoGrupo === "TODAS" || codigoGrupo === "") {
@@ -1400,6 +1409,7 @@ function crearListado(data) {
 }
 
 function abrirModalEditar(idPromocion) {
+    isPopulating = true; // Activar aquí
     resetFormulario();
     $('#lblIdPromocion').text(idPromocion);
     $('#modalPromocionId').val(idPromocion);
@@ -1519,7 +1529,8 @@ function poblarFormulario(data) {
         evaluarBloqueosAcuerdos();
     }
 
-    isPopulating = false;
+    // Al final del todo:
+    setTimeout(() => { isPopulating = false; }, 100);
 }
 
 function resetFormulario() {
