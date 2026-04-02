@@ -726,3 +726,1090 @@
 		</div>
 	</div>
 </div>
+
+
+<!--MODALES PARA AGREGAR-->
+
+<!-- Modal Añadir Grupo de Almacenes-->
+<div class="modal fade" id="modalNuevoGrupo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Añadir Grupo de Almacen</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-12 text-center">
+						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre del Grupo</label>
+						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre">
+					</div>
+	  
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Modal Asignar nuevo almacen al Grupo-->
+<div class="modal fade" id="modalNuevoAlmacen" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Asignar Almacen al Grupo</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+				<!-- Selector de tipo de Promocion -->
+				<div class="row g-1 border-bottom">
+					<div class="col">
+						<div class="input-group input-group-sm mb-1">
+							<label class="input-group-text" for="inputGroupSelectGrupo">Almacen</label>
+							<select class="form-select" id="inputGroupSelectGrupo">
+								<option value="1">Riocentro Sur</option>
+								<option value="2">La Prosperina</option>
+								<option value="3">Duran</option>
+							</select>
+						</div>
+					</div>
+				</div>
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Modal Añadir Medio Pago-->
+<div class="modal fade" id="modalNuevoMedioPago" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Añadir MedioPago</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-12 text-center">
+						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre Medio Pago</label>
+						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre">
+					</div>
+	  
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Modal Anadir nuevo nuevo aporte marca-->
+<div class="modal fade" id="modalNuevoAporteMarca" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Aporte por Marca</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-8 text-center">
+						<label for="inputGroupSelectMarca" class="form-label fw-bold  ">Marca</label>
+						<select class="form-select" id="inputGroupSelectMarca">
+							<option value="1" selected>SONY</option>
+							<option value="2">MABE</option>
+							<option value="3">HP</option>
+							<option value="4">Samsumg</option>
+						</select>
+					</div>
+					<div class="col-md-4 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">No.Aporte</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Modal Anadir nuevo nuevo aporte Marca/Proveedor-->
+<div class="modal fade" id="modalNuevoAporteMarcaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Aporte por Marca/Proveedor</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-4 text-center">
+						<label for="inputGroupSelectMarca" class="form-label fw-bold  ">Marca</label>
+						<select class="form-select" id="inputGroupSelectMarca">
+							<option value="1" selected>SONY</option>
+							<option value="2">MABE</option>
+							<option value="3">HP</option>
+							<option value="4">Samsumg</option>
+						</select>
+					</div>
+							  
+					<div class="col-md-6 text-center">
+						<label for="inputGroupSelectProveedor" class="form-label fw-bold  ">Proveedor</label>
+						<select class="form-select" id="inputGroupSelectproveedor">
+							<option value="09190007510001" selected>ALMACENES JUAN ELJURI CIA. LTDA</option>
+							<option value="2">MABE</option>
+							<option value="3">HP</option>
+							<option value="4">Samsumg</option>
+						</select>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">No.Aporte</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Anadir nuevo aporte propio por articulo-->
+<div class="modal fade" id="modalNuevoAportePropioArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Aporte Propio por Articulo</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-12 text-center">
+						<label for="datosarticulos" class="form-label fw-bold  ">Artículos</label>
+						<div class="table-responsive d-flex justify-content-center">
+							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;" id="datosarticulos">
+								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+								<thead class="text-white text-nowrap">
+									<tr class="">
+													
+										<th class="table-primary text-center align-middle" style="width: 15%;">Codigo</th>
+										<th class="table-primary text-center align-middle" style="width: 70%;">Nombre Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;"> Acción</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+											
+									<tr class="m-0 p-0">
+										<td class="align-middle">10203040</td>
+										<td class="align-middle">TV 65 Pulgadas Smart SONY 4k</td>
+										<td class="">
+											<div>
+												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel1" value="" aria-label="...">
+											</div>
+										</td>
+									</tr>
+									<tr class="m-0 p-0">
+										<td class="align-middle">52608488</td>
+										<td class="align-middle">CONGELADOR SAMSUMG</td>
+										<td class="">
+											<div>
+												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel2" value="" aria-label="...">
+											</div>
+										</td>
+									</tr>
+												
+									
+												
+								</tbody>
+							</table>
+						</div>
+								
+							  
+					</div>
+									  
+									  
+					<!-- linea 2 -->
+					<div class="col-md-10 text-center">
+						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
+						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">No. Aporte</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Modal Anadir nuevo precio de competencia por articulo-->
+<div class="modal fade" id="modalNuevoPrecioCompetenciaArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Precio de la Competencia</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-12 text-center">
+						<label for="datosarticulos" class="form-label fw-bold  ">Artículos</label>
+						<div class="table-responsive d-flex justify-content-center">
+							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;" id="datosarticulos">
+								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+								<thead class="text-white text-nowrap">
+									<tr class="">
+													
+										<th class="table-primary text-center align-middle" style="width: 15%;">Codigo</th>
+										<th class="table-primary text-center align-middle" style="width: 70%;">Nombre Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;"> Acción</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+											
+									<tr class="m-0 p-0">
+										<td class="align-middle">10203040</td>
+										<td class="align-middle">TV 65 Pulgadas Smart SONY 4k</td>
+										<td class="">
+											<div>
+												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel1" value="" aria-label="...">
+											</div>
+										</td>
+									</tr>
+									<tr class="m-0 p-0">
+										<td class="align-middle">52608488</td>
+										<td class="align-middle">CONGELADOR SAMSUMG</td>
+										<td class="">
+											<div>
+												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel2" value="" aria-label="...">
+											</div>
+										</td>
+									</tr>
+												
+									
+												
+								</tbody>
+							</table>
+						</div>
+								
+							  
+					</div>
+									  
+									  
+					<!-- linea 2 -->
+					<div class="col-md-6 text-center">
+						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
+						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					</div>
+					<div class="col-md-4 text-center">
+						<label for="inputCompetencia" class="form-label fw-bold  ">Nombre Competencia</label>
+						<input type="text" class="form-control " id="inputCompetencia" placeholder="Ingrese Nombre de la Competencia" value="">
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">Precio Contado</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="9,999.99" value="">
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Anadir nuevo Margen Minimo por articulo-->
+<div class="modal fade" id="modalNuevoMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Margen Minimo por articulo</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-12 text-center">
+						<label for="datosarticulos" class="form-label fw-bold  ">Artículos</label>
+						<div class="table-responsive d-flex justify-content-center">
+							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;" id="datosarticulos">
+								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+								<thead class="text-white text-nowrap">
+									<tr class="">
+													
+										<th class="table-primary text-center align-middle" style="width: 15%;">Codigo</th>
+										<th class="table-primary text-center align-middle" style="width: 70%;">Nombre Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;"> Acción</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+											
+									<tr class="m-0 p-0">
+										<td class="align-middle">10203040</td>
+										<td class="align-middle">TV 65 Pulgadas Smart SONY 4k</td>
+										<td class="">
+											<div>
+												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel1" value="" aria-label="...">
+											</div>
+										</td>
+									</tr>
+									<tr class="m-0 p-0">
+										<td class="align-middle">52608488</td>
+										<td class="align-middle">CONGELADOR SAMSUMG</td>
+										<td class="">
+											<div>
+												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel2" value="" aria-label="...">
+											</div>
+										</td>
+									</tr>
+												
+									
+												
+								</tbody>
+							</table>
+						</div>
+								
+							  
+					</div>
+									  
+									  
+					<!-- linea 2 -->
+					<div class="col-md-4 text-center">
+						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
+						<input type="text" class="form-control " id="inputArticulo" placeholder="" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputMargenContado" class="form-label fw-bold  ">% Contado</label>
+						<input type="text" class="form-control " id="inputMargenContado" placeholder="99.99 %" value="">
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputMargenTC" class="form-label fw-bold  ">% Tarj.Cr</label>
+						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="">
+					</div>
+	  
+					<div class="col-md-2 text-center">
+						<label for="inputMargenCredito" class="form-label fw-bold  ">% Crédito</label>
+						<input type="text" class="form-control " id="inputMargenCredito" placeholder="99.99 %" value="">
+					</div>
+
+					<div class="col-md-2 text-center">
+						<label for="inputMargenIgualar" class="form-label fw-bold  ">% Igualar</label>
+						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="">
+					</div>
+
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--MODALES PARA MODIFICAR-->
+<!-- Modal Modificar Grupo de Almacenes-->
+<div class="modal fade" id="modalModificarGrupo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Modificar Grupo de Almacen</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-12 text-center">
+						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre del Grupo</label>
+						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre" value="Grupo Norte Artefacta">
+					</div>
+	  
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal modificar Medio Pago-->
+<div class="modal fade" id="modalModificaMedioPago" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Modificar MedioPago</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-12 text-center">
+						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre Medio Pago</label>
+						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre">
+					</div>
+	  
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Modificar aporte marca-->
+<div class="modal fade" id="modalModificarAporteMarca" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Modificar Aporte por Marca</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-8 text-center">
+						<label for="inputGroupSelectMarca" class="form-label fw-bold  ">Marca</label>
+						<select class="form-select" id="inputGroupSelectMarca" disabled>
+							<option value="1" selected>SONY</option>
+							<option value="2">MABE</option>
+							<option value="3">HP</option>
+							<option value="4">Samsumg</option>
+						</select>
+					</div>
+					<div class="col-md-4 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">No.Aporte</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Modificar aporte Marca/Proveedor-->
+<div class="modal fade" id="modalModificarAporteMarcaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Modificar Aporte por Marca/Proveedor</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-4 text-center">
+						<label for="inputGroupSelectMarca" class="form-label fw-bold  ">Marca</label>
+						<select class="form-select" id="inputGroupSelectMarca" disabled>
+							<option value="1" selected>SONY</option>
+							<option value="2">MABE</option>
+							<option value="3">HP</option>
+							<option value="4">Samsumg</option>
+						</select>
+					</div>
+							  
+					<div class="col-md-6 text-center">
+						<label for="inputGroupSelectProveedor" class="form-label fw-bold  ">Proveedor</label>
+						<select class="form-select" id="inputGroupSelectproveedor" disabled>
+							<option value="09190007510001" selected>ALMACENES JUAN ELJURI CIA. LTDA</option>
+							<option value="2">MABE</option>
+							<option value="3">HP</option>
+							<option value="4">Samsumg</option>
+						</select>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">No.Aporte</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Modificar aporte propio por articulo-->
+<div class="modal fade" id="modalModificarAportePropioArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Modificar Aporte Propio por Articulo</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+							 
+									  
+					<!-- linea 1 -->
+					<div class="col-md-10 text-center">
+						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
+						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">No. Aporte</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Modificar precio de competencia por articulo-->
+<div class="modal fade" id="modalModificarPrecioCompetenciaArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Modificar Precio de la Competencia</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<!-- linea 2 -->
+					<div class="col-md-6 text-center">
+						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
+						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					</div>
+					<div class="col-md-4 text-center">
+						<label for="inputCompetencia" class="form-label fw-bold  ">Nombre Competencia</label>
+						<input type="text" class="form-control " id="inputCompetencia" placeholder="Ingrese Nombre de la Competencia" value="COMANDATO">
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">Precio Contado</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="9,999.99" value="1,547.46">
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Modificar Margen Minimo por articulo-->
+<div class="modal fade" id="modalModificarMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Modificar Margen Minimo por articulo</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<!-- linea 2 -->
+					<div class="col-md-4 text-center">
+						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
+						<input type="text" class="form-control " id="inputArticulo" placeholder="" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputMargenContado" class="form-label fw-bold  ">% Contado</label>
+						<input type="text" class="form-control " id="inputMargenContado" placeholder="99.99 %" value="">
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputMargenTC" class="form-label fw-bold  ">% Tarj.Cr</label>
+						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="">
+					</div>
+	  
+					<div class="col-md-2 text-center">
+						<label for="inputMargenCredito" class="form-label fw-bold  ">% Crédito</label>
+						<input type="text" class="form-control " id="inputMargenCredito" placeholder="99.99 %" value="">
+					</div>
+
+					<div class="col-md-2 text-center">
+						<label for="inputMargenIgualar" class="form-label fw-bold  ">% Igualar</label>
+						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="">
+					</div>
+
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!--MODALES PARA ELIMINAR-->
+<!-- Modal Eliminar Grupo de Almacenes-->
+<div class="modal fade" id="modalEliminarGrupo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Grupo de Almacen</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-12 text-center">
+						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre del Grupo</label>
+						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre" disabled>
+					</div>
+	  
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Quitar un almacen al Grupo-->
+<div class="modal fade" id="modalEliminarAlmacen" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Quitar Almacen al Grupo</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+				<!-- Selector de tipo de Promocion -->
+				<div class="row g-1 border-bottom">
+					<div class="col">
+						<div class="input-group input-group-sm mb-1">
+							<label class="input-group-text" for="inputGroupSelectGrupo">Almacen</label>
+							<select class="form-select" id="inputGroupSelectGrupo" disabled>
+								<option value="1">Riocentro Sur</option>
+								<option value="2">La Prosperina</option>
+								<option value="3">Duran</option>
+								<option value="4" selected>Mall del Sol</option>
+							</select>
+						</div>
+					</div>
+				</div>
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Añadir Medio Pago-->
+<div class="modal fade" id="modalEliminaMedioPago" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar MedioPago</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-12 text-center">
+						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre Medio Pago</label>
+						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre" disabled>
+					</div>
+	  
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Eliminar aporte marca-->
+<div class="modal fade" id="modalEliminarAporteMarca" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Aporte por Marca</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-8 text-center">
+						<label for="inputGroupSelectMarca" class="form-label fw-bold  ">Marca</label>
+						<select class="form-select" id="inputGroupSelectMarca" disabled>
+							<option value="1" selected>SONY</option>
+							<option value="2">MABE</option>
+							<option value="3">HP</option>
+							<option value="4">Samsumg</option>
+						</select>
+					</div>
+					<div class="col-md-4 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">No.Aporte</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2" disabled>
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Eliminar aporte Marca/Proveedor-->
+<div class="modal fade" id="modalEliminarAporteMarcaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Aporte por Marca/Proveedor</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<div class="col-md-4 text-center">
+						<label for="inputGroupSelectMarca" class="form-label fw-bold  ">Marca</label>
+						<select class="form-select" id="inputGroupSelectMarca" disabled>
+							<option value="1" selected>SONY</option>
+							<option value="2">MABE</option>
+							<option value="3">HP</option>
+							<option value="4">Samsumg</option>
+						</select>
+					</div>
+							  
+					<div class="col-md-6 text-center">
+						<label for="inputGroupSelectProveedor" class="form-label fw-bold  ">Proveedor</label>
+						<select class="form-select" id="inputGroupSelectproveedor" disabled>
+							<option value="09190007510001" selected>ALMACENES JUAN ELJURI CIA. LTDA</option>
+							<option value="2">MABE</option>
+							<option value="3">HP</option>
+							<option value="4">Samsumg</option>
+						</select>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">No.Aporte</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2" disabled>
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Eliminar aporte propio por articulo-->
+<div class="modal fade" id="modalEliminarAportePropioArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Aporte Propio por Articulo</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+							 
+									  
+					<!-- linea 1 -->
+					<div class="col-md-10 text-center">
+						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
+						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">No. Aporte</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2" disabled>
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Elimnar precio de competencia por articulo-->
+<div class="modal fade" id="modalEliminarPrecioCompetenciaArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Precio de la Competencia</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<!-- linea 2 -->
+					<div class="col-md-6 text-center">
+						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
+						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					</div>
+					<div class="col-md-4 text-center">
+						<label for="inputCompetencia" class="form-label fw-bold  ">Nombre Competencia</label>
+						<input type="text" class="form-control " id="inputCompetencia" placeholder="Ingrese Nombre de la Competencia" value="COMANDATO" disabled>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputNumAporte" class="form-label fw-bold  ">Precio Contado</label>
+						<input type="text" class="form-control " id="inputNumAporte" placeholder="9,999.99" value="1,547.46" disabled>
+					</div>
+	  
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Eliminar Margen Minimo por articulo-->
+<div class="modal fade" id="modalEliminarMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Margen Minimo por articulo</h1>
+					
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+					
+					
+				<form class="row g-1 ">
+									  
+					<!-- linea 1 -->
+					<!-- linea 2 -->
+					<div class="col-md-4 text-center">
+						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
+						<input type="text" class="form-control " id="inputArticulo" placeholder="" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputMargenContado" class="form-label fw-bold  ">% Contado</label>
+						<input type="text" class="form-control " id="inputMargenContado" placeholder="99.99 %" value="" disabled>
+					</div>
+					<div class="col-md-2 text-center">
+						<label for="inputMargenTC" class="form-label fw-bold  ">% Tarj.Cr</label>
+						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="" disabled>
+					</div>
+	  
+					<div class="col-md-2 text-center">
+						<label for="inputMargenCredito" class="form-label fw-bold  ">% Crédito</label>
+						<input type="text" class="form-control " id="inputMargenCredito" placeholder="99.99 %" value="" disabled>
+					</div>
+
+					<div class="col-md-2 text-center">
+						<label for="inputMargenIgualar" class="form-label fw-bold  ">% Igualar</label>
+						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="" disabled>
+					</div>
+
+				</form>
+					
+									
+						
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					
+			</div>
+		</div>
+	</div>
+</div>
