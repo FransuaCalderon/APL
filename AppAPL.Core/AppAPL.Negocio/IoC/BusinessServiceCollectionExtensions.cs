@@ -21,6 +21,7 @@ namespace AppAPL.Negocio.IoC
             services.AddScoped<IAcuerdoServicio, AcuerdoServicio>();
             services.AddScoped<IPromocionServicio, PromocionServicio>();
             services.AddAutoMapper(typeof(BusinessServiceCollectionExtensions));
+            services.AddScoped<IParametrizacionServicio, ParametrizacionServicio>();
             return services;
         }
     }

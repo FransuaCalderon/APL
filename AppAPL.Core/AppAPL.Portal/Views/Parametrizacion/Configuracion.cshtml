@@ -1,0 +1,728 @@
+﻿@{
+    ViewData["Title"] = "Configuracion Parametrizacion";
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+
+@section Scripts {
+    <script>window.usuarioActual = '@usuarioActual';</script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+    <script src="~/js/Parametrizacion/Configuracion.js" asp-append-version="true"></script>
+}
+
+<link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
+
+<!-- Mantenimiento de Parametro -->
+<div class="row p-0 m-0">
+	<div class="col-3">
+		<div class="row">
+			<p class="fs-4 fw-semibold mx-0 px-0">Configuración</p>
+		</div>
+								
+		<div class="row">
+			<div class="list-group list-group-flush" id="list-tab" role="tablist">
+				<a class="list-group-item list-group-item-action border-0 active" id="list-home-list" data-bs-toggle="list" href="#list-home" role="tab" aria-controls="list-home"><i class="fa-regular fa-house"></i> Grupos Almacenes</a>
+				<a class="list-group-item list-group-item-action border-0" id="list-profile-list" data-bs-toggle="list" href="#list-profile" role="tab" aria-controls="list-profile"><i class="fa-regular fa-credit-card"></i> Medios de Pagos</a>
+				<a class="list-group-item list-group-item-action border-0" id="list-messages-list" data-bs-toggle="list" href="#list-messages" role="tab" aria-controls="list-messages"><i class="fa-solid fa-wallet"></i> Aportes por Marcas</a>
+				<a class="list-group-item list-group-item-action border-0" id="list-settings-list" data-bs-toggle="list" href="#list-settings" role="tab" aria-controls="list-settings"><i class="fa-solid fa-wallet"></i> Aportes por Marca y Proveedor</a>
+				<a class="list-group-item list-group-item-action border-0" id="list-aporte-propio-articulo-list" data-bs-toggle="list" href="#list-aporte-propio-articulo" role="tab" aria-controls="list-aporte-propio-articulo"><i class="fa-solid fa-wallet"></i> Aportes Propios por Artículos</a>
+				<a class="list-group-item list-group-item-action border-0" id="list-precio-competencia-list" data-bs-toggle="list" href="#list-precio-competencia" role="tab" aria-controls="list-precio-competencia"><i class="fa-solid fa-tag"></i> Precios de la Competencia</a>
+									
+				<a class="list-group-item list-group-item-action border-0" id="list-margen-minimo-articulo-list" data-bs-toggle="list" href="#list-margen-minimo-articulo" role="tab" aria-controls="list-margen-minimo-articulo"><i class="fa-solid fa-tag"></i> Margen Mínimo por Artículo</a>
+				<a class="list-group-item list-group-item-action border-0" id="list-porcentaje-incremento-precios-list" data-bs-toggle="list" href="#list-porcentaje-incremento-precios" role="tab" aria-controls="list-porcentaje-incremento-precios"><i class="fa-solid fa-tag"></i> Porcentaje de Incremento Precios </a>
+				<a class="list-group-item list-group-item-action border-0" id="list-otros-costos-articulo-list" data-bs-toggle="list" href="#list-otros-costos-articulo" role="tab" aria-controls="list-otros-costos-articulo"><i class="fa-solid fa-tag"></i> Otros Costos por Artículo</a>
+									  
+									  
+									  
+			</div>
+		</div>
+	</div>
+							  
+	<div class="col-9 border-start">
+		<div class="tab-content" id="nav-tabContent">
+			<div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+										
+				<div class="col-12  mt-1">
+					<div class="row">
+						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
+							Configuración de Grupos de Almacenes
+						</div>
+					</div>
+					<div class="">
+																								
+								
+						<div class="row">
+													
+							<div class="col-5 mx-0 my-2">
+												
+								<div class="table-responsive" style="height: 350px">
+									<table class="table table-hover table-bordered">
+										<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+										<thead class="text-white text-nowrap">
+											<tr class="text-center">
+																		
+												<th scope="col" class="table-dark text-center align-middle" style="">Grupos Almacenes</th>
+												<th scope="col" class="table-dark d-flex justify-content-between align-items-center" style="">
+													Acción
+													<div class="dropdown">
+														<button class="btn btn-dark  dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+														</button>
+														<ul class="dropdown-menu">
+															<li data-bs-toggle="modal" data-bs-target="#modalNuevoGrupo"><a class="dropdown-item" href="#" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i> Añadir Grupo</a></li>
+														</ul>
+													</div>
+												</th>
+											</tr>
+										</thead>
+										<tbody class="text-nowrap">
+																
+											<tr>
+																		
+												<td class="align-middle">Grupo Norte Artefacta</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalModificarGrupo" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalEliminarGrupo" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+																		
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+																		
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+																		
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td class="align-middle">Nombre Grupo Almacen</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+															<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+														
+																	
+										</tbody>
+									</table>
+								</div>
+													
+							</div>
+												
+							<div class="col-7 mx-0 my-2">
+													
+																	
+								<div class="table-responsive" style="height: 350px">
+									<table class="table table-hover table-bordered ">
+										<caption class="caption-top  text-center px-3 border">Almacenes Asignados a:  Grupo Norte Artefacta</caption>
+										<thead class="text-white text-nowrap">
+											<tr class="text-center">
+																					
+												<th scope="col" class="table-dark text-center align-middle" style="">Almacen</th>
+												<th scope="col" class="table-dark d-flex justify-content-between align-items-center" style="">
+													Acción
+													<div class="dropdown">
+														<button class="btn btn-dark  dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+														</button>
+														<ul class="dropdown-menu">
+															<li data-bs-toggle="modal" data-bs-target="#modalNuevoAlmacen"><a class="dropdown-item" href="#" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i> Añadir Almacen</a></li>
+														</ul>
+													</div>
+												</th>
+											</tr>
+										</thead>
+										<tbody class="text-nowrap">
+																			
+											<tr>
+																					
+												<td class="align-middle">Mall del Sol</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalEliminarAlmacen" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+																				
+											<tr>
+																			
+												<td class="align-middle">Riocentro Norte</td>
+												<td class="align-middle">
+													<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+														<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+															<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalEliminarAlmacen" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+														</div>
+													</div>
+												</td>
+											</tr>
+																				
+																				
+																	
+																				
+										</tbody>
+									</table>
+								</div>
+																
+														
+							</div>
+													
+													
+						</div>
+										  
+					</div>
+				</div>
+									  						  								  								  
+			</div>
+								  
+			<div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
+				<div class="col-12  mt-1">
+					<div class="row">
+						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
+							Configuración de Medios de Pagos
+						</div>
+					</div>
+																																								
+					<div class="row">
+																
+						<div class="table-responsive d-flex justify-content-center" style="height: 450px">
+							<table class="table table-hover table-bordered w-75">
+								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+								<thead class="text-white text-nowrap">
+									<tr class="text-center">
+																
+										<th class="table-dark text-center align-middle">Medios de Pagos</th>
+										<th class="table-dark d-flex justify-content-center">
+											Acción
+											<div class="dropdown">
+												<button class="btn btn-dark  dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"> </button>
+												<ul class="dropdown-menu">
+													<li data-bs-toggle="modal" data-bs-target="#modalNuevoMedioPago"><a class="dropdown-item" href="#" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i> Añadir Medio Pago</a></li>
+												</ul>
+											</div>
+										</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+														
+									<tr class="m-0 p-0">
+																
+										<td class="align-middle">Visa Platinium Banco Pichincha</td>
+										<td class="">
+																	
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalModificaMedioPago" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalEliminaMedioPago" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+																	
+										</td>
+									</tr>
+									<tr>
+																
+										<td class="align-middle">Efectivo</td>
+										<td class="">
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+																
+										<td class="align-middle">Credito Propio</td>
+										<td class="">
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+																
+										<td class="align-middle">Mastercard Pacificard</td>
+										<td class="">
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="align-middle">Diners Club</td>
+										<td class="">
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="align-middle">American Expres Banco Guayaquil</td>
+										<td class="">
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" title="Modificar" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+										</td>
+									</tr>
+															
+												
+															
+								</tbody>
+							</table>
+						</div>
+											
+					</div>
+				</div>
+			</div>
+								  
+			<div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">
+				<div class="col-12  mt-1">
+					<div class="row">
+						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
+							No. máximo de Aportes permitidos por Marca
+						</div>
+					</div>
+																																								
+					<div class="row">
+																
+						<div class="table-responsive d-flex justify-content-center">
+							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 75%;">
+								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+								<thead class="text-white text-nowrap">
+									<tr class="">
+																
+										<th class="table-primary text-center align-middle" style="width: 55%;">Marca</th>
+										<th class="table-primary text-center align-middle" style="width: 20%;">No. Aportes</th>
+										<th class="table-primary text-center align-middle" style="width: 25%;">
+											Acción
+																 
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoAporteMarca" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
+																		  		
+																
+																
+																					
+										</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+														
+									<tr class="m-0 p-0">
+																
+										<td class="align-middle">SONY</td>
+										<td class="align-middle">2</td>
+										<td class="">
+																	
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalModificarAporteMarca" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalEliminarAporteMarca" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+																	
+										</td>
+									</tr>
+															
+															
+												
+															
+								</tbody>
+							</table>
+						</div>
+											
+					</div>
+				</div>
+			</div>
+								  
+			<div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">
+				<div class="col-12  mt-1">
+					<div class="row">
+						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
+							No. máximo de Aportes permitidos por Proveedor/Marca
+						</div>
+					</div>
+																																								
+					<div class="row">
+																
+						<div class="table-responsive d-flex justify-content-center">
+							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
+								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+								<thead class="text-white text-nowrap">
+									<tr class="">
+										<th class="table-primary text-center align-middle" style="width: 50%;">Proveedor</th>
+										<th class="table-primary text-center align-middle" style="width: 20%;">Marca</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;">No. Aportes</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;">
+											Acción
+																 
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoAporteMarcaProveedor" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
+																		  		
+																
+																
+																					
+										</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+														
+									<tr class="m-0 p-0">
+																
+										<td class="align-middle">0190007510001-ALMACENES JUAN ELJURI CIA. LTDA</td>
+										<td class="align-middle">SONY</td>
+										<td class="align-middle">2</td>
+										<td class="">
+																	
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalModificarAporteMarcaProveedor" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalEliminarAporteMarcaProveedor" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+																	
+										</td>
+									</tr>
+															
+															
+												
+															
+								</tbody>
+							</table>
+						</div>
+											
+					</div>
+				</div>
+								  
+								  
+			</div>
+								  
+			<div class="tab-pane fade" id="list-aporte-propio-articulo" role="tabpanel" aria-labelledby="list-aporte-propio-articulo-list">
+				<div class="col-12  mt-1">
+					<div class="row">
+						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
+							No. máximo de Aportes Propios Permitidos por Articulo
+						</div>
+					</div>
+																																								
+					<div class="row">
+																
+						<div class="table-responsive d-flex justify-content-center">
+							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
+								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+								<thead class="text-white text-nowrap">
+									<tr class="">
+																
+										<th class="table-primary text-center align-middle" style="width: 70%;">Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;">No. Aportes</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;">
+											Acción
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoAportePropioArticulo" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
+										</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+														
+									<tr class="m-0 p-0">
+																
+										<td class="align-middle">10203040-TV 65 Pulgadas Smart SONY 4k</td>
+										<td class="align-middle">2</td>
+										<td class="">
+																	
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalModificarAportePropioArticulo" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalEliminarAportePropioArticulo" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+																	
+										</td>
+									</tr>
+															
+															
+												
+															
+								</tbody>
+							</table>
+						</div>
+											
+					</div>
+				</div>
+			</div>
+								  
+			<div class="tab-pane fade" id="list-precio-competencia" role="tabpanel" aria-labelledby="list-precio-competencia-list">
+				<div class="col-12  mt-1">
+					<div class="row">
+						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
+							Precios de la Competencia por Articulo
+						</div>
+					</div>
+																																								
+					<div class="row">
+																
+						<div class="table-responsive d-flex justify-content-center">
+							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
+								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+								<thead class="text-white text-nowrap">
+									<tr class="">
+																
+										<th class="table-primary text-center align-middle" style="width: 40%;">Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 30%;">Nombre Competencia</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;">Precio Contado</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;">
+											Acción
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoPrecioCompetenciaArticulo" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
+										</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+														
+									<tr class="m-0 p-0">
+																
+										<td class="align-middle">10203040-TV 65 Pulgadas Smart SONY 4k</td>
+										<td class="align-middle">COMANDATO</td>
+										<td class="align-middle">1,547.46</td>
+										<td class="">
+																	
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalModificarPrecioCompetenciaArticulo" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalEliminarPrecioCompetenciaArticulo" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+																	
+										</td>
+									</tr>
+															
+															
+												
+															
+								</tbody>
+							</table>
+						</div>
+											
+					</div>
+				</div>
+			</div>
+								  
+			<div class="tab-pane fade" id="list-margen-minimo-articulo" role="tabpanel" aria-labelledby="list-margen-minimo-articulo-list">
+				<div class="col-12  mt-1">
+					<div class="row">
+						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
+							Margen Mínimo por Articulo
+						</div>
+					</div>
+																																								
+					<div class="row">
+																
+						<div class="table-responsive d-flex justify-content-center">
+							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
+								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+								<thead class="text-white text-nowrap">
+									<tr class="">
+																
+										<th class="table-primary text-center align-middle" style="width: 40%;">Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 12%;">% Contado</th>
+										<th class="table-primary text-center align-middle" style="width: 12%;">% Tarj.Cr</th>
+										<th class="table-primary text-center align-middle" style="width: 12%;">% Crédito</th>
+										<th class="table-primary text-center align-middle" style="width: 12%;">% Igualar</th>
+										<th class="table-primary text-center align-middle" style="width: 12%;">
+											Acción
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoMargenMinimoArticulo" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
+										</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+														
+									<tr class="m-0 p-0">
+																
+										<td class="align-middle">10203040-TV 65 Pulgadas Smart SONY 4k</td>
+										<td class="align-middle">2.62 %</td>
+										<td class="align-middle">3.00 %</td>
+										<td class="align-middle">2.50 %</td>
+										<td class="align-middle">2.15 %</td>
+										<td class="">
+																	
+											<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+												<div class="btn-group btn-group-sm" role="group" aria-label="First group">
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalModificarMargenMinimoArticulo" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>
+													<button type="button" class="btn-action edit-btn" data-bs-toggle="modal" data-bs-target="#modalEliminarMargenMinimoArticulo" style="border:none; background:none; color:red"><i class="fa-solid fa-trash"></i></button>
+												</div>
+											</div>
+																	
+										</td>
+									</tr>
+															
+															
+												
+															
+								</tbody>
+							</table>
+						</div>
+											
+					</div>
+				</div>
+			</div>
+								  
+			<div class="tab-pane fade" id="list-porcentaje-incremento-precios" role="tabpanel" aria-labelledby="list-porcentaje-incremento-precios-list">
+				<div class="col-12  mt-1">
+					<div class="row">
+						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
+							Porcentaje de Incremento para Precios de Artículos
+						</div>
+					</div>
+					<br />
+					<br />
+																																			
+					<form class="row g-1 justify-content-center align-items-center ">
+									  
+						<!-- linea 1 -->
+												
+														
+												
+						<div class="col-md-2 text-center">
+							<label for="inputMargenContado" class="form-label fw-bold  ">% Con Tarj.Cr</label>
+							<input type="text" class="form-control " id="inputMargenContado" placeholder="99.99 %" value="">
+						</div>
+												
+						<div class="col-md-2 text-center">
+							<label for="inputMargenCredito" class="form-label fw-bold  ">% Con Crédito</label>
+							<input type="text" class="form-control " id="inputMargenCredito" placeholder="99.99 %" value="">
+						</div>
+
+												
+
+																								
+												
+					</form>
+					<div class="row m-4 border-top justify-content-center">
+						<div class="col-auto">
+							<button type="submit" class="btn btn-primary m-2">Grabar</button>
+							<button type="submit" class="btn btn-secondary m-2">Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+								  
+			<div class="tab-pane fade" id="list-otros-costos-articulo" role="tabpanel" aria-labelledby="list-otros-costos-articulo">Otros Costos</div>
+								  
+								
+								
+								
+								
+		</div>
+	</div>
+</div>

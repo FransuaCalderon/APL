@@ -29,6 +29,7 @@ namespace AppAPL.AccesoDatos.IoC
             services.AddScoped<IAprobacionRepositorio, AprobacionRepositorio>();
             services.AddScoped<IAcuerdoRepositorio, AcuerdoRepositorio>();
             services.AddScoped<IPromocionRepositorio, PromocionRepositorio>();
+            services.AddScoped<IParametrizacionRepositorio, ParametrizacionRepositorio>();
             return services;
         }
     }
