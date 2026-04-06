@@ -124,7 +124,9 @@ namespace AppAPL.Dto.Acuerdo
         public decimal M1_D { get; set; }
         public int M2_U { get; set; }
         public decimal M2_D { get; set; }
-        
+        public int M12_U { get; set; }
+        public decimal M12_D { get; set; }
+
     }
 
     public class BandejaAprobacionAcuerdoDTO
