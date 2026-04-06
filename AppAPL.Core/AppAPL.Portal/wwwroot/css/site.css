@@ -124,9 +124,11 @@ div.dt-container .dt-paging .dt-paging-button {
 }
 
 div.dt-container .dt-paging .dt-paging-button.current,
-div.dt-container .dt-paging .dt-paging-button.current:hover {
+div.dt-container .dt-paging .dt-paging-button.current:hover,
+div.dt-container .dt-paging .dt-paging-button.current *,
+div.dt-container .dt-paging .dt-paging-button.current:hover * {
     background: #0d2d6d !important;
-    color: white !important;
+    color: #ffffff !important;
     border-radius: .25rem;
 }
 
@@ -191,17 +193,13 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
     border-radius: .25rem;
 }
 
-/* === ESTILOS PARA PAGINADOR DE DATATABLES === */
 .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-    color: white !important;
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current *,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover * {
+    color: #ffffff !important;
     background: #1e3a8a !important;
     border: 1px solid #1e3a8a !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button.current a,
-.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover a {
-    color: white !important;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button {
@@ -1302,4 +1300,15 @@ body .modal-dialog .modal-content .modal-body .col-md-12 {
 /* Hover suave para filas */
 .tabla-bandeja tbody tr:hover {
     background-color: rgba(13, 45, 109, 0.05) !important;
+}
+
+/* FORZAR TEXTO BLANCO EN LA PÁGINA ACTIVA - MÁXIMA PRIORIDAD */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current a,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover a,
+div.dt-container .dt-paging .dt-paging-button.current,
+div.dt-container .dt-paging .dt-paging-button.current:hover,
+.page-item.active .page-link {
+    color: #ffffff !important;
 }

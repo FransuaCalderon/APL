@@ -40,6 +40,21 @@
         float: none !important;
         padding-top: 0.5rem;
     }
+
+    table.dataTable + .dataTables_paginate .paginate_button.current,
+    table.dataTable + .dataTables_paginate .paginate_button.current:hover,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        /* background: white !important; <-- ELIMINA ESTA LÍNEA para no perder tu fondo azul */
+        background-image: none !important;
+        color: white !important; /* <--- CAMBIA DE #333 A white AQUÍ */
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current a {
+            color: white !important;
+        }
 </style>
 
 <div class="table-responsive">
