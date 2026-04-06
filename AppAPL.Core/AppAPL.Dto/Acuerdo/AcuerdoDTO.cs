@@ -126,6 +126,7 @@ namespace AppAPL.Dto.Acuerdo
         public decimal M2_D { get; set; }
         public int M12_U { get; set; }
         public decimal M12_D { get; set; }
+        public int DIAS_ANTIGUEDAD { get; set; }
 
     }
 
