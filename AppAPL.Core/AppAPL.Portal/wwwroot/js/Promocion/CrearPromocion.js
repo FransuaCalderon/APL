@@ -420,9 +420,6 @@
                     let nom = (m.nombre || "").toUpperCase();
                     return nom !== "TODOS" && nom !== "TODAS" && m.codigo !== "0";
                 });
-                /*
-                const resAlmacenes = await consultarAlmacenes();
-                const listaAlmacenes = resAlmacenes.json_response || [];*/
 
                 llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
                 llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo", "Todos");
@@ -496,15 +493,13 @@
             endpoint_query_params: codigoGrupo ? `/${codigoGrupo}` : ""
         };
 
-        // Retornamos el $.ajax directamente (que es una Promesa)
         $.ajax({
             url: "/api/apigee-router-proxy",
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify(payload),
             success: function (response) {
-                const listaAlmacenes = response.json_response || []
-
+                const listaAlmacenes = response.json_response || [];
                 console.log("cantidad de almacenes consultados: ", listaAlmacenes.length);
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen", "Todos");
                 $("#filtroAlmacenArticulos").html($("#filtroAlmacenGeneral").html());
@@ -1083,8 +1078,8 @@
                         formatCurrencySpanish(item.m1_s || item.m1_d || 0),
                         item.m2_u || 0,
                         formatCurrencySpanish(item.m2_s || item.m2_d || 0),
-                        item.m12_u || 0, // ✅ NUEVO
-                        formatCurrencySpanish(item.m12_s || item.m12_d || 0) // ✅ NUEVO
+                        item.m12_u || 0,
+                        formatCurrencySpanish(item.m12_s || item.m12_d || 0)
                     ];
                 });
 
@@ -1109,103 +1104,65 @@
         });
     }
 
-    // Reemplaza el bloque de agregarItemsATablaArticulos:
-    function agregarItemsATablaArticulos(items) {
-        const $tbody = $("#tablaArticulosBody");
-        let itemsNuevos = 0;
-
-        items.forEach(item => {
-            const existe = $tbody.find(`tr[data-codigo="${item.codigo}"]`).length > 0;
-            if (existe) return;
-
-            itemsNuevos++;
-            const fila = `
-        <tr data-codigo="${item.codigo}">
-            <td class="text-center align-middle">
-                <input type="radio" class="form-check-input item-row-radio" name="itemArticuloSel">
-            </td>
-            <td class="align-middle table-sticky-col">${item.codigo} - ${item.descripcion}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(item.costo)}</td>
-            <td class="align-middle text-end">${item.stock || 0}</td>
-            <td class="align-middle text-end">0</td>
-            <td class="align-middle text-end">${item.optimo || 0}</td>
-            <td class="align-middle text-end">${item.excedenteu || 0}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(item.excedentes || 0)}</td>
-            <td class="align-middle text-end">${item.m0u || 0}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(item.m0s || 0)}</td>
-            <td class="align-middle text-end">${item.m1u || 0}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(item.m1s || 0)}</td>
-            <td class="align-middle text-end">${item.m2u || 0}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(item.m2s || 0)}</td>
-            <td class="align-middle text-end">${item.m12u || 0}</td> <td class="align-middle text-end">${formatCurrencySpanish(item.m12s || 0)}</td> <td class="align-middle text-end">0</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0" min="0" disabled></td>
-            <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0" min="0" disabled></td>
-            <td class="align-middle celda-editable">
-                <select class="form-select form-select-sm select-mediopago-articulo" disabled>
-                    ${$("#filtroMedioPagoGeneral").html()}
-                </select>
-            </td>
-            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" disabled>
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-            </td>
-           <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-rebate" placeholder="0.00" disabled></td>
-           <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFREBATE" disabled>
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-            </td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio" placeholder="0.00" disabled></td>
-            <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" disabled>
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-            </td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
-            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
-            <td class="align-middle celda-editable text-center"><input class="form-check-input" type="checkbox" disabled></td>
-        </tr>`;
-            $tbody.append(fila);
-        });
-
-        if (itemsNuevos > 0 && $tbody.find(".item-row-radio:checked").length === 0) {
-            const $primeraFila = $tbody.find("tr").first();
-            $primeraFila.find(".item-row-radio").prop("checked", true).trigger("change");
-        }
-    }
+    // ==========================================
+    // AGREGAR ITEMS A TABLA ARTÍCULOS (CON NUEVOS CAMPOS)
+    // ==========================================
+    // MAPA DE INDICES DE COLUMNAS (td:eq):
+    // 0:  Sel (radio)
+    // 1:  Artículo (codigo - descripcion)
+    // 2:  Costo
+    // 3:  Stock Bodega
+    // 4:  Stock Tienda
+    // 5:  Inv. Óptimo
+    // 6:  Excedente(u)
+    // 7:  Excedente($)
+    // 8:  Vta M-0(u)
+    // 9:  Vta M-0($)
+    // 10: Vta M-1(u)
+    // 11: Vta M-1($)
+    // 12: Vta M-2(u)
+    // 13: Vta M-2($)
+    // 14: Vta M-12(u)
+    // 15: Vta M-12($)
+    // 16: Vta Igualar
+    // 17: Dias Igualar
+    // 18: Marg.Min Contado
+    // 19: Marg.Min TC
+    // 20: Marg.Min Crédito
+    // 21: Marg.Min Igualar
+    // 22: Unidades Límite (input)
+    // 23: Proyección Vtas (input)
+    // 24: Medio de Pago (select)
+    // 25: Precio Lista
+    // 26: Precio Promo Contado (input)
+    // 27: Precio Promo TC (input)
+    // 28: Precio Promo Crédito (input)
+    // 29: Precio Igualar (input)
+    // 30: Dscto Promo Contado
+    // 31: Dscto Promo TC
+    // 32: Dscto Promo Crédito
+    // 33: Dscto Igualar
+    // 34: Aporte Proveedor (input .aporte-proveedor)
+    // 35: Aporte Prov. ID Acuerdo (.acuerdo-prov1-hidden)
+    // 36: Aporte 2 Proveedor (input .aporte-proveedor2)
+    // 37: Aporte 2 Prov. ID Acuerdo (.acuerdo-prov2-hidden)
+    // 38: Aporte Rebate (input .aporte-rebate)
+    // 39: Aporte Rebate ID Acuerdo (.acuerdo-rebate-hidden)
+    // 40: Aporte Propio (input .aporte-propio)
+    // 41: Aporte Propio ID Acuerdo (.acuerdo-propio1-hidden)
+    // 42: Aporte Propio 2 (input .aporte-propio2)
+    // 43: Aporte 2 Propio ID Acuerdo (.acuerdo-propio2-hidden)
+    // 44: Margen Precio Lista
+    // 45: Margen Promo Contado
+    // 46: Margen Promo TC
+    // 47: Margen Promo Crédito
+    // 48: Margen Igualar
+    // 49: Comp. Proveedor
+    // 50: Comp. Proveedor 2
+    // 51: Comp. Rebate
+    // 52: Comp. Propio
+    // 53: Comp. Propio 2
+    // 54: Regalo (checkbox)
 
     function agregarItemsATablaArticulos(items) {
         const $tbody = $("#tablaArticulosBody");
@@ -1234,6 +1191,9 @@
             <td class="align-middle text-end">${formatCurrencySpanish(item.m1s || 0)}</td>
             <td class="align-middle text-end">${item.m2u || 0}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(item.m2s || 0)}</td>
+            <td class="align-middle text-end">${item.m12u || 0}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.m12s || 0)}</td>
+            <td class="align-middle text-end">0</td>
             <td class="align-middle text-end">0</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
@@ -1255,41 +1215,77 @@
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
+
+            <!-- td 33: Aporte Proveedor -->
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor" placeholder="0.00" disabled></td>
+            <!-- td 34: Aporte Prov. ID Acuerdo -->
             <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" data-slot="1" disabled>
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </div>
             </td>
-           <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-rebate" placeholder="0.00" disabled></td>
-           <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="">
+            <!-- td 35: Aporte 2 Proveedor ✅ NUEVO -->
+            <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor2" placeholder="0.00" disabled></td>
+            <!-- td 36: Aporte 2 Prov. ID Acuerdo ✅ NUEVO -->
+            <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFREBATE" disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" data-slot="2" disabled>
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </div>
             </td>
+
+            <!-- td 37: Aporte Rebate -->
+            <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-rebate" placeholder="0.00" disabled></td>
+            <!-- td 38: Aporte Rebate ID Acuerdo -->
+            <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFREBATE" data-slot="1" disabled>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </td>
+
+            <!-- td 39: Aporte Propio -->
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio" placeholder="0.00" disabled></td>
+            <!-- td 40: Aporte Propio ID Acuerdo -->
             <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" data-slot="1" disabled>
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </div>
             </td>
+            <!-- td 41: Aporte Propio 2 ✅ NUEVO -->
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio2" placeholder="0.00" disabled></td>
+            <!-- td 42: Aporte 2 Propio ID Acuerdo ✅ NUEVO -->
+            <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" data-slot="2" disabled>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </td>
+
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
@@ -1304,66 +1300,72 @@
         }
     }
 
+    // ==========================================
+    // RECALCULAR FILA ARTÍCULO (CON NUEVOS CAMPOS)
+    // ==========================================
     function recalcularFilaArticulo($fila) {
-        // 1. Extraemos los valores de consulta de la tabla (Índice desplazado +2 desde la celda 14 en adelante)
         const costo = parseCurrency($fila.find("td:eq(2)").text());
-        const precioLista = parseCurrency($fila.find("td:eq(24)").text());
+        const precioLista = parseCurrency($fila.find("td:eq(25)").text());
 
-        // 2. Extraemos los precios ingresados por el usuario
-        const precioContado = parseCurrency($fila.find("td:eq(25) input").val());
-        const precioTC = parseCurrency($fila.find("td:eq(26) input").val());
-        const precioCredito = parseCurrency($fila.find("td:eq(27) input").val());
-        const precioIgualar = parseCurrency($fila.find("td:eq(28) input").val());
+        const precioContado = parseCurrency($fila.find("td:eq(26) input").val());
+        const precioTC = parseCurrency($fila.find("td:eq(27) input").val());
+        const precioCredito = parseCurrency($fila.find("td:eq(28) input").val());
+        const precioIgualar = parseCurrency($fila.find("td:eq(29) input").val());
 
-        // 3. Extraemos los aportes
         const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
+        const aporteProveedor2 = parseCurrency($fila.find(".aporte-proveedor2").val());
         const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
+        const aportePropio = parseCurrency($fila.find(".aporte-propio").val());
+        const aportePropio2 = parseCurrency($fila.find(".aporte-propio2").val());
 
-        // 4. Recuperamos los "Otros Costos" que se guardaron al darle "Aplicar" en el modal
         const otrosCostos = parseFloat($fila.data("total-otros-costos")) || 0;
 
-        // Unidades para proyecciones
-        const unidadesLimite = parseInt($fila.find("td:eq(21) input").val()) || 0;
-        const proyeccionVtas = parseInt($fila.find("td:eq(22) input").val()) || 0;
+        const unidadesLimite = parseInt($fila.find("td:eq(22) input").val()) || 0;
+        const proyeccionVtas = parseInt($fila.find("td:eq(23) input").val()) || 0;
         const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
 
-        // --- CÁLCULO DE DESCUENTOS ---
+        // --- CÁLCULO DE DESCUENTOS (td 30-33) ---
         const dsctoContado = precioLista - precioContado;
         const dsctoTC = precioLista - precioTC;
         const dsctoCredito = precioLista - precioCredito;
         const dsctoIgualar = precioLista - precioIgualar;
-        $fila.find("td:eq(29)").text(dsctoContado.toFixed(2));
-        $fila.find("td:eq(30)").text(dsctoTC.toFixed(2));
-        $fila.find("td:eq(31)").text(dsctoCredito.toFixed(2));
-        $fila.find("td:eq(32)").text(dsctoIgualar.toFixed(2));
+        $fila.find("td:eq(30)").text(dsctoContado.toFixed(2));
+        $fila.find("td:eq(31)").text(dsctoTC.toFixed(2));
+        $fila.find("td:eq(32)").text(dsctoCredito.toFixed(2));
+        $fila.find("td:eq(33)").text(dsctoIgualar.toFixed(2));
 
-        // --- CÁLCULO DE MARGEN PRECIO LISTA ---
+        // --- MARGEN PRECIO LISTA (td 44) ---
         const margenPL = precioLista > 0 ? ((precioLista - costo) / precioLista * 100) : 0;
-        $fila.find("td:eq(39)").text(margenPL.toFixed(2) + "%");
+        $fila.find("td:eq(44)").text(margenPL.toFixed(2) + "%");
 
-        // CÁLCULO DE MÁRGENES
+        // --- CÁLCULO DE MÁRGENES (td 45-48) ---
         const calcMargen = (precioPromocion) => {
-            const denominador = precioPromocion + aporteProveedor + aporteRebate;
+            const denominador = precioPromocion + aporteProveedor + aporteProveedor2 + aporteRebate;
             if (denominador > 0) {
                 return ((denominador - costo - otrosCostos) / denominador) * 100;
             }
             return 0;
         };
 
-        // Aplicamos la fórmula a cada columna de margen
-        $fila.find("td:eq(40)").text(calcMargen(precioContado).toFixed(2) + "%");
-        $fila.find("td:eq(41)").text(calcMargen(precioTC).toFixed(2) + "%");
-        $fila.find("td:eq(42)").text(calcMargen(precioCredito).toFixed(2) + "%");
-        $fila.find("td:eq(43)").text(calcMargen(precioIgualar).toFixed(2) + "%");
+        $fila.find("td:eq(45)").text(calcMargen(precioContado).toFixed(2) + "%");
+        $fila.find("td:eq(46)").text(calcMargen(precioTC).toFixed(2) + "%");
+        $fila.find("td:eq(47)").text(calcMargen(precioCredito).toFixed(2) + "%");
+        $fila.find("td:eq(48)").text(calcMargen(precioIgualar).toFixed(2) + "%");
 
         // --- CÁLCULO DE COMPROMETIDOS ---
-        $fila.find("td:eq(44)").text(formatCurrencySpanish(aporteProveedor * unidades));
-        $fila.find("td:eq(45)").text(formatCurrencySpanish(aporteRebate * unidades));
-        const aportePropio = parseCurrency($fila.find("td:eq(37) input").val());
-        $fila.find("td:eq(46)").text(formatCurrencySpanish(aportePropio * unidades));
+        // td 49: Comp. Proveedor
+        $fila.find("td:eq(49)").text(formatCurrencySpanish(aporteProveedor * unidades));
+        // td 50: Comp. Proveedor 2
+        $fila.find("td:eq(50)").text(formatCurrencySpanish(aporteProveedor2 * unidades));
+        // td 51: Comp. Rebate
+        $fila.find("td:eq(51)").text(formatCurrencySpanish(aporteRebate * unidades));
+        // td 52: Comp. Propio
+        $fila.find("td:eq(52)").text(formatCurrencySpanish(aportePropio * unidades));
+        // td 53: Comp. Propio 2
+        $fila.find("td:eq(53)").text(formatCurrencySpanish(aportePropio2 * unidades));
 
         // --- FORMATO VISUAL (Colores) ---
-        $fila.find("td:eq(29), td:eq(30), td:eq(31), td:eq(32), td:eq(39), td:eq(40), td:eq(41), td:eq(42), td:eq(43)").each(function () {
+        $fila.find("td:eq(30), td:eq(31), td:eq(32), td:eq(33), td:eq(44), td:eq(45), td:eq(46), td:eq(47), td:eq(48)").each(function () {
             const valor = parseFloat($(this).text());
             if (valor < 0) {
                 $(this).css("color", "#dc3545");
@@ -1500,14 +1502,16 @@
         });
     }
 
-    function abrirModalAcuerdoArticulo(tipoFondo, tituloModal, codigoItem, $inputDisplay, $inputId) {
+    function abrirModalAcuerdoArticulo(tipoFondo, tituloModal, codigoItem, $inputDisplay, $inputId, slot, $fila) {
         acuerdoArticuloTemporal = null;
         acuerdoArticuloContexto = {
             tipoFondo: tipoFondo,
             codigoItem: codigoItem,
             $inputDisplay: $inputDisplay,
             $inputId: $inputId,
-            idActual: $inputId.val()
+            idActual: $inputId.val(),
+            slot: slot || 1,
+            $fila: $fila
         };
 
         $("#tituloModalAcuerdoArticulo").text(tituloModal);
@@ -1518,7 +1522,6 @@
     }
 
     async function guardarPromocionArticulos() {
-        // [Las validaciones iniciales como fechas y archivo siguen igual hasta el $filas.each...]
         const motivo = $("#motivoArticulos").val();
         const desc = $("#descripcionArticulos").val();
         const fechaInicio = getFullISOString("#fechaInicioArticulos", "#timeInicioArticulos");
@@ -1575,18 +1578,19 @@
                 const m2u = parseInt($fila.find("td:eq(12)").text()) || 0;
                 const m2p = parseCurrency($fila.find("td:eq(13)").text());
 
-                // M-12 está en el HTML, pero no viaja en el objeto JSON de inserción según la versión que mostraste,
-                // Si sí lo debes enviar, los índices serían td:eq(14) y td:eq(15). 
+                // ✅ NUEVO: Capturar datos de M-12 que faltaban
+                const m12u = parseInt($fila.find("td:eq(14)").text()) || 0;
+                const m12p = parseCurrency($fila.find("td:eq(15)").text());
 
-                const igualarPrecio = parseCurrency($fila.find("td:eq(16)").text()); // INDICE ACTUALIZADO (+2)
+                const igualarPrecio = parseCurrency($fila.find("td:eq(16)").text());
 
-                const margenMinContado = parseFloat($fila.find("td:eq(17)").text()) || 0;
-                const margenMinTC = parseFloat($fila.find("td:eq(18)").text()) || 0;
-                const margenMinCredito = parseFloat($fila.find("td:eq(19)").text()) || 0;
-                const margenMinIgualar = parseFloat($fila.find("td:eq(20)").text()) || 0;
+                const margenMinContado = parseFloat($fila.find("td:eq(18)").text()) || 0;
+                const margenMinTC = parseFloat($fila.find("td:eq(19)").text()) || 0;
+                const margenMinCredito = parseFloat($fila.find("td:eq(20)").text()) || 0;
+                const margenMinIgualar = parseFloat($fila.find("td:eq(21)").text()) || 0;
 
-                const unidadesLimite = parseInt($fila.find("td:eq(21) input").val()) || 0;
-                const proyeccionVtas = parseInt($fila.find("td:eq(22) input").val()) || 0;
+                const unidadesLimite = parseInt($fila.find("td:eq(22) input").val()) || 0;
+                const proyeccionVtas = parseInt($fila.find("td:eq(23) input").val()) || 0;
 
                 if (unidadesLimite > 0 && proyeccionVtas > 0) {
                     errorFila = `Fila ${numFila}: Solo debe ingresar valor en Unidades Límite O Proyección Vtas, no en ambas.`;
@@ -1597,42 +1601,58 @@
                     return false;
                 }
 
-                const $selectMedioPago = $fila.find("td:eq(23) select");
+                const $selectMedioPago = $fila.find("td:eq(24) select");
                 const medioPagoVal = $selectMedioPago.val();
 
-                const precioLista = parseCurrency($fila.find("td:eq(24)").text());
-                const precioPromoContado = parseCurrency($fila.find("td:eq(25) input").val());
-                const precioPromoTC = parseCurrency($fila.find("td:eq(26) input").val());
-                const precioPromoCredito = parseCurrency($fila.find("td:eq(27) input").val());
-                const precioIgualarPromo = parseCurrency($fila.find("td:eq(28) input").val());
+                const precioLista = parseCurrency($fila.find("td:eq(25)").text());
+                const precioPromoContado = parseCurrency($fila.find("td:eq(26) input").val());
+                const precioPromoTC = parseCurrency($fila.find("td:eq(27) input").val());
+                const precioPromoCredito = parseCurrency($fila.find("td:eq(28) input").val());
+                const precioIgualarPromo = parseCurrency($fila.find("td:eq(29) input").val());
 
-                const dsctoContado = parseFloat($fila.find("td:eq(29)").text()) || 0;
-                const dsctoTC = parseFloat($fila.find("td:eq(30)").text()) || 0;
-                const dsctoCredito = parseFloat($fila.find("td:eq(31)").text()) || 0;
-                const dsctoIgualar = parseFloat($fila.find("td:eq(32)").text()) || 0;
+                const dsctoContado = parseFloat($fila.find("td:eq(30)").text()) || 0;
+                const dsctoTC = parseFloat($fila.find("td:eq(31)").text()) || 0;
+                const dsctoCredito = parseFloat($fila.find("td:eq(32)").text()) || 0;
+                const dsctoIgualar = parseFloat($fila.find("td:eq(33)").text()) || 0;
 
                 const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
-                const idAcuerdoProveedor = parseInt($fila.find("td:eq(34) .acuerdo-id-hidden").val()) || 0;
+                const idAcuerdoProveedor = parseInt($fila.find(".acuerdo-prov1-hidden").val()) || 0;
+
+                const aporteProveedor2 = parseCurrency($fila.find(".aporte-proveedor2").val());
+                const idAcuerdoProveedor2 = parseInt($fila.find(".acuerdo-prov2-hidden").val()) || 0;
+
                 const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
-                const idAcuerdoRebate = parseInt($fila.find("td:eq(36) .acuerdo-id-hidden").val()) || 0;
+                const idAcuerdoRebate = parseInt($fila.find(".acuerdo-rebate-hidden").val()) || 0;
+
                 const aportePropio = parseCurrency($fila.find(".aporte-propio").val());
-                const idAcuerdoPropio = parseInt($fila.find("td:eq(38) .acuerdo-id-hidden").val()) || 0;
+                const idAcuerdoPropio = parseInt($fila.find(".acuerdo-propio1-hidden").val()) || 0;
 
-                const margenPrecioLista = parseFloat($fila.find("td:eq(39)").text()) || 0;
-                const margenPromoContado = parseFloat($fila.find("td:eq(40)").text()) || 0;
-                const margenPromoTC = parseFloat($fila.find("td:eq(41)").text()) || 0;
-                const margenPromoCredito = parseFloat($fila.find("td:eq(42)").text()) || 0;
-                const margenIgualar = parseFloat($fila.find("td:eq(43)").text()) || 0;
+                const aportePropio2 = parseCurrency($fila.find(".aporte-propio2").val());
+                const idAcuerdoPropio2 = parseInt($fila.find(".acuerdo-propio2-hidden").val()) || 0;
 
-                const regalo = $fila.find("td:eq(47) input[type='checkbox']").is(":checked") ? "S" : "N";
+                // ✅ NUEVO: Leer las celdas de Valores Comprometidos
+                const compProveedor = parseCurrency($fila.find("td:eq(49)").text());
+                const compProveedor2 = parseCurrency($fila.find("td:eq(50)").text());
+                const compRebate = parseCurrency($fila.find("td:eq(51)").text());
+                const compPropio = parseCurrency($fila.find("td:eq(52)").text());
+                const compPropio2 = parseCurrency($fila.find("td:eq(53)").text());
 
-                // Formateo de acuerdos
+                const margenPrecioLista = parseFloat($fila.find("td:eq(44)").text()) || 0;
+                const margenPromoContado = parseFloat($fila.find("td:eq(45)").text()) || 0;
+                const margenPromoTC = parseFloat($fila.find("td:eq(46)").text()) || 0;
+                const margenPromoCredito = parseFloat($fila.find("td:eq(47)").text()) || 0;
+                const margenIgualar = parseFloat($fila.find("td:eq(48)").text()) || 0;
+
+                const regalo = $fila.find("td:eq(54) input[type='checkbox']").is(":checked") ? "S" : "N";
+
+                // ✅ MODIFICADO: Formateo de acuerdos incluyendo el "valorcomprometido"
                 const acuerdosArticulo = [];
-                if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor });
-                if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoRebate, valoraporte: aporteRebate });
-                if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio, valoraporte: aportePropio });
+                if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor, valorcomprometido: compProveedor, etiqueta_tipo_fondo: "TFPROVEDOR" });
+                if (idAcuerdoProveedor2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor2, valoraporte: aporteProveedor2, valorcomprometido: compProveedor2, etiqueta_tipo_fondo: "TFPROVEDOR" });
+                if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoRebate, valoraporte: aporteRebate, valorcomprometido: compRebate, etiqueta_tipo_fondo: "TFREBATE" });
+                if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio, valoraporte: aportePropio, valorcomprometido: compPropio, etiqueta_tipo_fondo: "TFPROPIO" });
+                if (idAcuerdoPropio2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio2, valoraporte: aportePropio2, valorcomprometido: compPropio2, etiqueta_tipo_fondo: "TFPROPIO" });
 
-                // Formateo de medios de pago alineado a tu JSON
                 const mediosPago = [];
                 const mediosPagoSeleccionados = $selectMedioPago.data("seleccionados") || [];
 
@@ -1649,7 +1669,6 @@
                     mediosPago.push({ tipoasignacion: "T", codigos: [] });
                 }
 
-                // 👇 LÓGICA DE OTROS COSTOS: Mapeo de "codigo" a "codigoparametro" y "valor" a "costo"
                 const otrosCostosGuardados = $fila.data("detalle-otros-costos") || [];
                 const otrosCostosMapeados = otrosCostosGuardados.map(oc => {
                     return {
@@ -1658,7 +1677,6 @@
                     };
                 });
 
-                // Construcción de la fila de artículo con todo en MINÚSCULAS igual que en tu JSON
                 articulos.push({
                     codigoitem: String(codigo),
                     descripcion: $fila.find("td:eq(1)").text(),
@@ -1674,6 +1692,9 @@
                     m1precio: m1p,
                     m2unidades: m2u,
                     m2precio: m2p,
+                    // ✅ AÑADIDO M-12 al JSON
+                    m12unidades: m12u,
+                    m12precio: m12p,
                     igualarprecio: igualarPrecio,
                     diasantiguedad: 0,
                     margenminimocontado: margenMinContado,
@@ -1701,7 +1722,7 @@
                     marcaregalo: regalo,
                     mediospago: mediosPago,
                     acuerdos: acuerdosArticulo,
-                    otroscostos: otrosCostosMapeados // El arreglo formateado
+                    otroscostos: otrosCostosMapeados
                 });
             });
 
@@ -1901,7 +1922,6 @@
                 $tbody.empty();
 
                 if (!data.length) {
-                    // ✅ Cambiamos el colspan a 3
                     $tbody.html('<tr><td colspan="3" class="text-center text-muted">No hay otros costos aplicables.</td></tr>');
                 } else {
                     data.forEach(item => {
@@ -1923,12 +1943,10 @@
             });
         });
 
-        // ✅ NUEVO: LÓGICA PARA EL BOTÓN APLICAR
         $("#btnAplicarOtrosCostos").off("click").on("click", function () {
             let totalOtrosCostos = 0;
             let seleccionados = [];
 
-            // Sumamos los valores de los checkboxes marcados
             $("#tbodyOtrosCostos .chk-otro-costo:checked").each(function () {
                 const valor = parseFloat($(this).data("valor")) || 0;
                 totalOtrosCostos += valor;
@@ -1940,12 +1958,10 @@
                 });
             });
 
-            // Guardamos el total y el arreglo en la fila del artículo activo
             const $filaArticulo = $("#tablaArticulosBody .item-row-radio:checked").closest("tr");
             $filaArticulo.data("total-otros-costos", totalOtrosCostos);
-            $filaArticulo.data("detalle-otros-costos", seleccionados); // Por si necesitas enviar este detalle a BD luego
+            $filaArticulo.data("detalle-otros-costos", seleccionados);
 
-            // Mandamos a recalcular los márgenes de esa fila
             recalcularFilaArticulo($filaArticulo);
 
             $("#modalOtrosCostos").modal("hide");
@@ -1959,12 +1975,8 @@
     // ==========================================
     // INIT
     // ==========================================
-
-    //AQUI SERIA EL DOCUMENT READY
     $(function () {
         console.log("=== CrearPromocion JS Loaded ===");
-
-        
 
         // ==========================================
         // LÓGICA DE SELECCIÓN DE FILA (HABILITAR CAMPOS AMARILLOS)
@@ -1972,27 +1984,31 @@
         $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
             $("#tablaArticulosBody tr").removeClass("table-active");
             $("#tablaArticulosBody .celda-editable input, #tablaArticulosBody .celda-editable button, #tablaArticulosBody .celda-editable select").prop("disabled", true);
-            $("#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio").prop("disabled", true);
+            $("#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-proveedor2, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio, #tablaArticulosBody .aporte-propio2").prop("disabled", true);
             $("#tablaArticulosBody td:last-child input[type='checkbox']").prop("disabled", true).css("pointer-events", "none");
 
             const $fila = $(this).closest("tr");
             $fila.addClass("table-active");
 
-            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").not(".aporte-proveedor, .aporte-rebate, .aporte-propio").prop("disabled", false);
+            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").not(".aporte-proveedor, .aporte-proveedor2, .aporte-rebate, .aporte-propio, .aporte-propio2").prop("disabled", false);
 
-            // ✅ SE AJUSTARON LOS ÍNDICES POR LA INCLUSIÓN DE LAS NUEVAS CELDAS (34, 36, 38)
-            const tieneProvedor = $fila.find("td:eq(34) .acuerdo-id-hidden").val();
-            const tieneRebate = $fila.find("td:eq(36) .acuerdo-id-hidden").val();
-            const tienePropio = $fila.find("td:eq(38) .acuerdo-id-hidden").val();
+            // Habilitar aportes solo si tienen acuerdo seleccionado
+            const tieneProvedor = $fila.find(".acuerdo-prov1-hidden").val();
+            const tieneProvedor2 = $fila.find(".acuerdo-prov2-hidden").val();
+            const tieneRebate = $fila.find(".acuerdo-rebate-hidden").val();
+            const tienePropio = $fila.find(".acuerdo-propio1-hidden").val();
+            const tienePropio2 = $fila.find(".acuerdo-propio2-hidden").val();
 
             if (tieneProvedor) $fila.find(".aporte-proveedor").prop("disabled", false);
+            if (tieneProvedor2) $fila.find(".aporte-proveedor2").prop("disabled", false);
             if (tieneRebate) $fila.find(".aporte-rebate").prop("disabled", false);
             if (tienePropio) $fila.find(".aporte-propio").prop("disabled", false);
+            if (tienePropio2) $fila.find(".aporte-propio2").prop("disabled", false);
 
             $fila.find("td:last-child input[type='checkbox']").prop("disabled", false).css("pointer-events", "auto");
         });
 
-        // INICIALIZACIÓN SELECT2 PARA COMBOS (ya que son estáticos en HTML)
+        // INICIALIZACIÓN SELECT2 PARA COMBOS
         aplicarSelect2($("#filtroCanalCombos"));
         aplicarSelect2($("#filtroGrupoAlmacenCombos"));
         aplicarSelect2($("#filtroAlmacenCombos"));
@@ -2003,7 +2019,6 @@
         initValidacionesFinancieras();
         initDatepickers();
         initBotonesServiciosArticulos();
-
 
         $("#filtroGrupoAlmacenGeneral, #filtroGrupoAlmacenArticulos").on("change", function () {
             const codigoAlmacen = $(this).val();
@@ -2129,8 +2144,8 @@
                         { title: "M-1($)", className: "align-middle text-end" },
                         { title: "M-2(u)", className: "align-middle text-center" },
                         { title: "M-2($)", className: "align-middle text-end" },
-                        { title: "M-12(u)", className: "align-middle text-center" }, // ✅ NUEVO
-                        { title: "M-12($)", className: "align-middle text-end" } // ✅ NUEVO
+                        { title: "M-12(u)", className: "align-middle text-center" },
+                        { title: "M-12($)", className: "align-middle text-end" }
                     ],
                     deferRender: true,
                     pageLength: 10,
@@ -2175,7 +2190,6 @@
             }
         });
 
-        // En el evento del botón btnSeleccionarItems
         $("#btnSeleccionarItems").on("click", function () {
             const items = [];
             const checkboxes = dtItemsConsultaPromo ? dtItemsConsultaPromo.$(".item-checkbox:checked") : $("#tablaItemsConsulta .item-checkbox:checked");
@@ -2188,7 +2202,7 @@
                     excedenteu: $c.data("excedenteu"), excedentes: $c.data("excedentes"),
                     m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"),
                     m2u: $c.data("m2u"), m2s: $c.data("m2s"),
-                    m12u: $c.data("m12u"), m12s: $c.data("m12s") // ✅ NUEVO
+                    m12u: $c.data("m12u"), m12s: $c.data("m12s")
                 });
             });
 
@@ -2259,34 +2273,82 @@
             });
         });
 
+        // ==========================================
+        // BUSCAR ACUERDO ARTÍCULO (CON SLOT 1/2)
+        // ==========================================
         $(document).on("click", ".btn-buscar-acuerdo-art", function () {
             const $btn = $(this);
             const tipoFondo = $btn.data("tipofondo");
+            const slot = parseInt($btn.data("slot")) || 1;
             const $fila = $btn.closest("tr");
             const codigoItem = $fila.data("codigo");
-            const $inputDisplay = $btn.closest(".input-group").find("input");
+            const $inputDisplay = $btn.closest(".input-group").find("input[type='text']");
             const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
 
-            const titulos = { "TFPROVEDOR": "Acuerdos - Fondo Proveedor", "TFREBATE": "Acuerdos - Fondo Rebate", "TFPROPIO": "Acuerdos - Fondo Propio" };
-            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId);
+            const titulos = {
+                "TFPROVEDOR": "Acuerdos - Fondo Proveedor" + (slot === 2 ? " (2)" : ""),
+                "TFREBATE": "Acuerdos - Fondo Rebate",
+                "TFPROPIO": "Acuerdos - Fondo Propio" + (slot === 2 ? " (2)" : "")
+            };
+            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, $fila);
         });
 
+        // ==========================================
+        // ACEPTAR ACUERDO ARTÍCULO (CON VALIDACIÓN DE DUPLICADOS)
+        // ==========================================
         $("#btnAceptarAcuerdoArticulo").on("click", function () {
             if (!acuerdoArticuloTemporal) {
                 Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return;
             }
 
             if (acuerdoArticuloContexto) {
+                const tipo = acuerdoArticuloContexto.tipoFondo;
+                const slot = acuerdoArticuloContexto.slot;
+                const $fila = acuerdoArticuloContexto.$fila;
+                const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo);
+
+                // ✅ VALIDACIÓN DE DUPLICADOS: No se puede seleccionar el mismo acuerdo en slot 1 y slot 2
+                if (tipo === "TFPROVEDOR") {
+                    const otroSlotClass = slot === 1 ? ".acuerdo-prov2-hidden" : ".acuerdo-prov1-hidden";
+                    const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
+                    if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Acuerdo Duplicado",
+                            text: `El acuerdo ${idSeleccionado} ya fue seleccionado en Aporte ${slot === 1 ? "2" : ""} Proveedor. Debe elegir un acuerdo diferente.`
+                        });
+                        return;
+                    }
+                } else if (tipo === "TFPROPIO") {
+                    const otroSlotClass = slot === 1 ? ".acuerdo-propio2-hidden" : ".acuerdo-propio1-hidden";
+                    const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
+                    if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Acuerdo Duplicado",
+                            text: `El acuerdo ${idSeleccionado} ya fue seleccionado en Aporte ${slot === 1 ? "2" : ""} Propio. Debe elegir un acuerdo diferente.`
+                        });
+                        return;
+                    }
+                }
+
+                // Setear valores en la fila
                 acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
                 acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
 
-                const $fila = acuerdoArticuloContexto.$inputId.closest("tr");
-                const tipo = acuerdoArticuloContexto.tipoFondo;
                 const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
 
-                if (tipo === "TFPROVEDOR") $fila.find(".aporte-proveedor").prop("disabled", false).attr("data-max", maxVal).val("");
-                else if (tipo === "TFREBATE") $fila.find(".aporte-rebate").prop("disabled", false).attr("data-max", maxVal).val("");
-                else if (tipo === "TFPROPIO") $fila.find(".aporte-propio").prop("disabled", false).attr("data-max", maxVal).val("");
+                if (tipo === "TFPROVEDOR" && slot === 1) {
+                    $fila.find(".aporte-proveedor").prop("disabled", false).attr("data-max", maxVal).val("");
+                } else if (tipo === "TFPROVEDOR" && slot === 2) {
+                    $fila.find(".aporte-proveedor2").prop("disabled", false).attr("data-max", maxVal).val("");
+                } else if (tipo === "TFREBATE") {
+                    $fila.find(".aporte-rebate").prop("disabled", false).attr("data-max", maxVal).val("");
+                } else if (tipo === "TFPROPIO" && slot === 1) {
+                    $fila.find(".aporte-propio").prop("disabled", false).attr("data-max", maxVal).val("");
+                } else if (tipo === "TFPROPIO" && slot === 2) {
+                    $fila.find(".aporte-propio2").prop("disabled", false).attr("data-max", maxVal).val("");
+                }
 
                 recalcularFilaArticulo($fila);
             }
@@ -2304,7 +2366,7 @@
             recalcularFilaArticulo($fila);
         });
 
-        $(document).on("blur", "#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio", function () {
+        $(document).on("blur", "#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-proveedor2, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio, #tablaArticulosBody .aporte-propio2", function () {
             const max = parseFloat($(this).attr("data-max")) || 0;
             const valor = parseCurrency($(this).val());
 
