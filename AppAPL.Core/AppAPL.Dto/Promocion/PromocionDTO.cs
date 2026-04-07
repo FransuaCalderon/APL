@@ -740,6 +740,8 @@ namespace AppAPL.Dto.Promocion
         public decimal m1Precio { get; set; }
         public int m2Unidades { get; set; }
         public decimal m2Precio { get; set; }
+        public int m12Unidades { get; set; }
+        public decimal m12Precio { get; set; }
         public decimal igualarPrecio { get; set; }
         public int diasAntiguedad { get; set; }
         public decimal margenMinimoContado { get; set; }
