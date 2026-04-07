@@ -643,6 +643,7 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloDTO
     {
+        // Identificación
         [Required]
         [StringLength(10)]
         public string codigoItem { get; set; } = string.Empty;
@@ -651,12 +652,15 @@ namespace AppAPL.Dto.Promocion
         [StringLength(100)]
         public string descripcion { get; set; } = string.Empty;
 
+        // Precios y Stocks
         public decimal costo { get; set; }
         public int stockBodega { get; set; }
         public int stockTienda { get; set; }
         public int inventarioOptimo { get; set; }
         public int excedenteUnidad { get; set; }
         public decimal excedenteValor { get; set; }
+
+        // Proyecciones y Límites
         public int m0Unidades { get; set; }
         public decimal m0Precio { get; set; }
         public int m1Unidades { get; set; }
@@ -667,6 +671,8 @@ namespace AppAPL.Dto.Promocion
         public decimal m12Precio { get; set; }
         public decimal igualarPrecio { get; set; }
         public int diasAntiguedad { get; set; }
+
+        // Márgenes y Precios Finales
         public decimal margenMinimoContado { get; set; }
         public decimal margenMinimoTarjetaCredito { get; set; }
         public decimal margenMinimoCredito { get; set; }
@@ -679,6 +685,8 @@ namespace AppAPL.Dto.Promocion
         public decimal precioPromocionTarjetaCredito { get; set; }
         public decimal precioPromocionCredito { get; set; }
         public decimal precioIgualarPrecio { get; set; }
+
+        // Descuentos y Márgenes Calculados
         public decimal descuentoPromocionContado { get; set; }
         public decimal descuentoPromocionTarjetaCredito { get; set; }
         public decimal descuentoPromocionCredito { get; set; }
@@ -697,6 +705,9 @@ namespace AppAPL.Dto.Promocion
         public List<MedioPagoDto> mediosPago { get; set; } = new List<MedioPagoDto>();
         public List<ArticuloAcuerdoDto>? acuerdos { get; set; }
         public List<OtroCostoDto>? otrosCostos { get; set; }
+
+        // EXCLUSIVO PARA PRCOMBO:
+        public List<ComponenteDto>? Componentes { get; set; }
     }
 
     public class MedioPagoDto
@@ -718,6 +729,33 @@ namespace AppAPL.Dto.Promocion
         public decimal costo { get; set; }
     }
 
+    public class ComponenteDto
+    {
+        public string CodigoItem { get; set; } = string.Empty;
+        public decimal Costo { get; set; }
+        public int StockBodega { get; set; }
+        public int StockTienda { get; set; }
+        public int InventarioOptimo { get; set; }
+        public int ExcedenteUnidad { get; set; }
+        public decimal ExcedenteValor { get; set; }
+        public int M0Unidades { get; set; }
+        public decimal M0Precio { get; set; }
+        public int M1Unidades { get; set; }
+        public decimal M1Precio { get; set; }
+        public int M2Unidades { get; set; }
+        public decimal M2Precio { get; set; }
+        public decimal IgualarPrecio { get; set; }
+        public int DiasAntiguedad { get; set; }
+        public decimal MargenMinimoContado { get; set; }
+        public decimal MargenMinimoTarjetaCredito { get; set; }
+        public decimal MargenMinimoCredito { get; set; }
+        public decimal MargenMinimoIgualar { get; set; }
+        public decimal PrecioListaContado { get; set; }
+        public decimal PrecioListaCredito { get; set; }
+
+        // Acuerdos específicos para este componente dentro del combo
+        public List<ArticuloAcuerdoDto>? Acuerdos { get; set; }
+    }
 
 
     // modificar promocion articulo dto -------------------------------------
@@ -725,7 +763,7 @@ namespace AppAPL.Dto.Promocion
     public class ArticuloModPromocionDTO
     {
         public string accion { get; set; } // 'I', 'U', 'D'
-        public long? idPromocionArticulo { get; set; }
+        public int? idPromocionArticulo { get; set; }
         public string codigoItem { get; set; }
         public string descripcion { get; set; }
         public decimal costo { get; set; }
