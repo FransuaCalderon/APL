@@ -337,7 +337,8 @@ function guardarCambiosFondo() {
                     return;
                 }
 
-                const mensajeExito = response.json_response?.mensaje || 'Fondo actualizado correctamente';
+                // ✅ MODIFICADO: Ignoramos el mensaje con el 'Log ID' y forzamos el texto solicitado
+                const mensajeExito = `Fondo Actualizado Correctamente ${id}`;
 
                 Swal.fire({
                     icon: 'success',
@@ -382,14 +383,13 @@ function consultarProveedor(rucActualSeleccionado) {
     function renderizarTabla(data) {
         const filas = data.map(p => {
             const ruc = p.identificacion ?? '';
-            const contacto = obtenerPrimerValorValido(p.nombrecontacto1, p.nombrecontacto2, p.nombrecontacto3, p.nombrecontacto4);
-            const mail = obtenerPrimerValorValido(p.mailcontacto1, p.mailcontacto2, p.mailcontacto3, p.mailcontacto4);
+            const contacto = p.nombrecontacto1 || p.nombrecontacto2 || '';
+            const mail = p.mailcontacto1 || p.mailcontacto2 || '';
 
-            // Validar si es el proveedor que viene en el modal para pre-seleccionarlo
             const isChecked = (ruc !== '' && ruc === rucActualSeleccionado) ? 'checked' : '';
 
             return [
-                `<input class="form-check-input" type="radio" name="selectProveedor" data-id="${p.codigo}" data-nombre="${p.nombre}" data-ruc="${ruc}" ${isChecked}>`,
+                `<input type="radio" name="selectProveedor" data-id="${p.codigo}" data-nombre="${p.nombre}" data-ruc="${ruc}" ${isChecked}>`,
                 p.codigo,
                 ruc,
                 p.nombre,
@@ -407,13 +407,13 @@ function consultarProveedor(rucActualSeleccionado) {
         dtProveedoresModificar = $("#tablaProveedores").DataTable({
             data: filas,
             columns: [
-                { title: "Seleccionar", className: "text-center align-middle", orderable: false, searchable: false },
-                { title: "Código", className: "align-middle" },
-                { title: "RUC", className: "align-middle" },
-                { title: "Nombre Proveedor", className: "align-middle" },
-                { title: "Contacto", className: "align-middle" },
-                { title: "Mail", className: "align-middle" },
-                { title: "Teléfono", className: "align-middle", searchable: false }
+                { title: "Seleccionar", className: "text-center", orderable: false, searchable: false },
+                { title: "Código" },
+                { title: "RUC" },
+                { title: "Nombre Proveedor" },
+                { title: "Contacto" },
+                { title: "Mail" },
+                { title: "Teléfono", searchable: false }
             ],
             deferRender: true,
             pageLength: 10,
@@ -427,25 +427,30 @@ function consultarProveedor(rucActualSeleccionado) {
                 infoFiltered: "(filtrado de _MAX_ totales)",
                 paginate: { first: "«", last: "»", next: "›", previous: "‹" }
             },
-            order: [[3, 'asc']], // Ordenado por Nombre Proveedor
+            order: [[3, 'asc']],
             initComplete: function () {
                 const wrapper = $("#tablaProveedores_wrapper");
-                wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
-                wrapper.find(".dataTables_info").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; font-size:0.8rem; padding-top:0.5rem;");
+                wrapper.find(".dataTables_paginate").attr("style",
+                    "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;"
+                );
+                wrapper.find(".dataTables_info").attr("style",
+                    "text-align:center !important; float:none !important; display:block !important; width:100% !important; font-size:0.8rem; padding-top:0.5rem;"
+                );
             },
             drawCallback: function () {
                 const wrapper = $("#tablaProveedores_wrapper");
-                wrapper.find(".dataTables_paginate").attr("style", "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;");
+                wrapper.find(".dataTables_paginate").attr("style",
+                    "text-align:center !important; float:none !important; display:block !important; width:100% !important; padding-top:0.5rem;"
+                );
             }
         });
 
-        // Evento de búsqueda manual
         $("#buscarProveedorInputModificar").off("keyup").on("keyup", function () {
             dtProveedoresModificar.search($(this).val()).draw();
         });
     }
 
-    // Uso de caché para no golpear la API cada vez que abren el modal en Modificar
+    // Uso de caché para no golpear la API cada vez que abren el modal
     if (cacheProveedoresModificar) {
         renderizarTabla(cacheProveedoresModificar);
         return;
@@ -469,7 +474,7 @@ function consultarProveedor(rucActualSeleccionado) {
         data: JSON.stringify(payload),
         success: function (response) {
             const data = response.json_response || [];
-            cacheProveedoresModificar = data; // Guardamos en caché
+            cacheProveedoresModificar = data;
             renderizarTabla(data);
         },
         error: function (xhr) {
@@ -500,7 +505,7 @@ function crearListado(data) {
     html += "  <thead>";
     html += "    <tr>";
     html += "      <th colspan='13' style='background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px; font-size: 1rem;'>";
-    html += "          BANDEJA DE MODIFICACIÓN DE FONDOS";
+    html += "         BANDEJA DE MODIFICACIÓN DE FONDOS";
     html += "      </th>";
     html += "    </tr>";
     html += "    <tr>";

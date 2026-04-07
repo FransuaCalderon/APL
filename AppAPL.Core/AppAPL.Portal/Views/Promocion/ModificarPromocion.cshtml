@@ -296,7 +296,6 @@
             <input type="hidden" id="modalTipoPromocion">
 
             <div id="dvPromocionGeneral">
-                <!-- FILA SUPERIOR: Promoción + No. Promoción -->
                 <div class="row g-1 promo-top-row justify-content-between">
                     <div class="col">
                         <div class="input-group input-group-sm">
@@ -313,7 +312,6 @@
                 </div>
 
                 <form id="formPromocion" class="row g-2 mt-1">
-                    <!-- CAMPOS COMUNES (Descripción, Motivo, Fechas, Estado) -->
                     <div class="col-md-3 text-center">
                         <label for="promocionDescripcion" class="form-label fw-bold col-form-label-sm">Descripción</label>
                         <input type="text" class="form-control form-control-sm" id="promocionDescripcion" placeholder="Descripción de promoción" maxlength="200">
@@ -343,9 +341,6 @@
                         <input type="text" class="form-control form-control-sm" id="verEstadoPromocion" readonly disabled>
                     </div>
 
-                    <!-- ============================================================= -->
-                    <!-- SECCIÓN GENERAL: Segmentos de jerarquía + Artículo checkbox -->
-                    <!-- ============================================================= -->
                     <div id="seccionGeneralSegmentos">
                         <div class="row g-2">
                             <div class="col-md-2 text-center">
@@ -386,11 +381,7 @@
                         </div>
                     </div>
 
-                    <!-- Segmentos comunes: Canal, Grupo, Almacén, Tipo Cliente, Medio Pago -->
-                    <!-- (Se muestran tanto para General como Artículos, pero Medio Pago solo en General) -->
-                    <div id="seccionArticuloSegmentos" style="display:none;">
-                        <!-- Nota: Para artículos se reutilizan los mismos IDs de segCanal, segGrupoAlmacen, etc. -->
-                    </div>
+                    <div id="seccionArticuloSegmentos" style="display:none;"></div>
 
                     <div class="col-md-3 text-center">
                         <label class="form-label fw-bold col-form-label-sm">Canal</label>
@@ -421,9 +412,6 @@
                         </div>
                     </div>
 
-                    <!-- ============================================================= -->
-                    <!-- SECCIÓN GENERAL: Acuerdos (Proveedor + Propio + Regalo) -->
-                    <!-- ============================================================= -->
                     <div id="seccionGeneralAcuerdos" class="row g-2">
                         <div class="col-md-1 text-center px-1">
                             <label class="form-label fw-bold label-una-linea" title="% Dscto Prov.">% Dscto Prov.</label>
@@ -469,7 +457,6 @@
                         </div>
                     </div>
 
-                    <!-- SOPORTE -->
                     <div class="col-12 soporte-section">
                         <div class="row align-items-center g-1">
                             <div class="col-auto"><label class="form-label fw-bold col-form-label-sm mb-0">Adjuntar Documento Soporte</label></div>
@@ -484,9 +471,6 @@
                         </div>
                     </div>
 
-                    <!-- ============================================================= -->
-                    <!-- SECCIÓN ARTÍCULOS: Detalle editable -->
-                    <!-- ============================================================= -->
                     <div id="seccionArticuloDetalle" class="col-12" style="display:none;">
                         <div class="detalle-header mt-2"><i class="fa-solid fa-boxes-stacked me-1"></i> Detalle de los Artículos</div>
                         <div class="d-flex align-items-center gap-3 pt-2 pb-1">
@@ -515,7 +499,10 @@
                                             <th class="custom-header-cons-bg">Vta M-1($)</th>
                                             <th class="custom-header-cons-bg">Vta M-2(u)</th>
                                             <th class="custom-header-cons-bg">Vta M-2($)</th>
+                                            <th class="custom-header-cons-bg">Vta M-12(u)</th>
+                                            <th class="custom-header-cons-bg">Vta M-12($)</th>
                                             <th class="custom-header-cons-bg">Vta Igualar</th>
+                                            <th class="custom-header-cons-bg">Dias Igualar</th>
                                             <th class="custom-header-cons-bg">Marg.Min Contado</th>
                                             <th class="custom-header-cons-bg">Marg.Min TC</th>
                                             <th class="custom-header-cons-bg">Marg.Min Crédito</th>
@@ -523,8 +510,6 @@
                                             <th class="custom-header-ingr-bg">Unidades Límite</th>
                                             <th class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                                             <th class="custom-header-ingr-bg">Medio de Pago</th>
-                                            <th class="custom-header-ingr-bg">Otros Costos</th>
-                                            <th class="custom-header-cons-bg">Precio Lista</th>
                                             <th class="custom-header-cons-bg">Precio Lista</th>
                                             <th class="custom-header-ingr-bg">Precio Promo Contado</th>
                                             <th class="custom-header-ingr-bg">Precio Promo TC</th>
@@ -536,18 +521,24 @@
                                             <th class="custom-header-calc-bg">Dscto Igualar</th>
                                             <th class="custom-header-ingr-bg">Aporte Proveedor</th>
                                             <th class="custom-header-ingr-bg">Aporte Prov. ID Acuerdo</th>
+                                            <th class="custom-header-ingr-bg">Aporte 2 Proveedor</th>
+                                            <th class="custom-header-ingr-bg">Aporte 2 Prov. ID Acuerdo</th>
                                             <th class="custom-header-ingr-bg">Aporte Rebate</th>
                                             <th class="custom-header-ingr-bg">Aporte Rebate ID Acuerdo</th>
                                             <th class="custom-header-ingr-bg">Aporte Propio</th>
                                             <th class="custom-header-ingr-bg">Aporte Propio ID Acuerdo</th>
+                                            <th class="custom-header-ingr-bg">Aporte Propio 2</th>
+                                            <th class="custom-header-ingr-bg">Aporte 2 Propio ID Acuerdo</th>
                                             <th class="custom-header-calc-bg">Margen Precio Lista</th>
                                             <th class="custom-header-calc-bg">Margen Promo Contado</th>
                                             <th class="custom-header-calc-bg">Margen Promo TC</th>
                                             <th class="custom-header-calc-bg">Margen Promo Crédito</th>
                                             <th class="custom-header-calc-bg">Margen Igualar</th>
                                             <th class="custom-header-calc-bg">Comp. Proveedor</th>
+                                            <th class="custom-header-calc-bg">Comp. Proveedor 2</th>
                                             <th class="custom-header-calc-bg">Comp. Rebate</th>
                                             <th class="custom-header-calc-bg">Comp. Propio</th>
+                                            <th class="custom-header-calc-bg">Comp. Propio 2</th>
                                             <th class="custom-header-ingr-bg">Regalo</th>
                                         </tr>
                                     </thead>
@@ -569,9 +560,6 @@
     </div>
 </div>
 
-<!-- ============================================================= -->
-<!-- MODALES DE SEGMENTOS (Existentes) -->
-<!-- ============================================================= -->
 @foreach (var m in new[] {
     new { Id = "ModalCanal", Title = "Canales", Body = "bodyModalCanal", Btn = "btnAceptarCanal" },
     new { Id = "ModalMarca", Title = "Marcas", Body = "bodyModalMarca", Btn = "btnAceptarMarca" },
@@ -594,7 +582,6 @@
     </div>
 }
 
-<!-- Modal Clientes Específicos -->
 <div class="modal fade" id="ModalClientesEspecificos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -605,7 +592,6 @@
     </div>
 </div>
 
-<!-- Modal Tipo Cliente Varios -->
 <div class="modal fade" id="ModalTipoClienteVarios" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -616,9 +602,6 @@
     </div>
 </div>
 
-<!-- ============================================================= -->
-<!-- MODALES DE ACUERDOS GENERALES -->
-<!-- ============================================================= -->
 <div class="modal fade" id="modalConsultaProveedor" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
@@ -653,9 +636,6 @@
     </div>
 </div>
 
-<!-- ============================================================= -->
-<!-- MODAL CONSULTA DE ITEMS (PARA ARTÍCULOS) -->
-<!-- ============================================================= -->
 <div class="modal fade" id="modalConsultaItems" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-pantalla-completa">
         <div class="modal-content">
@@ -709,7 +689,7 @@
                 <div class="row m-2">
                     <div class="table-responsive small p-1 border border-secondary" style="max-height: 300px; overflow-y: auto;">
                         <table id="tablaItemsConsulta" class="table table-hover table-bordered w-100">
-                            <thead class="sticky-top table-success text-nowrap"><tr><th>Sel</th><th>Código</th><th>Descripción</th><th>Costo</th><th>Stock</th><th>Óptimo</th><th>Excedente(u)</th><th>Excedente($)</th><th>M-0(u)</th><th>M-0($)</th><th>M-1(u)</th><th>M-1($)</th><th>M-2(u)</th><th>M-2($)</th></tr></thead>
+                            <thead class="sticky-top table-success text-nowrap"><tr><th>Sel</th><th>Código</th><th>Descripción</th><th>Costo</th><th>Stock</th><th>Óptimo</th><th>Excedente(u)</th><th>Excedente($)</th><th>M-0(u)</th><th>M-0($)</th><th>M-1(u)</th><th>M-1($)</th><th>M-2(u)</th><th>M-2($)</th><th>M-12(u)</th><th>M-12($)</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -720,9 +700,6 @@
     </div>
 </div>
 
-<!-- ============================================================= -->
-<!-- MODAL ACUERDOS POR ARTÍCULO -->
-<!-- ============================================================= -->
 <div class="modal fade" id="modalAcuerdoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-pantalla-completa">
         <div class="modal-content" style="height: 90vh; max-height: 90vh;">
@@ -744,9 +721,6 @@
     </div>
 </div>
 
-<!-- ============================================================= -->
-<!-- MODALES: Equivalentes, Precios Competencia, Otros Costos -->
-<!-- ============================================================= -->
 <div class="modal fade" id="modalEquivalentes" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
@@ -798,9 +772,6 @@
     </div>
 </div>
 
-<!-- ============================================================= -->
-<!-- MODAL VISOR PDF -->
-<!-- ============================================================= -->
 <div class="modal fade" id="modalVisorPdf" tabindex="-1" aria-labelledby="modalVisorPdfLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

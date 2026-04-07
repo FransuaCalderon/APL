@@ -52,7 +52,7 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
 
     if (items.length > 1) {
         const codigos = items.map(i => i.codigo_detalle);
-        return `<button type="button" class="btn btn-success btn-sm select-mediopago-articulo" style="font-size:0.7rem;" data-seleccionados='${JSON.stringify(codigos)}'><i class="fa-solid fa-list-check"></i> Varios (${items.length})</button>`;
+        return `<button type="button" class="btn btn-success btn-sm select-mediopago-articulo" style="font-size:0.7rem; width:100%;" data-seleccionados='${JSON.stringify(codigos)}'><i class="fa-solid fa-list-check"></i> Varios (${items.length})</button>`;
     }
 
     const opciones = generarOpcionesMedioPago();
@@ -60,22 +60,9 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
     return `<select class="form-select form-select-sm select-mediopago-articulo" disabled>${opciones}</select>`;
 }
 
-function generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo) {
-    const items = (articulosotros || []).filter(s => s.idpromocionarticulo === idPromocionArticulo);
-    const total = items.reduce((sum, oc) => sum + (parseFloat(oc.costo) || 0), 0);
-
-    const detalleJson = JSON.stringify(items.map(i => ({ codigo: i.idpromocionarticulo, nombre: i.descripcion, valor: i.costo })));
-
-    if (items.length > 0) {
-        return `<button type="button" class="btn btn-success btn-sm btn-ver-otroscostos-fila" style="font-size:0.7rem;" data-detalle='${detalleJson}' data-total="${total}"><i class="fa-solid fa-coins"></i> $${total.toFixed(2)}</button>`;
-    }
-    return `<span class="text-muted">N/A</span>`;
-}
-
 // ===============================================================
 // ACTUALIZACIÓN DE EVENTO SELECT MEDIO PAGO
 // ===============================================================
-
 $(document).on("click", ".select-mediopago-articulo", function () {
     const $this = $(this);
     const isButton = $this.is('button');
@@ -127,18 +114,6 @@ function formatearFecha(fechaString) {
     return `${dia}/${mes}/${anio}`;
 }
 
-function formatearFechaHora(fechaString) {
-    if (!fechaString) return "";
-    const fecha = new Date(fechaString);
-    if (isNaN(fecha.getTime())) return "";
-    const dia = fecha.getDate().toString().padStart(2, '0');
-    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-    const anio = fecha.getFullYear();
-    const horas = fecha.getHours().toString().padStart(2, '0');
-    const minutos = fecha.getMinutes().toString().padStart(2, '0');
-    return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
-}
-
 function obtenerSoloFecha(fechaString) {
     if (!fechaString || !fechaString.includes("T")) return "";
     const parteFecha = fechaString.split("T")[0];
@@ -165,36 +140,10 @@ function isValidDateDDMMYYYYHHMM(s) {
     return /^\d{2}\/\d{2}\/\d{4}( \d{2}:\d{2})?$/.test(s);
 }
 
-function toISOFromDDMMYYYYHHMM(s) {
-    if (!s || !isValidDateDDMMYYYYHHMM(s)) return null;
-    const partes = s.split(" ");
-    const [dd, mm, yyyy] = partes[0].split("/").map(Number);
-    let hh = 0, min = 0;
-    if (partes[1]) {
-        const tiempo = partes[1].split(":");
-        hh = Number(tiempo[0]);
-        min = Number(tiempo[1]);
-    }
-    return new Date(yyyy, mm - 1, dd, hh, min).toISOString();
-}
-
 function obtenerNombreArchivo(rutaCompleta) {
     if (!rutaCompleta) return "";
     var nombreArchivo = rutaCompleta.replace(/^.*[\\/]/, '');
     return nombreArchivo.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i, '') || nombreArchivo;
-}
-
-function isValidDateDDMMYYYY(s) {
-    if (!s || !/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return false;
-    const [dd, mm, yyyy] = s.split("/").map(Number);
-    const d = new Date(yyyy, mm - 1, dd);
-    return d.getFullYear() === yyyy && d.getMonth() === mm - 1 && d.getDate() === dd;
-}
-
-function toISOFromDDMMYYYY(s) {
-    if (!s || !isValidDateDDMMYYYY(s)) return null;
-    const [dd, mm, yyyy] = s.split("/").map(Number);
-    return new Date(yyyy, mm - 1, dd).toISOString();
 }
 
 function parseCurrencyToNumber(str) {
@@ -226,13 +175,8 @@ async function consultarCombos(etiqueta) {
     }
 }
 
-// Retorna el tipo de promoción actual (etiqueta)
 function getTipoPromocionActual() {
     return ($('#modalTipoPromocion').val() || "PRGENERAL").toUpperCase();
-}
-
-function esPromocionArticulo() {
-    return getTipoPromocionActual() === "PRARTICULO";
 }
 
 function getClaseAcuerdo() {
@@ -255,16 +199,11 @@ function cargarFiltrosJerarquia() {
             llenarComboYModal($("#segDivision"), $("#bodyModalDivision"), data.divisiones, "Seleccione...", "3", "division", "Todas");
             llenarComboYModal($("#segDepartamento"), $("#bodyModalDepartamento"), data.departamentos, "Seleccione...", "3", "depto", "Todos");
             llenarComboYModal($("#segClase"), $("#bodyModalClase"), data.clases, "Seleccione...", "3", "clase", "Todas");
-
-            // Guardar datos para el modal de Items
             window._filtrosJerarquiaData = data;
         }
     });
 }
 
-// ===============================================================
-// CONSULTAR ALMACENES (FILTRADO POR GRUPO)
-// ===============================================================
 function consultarAlmacenes(codigoGrupo = undefined, callback = null) {
     const payload = {
         code_app: "APP20260128155212346",
@@ -281,14 +220,8 @@ function consultarAlmacenes(codigoGrupo = undefined, callback = null) {
         data: JSON.stringify(payload),
         success: function (response) {
             const listaAlmacenes = response.json_response || [];
-            console.log("cantidad de almacenes consultados: ", listaAlmacenes.length);
-            //console.log("llamando llenarComboYModal de consultar almacen");
             llenarComboYModal($("#segAlmacen"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen", "Todos");
-
-            // Ejecutar el callback si existe
-            if (callback && typeof callback === "function") {
-                callback();
-            }
+            if (callback && typeof callback === "function") callback();
         }
     });
 }
@@ -299,23 +232,14 @@ function cargarCombosPromociones() {
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
         success: function (res) {
             const data = res.json_response || {};
-
-            // Filtrar medios de pago (excluir "TODOS"/"TODAS" y código "0")
             let mediosPagoFiltrados = (data.mediospagos || []).filter(m => {
                 let nom = (m.nombre || "").toUpperCase();
                 return nom !== "TODOS" && nom !== "TODAS" && m.codigo !== "0";
             });
 
-            // Guardar medios de pago filtrados para uso en artículos
             window._mediosPagoData = mediosPagoFiltrados;
-
             llenarComboYModal($("#segCanal"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
             llenarComboYModal($("#segGrupoAlmacen"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo", "Todos");
-
-            // Almacenes se cargan por separado (filtrados por grupo)
-            //console.log("llamar consultarAlmacenes en cargarCombosPromociones");
-            //consultarAlmacenes();
-
             llenarComboYModal($("#segMedioPago"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
 
             const $cli = $("#segTipoCliente");
@@ -342,12 +266,9 @@ function cargarCombosPromociones() {
 }
 
 const llenarComboYModal = ($select, $modalBody, items, labelDefault, valorVarios, idPrefijo, textoTodas = null) => {
-    //console.log("textoTodas: ", textoTodas);
     $select.empty();
     $select.append(`<option selected value="">${labelDefault}</option>`);
-    if (textoTodas) {
-        $select.append(`<option value="TODOS">${textoTodas}</option>`);
-    }
+    if (textoTodas) $select.append(`<option value="TODOS">${textoTodas}</option>`);
     $select.append(`<option value="${valorVarios}" class="fw-bold text-success">-- VARIOS --</option>`);
     $modalBody.empty();
     const $ul = $('<ul class="list-group w-100"></ul>');
@@ -461,7 +382,6 @@ function initLogicaSeleccionMultiple() {
 
 function poblarSelectSegmento(configId, segmentos, etiqueta) {
     const conf = CONFIG_MULTIPLE.find(c => c.id === configId);
-    //console.log("conf: ", conf);
     if (!conf) return;
 
     const $select = $(conf.select);
@@ -568,9 +488,6 @@ function calcularTotalDescuento() {
     $("#descuentoTotal").val(total > 0 ? total.toFixed(2) : "");
 }
 
-// ===============================================================
-// CONSULTA DE ACUERDOS MODALES (GENERAL)
-// ===============================================================
 function consultarAcuerdos(tipoFondo, tablaId, onSeleccion) {
     const $tbody = $(`#${tablaId} tbody`);
     $tbody.html('<tr><td colspan="13" class="text-center">Cargando...</td></tr>');
@@ -702,7 +619,10 @@ function agregarItemsATablaArticulos(items) {
             <td class="align-middle text-end">${formatCurrencySpanish(item.m1s || item.m1precio || 0)}</td>
             <td class="align-middle text-end">${item.m2u || item.m2unidades || 0}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(item.m2s || item.m2precio || 0)}</td>
-            <td class="align-middle text-end">${item.igualarprecio || 0}</td>
+            <td class="align-middle text-end">${item.m12u || item.m12unidades || 0}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.m12s || item.m12precio || 0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.igualarprecio || 0)}</td>
+            <td class="align-middle text-end">${item.diasantiguedad || 0}</td>
             <td class="align-middle text-end">${item.margenminimocontado || '0.00'}%</td>
             <td class="align-middle text-end">${item.margenminimotarjetacredito || '0.00'}%</td>
             <td class="align-middle text-end">${item.margenminimocredito || '0.00'}%</td>
@@ -712,7 +632,7 @@ function agregarItemsATablaArticulos(items) {
             <td class="align-middle celda-editable">
                 <select class="form-select form-select-sm select-mediopago-articulo" disabled>${opcionesMedioPago}</select>
             </td>
-            <td class="align-middle text-end">${formatCurrencySpanish(item.preciolistacontado || 0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.preciolistacontado || item.preciolista || 0)}</td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${item.preciopromocioncontado || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${item.preciopromociontarjetacredito || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${item.preciopromocioncredito || ''}" placeholder="0.00" disabled></td>
@@ -721,35 +641,57 @@ function agregarItemsATablaArticulos(items) {
             <td class="align-middle text-end">${parseFloat(item.descuentopromociontarjetacredito || 0).toFixed(2)}</td>
             <td class="align-middle text-end">${parseFloat(item.descuentopromocioncredito || 0).toFixed(2)}</td>
             <td class="align-middle text-end">${parseFloat(item.descuentoigualarprecio || 0).toFixed(2)}</td>
+
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor" value="${item._aporteProveedor || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="${item._idAcuerdoProveedor || ''}">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="${item._idAcuerdoProveedor || ''}">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control form-control-sm" value="${item._displayAcuerdoProveedor || ''}" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" data-slot="1" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </td>
+            <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor2" value="${item._aporteProveedor2 || ''}" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="${item._idAcuerdoProveedor2 || ''}">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" value="${item._displayAcuerdoProveedor2 || ''}" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </td>
+
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-rebate" value="${item._aporteRebate || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="${item._idAcuerdoRebate || ''}">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="${item._idAcuerdoRebate || ''}">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control form-control-sm" value="${item._displayAcuerdoRebate || ''}" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFREBATE" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFREBATE" data-slot="1" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </td>
+
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio" value="${item._aportePropio || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="${item._idAcuerdoPropio || ''}">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="${item._idAcuerdoPropio || ''}">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control form-control-sm" value="${item._displayAcuerdoPropio || ''}" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" data-slot="1" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio2" value="${item._aportePropio2 || ''}" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="${item._idAcuerdoPropio2 || ''}">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" value="${item._displayAcuerdoPropio2 || ''}" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </td>
+
             <td class="align-middle text-end">${parseFloat(item.margenpreciolistacontado || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${parseFloat(item.margenpromocioncontado || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${parseFloat(item.margenpromociontarjetacredito || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${parseFloat(item.margenpromocioncredito || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${parseFloat(item.margenigualarprecio || 0).toFixed(2)}%</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
@@ -780,17 +722,28 @@ function poblarArticulosDesdeAPI(data) {
 
         // Obtener acuerdos del artículo
         const acuerdosArt = articulosacuerdos.filter(a => a.idpromocionarticulo === idPromocionArticulo);
-        const acProv = acuerdosArt.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR");
+
+        const acuerdosProv = acuerdosArt.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR");
+        const acProv1 = acuerdosProv.length > 0 ? acuerdosProv[0] : null;
+        const acProv2 = acuerdosProv.length > 1 ? acuerdosProv[1] : null;
+
+        const acuerdosProp = acuerdosArt.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO");
+        const acProp1 = acuerdosProp.length > 0 ? acuerdosProp[0] : null;
+        const acProp2 = acuerdosProp.length > 1 ? acuerdosProp[1] : null;
+
         const acRebate = acuerdosArt.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFREBATE");
-        const acPropio = acuerdosArt.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO");
 
-        const provDisplay = acProv ? `${acProv.idacuerdo} - ${acProv.nombre_proveedor || ""}` : "";
+        const provDisplay1 = acProv1 ? `${acProv1.idacuerdo} - ${acProv1.nombre_proveedor || ""}` : "";
+        const provDisplay2 = acProv2 ? `${acProv2.idacuerdo} - ${acProv2.nombre_proveedor || ""}` : "";
         const rebateDisplay = acRebate ? `${acRebate.idacuerdo} - ${acRebate.nombre_proveedor || ""}` : "";
-        const propioDisplay = acPropio ? `${acPropio.idacuerdo} - ${acPropio.nombre_proveedor || ""}` : "";
+        const propioDisplay1 = acProp1 ? `${acProp1.idacuerdo} - ${acProp1.nombre_proveedor || ""}` : "";
+        const propioDisplay2 = acProp2 ? `${acProp2.idacuerdo} - ${acProp2.nombre_proveedor || ""}` : "";
 
-        const apProv = acProv ? (acProv.valor_aporte || 0) : 0;
+        const apProv1 = acProv1 ? (acProv1.valor_aporte || 0) : 0;
+        const apProv2 = acProv2 ? (acProv2.valor_aporte || 0) : 0;
         const apReb = acRebate ? (acRebate.valor_aporte || 0) : 0;
-        const apProp = acPropio ? (acPropio.valor_aporte || 0) : 0;
+        const apProp1 = acProp1 ? (acProp1.valor_aporte || 0) : 0;
+        const apProp2 = acProp2 ? (acProp2.valor_aporte || 0) : 0;
 
         // Medio de pago del artículo
         const mpItems = (articulossegmentos || []).filter(s => s.codigoitem === codigoItem && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO");
@@ -817,7 +770,10 @@ function poblarArticulosDesdeAPI(data) {
             <td class="align-middle text-end">${formatCurrencySpanish(art.m1precio || 0)}</td>
             <td class="align-middle text-end">${art.m2unidades || 0}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(art.m2precio || 0)}</td>
-            <td class="align-middle text-end">${art.igualarprecio || 0}</td>
+            <td class="align-middle text-end">${art.m12unidades || 0}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(art.m12precio || 0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(art.igualarprecio || 0)}</td>
+            <td class="align-middle text-end">${art.diasantiguedad || 0}</td>
             <td class="align-middle text-end">${(art.margenminimocontado || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${(art.margenminimotarjetacredito || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${(art.margenminimocredito || 0).toFixed(2)}%</td>
@@ -836,35 +792,57 @@ function poblarArticulosDesdeAPI(data) {
             <td class="align-middle text-end">${parseFloat(art.descuentopromociontarjetacredito || 0).toFixed(2)}</td>
             <td class="align-middle text-end">${parseFloat(art.descuentopromocioncredito || 0).toFixed(2)}</td>
             <td class="align-middle text-end">${parseFloat(art.descuentoigualarprecio || 0).toFixed(2)}</td>
-            <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor" value="${apProv || ''}" placeholder="0.00" disabled></td>
+
+            <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor" value="${apProv1 || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="${acProv ? acProv.idacuerdo : ''}">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="${acProv1 ? acProv1.idacuerdo : ''}">
                 <div class="input-group input-group-sm">
-                    <input type="text" class="form-control form-control-sm" value="${provDisplay}" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <input type="text" class="form-control form-control-sm" value="${provDisplay1}" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" data-slot="1" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </td>
+            <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor2" value="${apProv2 || ''}" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="${acProv2 ? acProv2.idacuerdo : ''}">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" value="${provDisplay2}" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </td>
+
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-rebate" value="${apReb || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="${acRebate ? acRebate.idacuerdo : ''}">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="${acRebate ? acRebate.idacuerdo : ''}">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control form-control-sm" value="${rebateDisplay}" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFREBATE" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFREBATE" data-slot="1" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </td>
-            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio" value="${apProp || ''}" placeholder="0.00" disabled></td>
+
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio" value="${apProp1 || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
-                <input type="hidden" class="acuerdo-id-hidden" value="${acPropio ? acPropio.idacuerdo : ''}">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="${acProp1 ? acProp1.idacuerdo : ''}">
                 <div class="input-group input-group-sm">
-                    <input type="text" class="form-control form-control-sm" value="${propioDisplay}" placeholder="Seleccione..." readonly disabled>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <input type="text" class="form-control form-control-sm" value="${propioDisplay1}" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" data-slot="1" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </td>
+            <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio2" value="${apProp2 || ''}" placeholder="0.00" disabled></td>
+            <td class="align-middle celda-editable">
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="${acProp2 ? acProp2.idacuerdo : ''}">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" value="${propioDisplay2}" placeholder="Seleccione..." readonly disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </td>
+
             <td class="align-middle text-end">${(art.margenpreciolistacontado || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${(art.margenpromocioncontado || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${(art.margenpromociontarjetacredito || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${(art.margenpromocioncredito || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${(art.margenigualarprecio || 0).toFixed(2)}%</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
@@ -894,9 +872,10 @@ function poblarArticulosDesdeAPI(data) {
                 }
             }
         }
+
+        recalcularFilaArticulo($filaAppended);
     });
 
-    // Seleccionar primera fila
     if ($tbody.find("tr").length > 0) {
         $tbody.find("tr").first().find(".item-row-radio").prop("checked", true).trigger("change");
     }
@@ -904,47 +883,54 @@ function poblarArticulosDesdeAPI(data) {
 
 function recalcularFilaArticulo($fila) {
     const costo = parseCurrencyToNumber($fila.find("td:eq(2)").text());
-    const precioLista = parseCurrencyToNumber($fila.find("td:eq(22)").text());
-    const precioContado = parseCurrencyToNumber($fila.find("td:eq(23) input").val());
-    const precioTC = parseCurrencyToNumber($fila.find("td:eq(24) input").val());
-    const precioCredito = parseCurrencyToNumber($fila.find("td:eq(25) input").val());
-    const precioIgualar = parseCurrencyToNumber($fila.find("td:eq(26) input").val());
+    const precioLista = parseCurrencyToNumber($fila.find("td:eq(25)").text());
+
+    const precioContado = parseCurrencyToNumber($fila.find("td:eq(26) input").val());
+    const precioTC = parseCurrencyToNumber($fila.find("td:eq(27) input").val());
+    const precioCredito = parseCurrencyToNumber($fila.find("td:eq(28) input").val());
+    const precioIgualar = parseCurrencyToNumber($fila.find("td:eq(29) input").val());
+
     const aporteProveedor = parseCurrencyToNumber($fila.find(".aporte-proveedor").val());
+    const aporteProveedor2 = parseCurrencyToNumber($fila.find(".aporte-proveedor2").val());
     const aporteRebate = parseCurrencyToNumber($fila.find(".aporte-rebate").val());
+    const aportePropio = parseCurrencyToNumber($fila.find(".aporte-propio").val());
+    const aportePropio2 = parseCurrencyToNumber($fila.find(".aporte-propio2").val());
+
     const otrosCostos = parseFloat($fila.data("total-otros-costos")) || 0;
-    const unidadesLimite = parseInt($fila.find("td:eq(19) input").val()) || 0;
-    const proyeccionVtas = parseInt($fila.find("td:eq(20) input").val()) || 0;
+    const unidadesLimite = parseInt($fila.find("td:eq(22) input").val()) || 0;
+    const proyeccionVtas = parseInt($fila.find("td:eq(23) input").val()) || 0;
     const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
 
     // Descuentos
-    $fila.find("td:eq(27)").text((precioLista - precioContado).toFixed(2));
-    $fila.find("td:eq(28)").text((precioLista - precioTC).toFixed(2));
-    $fila.find("td:eq(29)").text((precioLista - precioCredito).toFixed(2));
-    $fila.find("td:eq(30)").text((precioLista - precioIgualar).toFixed(2));
+    $fila.find("td:eq(30)").text((precioLista - precioContado).toFixed(2));
+    $fila.find("td:eq(31)").text((precioLista - precioTC).toFixed(2));
+    $fila.find("td:eq(32)").text((precioLista - precioCredito).toFixed(2));
+    $fila.find("td:eq(33)").text((precioLista - precioIgualar).toFixed(2));
 
     // Margen PL
     const margenPL = precioLista > 0 ? ((precioLista - costo) / precioLista * 100) : 0;
-    $fila.find("td:eq(37)").text(margenPL.toFixed(2) + "%");
+    $fila.find("td:eq(44)").text(margenPL.toFixed(2) + "%");
 
     // Márgenes
     const calcMargen = (precioPromocion) => {
-        const denominador = precioPromocion + aporteProveedor + aporteRebate;
+        const denominador = precioPromocion + aporteProveedor + aporteProveedor2 + aporteRebate;
         if (denominador > 0) return ((denominador - costo - otrosCostos) / denominador) * 100;
         return 0;
     };
-    $fila.find("td:eq(38)").text(calcMargen(precioContado).toFixed(2) + "%");
-    $fila.find("td:eq(39)").text(calcMargen(precioTC).toFixed(2) + "%");
-    $fila.find("td:eq(40)").text(calcMargen(precioCredito).toFixed(2) + "%");
-    $fila.find("td:eq(41)").text(calcMargen(precioIgualar).toFixed(2) + "%");
+    $fila.find("td:eq(45)").text(calcMargen(precioContado).toFixed(2) + "%");
+    $fila.find("td:eq(46)").text(calcMargen(precioTC).toFixed(2) + "%");
+    $fila.find("td:eq(47)").text(calcMargen(precioCredito).toFixed(2) + "%");
+    $fila.find("td:eq(48)").text(calcMargen(precioIgualar).toFixed(2) + "%");
 
     // Comprometidos
-    $fila.find("td:eq(42)").text(formatCurrencySpanish(aporteProveedor * unidades));
-    $fila.find("td:eq(43)").text(formatCurrencySpanish(aporteRebate * unidades));
-    const aportePropio = parseCurrencyToNumber($fila.find("td:eq(35) input").val());
-    $fila.find("td:eq(44)").text(formatCurrencySpanish(aportePropio * unidades));
+    $fila.find("td:eq(49)").text(formatCurrencySpanish(aporteProveedor * unidades));
+    $fila.find("td:eq(50)").text(formatCurrencySpanish(aporteProveedor2 * unidades));
+    $fila.find("td:eq(51)").text(formatCurrencySpanish(aporteRebate * unidades));
+    $fila.find("td:eq(52)").text(formatCurrencySpanish(aportePropio * unidades));
+    $fila.find("td:eq(53)").text(formatCurrencySpanish(aportePropio2 * unidades));
 
     // Colores
-    $fila.find("td:eq(27), td:eq(28), td:eq(29), td:eq(30), td:eq(37), td:eq(38), td:eq(39), td:eq(40), td:eq(41)").each(function () {
+    $fila.find("td:eq(30), td:eq(31), td:eq(32), td:eq(33), td:eq(44), td:eq(45), td:eq(46), td:eq(47), td:eq(48)").each(function () {
         const valor = parseFloat($(this).text());
         if (valor < 0) $(this).css("color", "#dc3545");
         else if (valor > 0) $(this).css("color", "#198754");
@@ -952,9 +938,6 @@ function recalcularFilaArticulo($fila) {
     });
 }
 
-// ===============================================================
-// ACUERDOS POR ARTÍCULO
-// ===============================================================
 function consultarAcuerdosPorArticulo(etiquetaTipoFondo, codigoItem, idAcuerdoActual) {
     if (dtAcuerdosArticulo) { dtAcuerdosArticulo.clear().destroy(); $("#tablaAcuerdosArticulo tbody").empty(); }
     $("#tablaAcuerdosArticulo tbody").html('<tr><td colspan="16" class="text-center">Cargando...</td></tr>');
@@ -1003,9 +986,9 @@ function consultarAcuerdosPorArticulo(etiquetaTipoFondo, codigoItem, idAcuerdoAc
     });
 }
 
-function abrirModalAcuerdoArticulo(tipoFondo, tituloModal, codigoItem, $inputDisplay, $inputId) {
+function abrirModalAcuerdoArticulo(tipoFondo, tituloModal, codigoItem, $inputDisplay, $inputId, slot, $fila) {
     acuerdoArticuloTemporal = null;
-    acuerdoArticuloContexto = { tipoFondo, codigoItem, $inputDisplay, $inputId, idActual: $inputId.val() };
+    acuerdoArticuloContexto = { tipoFondo, codigoItem, $inputDisplay, $inputId, idActual: $inputId.val(), slot, $fila };
     $("#tituloModalAcuerdoArticulo").text(tituloModal);
     $("#buscarAcuerdoArticuloInput").val("");
     $("#modalAcuerdoArticulo").modal("show");
@@ -1048,11 +1031,12 @@ function consultarItemsPromocion(filtros) {
         success: function (res) {
             const data = res.json_response || [];
             const filas = data.map(item => [
-                `<input type="checkbox" class="form-check-input item-checkbox" data-codigo="${item.codigo || ''}" data-descripcion="${item.descripcion || ''}" data-costo="${item.costo || 0}" data-stock="${item.stock || 0}" data-optimo="${item.optimo || 0}" data-excedenteu="${item.excedente_u || 0}" data-excedentes="${item.excedente_s || 0}" data-m0u="${item.m0_u || 0}" data-m0s="${item.m0_s || 0}" data-m1u="${item.m1_u || 0}" data-m1s="${item.m1_s || 0}" data-m2u="${item.m2_u || 0}" data-m2s="${item.m2_s || 0}">`,
+                `<input type="checkbox" class="form-check-input item-checkbox" data-codigo="${item.codigo || ''}" data-descripcion="${item.descripcion || ''}" data-costo="${item.costo || 0}" data-stock="${item.stock || 0}" data-optimo="${item.optimo || 0}" data-excedenteu="${item.excedente_u || 0}" data-excedentes="${item.excedente_s || 0}" data-m0u="${item.m0_u || 0}" data-m0s="${item.m0_s || 0}" data-m1u="${item.m1_u || 0}" data-m1s="${item.m1_s || 0}" data-m2u="${item.m2_u || 0}" data-m2s="${item.m2_s || 0}" data-m12u="${item.m12_u || 0}" data-m12s="${item.m12_s || item.m12_d || 0}">`,
                 item.codigo || "", item.descripcion || "", formatCurrencySpanish(item.costo || 0),
                 item.stock || 0, item.optimo || 0, item.excedente_u || 0, formatCurrencySpanish(item.excedente_s || 0),
                 item.m0_u || 0, formatCurrencySpanish(item.m0_s || 0), item.m1_u || 0, formatCurrencySpanish(item.m1_s || 0),
-                item.m2_u || 0, formatCurrencySpanish(item.m2_s || 0)
+                item.m2_u || 0, formatCurrencySpanish(item.m2_s || 0),
+                item.m12_u || 0, formatCurrencySpanish(item.m12_s || item.m12_d || 0)
             ]);
             if (dtItemsConsultaPromo) { dtItemsConsultaPromo.clear(); dtItemsConsultaPromo.rows.add(filas); dtItemsConsultaPromo.draw(); }
             $("#buscarItemModal").off("keyup").on("keyup", function () { if (dtItemsConsultaPromo) dtItemsConsultaPromo.search($(this).val()).draw(); });
@@ -1060,9 +1044,6 @@ function consultarItemsPromocion(filtros) {
     });
 }
 
-// ===============================================================
-// SERVICIOS ADICIONALES (Equivalentes, Precios Competencia, Otros Costos)
-// ===============================================================
 function obtenerCodigoArticuloSeleccionado() {
     const $radio = $("#tablaArticulosBody .item-row-radio:checked");
     if ($radio.length === 0) { Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un artículo." }); return null; }
@@ -1110,7 +1091,7 @@ $(document).ready(function () {
     $('#btnVerSoporteActual').off('click').on('click', function () {
         const ruta = $(this).data('soporte');
         if (!ruta) { Swal.fire({ icon: 'info', title: 'Sin soporte', text: 'No hay archivo adjunto.' }); return; }
-        abrirVisorPDF(obtenerNombreArchivoConGuid(ruta));
+        abrirVisorPDF(obtenerNombreArchivo(ruta));
     });
 
     $("#btnCerrarVisorPdf, #btnCerrarVisorPdfFooter").on("click", function () { cerrarVisorPDF(); });
@@ -1119,14 +1100,9 @@ $(document).ready(function () {
         if (url) { const a = document.createElement("a"); a.href = url; a.download = nombre || "soporte.pdf"; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
     });
 
-    // Recargar almacenes al cambiar Grupo Almacén
     $("#segGrupoAlmacen").on("change", function () {
-        // AÑADE ESTA LÍNEA:
         if (isPopulating) return;
-
-
         const codigoGrupo = $(this).val();
-        console.log("llamar consultarAlmacenes en segGrupoAlmacen change");
         if (codigoGrupo && codigoGrupo !== "" && codigoGrupo !== "TODAS" && codigoGrupo !== "3") {
             consultarAlmacenes(codigoGrupo);
         } else if (codigoGrupo === "TODAS" || codigoGrupo === "") {
@@ -1134,7 +1110,6 @@ $(document).ready(function () {
         }
     });
 
-    // Modales de Acuerdo (General)
     $("#modalConsultaProveedor").on("show.bs.modal", function () {
         proveedorTemporal = null;
         consultarAcuerdos("TFPROVEDOR", "tablaProveedores", (s) => proveedorTemporal = s);
@@ -1171,60 +1146,87 @@ $(document).ready(function () {
     // ===================================================================
     // EVENTOS ARTÍCULOS
     // ===================================================================
-
-    // Selección de fila de artículo
     $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
         $("#tablaArticulosBody tr").removeClass("table-active");
         $("#tablaArticulosBody .celda-editable input, #tablaArticulosBody .celda-editable button, #tablaArticulosBody .celda-editable select").prop("disabled", true);
-        $("#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio").prop("disabled", true);
+        $("#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-proveedor2, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio, #tablaArticulosBody .aporte-propio2").prop("disabled", true);
         $("#tablaArticulosBody td:last-child input[type='checkbox']").prop("disabled", true);
 
         const $fila = $(this).closest("tr");
         $fila.addClass("table-active");
-        $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").not(".aporte-proveedor, .aporte-rebate, .aporte-propio").prop("disabled", false);
+        $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").not(".aporte-proveedor, .aporte-proveedor2, .aporte-rebate, .aporte-propio, .aporte-propio2").prop("disabled", false);
 
-        if ($fila.find("td:eq(32) .acuerdo-id-hidden").val()) $fila.find(".aporte-proveedor").prop("disabled", false);
-        if ($fila.find("td:eq(34) .acuerdo-id-hidden").val()) $fila.find(".aporte-rebate").prop("disabled", false);
-        if ($fila.find("td:eq(36) .acuerdo-id-hidden").val()) $fila.find(".aporte-propio").prop("disabled", false);
+        if ($fila.find(".acuerdo-prov1-hidden").val()) $fila.find(".aporte-proveedor").prop("disabled", false);
+        if ($fila.find(".acuerdo-prov2-hidden").val()) $fila.find(".aporte-proveedor2").prop("disabled", false);
+        if ($fila.find(".acuerdo-rebate-hidden").val()) $fila.find(".aporte-rebate").prop("disabled", false);
+        if ($fila.find(".acuerdo-propio1-hidden").val()) $fila.find(".aporte-propio").prop("disabled", false);
+        if ($fila.find(".acuerdo-propio2-hidden").val()) $fila.find(".aporte-propio2").prop("disabled", false);
+
         $fila.find("td:last-child input[type='checkbox']").prop("disabled", false);
     });
 
-    // Búsqueda de acuerdos por artículo
     $(document).on("click", ".btn-buscar-acuerdo-art", function () {
-        const $btn = $(this); const tipoFondo = $btn.data("tipofondo");
-        const $fila = $btn.closest("tr"); const codigoItem = $fila.data("codigo");
+        const $btn = $(this);
+        const tipoFondo = $btn.data("tipofondo");
+        const slot = parseInt($btn.data("slot")) || 1;
+        const $fila = $btn.closest("tr");
+        const codigoItem = $fila.data("codigo");
         const $inputDisplay = $btn.closest(".input-group").find("input[type='text']");
         const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
-        const titulos = { "TFPROVEDOR": "Acuerdos - Fondo Proveedor", "TFREBATE": "Acuerdos - Fondo Rebate", "TFPROPIO": "Acuerdos - Fondo Propio" };
-        abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId);
+        const titulos = {
+            "TFPROVEDOR": "Acuerdos - Fondo Proveedor" + (slot === 2 ? " (2)" : ""),
+            "TFREBATE": "Acuerdos - Fondo Rebate",
+            "TFPROPIO": "Acuerdos - Fondo Propio" + (slot === 2 ? " (2)" : "")
+        };
+        abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, $fila);
     });
 
-    // Aceptar acuerdo artículo
     $("#btnAceptarAcuerdoArticulo").on("click", function () {
         if (!acuerdoArticuloTemporal) { Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return; }
         if (acuerdoArticuloContexto) {
+            const tipo = acuerdoArticuloContexto.tipoFondo;
+            const slot = acuerdoArticuloContexto.slot;
+            const $fila = acuerdoArticuloContexto.$fila;
+            const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo);
+
+            if (tipo === "TFPROVEDOR") {
+                const otroSlotClass = slot === 1 ? ".acuerdo-prov2-hidden" : ".acuerdo-prov1-hidden";
+                const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
+                if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
+                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en el otro slot. Elija uno diferente.` });
+                    return;
+                }
+            } else if (tipo === "TFPROPIO") {
+                const otroSlotClass = slot === 1 ? ".acuerdo-propio2-hidden" : ".acuerdo-propio1-hidden";
+                const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
+                if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
+                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en el otro slot. Elija uno diferente.` });
+                    return;
+                }
+            }
+
             acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
             acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
-            const $fila = acuerdoArticuloContexto.$inputId.closest("tr");
-            const tipo = acuerdoArticuloContexto.tipoFondo;
+
             const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
-            if (tipo === "TFPROVEDOR") $fila.find(".aporte-proveedor").prop("disabled", false).attr("data-max", maxVal).val("");
+            if (tipo === "TFPROVEDOR" && slot === 1) $fila.find(".aporte-proveedor").prop("disabled", false).attr("data-max", maxVal).val("");
+            else if (tipo === "TFPROVEDOR" && slot === 2) $fila.find(".aporte-proveedor2").prop("disabled", false).attr("data-max", maxVal).val("");
             else if (tipo === "TFREBATE") $fila.find(".aporte-rebate").prop("disabled", false).attr("data-max", maxVal).val("");
-            else if (tipo === "TFPROPIO") $fila.find(".aporte-propio").prop("disabled", false).attr("data-max", maxVal).val("");
+            else if (tipo === "TFPROPIO" && slot === 1) $fila.find(".aporte-propio").prop("disabled", false).attr("data-max", maxVal).val("");
+            else if (tipo === "TFPROPIO" && slot === 2) $fila.find(".aporte-propio2").prop("disabled", false).attr("data-max", maxVal).val("");
+
             recalcularFilaArticulo($fila);
         }
         $("#modalAcuerdoArticulo").modal("hide");
         acuerdoArticuloTemporal = null; acuerdoArticuloContexto = null;
     });
 
-    // Recalcular al editar inputs de artículos
     $(document).on("input change", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
         this.value = this.value.replace(/[^0-9.,]/g, '');
         recalcularFilaArticulo($(this).closest("tr"));
     });
 
-    // Validar aportes vs acuerdo
-    $(document).on("blur", "#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio", function () {
+    $(document).on("blur", "#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-proveedor2, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio, #tablaArticulosBody .aporte-propio2", function () {
         const max = parseFloat($(this).attr("data-max")) || 0;
         const valor = parseCurrencyToNumber($(this).val());
         if (max > 0 && valor > max) {
@@ -1233,7 +1235,6 @@ $(document).ready(function () {
         } else { $(this).removeClass("is-invalid"); }
     });
 
-    // Medio de pago por artículo
     $(document).on("change", ".select-mediopago-articulo", function () {
         const $select = $(this); const val = $select.val();
         if (val === "7") {
@@ -1253,12 +1254,6 @@ $(document).ready(function () {
         } else { $select.removeData("seleccionados"); }
     });
 
-    // Añadir artículos
-    $("#btnAddItemArticulos").on("click", function () {
-        // Se abre el modal de consulta de items
-    });
-
-    // Modal consulta items
     $("#modalConsultaItems").on("show.bs.modal", function () {
         cargarFiltrosItemsPromocion();
         if (!dtItemsConsultaPromo) {
@@ -1271,7 +1266,8 @@ $(document).ready(function () {
                     { title: "Excedente($)", className: "align-middle text-end" }, { title: "M-0(u)", className: "align-middle text-center" },
                     { title: "M-0($)", className: "align-middle text-end" }, { title: "M-1(u)", className: "align-middle text-center" },
                     { title: "M-1($)", className: "align-middle text-end" }, { title: "M-2(u)", className: "align-middle text-center" },
-                    { title: "M-2($)", className: "align-middle text-end" }
+                    { title: "M-2($)", className: "align-middle text-end" }, { title: "M-12(u)", className: "align-middle text-center" },
+                    { title: "M-12($)", className: "align-middle text-end" }
                 ], deferRender: true, pageLength: 10, lengthChange: false,
                 dom: '<"row"<"col-12"tr>><"row"<"col-12 text-center"i>><"row"<"col-12 d-flex justify-content-center"p>>',
                 language: { emptyTable: '<div class="text-center text-muted p-4"><i class="fa-solid fa-filter"></i><br>Presione <strong>"Procesar Selección"</strong></div>', zeroRecords: "No se encontraron items.", info: "Mostrando _START_ a _END_ de _TOTAL_ items", infoEmpty: "Sin items", paginate: { first: "«", last: "»", next: "›", previous: "‹" } },
@@ -1300,7 +1296,7 @@ $(document).ready(function () {
         const checkboxes = dtItemsConsultaPromo ? dtItemsConsultaPromo.$(".item-checkbox:checked") : [];
         checkboxes.each(function () {
             const $c = $(this);
-            items.push({ codigo: $c.data("codigo"), descripcion: $c.data("descripcion"), costo: $c.data("costo"), stock: $c.data("stock"), optimo: $c.data("optimo"), excedenteu: $c.data("excedenteu"), excedentes: $c.data("excedentes"), m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"), m2u: $c.data("m2u"), m2s: $c.data("m2s") });
+            items.push({ codigo: $c.data("codigo"), descripcion: $c.data("descripcion"), costo: $c.data("costo"), stock: $c.data("stock"), optimo: $c.data("optimo"), excedenteu: $c.data("excedenteu"), excedentes: $c.data("excedentes"), m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"), m2u: $c.data("m2u"), m2s: $c.data("m2s"), m12u: $c.data("m12u"), m12s: $c.data("m12s") });
         });
         if (items.length === 0) { Swal.fire("Atención", "Seleccione al menos un item.", "info"); return; }
         agregarItemsATablaArticulos(items);
@@ -1308,7 +1304,6 @@ $(document).ready(function () {
         $("#checkTodosItems").prop("checked", false);
     });
 
-    // Eliminar artículo
     $("#btnDeleteItemArticulos").on("click", function () {
         const $radio = $("#tablaArticulosBody .item-row-radio:checked");
         if ($radio.length === 0) { Swal.fire({ icon: "warning", title: "Atención", text: "Seleccione un artículo." }); return; }
@@ -1323,7 +1318,6 @@ $(document).ready(function () {
         });
     });
 
-    // Equivalentes
     $("#btnEquivalentes").on("click", function () {
         const codigo = obtenerCodigoArticuloSeleccionado(); if (!codigo) return;
         consultarServicioAdicional("api/Promocion/consultar-articulo-equivalente", codigo, function (data) {
@@ -1334,7 +1328,6 @@ $(document).ready(function () {
         });
     });
 
-    // Precios Competencia
     $("#btnPreciosCompetencia").on("click", function () {
         const codigo = obtenerCodigoArticuloSeleccionado(); if (!codigo) return;
         consultarServicioAdicional("api/Promocion/consultar-articulo-precio-competencia", codigo, function (data) {
@@ -1345,7 +1338,6 @@ $(document).ready(function () {
         });
     });
 
-    // Otros Costos
     $("#btnOtrosCostos").on("click", function () {
         const codigo = obtenerCodigoArticuloSeleccionado(); if (!codigo) return;
         consultarServicioAdicional("api/Promocion/consultar-otros-costos", codigo, function (data) {
@@ -1353,15 +1345,11 @@ $(document).ready(function () {
             if (!data.length) { $tbody.html('<tr><td colspan="3" class="text-center text-muted">No hay otros costos.</td></tr>'); }
             else { data.forEach(item => { $tbody.append(`<tr><td class="text-center align-middle"><input class="form-check-input chk-otro-costo" type="checkbox" data-codigo="${item.codigo}" data-nombre="${item.nombre}" data-valor="${item.valor}"></td><td class="align-middle">${item.nombre || ''}</td><td class="text-end align-middle">${formatCurrencySpanish(item.valor)}</td></tr>`); }); }
 
-            // PRE-MARCAR los otros costos ya guardados en la fila del artículo
             const $filaArticulo = $("#tablaArticulosBody .item-row-radio:checked").closest("tr");
             const otrosCostosGuardados = $filaArticulo.data("detalle-otros-costos") || [];
             otrosCostosGuardados.forEach(function (oc) {
                 $("#tbodyOtrosCostos .chk-otro-costo").each(function () {
-                    if (String($(this).data("codigo")) === String(oc.codigo) ||
-                        $(this).data("nombre") === oc.nombre) {
-                        $(this).prop("checked", true);
-                    }
+                    if (String($(this).data("codigo")) === String(oc.codigo) || $(this).data("nombre") === oc.nombre) $(this).prop("checked", true);
                 });
             });
 
@@ -1414,7 +1402,7 @@ function crearListado(data) {
 }
 
 function abrirModalEditar(idPromocion) {
-    isPopulating = true; // Activar aquí
+    isPopulating = true;
     resetFormulario();
     $('#lblIdPromocion').text(idPromocion);
     $('#modalPromocionId').val(idPromocion);
@@ -1424,7 +1412,6 @@ function abrirModalEditar(idPromocion) {
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
         success: function (res) {
             const data = res.json_response || {};
-            console.log("data: ", data);
             promocionTemporal = data;
             poblarFormulario(data);
             $('#vistaTabla').hide();
@@ -1442,7 +1429,6 @@ function poblarFormulario(data) {
     const segmentos = data.segmentos || [];
     const tipoPromocion = (cab.etiqueta_clase_promocion || "PRGENERAL").toUpperCase();
 
-    // LÍNEA 1
     $('#verPromocionHeader').val(`${cab.idpromocion || ""} - ${cab.nombre_clase_promocion || ""}`);
     $('#verPromocionNum').val(cab.idpromocion);
     $('#modalTipoPromocion').val(cab.etiqueta_clase_promocion || "");
@@ -1469,26 +1455,13 @@ function poblarFormulario(data) {
     const marcaRegaloVal = (cab.marcaregalo || "").toString().trim();
     $('#promocionMarcaRegalo').prop('checked', marcaRegaloVal !== "" && marcaRegaloVal !== "N");
 
-
-
-
-    // ===================================================================
-    // LÓGICA DE SEGMENTOS (CORREGIDA)
-    // ===================================================================
-    // 1. Identificamos si existe un Grupo de Almacén guardado para filtrar los almacenes
     const segGrupo = segmentos.find(s => s.etiqueta_tipo_segmento === "SEGGRUPOALMACEN");
     const codigoGrupo = (segGrupo && segGrupo.codigo_detalle) ? segGrupo.codigo_detalle : undefined;
 
-    // 2. Cargamos los almacenes PRIMERO, y cuando termine, seleccionamos el valor
     consultarAlmacenes(codigoGrupo, function () {
-        // Esta parte se ejecuta SOLO cuando la API de almacenes ya respondió
         poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
     });
 
-
-    // ===================================================================
-    // TOGGLE SECCIONES SEGÚN TIPO
-    // ===================================================================
     if (tipoPromocion === "PRARTICULO") {
         $("#seccionGeneralSegmentos").hide();
         $("#seccionGeneralAcuerdos").hide();
@@ -1497,7 +1470,6 @@ function poblarFormulario(data) {
 
         poblarSelectSegmento("canal", segmentos, "SEGCANAL");
         poblarSelectSegmento("grupo", segmentos, "SEGGRUPOALMACEN");
-        //poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
         poblarSelectSegmento("tipocliente", segmentos, "SEGTIPOCLIENTE");
 
         poblarArticulosDesdeAPI(data);
@@ -1514,7 +1486,6 @@ function poblarFormulario(data) {
         poblarSelectSegmento("clase", segmentos, "SEGCLASE");
         poblarSelectSegmento("canal", segmentos, "SEGCANAL");
         poblarSelectSegmento("grupo", segmentos, "SEGGRUPOALMACEN");
-        //poblarSelectSegmento("almacen", segmentos, "SEGALMACEN");
         poblarSelectSegmento("tipocliente", segmentos, "SEGTIPOCLIENTE");
         poblarSelectSegmento("mediopago", segmentos, "SEGMEDIOPAGO");
 
@@ -1551,7 +1522,6 @@ function poblarFormulario(data) {
         evaluarBloqueosAcuerdos();
     }
 
-    // Al final del todo:
     setTimeout(() => { isPopulating = false; }, 500);
 }
 
@@ -1566,7 +1536,6 @@ function resetFormulario() {
     acuerdoArticuloContexto = null;
 
     $("#tablaArticulosBody").empty();
-
     $("#seccionGeneralSegmentos, #seccionGeneralAcuerdos").show();
     $("#seccionArticuloSegmentos, #seccionArticuloDetalle").hide();
 
@@ -1690,7 +1659,6 @@ async function guardarPromocionGeneral() {
         ...(base64Completo ? {
             archivosoportebase64: base64Completo,
             nombrearchivosoporte: fileInput.name
-            
         } : {}),
         rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
@@ -1763,47 +1731,73 @@ async function guardarPromocionArticulos() {
         const m1p = parseCurrencyToNumber($fila.find("td:eq(11)").text());
         const m2u = parseInt($fila.find("td:eq(12)").text()) || 0;
         const m2p = parseCurrencyToNumber($fila.find("td:eq(13)").text());
+        const m12u = parseInt($fila.find("td:eq(14)").text()) || 0;
+        const m12p = parseCurrencyToNumber($fila.find("td:eq(15)").text());
 
-        const unidadesLimite = parseInt($fila.find("td:eq(19) input").val()) || 0;
-        const proyeccionVtas = parseInt($fila.find("td:eq(20) input").val()) || 0;
+        const igualarPrecio = parseCurrencyToNumber($fila.find("td:eq(16)").text());
+        const diasIgualar = parseInt($fila.find("td:eq(17)").text()) || 0;
+
+        const margenMinContado = parseFloat($fila.find("td:eq(18)").text()) || 0;
+        const margenMinTC = parseFloat($fila.find("td:eq(19)").text()) || 0;
+        const margenMinCredito = parseFloat($fila.find("td:eq(20)").text()) || 0;
+        const margenMinIgualar = parseFloat($fila.find("td:eq(21)").text()) || 0;
+
+        const unidadesLimite = parseInt($fila.find("td:eq(22) input").val()) || 0;
+        const proyeccionVtas = parseInt($fila.find("td:eq(23) input").val()) || 0;
 
         if (unidadesLimite > 0 && proyeccionVtas > 0) { errorFila = `Fila ${numFila}: Solo Unidades Límite O Proyección Vtas.`; return false; }
         if (unidadesLimite === 0 && proyeccionVtas === 0) { errorFila = `Fila ${numFila}: Ingrese Unidades Límite o Proyección Vtas.`; return false; }
 
-        const $selectMedioPago = $fila.find("td:eq(21) select");
+        const $selectMedioPago = $fila.find("td:eq(24) select");
         const medioPagoVal = $selectMedioPago.val();
         const mediosPagoSeleccionados = $selectMedioPago.data("seleccionados") || [];
 
-        const precioLista = parseCurrencyToNumber($fila.find("td:eq(22)").text());
-        const precioContado = parseCurrencyToNumber($fila.find("td:eq(23) input").val());
-        const precioTC = parseCurrencyToNumber($fila.find("td:eq(24) input").val());
-        const precioCredito = parseCurrencyToNumber($fila.find("td:eq(25) input").val());
-        const precioIgualar = parseCurrencyToNumber($fila.find("td:eq(26) input").val());
+        const precioLista = parseCurrencyToNumber($fila.find("td:eq(25)").text());
+        const precioContado = parseCurrencyToNumber($fila.find("td:eq(26) input").val());
+        const precioTC = parseCurrencyToNumber($fila.find("td:eq(27) input").val());
+        const precioCredito = parseCurrencyToNumber($fila.find("td:eq(28) input").val());
+        const precioIgualar = parseCurrencyToNumber($fila.find("td:eq(29) input").val());
 
-        const dsctoContado = parseFloat($fila.find("td:eq(27)").text()) || 0;
-        const dsctoTC = parseFloat($fila.find("td:eq(28)").text()) || 0;
-        const dsctoCredito = parseFloat($fila.find("td:eq(29)").text()) || 0;
-        const dsctoIgualar = parseFloat($fila.find("td:eq(30)").text()) || 0;
+        const dsctoContado = parseFloat($fila.find("td:eq(30)").text()) || 0;
+        const dsctoTC = parseFloat($fila.find("td:eq(31)").text()) || 0;
+        const dsctoCredito = parseFloat($fila.find("td:eq(32)").text()) || 0;
+        const dsctoIgualar = parseFloat($fila.find("td:eq(33)").text()) || 0;
 
         const aporteProveedor = parseCurrencyToNumber($fila.find(".aporte-proveedor").val());
-        const idAcuerdoProveedor = parseInt($fila.find("td:eq(32) .acuerdo-id-hidden").val()) || 0;
+        const idAcuerdoProveedor = parseInt($fila.find(".acuerdo-prov1-hidden").val()) || 0;
+
+        const aporteProveedor2 = parseCurrencyToNumber($fila.find(".aporte-proveedor2").val());
+        const idAcuerdoProveedor2 = parseInt($fila.find(".acuerdo-prov2-hidden").val()) || 0;
+
         const aporteRebate = parseCurrencyToNumber($fila.find(".aporte-rebate").val());
-        const idAcuerdoRebate = parseInt($fila.find("td:eq(34) .acuerdo-id-hidden").val()) || 0;
+        const idAcuerdoRebate = parseInt($fila.find(".acuerdo-rebate-hidden").val()) || 0;
+
         const aportePropio = parseCurrencyToNumber($fila.find(".aporte-propio").val());
-        const idAcuerdoPropio = parseInt($fila.find("td:eq(36) .acuerdo-id-hidden").val()) || 0;
+        const idAcuerdoPropio = parseInt($fila.find(".acuerdo-propio1-hidden").val()) || 0;
 
-        const margenPL = parseFloat($fila.find("td:eq(37)").text()) || 0;
-        const margenContado = parseFloat($fila.find("td:eq(38)").text()) || 0;
-        const margenTC = parseFloat($fila.find("td:eq(39)").text()) || 0;
-        const margenCredito = parseFloat($fila.find("td:eq(40)").text()) || 0;
-        const margenIgualar = parseFloat($fila.find("td:eq(41)").text()) || 0;
+        const aportePropio2 = parseCurrencyToNumber($fila.find(".aporte-propio2").val());
+        const idAcuerdoPropio2 = parseInt($fila.find(".acuerdo-propio2-hidden").val()) || 0;
 
-        const regalo = $fila.find("td:eq(45) input[type='checkbox']").is(":checked") ? "S" : "N";
+        const compProveedor = parseCurrencyToNumber($fila.find("td:eq(49)").text());
+        const compProveedor2 = parseCurrencyToNumber($fila.find("td:eq(50)").text());
+        const compRebate = parseCurrencyToNumber($fila.find("td:eq(51)").text());
+        const compPropio = parseCurrencyToNumber($fila.find("td:eq(52)").text());
+        const compPropio2 = parseCurrencyToNumber($fila.find("td:eq(53)").text());
+
+        const margenPL = parseFloat($fila.find("td:eq(44)").text()) || 0;
+        const margenContado = parseFloat($fila.find("td:eq(45)").text()) || 0;
+        const margenTC = parseFloat($fila.find("td:eq(46)").text()) || 0;
+        const margenCredito = parseFloat($fila.find("td:eq(47)").text()) || 0;
+        const margenIgualar = parseFloat($fila.find("td:eq(48)").text()) || 0;
+
+        const regalo = $fila.find("td:eq(54) input[type='checkbox']").is(":checked") ? "S" : "N";
 
         const acuerdosArticulo = [];
-        if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor });
-        if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoRebate, valoraporte: aporteRebate });
-        if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio, valoraporte: aportePropio });
+        if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor, valorcomprometido: compProveedor, etiqueta_tipo_fondo: "TFPROVEDOR" });
+        if (idAcuerdoProveedor2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor2, valoraporte: aporteProveedor2, valorcomprometido: compProveedor2, etiqueta_tipo_fondo: "TFPROVEDOR" });
+        if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoRebate, valoraporte: aporteRebate, valorcomprometido: compRebate, etiqueta_tipo_fondo: "TFREBATE" });
+        if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio, valoraporte: aportePropio, valorcomprometido: compPropio, etiqueta_tipo_fondo: "TFPROPIO" });
+        if (idAcuerdoPropio2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio2, valoraporte: aportePropio2, valorcomprometido: compPropio2, etiqueta_tipo_fondo: "TFPROPIO" });
 
         const mediosPago = [];
         if (medioPagoVal === "7") { mediosPago.push({ tipoasignacion: "D", codigos: mediosPagoSeleccionados }); }
@@ -1820,12 +1814,15 @@ async function guardarPromocionArticulos() {
             costo, stockbodega: stockBodega, stocktienda: stockTienda, inventariooptimo: invOptimo,
             excedenteunidad: excedenteU, excedentevalor: excedenteV,
             m0unidades: m0u, m0precio: m0p, m1unidades: m1u, m1precio: m1p, m2unidades: m2u, m2precio: m2p,
+            m12unidades: m12u, m12precio: m12p, igualarprecio: igualarPrecio, diasantiguedad: diasIgualar,
             unidadeslimite: unidadesLimite, unidadesproyeccionventas: proyeccionVtas,
             preciolistacontado: precioLista, preciolistacredito: precioLista,
             preciopromocioncontado: precioContado, preciopromociontarjetacredito: precioTC,
             preciopromocioncredito: precioCredito, precioigualarprecio: precioIgualar,
             descuentopromocioncontado: dsctoContado, descuentopromociontarjetacredito: dsctoTC,
             descuentopromocioncredito: dsctoCredito, descuentoigualarprecio: dsctoIgualar,
+            margenminimocontado: margenMinContado, margenminimotarjetacredito: margenMinTC,
+            margenminimocredito: margenMinCredito, margenminimoigualar: margenMinIgualar,
             margenpreciolistacontado: margenPL, margenpreciolistacredito: margenPL,
             margenpromocioncontado: margenContado, margenpromociontarjetacredito: margenTC,
             margenpromocioncredito: margenCredito, margenigualarprecio: margenIgualar,
@@ -1848,11 +1845,13 @@ async function guardarPromocionArticulos() {
                 costo: 0, stockbodega: 0, stocktienda: 0, inventariooptimo: 0,
                 excedenteunidad: 0, excedentevalor: 0,
                 m0unidades: 0, m0precio: 0, m1unidades: 0, m1precio: 0, m2unidades: 0, m2precio: 0,
+                m12unidades: 0, m12precio: 0, igualarprecio: 0, diasantiguedad: 0,
                 unidadeslimite: 0, unidadesproyeccionventas: 0,
                 preciolistacontado: 0, preciolistacredito: 0,
                 preciopromocioncontado: 0, preciopromociontarjetacredito: 0, preciopromocioncredito: 0,
                 precioigualarprecio: 0,
                 descuentopromocioncontado: 0, descuentopromociontarjetacredito: 0, descuentopromocioncredito: 0, descuentoigualarprecio: 0,
+                margenminimocontado: 0, margenminimotarjetacredito: 0, margenminimocredito: 0, margenminimoigualar: 0,
                 margenpreciolistacontado: 0, margenpreciolistacredito: 0,
                 margenpromocioncontado: 0, margenpromociontarjetacredito: 0, margenpromocioncredito: 0, margenigualarprecio: 0,
                 marcaregalo: "N", mediospago: [], acuerdos: [], otroscostos: []
@@ -1875,8 +1874,7 @@ async function guardarPromocionArticulos() {
         articulos: articulos,
         ...(base64Completo ? {
             archivosoportebase64: base64Completo,
-            nombrearchivosoporte: fileInput.name,
-            
+            nombrearchivosoporte: fileInput.name
         } : {}),
         rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
@@ -1887,8 +1885,6 @@ async function guardarPromocionArticulos() {
 }
 
 function enviarGuardado(body) {
-    console.log("📤 Enviando JSON Modificar Promoción:", body);
-
     Swal.fire({
         title: 'Confirmar Modificación', html: `¿Desea guardar los cambios de la Promoción <strong>#${body.idpromocion}</strong>?`, icon: 'warning',
         showCancelButton: true, confirmButtonColor: '#009845', cancelButtonColor: '#d33', confirmButtonText: 'Sí, Guardar', cancelButtonText: 'Cancelar'
@@ -1940,8 +1936,6 @@ function initDatepickers() {
 // ===============================================================
 // FUNCIONES VISOR PDF
 // ===============================================================
-function obtenerNombreArchivoConGuid(rutaCompleta) { if (!rutaCompleta) return ""; return rutaCompleta.replace(/^.*[\\/]/, ''); }
-
 function abrirVisorPDF(nombreArchivo) {
     $("#pdfSpinner").show(); $("#pdfVisorContenido").hide(); $("#pdfVisorError").hide(); $("#btnDescargarPdf").hide();
     $("#modalVisorPdfLabel .pdf-nombre-archivo").text(obtenerNombreArchivo(nombreArchivo) || "Soporte");
