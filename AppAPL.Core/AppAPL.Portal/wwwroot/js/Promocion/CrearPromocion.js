@@ -421,6 +421,7 @@
                     return nom !== "TODOS" && nom !== "TODAS" && m.codigo !== "0";
                 });
 
+                // 1. Llenar General
                 llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
                 llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo", "Todos");
 
@@ -428,13 +429,23 @@
 
                 llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
 
+                // 2. Clonar para Artículos
                 $("#filtroCanalArticulos").html($("#filtroCanalGeneral").html());
                 aplicarSelect2($("#filtroCanalArticulos"));
                 $("#filtroGrupoAlmacenArticulos").html($("#filtroGrupoAlmacenGeneral").html());
                 aplicarSelect2($("#filtroGrupoAlmacenArticulos"));
-                $("#filtroAlmacenArticulos").html($("#filtroAlmacenGeneral").html());
-                aplicarSelect2($("#filtroAlmacenArticulos"));
+                $("#filtroAlmacenCombos").html($("#filtroAlmacenGeneral").html());
+                aplicarSelect2($("#filtroAlmacenCombos"));
 
+                // 👉 3. Clonar para Combos (ESTO ES LO NUEVO)
+                $("#filtroCanalCombos").html($("#filtroCanalGeneral").html());
+                aplicarSelect2($("#filtroCanalCombos"));
+                $("#filtroGrupoAlmacenCombos").html($("#filtroGrupoAlmacenGeneral").html());
+                aplicarSelect2($("#filtroGrupoAlmacenCombos"));
+                $("#filtroAlmacenCombos").html($("#filtroAlmacenGeneral").html());
+                aplicarSelect2($("#filtroAlmacenCombos"));
+
+                // 4. Lógica para Tipo de Cliente (Se aplica a los 3)
                 const $cliGen = $("#tipoClienteGeneral");
                 const $cliArt = $("#tipoClienteArticulos");
                 const $cliCom = $("#tipoClienteCombos");
@@ -502,8 +513,14 @@
                 const listaAlmacenes = response.json_response || [];
                 console.log("cantidad de almacenes consultados: ", listaAlmacenes.length);
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen", "Todos");
+
+                // Clonar a Artículos
                 $("#filtroAlmacenArticulos").html($("#filtroAlmacenGeneral").html());
                 aplicarSelect2($("#filtroAlmacenArticulos"));
+
+                // Clonar a Combos
+                $("#filtroAlmacenCombos").html($("#filtroAlmacenGeneral").html());
+                aplicarSelect2($("#filtroAlmacenCombos"));
             }
         });
     }
@@ -1973,10 +1990,371 @@
     }
 
     // ==========================================
+    // LÓGICA DE COMBOS
+    // ==========================================
+    function initLogicaCombos() {
+
+        // 1. Mostrar la sección de Creación del Combo
+        $("#btnNuevoCombo").off("click").on("click", function () {
+            // Limpiamos los campos por si había un ingreso previo
+            $("#nombreCombo").val("");
+
+            // Generamos un código temporal para el combo (ej: CMB-001) 
+            // Esto lo puedes cambiar si el código viene del backend
+            let numRandom = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            $("#codigoCombo").val("CMB-" + numRandom);
+
+            // Desplegamos el panel colapsable usando la API de Bootstrap
+            $("#seccionCrearCombo").collapse('show');
+
+            // Opcional: Hacer scroll hacia la sección
+            $('html, body').animate({
+                scrollTop: $("#seccionCrearCombo").offset().top - 100
+            }, 500);
+        });
+
+        // 2. Aceptar el Combo y pasarlo a la grilla superior
+        $("#btnAceptarCombo").off("click").on("click", function () {
+            const codigo = $("#codigoCombo").val();
+            const nombre = $("#nombreCombo").val();
+
+            if (!nombre.trim()) {
+                Swal.fire("Validación", "Debe ingresar un nombre para el combo.", "warning");
+                return;
+            }
+
+            // Validar que no exista ya en la tabla
+            const existe = $(`#tablaCombosBody tr[data-codigo="${codigo}"]`).length > 0;
+            if (existe) {
+                Swal.fire("Atención", "Este código de combo ya existe en el detalle.", "warning");
+                return;
+            }
+
+            // Armamos la fila para la tabla principal de Combos (Respetando tus columnas)
+            const filaCombo = `
+                <tr data-codigo="${codigo}" class="align-middle">
+                    <td class="table-sticky-col" style="background-color: #a4c995;">
+                        <input type="radio" class="form-check-input combo-row-radio" name="comboRadioSel">
+                        <span class="ms-1 fw-bold">${codigo}</span> - ${nombre}
+                    </td>
+                    <td class="text-end">$ 0.00</td>
+                    <td class="text-end">0</td>
+                    <td class="text-end">0</td>
+                    <td class="text-end">0</td>
+                    <td class="text-end">0</td>
+                    <td class="text-end">$ 0.00</td>
+                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0"></td>
+                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0"></td>
+                    <td class="celda-editable">
+                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#ModalMedioPago">Medios Pago</button>
+                    </td>
+                    <td class="text-end">$ 0.00</td>
+                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
+                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
+                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
+                    <td class="text-end">$ 0.00</td>
+                    <td class="text-end">$ 0.00</td>
+                    <td class="text-end">$ 0.00</td>
+                    <td class="text-end">0.00%</td>
+                    <td class="text-end">0.00%</td>
+                    <td class="text-end">0.00%</td>
+                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
+                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
+                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox"></td>
+                </tr>
+            `;
+
+            // Agregamos a la tabla
+            $("#tablaCombosBody").append(filaCombo);
+
+            // Ocultamos la sección de creación
+            $("#seccionCrearCombo").collapse('hide');
+
+            // Mensaje de éxito sutil
+            Swal.fire({
+                toast: true, position: "top-end", icon: "success", title: "Combo agregado al detalle principal.", showConfirmButton: false, timer: 1500
+            });
+        });
+
+        // 3. Eliminar Combo de la tabla
+        $("#btnEliminarCombo").off("click").on("click", function () {
+            const $radioSeleccionado = $("#tablaCombosBody .combo-row-radio:checked");
+            if ($radioSeleccionado.length === 0) {
+                Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un combo del detalle para eliminar." });
+                return;
+            }
+
+            const $fila = $radioSeleccionado.closest("tr");
+
+            Swal.fire({
+                title: "¿Está seguro?",
+                text: "Se eliminará el combo seleccionado.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Sí, Eliminar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $fila.remove();
+                    Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Combo eliminado", showConfirmButton: false, timer: 1500 });
+                }
+            });
+        });
+
+        // 4. Pintar fila al seleccionarla (Radio Button)
+        $(document).on("change", ".combo-row-radio", function () {
+            $("#tablaCombosBody tr").removeClass("table-active");
+            $(this).closest("tr").addClass("table-active");
+        });
+    }
+
+    // ==========================================
+    // LÓGICA DE TABLA TRANSPUESTA DE COMBOS (MODAL) Y EVENTOS
+    // ==========================================
+
+    // Bandera global para saber desde qué pestaña abrimos el modal de items
+    window.contextoModalItems = "ARTICULOS";
+
+    // Al darle click a "Añadir Artículo" dentro del modal de Combos, cambiamos el contexto
+    $(document).on("click", ".btn-add-articulo-combo", function () {
+        window.contextoModalItems = "COMBOS";
+    });
+
+    // Reiniciar contexto si abren el modal desde "Añadir" en la pestaña Artículos
+    $(document).on("click", "#btnAddItemArticulos", function () {
+        window.contextoModalItems = "ARTICULOS";
+    });
+
+    // Actualizar el título de la columna Combo si escriben el Código y Nombre
+    $(document).on("click", "#btnActualizarHeaderCombo", function () {
+        const cod = $("#codigoComboModal").val();
+        const nom = $("#nombreComboModal").val();
+        if (cod && nom) {
+            $("#btnHeaderComboTotal").text(`[${cod}] ${nom}`);
+        }
+    });
+
+    // Función para inyectar una columna nueva en el modal de Combos
+    function agregarColumnaACombo(item) {
+        // 1. Header con dropdown
+        const thHtml = `
+        <th scope="col" class="table-dark" style="min-width: 200px;">
+            <div class="dropdown">
+                <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100" type="button" data-bs-toggle="dropdown">
+                    ${item.codigo} - ${item.descripcion}
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item btn-add-articulo-combo" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                    <li><a class="dropdown-item text-danger btn-eliminar-col-combo" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
+                </ul>
+            </div>
+        </th>`;
+        $("#trHeadersCombo").append(thHtml);
+
+        const colIndex = $("#trHeadersCombo th").length - 1;
+
+        // 2. Mapear cada fila según data-campo
+        $("#tablaCreacionCombo tbody tr").each(function () {
+            const campo = $(this).data("campo");
+            let html = `<td class="align-middle" data-colindex="${colIndex}">`;
+
+            switch (campo) {
+                // === VERDE (consulta - readonly) ===
+                case "art_codigo":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="${item.codigo}">`; break;
+                case "art_descripcion":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="${item.descripcion}">`; break;
+                case "costo":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.costo)}">`; break;
+                case "stock_bodega":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.stock || 0}">`; break;
+                case "stock_tienda":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="0">`; break;
+                case "inv_optimo":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.optimo || 0}">`; break;
+                case "excedentes_u":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.excedenteu || 0}">`; break;
+                case "excedentes_usd":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.excedentes || 0)}">`; break;
+                case "m0_u":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.m0u || 0}">`; break;
+                case "m0_usd":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m0s || 0)}">`; break;
+                case "m1_u":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.m1u || 0}">`; break;
+                case "m1_usd":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m1s || 0)}">`; break;
+                case "m2_u":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.m2u || 0}">`; break;
+                case "m2_usd":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m2s || 0)}">`; break;
+                case "m12_u":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.m12u || 0}">`; break;
+                case "m12_usd":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m12s || 0)}">`; break;
+                case "igualar_precio":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="0">`; break;
+                case "dias_antiguedad":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="0">`; break;
+                case "margen_min_cont":
+                case "margen_min_tc":
+                case "margen_min_cred":
+                case "margen_min_igual":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="0%">`; break;
+
+                // === AMARILLO (input) - n/a para componentes ===
+                case "unidades_limite":
+                case "proyeccion_vta":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly placeholder="-">`; break;
+                case "medio_pago":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-">`; break;
+
+                // === VERDE - Precio Lista desde DB ===
+                case "precio_lista_contado":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(0)}">`; break;
+                case "precio_lista_credito":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(0)}">`; break;
+
+                // === AMARILLO - Precio Promo (INPUT en componentes) ===
+                case "promo_contado":
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art" placeholder="$ 0.00">`; break;
+                case "promo_tc":
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art" placeholder="$ 0.00">`; break;
+                case "promo_credito":
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art" placeholder="$ 0.00">`; break;
+
+                // === NARANJA - Descuentos (calculados en componentes) ===
+                case "dscto_contado":
+                case "dscto_tc":
+                case "dscto_credito":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="">`; break;
+
+                // === AMARILLO - Aportes (INPUT en componentes) ===
+                case "aporte_prov":
+                case "aporte_prov2":
+                case "aporte_rebate":
+                case "aporte_propio":
+                case "aporte_propio2":
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art" placeholder="$ 0.00">`; break;
+
+                // === AMARILLO - Aportes ID Acuerdo (con lupa en componentes) ===
+                case "aporte_prov_id":
+                case "aporte_prov2_id":
+                case "aporte_rebate_id":
+                case "aporte_propio_id":
+                case "aporte_propio2_id":
+                    html += `
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
+
+                // === NARANJA - Márgenes (calculados en componentes) ===
+                case "margen_pl_contado":
+                case "margen_pl_credito":
+                case "margen_promo_contado":
+                case "margen_promo_tc":
+                case "margen_promo_cred":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly placeholder="">`; break;
+
+                // === NARANJA - Comprometidos (calculados en componentes) ===
+                case "comp_proveedor":
+                case "comp_proveedor2":
+                case "comp_rebate":
+                case "comp_propio":
+                case "comp_propio2":
+                    html += `<input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00">`; break;
+
+                // === Regalo - n/a para componentes ===
+                case "regalo":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly placeholder="-">`; break;
+
+                default:
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly>`; break;
+            }
+
+            html += `</td>`;
+            $(this).append(html);
+        });
+    }
+
+    // 5. Eliminar una columna dinámica del Combo
+    $(document).on("click", ".btn-eliminar-col-combo", function (e) {
+        e.preventDefault();
+        const colIndex = $(this).closest("th").index();
+
+        Swal.fire({
+            title: "¿Eliminar artículo del combo?",
+            icon: "warning", showCancelButton: true, confirmButtonText: "Sí, eliminar", cancelButtonText: "Cancelar"
+        }).then((res) => {
+            if (res.isConfirmed) {
+                // Borrar encabezado
+                $(`#trHeadersCombo th:eq(${colIndex})`).remove();
+                // Borrar el td correspondiente en cada fila de datos
+                $("#tablaCreacionCombo tbody tr").each(function () {
+                    $(this).find(`td:eq(${colIndex})`).remove();
+                });
+            }
+        });
+    });
+
+    // ==========================================
+    // ESTE EVENTO REEMPLAZA AL QUE TENÍAS ADENTRO DEL $(function() {...})
+    // SE ENCARGA DE ENRUTAR LOS ITEMS SELECCIONADOS A LA TABLA CORRECTA
+    // ==========================================
+    $(document).off("click", "#btnSeleccionarItems").on("click", "#btnSeleccionarItems", function () {
+        const items = [];
+        const checkboxes = dtItemsConsultaPromo ? dtItemsConsultaPromo.$(".item-checkbox:checked") : $("#tablaItemsConsulta .item-checkbox:checked");
+
+        checkboxes.each(function () {
+            const $c = $(this);
+            items.push({
+                codigo: $c.data("codigo"), descripcion: $c.data("descripcion"),
+                costo: $c.data("costo"), stock: $c.data("stock"), optimo: $c.data("optimo"),
+                excedenteu: $c.data("excedenteu"), excedentes: $c.data("excedentes"),
+                m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"),
+                m2u: $c.data("m2u"), m2s: $c.data("m2s"),
+                m12u: $c.data("m12u"), m12s: $c.data("m12s")
+            });
+        });
+
+        if (items.length === 0) {
+            Swal.fire("Atención", "Seleccione al menos un item.", "info"); return;
+        }
+
+        // 👉 DIRECCIONAMIENTO SEGÚN CONTEXTO (Magia de Combos vs Articulos)
+        if (window.contextoModalItems === "COMBOS") {
+            // Recorremos los seleccionados y agregamos una columna por cada uno
+            items.forEach(item => agregarColumnaACombo(item));
+        } else {
+            // Comportamiento original para Articulos
+            agregarItemsATablaArticulos(items);
+        }
+
+        $("#modalConsultaItems").modal("hide");
+        $("#checkTodosItems").prop("checked", false);
+
+        // Solo resetear contexto si NO era COMBOS (se resetea en hidden.bs.modal)
+        if (window.contextoModalItems !== "COMBOS") {
+            window.contextoModalItems = "ARTICULOS";
+        }
+    });
+
+    // ==========================================
     // INIT
     // ==========================================
     $(function () {
         console.log("=== CrearPromocion JS Loaded ===");
+
+        // 👉 1. AÑADIR CONFIGURACIÓN DE COMBOS AL ARREGLO MÚLTIPLE
+        // (Debe ir antes de llamar a initLogicaSeleccionMultiple)
+        CONFIG_MULTIPLE.push(
+            { id: "canalCombos", select: "#filtroCanalCombos", btnOpen: "#btnCanalCombos", body: "#bodyModalCanal", btnAccept: "#btnAceptarCanal", triggerVal: "3" },
+            { id: "grupoCombos", select: "#filtroGrupoAlmacenCombos", btnOpen: "#btnGrupoAlmacenCombos", body: "#bodyModalGrupoAlmacen", btnAccept: "#btnAceptarGrupoAlmacen", triggerVal: "3" },
+            { id: "almacenCombos", select: "#filtroAlmacenCombos", btnOpen: "#btnAlmacenCombos", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" }
+        );
 
         // ==========================================
         // LÓGICA DE SELECCIÓN DE FILA (HABILITAR CAMPOS AMARILLOS)
@@ -2008,21 +2386,34 @@
             $fila.find("td:last-child input[type='checkbox']").prop("disabled", false).css("pointer-events", "auto");
         });
 
-        // INICIALIZACIÓN SELECT2 PARA COMBOS
+        // 👉 2. INICIALIZACIÓN SELECT2 PARA COMBOS
+        $("#filtroCanalCombos").html($("#filtroCanalGeneral").html());
         aplicarSelect2($("#filtroCanalCombos"));
+
+        $("#filtroGrupoAlmacenCombos").html($("#filtroGrupoAlmacenGeneral").html());
         aplicarSelect2($("#filtroGrupoAlmacenCombos"));
+
+        $("#filtroAlmacenCombos").html($("#filtroAlmacenGeneral").html());
         aplicarSelect2($("#filtroAlmacenCombos"));
 
+        // INICIALIZACIONES GLOBALES
         togglePromocionForm();
         initLogicaArticuloGeneral();
-        initLogicaSeleccionMultiple();
+        initLogicaSeleccionMultiple(); // Ahora tomará en cuenta los combos que agregamos arriba
         initValidacionesFinancieras();
         initDatepickers();
         initBotonesServiciosArticulos();
 
-        $("#filtroGrupoAlmacenGeneral, #filtroGrupoAlmacenArticulos").on("change", function () {
+        // 👉 3. LLAMAR A LA LÓGICA DE COMBOS QUE CREAMOS
+        initLogicaCombos();
+
+        $("#filtroGrupoAlmacenGeneral, #filtroGrupoAlmacenArticulos, #filtroGrupoAlmacenCombos").on("change", function () {
             const codigoAlmacen = $(this).val();
-            consultarAlmacenes(codigoAlmacen);
+            if (codigoAlmacen && codigoAlmacen !== "" && codigoAlmacen !== "3" && codigoAlmacen !== "TODOS") {
+                consultarAlmacenes(codigoAlmacen);
+            } else if (!codigoAlmacen || codigoAlmacen === "") {
+                consultarAlmacenes();
+            }
         });
 
         $("#promocionTipo").on("change", function () {
@@ -2096,6 +2487,11 @@
 
         $('#inputFileArticulos').on('change', function () {
             esArchivoValido('#inputFileArticulos', '#fileNameArticulos');
+        });
+
+        // 👉 4. EVENTO PARA EL ARCHIVO DE SOPORTE DE COMBOS
+        $('#inputFileCombos').on('change', function () {
+            esArchivoValido('#inputFileCombos', '#fileNameCombos');
         });
 
         $(".btn-secondary[id^='btnCancelar']").on("click", () => location.reload());
@@ -2273,9 +2669,6 @@
             });
         });
 
-        // ==========================================
-        // BUSCAR ACUERDO ARTÍCULO (CON SLOT 1/2)
-        // ==========================================
         $(document).on("click", ".btn-buscar-acuerdo-art", function () {
             const $btn = $(this);
             const tipoFondo = $btn.data("tipofondo");
@@ -2293,9 +2686,6 @@
             abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, $fila);
         });
 
-        // ==========================================
-        // ACEPTAR ACUERDO ARTÍCULO (CON VALIDACIÓN DE DUPLICADOS)
-        // ==========================================
         $("#btnAceptarAcuerdoArticulo").on("click", function () {
             if (!acuerdoArticuloTemporal) {
                 Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return;
@@ -2307,7 +2697,6 @@
                 const $fila = acuerdoArticuloContexto.$fila;
                 const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo);
 
-                // ✅ VALIDACIÓN DE DUPLICADOS: No se puede seleccionar el mismo acuerdo en slot 1 y slot 2
                 if (tipo === "TFPROVEDOR") {
                     const otroSlotClass = slot === 1 ? ".acuerdo-prov2-hidden" : ".acuerdo-prov1-hidden";
                     const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
@@ -2332,7 +2721,6 @@
                     }
                 }
 
-                // Setear valores en la fila
                 acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
                 acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
 
@@ -2382,5 +2770,23 @@
         });
 
         $("#btnGuardarPromocionArticulos").on("click", () => guardarPromocionArticulos());
+
+        // Fix: Al cerrar el modal de Items, re-abrir el modal de Combos si el contexto es COMBOS
+        $("#modalConsultaItems").on("hidden.bs.modal", function () {
+            if (window.contextoModalItems === "COMBOS" || $("#modalCrearCombo").data("estaba-abierto")) {
+                $("#modalCrearCombo").data("estaba-abierto", false);
+                setTimeout(function () {
+                    $("#modalCrearCombo").modal("show");
+                    // Resetear contexto después de re-abrir
+                    window.contextoModalItems = "ARTICULOS";
+                }, 300);
+            }
+        });
+
+        // Marcar que el modal de Combos estaba abierto antes de abrir Items
+        $(document).on("click", ".btn-add-articulo-combo", function () {
+            window.contextoModalItems = "COMBOS";
+            $("#modalCrearCombo").data("estaba-abierto", true);
+        });
     });
 })();

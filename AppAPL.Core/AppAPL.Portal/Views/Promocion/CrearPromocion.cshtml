@@ -761,86 +761,94 @@
     </div>
 </form>
 
-<form id="formCombos" class="row g-1 mb-1 pb-1" style="display:none;">
+<form id="formCombos" class="row g-2 mb-1 pb-1" style="display:none;">
 
-    <div class="col-md-3">
+    <div class="col-md-3 text-center">
         <label for="descripcionCombos" class="form-label fw-bold col-form-label-sm">Descripción de la Promoción</label>
         <input type="text" class="form-control form-control-sm" id="descripcionCombos" placeholder="Ingrese Descripción">
     </div>
 
-    <div class="col-md-2">
+    <div class="col-md-3 text-center">
         <label for="motivoCombos" class="form-label fw-bold col-form-label-sm">Motivo</label>
         <select id="motivoCombos" class="form-select form-select-sm">
             <option value="">Seleccione...</option>
-            <option value="1">Excedente</option>
-            <option value="2">Lenta Rotación</option>
-            <option value="3">Día de la Madre</option>
-            <option value="4">Día del Padre</option>
-            <option value="5">Black Friday</option>
         </select>
     </div>
 
-    <div class="col-md-2">
-        <label for="fechaInicioCombos" class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
+    <div class="col-md-3 text-center">
+        <label class="form-label fw-bold col-form-label-sm">Inicio: Fecha - Hora</label>
         <div class="input-group input-group-sm">
-            <input id="fechaInicioCombos" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaInicioCombos">
-                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
-            </button>
+            <input type="text" class="form-control form-control-sm" id="fechaInicioCombos" placeholder="dd/mm/aaaa" style="max-width: 55%;">
+            <input type="time" class="form-control form-control-sm" id="timeInicioCombos" value="00:00">
+            <button class="btn btn-outline-secondary" type="button"><i class="fa-regular fa-calendar"></i></button>
         </div>
     </div>
 
-    <div class="col-md-2">
-        <label for="fechaFinCombos" class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
+    <div class="col-md-3 text-center">
+        <label class="form-label fw-bold col-form-label-sm">Fin: Fecha - Hora</label>
         <div class="input-group input-group-sm">
-            <input id="fechaFinCombos" type="text" class="form-control form-control-sm" placeholder="dd/mm/aaaa">
-            <button class="btn btn-outline-secondary" type="button" id="btnFechaFinCombos">
-                <img src="~/img/ico/calendar2-week.svg" alt="Calendario">
-            </button>
+            <input type="text" class="form-control form-control-sm" id="fechaFinCombos" placeholder="dd/mm/aaaa" style="max-width: 55%;">
+            <input type="time" class="form-control form-control-sm" id="timeFinCombos" value="23:59">
+            <button class="btn btn-outline-secondary" type="button"><i class="fa-regular fa-calendar"></i></button>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <label class="form-label fw-bold col-form-label-sm">Canal</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroCanalCombos">
-            <option selected>Todos</option>
-            <option>Tienda Local</option>
-            <option>Tienda Virtual</option>
-            <option>Móvil</option>
-        </select>
+    <div class="col-md-3 text-center">
+        <label for="filtroCanalCombos" class="form-label fw-bold col-form-label-sm">Canal</label>
+        <div class="input-group input-group-sm">
+            <button id="btnCanalCombos" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalCanal">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroCanalCombos">
+                <option selected value="">Seleccione...</option>
+            </select>
+        </div>
     </div>
 
-    <div class="col-md-3 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">Grupo Almacenes</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroGrupoAlmacenCombos">
-            <option selected>Todos</option>
-            <option>Grupo 1</option>
-            <option>Grupo 2</option>
-        </select>
+    <div class="col-md-3 text-center">
+        <label for="filtroGrupoAlmacenCombos" class="form-label fw-bold col-form-label-sm">Grupo Almacén</label>
+        <div class="input-group input-group-sm">
+            <button id="btnGrupoAlmacenCombos" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalGrupoAlmacen">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroGrupoAlmacenCombos">
+                <option selected value="">Seleccione...</option>
+            </select>
+        </div>
     </div>
 
-    <div class="col-md-2 mt-2">
-        <label class="form-label fw-bold col-form-label-sm">Almacén</label>
-        <select class="form-select form-select-sm" size="3" multiple id="filtroAlmacenCombos">
-            <option selected>Todos</option>
-            <option>Almacén 1</option>
-            <option>Almacén 2</option>
-        </select>
+    <div class="col-md-3 text-center">
+        <label for="filtroAlmacenCombos" class="form-label fw-bold col-form-label-sm">Almacén</label>
+        <div class="input-group input-group-sm">
+            <button id="btnAlmacenCombos" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalAlmacen">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <select class="form-select" id="filtroAlmacenCombos">
+                <option selected value="">Seleccione...</option>
+            </select>
+        </div>
     </div>
 
-    <div class="col-md-2 text-center">
+    <div class="col-md-3 text-center">
         <label for="tipoClienteCombos" class="form-label fw-bold col-form-label-sm">Tipo de Cliente</label>
         <div class="input-group input-group-sm">
             <button id="btnListaClienteCombos" class="btn btn-outline-secondary d-none" type="button" data-bs-toggle="modal" data-bs-target="#ModalClientesEspecificos">
                 <i class="fa-solid fa-list-check"></i>
             </button>
             <select class="form-select" id="tipoClienteCombos">
-                <option value="0" selected>Todos</option>
-                <option value="1">Especiales</option>
-                <option value="2">Frecuentes</option>
-                <option value="3">Varios</option>
-                <option value="4">Lista Específica</option>
+                <option selected value="">Seleccione...</option>
             </select>
+        </div>
+    </div>
+
+    <div class="col-md-12 text-center mt-3">
+        <label for="inputFileCombos" class="form-label fw-bold col-form-label-sm">Adjuntar Documento Soporte</label>
+        <div class="col-12 p-0">
+            <div class="input-group input-group-sm">
+                <label class="btn btn-secondary" for="inputFileCombos">Buscar Archivo</label>
+                <input type="file" class="form-control d-none" id="inputFileCombos" data-max-mb="@ViewBag.MaximoTamanoMB" accept="@ViewBag.ExtensionesPermitidas">
+                <span class="form-control" id="fileNameCombos">Ningún archivo seleccionado</span>
+            </div>
         </div>
     </div>
 
@@ -848,13 +856,13 @@
         <div class="detalle-header">Detalle de los Combos</div>
 
         <div class="d-flex align-items-center gap-3 pt-2 pb-1">
-            <button id="btnNuevoCombo" type="button" class="btn btn-outline-dark border-0 d-flex align-items-center gap-1">
+            <button id="btnNuevoCombo" type="button" class="btn btn-outline-dark border-0 d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalCrearCombo">
                 <i class="fa-regular fa-file"></i> Nuevo Combo
             </button>
             <button id="btnEliminarCombo" type="button" class="btn btn-outline-danger border-0 d-flex align-items-center gap-1">
                 <i class="fa-regular fa-trash-can"></i> Eliminar Combo
             </button>
-            <button id="btnModificarCombo" type="button" class="btn btn-outline-warning border-0 d-flex align-items-center gap-1">
+            <button id="btnModificarCombo" type="button" class="btn btn-outline-warning border-0 d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalCrearCombo">
                 <i class="fa-regular fa-pen-to-square"></i> Modificar Combo
             </button>
         </div>
@@ -891,199 +899,6 @@
                         </tr>
                     </thead>
                     <tbody id="tablaCombosBody" class="text-nowrap tabla-items-body">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="collapse mt-3" id="seccionCrearCombo">
-        <div class="col-12 text-center border bg-dark bg-opacity-75 text-white fw-bold py-2">
-            Creación del Combo
-        </div>
-
-        <div class="col-12 border mt-1 p-2">
-            <div class="row mb-2">
-                <div class="col-2">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text">Código</span>
-                        <input type="text" class="form-control" id="codigoCombo" value="" readonly>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text">Nombre</span>
-                        <input type="text" class="form-control" id="nombreCombo" placeholder="Nombre del combo">
-                    </div>
-                </div>
-                <div class="col-3">
-                    <button type="button" class="btn btn-outline-success btn-sm border-0" id="btnAceptarCombo">
-                        <i class="fa-solid fa-check"></i> Aceptar
-                    </button>
-                    <button type="button" class="btn btn-outline-danger btn-sm border-0" id="btnRechazarCombo" data-bs-toggle="collapse" data-bs-target="#seccionCrearCombo">
-                        <i class="fa-solid fa-xmark"></i> Rechazar
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-responsive small border" style="height: 350px; overflow-x: auto;">
-                <table class="table table-bordered table-sm">
-                    <thead class="sticky-top text-nowrap">
-                        <tr class="text-center">
-                            <th scope="col" class="table-sticky-col custom-header-cons-bg border-1" style="min-width: 180px;">Artículo</th>
-                            <th scope="col" class="table-dark" style="min-width: 180px;">
-                                <div class="dropdown">
-                                    <button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown">
-                                        [Combo]
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
-                                    </ul>
-                                </div>
-                            </th>
-                            <th scope="col" class="table-dark" style="min-width: 180px;">
-                                <div class="dropdown">
-                                    <button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown">
-                                        Artículo 1
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
-                                    </ul>
-                                </div>
-                            </th>
-                            <th scope="col" class="table-dark" style="min-width: 180px;">
-                                <div class="dropdown">
-                                    <button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown">
-                                        Artículo 2
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
-                                    </ul>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaComboDetalleBody" class="text-nowrap">
-                        <tr>
-                            <td class="table-sticky-col custom-header-cons-bg border-1">Costo</td>
-                            <td><input type="text" class="form-control form-control-sm" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="$ 999.99"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="$ 999.99"></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-cons-bg border-1">Stock Bodega</td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="999"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="999"></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-cons-bg border-1">Stock Tienda</td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="999"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="999"></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-ingr-bg border-1">Unidades Límite</td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="999"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-ingr-bg border-1">Proyección Ventas(u)</td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="999"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-ingr-bg border-1">Medio de Pago</td>
-                            <td>
-                                <button type="button" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalMediosPago">
-                                    Medios Pago
-                                </button>
-                            </td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-cons-bg border-1">Precio Lista</td>
-                            <td><input type="text" class="form-control form-control-sm" readonly value="$ 999.99"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="$ 999.99"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="$ 999.99"></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-ingr-bg border-1">Precio Promo Contado</td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-ingr-bg border-1">Precio Promo TC</td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-ingr-bg border-1">Precio Promo Crédito</td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-calc-bg border-1">Descuento Contado</td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 99.99"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-calc-bg border-1">Descuento TC</td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 99.99"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-calc-bg border-1">Descuento Crédito</td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 99.99"></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-ingr-bg border-1">Aporte Proveedor</td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
-                            <td><input type="text" class="form-control form-control-sm" placeholder="$ 999.99"></td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-ingr-bg border-1">Aporte Prov. ID Acuerdo</td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td>
-                                <div class="input-group input-group-sm">
-                                    <input type="text" class="form-control" placeholder="PROV999">
-                                    <button class="btn btn-outline-secondary" type="button"><img src="~/img/ico/search.svg" alt="Buscar"></button>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="input-group input-group-sm">
-                                    <input type="text" class="form-control" placeholder="PROV999">
-                                    <button class="btn btn-outline-secondary" type="button"><img src="~/img/ico/search.svg" alt="Buscar"></button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="table-sticky-col custom-header-calc-bg border-1">Regalo</td>
-                            <td class="text-center">
-                                <input class="form-check-input" type="checkbox">
-                            </td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                            <td><input type="text" class="form-control form-control-sm custom-celda-bg" readonly></td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -1471,6 +1286,338 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" id="btnAceptarAcuerdoArticulo">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCrearCombo" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-pantalla-completa">
+        <div class="modal-content" style="height: 95vh;">
+
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body pt-0 bg-light" style="overflow-y: auto;">
+                <h1 class="fs-5 fw-bold text-center mb-3 border-bottom pb-2">Creación del Combo</h1>
+
+                <div class="row mb-3 align-items-end justify-content-center">
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold col-form-label-sm">Código</label>
+                        <input type="text" class="form-control form-control-sm" id="codigoComboModal" placeholder="Ej: CO567">
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold col-form-label-sm">Nombre del Combo</label>
+                        <input type="text" class="form-control form-control-sm" id="nombreComboModal" placeholder="Ej: Cine en Casa 4K">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-dark btn-sm w-100" id="btnActualizarHeaderCombo">
+                            <i class="fa-solid fa-check"></i> Aplicar Nombre
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive small border bg-white" style="max-height: calc(95vh - 250px); overflow: auto;">
+                    <table class="table table-hover table-bordered table-sm w-auto mb-0" id="tablaCreacionCombo">
+                        <thead class="sticky-top text-white text-nowrap" style="z-index: 2;">
+                            <tr class="text-center" id="trHeadersCombo">
+                                <th scope="col" class="table-sticky-col custom-header-cons-bg border-1" style="min-width: 250px; z-index: 3;">Artículo</th>
+                                <th scope="col" class="table-dark" style="min-width: 200px;">
+                                    <div class="dropdown">
+                                        <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100" type="button" data-bs-toggle="dropdown" id="btnHeaderComboTotal">
+                                            [Nuevo Combo]
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item btn-add-articulo-combo" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                                        </ul>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-nowrap tabla-items-body">
+                            <!-- 1. Artículo Código -->
+                            <tr data-campo="art_codigo">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Artículo - Código</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="Auto"></td>
+                            </tr>
+                            <!-- 2. Artículo Descripción -->
+                            <tr data-campo="art_descripcion">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Artículo - Descripción</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder="Nombre del combo"></td>
+                            </tr>
+                            <!-- 3. Costo -->
+                            <tr data-campo="costo">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Costo</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm fw-bold text-primary text-end total-combo" readonly value="$ 0.00"></td>
+                            </tr>
+                            <!-- 4. Stock Bodega -->
+                            <tr data-campo="stock_bodega">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Stock Bodega</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 5. Stock Tienda -->
+                            <tr data-campo="stock_tienda">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Stock Tiendas</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 6. Inventario Óptimo -->
+                            <tr data-campo="inv_optimo">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Inventario Óptimo</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 7. Excedentes (u) -->
+                            <tr data-campo="excedentes_u">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Excedentes (u)</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 8. Excedentes ($) -->
+                            <tr data-campo="excedentes_usd">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Excedentes ($)</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 9. M-0 (u) -->
+                            <tr data-campo="m0_u">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-0 Unidades</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 10. M-0 ($) -->
+                            <tr data-campo="m0_usd">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-0 Dólares</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 11. M-1 (u) -->
+                            <tr data-campo="m1_u">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-1 Unidades</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 12. M-1 ($) -->
+                            <tr data-campo="m1_usd">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-1 Dólares</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 13. M-2 (u) -->
+                            <tr data-campo="m2_u">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-2 Unidades</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 14. M-2 ($) -->
+                            <tr data-campo="m2_usd">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-2 Dólares</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 15. M-12 (u) -->
+                            <tr data-campo="m12_u">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-12 Unidades</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 16. M-12 ($) -->
+                            <tr data-campo="m12_usd">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-12 Dólares</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 17. Igualar Precio -->
+                            <tr data-campo="igualar_precio">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Igualar Precio</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 18. Días de Antigüedad -->
+                            <tr data-campo="dias_antiguedad">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Días de Antigüedad</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                            </tr>
+                            <!-- 19. Margen mínimo Contado -->
+                            <tr data-campo="margen_min_cont">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Contado</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="0%"></td>
+                            </tr>
+                            <!-- 20. Margen mínimo TC -->
+                            <tr data-campo="margen_min_tc">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo TC</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="0%"></td>
+                            </tr>
+                            <!-- 21. Margen mínimo Crédito -->
+                            <tr data-campo="margen_min_cred">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Crédito</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="0%"></td>
+                            </tr>
+                            <!-- 22. Margen mínimo Igualar -->
+                            <tr data-campo="margen_min_igual">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Igualar Precio</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="0%"></td>
+                            </tr>
+                            <!-- 23. Unidades Límite (AMARILLO - input combo) -->
+                            <tr data-campo="unidades_limite">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Unidades Límite</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center input-editable" placeholder="0"></td>
+                            </tr>
+                            <!-- 24. Proyección Ventas (AMARILLO - input combo) -->
+                            <tr data-campo="proyeccion_vta">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Proyección de Ventas (u)</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center input-editable" placeholder="0"></td>
+                            </tr>
+                            <!-- 25. Medio de Pago (AMARILLO - input combo) -->
+                            <tr data-campo="medio_pago">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Medio de Pago</td>
+                                <td class="align-middle">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#ModalMedioPago">Medios Pago</button>
+                                </td>
+                            </tr>
+                            <!-- 26. Precio Lista Contado (VERDE - suma) -->
+                            <tr data-campo="precio_lista_contado">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Precio de Lista Contado</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm fw-bold text-end total-combo" readonly value="$ 0.00"></td>
+                            </tr>
+                            <!-- 27. Precio Lista Crédito (VERDE - suma) -->
+                            <tr data-campo="precio_lista_credito">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Precio de Lista Crédito</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm fw-bold text-end total-combo" readonly value="$ 0.00"></td>
+                            </tr>
+                            <!-- 28. Precio Promo Contado (AMARILLO - suma de inputs) -->
+                            <tr data-campo="promo_contado">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Precio Promoción Contado</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
+                            </tr>
+                            <!-- 29. Precio Promo TC (AMARILLO - suma de inputs) -->
+                            <tr data-campo="promo_tc">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Precio Promoción TC</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
+                            </tr>
+                            <!-- 30. Precio Promo Crédito (AMARILLO - suma de inputs) -->
+                            <tr data-campo="promo_credito">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Precio Promoción Crédito</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
+                            </tr>
+                            <!-- 31. Descuento Contado (NARANJA - cálculo) -->
+                            <tr data-campo="dscto_contado">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Descuento Contado</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
+                            </tr>
+                            <!-- 32. Descuento TC (NARANJA) -->
+                            <tr data-campo="dscto_tc">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Descuento TC</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
+                            </tr>
+                            <!-- 33. Descuento Crédito (NARANJA) -->
+                            <tr data-campo="dscto_credito">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Descuento Crédito</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
+                            </tr>
+                            <!-- 34. Aporte Proveedor Valor (AMARILLO - n/a combo) -->
+                            <tr data-campo="aporte_prov">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Proveedor Valor</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 35. Aporte Proveedor ID Acuerdo -->
+                            <tr data-campo="aporte_prov_id">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Proveedor ID Acuerdo</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 36. Aporte 2 Proveedor Valor -->
+                            <tr data-campo="aporte_prov2">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte 2 Proveedor Valor</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 37. Aporte 2 Proveedor ID Acuerdo -->
+                            <tr data-campo="aporte_prov2_id">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte 2 Proveedor ID Acuerdo</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 38. Aporte Rebate Valor -->
+                            <tr data-campo="aporte_rebate">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Rebate Valor</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 39. Aporte Rebate ID Acuerdo -->
+                            <tr data-campo="aporte_rebate_id">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Rebate ID Acuerdo</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 40. Aporte Propio Valor -->
+                            <tr data-campo="aporte_propio">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Propio Valor</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 41. Aporte Propio ID Acuerdo -->
+                            <tr data-campo="aporte_propio_id">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Propio ID Acuerdo</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 42. Aporte 2 Propio Valor -->
+                            <tr data-campo="aporte_propio2">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte 2 Propio Valor</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 43. Aporte 2 Propio ID Acuerdo -->
+                            <tr data-campo="aporte_propio2_id">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte 2 Propio ID Acuerdo</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 44. Margen Precio Lista Contado (NARANJA) -->
+                            <tr data-campo="margen_pl_contado">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Precio Lista Contado</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                            </tr>
+                            <!-- 45. Margen Precio Lista Crédito (NARANJA) -->
+                            <tr data-campo="margen_pl_credito">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Precio Lista Crédito</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                            </tr>
+                            <!-- 46. Margen Promo Contado (NARANJA) -->
+                            <tr data-campo="margen_promo_contado">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Promoción Contado</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                            </tr>
+                            <!-- 47. Margen Promo TC (NARANJA) -->
+                            <tr data-campo="margen_promo_tc">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Promoción TC</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                            </tr>
+                            <!-- 48. Margen Promo Crédito (NARANJA) -->
+                            <tr data-campo="margen_promo_cred">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Promoción Crédito</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                            </tr>
+                            <!-- 49. Comp. Proveedor (NARANJA - n/a combo) -->
+                            <tr data-campo="comp_proveedor">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido Proveedor</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 50. Comp. Proveedor 2 (NARANJA) -->
+                            <tr data-campo="comp_proveedor2">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido 2 Proveedor</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 51. Comp. Rebate (NARANJA) -->
+                            <tr data-campo="comp_rebate">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido Rebate</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 52. Comp. Propio (NARANJA) -->
+                            <tr data-campo="comp_propio">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido Propio</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 53. Comp. Propio 2 (NARANJA) -->
+                            <tr data-campo="comp_propio2">
+                                <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido 2 Propio</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
+                            </tr>
+                            <!-- 54. Regalo (AMARILLO - input combo) -->
+                            <tr data-campo="regalo">
+                                <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Regalo</td>
+                                <td class="align-middle text-center">
+                                    <input class="form-check-input" type="checkbox">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light border-top">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnConfirmarCombo"><i class="fa-solid fa-check"></i> Guardar Combo</button>
             </div>
         </div>
     </div>
