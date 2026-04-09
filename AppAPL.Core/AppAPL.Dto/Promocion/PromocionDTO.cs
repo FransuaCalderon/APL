@@ -637,69 +637,74 @@ namespace AppAPL.Dto.Promocion
     {
         public string TipoSegmento { get; set; } = string.Empty; // Ej: "SEGMARCA"
         public string TipoAsignacion { get; set; } = "T";        // 'T' (Todos) o 'C' (Codigos)
-        public List<string> Codigos { get; set; } = new();       // Array de strings ["001", "002"]
+        public List<string>? Codigos { get; set; }       // Array de strings ["001", "002"]
     }
 
 
     public class ArticuloDTO
     {
         // Identificación
-        [Required]
-        [StringLength(10)]
-        public string codigoItem { get; set; } = string.Empty;
-
-        [Required]
-        [StringLength(100)]
-        public string descripcion { get; set; } = string.Empty;
+        //[Required]
+        //[StringLength(10)]
+        public string? codigoItem { get; set; } = string.Empty;
+        public string? descripcion { get; set; } = string.Empty;
+        public string? DescripcionCombo { get; set; } // Solo para PRCOMBO
 
         // Precios y Stocks
         public decimal costo { get; set; }
-        public int stockBodega { get; set; }
-        public int stockTienda { get; set; }
-        public int inventarioOptimo { get; set; }
-        public int excedenteUnidad { get; set; }
-        public decimal excedenteValor { get; set; }
+        public int? stockBodega { get; set; }
+        public int? stockTienda { get; set; }
+        public int? inventarioOptimo { get; set; }
+        public int? excedenteUnidad { get; set; }
+        public decimal? excedenteValor { get; set; }
 
         // Proyecciones y Límites
-        public int m0Unidades { get; set; }
-        public decimal m0Precio { get; set; }
-        public int m1Unidades { get; set; }
-        public decimal m1Precio { get; set; }
-        public int m2Unidades { get; set; }
-        public decimal m2Precio { get; set; }
-        public int m12Unidades { get; set; }
-        public decimal m12Precio { get; set; }
-        public decimal igualarPrecio { get; set; }
-        public int diasAntiguedad { get; set; }
+        public int? m0Unidades { get; set; }
+        public decimal? m0Precio { get; set; }
+        public int? m1Unidades { get; set; }
+        public decimal? m1Precio { get; set; }
+        public int? m2Unidades { get; set; }
+        public decimal? m2Precio { get; set; }
+        public int? m12Unidades { get; set; }
+        public decimal? m12Precio { get; set; }
+
 
         // Márgenes y Precios Finales
+        public decimal? igualarPrecio { get; set; }
+        public int? diasAntiguedad { get; set; }
         public decimal margenMinimoContado { get; set; }
         public decimal margenMinimoTarjetaCredito { get; set; }
         public decimal margenMinimoCredito { get; set; }
-        public decimal margenMinimoIgualar { get; set; }
-        public int unidadesLimite { get; set; }
-        public int unidadesProyeccionVentas { get; set; }
+        public decimal? margenMinimoIgualar { get; set; }
+        public decimal? MargenMinimoIgualarPrecio { get; set; } // Alias usado en combos por el SP
+        public int? unidadesLimite { get; set; }
+        public int? unidadesProyeccionVentas { get; set; }
+        public int? ProyeccionVentas { get; set; } // Alias usado en combos por el SP
+
+        // Precios de Lista y Promoción
         public decimal precioListaContado { get; set; }
         public decimal precioListaCredito { get; set; }
         public decimal precioPromocionContado { get; set; }
         public decimal precioPromocionTarjetaCredito { get; set; }
         public decimal precioPromocionCredito { get; set; }
-        public decimal precioIgualarPrecio { get; set; }
+        public decimal? precioIgualarPrecio { get; set; }
+
 
         // Descuentos y Márgenes Calculados
         public decimal descuentoPromocionContado { get; set; }
         public decimal descuentoPromocionTarjetaCredito { get; set; }
         public decimal descuentoPromocionCredito { get; set; }
-        public decimal descuentoIgualarPrecio { get; set; }
+        public decimal? descuentoIgualarPrecio { get; set; }
         public decimal margenPrecioListaContado { get; set; }
         public decimal margenPrecioListaCredito { get; set; }
         public decimal margenPromocionContado { get; set; }
         public decimal margenPromocionTarjetaCredito { get; set; }
         public decimal margenPromocionCredito { get; set; }
-        public decimal margenIgualarPrecio { get; set; }
+        public decimal? margenIgualarPrecio { get; set; }
 
         [RegularExpression("^[SN]$")]
-        public string marcaRegalo { get; set; } = "N";
+        public string? marcaRegalo { get; set; } = "N";
+        public string? Regalo { get; set; } // Marca de regalo específica del combo
 
         // Listas internas (Sub-entidades)
         public List<MedioPagoDto> mediosPago { get; set; } = new List<MedioPagoDto>();
@@ -707,13 +712,19 @@ namespace AppAPL.Dto.Promocion
         public List<OtroCostoDto>? otrosCostos { get; set; }
 
         // EXCLUSIVO PARA PRCOMBO:
+
+        // Identificación (Usado en PRCOMBO)
+
+
+        public List<MedioPagoDTO>? JsonMedioPago { get; set; }
         public List<ComponenteDto>? Componentes { get; set; }
     }
 
     public class MedioPagoDto
     {
         public string tipoAsignacion { get; set; } = "T";
-        public List<string> codigos { get; set; } = new List<string>();
+        public List<string>? codigos { get; set; }
+        public List<string>? Codigo { get; set; } // Alias para combos
     }
 
     public class ArticuloAcuerdoDto
@@ -725,36 +736,46 @@ namespace AppAPL.Dto.Promocion
 
     public class OtroCostoDto
     {
-        public int codigoParametro { get; set; }
+        public int? Codigo { get; set; } // Usado en combos
+        public int? codigoParametro { get; set; }
         public decimal costo { get; set; }
+        public decimal? Costos { get; set; } // Alias usado en algunos nodos del SP
     }
 
     public class ComponenteDto
     {
-        public string CodigoItem { get; set; } = string.Empty;
+        public string? CodigoArticulo { get; set; }
+        public string? Descripcion { get; set; }
         public decimal Costo { get; set; }
-        public int StockBodega { get; set; }
-        public int StockTienda { get; set; }
-        public int InventarioOptimo { get; set; }
-        public int ExcedenteUnidad { get; set; }
-        public decimal ExcedenteValor { get; set; }
-        public int M0Unidades { get; set; }
-        public decimal M0Precio { get; set; }
-        public int M1Unidades { get; set; }
-        public decimal M1Precio { get; set; }
-        public int M2Unidades { get; set; }
-        public decimal M2Precio { get; set; }
-        public decimal IgualarPrecio { get; set; }
-        public int DiasAntiguedad { get; set; }
+        public int? StockBodega { get; set; }
+        public int? StockTienda { get; set; }
+        public int? InventarioOptimo { get; set; }
+        public int? ExcedenteU { get; set; } // El SP usa excedenteU en componentes
+        public decimal? ExcedenteUSD { get; set; } // El SP usa excedenteUSD en componentes
+
+        // Históricos con nombres de componentes
+        public int? VentaHistoricaM0U { get; set; }
+        public decimal? VentaHistoricaM0USD { get; set; }
+        public int? VentaHistoricaM1U { get; set; }
+        public decimal? VentaHistoricaM1USD { get; set; }
+        public int? VentaHistoricaM2U { get; set; }
+        public decimal? VentaHistoricaM2USD { get; set; }
+        public decimal? VentaHistoricaM12U { get; set; }
+        public decimal? VentaHistoricaM12USD { get; set; }
+
         public decimal MargenMinimoContado { get; set; }
         public decimal MargenMinimoTarjetaCredito { get; set; }
-        public decimal MargenMinimoCredito { get; set; }
-        public decimal MargenMinimoIgualar { get; set; }
+        public decimal? MargenMinimoPrecioCredito { get; set; }
+        public decimal? MargenMinimoIgualar { get; set; }
         public decimal PrecioListaContado { get; set; }
         public decimal PrecioListaCredito { get; set; }
+        public decimal PrecioPromocionContado { get; set; }
+        public decimal PrecioPromocionTarjetaCredito { get; set; }
+        public decimal PrecioPromocionCredito { get; set; }
 
-        // Acuerdos específicos para este componente dentro del combo
-        public List<ArticuloAcuerdoDto>? Acuerdos { get; set; }
+        // Listas anidadas del componente
+        public List<ArticuloAcuerdoDto>? JsonAcuerdos { get; set; }
+        public List<OtroCostoDto>? JsonOtrosCostos { get; set; }
     }
 
 
@@ -772,6 +793,8 @@ namespace AppAPL.Dto.Promocion
         public int inventarioOptimo { get; set; }
         public int excedenteUnidad { get; set; }
         public decimal excedenteValor { get; set; }
+
+        // Precios y Márgenes
         public int m0Unidades { get; set; }
         public decimal m0Precio { get; set; }
         public int m1Unidades { get; set; }
@@ -780,30 +803,42 @@ namespace AppAPL.Dto.Promocion
         public decimal m2Precio { get; set; }
         public int m12Unidades { get; set; }
         public decimal m12Precio { get; set; }
+
+
         public decimal igualarPrecio { get; set; }
         public int diasAntiguedad { get; set; }
         public decimal margenMinimoContado { get; set; }
         public decimal margenMinimoTarjetaCredito { get; set; }
         public decimal margenMinimoCredito { get; set; }
         public decimal margenMinimoIgualar { get; set; }
+
+
         public int unidadesLimite { get; set; }
         public int unidadesProyeccionVentas { get; set; }
+
+
         public decimal precioListaContado { get; set; }
         public decimal precioListaCredito { get; set; }
         public decimal precioPromocionContado { get; set; }
         public decimal precioPromocionTarjetaCredito { get; set; }
         public decimal precioPromocionCredito { get; set; }
         public decimal precioIgualarPrecio { get; set; }
+
+
         public decimal descuentoPromocionContado { get; set; }
         public decimal descuentoPromocionTarjetaCredito { get; set; }
         public decimal descuentoPromocionCredito { get; set; }
         public decimal descuentoIgualarPrecio { get; set; }
+
+
         public decimal margenPrecioListaContado { get; set; }
         public decimal margenPrecioListaCredito { get; set; }
         public decimal margenPromocionContado { get; set; }
         public decimal margenPromocionTarjetaCredito { get; set; }
         public decimal margenPromocionCredito { get; set; }
         public decimal margenIgualarPrecio { get; set; }
+
+
         public string marcaRegalo { get; set; }
 
         // Objetos anidados
@@ -872,13 +907,14 @@ namespace AppAPL.Dto.Promocion
 
     public class PromocionModDto
     {
-        public string Descripcion { get; set; }
+        public string Descripcion { get; set; } = string.Empty;
         public int Motivo { get; set; }
         public DateTime FechaHoraInicio { get; set; } // Formato ISO: YYYY-MM-DDTHH:mm:ss.fffZ
         public DateTime FechaHoraFin { get; set; }
-        public string MarcaRegalo { get; set; } // "S" o "N"
-        public string IdUsuarioModifica { get; set; }
-        public string NombreUsuario { get; set; }
+        public string MarcaRegalo { get; set; } = "N";
+        public string IdUsuarioModifica { get; set; } = string.Empty;
+        public string? IdUsuarioIngreso { get; set; } = string.Empty;
+        public string NombreUsuario { get; set; } = string.Empty;
     }
 
     public class AcuerdoModDto
