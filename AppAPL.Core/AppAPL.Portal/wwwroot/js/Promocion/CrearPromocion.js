@@ -14,6 +14,9 @@
     let acuerdoArticuloTemporal = null;
     let acuerdoArticuloContexto = null;
 
+    // Variable para saber si estamos editando un combo existente
+    let comboEnEdicion = null;
+
     const CONFIG_MULTIPLE = [
         { id: "marca", select: "#filtroMarcaGeneral", btnOpen: "#btnMarcaGeneral", body: "#bodyModalMarca", btnAccept: "#btnAceptarMarca", triggerVal: "3" },
         { id: "division", select: "#filtroDivisionGeneral", btnOpen: "#btnDivisionGeneral", body: "#bodyModalDivision", btnAccept: "#btnAceptarDivision", triggerVal: "3" },
@@ -421,15 +424,16 @@
                     return nom !== "TODOS" && nom !== "TODAS" && m.codigo !== "0";
                 });
 
-                // 1. Llenar General
                 llenarComboYModal($("#filtroCanalGeneral"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
                 llenarComboYModal($("#filtroGrupoAlmacenGeneral"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo", "Todos");
+                llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
+
+                $("#selectMedioPagoModalCombo").html($("#filtroMedioPagoGeneral").html());
 
                 consultarAlmacenes();
 
-                llenarComboYModal($("#filtroMedioPagoGeneral"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
+                $("#selectMedioPagoModalCombo").html($("#filtroMedioPagoGeneral").html());
 
-                // 2. Clonar para Artículos
                 $("#filtroCanalArticulos").html($("#filtroCanalGeneral").html());
                 aplicarSelect2($("#filtroCanalArticulos"));
                 $("#filtroGrupoAlmacenArticulos").html($("#filtroGrupoAlmacenGeneral").html());
@@ -437,7 +441,6 @@
                 $("#filtroAlmacenCombos").html($("#filtroAlmacenGeneral").html());
                 aplicarSelect2($("#filtroAlmacenCombos"));
 
-                // 👉 3. Clonar para Combos (ESTO ES LO NUEVO)
                 $("#filtroCanalCombos").html($("#filtroCanalGeneral").html());
                 aplicarSelect2($("#filtroCanalCombos"));
                 $("#filtroGrupoAlmacenCombos").html($("#filtroGrupoAlmacenGeneral").html());
@@ -445,7 +448,6 @@
                 $("#filtroAlmacenCombos").html($("#filtroAlmacenGeneral").html());
                 aplicarSelect2($("#filtroAlmacenCombos"));
 
-                // 4. Lógica para Tipo de Cliente (Se aplica a los 3)
                 const $cliGen = $("#tipoClienteGeneral");
                 const $cliArt = $("#tipoClienteArticulos");
                 const $cliCom = $("#tipoClienteCombos");
@@ -514,11 +516,9 @@
                 console.log("cantidad de almacenes consultados: ", listaAlmacenes.length);
                 llenarComboYModal($("#filtroAlmacenGeneral"), $("#bodyModalAlmacen"), listaAlmacenes, "Seleccione...", "3", "almacen", "Todos");
 
-                // Clonar a Artículos
                 $("#filtroAlmacenArticulos").html($("#filtroAlmacenGeneral").html());
                 aplicarSelect2($("#filtroAlmacenArticulos"));
 
-                // Clonar a Combos
                 $("#filtroAlmacenCombos").html($("#filtroAlmacenGeneral").html());
                 aplicarSelect2($("#filtroAlmacenCombos"));
             }
@@ -1122,65 +1122,8 @@
     }
 
     // ==========================================
-    // AGREGAR ITEMS A TABLA ARTÍCULOS (CON NUEVOS CAMPOS)
+    // AGREGAR ITEMS A TABLA ARTÍCULOS
     // ==========================================
-    // MAPA DE INDICES DE COLUMNAS (td:eq):
-    // 0:  Sel (radio)
-    // 1:  Artículo (codigo - descripcion)
-    // 2:  Costo
-    // 3:  Stock Bodega
-    // 4:  Stock Tienda
-    // 5:  Inv. Óptimo
-    // 6:  Excedente(u)
-    // 7:  Excedente($)
-    // 8:  Vta M-0(u)
-    // 9:  Vta M-0($)
-    // 10: Vta M-1(u)
-    // 11: Vta M-1($)
-    // 12: Vta M-2(u)
-    // 13: Vta M-2($)
-    // 14: Vta M-12(u)
-    // 15: Vta M-12($)
-    // 16: Vta Igualar
-    // 17: Dias Igualar
-    // 18: Marg.Min Contado
-    // 19: Marg.Min TC
-    // 20: Marg.Min Crédito
-    // 21: Marg.Min Igualar
-    // 22: Unidades Límite (input)
-    // 23: Proyección Vtas (input)
-    // 24: Medio de Pago (select)
-    // 25: Precio Lista
-    // 26: Precio Promo Contado (input)
-    // 27: Precio Promo TC (input)
-    // 28: Precio Promo Crédito (input)
-    // 29: Precio Igualar (input)
-    // 30: Dscto Promo Contado
-    // 31: Dscto Promo TC
-    // 32: Dscto Promo Crédito
-    // 33: Dscto Igualar
-    // 34: Aporte Proveedor (input .aporte-proveedor)
-    // 35: Aporte Prov. ID Acuerdo (.acuerdo-prov1-hidden)
-    // 36: Aporte 2 Proveedor (input .aporte-proveedor2)
-    // 37: Aporte 2 Prov. ID Acuerdo (.acuerdo-prov2-hidden)
-    // 38: Aporte Rebate (input .aporte-rebate)
-    // 39: Aporte Rebate ID Acuerdo (.acuerdo-rebate-hidden)
-    // 40: Aporte Propio (input .aporte-propio)
-    // 41: Aporte Propio ID Acuerdo (.acuerdo-propio1-hidden)
-    // 42: Aporte Propio 2 (input .aporte-propio2)
-    // 43: Aporte 2 Propio ID Acuerdo (.acuerdo-propio2-hidden)
-    // 44: Margen Precio Lista
-    // 45: Margen Promo Contado
-    // 46: Margen Promo TC
-    // 47: Margen Promo Crédito
-    // 48: Margen Igualar
-    // 49: Comp. Proveedor
-    // 50: Comp. Proveedor 2
-    // 51: Comp. Rebate
-    // 52: Comp. Propio
-    // 53: Comp. Propio 2
-    // 54: Regalo (checkbox)
-
     function agregarItemsATablaArticulos(items) {
         const $tbody = $("#tablaArticulosBody");
         let itemsNuevos = 0;
@@ -1232,10 +1175,7 @@
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
-
-            <!-- td 33: Aporte Proveedor -->
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor" placeholder="0.00" disabled></td>
-            <!-- td 34: Aporte Prov. ID Acuerdo -->
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="">
                 <div class="input-group input-group-sm">
@@ -1245,9 +1185,7 @@
                     </button>
                 </div>
             </td>
-            <!-- td 35: Aporte 2 Proveedor ✅ NUEVO -->
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor2" placeholder="0.00" disabled></td>
-            <!-- td 36: Aporte 2 Prov. ID Acuerdo ✅ NUEVO -->
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="">
                 <div class="input-group input-group-sm">
@@ -1257,10 +1195,7 @@
                     </button>
                 </div>
             </td>
-
-            <!-- td 37: Aporte Rebate -->
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-rebate" placeholder="0.00" disabled></td>
-            <!-- td 38: Aporte Rebate ID Acuerdo -->
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="">
                 <div class="input-group input-group-sm">
@@ -1270,10 +1205,7 @@
                     </button>
                 </div>
             </td>
-
-            <!-- td 39: Aporte Propio -->
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio" placeholder="0.00" disabled></td>
-            <!-- td 40: Aporte Propio ID Acuerdo -->
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="">
                 <div class="input-group input-group-sm">
@@ -1283,9 +1215,7 @@
                     </button>
                 </div>
             </td>
-            <!-- td 41: Aporte Propio 2 ✅ NUEVO -->
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio2" placeholder="0.00" disabled></td>
-            <!-- td 42: Aporte 2 Propio ID Acuerdo ✅ NUEVO -->
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="">
                 <div class="input-group input-group-sm">
@@ -1295,7 +1225,6 @@
                     </button>
                 </div>
             </td>
-
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
@@ -1318,7 +1247,7 @@
     }
 
     // ==========================================
-    // RECALCULAR FILA ARTÍCULO (CON NUEVOS CAMPOS)
+    // RECALCULAR FILA ARTÍCULO
     // ==========================================
     function recalcularFilaArticulo($fila) {
         const costo = parseCurrency($fila.find("td:eq(2)").text());
@@ -1341,7 +1270,6 @@
         const proyeccionVtas = parseInt($fila.find("td:eq(23) input").val()) || 0;
         const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
 
-        // --- CÁLCULO DE DESCUENTOS (td 30-33) ---
         const dsctoContado = precioLista - precioContado;
         const dsctoTC = precioLista - precioTC;
         const dsctoCredito = precioLista - precioCredito;
@@ -1351,11 +1279,9 @@
         $fila.find("td:eq(32)").text(dsctoCredito.toFixed(2));
         $fila.find("td:eq(33)").text(dsctoIgualar.toFixed(2));
 
-        // --- MARGEN PRECIO LISTA (td 44) ---
         const margenPL = precioLista > 0 ? ((precioLista - costo) / precioLista * 100) : 0;
         $fila.find("td:eq(44)").text(margenPL.toFixed(2) + "%");
 
-        // --- CÁLCULO DE MÁRGENES (td 45-48) ---
         const calcMargen = (precioPromocion) => {
             const denominador = precioPromocion + aporteProveedor + aporteProveedor2 + aporteRebate;
             if (denominador > 0) {
@@ -1369,19 +1295,12 @@
         $fila.find("td:eq(47)").text(calcMargen(precioCredito).toFixed(2) + "%");
         $fila.find("td:eq(48)").text(calcMargen(precioIgualar).toFixed(2) + "%");
 
-        // --- CÁLCULO DE COMPROMETIDOS ---
-        // td 49: Comp. Proveedor
         $fila.find("td:eq(49)").text(formatCurrencySpanish(aporteProveedor * unidades));
-        // td 50: Comp. Proveedor 2
         $fila.find("td:eq(50)").text(formatCurrencySpanish(aporteProveedor2 * unidades));
-        // td 51: Comp. Rebate
         $fila.find("td:eq(51)").text(formatCurrencySpanish(aporteRebate * unidades));
-        // td 52: Comp. Propio
         $fila.find("td:eq(52)").text(formatCurrencySpanish(aportePropio * unidades));
-        // td 53: Comp. Propio 2
         $fila.find("td:eq(53)").text(formatCurrencySpanish(aportePropio2 * unidades));
 
-        // --- FORMATO VISUAL (Colores) ---
         $fila.find("td:eq(30), td:eq(31), td:eq(32), td:eq(33), td:eq(44), td:eq(45), td:eq(46), td:eq(47), td:eq(48)").each(function () {
             const valor = parseFloat($(this).text());
             if (valor < 0) {
@@ -1594,8 +1513,6 @@
                 const m1p = parseCurrency($fila.find("td:eq(11)").text());
                 const m2u = parseInt($fila.find("td:eq(12)").text()) || 0;
                 const m2p = parseCurrency($fila.find("td:eq(13)").text());
-
-                // ✅ NUEVO: Capturar datos de M-12 que faltaban
                 const m12u = parseInt($fila.find("td:eq(14)").text()) || 0;
                 const m12p = parseCurrency($fila.find("td:eq(15)").text());
 
@@ -1634,20 +1551,15 @@
 
                 const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
                 const idAcuerdoProveedor = parseInt($fila.find(".acuerdo-prov1-hidden").val()) || 0;
-
                 const aporteProveedor2 = parseCurrency($fila.find(".aporte-proveedor2").val());
                 const idAcuerdoProveedor2 = parseInt($fila.find(".acuerdo-prov2-hidden").val()) || 0;
-
                 const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
                 const idAcuerdoRebate = parseInt($fila.find(".acuerdo-rebate-hidden").val()) || 0;
-
                 const aportePropio = parseCurrency($fila.find(".aporte-propio").val());
                 const idAcuerdoPropio = parseInt($fila.find(".acuerdo-propio1-hidden").val()) || 0;
-
                 const aportePropio2 = parseCurrency($fila.find(".aporte-propio2").val());
                 const idAcuerdoPropio2 = parseInt($fila.find(".acuerdo-propio2-hidden").val()) || 0;
 
-                // ✅ NUEVO: Leer las celdas de Valores Comprometidos
                 const compProveedor = parseCurrency($fila.find("td:eq(49)").text());
                 const compProveedor2 = parseCurrency($fila.find("td:eq(50)").text());
                 const compRebate = parseCurrency($fila.find("td:eq(51)").text());
@@ -1662,7 +1574,6 @@
 
                 const regalo = $fila.find("td:eq(54) input[type='checkbox']").is(":checked") ? "S" : "N";
 
-                // ✅ MODIFICADO: Formateo de acuerdos incluyendo el "valorcomprometido"
                 const acuerdosArticulo = [];
                 if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor, valorcomprometido: compProveedor, etiqueta_tipo_fondo: "TFPROVEDOR" });
                 if (idAcuerdoProveedor2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor2, valoraporte: aporteProveedor2, valorcomprometido: compProveedor2, etiqueta_tipo_fondo: "TFPROVEDOR" });
@@ -1709,7 +1620,6 @@
                     m1precio: m1p,
                     m2unidades: m2u,
                     m2precio: m2p,
-                    // ✅ AÑADIDO M-12 al JSON
                     m12unidades: m12u,
                     m12precio: m12p,
                     igualarprecio: igualarPrecio,
@@ -1929,7 +1839,6 @@
             });
         });
 
-        // --- OTROS COSTOS ---
         $("#btnOtrosCostos").on("click", function () {
             const codigo = obtenerCodigoArticuloSeleccionado();
             if (!codigo) return;
@@ -1992,88 +1901,333 @@
     // ==========================================
     // LÓGICA DE COMBOS
     // ==========================================
-    function initLogicaCombos() {
 
-        // 1. Mostrar la sección de Creación del Combo
-        $("#btnNuevoCombo").off("click").on("click", function () {
-            // Limpiamos los campos por si había un ingreso previo
-            $("#nombreCombo").val("");
+    /**
+     * Extrae los artículos del modal de creación de combo (tabla transpuesta).
+     * Recorre las columnas dinámicas (índice >= 2) y lee cada campo data-campo.
+     * Retorna un array de objetos con la información de cada artículo del combo.
+     */
+    function extraerArticulosDelModalCombo() {
+        const articulos = [];
+        const numColumnas = $("#trHeadersCombo th").length;
 
-            // Generamos un código temporal para el combo (ej: CMB-001) 
-            // Esto lo puedes cambiar si el código viene del backend
-            let numRandom = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            $("#codigoCombo").val("CMB-" + numRandom);
+        for (let colIdx = 2; colIdx < numColumnas; colIdx++) {
+            const art = { mediosPago: [], acuerdos: [], otrosCostos: [] };
 
-            // Desplegamos el panel colapsable usando la API de Bootstrap
-            $("#seccionCrearCombo").collapse('show');
+            $("#tablaCreacionCombo tbody tr").each(function () {
+                const campo = $(this).data("campo");
+                // CORRECCIÓN CRÍTICA: Usar colIdx en lugar de colIndex
+                const $td = $(this).find(`td[data-colindex='${colIdx}']`);
+                if ($td.length === 0) return;
 
-            // Opcional: Hacer scroll hacia la sección
-            $('html, body').animate({
-                scrollTop: $("#seccionCrearCombo").offset().top - 100
-            }, 500);
+                const $input = $td.find("input[type='text'], input[type='number'], input[type='hidden']");
+                const $select = $td.find("select");
+                const $checkbox = $td.find("input[type='checkbox']");
+
+                let val = "";
+                if ($input.length > 0) val = $input.val();
+                else if ($select.length > 0) val = $select.val();
+                else val = $td.text();
+
+                switch (campo) {
+                    case "art_codigo": art.codigo = val; break;
+                    case "art_descripcion": art.descripcion = val; break;
+                    case "costo": art.costo = parseCurrency(val); break;
+                    case "stock_bodega": art.stock = parseInt(val) || 0; break;
+                    case "stock_tienda": art.stockTienda = parseInt(val) || 0; break;
+                    case "inv_optimo": art.optimo = parseInt(val) || 0; break;
+                    case "excedentes_u": art.excedenteu = parseInt(val) || 0; break;
+                    case "excedentes_usd": art.excedentes = parseCurrency(val); break;
+                    case "m0_u": art.m0u = parseInt(val) || 0; break;
+                    case "m0_usd": art.m0s = parseCurrency(val); break;
+                    case "m1_u": art.m1u = parseInt(val) || 0; break;
+                    case "m1_usd": art.m1s = parseCurrency(val); break;
+                    case "m2_u": art.m2u = parseInt(val) || 0; break;
+                    case "m2_usd": art.m2s = parseCurrency(val); break;
+                    case "m12_u": art.m12u = parseInt(val) || 0; break;
+                    case "m12_usd": art.m12s = parseCurrency(val); break;
+                    case "unidades_limite": art.unidadesLimite = parseInt(val) || 0; break;
+                    case "proyeccion_vta": art.proyeccionVtas = parseInt(val) || 0; break;
+                    case "promo_contado": art.promoContado = parseCurrency(val); break;
+                    case "promo_tc": art.promoTC = parseCurrency(val); break;
+                    case "promo_credito": art.promoCredito = parseCurrency(val); break;
+                    case "aporte_prov": art.aporteProveedor = parseCurrency(val); break;
+                    case "aporte_prov2": art.aporteProveedor2 = parseCurrency(val); break;
+                    case "aporte_rebate": art.aporteRebate = parseCurrency(val); break;
+                    case "aporte_propio": art.aportePropio = parseCurrency(val); break;
+                    case "aporte_propio2": art.aportePropio2 = parseCurrency(val); break;
+                    case "aporte_prov_id": art.idAcuerdoProveedor = parseInt(val) || 0; break;
+                    case "aporte_prov2_id": art.idAcuerdoProveedor2 = parseInt(val) || 0; break;
+                    case "aporte_rebate_id": art.idAcuerdoRebate = parseInt(val) || 0; break;
+                    case "aporte_propio_id": art.idAcuerdoPropio = parseInt(val) || 0; break;
+                    case "aporte_propio2_id": art.idAcuerdoPropio2 = parseInt(val) || 0; break;
+                    case "medio_pago":
+                        const $sel = $td.find(".select-mediopago-combo");
+                        const medioPagoVal = $sel.val();
+                        const mediosPagoSel = $sel.data("seleccionados") || [];
+                        if (medioPagoVal === "7") {
+                            art.mediosPago.push({ tipoasignacion: "D", codigos: mediosPagoSel });
+                        } else if (medioPagoVal && medioPagoVal !== "" && medioPagoVal !== "TODAS" && medioPagoVal !== "TODOS") {
+                            art.mediosPago.push({ tipoasignacion: "C", codigos: [medioPagoVal] });
+                        } else {
+                            art.mediosPago.push({ tipoasignacion: "T", codigos: [] });
+                        }
+                        break;
+                    case "regalo": art.regalo = $checkbox.is(":checked") ? "S" : "N"; break;
+                }
+            });
+
+            // Recuperar otros costos si existen (CORRECCIÓN: Usar colIdx)
+            const otrosCostos = $(`#trHeadersCombo th:eq(${colIdx})`).data("detalle-otros-costos") || [];
+            art.otrosCostos = otrosCostos.map(oc => ({ codigoparametro: parseInt(oc.codigo, 10) || 0, costo: parseFloat(oc.valor) || 0 }));
+            art.totalOtrosCostos = parseFloat($(`#trHeadersCombo th:eq(${colIdx})`).data("total-otros-costos")) || 0;
+
+            if (art.codigo && art.codigo.trim() !== "" && art.codigo !== "Auto") {
+                articulos.push(art);
+            }
+        }
+        return articulos;
+    }
+
+    /**
+     * Limpia el modal de creación de combo: quita columnas dinámicas (>= col 2),
+     * resetea los campos de código/nombre.
+     */
+    function limpiarModalCombo() {
+        // Eliminar columnas dinámicas de artículos (todas después de las 2 primeras)
+        const numCols = $("#trHeadersCombo th").length;
+        for (let i = numCols - 1; i >= 2; i--) {
+            $("#trHeadersCombo th:eq(" + i + ")").remove();
+            $("#tablaCreacionCombo tbody tr").each(function () {
+                $(this).find("td:eq(" + i + ")").remove();
+            });
+        }
+
+        // Resetear campos
+        $("#codigoComboModal").val("");
+        $("#nombreComboModal").val("");
+        $("#btnHeaderComboTotal").text("[Nuevo Combo]");
+
+        // Resetear inputs de la columna total (col index 1 → segundo td en cada fila)
+        $("#tablaCreacionCombo tbody tr").each(function () {
+            const $td = $(this).find("td:eq(1)");
+            const $input = $td.find("input");
+            if ($input.length > 0) {
+                if ($input.attr("type") === "checkbox") {
+                    $input.prop("checked", false);
+                } else {
+                    const placeholder = $input.attr("placeholder") || "";
+                    if ($input.prop("readonly")) {
+                        // Para campos calculados/totales, resetear a valor por defecto
+                        if (placeholder.includes("$") || placeholder === "") {
+                            $input.val("$ 0.00");
+                        } else {
+                            $input.val($input.hasClass("custom-celda-bg") ? "-" : "0%");
+                        }
+                    } else {
+                        $input.val("");
+                    }
+                }
+            }
         });
 
-        // 2. Aceptar el Combo y pasarlo a la grilla superior
-        $("#btnAceptarCombo").off("click").on("click", function () {
-            const codigo = $("#codigoCombo").val();
-            const nombre = $("#nombreCombo").val();
+        comboEnEdicion = null;
+    }
 
-            if (!nombre.trim()) {
+    // ==========================================
+    // FUNCIÓN AUXILIAR DE CÁLCULO PARA COLUMNAS DEL COMBO
+    // ==========================================
+    function recalcularColumnaCombo(colIndex) {
+        const getColVal = (campo, selector) => {
+            const text = $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).val() || $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).text();
+            return parseCurrency(text);
+        };
+
+        const setColVal = (campo, selector, val) => {
+            $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).val(val);
+        };
+
+        const costo = getColVal("costo", "input");
+        const precioLista = getColVal("precio_lista_contado", "input");
+        const otrosCostos = parseFloat($(`#trHeadersCombo th:eq(${colIndex})`).data("total-otros-costos")) || 0;
+
+        const unidadesLimite = getColVal("unidades_limite", "input");
+        const proyeccionVtas = getColVal("proyeccion_vta", "input");
+        const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
+
+        const promoContado = getColVal("promo_contado", "input");
+        const promoTC = getColVal("promo_tc", "input");
+        const promoCredito = getColVal("promo_credito", "input");
+
+        setColVal("dscto_contado", "input", formatCurrencySpanish(precioLista - promoContado));
+        setColVal("dscto_tc", "input", formatCurrencySpanish(precioLista - promoTC));
+        setColVal("dscto_credito", "input", formatCurrencySpanish(precioLista - promoCredito));
+
+        const apProv = getColVal("aporte_prov", "input");
+        const apProv2 = getColVal("aporte_prov2", "input");
+        const apRebate = getColVal("aporte_rebate", "input");
+        const apPropio = getColVal("aporte_propio", "input");
+        const apPropio2 = getColVal("aporte_propio2", "input");
+
+        setColVal("comp_proveedor", "input", formatCurrencySpanish(apProv * unidades));
+        setColVal("comp_proveedor2", "input", formatCurrencySpanish(apProv2 * unidades));
+        setColVal("comp_rebate", "input", formatCurrencySpanish(apRebate * unidades));
+        setColVal("comp_propio", "input", formatCurrencySpanish(apPropio * unidades));
+        setColVal("comp_propio2", "input", formatCurrencySpanish(apPropio2 * unidades));
+
+        const calcMargen = (precioPromo) => {
+            const denominador = precioPromo + apProv + apProv2 + apRebate;
+            if (denominador > 0) return (((denominador - costo - otrosCostos) / denominador) * 100).toFixed(2) + "%";
+            return "0.00%";
+        };
+
+        setColVal("margen_promo_contado", "input", calcMargen(promoContado));
+        setColVal("margen_promo_tc", "input", calcMargen(promoTC));
+        setColVal("margen_promo_cred", "input", calcMargen(promoCredito));
+    }
+
+    // ==========================================
+    // LÓGICA PRINCIPAL DE COMBOS
+    // ==========================================
+    function initLogicaCombos() {
+
+        // 1. Nuevo Combo - Abrir modal limpio
+        $("#btnNuevoCombo").off("click").on("click", function () {
+            comboEnEdicion = null;
+            limpiarModalCombo();
+
+            // Generar código temporal
+            let numRandom = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            $("#codigoComboModal").val("CMB-" + numRandom);
+        });
+
+        // 2. GUARDAR COMBO → Leer artículos del modal y agregar fila a tablaCombosBody
+        $("#btnConfirmarCombo").off("click").on("click", function () {
+            const codigo = $("#codigoComboModal").val().trim();
+            const nombre = $("#nombreComboModal").val().trim();
+
+            if (!nombre) {
                 Swal.fire("Validación", "Debe ingresar un nombre para el combo.", "warning");
                 return;
             }
+            if (!codigo) {
+                Swal.fire("Validación", "Debe ingresar un código para el combo.", "warning");
+                return;
+            }
 
-            // Validar que no exista ya en la tabla
-            const existe = $(`#tablaCombosBody tr[data-codigo="${codigo}"]`).length > 0;
-            if (existe) {
+            // Extraer artículos de las columnas dinámicas del modal
+            const articulosCombo = extraerArticulosDelModalCombo();
+
+            if (articulosCombo.length === 0) {
+                Swal.fire("Validación", "Debe agregar al menos un artículo al combo.", "warning");
+                return;
+            }
+
+            // Calcular totales sumando los artículos
+            let totalCosto = 0, totalStock = 0, totalStockTienda = 0, totalOptimo = 0;
+            let totalExcU = 0, totalExcS = 0;
+            let totalPromoContado = 0, totalPromoTC = 0, totalPromoCredito = 0;
+            let totalAporteProv = 0, totalAporteRebate = 0, totalAportePropio = 0;
+
+            const nombresArticulos = [];
+
+            articulosCombo.forEach(a => {
+                totalCosto += a.costo || 0;
+                totalStock += a.stock || 0;
+                totalStockTienda += a.stockTienda || 0;
+                totalOptimo += a.optimo || 0;
+                totalExcU += a.excedenteu || 0;
+                totalExcS += a.excedentes || 0;
+                totalPromoContado += a.promoContado || 0;
+                totalPromoTC += a.promoTC || 0;
+                totalPromoCredito += a.promoCredito || 0;
+                totalAporteProv += (a.aporteProveedor || 0) + (a.aporteProveedor2 || 0);
+                totalAporteRebate += a.aporteRebate || 0;
+                totalAportePropio += (a.aportePropio || 0) + (a.aportePropio2 || 0);
+                nombresArticulos.push(a.codigo);
+            });
+
+            const precioListaCombo = 0; // Se suma de los precios de lista si se tuvieran
+            const dsctoContado = precioListaCombo - totalPromoContado;
+            const dsctoTC = precioListaCombo - totalPromoTC;
+            const dsctoCredito = precioListaCombo - totalPromoCredito;
+
+            const calcMargenCombo = (precioPromo) => {
+                if (precioPromo > 0) return (((precioPromo - totalCosto) / precioPromo) * 100).toFixed(2) + "%";
+                return "0.00%";
+            };
+
+            // Si estamos editando, eliminar la fila anterior
+            if (comboEnEdicion) {
+                $(`#tablaCombosBody tr[data-codigo="${comboEnEdicion}"]`).remove();
+            }
+
+            // Verificar que no exista ya el mismo código (si no estamos editando)
+            if (!comboEnEdicion && $(`#tablaCombosBody tr[data-codigo="${codigo}"]`).length > 0) {
                 Swal.fire("Atención", "Este código de combo ya existe en el detalle.", "warning");
                 return;
             }
 
-            // Armamos la fila para la tabla principal de Combos (Respetando tus columnas)
+            // Construir la fila asegurando que los inputs interactivos nazcan DESHABILITADOS
             const filaCombo = `
                 <tr data-codigo="${codigo}" class="align-middle">
                     <td class="table-sticky-col" style="background-color: #a4c995;">
-                        <input type="radio" class="form-check-input combo-row-radio" name="comboRadioSel">
-                        <span class="ms-1 fw-bold">${codigo}</span> - ${nombre}
-                    </td>
-                    <td class="text-end">$ 0.00</td>
-                    <td class="text-end">0</td>
-                    <td class="text-end">0</td>
-                    <td class="text-end">0</td>
-                    <td class="text-end">0</td>
-                    <td class="text-end">$ 0.00</td>
-                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0"></td>
-                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0"></td>
+                        <div class="d-flex align-items-center">
+                            <input type="radio" class="form-check-input combo-row-radio me-2" name="comboRadioSel">
+                            <span class="text-nowrap"><span class="fw-bold">${codigo}</span> - ${nombre}</span>
+                        </div>
+                        </td>
+                    <td class="text-end">${formatCurrencySpanish(totalCosto)}</td>
+                    <td class="text-end">${totalStock}</td>
+                    <td class="text-end">${totalStockTienda}</td>
+                    <td class="text-end">${totalOptimo}</td>
+                    <td class="text-end">${totalExcU}</td>
+                    <td class="text-end">${formatCurrencySpanish(totalExcS)}</td>
+                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-unidades-combo" placeholder="0" disabled></td>
+                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo" placeholder="0" disabled></td>
                     <td class="celda-editable">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#ModalMedioPago">Medios Pago</button>
+                        <select class="form-select form-select-sm select-mediopago-combo-final" disabled>
+                            ${$("#filtroMedioPagoGeneral").html()}
+                        </select>
                     </td>
-                    <td class="text-end">$ 0.00</td>
-                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
-                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
-                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
-                    <td class="text-end">$ 0.00</td>
-                    <td class="text-end">$ 0.00</td>
-                    <td class="text-end">$ 0.00</td>
-                    <td class="text-end">0.00%</td>
-                    <td class="text-end">0.00%</td>
-                    <td class="text-end">0.00%</td>
-                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
-                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
-                    <td class="celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00"></td>
-                    <td class="text-center"><input class="form-check-input" type="checkbox"></td>
+                    <td class="text-end">${formatCurrencySpanish(precioListaCombo)}</td>
+                    <td class="text-end">${formatCurrencySpanish(totalPromoContado)}</td>
+                    <td class="text-end">${formatCurrencySpanish(totalPromoTC)}</td>
+                    <td class="text-end">${formatCurrencySpanish(totalPromoCredito)}</td>
+                    <td class="text-end">${formatCurrencySpanish(dsctoContado)}</td>
+                    <td class="text-end">${formatCurrencySpanish(dsctoTC)}</td>
+                    <td class="text-end">${formatCurrencySpanish(dsctoCredito)}</td>
+                    <td class="text-end">${calcMargenCombo(totalPromoContado)}</td>
+                    <td class="text-end">${calcMargenCombo(totalPromoTC)}</td>
+                    <td class="text-end">${calcMargenCombo(totalPromoCredito)}</td>
+                    <td class="text-end">${formatCurrencySpanish(totalAporteProv)}</td>
+                    <td class="text-end">${formatCurrencySpanish(totalAporteRebate)}</td>
+                    <td class="text-end">${formatCurrencySpanish(totalAportePropio)}</td>
+                    <td class="text-center celda-editable"><input class="form-check-input" type="checkbox" disabled></td>
                 </tr>
             `;
 
-            // Agregamos a la tabla
             $("#tablaCombosBody").append(filaCombo);
 
-            // Ocultamos la sección de creación
-            $("#seccionCrearCombo").collapse('hide');
+            // Guardar los artículos en la fila para poder re-editar luego
+            const $filaInsertada = $(`#tablaCombosBody tr[data-codigo="${codigo}"]`);
+            $filaInsertada.data("combo-nombre", nombre);
+            $filaInsertada.data("combo-articulos", articulosCombo);
 
-            // Mensaje de éxito sutil
+            // CERRAR MODAL Y LIMPIAR
+            $("#modalCrearCombo").modal("hide");
+            limpiarModalCombo();
+            comboEnEdicion = null;
+
+            // Si es la primera fila agregada, la seleccionamos automáticamente
+            if ($("#tablaCombosBody tr").length === 1) {
+                $("#tablaCombosBody .combo-row-radio").first().prop("checked", true).trigger("change");
+            }
+
             Swal.fire({
-                toast: true, position: "top-end", icon: "success", title: "Combo agregado al detalle principal.", showConfirmButton: false, timer: 1500
+                toast: true, position: "top-end", icon: "success",
+                title: `Combo "${nombre}" agregado.`,
+                showConfirmButton: false, timer: 2000
             });
         });
 
@@ -2103,31 +2257,323 @@
             });
         });
 
-        // 4. Pintar fila al seleccionarla (Radio Button)
-        $(document).on("change", ".combo-row-radio", function () {
-            $("#tablaCombosBody tr").removeClass("table-active");
-            $(this).closest("tr").addClass("table-active");
+        // 4. Modificar Combo - Re-abrir modal con los datos del combo seleccionado
+        $("#btnModificarCombo").off("click").on("click", function () {
+            const $radioSeleccionado = $("#tablaCombosBody .combo-row-radio:checked");
+            if ($radioSeleccionado.length === 0) {
+                Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un combo del detalle para modificar." });
+                return;
+            }
+
+            const $fila = $radioSeleccionado.closest("tr");
+            const codigoCombo = $fila.data("codigo");
+            const nombreCombo = $fila.data("combo-nombre") || "";
+            const articulosGuardados = $fila.data("combo-articulos") || [];
+
+            limpiarModalCombo();
+            comboEnEdicion = codigoCombo;
+
+            $("#codigoComboModal").val(codigoCombo);
+            $("#nombreComboModal").val(nombreCombo);
+            $("#btnHeaderComboTotal").text(`[${codigoCombo}] ${nombreCombo}`);
+
+            // Re-agregar cada artículo como columna en el modal
+            articulosGuardados.forEach(art => {
+                agregarColumnaACombo({
+                    codigo: art.codigo,
+                    descripcion: art.descripcion,
+                    costo: art.costo,
+                    stock: art.stock,
+                    optimo: art.optimo,
+                    excedenteu: art.excedenteu,
+                    excedentes: art.excedentes,
+                    m0u: art.m0u,
+                    m0s: art.m0s,
+                    m1u: art.m1u,
+                    m1s: art.m1s,
+                    m2u: art.m2u,
+                    m2s: art.m2s,
+                    m12u: art.m12u,
+                    m12s: art.m12s
+                });
+            });
         });
+
+        // 5. Pintar fila al seleccionarla (Radio Button) y Habilitar campos
+        $(document).off("change", ".combo-row-radio").on("change", ".combo-row-radio", function () {
+            // Deshabilitar todas primero
+            $("#tablaCombosBody tr").removeClass("table-active");
+            $("#tablaCombosBody .celda-editable input, #tablaCombosBody .celda-editable button, #tablaCombosBody .celda-editable select").prop("disabled", true);
+            $("#tablaCombosBody td:last-child input[type='checkbox']").prop("disabled", true).css("pointer-events", "none");
+
+            // Habilitar solo la fila seleccionada
+            const $fila = $(this).closest("tr");
+            $fila.addClass("table-active");
+            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").prop("disabled", false);
+            $fila.find("td:last-child input[type='checkbox']").prop("disabled", false).css("pointer-events", "auto");
+        });
+
+        // -------------------------------------------------------------
+        // EVENTOS PARA BOTONES DE ACCIÓN POR ARTÍCULO EN COMBO
+        // -------------------------------------------------------------
+
+        // Equivalentes
+        $(document).off("click", ".btn-equivalentes-combo").on("click", ".btn-equivalentes-combo", function (e) {
+            e.preventDefault();
+            const codigo = $(this).data("codigo");
+            consultarServicioAdicional("api/Promocion/consultar-articulo-equivalente", codigo, function (data) {
+                const $tbody = $("#tbodyEquivalentes");
+                $tbody.empty();
+                if (!data.length) {
+                    $tbody.html('<tr><td colspan="14" class="text-center text-muted">No existen equivalentes para este artículo.</td></tr>');
+                } else {
+                    data.forEach(item => {
+                        $tbody.append(`<tr>
+                            <td>${item.codigo || ''} - ${item.descripcion || ''}</td>
+                            <td class="text-end">${formatCurrencySpanish(item.costo)}</td>
+                            <td class="text-center">${item.stock_bodega || 0}</td>
+                            <td class="text-center">${item.stock_tiendas || 0}</td>
+                            <td class="text-center">${item.inventario_optimo || 0}</td>
+                            <td class="text-center">${item.excedentes_unidades || 0}</td>
+                            <td class="text-end">${formatCurrencySpanish(item.excedentes_dolares)}</td>
+                            <td class="text-center">${item.dias_antiguedad || 0}</td> 
+                            <td class="text-center">${item.m0_unidades || 0}</td>
+                            <td class="text-end">${formatCurrencySpanish(item.m0_dolares)}</td>
+                            <td class="text-center">${item.m1_unidades || 0}</td>
+                            <td class="text-end">${formatCurrencySpanish(item.m1_dolares)}</td>
+                            <td class="text-center">${item.m2_unidades || 0}</td>
+                            <td class="text-end">${formatCurrencySpanish(item.m2_dolares)}</td>
+                        </tr>`);
+                    });
+                }
+                $("#modalEquivalentes").modal("show");
+            });
+        });
+
+        // Precios Competencia
+        $(document).off("click", ".btn-competencia-combo").on("click", ".btn-competencia-combo", function (e) {
+            e.preventDefault();
+            const codigo = $(this).data("codigo");
+            consultarServicioAdicional("api/Promocion/consultar-articulo-precio-competencia", codigo, function (data) {
+                const $tbody = $("#tbodyPreciosCompetencia");
+                $tbody.empty();
+                if (!data.length) {
+                    $tbody.html('<tr><td colspan="2" class="text-center text-muted">No hay precios de competencia registrados.</td></tr>');
+                } else {
+                    data.forEach(item => {
+                        $tbody.append(`<tr>
+                            <td>${item.nombre_competencia || ''}</td>
+                            <td class="text-end">${formatCurrencySpanish(item.precio_contado)}</td>
+                        </tr>`);
+                    });
+                }
+                $("#modalPreciosCompetencia").modal("show");
+            });
+        });
+
+        // Otros Costos
+        let colIndexCostosActual = null;
+        $(document).off("click", ".btn-otros-costos-combo").on("click", ".btn-otros-costos-combo", function (e) {
+            e.preventDefault();
+            const codigo = $(this).data("codigo");
+            colIndexCostosActual = $(this).closest("th").index();
+
+            consultarServicioAdicional("api/Promocion/consultar-otros-costos", codigo, function (data) {
+                const $tbody = $("#tbodyOtrosCostos");
+                $tbody.empty();
+                if (!data.length) {
+                    $tbody.html('<tr><td colspan="3" class="text-center text-muted">No hay otros costos aplicables.</td></tr>');
+                } else {
+                    data.forEach(item => {
+                        $tbody.append(`<tr>
+                            <td class="text-center align-middle">
+                                <input class="form-check-input chk-otro-costo-combo" type="checkbox" data-codigo="${item.codigo}" data-nombre="${item.nombre}" data-valor="${item.valor}">
+                            </td>
+                            <td class="align-middle">${item.nombre || ''}</td>
+                            <td class="text-end align-middle">${formatCurrencySpanish(item.valor)}</td>
+                        </tr>`);
+                    });
+                }
+                $("#btnAplicarOtrosCostos").addClass("d-none");
+                if ($("#btnAplicarOtrosCostosCombo").length === 0) {
+                    $("#btnAplicarOtrosCostos").after('<button type="button" class="btn btn-primary" id="btnAplicarOtrosCostosCombo">Aplicar</button>');
+                } else {
+                    $("#btnAplicarOtrosCostosCombo").removeClass("d-none");
+                }
+                $("#modalOtrosCostos").modal("show");
+            });
+        });
+
+        $(document).off("click", "#btnAplicarOtrosCostosCombo").on("click", "#btnAplicarOtrosCostosCombo", function () {
+            let totalOtrosCostos = 0;
+            let seleccionados = [];
+            $("#tbodyOtrosCostos .chk-otro-costo-combo:checked").each(function () {
+                const valor = parseFloat($(this).data("valor")) || 0;
+                totalOtrosCostos += valor;
+                seleccionados.push({
+                    codigo: $(this).data("codigo"), nombre: $(this).data("nombre"), valor: valor
+                });
+            });
+
+            if (colIndexCostosActual !== null) {
+                const $th = $(`#trHeadersCombo th:eq(${colIndexCostosActual})`);
+                $th.data("total-otros-costos", totalOtrosCostos);
+                $th.data("detalle-otros-costos", seleccionados);
+                recalcularColumnaCombo(colIndexCostosActual);
+            }
+            $("#modalOtrosCostos").modal("hide");
+            if (totalOtrosCostos > 0) {
+                Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Otros costos aplicados: ${formatCurrencySpanish(totalOtrosCostos)}`, showConfirmButton: false, timer: 2000 });
+            }
+        });
+
+        // -------------------------------------------------------------
+        // MEDIO DE PAGO COMBO (Modal de Creación y Tabla Final)
+        // -------------------------------------------------------------
+        let selectMedioPagoComboFinalActual = null;
+
+        // Usamos una sola lógica para cualquier select de Medio de Pago en el módulo de Combos
+        $(document).off("change.comboMedioPago", ".select-mediopago-combo, .select-mediopago-combo-final").on("change.comboMedioPago", ".select-mediopago-combo, .select-mediopago-combo-final", function () {
+            const $select = $(this);
+            const val = $select.val();
+
+            // Si elige "Varios" (Valor 7)
+            if (val === "7") {
+                selectMedioPagoComboFinalActual = $select;
+                const guardados = $select.data("seleccionados") || [];
+
+                // Limpiamos el modal y marcamos los checkboxes guardados previamente
+                $("#bodyModalMedioPago input[type='checkbox']").prop("checked", false);
+                guardados.forEach(v => $(`#bodyModalMedioPago input[value='${v}']`).prop("checked", true));
+
+                // AQUÍ ESTÁ LA SOLUCIÓN: Usamos .off("click.combo"). Al ponerle ".combo" (un namespace), 
+                // le decimos a jQuery que NO borre los clics de General ni de Artículos.
+                $("#btnAceptarMedioPago").off("click.combo").on("click.combo", function () {
+                    if (selectMedioPagoComboFinalActual) {
+                        const seleccionados = [];
+                        $("#bodyModalMedioPago input[type='checkbox']:checked").each(function () {
+                            seleccionados.push($(this).val());
+                        });
+
+                        selectMedioPagoComboFinalActual.data("seleccionados", seleccionados);
+
+                        // Si no seleccionó nada y dio aceptar, regresamos el select a vacío
+                        if (seleccionados.length === 0) selectMedioPagoComboFinalActual.val("");
+                        selectMedioPagoComboFinalActual = null;
+                    }
+                });
+
+                // Abrimos el modal SOLO aquí mediante JS
+                $("#ModalMedioPago").modal("show");
+            } else {
+                // Si elige cualquier otro, limpiamos la data guardada
+                $select.removeData("seleccionados");
+            }
+        });
+
+        // -------------------------------------------------------------
+        // BUSCADOR DE ACUERDOS COMBO
+        // -------------------------------------------------------------
+        $(document).off("click", ".btn-buscar-acuerdo-combo").on("click", ".btn-buscar-acuerdo-combo", function () {
+            const $btn = $(this);
+            const colIndex = $btn.closest("td").data("colindex");
+            const tipoFondo = $btn.data("tipofondo");
+            const slot = parseInt($btn.data("slot")) || 1;
+            const $tdCodigo = $(`#tablaCreacionCombo tbody tr[data-campo='art_codigo'] td[data-colindex='${colIndex}']`);
+            const codigoItem = $tdCodigo.find(".art-codigo-hidden").val();
+
+            const $inputDisplay = $btn.closest(".input-group").find("input[type='text']");
+            const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
+
+            const titulos = {
+                "TFPROVEDOR": "Acuerdos - Fondo Proveedor" + (slot === 2 ? " (2)" : ""),
+                "TFREBATE": "Acuerdos - Fondo Rebate",
+                "TFPROPIO": "Acuerdos - Fondo Propio" + (slot === 2 ? " (2)" : "")
+            };
+
+            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, null);
+
+            // Asignar variables al contexto global para ser procesado al aceptar
+            acuerdoArticuloContexto.esCombo = true;
+            acuerdoArticuloContexto.colIndex = colIndex;
+        });
+
+        // Intercepción del botón de aceptar acuerdos genérico para Combos
+        const oldBtnAceptarAcuerdoArticulo = $._data($("#btnAceptarAcuerdoArticulo")[0], "events")?.click[0].handler;
+
+        $("#btnAceptarAcuerdoArticulo").off("click").on("click", function (e) {
+            if (acuerdoArticuloContexto && acuerdoArticuloContexto.esCombo) {
+                if (!acuerdoArticuloTemporal) {
+                    Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return;
+                }
+
+                const tipo = acuerdoArticuloContexto.tipoFondo;
+                const slot = acuerdoArticuloContexto.slot;
+                const colIdx = acuerdoArticuloContexto.colIndex;
+                const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo);
+
+                const getVal = (campo) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIdx}'] input.acuerdo-id-hidden`).val();
+
+                if (tipo === "TFPROVEDOR") {
+                    const idOtro = slot === 1 ? getVal("aporte_prov2_id") : getVal("aporte_prov_id");
+                    if (idOtro && idOtro === idSeleccionado) {
+                        Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: "Ya fue seleccionado." }); return;
+                    }
+                } else if (tipo === "TFPROPIO") {
+                    const idOtro = slot === 1 ? getVal("aporte_propio2_id") : getVal("aporte_propio_id");
+                    if (idOtro && idOtro === idSeleccionado) {
+                        Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: "Ya fue seleccionado." }); return;
+                    }
+                }
+
+                acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
+                acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
+
+                const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
+                const setInputAporte = (campo) => {
+                    const $inp = $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIdx}'] input.aporte-valor`);
+                    $inp.prop("disabled", false).attr("data-max", maxVal).val("");
+                };
+
+                if (tipo === "TFPROVEDOR" && slot === 1) setInputAporte("aporte_prov");
+                else if (tipo === "TFPROVEDOR" && slot === 2) setInputAporte("aporte_prov2");
+                else if (tipo === "TFREBATE") setInputAporte("aporte_rebate");
+                else if (tipo === "TFPROPIO" && slot === 1) setInputAporte("aporte_propio");
+                else if (tipo === "TFPROPIO" && slot === 2) setInputAporte("aporte_propio2");
+
+                recalcularColumnaCombo(colIdx);
+                $("#modalAcuerdoArticulo").modal("hide");
+                acuerdoArticuloTemporal = null;
+                acuerdoArticuloContexto = null;
+            } else {
+                if (oldBtnAceptarAcuerdoArticulo) oldBtnAceptarAcuerdoArticulo(e);
+            }
+        });
+
+        // Cálculos dinámicos al teclear en inputs de la columna del combo
+        $(document).off("input change", "#tablaCreacionCombo tbody input.input-combo-art").on("input change", "#tablaCreacionCombo tbody input.input-combo-art", function () {
+            this.value = this.value.replace(/[^0-9.,]/g, '');
+            const colIndex = $(this).closest("td").data("colindex");
+            recalcularColumnaCombo(colIndex);
+        });
+
+        $("#btnNuevoCombo").html('<i class="fa-regular fa-file"></i> Nuevo Combo');
     }
 
     // ==========================================
     // LÓGICA DE TABLA TRANSPUESTA DE COMBOS (MODAL) Y EVENTOS
     // ==========================================
 
-    // Bandera global para saber desde qué pestaña abrimos el modal de items
     window.contextoModalItems = "ARTICULOS";
 
-    // Al darle click a "Añadir Artículo" dentro del modal de Combos, cambiamos el contexto
     $(document).on("click", ".btn-add-articulo-combo", function () {
         window.contextoModalItems = "COMBOS";
     });
 
-    // Reiniciar contexto si abren el modal desde "Añadir" en la pestaña Artículos
     $(document).on("click", "#btnAddItemArticulos", function () {
         window.contextoModalItems = "ARTICULOS";
     });
 
-    // Actualizar el título de la columna Combo si escriben el Código y Nombre
     $(document).on("click", "#btnActualizarHeaderCombo", function () {
         const cod = $("#codigoComboModal").val();
         const nom = $("#nombreComboModal").val();
@@ -2136,9 +2582,7 @@
         }
     });
 
-    // Función para inyectar una columna nueva en el modal de Combos
     function agregarColumnaACombo(item) {
-        // 1. Header con dropdown
         const thHtml = `
         <th scope="col" class="table-dark" style="min-width: 200px;">
             <div class="dropdown">
@@ -2147,6 +2591,10 @@
                 </button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item btn-add-articulo-combo" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                    <li><a class="dropdown-item btn-equivalentes-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
+                    <li><a class="dropdown-item btn-competencia-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
+                    <li><a class="dropdown-item btn-otros-costos-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
+                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger btn-eliminar-col-combo" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
                 </ul>
             </div>
@@ -2155,122 +2603,131 @@
 
         const colIndex = $("#trHeadersCombo th").length - 1;
 
-        // 2. Mapear cada fila según data-campo
         $("#tablaCreacionCombo tbody tr").each(function () {
             const campo = $(this).data("campo");
             let html = `<td class="align-middle" data-colindex="${colIndex}">`;
 
             switch (campo) {
-                // === VERDE (consulta - readonly) ===
                 case "art_codigo":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="${item.codigo}">`; break;
+                    html += `<input type="hidden" class="art-codigo-hidden" value="${item.codigo}"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="${item.codigo}">`; break;
                 case "art_descripcion":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="${item.descripcion}">`; break;
                 case "costo":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.costo)}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-costo" readonly value="${formatCurrencySpanish(item.costo)}">`; break;
                 case "stock_bodega":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.stock || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-stock" readonly value="${item.stock || 0}">`; break;
                 case "stock_tienda":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="0">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-stock-tienda" readonly value="0">`; break;
                 case "inv_optimo":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.optimo || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-optimo" readonly value="${item.optimo || 0}">`; break;
                 case "excedentes_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.excedenteu || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-excedenteu" readonly value="${item.excedenteu || 0}">`; break;
                 case "excedentes_usd":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.excedentes || 0)}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-excedentes" readonly value="${formatCurrencySpanish(item.excedentes || 0)}">`; break;
                 case "m0_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.m0u || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-m0u" readonly value="${item.m0u || 0}">`; break;
                 case "m0_usd":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m0s || 0)}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m0s" readonly value="${formatCurrencySpanish(item.m0s || 0)}">`; break;
                 case "m1_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.m1u || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-m1u" readonly value="${item.m1u || 0}">`; break;
                 case "m1_usd":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m1s || 0)}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m1s" readonly value="${formatCurrencySpanish(item.m1s || 0)}">`; break;
                 case "m2_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.m2u || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-m2u" readonly value="${item.m2u || 0}">`; break;
                 case "m2_usd":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m2s || 0)}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m2s" readonly value="${formatCurrencySpanish(item.m2s || 0)}">`; break;
                 case "m12_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="${item.m12u || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-m12u" readonly value="${item.m12u || 0}">`; break;
                 case "m12_usd":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m12s || 0)}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m12s" readonly value="${formatCurrencySpanish(item.m12s || 0)}">`; break;
                 case "igualar_precio":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="0">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-igualar-precio" readonly value="0">`; break;
                 case "dias_antiguedad":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="0">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-dias-antiguedad" readonly value="0">`; break;
                 case "margen_min_cont":
                 case "margen_min_tc":
                 case "margen_min_cred":
                 case "margen_min_igual":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly value="0%">`; break;
-
-                // === AMARILLO (input) - n/a para componentes ===
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-margen-min" readonly value="0%">`; break;
                 case "unidades_limite":
                 case "proyeccion_vta":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly placeholder="-">`; break;
+                    html += `<input type="number" class="form-control form-control-sm text-center input-combo-art val-unidades" placeholder="0" min="0">`; break;
                 case "medio_pago":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-">`; break;
-
-                // === VERDE - Precio Lista desde DB ===
+                    html += `<select class="form-select form-select-sm select-mediopago-combo">
+                                ${$("#filtroMedioPagoGeneral").html()}
+                             </select>`; break;
                 case "precio_lista_contado":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(0)}">`; break;
                 case "precio_lista_credito":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(0)}">`; break;
-
-                // === AMARILLO - Precio Promo (INPUT en componentes) ===
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-precio-lista" readonly value="${formatCurrencySpanish(0)}">`; break;
                 case "promo_contado":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art" placeholder="$ 0.00">`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-contado" placeholder="$ 0.00">`; break;
                 case "promo_tc":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art" placeholder="$ 0.00">`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-tc" placeholder="$ 0.00">`; break;
                 case "promo_credito":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art" placeholder="$ 0.00">`; break;
-
-                // === NARANJA - Descuentos (calculados en componentes) ===
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-credito" placeholder="$ 0.00">`; break;
                 case "dscto_contado":
                 case "dscto_tc":
                 case "dscto_credito":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="">`; break;
-
-                // === AMARILLO - Aportes (INPUT en componentes) ===
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-dscto" readonly placeholder="0.00">`; break;
                 case "aporte_prov":
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-proveedor-combo" placeholder="$ 0.00" disabled>`; break;
                 case "aporte_prov2":
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-proveedor2-combo" placeholder="$ 0.00" disabled>`; break;
                 case "aporte_rebate":
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-rebate-combo" placeholder="$ 0.00" disabled>`; break;
                 case "aporte_propio":
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio-combo" placeholder="$ 0.00" disabled>`; break;
                 case "aporte_propio2":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art" placeholder="$ 0.00">`; break;
-
-                // === AMARILLO - Aportes ID Acuerdo (con lupa en componentes) ===
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio2-combo" placeholder="$ 0.00" disabled>`; break;
                 case "aporte_prov_id":
-                case "aporte_prov2_id":
-                case "aporte_rebate_id":
-                case "aporte_propio_id":
-                case "aporte_propio2_id":
                     html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="">
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control" placeholder="Seleccione..." readonly>
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
-
-                // === NARANJA - Márgenes (calculados en componentes) ===
+                case "aporte_prov2_id":
+                    html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
+                case "aporte_rebate_id":
+                    html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFREBATE" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
+                case "aporte_propio_id":
+                    html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
+                case "aporte_propio2_id":
+                    html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
                 case "margen_pl_contado":
                 case "margen_pl_credito":
                 case "margen_promo_contado":
                 case "margen_promo_tc":
                 case "margen_promo_cred":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly placeholder="">`; break;
-
-                // === NARANJA - Comprometidos (calculados en componentes) ===
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-margen" readonly placeholder="0.00%">`; break;
                 case "comp_proveedor":
                 case "comp_proveedor2":
                 case "comp_rebate":
                 case "comp_propio":
                 case "comp_propio2":
-                    html += `<input type="text" class="form-control form-control-sm text-end" placeholder="$ 0.00">`; break;
-
-                // === Regalo - n/a para componentes ===
+                    html += `<input type="text" class="form-control form-control-sm text-end custom-celda-bg val-comp" readonly placeholder="$ 0.00">`; break;
                 case "regalo":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly placeholder="-">`; break;
-
+                    html += `<div class="d-flex justify-content-center"><input class="form-check-input val-regalo" type="checkbox"></div>`; break;
                 default:
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly>`; break;
             }
@@ -2290,9 +2747,7 @@
             icon: "warning", showCancelButton: true, confirmButtonText: "Sí, eliminar", cancelButtonText: "Cancelar"
         }).then((res) => {
             if (res.isConfirmed) {
-                // Borrar encabezado
                 $(`#trHeadersCombo th:eq(${colIndex})`).remove();
-                // Borrar el td correspondiente en cada fila de datos
                 $("#tablaCreacionCombo tbody tr").each(function () {
                     $(this).find(`td:eq(${colIndex})`).remove();
                 });
@@ -2301,8 +2756,7 @@
     });
 
     // ==========================================
-    // ESTE EVENTO REEMPLAZA AL QUE TENÍAS ADENTRO DEL $(function() {...})
-    // SE ENCARGA DE ENRUTAR LOS ITEMS SELECCIONADOS A LA TABLA CORRECTA
+    // ENRUTAR ITEMS SELECCIONADOS A LA TABLA CORRECTA
     // ==========================================
     $(document).off("click", "#btnSeleccionarItems").on("click", "#btnSeleccionarItems", function () {
         const items = [];
@@ -2324,19 +2778,15 @@
             Swal.fire("Atención", "Seleccione al menos un item.", "info"); return;
         }
 
-        // 👉 DIRECCIONAMIENTO SEGÚN CONTEXTO (Magia de Combos vs Articulos)
         if (window.contextoModalItems === "COMBOS") {
-            // Recorremos los seleccionados y agregamos una columna por cada uno
             items.forEach(item => agregarColumnaACombo(item));
         } else {
-            // Comportamiento original para Articulos
             agregarItemsATablaArticulos(items);
         }
 
         $("#modalConsultaItems").modal("hide");
         $("#checkTodosItems").prop("checked", false);
 
-        // Solo resetear contexto si NO era COMBOS (se resetea en hidden.bs.modal)
         if (window.contextoModalItems !== "COMBOS") {
             window.contextoModalItems = "ARTICULOS";
         }
@@ -2348,17 +2798,34 @@
     $(function () {
         console.log("=== CrearPromocion JS Loaded ===");
 
-        // 👉 1. AÑADIR CONFIGURACIÓN DE COMBOS AL ARREGLO MÚLTIPLE
-        // (Debe ir antes de llamar a initLogicaSeleccionMultiple)
+        // --- FIX: AJUSTE DINÁMICO Y LIMPIEZA DE Z-INDEX PARA MODALES ---
+        $(document).on('show.bs.modal', '.modal', function () {
+            const zIndex = 1050 + (10 * $('.modal:visible').length);
+            $(this).css('z-index', zIndex);
+            setTimeout(() => {
+                $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
+            }, 0);
+        });
+
+        // Limpieza de pantalla oscura al cerrar modales
+        $(document).on('hidden.bs.modal', '.modal', function () {
+            if ($('.modal:visible').length > 0) {
+                // Si aún hay modales abiertos, devuelve el scroll al body
+                $(document.body).addClass('modal-open');
+            } else {
+                // Si ya no hay modales, elimina cualquier fondo negro atascado
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').css({ 'padding-right': '', 'overflow': '' });
+            }
+        });
+
         CONFIG_MULTIPLE.push(
             { id: "canalCombos", select: "#filtroCanalCombos", btnOpen: "#btnCanalCombos", body: "#bodyModalCanal", btnAccept: "#btnAceptarCanal", triggerVal: "3" },
             { id: "grupoCombos", select: "#filtroGrupoAlmacenCombos", btnOpen: "#btnGrupoAlmacenCombos", body: "#bodyModalGrupoAlmacen", btnAccept: "#btnAceptarGrupoAlmacen", triggerVal: "3" },
             { id: "almacenCombos", select: "#filtroAlmacenCombos", btnOpen: "#btnAlmacenCombos", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" }
         );
 
-        // ==========================================
         // LÓGICA DE SELECCIÓN DE FILA (HABILITAR CAMPOS AMARILLOS)
-        // ==========================================
         $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
             $("#tablaArticulosBody tr").removeClass("table-active");
             $("#tablaArticulosBody .celda-editable input, #tablaArticulosBody .celda-editable button, #tablaArticulosBody .celda-editable select").prop("disabled", true);
@@ -2370,7 +2837,6 @@
 
             $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").not(".aporte-proveedor, .aporte-proveedor2, .aporte-rebate, .aporte-propio, .aporte-propio2").prop("disabled", false);
 
-            // Habilitar aportes solo si tienen acuerdo seleccionado
             const tieneProvedor = $fila.find(".acuerdo-prov1-hidden").val();
             const tieneProvedor2 = $fila.find(".acuerdo-prov2-hidden").val();
             const tieneRebate = $fila.find(".acuerdo-rebate-hidden").val();
@@ -2386,7 +2852,6 @@
             $fila.find("td:last-child input[type='checkbox']").prop("disabled", false).css("pointer-events", "auto");
         });
 
-        // 👉 2. INICIALIZACIÓN SELECT2 PARA COMBOS
         $("#filtroCanalCombos").html($("#filtroCanalGeneral").html());
         aplicarSelect2($("#filtroCanalCombos"));
 
@@ -2396,15 +2861,13 @@
         $("#filtroAlmacenCombos").html($("#filtroAlmacenGeneral").html());
         aplicarSelect2($("#filtroAlmacenCombos"));
 
-        // INICIALIZACIONES GLOBALES
         togglePromocionForm();
         initLogicaArticuloGeneral();
-        initLogicaSeleccionMultiple(); // Ahora tomará en cuenta los combos que agregamos arriba
+        initLogicaSeleccionMultiple();
         initValidacionesFinancieras();
         initDatepickers();
         initBotonesServiciosArticulos();
 
-        // 👉 3. LLAMAR A LA LÓGICA DE COMBOS QUE CREAMOS
         initLogicaCombos();
 
         $("#filtroGrupoAlmacenGeneral, #filtroGrupoAlmacenArticulos, #filtroGrupoAlmacenCombos").on("change", function () {
@@ -2489,7 +2952,6 @@
             esArchivoValido('#inputFileArticulos', '#fileNameArticulos');
         });
 
-        // 👉 4. EVENTO PARA EL ARCHIVO DE SOPORTE DE COMBOS
         $('#inputFileCombos').on('change', function () {
             esArchivoValido('#inputFileCombos', '#fileNameCombos');
         });
@@ -2586,30 +3048,8 @@
             }
         });
 
-        $("#btnSeleccionarItems").on("click", function () {
-            const items = [];
-            const checkboxes = dtItemsConsultaPromo ? dtItemsConsultaPromo.$(".item-checkbox:checked") : $("#tablaItemsConsulta .item-checkbox:checked");
-
-            checkboxes.each(function () {
-                const $c = $(this);
-                items.push({
-                    codigo: $c.data("codigo"), descripcion: $c.data("descripcion"),
-                    costo: $c.data("costo"), stock: $c.data("stock"), optimo: $c.data("optimo"),
-                    excedenteu: $c.data("excedenteu"), excedentes: $c.data("excedentes"),
-                    m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"),
-                    m2u: $c.data("m2u"), m2s: $c.data("m2s"),
-                    m12u: $c.data("m12u"), m12s: $c.data("m12s")
-                });
-            });
-
-            if (items.length === 0) {
-                Swal.fire("Atención", "Seleccione al menos un item.", "info"); return;
-            }
-
-            agregarItemsATablaArticulos(items);
-            $("#modalConsultaItems").modal("hide");
-            $("#checkTodosItems").prop("checked", false);
-        });
+        // NOTA: El evento #btnSeleccionarItems ya está manejado arriba con $(document).off/on
+        // No duplicar aquí.
 
         let filaActualMedioPago = null;
 
@@ -2777,13 +3217,11 @@
                 $("#modalCrearCombo").data("estaba-abierto", false);
                 setTimeout(function () {
                     $("#modalCrearCombo").modal("show");
-                    // Resetear contexto después de re-abrir
                     window.contextoModalItems = "ARTICULOS";
                 }, 300);
             }
         });
 
-        // Marcar que el modal de Combos estaba abierto antes de abrir Items
         $(document).on("click", ".btn-add-articulo-combo", function () {
             window.contextoModalItems = "COMBOS";
             $("#modalCrearCombo").data("estaba-abierto", true);
