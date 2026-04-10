@@ -1302,17 +1302,21 @@
             <div class="modal-body pt-0 bg-light" style="overflow-y: auto;">
                 <h1 class="fs-5 fw-bold text-center mb-3 border-bottom pb-2">Creación del Combo</h1>
 
-                <div class="row mb-3 align-items-end justify-content-center">
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold col-form-label-sm">Código</label>
-                        <input type="text" class="form-control form-control-sm" id="codigoComboModal" placeholder="Ej: CO567">
+                <div class="row mb-3 align-items-center justify-content-center">
+                    <div class="col-md-3">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light text-dark fw-bold">Codigo</span>
+                            <input type="text" class="form-control" id="codigoComboModal" placeholder="Ej: 567">
+                        </div>
                     </div>
-                    <div class="col-md-5">
-                        <label class="form-label fw-bold col-form-label-sm">Nombre del Combo</label>
-                        <input type="text" class="form-control form-control-sm" id="nombreComboModal" placeholder="Ej: Cine en Casa 4K">
+                    <div class="col-md-6">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light text-dark fw-bold">Nombre de Combo</span>
+                            <input type="text" class="form-control" id="nombreComboModal" placeholder="Ej: Cine en Casa 4K">
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <button type="button" class="btn btn-dark btn-sm w-100" id="btnActualizarHeaderCombo">
+                        <button type="button" class="btn btn-dark btn-sm" id="btnActualizarHeaderCombo">
                             <i class="fa-solid fa-check"></i> Aplicar
                         </button>
                     </div>
@@ -1326,7 +1330,7 @@
                                 <th scope="col" class="table-dark" style="min-width: 200px;">
                                     <div class="dropdown">
                                         <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100" type="button" data-bs-toggle="dropdown" id="btnHeaderComboTotal">
-                                            [Nuevo Combo]
+                                            Nuevo Combo
                                         </button>
                                         <ul class="dropdown-menu">
                                             <li><a class="dropdown-item btn-add-articulo-combo" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
@@ -1336,127 +1340,102 @@
                             </tr>
                         </thead>
                         <tbody class="text-nowrap tabla-items-body">
-                            <!-- 1. Artículo Código -->
-                            <tr data-campo="art_codigo">
+                            <tr data-campo="art_codigo" class="d-none">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Artículo - Código</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="Auto"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="Auto"></td>
                             </tr>
-                            <!-- 2. Artículo Descripción -->
-                            <tr data-campo="art_descripcion">
+                            <tr data-campo="art_descripcion" class="d-none">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Artículo - Descripción</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm" placeholder="Nombre del combo"></td>
                             </tr>
-                            <!-- 3. Costo -->
                             <tr data-campo="costo">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Costo</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm fw-bold text-primary text-end total-combo" readonly value="$ 0.00"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly value="$ 0.00"></td>
                             </tr>
-                            <!-- 4. Stock Bodega -->
                             <tr data-campo="stock_bodega">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Stock Bodega</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 5. Stock Tienda -->
                             <tr data-campo="stock_tienda">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Stock Tiendas</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 6. Inventario Óptimo -->
                             <tr data-campo="inv_optimo">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Inventario Óptimo</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 7. Excedentes (u) -->
                             <tr data-campo="excedentes_u">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Excedentes (u)</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 8. Excedentes ($) -->
                             <tr data-campo="excedentes_usd">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Excedentes ($)</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 9. M-0 (u) -->
                             <tr data-campo="m0_u">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-0 Unidades</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 10. M-0 ($) -->
                             <tr data-campo="m0_usd">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-0 Dólares</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 11. M-1 (u) -->
                             <tr data-campo="m1_u">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-1 Unidades</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 12. M-1 ($) -->
                             <tr data-campo="m1_usd">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-1 Dólares</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 13. M-2 (u) -->
                             <tr data-campo="m2_u">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-2 Unidades</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 14. M-2 ($) -->
                             <tr data-campo="m2_usd">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-2 Dólares</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 15. M-12 (u) -->
                             <tr data-campo="m12_u">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-12 Unidades</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 16. M-12 ($) -->
                             <tr data-campo="m12_usd">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-12 Dólares</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 17. Igualar Precio -->
                             <tr data-campo="igualar_precio">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Igualar Precio</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 18. Días de Antigüedad -->
                             <tr data-campo="dias_antiguedad">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Días de Antigüedad</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
-                            <!-- 19. Margen mínimo Contado -->
                             <tr data-campo="margen_min_cont">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Contado</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="0%"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="0%"></td>
                             </tr>
-                            <!-- 20. Margen mínimo TC -->
                             <tr data-campo="margen_min_tc">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo TC</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="0%"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="0%"></td>
                             </tr>
-                            <!-- 21. Margen mínimo Crédito -->
                             <tr data-campo="margen_min_cred">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Crédito</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="0%"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="0%"></td>
                             </tr>
-                            <!-- 22. Margen mínimo Igualar -->
                             <tr data-campo="margen_min_igual">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Igualar Precio</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-center total-combo" readonly value="0%"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="0%"></td>
                             </tr>
-                            <!-- 23. Unidades Límite (AMARILLO - input combo) -->
                             <tr data-campo="unidades_limite">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Unidades Límite</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center input-editable" placeholder="0"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end input-editable" placeholder="0"></td>
                             </tr>
-                            <!-- 24. Proyección Ventas (AMARILLO - input combo) -->
                             <tr data-campo="proyeccion_vta">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Proyección de Ventas (u)</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center input-editable" placeholder="0"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end input-editable" placeholder="0"></td>
                             </tr>
-                            <!-- 25. Medio de Pago (AMARILLO - input combo) -->
                             <tr data-campo="medio_pago">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Medio de Pago</td>
                                 <td class="align-middle">
@@ -1465,147 +1444,118 @@
                                     </select>
                                 </td>
                             </tr>
-                            <!-- 26. Precio Lista Contado (VERDE - suma) -->
                             <tr data-campo="precio_lista_contado">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Precio de Lista Contado</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm fw-bold text-end total-combo" readonly value="$ 0.00"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly value="$ 0.00"></td>
                             </tr>
-                            <!-- 27. Precio Lista Crédito (VERDE - suma) -->
                             <tr data-campo="precio_lista_credito">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Precio de Lista Crédito</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm fw-bold text-end total-combo" readonly value="$ 0.00"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly value="$ 0.00"></td>
                             </tr>
-                            <!-- 28. Precio Promo Contado (AMARILLO - suma de inputs) -->
                             <tr data-campo="promo_contado">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Precio Promoción Contado</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
                             </tr>
-                            <!-- 29. Precio Promo TC (AMARILLO - suma de inputs) -->
                             <tr data-campo="promo_tc">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Precio Promoción TC</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
                             </tr>
-                            <!-- 30. Precio Promo Crédito (AMARILLO - suma de inputs) -->
                             <tr data-campo="promo_credito">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Precio Promoción Crédito</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
                             </tr>
-                            <!-- 31. Descuento Contado (NARANJA - cálculo) -->
                             <tr data-campo="dscto_contado">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Descuento Contado</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
                             </tr>
-                            <!-- 32. Descuento TC (NARANJA) -->
                             <tr data-campo="dscto_tc">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Descuento TC</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
                             </tr>
-                            <!-- 33. Descuento Crédito (NARANJA) -->
                             <tr data-campo="dscto_credito">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Descuento Crédito</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="$ 0.00"></td>
                             </tr>
-                            <!-- 34. Aporte Proveedor Valor (AMARILLO - n/a combo) -->
                             <tr data-campo="aporte_prov">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Proveedor Valor</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 35. Aporte Proveedor ID Acuerdo -->
                             <tr data-campo="aporte_prov_id">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Proveedor ID Acuerdo</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 36. Aporte 2 Proveedor Valor -->
                             <tr data-campo="aporte_prov2">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte 2 Proveedor Valor</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 37. Aporte 2 Proveedor ID Acuerdo -->
                             <tr data-campo="aporte_prov2_id">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte 2 Proveedor ID Acuerdo</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 38. Aporte Rebate Valor -->
                             <tr data-campo="aporte_rebate">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Rebate Valor</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 39. Aporte Rebate ID Acuerdo -->
                             <tr data-campo="aporte_rebate_id">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Rebate ID Acuerdo</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 40. Aporte Propio Valor -->
                             <tr data-campo="aporte_propio">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Propio Valor</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 41. Aporte Propio ID Acuerdo -->
                             <tr data-campo="aporte_propio_id">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte Propio ID Acuerdo</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 42. Aporte 2 Propio Valor -->
                             <tr data-campo="aporte_propio2">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte 2 Propio Valor</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 43. Aporte 2 Propio ID Acuerdo -->
                             <tr data-campo="aporte_propio2_id">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Aporte 2 Propio ID Acuerdo</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly placeholder="-"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 44. Margen Precio Lista Contado (NARANJA) -->
                             <tr data-campo="margen_pl_contado">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Precio Lista Contado</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="0%"></td>
                             </tr>
-                            <!-- 45. Margen Precio Lista Crédito (NARANJA) -->
                             <tr data-campo="margen_pl_credito">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Precio Lista Crédito</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="0%"></td>
                             </tr>
-                            <!-- 46. Margen Promo Contado (NARANJA) -->
                             <tr data-campo="margen_promo_contado">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Promoción Contado</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="0%"></td>
                             </tr>
-                            <!-- 47. Margen Promo TC (NARANJA) -->
                             <tr data-campo="margen_promo_tc">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Promoción TC</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="0%"></td>
                             </tr>
-                            <!-- 48. Margen Promo Crédito (NARANJA) -->
                             <tr data-campo="margen_promo_cred">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Margen Promoción Crédito</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-center total-combo" readonly placeholder="0%"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly placeholder="0%"></td>
                             </tr>
-                            <!-- 49. Comp. Proveedor (NARANJA - n/a combo) -->
                             <tr data-campo="comp_proveedor">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido Proveedor</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 50. Comp. Proveedor 2 (NARANJA) -->
                             <tr data-campo="comp_proveedor2">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido 2 Proveedor</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 51. Comp. Rebate (NARANJA) -->
                             <tr data-campo="comp_rebate">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido Rebate</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 52. Comp. Propio (NARANJA) -->
                             <tr data-campo="comp_propio">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido Propio</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 53. Comp. Propio 2 (NARANJA) -->
                             <tr data-campo="comp_propio2">
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido 2 Propio</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
-                            <!-- 54. Regalo (AMARILLO - input combo) -->
                             <tr data-campo="regalo">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Regalo</td>
                                 <td class="align-middle text-center">
@@ -1619,7 +1569,7 @@
 
             <div class="modal-footer bg-light border-top">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" id="btnConfirmarCombo"><i class="fa-solid fa-check"></i> Guardar Combo</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmarCombo"><i class="fa-solid fa-check"></i> Guardar Combo</button>
             </div>
         </div>
     </div>

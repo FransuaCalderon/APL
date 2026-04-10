@@ -2006,7 +2006,7 @@
         // Resetear campos
         $("#codigoComboModal").val("");
         $("#nombreComboModal").val("");
-        $("#btnHeaderComboTotal").text("[Nuevo Combo]");
+        $("#btnHeaderComboTotal").text("Nuevo Combo");
 
         // Resetear inputs de la columna total (col index 1 → segundo td en cada fila)
         $("#tablaCreacionCombo tbody tr").each(function () {
@@ -2097,8 +2097,8 @@
             limpiarModalCombo();
 
             // Generar código temporal
-            let numRandom = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            $("#codigoComboModal").val("CMB-" + numRandom);
+            //let numRandom = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            //$("#codigoComboModal").val("CMB-" + numRandom);
         });
 
         // 2. GUARDAR COMBO → Leer artículos del modal y agregar fila a tablaCombosBody
@@ -2578,9 +2578,43 @@
         const cod = $("#codigoComboModal").val();
         const nom = $("#nombreComboModal").val();
         if (cod && nom) {
-            $("#btnHeaderComboTotal").text(`[${cod}] ${nom}`);
+            $("#btnHeaderComboTotal").text(`${cod} - ${nom}`);
         }
     });
+
+    // ==========================================
+    // RECALCULAR TOTALES DEL COMBO (COLUMNA PRINCIPAL)
+    // ==========================================
+    function recalcularTotalesCombo() {
+        // Campos que son números enteros (cantidades)
+        const camposNum = [
+            "stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u",
+            "m0_u", "m1_u", "m2_u", "m12_u"
+        ];
+        // Campos que son valores en dólares
+        const camposMoneda = [
+            "costo", "excedentes_usd", "m0_usd", "m1_usd", "m2_usd", "m12_usd",
+            "precio_lista_contado", "precio_lista_credito"
+        ];
+
+        // Sumar campos enteros
+        camposNum.forEach(campo => {
+            let suma = 0;
+            $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:gt(1) input`).each(function () {
+                suma += parseInt($(this).val().replace(/[^0-9-]/g, '')) || 0;
+            });
+            $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(suma);
+        });
+
+        // Sumar campos de moneda
+        camposMoneda.forEach(campo => {
+            let suma = 0;
+            $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:gt(1) input`).each(function () {
+                suma += parseCurrency($(this).val());
+            });
+            $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(formatCurrencySpanish(suma));
+        });
+    }
 
     function agregarColumnaACombo(item) {
         const thHtml = `
@@ -2609,49 +2643,49 @@
 
             switch (campo) {
                 case "art_codigo":
-                    html += `<input type="hidden" class="art-codigo-hidden" value="${item.codigo}"><input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="${item.codigo}">`; break;
+                    html += `<input type="hidden" class="art-codigo-hidden" value="${item.codigo}"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.codigo}">`; break;
                 case "art_descripcion":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="${item.descripcion}">`; break;
                 case "costo":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-costo" readonly value="${formatCurrencySpanish(item.costo)}">`; break;
                 case "stock_bodega":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-stock" readonly value="${item.stock || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-stock" readonly value="${item.stock || 0}">`; break;
                 case "stock_tienda":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-stock-tienda" readonly value="0">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-stock-tienda" readonly value="0">`; break;
                 case "inv_optimo":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-optimo" readonly value="${item.optimo || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-optimo" readonly value="${item.optimo || 0}">`; break;
                 case "excedentes_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-excedenteu" readonly value="${item.excedenteu || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-excedenteu" readonly value="${item.excedenteu || 0}">`; break;
                 case "excedentes_usd":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-excedentes" readonly value="${formatCurrencySpanish(item.excedentes || 0)}">`; break;
                 case "m0_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-m0u" readonly value="${item.m0u || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m0u" readonly value="${item.m0u || 0}">`; break;
                 case "m0_usd":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m0s" readonly value="${formatCurrencySpanish(item.m0s || 0)}">`; break;
                 case "m1_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-m1u" readonly value="${item.m1u || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m1u" readonly value="${item.m1u || 0}">`; break;
                 case "m1_usd":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m1s" readonly value="${formatCurrencySpanish(item.m1s || 0)}">`; break;
                 case "m2_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-m2u" readonly value="${item.m2u || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m2u" readonly value="${item.m2u || 0}">`; break;
                 case "m2_usd":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m2s" readonly value="${formatCurrencySpanish(item.m2s || 0)}">`; break;
                 case "m12_u":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-m12u" readonly value="${item.m12u || 0}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m12u" readonly value="${item.m12u || 0}">`; break;
                 case "m12_usd":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-m12s" readonly value="${formatCurrencySpanish(item.m12s || 0)}">`; break;
                 case "igualar_precio":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-igualar-precio" readonly value="0">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-igualar-precio" readonly value="0">`; break;
                 case "dias_antiguedad":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-dias-antiguedad" readonly value="0">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-dias-antiguedad" readonly value="0">`; break;
                 case "margen_min_cont":
                 case "margen_min_tc":
                 case "margen_min_cred":
                 case "margen_min_igual":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-margen-min" readonly value="0%">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen-min" readonly value="0%">`; break;
                 case "unidades_limite":
                 case "proyeccion_vta":
-                    html += `<input type="number" class="form-control form-control-sm text-center input-combo-art val-unidades" placeholder="0" min="0">`; break;
+                    html += `<input type="number" class="form-control form-control-sm text-end input-combo-art val-unidades" placeholder="0" min="0">`; break;
                 case "medio_pago":
                     html += `<select class="form-select form-select-sm select-mediopago-combo">
                                 ${$("#filtroMedioPagoGeneral").html()}
@@ -2683,35 +2717,35 @@
                     html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
                         <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
                 case "aporte_prov2_id":
                     html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
                         <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
                 case "aporte_rebate_id":
                     html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
                         <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFREBATE" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
                 case "aporte_propio_id":
                     html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
                         <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
                 case "aporte_propio2_id":
                     html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" placeholder="Seleccione..." readonly>
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
                         <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
                 case "margen_pl_contado":
@@ -2719,7 +2753,7 @@
                 case "margen_promo_contado":
                 case "margen_promo_tc":
                 case "margen_promo_cred":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center val-margen" readonly placeholder="0.00%">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen" readonly placeholder="0.00%">`; break;
                 case "comp_proveedor":
                 case "comp_proveedor2":
                 case "comp_rebate":
@@ -2729,12 +2763,13 @@
                 case "regalo":
                     html += `<div class="d-flex justify-content-center"><input class="form-check-input val-regalo" type="checkbox"></div>`; break;
                 default:
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-center" readonly>`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly>`; break;
             }
 
             html += `</td>`;
             $(this).append(html);
         });
+        recalcularTotalesCombo();
     }
 
     // 5. Eliminar una columna dinámica del Combo
@@ -2751,6 +2786,9 @@
                 $("#tablaCreacionCombo tbody tr").each(function () {
                     $(this).find(`td:eq(${colIndex})`).remove();
                 });
+
+                // <--- AGREGA ESTA LÍNEA AQUÍ
+                recalcularTotalesCombo();
             }
         });
     });
