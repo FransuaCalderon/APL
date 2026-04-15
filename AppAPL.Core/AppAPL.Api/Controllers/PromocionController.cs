@@ -279,12 +279,13 @@ namespace AppAPL.Api.Controllers
         [Email("ENTPROMOCION", TipoProceso.Creacion)]
         public async Task<ActionResult<ControlErroresDTO>> Insertar([FromBody] CrearPromocionRequestDTO promocion)
         {
+            /*
             // 1. Validar que el string no sea nulo o vacío
             if (string.IsNullOrEmpty(promocion.ArchivoSoporteBase64))
             {
                 return BadRequest(new ControlErroresDTO { mensaje = "El archivo de soporte es obligatorio." });
             }
-
+            
             // 2. Obtener la 'carnita' del Base64 (quitar el encabezado si existe)
             string base64Data = promocion.ArchivoSoporteBase64.Contains(",")
                                 ? promocion.ArchivoSoporteBase64.Split(',')[1]
@@ -305,7 +306,7 @@ namespace AppAPL.Api.Controllers
                     mensaje = $"El archivo excede el límite permitido de {limiteMaxMB}MB (Tamaño enviado: {tamanoMB:N2}MB)."
                 });
             }
-
+            
             // 4. VALIDACIÓN DE EXTENSIÓN
             var extensionesPermitidas = configuration.GetSection("ConfiguracionArchivos:ExtensionesPermitidas").Get<string[]>();
             string extensionArchivo = Path.GetExtension(promocion.NombreArchivoSoporte)?.ToLower();
@@ -317,7 +318,7 @@ namespace AppAPL.Api.Controllers
                     mensaje = $"Extensión {extensionArchivo} no permitida. Solo se aceptan: {string.Join(", ", extensionesPermitidas)}"
                 });
             }
-
+            */
             // 5. Si todo está OK, procedemos al servicio
             var retorno = await servicio.CrearAsync(promocion);
 

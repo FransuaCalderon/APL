@@ -127,6 +127,12 @@ namespace AppAPL.Dto.Acuerdo
         public int M12_U { get; set; }
         public decimal M12_D { get; set; }
         public int DIAS_ANTIGUEDAD { get; set; }
+        public decimal PRECIO_LISTA_CONTADO { get; set; }
+        public decimal PRECIO_LISTA_CREDITO { get; set; }
+        public decimal MARGEN_MIN_CONTADO { get; set; }
+        public decimal MARGEN_MIN_TARJETA_CREDITO { get; set; }
+        public decimal MARGEN_MIN_PRECIO_CREDITO { get; set; }
+        public decimal MARGEN_MIN_IGUALAR { get; set; }
 
     }
 
