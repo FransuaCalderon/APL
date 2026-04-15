@@ -693,9 +693,10 @@
 
         $("#tipoClienteGeneral, #tipoClienteArticulos, #tipoClienteCombos").val("").trigger("change");
 
-        $("#inputGroupFile24, #inputFileArticulos").val("");
+        $("#inputGroupFile24, #inputFileArticulos", "#inputFileCombos").val("");
         if (document.getElementById("fileName")) document.getElementById("fileName").textContent = "";
         if (document.getElementById("fileNameArticulos")) document.getElementById("fileNameArticulos").textContent = "";
+        if (document.getElementById("fileNameCombos")) document.getElementById("fileNameCombos").textContent = "";
 
         $("#tablaArticulosBody").empty();
         $("#tablaCombosBody").empty();
@@ -1769,297 +1770,227 @@
     }
 
     async function guardarPromocionCombo() {
-        console.log("guardando promocion por combo");
-
+        // 1. Validaciones de Cabecera (Descripción, Motivo, Fechas)
         const motivo = parseInt($("#motivoCombos").val(), 10) || 0;
         const desc = $("#descripcionCombos").val();
         const fechaInicio = getFullISOString("#fechaInicioCombos", "#timeInicioCombos");
         const fechaFin = getFullISOString("#fechaFinCombos", "#timeFinCombos");
-        /*
-        if (!desc || desc.trim().length < 3) { Swal.fire("Validación", "Debe ingresar una descripción.", "warning"); return; }
-        if (!motivo) { Swal.fire("Validación", "Debe seleccionar un motivo.", "warning"); return; }
-        if (!fechaInicio || !fechaFin) { Swal.fire("Validación", "Debe ingresar las fechas de inicio y fin.", "warning"); return; }
 
-        const grupoCboVal = $("#filtroGrupoAlmacenCombos").val();
-        if (!grupoCboVal || grupoCboVal === "") { Swal.fire("Validación", "Debe seleccionar un Grupo de Almacén.", "warning"); return; }
-
-        const almacenCboVal = $("#filtroAlmacenCombos").val();
-        if (!almacenCboVal || almacenCboVal === "") { Swal.fire("Validación", "Debe seleccionar un Almacén.", "warning"); return; }
-
-
-
-        
-
-        if (!esArchivoValido('#inputFileCombos', '#fileNameCombos')) {
-            if ($('#inputFileCombos')[0].files.length === 0) { Swal.fire("Archivo requerido", "Debe adjuntar el soporte", "warning"); }
+        if (!desc || !motivo || !fechaInicio || !fechaFin) {
+            Swal.fire("Validación", "Complete los datos de cabecera (Descripción, Motivo y Fechas).", "warning");
             return;
         }
-        */
 
-        
-
+        // 2. Procesar Soporte (Archivo)
         const fileInput = $('#inputFileCombos')[0].files[0];
-        if (!fileInput) { Swal.fire("Archivo requerido", "Debe adjuntar el soporte de la promoción", "warning"); return; }
+        if (!fileInput) {
+            Swal.fire("Archivo requerido", "Debe adjuntar el soporte de la promoción", "warning");
+            return;
+        }
 
         const leerArchivo = file => new Promise((resolve, reject) => {
-            const reader = new FileReader(); 
+            const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => resolve(reader.result);
             reader.onerror = e => reject(e);
         });
 
-        const base64Completo = await leerArchivo(fileInput);
-        
+        try {
+            const base64Completo = await leerArchivo(fileInput);
 
-        const determinarAsignacion = (idSelector) => {
-            const val = $(idSelector).val();
-            if (val === "TODAS" || val === "TODOS" || !val || val === "") return "T";
-            if (val === "3" || val === "4" || val === "7") return "D";
-            return "C";
-        };
+            // 3. Armar Arreglo de Combos (según el esquema "articulos")
+            const combosParaAPI = [];
+            const $filasCombos = $("#tablaCombosBody tr");
 
-        const segmentos = [
-            { tiposegmento: "SEGCANAL", codigos: obtenerValorCampo("canalCombos", "#filtroCanalCombos", "3"), tipoasignacion: determinarAsignacion("#filtroCanalCombos") },
-            { tiposegmento: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupoCombos", "#filtroGrupoAlmacenCombos", "3"), tipoasignacion: determinarAsignacion("#filtroGrupoAlmacenCombos") },
-            { tiposegmento: "SEGALMACEN", codigos: obtenerValorCampo("almacenCombos", "#filtroAlmacenCombos", "3"), tipoasignacion: determinarAsignacion("#filtroAlmacenCombos") },
-            {
-                tiposegmento: "SEGTIPOCLIENTE", codigos: (function () {
-                    const val = $("#tipoClienteCombos").val();
-                    if (val === "4") return $("#btnListaClienteCombos").data("seleccionados") || [];
-                    if (val && val !== "" && val !== "TODOS" && val !== "3") return [val];
-                    return [];
-                })(), tipoasignacion: determinarAsignacion("#tipoClienteCombos")
-            },
-            { tiposegmento: "SEGMARCA", codigos: [], tipoasignacion: "T" },
-            { tiposegmento: "SEGDIVISION", codigos: [], tipoasignacion: "T" },
-            { tiposegmento: "SEGDEPARTAMENTO", codigos: [], tipoasignacion: "T" },
-            { tiposegmento: "SEGCLASE", codigos: [], tipoasignacion: "T" },
-            { tiposegmento: "SEGMEDIOPAGO", codigos: [], tipoasignacion: "T" }
-        ];
-
-
-        const $filas = $("#tablaCombosBody tr");
-        if ($filas.length === 0) { Swal.fire("Validación", "Debe agregar al menos un combo en el detalle.", "warning"); return; }
-
-        const articulos = [];
-        let errorFila = "";
-
-
-        $filas.each(function (index) {
-            const $fila = $(this);
-            const numFila = index + 1;
-            const codigo = String($fila.data("codigo"));
-
-            const costo = parseCurrency($fila.find("td:eq(2)").text());
-            const stockBodega = parseInt($fila.find("td:eq(3)").text()) || 0;
-            const stockTienda = parseInt($fila.find("td:eq(4)").text()) || 0;
-            const invOptimo = parseInt($fila.find("td:eq(5)").text()) || 0;
-            const excedenteU = parseInt($fila.find("td:eq(6)").text()) || 0;
-            const excedenteV = parseCurrency($fila.find("td:eq(7)").text());
-            const m0u = parseInt($fila.find("td:eq(8)").text()) || 0;
-            const m0p = parseCurrency($fila.find("td:eq(9)").text());
-            const m1u = parseInt($fila.find("td:eq(10)").text()) || 0;
-            const m1p = parseCurrency($fila.find("td:eq(11)").text());
-            const m2u = parseInt($fila.find("td:eq(12)").text()) || 0;
-            const m2p = parseCurrency($fila.find("td:eq(13)").text());
-            const m12u = parseInt($fila.find("td:eq(14)").text()) || 0;
-            const m12p = parseCurrency($fila.find("td:eq(15)").text());
-
-            const igualarPrecio = parseCurrency($fila.find("td:eq(16)").text());
-
-            const margenMinContado = parseFloat($fila.find("td:eq(18)").text()) || 0;
-            const margenMinTC = parseFloat($fila.find("td:eq(19)").text()) || 0;
-            const margenMinCredito = parseFloat($fila.find("td:eq(20)").text()) || 0;
-            const margenMinIgualar = parseFloat($fila.find("td:eq(21)").text()) || 0;
-
-            const unidadesLimite = parseInt($fila.find("td:eq(22) input").val()) || 0;
-            const proyeccionVtas = parseInt($fila.find("td:eq(23) input").val()) || 0;
-            /*
-            if (unidadesLimite > 0 && proyeccionVtas > 0) {
-                errorFila = `Fila ${numFila}: Solo debe ingresar valor en Unidades Límite O Proyección Vtas, no en ambas.`;
-                return false;
-            }
-            if (unidadesLimite === 0 && proyeccionVtas === 0) {
-                errorFila = `Fila ${numFila}: Debe ingresar valor en Unidades Límite o Proyección Vtas.`;
-                return false;
-            }*/
-
-            const $selectMedioPago = $fila.find("td:eq(24) select");
-            const medioPagoVal = $selectMedioPago.val();
-
-            const precioLista = parseCurrency($fila.find("td:eq(25)").text());
-            const precioPromoContado = parseCurrency($fila.find("td:eq(26) input").val());
-            const precioPromoTC = parseCurrency($fila.find("td:eq(27) input").val());
-            const precioPromoCredito = parseCurrency($fila.find("td:eq(28) input").val());
-            const precioIgualarPromo = parseCurrency($fila.find("td:eq(29) input").val());
-
-            const dsctoContado = parseFloat($fila.find("td:eq(30)").text()) || 0;
-            const dsctoTC = parseFloat($fila.find("td:eq(31)").text()) || 0;
-            const dsctoCredito = parseFloat($fila.find("td:eq(32)").text()) || 0;
-            const dsctoIgualar = parseFloat($fila.find("td:eq(33)").text()) || 0;
-
-            const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
-            const idAcuerdoProveedor = parseInt($fila.find(".acuerdo-prov1-hidden").val()) || 0;
-            const aporteProveedor2 = parseCurrency($fila.find(".aporte-proveedor2").val());
-            const idAcuerdoProveedor2 = parseInt($fila.find(".acuerdo-prov2-hidden").val()) || 0;
-            const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
-            const idAcuerdoRebate = parseInt($fila.find(".acuerdo-rebate-hidden").val()) || 0;
-            const aportePropio = parseCurrency($fila.find(".aporte-propio").val());
-            const idAcuerdoPropio = parseInt($fila.find(".acuerdo-propio1-hidden").val()) || 0;
-            const aportePropio2 = parseCurrency($fila.find(".aporte-propio2").val());
-            const idAcuerdoPropio2 = parseInt($fila.find(".acuerdo-propio2-hidden").val()) || 0;
-
-            const compProveedor = parseCurrency($fila.find("td:eq(49)").text());
-            const compProveedor2 = parseCurrency($fila.find("td:eq(50)").text());
-            const compRebate = parseCurrency($fila.find("td:eq(51)").text());
-            const compPropio = parseCurrency($fila.find("td:eq(52)").text());
-            const compPropio2 = parseCurrency($fila.find("td:eq(53)").text());
-
-            const margenPrecioLista = parseFloat($fila.find("td:eq(44)").text()) || 0;
-            const margenPromoContado = parseFloat($fila.find("td:eq(45)").text()) || 0;
-            const margenPromoTC = parseFloat($fila.find("td:eq(46)").text()) || 0;
-            const margenPromoCredito = parseFloat($fila.find("td:eq(47)").text()) || 0;
-            const margenIgualar = parseFloat($fila.find("td:eq(48)").text()) || 0;
-
-            const regalo = $fila.find("td:eq(54) input[type='checkbox']").is(":checked") ? "S" : "N";
-
-            const acuerdosArticulo = [];
-            if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor, valorcomprometido: compProveedor, etiqueta_tipo_fondo: "TFPROVEDOR" });
-            if (idAcuerdoProveedor2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor2, valoraporte: aporteProveedor2, valorcomprometido: compProveedor2, etiqueta_tipo_fondo: "TFPROVEDOR" });
-            if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoRebate, valoraporte: aporteRebate, valorcomprometido: compRebate, etiqueta_tipo_fondo: "TFREBATE" });
-            if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio, valoraporte: aportePropio, valorcomprometido: compPropio, etiqueta_tipo_fondo: "TFPROPIO" });
-            if (idAcuerdoPropio2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio2, valoraporte: aportePropio2, valorcomprometido: compPropio2, etiqueta_tipo_fondo: "TFPROPIO" });
-
-            const mediosPago = [];
-            const mediosPagoSeleccionados = $selectMedioPago.data("seleccionados") || [];
-
-            if (medioPagoVal === "7" && mediosPagoSeleccionados.length === 0) {
-                errorFila = `Fila ${numFila}: Seleccionaste "Varios" en Medio de Pago, pero no marcaste elementos en la lista.`;
-                return false;
+            if ($filasCombos.length === 0) {
+                Swal.fire("Validación", "Debe agregar al menos un combo.", "warning");
+                return;
             }
 
-            if (medioPagoVal === "7") {
-                mediosPago.push({ tipoasignacion: "D", codigos: mediosPagoSeleccionados });
-            } else if (medioPagoVal && medioPagoVal !== "" && medioPagoVal !== "TODAS" && medioPagoVal !== "TODOS") {
-                mediosPago.push({ tipoasignacion: "C", codigos: [medioPagoVal] });
-            } else {
-                mediosPago.push({ tipoasignacion: "T", codigos: [] });
-            }
+            $filasCombos.each(function () {
+                const $fila = $(this);
+                const codigoCombo = String($fila.data("codigo"));
+                const nombreCombo = $fila.data("combo-nombre");
 
-            const otrosCostosGuardados = $fila.data("detalle-otros-costos") || [];
-            const otrosCostosMapeados = otrosCostosGuardados.map(oc => {
-                return {
-                    codigoparametro: parseInt(oc.codigo, 10) || 0,
-                    costo: parseFloat(oc.valor) || 0
-                };
+                // Recuperamos los componentes de la memoria global (detalle por artículo dentro del combo)
+                const componentesMemoria = articulosPorComboMemoria[codigoCombo] || [];
+
+                // 1. Mapeo de Componentes (las piezas del combo)
+                const listaComponentes = componentesMemoria.map(art => ({
+                    "codigoarticulo": String(art.codigo),
+                    "descripcion": art.descripcion,
+                    "costo": art.costo || 0,
+                    "stockbodega": art.stock || 0,
+                    "stocktienda": art.stockTienda || 0,
+                    "inventariooptimo": art.optimo || 0,
+                    "excedenteu": art.excedenteu || 0,
+                    "excedenteusd": art.excedentes || 0,
+                    "ventahistoricam0u": art.m0u || 0,
+                    "ventahistoricam0usd": art.m0s || 0,
+                    "ventahistoricam1u": art.m1u || 0,
+                    "ventahistoricam1usd": art.m1s || 0,
+                    "ventahistoricam2u": art.m2u || 0,
+                    "ventahistoricam2usd": art.m2s || 0,
+                    "ventahistoricam12u": art.m12u || 0,
+                    "ventahistoricam12usd": art.m12s || 0,
+                    "margenminimocontado": 0,
+                    "margenminimotarjetacredito": 0,
+                    "margenminimopreciocredito": 0,
+                    "margenminimoigualar": 0,
+                    "preciolistacontado": 0, // Si lo tienes en el modal, capturalo
+                    "preciolistacredito": 0,
+                    "preciopromocioncontado": art.promoContado || 0,
+                    "preciopromociontarjetacredito": art.promoTC || 0,
+                    "preciopromocioncredito": art.promoCredito || 0,
+                    "jsonacuerdos": [
+                        ...(art.idAcuerdoProveedor ? [{ "idacuerdo": art.idAcuerdoProveedor, "valoraporte": art.aporteProveedor, "valorcomprometido": 0 }] : []),
+                        ...(art.idAcuerdoProveedor2 ? [{ "idacuerdo": art.idAcuerdoProveedor2, "valoraporte": art.aporteProveedor2, "valorcomprometido": 0 }] : []),
+                        ...(art.idAcuerdoRebate ? [{ "idacuerdo": art.idAcuerdoRebate, "valoraporte": art.aporteRebate, "valorcomprometido": 0 }] : []),
+                        ...(art.idAcuerdoPropio ? [{ "idacuerdo": art.idAcuerdoPropio, "valoraporte": art.aportePropio, "valorcomprometido": 0 }] : []),
+                        ...(art.idAcuerdoPropio2 ? [{ "idacuerdo": art.idAcuerdoPropio2, "valoraporte": art.aportePropio2, "valorcomprometido": 0 }] : [])
+                    ],
+                    "jsonotroscostos": art.otrosCostos || []
+                }));
+
+                // 2. Mapeo del Objeto Principal (el Combo en sí)
+                combosParaAPI.push({
+                    "codigoitem": codigoCombo,
+                    "descripcion": nombreCombo,
+                    "descripcioncombo": nombreCombo,
+                    "costo": parseCurrency($fila.find("td:eq(1)").text()),
+                    "stockbodega": parseInt($fila.find("td:eq(2)").text()) || 0,
+                    "stocktienda": parseInt($fila.find("td:eq(3)").text()) || 0,
+                    "inventariooptimo": parseInt($fila.find("td:eq(4)").text()) || 0,
+                    "excedenteunidad": parseInt($fila.find("td:eq(5)").text()) || 0,
+                    "excedentevalor": parseCurrency($fila.find("td:eq(6)").text()),
+                    "m0unidades": 0, "m0precio": 0, "m1unidades": 0, "m1precio": 0, // Campos informativos combo
+                    "m2unidades": 0, "m2precio": 0, "m12unidades": 0, "m12precio": 0,
+                    "igualarprecio": 0,
+                    "diasantiguedad": 0,
+                    "margenminimocontado": 0,
+                    "margenminimotarjetacredito": 0,
+                    "margenminimocredito": 0,
+                    "margenminimoigualar": 0,
+                    "margenminimoigualarprecio": 0,
+                    "unidadeslimite": parseInt($fila.find(".val-unidades-combo").val()) || 0,
+                    "unidadesproyeccionventas": parseInt($fila.find(".val-proyeccion-combo").val()) || 0,
+                    "proyeccionventas": parseInt($fila.find(".val-proyeccion-combo").val()) || 0,
+                    "preciolistacontado": parseCurrency($fila.find("td:eq(10)").text()),
+                    "preciolistacredito": parseCurrency($fila.find("td:eq(10)").text()),
+                    "preciopromocioncontado": parseCurrency($fila.find("td:eq(11)").text()),
+                    "preciopromociontarjetacredito": parseCurrency($fila.find("td:eq(12)").text()),
+                    "preciopromocioncredito": parseCurrency($fila.find("td:eq(13)").text()),
+                    "precioigualarprecio": 0,
+                    "descuentopromocioncontado": parseCurrency($fila.find("td:eq(14)").text()),
+                    "descuentopromociontarjetacredito": parseCurrency($fila.find("td:eq(15)").text()),
+                    "descuentopromocioncredito": parseCurrency($fila.find("td:eq(16)").text()),
+                    "descuentoigualarprecio": 0,
+                    "margenpreciolistacontado": 0,
+                    "margenpreciolistacredito": 0,
+                    "margenpromocioncontado": parseFloat($fila.find("td:eq(17)").text()) || 0,
+                    "margenpromociontarjetacredito": parseFloat($fila.find("td:eq(18)").text()) || 0,
+                    "margenpromocioncredito": parseFloat($fila.find("td:eq(19)").text()) || 0,
+                    "margenigualarprecio": 0,
+                    "marcaregalo": $fila.find("td:last-child input").is(":checked") ? "S" : "N",
+                    "regalo": $fila.find("td:last-child input").is(":checked") ? "S" : "N",
+                    "mediospago": (function () {
+                        const selMP = $fila.find(".select-mediopago-combo-final");
+                        const valMP = selMP.val();
+                        const codesMP = selMP.data("seleccionados") || [];
+                        if (valMP === "7") return [{ "tipoasignacion": "D", "codigos": codesMP, "codigo": codesMP }];
+                        if (valMP && valMP !== "TODAS") return [{ "tipoasignacion": "C", "codigos": [valMP], "codigo": [valMP] }];
+                        return [{ "tipoasignacion": "T", "codigos": [], "codigo": [] }];
+                    })(),
+                    "acuerdos": [], // Acuerdos globales del combo si aplicara
+                    "otroscostos": [],
+                    "componentes": listaComponentes // Aquí inyectamos la lista de piezas
+                });
             });
 
-            articulos.push({
-                codigoitem: String(codigo),
-                descripcion: $fila.find("td:eq(1)").text(),
-                costo: costo,
-                stockbodega: stockBodega,
-                stocktienda: stockTienda,
-                inventariooptimo: invOptimo,
-                excedenteunidad: excedenteU,
-                excedentevalor: excedenteV,
-                m0unidades: m0u,
-                m0precio: m0p,
-                m1unidades: m1u,
-                m1precio: m1p,
-                m2unidades: m2u,
-                m2precio: m2p,
-                m12unidades: m12u,
-                m12precio: m12p,
-                igualarprecio: igualarPrecio,
-                diasantiguedad: 0,
-                margenminimocontado: margenMinContado,
-                margenminimotarjetacredito: margenMinTC,
-                margenminimocredito: margenMinCredito,
-                margenminimoigualar: margenMinIgualar,
-                unidadeslimite: unidadesLimite,
-                unidadesproyeccionventas: proyeccionVtas,
-                preciolistacontado: precioLista,
-                preciolistacredito: precioLista,
-                preciopromocioncontado: precioPromoContado,
-                preciopromociontarjetacredito: precioPromoTC,
-                preciopromocioncredito: precioPromoCredito,
-                precioigualarprecio: precioIgualarPromo,
-                descuentopromocioncontado: dsctoContado,
-                descuentopromociontarjetacredito: dsctoTC,
-                descuentopromocioncredito: dsctoCredito,
-                descuentoigualarprecio: dsctoIgualar,
-                margenpreciolistacontado: margenPrecioLista,
-                margenpreciolistacredito: margenPrecioLista,
-                margenpromocioncontado: margenPromoContado,
-                margenpromociontarjetacredito: margenPromoTC,
-                margenpromocioncredito: margenPromoCredito,
-                margenigualarprecio: margenIgualar,
-                marcaregalo: regalo,
-                mediospago: mediosPago,
-                acuerdos: acuerdosArticulo,
-                otroscostos: otrosCostosMapeados
-            });
-        });
 
-        if (errorFila) {
-            Swal.fire("Validación de Detalle", errorFila, "warning"); return;
-        }
+            const determinarAsignacion = (idSelector) => {
+                const val = $(idSelector).val();
+                if (val === "TODAS" || val === "TODOS" || !val || val === "") return "T";
+                if (val === "3" || val === "4" || val === "7") return "D";
+                return "C";
+            };
+
+            const segmentos = [
+                { tiposegmento: "SEGCANAL", codigos: obtenerValorCampo("canalCombos", "#filtroCanalCombos", "3"), tipoasignacion: determinarAsignacion("#filtroCanalCombos") },
+                { tiposegmento: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupoCombos", "#filtroGrupoAlmacenCombos", "3"), tipoasignacion: determinarAsignacion("#filtroGrupoAlmacenCombos") },
+                { tiposegmento: "SEGALMACEN", codigos: obtenerValorCampo("almacenCombos", "#filtroAlmacenCombos", "3"), tipoasignacion: determinarAsignacion("#filtroAlmacenCombos") },
+                {
+                    tiposegmento: "SEGTIPOCLIENTE", codigos: (function () {
+                        const val = $("#tipoClienteCombos").val();
+                        if (val === "4") return $("#btnListaClienteCombos").data("seleccionados") || [];
+                        if (val && val !== "" && val !== "TODOS" && val !== "3") return [val];
+                        return [];
+                    })(), tipoasignacion: determinarAsignacion("#tipoClienteCombos")
+                },
+                { tiposegmento: "SEGMARCA", codigos: [], tipoasignacion: "T" },
+                { tiposegmento: "SEGDIVISION", codigos: [], tipoasignacion: "T" },
+                { tiposegmento: "SEGDEPARTAMENTO", codigos: [], tipoasignacion: "T" },
+                { tiposegmento: "SEGCLASE", codigos: [], tipoasignacion: "T" },
+                { tiposegmento: "SEGMEDIOPAGO", codigos: [], tipoasignacion: "T" }
+            ];
 
 
 
-        const body = {
-            "tipoclaseetiqueta": "PRCOMBO",
-            "idopcion": getIdOpcionSeguro(),
-            "idcontrolinterfaz": "BTNGRABAR",
-            "ideventoetiqueta": "EVCLICK",
-            "nombrearchivosoporte": fileInput.name,
-            "archivosoportebase64": base64Completo.split(",")[1] || base64Completo,
-            "promocion": {
-                "descripcion": desc,
-                "motivo": motivo,
-                "clasepromocion": parseInt($("#promocionTipo").val(), 10) || 0,
-                "fechahorainicio": fechaInicio,
-                "fechahorafin": fechaFin,
-                marcaregalo: "",
-                marcaprocesoaprobacion: "",
-                idusuarioingreso: getUsuario(),
-                nombreusuario: getUsuario()
-            },
-            "acuerdos": [],
-            "segmentos": segmentos,
-            "articulos": articulos
-        }
+            // 4. Construcción del Body Final
+            const body = {
+                "tipoclaseetiqueta": "PRCOMBO",
+                "idopcion": getIdOpcionSeguro(),
+                "idcontrolinterfaz": "BTNGRABAR",
+                "ideventoetiqueta": "EVCLICK",
+                "nombrearchivosoporte": fileInput.name,
+                "archivosoportebase64": base64Completo.split(",")[1] || base64Completo,
+                "promocion": {
+                    "descripcion": desc,
+                    "motivo": motivo,
+                    "clasepromocion": parseInt($("#promocionTipo").val(), 10) || 0,
+                    "fechahorainicio": fechaInicio,
+                    "fechahorafin": fechaFin,
+                    "idusuarioingreso": getUsuario(),
+                    "nombreusuario": getUsuario()
+                },
+                "acuerdos": [],
+                "segmentos": segmentos, // Aquí llamarías a tu lógica de segmentos actual
+                "articulos": combosParaAPI
+            };
 
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "POST",
-            endpoint_path: "api/promocion/insertar",
-            client: "APL",
-            body_request: body
-        };
+            console.log("Payload Final:", body);
+            console.log("articulosPorComboMemoria: ", articulosPorComboMemoria);
 
-        console.log("body: ", body);
-        
-        /*
-        $.ajax({
-            url: "/api/apigee-router-proxy",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(payload),
-            success: function (res) {
-                const respuesta = res.json_response || res;
-                if (respuesta.codigoretorno == 1) {
-                    Swal.fire("Éxito", "Promoción por Combos Guardada: " + respuesta.mensaje, "success")
-                        .then(() => resetearFormulario("Articulos"));
-                } else {
-                    Swal.fire("Atención", respuesta.mensaje || "Error en base de datos", "warning");
+            // Envío AJAX
+            $.ajax({
+                url: "/api/apigee-router-proxy",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    code_app: "APP20260128155212346",
+                    http_method: "POST",
+                    endpoint_path: "api/promocion/insertar",
+                    client: "APL",
+                    body_request: body
+                }),
+                success: function (res) {
+                    const respuesta = res.json_response || res;
+                    if (respuesta.codigoretorno == 1) {
+                        Swal.fire("Éxito", "Promoción por Combos Guardada: " + respuesta.mensaje, "success")
+                            .then(() => resetearFormulario("Articulos"));
+                    } else {
+                        Swal.fire("Atención", respuesta.mensaje || "Error en base de datos", "warning");
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire("Error", "Error de comunicación: " + xhr.statusText, "error");
                 }
-            },
-            error: function (xhr) {
-                Swal.fire("Error", "Error de comunicación: " + xhr.statusText, "error");
-            }
-        });*/
+            });
+
+        } catch (error) {
+            console.error(error);
+            Swal.fire("Error", "No se pudo procesar el guardado", "error");
+        }
     }
 
     // ==========================================
@@ -2446,6 +2377,13 @@
                 Swal.fire("Validación", "Debe agregar al menos un artículo al combo.", "warning");
                 return;
             }
+
+
+            // --- GUARDADO EN MEMORIA ---
+            // Guardamos el detalle que luego irá en la propiedad "componentes" del API
+            articulosPorComboMemoria[codigo] = articulosCombo;
+
+
 
             // Calcular totales sumando los artículos
             let totalCosto = 0, totalStock = 0, totalStockTienda = 0, totalOptimo = 0;
