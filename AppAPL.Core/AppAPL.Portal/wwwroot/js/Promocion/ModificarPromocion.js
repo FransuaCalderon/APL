@@ -632,7 +632,8 @@ function agregarItemsATablaArticulos(items) {
             <td class="align-middle celda-editable">
                 <select class="form-select form-select-sm select-mediopago-articulo" disabled>${opcionesMedioPago}</select>
             </td>
-            <td class="align-middle text-end">${formatCurrencySpanish(item.preciolistacontado || item.preciolista || 0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.preciolistacontado || 0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.preciolistacredito || 0)}</td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${item.preciopromocioncontado || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${item.preciopromociontarjetacredito || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${item.preciopromocioncredito || ''}" placeholder="0.00" disabled></td>
@@ -641,7 +642,6 @@ function agregarItemsATablaArticulos(items) {
             <td class="align-middle text-end">${parseFloat(item.descuentopromociontarjetacredito || 0).toFixed(2)}</td>
             <td class="align-middle text-end">${parseFloat(item.descuentopromocioncredito || 0).toFixed(2)}</td>
             <td class="align-middle text-end">${parseFloat(item.descuentoigualarprecio || 0).toFixed(2)}</td>
-
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor" value="${item._aporteProveedor || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="${item._idAcuerdoProveedor || ''}">
@@ -658,7 +658,6 @@ function agregarItemsATablaArticulos(items) {
                     <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </td>
-
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-rebate" value="${item._aporteRebate || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="${item._idAcuerdoRebate || ''}">
@@ -667,7 +666,6 @@ function agregarItemsATablaArticulos(items) {
                     <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFREBATE" data-slot="1" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </td>
-
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-propio" value="${item._aportePropio || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="${item._idAcuerdoPropio || ''}">
@@ -684,18 +682,17 @@ function agregarItemsATablaArticulos(items) {
                     <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROPIO" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </td>
-
-            <td class="align-middle text-end">${parseFloat(item.margenpreciolistacontado || 0).toFixed(2)}%</td>
-            <td class="align-middle text-end">${parseFloat(item.margenpromocioncontado || 0).toFixed(2)}%</td>
-            <td class="align-middle text-end">${parseFloat(item.margenpromociontarjetacredito || 0).toFixed(2)}%</td>
-            <td class="align-middle text-end">${parseFloat(item.margenpromocioncredito || 0).toFixed(2)}%</td>
-            <td class="align-middle text-end">${parseFloat(item.margenigualarprecio || 0).toFixed(2)}%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td> <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
-            <td class="align-middle celda-editable text-center"><input class="form-check-input" type="checkbox" ${(item.marcaregalo || "").toString().toUpperCase() === "S" ? "checked" : ""} disabled></td>
+            <td class="align-middle celda-editable text-center"><input class="form-check-input" type="checkbox" disabled></td>
         </tr>`;
         $tbody.append(fila);
     });
@@ -720,9 +717,7 @@ function poblarArticulosDesdeAPI(data) {
         const codigoItem = art.codigoitem || "";
         const idPromocionArticulo = art.idpromocionarticulo || 0;
 
-        // Obtener acuerdos del artículo
         const acuerdosArt = articulosacuerdos.filter(a => a.idpromocionarticulo === idPromocionArticulo);
-
         const acuerdosProv = acuerdosArt.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR");
         const acProv1 = acuerdosProv.length > 0 ? acuerdosProv[0] : null;
         const acProv2 = acuerdosProv.length > 1 ? acuerdosProv[1] : null;
@@ -745,10 +740,8 @@ function poblarArticulosDesdeAPI(data) {
         const apProp1 = acProp1 ? (acProp1.valor_aporte || 0) : 0;
         const apProp2 = acProp2 ? (acProp2.valor_aporte || 0) : 0;
 
-        // Medio de pago del artículo
         const mpItems = (articulossegmentos || []).filter(s => s.codigoitem === codigoItem && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO");
 
-        // Otros costos del artículo
         const otrosCostosArt = (articulosotros || []).filter(s => s.idpromocionarticulo === idPromocionArticulo);
         const totalOtrosCostos = otrosCostosArt.reduce((sum, oc) => sum + (parseFloat(oc.costo) || 0), 0);
 
@@ -784,6 +777,7 @@ function poblarArticulosDesdeAPI(data) {
                 <select class="form-select form-select-sm select-mediopago-articulo" disabled>${opcionesMedioPago}</select>
             </td>
             <td class="align-middle text-end">${formatCurrencySpanish(art.preciolistacontado || 0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(art.preciolistacredito || 0)}</td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${art.preciopromocioncontado || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${art.preciopromociontarjetacredito || ''}" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" value="${art.preciopromocioncredito || ''}" placeholder="0.00" disabled></td>
@@ -837,7 +831,7 @@ function poblarArticulosDesdeAPI(data) {
             </td>
 
             <td class="align-middle text-end">${(art.margenpreciolistacontado || 0).toFixed(2)}%</td>
-            <td class="align-middle text-end">${(art.margenpromocioncontado || 0).toFixed(2)}%</td>
+            <td class="align-middle text-end">${(art.margenpreciolistacredito || 0).toFixed(2)}%</td> <td class="align-middle text-end">${(art.margenpromocioncontado || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${(art.margenpromociontarjetacredito || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${(art.margenpromocioncredito || 0).toFixed(2)}%</td>
             <td class="align-middle text-end">${(art.margenigualarprecio || 0).toFixed(2)}%</td>
@@ -850,16 +844,12 @@ function poblarArticulosDesdeAPI(data) {
         </tr>`;
         $tbody.append(fila);
 
-        // Guardar datos de otros costos en la fila
         const $filaAppended = $tbody.find(`tr[data-codigo="${codigoItem}"]`).last();
         $filaAppended.data("total-otros-costos", totalOtrosCostos);
         $filaAppended.data("detalle-otros-costos", otrosCostosArt.map(oc => ({
-            codigo: oc.idpromocionarticulo,
-            nombre: oc.descripcion,
-            valor: parseFloat(oc.costo) || 0
+            codigo: oc.idpromocionarticulo, nombre: oc.descripcion, valor: parseFloat(oc.costo) || 0
         })));
 
-        // Poblar medio de pago
         if (mpItems.length > 0) {
             const tipoAsig = (mpItems[0].tipoasignacion || "").toUpperCase();
             if (tipoAsig !== "T") {
@@ -883,12 +873,13 @@ function poblarArticulosDesdeAPI(data) {
 
 function recalcularFilaArticulo($fila) {
     const costo = parseCurrencyToNumber($fila.find("td:eq(2)").text());
-    const precioLista = parseCurrencyToNumber($fila.find("td:eq(25)").text());
+    const precioListaContado = parseCurrencyToNumber($fila.find("td:eq(25)").text());
+    const precioListaCredito = parseCurrencyToNumber($fila.find("td:eq(26)").text());
 
-    const precioContado = parseCurrencyToNumber($fila.find("td:eq(26) input").val());
-    const precioTC = parseCurrencyToNumber($fila.find("td:eq(27) input").val());
-    const precioCredito = parseCurrencyToNumber($fila.find("td:eq(28) input").val());
-    const precioIgualar = parseCurrencyToNumber($fila.find("td:eq(29) input").val());
+    const precioContado = parseCurrencyToNumber($fila.find("td:eq(27) input").val());
+    const precioTC = parseCurrencyToNumber($fila.find("td:eq(28) input").val());
+    const precioCredito = parseCurrencyToNumber($fila.find("td:eq(29) input").val());
+    const precioIgualar = parseCurrencyToNumber($fila.find("td:eq(30) input").val());
 
     const aporteProveedor = parseCurrencyToNumber($fila.find(".aporte-proveedor").val());
     const aporteProveedor2 = parseCurrencyToNumber($fila.find(".aporte-proveedor2").val());
@@ -897,41 +888,49 @@ function recalcularFilaArticulo($fila) {
     const aportePropio2 = parseCurrencyToNumber($fila.find(".aporte-propio2").val());
 
     const otrosCostos = parseFloat($fila.data("total-otros-costos")) || 0;
+
+    // Unidades límite estrictamente para cálculos de compensaciones
     const unidadesLimite = parseInt($fila.find("td:eq(22) input").val()) || 0;
-    const proyeccionVtas = parseInt($fila.find("td:eq(23) input").val()) || 0;
-    const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
 
     // Descuentos
-    $fila.find("td:eq(30)").text((precioLista - precioContado).toFixed(2));
-    $fila.find("td:eq(31)").text((precioLista - precioTC).toFixed(2));
-    $fila.find("td:eq(32)").text((precioLista - precioCredito).toFixed(2));
-    $fila.find("td:eq(33)").text((precioLista - precioIgualar).toFixed(2));
+    $fila.find("td:eq(31)").text((precioListaContado - precioContado).toFixed(2));
+    $fila.find("td:eq(32)").text((precioListaContado - precioTC).toFixed(2));
+    $fila.find("td:eq(33)").text((precioListaCredito - precioCredito).toFixed(2));
+    $fila.find("td:eq(34)").text((precioListaContado - precioIgualar).toFixed(2));
 
-    // Margen PL
-    const margenPL = precioLista > 0 ? ((precioLista - costo) / precioLista * 100) : 0;
-    $fila.find("td:eq(44)").text(margenPL.toFixed(2) + "%");
+    // Margen Precio Lista
+    const margenPLContado = precioListaContado > 0 ? ((precioListaContado - costo) / precioListaContado * 100) : 0;
+    $fila.find("td:eq(45)").text(margenPLContado.toFixed(2) + "%");
 
-    // Márgenes
-    const calcMargen = (precioPromocion) => {
-        const denominador = precioPromocion + aporteProveedor + aporteProveedor2 + aporteRebate;
-        if (denominador > 0) return ((denominador - costo - otrosCostos) / denominador) * 100;
+    const margenPLCredito = precioListaCredito > 0 ? ((precioListaCredito - costo) / precioListaCredito * 100) : 0;
+    $fila.find("td:eq(46)").text(margenPLCredito.toFixed(2) + "%");
+
+    // Márgenes Promoción
+    // Fórmula pedida: (Precio Promo + Aporte Prov + Aporte Rebate - Costo - Otros) / (Precio Promo + Aporte Prov + Aporte Rebate)
+    const calcMargenPromo = (precioPromocion) => {
+        const denominador = precioPromocion + aporteProveedor + aporteRebate;
+        if (denominador > 0) {
+            return ((precioPromocion + aporteProveedor + aporteRebate - costo - otrosCostos) / denominador) * 100;
+        }
         return 0;
     };
-    $fila.find("td:eq(45)").text(calcMargen(precioContado).toFixed(2) + "%");
-    $fila.find("td:eq(46)").text(calcMargen(precioTC).toFixed(2) + "%");
-    $fila.find("td:eq(47)").text(calcMargen(precioCredito).toFixed(2) + "%");
-    $fila.find("td:eq(48)").text(calcMargen(precioIgualar).toFixed(2) + "%");
 
-    // Comprometidos
-    $fila.find("td:eq(49)").text(formatCurrencySpanish(aporteProveedor * unidades));
-    $fila.find("td:eq(50)").text(formatCurrencySpanish(aporteProveedor2 * unidades));
-    $fila.find("td:eq(51)").text(formatCurrencySpanish(aporteRebate * unidades));
-    $fila.find("td:eq(52)").text(formatCurrencySpanish(aportePropio * unidades));
-    $fila.find("td:eq(53)").text(formatCurrencySpanish(aportePropio2 * unidades));
+    $fila.find("td:eq(47)").text(calcMargenPromo(precioContado).toFixed(2) + "%");
+    $fila.find("td:eq(48)").text(calcMargenPromo(precioTC).toFixed(2) + "%");
+    $fila.find("td:eq(49)").text(calcMargenPromo(precioCredito).toFixed(2) + "%");
+    $fila.find("td:eq(50)").text(calcMargenPromo(precioIgualar).toFixed(2) + "%");
+
+    // Compensaciones (Comp. Proveedor = Aporte * Unidades Límite)
+    $fila.find("td:eq(51)").text(formatCurrencySpanish(aporteProveedor * unidadesLimite));
+    $fila.find("td:eq(52)").text(formatCurrencySpanish(aporteProveedor2 * unidadesLimite));
+    $fila.find("td:eq(53)").text(formatCurrencySpanish(aporteRebate * unidadesLimite));
+    $fila.find("td:eq(54)").text(formatCurrencySpanish(aportePropio * unidadesLimite));
+    $fila.find("td:eq(55)").text(formatCurrencySpanish(aportePropio2 * unidadesLimite));
 
     // Colores
-    $fila.find("td:eq(30), td:eq(31), td:eq(32), td:eq(33), td:eq(44), td:eq(45), td:eq(46), td:eq(47), td:eq(48)").each(function () {
-        const valor = parseFloat($(this).text());
+    $fila.find("td:eq(31), td:eq(32), td:eq(33), td:eq(34), td:eq(45), td:eq(46), td:eq(47), td:eq(48), td:eq(49), td:eq(50)").each(function () {
+        const textVal = $(this).text().replace('%', '');
+        const valor = parseFloat(textVal);
         if (valor < 0) $(this).css("color", "#dc3545");
         else if (valor > 0) $(this).css("color", "#198754");
         else $(this).css("color", "#212529");
@@ -1023,23 +1022,86 @@ function cargarFiltrosItemsPromocion() {
 }
 
 function consultarItemsPromocion(filtros) {
-    if (dtItemsConsultaPromo) { dtItemsConsultaPromo.clear().draw(); $('.dataTables_empty').text("Cargando resultados..."); }
-    const payload = { code_app: "APP20260128155212346", http_method: "POST", endpoint_path: "api/Acuerdo/consultar-articulos", client: "APL", body_request: filtros };
+    if (dtItemsConsultaPromo) {
+        dtItemsConsultaPromo.clear().draw();
+        $('.dataTables_empty').text("Cargando resultados...");
+    }
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Acuerdo/consultar-articulos",
+        client: "APL",
+        body_request: filtros
+    };
 
     $.ajax({
-        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
         success: function (res) {
             const data = res.json_response || [];
-            const filas = data.map(item => [
-                `<input type="checkbox" class="form-check-input item-checkbox" data-codigo="${item.codigo || ''}" data-descripcion="${item.descripcion || ''}" data-costo="${item.costo || 0}" data-stock="${item.stock || 0}" data-optimo="${item.optimo || 0}" data-excedenteu="${item.excedente_u || 0}" data-excedentes="${item.excedente_s || 0}" data-m0u="${item.m0_u || 0}" data-m0s="${item.m0_s || 0}" data-m1u="${item.m1_u || 0}" data-m1s="${item.m1_s || 0}" data-m2u="${item.m2_u || 0}" data-m2s="${item.m2_s || 0}" data-m12u="${item.m12_u || 0}" data-m12s="${item.m12_s || item.m12_d || 0}">`,
-                item.codigo || "", item.descripcion || "", formatCurrencySpanish(item.costo || 0),
-                item.stock || 0, item.optimo || 0, item.excedente_u || 0, formatCurrencySpanish(item.excedente_s || 0),
-                item.m0_u || 0, formatCurrencySpanish(item.m0_s || 0), item.m1_u || 0, formatCurrencySpanish(item.m1_s || 0),
-                item.m2_u || 0, formatCurrencySpanish(item.m2_s || 0),
-                item.m12_u || 0, formatCurrencySpanish(item.m12_s || item.m12_d || 0)
-            ]);
-            if (dtItemsConsultaPromo) { dtItemsConsultaPromo.clear(); dtItemsConsultaPromo.rows.add(filas); dtItemsConsultaPromo.draw(); }
-            $("#buscarItemModal").off("keyup").on("keyup", function () { if (dtItemsConsultaPromo) dtItemsConsultaPromo.search($(this).val()).draw(); });
+
+            const filas = data.map(item => {
+                return [
+                    `<input type="checkbox" class="form-check-input item-checkbox"
+                        data-codigo="${item.codigo || item.iditem || ''}"
+                        data-descripcion="${item.descripcion || item.nombre || ''}"
+                        data-costo="${item.costo || 0}"
+                        data-stock="${item.stock || 0}"
+                        data-optimo="${item.optimo || 0}"
+                        data-excedenteu="${item.excedente_u || 0}"
+                        data-excedentes="${item.excedente_s || item.excedente_d || 0}"
+                        data-m0u="${item.m0_u || 0}"
+                        data-m0s="${item.m0_s || item.m0_d || 0}"
+                        data-m1u="${item.m1_u || 0}"
+                        data-m1s="${item.m1_s || item.m1_d || 0}"
+                        data-m2u="${item.m2_u || 0}"
+                        data-m2s="${item.m2_s || item.m2_d || 0}"
+                        data-m12u="${item.m12_u || 0}"
+                        data-m12s="${item.m12_s || item.m12_d || 0}"
+                        data-margenmincontado="${item.margen_min_contado || 0}"
+                        data-margenmintc="${item.margen_min_tarjeta_credito || 0}"
+                        data-margenmincredito="${item.margen_min_precio_credito || 0}"
+                        data-margenminigualar="${item.margen_min_igualar || 0}"
+                        data-preciolistacontado="${item.precio_lista_contado || 0}"
+                        data-preciolistacredito="${item.precio_lista_credito || 0}">`,
+                    item.codigo || item.iditem || "",
+                    item.descripcion || item.nombre || "",
+                    formatCurrencySpanish(item.costo || 0),
+                    item.stock || 0,
+                    item.optimo || 0,
+                    item.excedente_u || 0,
+                    formatCurrencySpanish(item.excedente_s || item.excedente_d || 0),
+                    item.m0_u || 0,
+                    formatCurrencySpanish(item.m0_s || item.m0_d || 0),
+                    item.m1_u || 0,
+                    formatCurrencySpanish(item.m1_s || item.m1_d || 0),
+                    item.m2_u || 0,
+                    formatCurrencySpanish(item.m2_s || item.m2_d || 0),
+                    item.m12_u || 0,
+                    formatCurrencySpanish(item.m12_s || item.m12_d || 0)
+                ];
+            });
+
+            if (dtItemsConsultaPromo) {
+                dtItemsConsultaPromo.clear();
+                dtItemsConsultaPromo.rows.add(filas);
+                dtItemsConsultaPromo.draw();
+            }
+
+            $("#buscarItemModal").off("keyup").on("keyup", function () {
+                if (dtItemsConsultaPromo) {
+                    dtItemsConsultaPromo.search($(this).val()).draw();
+                }
+            });
+        },
+        error: function () {
+            if (dtItemsConsultaPromo) {
+                dtItemsConsultaPromo.clear().draw();
+                $('.dataTables_empty').html('<span class="text-danger">Error al cargar items.</span>');
+            }
         }
     });
 }
@@ -1291,12 +1353,24 @@ $(document).ready(function () {
         if (dtItemsConsultaPromo) $(dtItemsConsultaPromo.$(".item-checkbox")).prop("checked", $(this).is(":checked"));
     });
 
-    $("#btnSeleccionarItems").on("click", function () {
+    $("#btnSeleccionarItems").off("click").on("click", function () {
         const items = [];
         const checkboxes = dtItemsConsultaPromo ? dtItemsConsultaPromo.$(".item-checkbox:checked") : [];
         checkboxes.each(function () {
             const $c = $(this);
-            items.push({ codigo: $c.data("codigo"), descripcion: $c.data("descripcion"), costo: $c.data("costo"), stock: $c.data("stock"), optimo: $c.data("optimo"), excedenteu: $c.data("excedenteu"), excedentes: $c.data("excedentes"), m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"), m2u: $c.data("m2u"), m2s: $c.data("m2s"), m12u: $c.data("m12u"), m12s: $c.data("m12s") });
+            items.push({
+                codigo: $c.data("codigo"), descripcion: $c.data("descripcion"),
+                costo: $c.data("costo"), stock: $c.data("stock"), optimo: $c.data("optimo"),
+                excedenteu: $c.data("excedenteu"), excedentes: $c.data("excedentes"),
+                m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"),
+                m2u: $c.data("m2u"), m2s: $c.data("m2s"), m12u: $c.data("m12u"), m12s: $c.data("m12s"),
+                margenmincontado: $c.data("margenmincontado"),
+                margenmintc: $c.data("margenmintc"),
+                margenmincredito: $c.data("margenmincredito"),
+                margenminigualar: $c.data("margenminigualar"),
+                preciolistacontado: $c.data("preciolistacontado"),
+                preciolistacredito: $c.data("preciolistacredito")
+            });
         });
         if (items.length === 0) { Swal.fire("Atención", "Seleccione al menos un item.", "info"); return; }
         agregarItemsATablaArticulos(items);
@@ -1752,16 +1826,17 @@ async function guardarPromocionArticulos() {
         const medioPagoVal = $selectMedioPago.val();
         const mediosPagoSeleccionados = $selectMedioPago.data("seleccionados") || [];
 
-        const precioLista = parseCurrencyToNumber($fila.find("td:eq(25)").text());
-        const precioContado = parseCurrencyToNumber($fila.find("td:eq(26) input").val());
-        const precioTC = parseCurrencyToNumber($fila.find("td:eq(27) input").val());
-        const precioCredito = parseCurrencyToNumber($fila.find("td:eq(28) input").val());
-        const precioIgualar = parseCurrencyToNumber($fila.find("td:eq(29) input").val());
+        const precioListaContado = parseCurrencyToNumber($fila.find("td:eq(25)").text());
+        const precioListaCredito = parseCurrencyToNumber($fila.find("td:eq(26)").text());
+        const precioContado = parseCurrencyToNumber($fila.find("td:eq(27) input").val());
+        const precioTC = parseCurrencyToNumber($fila.find("td:eq(28) input").val());
+        const precioCredito = parseCurrencyToNumber($fila.find("td:eq(29) input").val());
+        const precioIgualar = parseCurrencyToNumber($fila.find("td:eq(30) input").val());
 
-        const dsctoContado = parseFloat($fila.find("td:eq(30)").text()) || 0;
-        const dsctoTC = parseFloat($fila.find("td:eq(31)").text()) || 0;
-        const dsctoCredito = parseFloat($fila.find("td:eq(32)").text()) || 0;
-        const dsctoIgualar = parseFloat($fila.find("td:eq(33)").text()) || 0;
+        const dsctoContado = parseFloat($fila.find("td:eq(31)").text()) || 0;
+        const dsctoTC = parseFloat($fila.find("td:eq(32)").text()) || 0;
+        const dsctoCredito = parseFloat($fila.find("td:eq(33)").text()) || 0;
+        const dsctoIgualar = parseFloat($fila.find("td:eq(34)").text()) || 0;
 
         const aporteProveedor = parseCurrencyToNumber($fila.find(".aporte-proveedor").val());
         const idAcuerdoProveedor = parseInt($fila.find(".acuerdo-prov1-hidden").val()) || 0;
@@ -1778,19 +1853,20 @@ async function guardarPromocionArticulos() {
         const aportePropio2 = parseCurrencyToNumber($fila.find(".aporte-propio2").val());
         const idAcuerdoPropio2 = parseInt($fila.find(".acuerdo-propio2-hidden").val()) || 0;
 
-        const compProveedor = parseCurrencyToNumber($fila.find("td:eq(49)").text());
-        const compProveedor2 = parseCurrencyToNumber($fila.find("td:eq(50)").text());
-        const compRebate = parseCurrencyToNumber($fila.find("td:eq(51)").text());
-        const compPropio = parseCurrencyToNumber($fila.find("td:eq(52)").text());
-        const compPropio2 = parseCurrencyToNumber($fila.find("td:eq(53)").text());
+        const compProveedor = parseCurrencyToNumber($fila.find("td:eq(51)").text());
+        const compProveedor2 = parseCurrencyToNumber($fila.find("td:eq(52)").text());
+        const compRebate = parseCurrencyToNumber($fila.find("td:eq(53)").text());
+        const compPropio = parseCurrencyToNumber($fila.find("td:eq(54)").text());
+        const compPropio2 = parseCurrencyToNumber($fila.find("td:eq(55)").text());
 
-        const margenPL = parseFloat($fila.find("td:eq(44)").text()) || 0;
-        const margenContado = parseFloat($fila.find("td:eq(45)").text()) || 0;
-        const margenTC = parseFloat($fila.find("td:eq(46)").text()) || 0;
-        const margenCredito = parseFloat($fila.find("td:eq(47)").text()) || 0;
-        const margenIgualar = parseFloat($fila.find("td:eq(48)").text()) || 0;
+        const margenPLContado = parseFloat($fila.find("td:eq(45)").text()) || 0;
+        const margenPLCredito = parseFloat($fila.find("td:eq(46)").text()) || 0; // NUEVO
+        const margenContado = parseFloat($fila.find("td:eq(47)").text()) || 0;
+        const margenTC = parseFloat($fila.find("td:eq(48)").text()) || 0;
+        const margenCredito = parseFloat($fila.find("td:eq(49)").text()) || 0;
+        const margenIgualar = parseFloat($fila.find("td:eq(50)").text()) || 0;
 
-        const regalo = $fila.find("td:eq(54) input[type='checkbox']").is(":checked") ? "S" : "N";
+        const regalo = $fila.find("td:eq(56) input[type='checkbox']").is(":checked") ? "S" : "N";
 
         const acuerdosArticulo = [];
         if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor, valorcomprometido: compProveedor, etiqueta_tipo_fondo: "TFPROVEDOR" });
@@ -1816,14 +1892,14 @@ async function guardarPromocionArticulos() {
             m0unidades: m0u, m0precio: m0p, m1unidades: m1u, m1precio: m1p, m2unidades: m2u, m2precio: m2p,
             m12unidades: m12u, m12precio: m12p, igualarprecio: igualarPrecio, diasantiguedad: diasIgualar,
             unidadeslimite: unidadesLimite, unidadesproyeccionventas: proyeccionVtas,
-            preciolistacontado: precioLista, preciolistacredito: precioLista,
+            preciolistacontado: precioListaContado, preciolistacredito: precioListaCredito,
             preciopromocioncontado: precioContado, preciopromociontarjetacredito: precioTC,
             preciopromocioncredito: precioCredito, precioigualarprecio: precioIgualar,
             descuentopromocioncontado: dsctoContado, descuentopromociontarjetacredito: dsctoTC,
             descuentopromocioncredito: dsctoCredito, descuentoigualarprecio: dsctoIgualar,
             margenminimocontado: margenMinContado, margenminimotarjetacredito: margenMinTC,
             margenminimocredito: margenMinCredito, margenminimoigualar: margenMinIgualar,
-            margenpreciolistacontado: margenPL, margenpreciolistacredito: margenPL,
+            margenpreciolistacontado: margenPLContado, margenpreciolistacredito: margenPLCredito,
             margenpromocioncontado: margenContado, margenpromociontarjetacredito: margenTC,
             margenpromocioncredito: margenCredito, margenigualarprecio: margenIgualar,
             marcaregalo: regalo,

@@ -2258,7 +2258,7 @@
         }
 
         // Resetear campos
-        $("#codigoComboModal").val("");
+        //$("#codigoComboModal").val("");
         $("#nombreComboModal").val("");
         $("#btnHeaderComboTotal").text("Nuevo Combo");
 
@@ -2357,15 +2357,20 @@
 
         // 2. GUARDAR COMBO → Leer artículos del modal y agregar fila a tablaCombosBody
         $("#btnConfirmarCombo").off("click").on("click", function () {
-            const codigo = $("#codigoComboModal").val().trim();
+            // 1. Lógica de Código Automático
+            let codigo = "";
+            if (comboEnEdicion) {
+                codigo = comboEnEdicion;
+            } else {
+                // Genera CMB-1, CMB-2, etc basado en las filas actuales
+                const numActual = $("#tablaCombosBody tr").length + 1;
+                codigo = "CMB-" + numActual;
+            }
+
             const nombre = $("#nombreComboModal").val().trim();
 
             if (!nombre) {
                 Swal.fire("Validación", "Debe ingresar un nombre para el combo.", "warning");
-                return;
-            }
-            if (!codigo) {
-                Swal.fire("Validación", "Debe ingresar un código para el combo.", "warning");
                 return;
             }
 
@@ -2433,12 +2438,14 @@
             // Construir la fila asegurando que los inputs interactivos nazcan DESHABILITADOS
             const filaCombo = `
                 <tr data-codigo="${codigo}" class="align-middle">
-                    <td class="table-sticky-col" style="background-color: #a4c995;">
-                        <div class="d-flex align-items-center">
-                            <input type="radio" class="form-check-input combo-row-radio me-2" name="comboRadioSel">
-                            <span class="text-nowrap"><span class="fw-bold">${codigo}</span> - ${nombre}</span>
-                        </div>
-                        </td>
+                    <td class="text-center align-middle">
+                        <input type="radio" class="form-check-input combo-row-radio" name="comboRadioSel">
+                    </td>
+        
+                    <td class="table-sticky-col" style="background-color: #f8f9fa;">
+                        <span class="text-nowrap"><span class="fw-bold">${codigo}</span> - ${nombre}</span>
+                    </td>
+        
                     <td class="text-end">${formatCurrencySpanish(totalCosto)}</td>
                     <td class="text-end">${totalStock}</td>
                     <td class="text-end">${totalStockTienda}</td>
@@ -2535,7 +2542,6 @@
             limpiarModalCombo();
             comboEnEdicion = codigoCombo;
 
-            $("#codigoComboModal").val(codigoCombo);
             $("#nombreComboModal").val(nombreCombo);
             $("#btnHeaderComboTotal").text(`[${codigoCombo}] ${nombreCombo}`);
 
@@ -2837,10 +2843,13 @@
     });
 
     $(document).on("click", "#btnActualizarHeaderCombo", function () {
-        const cod = $("#codigoComboModal").val();
-        const nom = $("#nombreComboModal").val();
-        if (cod && nom) {
-            $("#btnHeaderComboTotal").text(`${cod} - ${nom}`);
+        const nom = $("#nombreComboModal").val().trim();
+        if (nom) {
+            // Si estamos editando, mostramos el código actual, si es nuevo, solo el nombre
+            const prefijo = comboEnEdicion ? `[${comboEnEdicion}] ` : "";
+            $("#btnHeaderComboTotal").text(`${prefijo}${nom}`);
+        } else {
+            Swal.fire("Atención", "Ingrese un nombre para el combo", "warning");
         }
     });
 
