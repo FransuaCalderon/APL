@@ -1085,7 +1085,13 @@
                         data-m2u="${item.m2_u || 0}"
                         data-m2s="${item.m2_s || item.m2_d || 0}"
                         data-m12u="${item.m12_u || 0}"
-                        data-m12s="${item.m12_s || item.m12_d || 0}">`,
+                        data-m12s="${item.m12_s || item.m12_d || 0}"
+                        data-margenmincontado="${item.margen_min_contado || 0}"
+                        data-margenmintc="${item.margen_min_tarjeta_credito || 0}"
+                        data-margenmincredito="${item.margen_min_precio_credito || 0}"
+                        data-margenminigualar="${item.margen_min_igualar || 0}"
+                        data-preciolistacontado="${item.precio_lista_contado || 0}"
+                        data-preciolistacredito="${item.precio_lista_credito || 0}">`,
                         item.codigo || item.iditem || "",
                         item.descripcion || item.nombre || "",
                         formatCurrencySpanish(item.costo || 0),
@@ -1139,9 +1145,7 @@
             itemsNuevos++;
             const fila = `
         <tr data-codigo="${item.codigo}">
-            <td class="text-center align-middle">
-                <input type="radio" class="form-check-input item-row-radio" name="itemArticuloSel">
-            </td>
+            <td class="text-center align-middle"><input type="radio" class="form-check-input item-row-radio" name="itemArticuloSel"></td>
             <td class="align-middle table-sticky-col">${item.codigo} - ${item.descripcion}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(item.costo)}</td>
             <td class="align-middle text-end">${item.stock || 0}</td>
@@ -1159,10 +1163,10 @@
             <td class="align-middle text-end">${formatCurrencySpanish(item.m12s || 0)}</td>
             <td class="align-middle text-end">0</td>
             <td class="align-middle text-end">0</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">${item.margenmincontado}%</td>
+            <td class="align-middle text-end">${item.margenmintc}%</td>
+            <td class="align-middle text-end">${item.margenmincredito}%</td>
+            <td class="align-middle text-end">${item.margenminigualar}%</td>
             <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0" min="0" disabled></td>
             <td class="align-middle celda-editable"><input type="number" class="form-control form-control-sm text-end" placeholder="0" min="0" disabled></td>
             <td class="align-middle celda-editable">
@@ -1170,15 +1174,16 @@
                     ${$("#filtroMedioPagoGeneral").html()}
                 </select>
             </td>
-            <td class="align-middle text-end">${formatCurrencySpanish(0)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.preciolistacontado)}</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.preciolistacredito)}</td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable"><input type="text" class="form-control form-control-sm text-end" placeholder="0.00" disabled></td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00</td>
+            <td class="align-middle text-end">0.00</td>
+            <td class="align-middle text-end">0.00</td>
+            <td class="align-middle text-end">0.00</td>
             <td class="align-middle"><input type="text" class="form-control form-control-sm text-end aporte-valor aporte-proveedor" placeholder="0.00" disabled></td>
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="">
@@ -1230,7 +1235,7 @@
                 </div>
             </td>
             <td class="align-middle text-end">0.00%</td>
-            <td class="align-middle text-end">0.00%</td>
+            <td class="align-middle text-end">0.00%</td> <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
             <td class="align-middle text-end">0.00%</td>
@@ -1254,14 +1259,18 @@
     // RECALCULAR FILA ARTÍCULO
     // ==========================================
     function recalcularFilaArticulo($fila) {
+        // 1. Obtener valores base
         const costo = parseCurrency($fila.find("td:eq(2)").text());
-        const precioLista = parseCurrency($fila.find("td:eq(25)").text());
+        const precioListaContado = parseCurrency($fila.find("td:eq(25)").text());
+        const precioListaCredito = parseCurrency($fila.find("td:eq(26)").text());
 
-        const precioContado = parseCurrency($fila.find("td:eq(26) input").val());
-        const precioTC = parseCurrency($fila.find("td:eq(27) input").val());
-        const precioCredito = parseCurrency($fila.find("td:eq(28) input").val());
-        const precioIgualar = parseCurrency($fila.find("td:eq(29) input").val());
+        // 2. Obtener precios ingresados
+        const precioContado = parseCurrency($fila.find("td:eq(27) input").val());
+        const precioTC = parseCurrency($fila.find("td:eq(28) input").val());
+        const precioCredito = parseCurrency($fila.find("td:eq(29) input").val());
+        const precioIgualar = parseCurrency($fila.find("td:eq(30) input").val());
 
+        // 3. Obtener aportes
         const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
         const aporteProveedor2 = parseCurrency($fila.find(".aporte-proveedor2").val());
         const aporteRebate = parseCurrency($fila.find(".aporte-rebate").val());
@@ -1270,49 +1279,61 @@
 
         const otrosCostos = parseFloat($fila.data("total-otros-costos")) || 0;
 
+        // Obtener unidades límite para los cálculos de compensación
         const unidadesLimite = parseInt($fila.find("td:eq(22) input").val()) || 0;
-        const proyeccionVtas = parseInt($fila.find("td:eq(23) input").val()) || 0;
-        const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
 
-        const dsctoContado = precioLista - precioContado;
-        const dsctoTC = precioLista - precioTC;
-        const dsctoCredito = precioLista - precioCredito;
-        const dsctoIgualar = precioLista - precioIgualar;
-        $fila.find("td:eq(30)").text(dsctoContado.toFixed(2));
-        $fila.find("td:eq(31)").text(dsctoTC.toFixed(2));
-        $fila.find("td:eq(32)").text(dsctoCredito.toFixed(2));
-        $fila.find("td:eq(33)").text(dsctoIgualar.toFixed(2));
+        // 4. CÁLCULO DE DESCUENTOS
+        const dsctoContado = precioListaContado - precioContado;
+        const dsctoTC = precioListaContado - precioTC;
+        const dsctoCredito = precioListaCredito - precioCredito;
+        const dsctoIgualar = precioListaContado - precioIgualar; // Usando Contado como base
 
-        const margenPL = precioLista > 0 ? ((precioLista - costo) / precioLista * 100) : 0;
-        $fila.find("td:eq(44)").text(margenPL.toFixed(2) + "%");
+        $fila.find("td:eq(31)").text(dsctoContado.toFixed(2));
+        $fila.find("td:eq(32)").text(dsctoTC.toFixed(2));
+        $fila.find("td:eq(33)").text(dsctoCredito.toFixed(2));
+        $fila.find("td:eq(34)").text(dsctoIgualar.toFixed(2));
 
-        const calcMargen = (precioPromocion) => {
-            const denominador = precioPromocion + aporteProveedor + aporteProveedor2 + aporteRebate;
+        // 5. CÁLCULO DE MÁRGENES PRECIO DE LISTA
+        const margenPLContado = precioListaContado > 0 ? ((precioListaContado - costo) / precioListaContado * 100) : 0;
+        $fila.find("td:eq(45)").text(margenPLContado.toFixed(2) + "%");
+
+        const margenPLCredito = precioListaCredito > 0 ? ((precioListaCredito - costo) / precioListaCredito * 100) : 0;
+        $fila.find("td:eq(46)").text(margenPLCredito.toFixed(2) + "%");
+
+        // 6. CÁLCULO DE MÁRGENES DE PROMOCIÓN
+        // Fórmula: (Precio Promo + Aporte Proveedor + Aporte Rebate – Costo – Otros Costos) / (Precio Promo + Aporte Proveedor + Aporte Rebate)
+        const calcMargenPromo = (precioPromocion) => {
+            const denominador = precioPromocion + aporteProveedor + aporteRebate;
             if (denominador > 0) {
-                return ((denominador - costo - otrosCostos) / denominador) * 100;
+                return ((precioPromocion + aporteProveedor + aporteRebate - costo - otrosCostos) / denominador) * 100;
             }
             return 0;
         };
 
-        $fila.find("td:eq(45)").text(calcMargen(precioContado).toFixed(2) + "%");
-        $fila.find("td:eq(46)").text(calcMargen(precioTC).toFixed(2) + "%");
-        $fila.find("td:eq(47)").text(calcMargen(precioCredito).toFixed(2) + "%");
-        $fila.find("td:eq(48)").text(calcMargen(precioIgualar).toFixed(2) + "%");
+        $fila.find("td:eq(47)").text(calcMargenPromo(precioContado).toFixed(2) + "%");
+        $fila.find("td:eq(48)").text(calcMargenPromo(precioTC).toFixed(2) + "%");
+        $fila.find("td:eq(49)").text(calcMargenPromo(precioCredito).toFixed(2) + "%");
+        $fila.find("td:eq(50)").text(calcMargenPromo(precioIgualar).toFixed(2) + "%");
 
-        $fila.find("td:eq(49)").text(formatCurrencySpanish(aporteProveedor * unidades));
-        $fila.find("td:eq(50)").text(formatCurrencySpanish(aporteProveedor2 * unidades));
-        $fila.find("td:eq(51)").text(formatCurrencySpanish(aporteRebate * unidades));
-        $fila.find("td:eq(52)").text(formatCurrencySpanish(aportePropio * unidades));
-        $fila.find("td:eq(53)").text(formatCurrencySpanish(aportePropio2 * unidades));
+        // 7. CÁLCULO DE COMPENSACIONES (Valores Comprometidos x Unidades Límite)
+        $fila.find("td:eq(51)").text(formatCurrencySpanish(aporteProveedor * unidadesLimite));
+        $fila.find("td:eq(52)").text(formatCurrencySpanish(aporteProveedor2 * unidadesLimite));
+        $fila.find("td:eq(53)").text(formatCurrencySpanish(aporteRebate * unidadesLimite));
+        $fila.find("td:eq(54)").text(formatCurrencySpanish(aportePropio * unidadesLimite));
+        $fila.find("td:eq(55)").text(formatCurrencySpanish(aportePropio2 * unidadesLimite));
 
-        $fila.find("td:eq(30), td:eq(31), td:eq(32), td:eq(33), td:eq(44), td:eq(45), td:eq(46), td:eq(47), td:eq(48)").each(function () {
-            const valor = parseFloat($(this).text());
+        // 8. PINTADO DE CELDAS SEGÚN VALOR POSITIVO/NEGATIVO
+        $fila.find("td:eq(31), td:eq(32), td:eq(33), td:eq(34), td:eq(45), td:eq(46), td:eq(47), td:eq(48), td:eq(49), td:eq(50)").each(function () {
+            // Reemplazamos el % si lo tiene para validar el número real
+            const textVal = $(this).text().replace('%', '');
+            const valor = parseFloat(textVal);
+
             if (valor < 0) {
-                $(this).css("color", "#dc3545");
+                $(this).css("color", "#dc3545"); // Rojo si es negativo
             } else if (valor > 0) {
-                $(this).css("color", "#198754");
+                $(this).css("color", "#198754"); // Verde si es positivo
             } else {
-                $(this).css("color", "#212529");
+                $(this).css("color", "#212529"); // Gris oscuro/Negro si es 0
             }
         });
     }
@@ -1542,16 +1563,17 @@
                 const $selectMedioPago = $fila.find("td:eq(24) select");
                 const medioPagoVal = $selectMedioPago.val();
 
-                const precioLista = parseCurrency($fila.find("td:eq(25)").text());
-                const precioPromoContado = parseCurrency($fila.find("td:eq(26) input").val());
-                const precioPromoTC = parseCurrency($fila.find("td:eq(27) input").val());
-                const precioPromoCredito = parseCurrency($fila.find("td:eq(28) input").val());
-                const precioIgualarPromo = parseCurrency($fila.find("td:eq(29) input").val());
+                const precioListaContado = parseCurrency($fila.find("td:eq(25)").text());
+                const precioListaCredito = parseCurrency($fila.find("td:eq(26)").text());
+                const precioPromoContado = parseCurrency($fila.find("td:eq(27) input").val());
+                const precioPromoTC = parseCurrency($fila.find("td:eq(28) input").val());
+                const precioPromoCredito = parseCurrency($fila.find("td:eq(29) input").val());
+                const precioIgualarPromo = parseCurrency($fila.find("td:eq(30) input").val());
 
-                const dsctoContado = parseFloat($fila.find("td:eq(30)").text()) || 0;
-                const dsctoTC = parseFloat($fila.find("td:eq(31)").text()) || 0;
-                const dsctoCredito = parseFloat($fila.find("td:eq(32)").text()) || 0;
-                const dsctoIgualar = parseFloat($fila.find("td:eq(33)").text()) || 0;
+                const dsctoContado = parseFloat($fila.find("td:eq(31)").text()) || 0;
+                const dsctoTC = parseFloat($fila.find("td:eq(32)").text()) || 0;
+                const dsctoCredito = parseFloat($fila.find("td:eq(33)").text()) || 0;
+                const dsctoIgualar = parseFloat($fila.find("td:eq(34)").text()) || 0;
 
                 const aporteProveedor = parseCurrency($fila.find(".aporte-proveedor").val());
                 const idAcuerdoProveedor = parseInt($fila.find(".acuerdo-prov1-hidden").val()) || 0;
@@ -1564,19 +1586,20 @@
                 const aportePropio2 = parseCurrency($fila.find(".aporte-propio2").val());
                 const idAcuerdoPropio2 = parseInt($fila.find(".acuerdo-propio2-hidden").val()) || 0;
 
-                const compProveedor = parseCurrency($fila.find("td:eq(49)").text());
-                const compProveedor2 = parseCurrency($fila.find("td:eq(50)").text());
-                const compRebate = parseCurrency($fila.find("td:eq(51)").text());
-                const compPropio = parseCurrency($fila.find("td:eq(52)").text());
-                const compPropio2 = parseCurrency($fila.find("td:eq(53)").text());
+                const compProveedor = parseCurrency($fila.find("td:eq(51)").text());
+                const compProveedor2 = parseCurrency($fila.find("td:eq(52)").text());
+                const compRebate = parseCurrency($fila.find("td:eq(53)").text());
+                const compPropio = parseCurrency($fila.find("td:eq(54)").text());
+                const compPropio2 = parseCurrency($fila.find("td:eq(55)").text());
 
-                const margenPrecioLista = parseFloat($fila.find("td:eq(44)").text()) || 0;
-                const margenPromoContado = parseFloat($fila.find("td:eq(45)").text()) || 0;
-                const margenPromoTC = parseFloat($fila.find("td:eq(46)").text()) || 0;
-                const margenPromoCredito = parseFloat($fila.find("td:eq(47)").text()) || 0;
-                const margenIgualar = parseFloat($fila.find("td:eq(48)").text()) || 0;
+                const margenPrecioListaContado = parseFloat($fila.find("td:eq(45)").text()) || 0;
+                const margenPrecioListaCredito = parseFloat($fila.find("td:eq(46)").text()) || 0;
+                const margenPromoContado = parseFloat($fila.find("td:eq(47)").text()) || 0;
+                const margenPromoTC = parseFloat($fila.find("td:eq(48)").text()) || 0;
+                const margenPromoCredito = parseFloat($fila.find("td:eq(49)").text()) || 0;
+                const margenIgualar = parseFloat($fila.find("td:eq(50)").text()) || 0;
 
-                const regalo = $fila.find("td:eq(54) input[type='checkbox']").is(":checked") ? "S" : "N";
+                const regalo = $fila.find("td:eq(56) input[type='checkbox']").is(":checked") ? "S" : "N";
 
                 const acuerdosArticulo = [];
                 if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor, valorcomprometido: compProveedor, etiqueta_tipo_fondo: "TFPROVEDOR" });
@@ -1634,8 +1657,8 @@
                     margenminimoigualar: margenMinIgualar,
                     unidadeslimite: unidadesLimite,
                     unidadesproyeccionventas: proyeccionVtas,
-                    preciolistacontado: precioLista,
-                    preciolistacredito: precioLista,
+                    preciolistacontado: precioListaContado,
+                    preciolistacredito: precioListaCredito,
                     preciopromocioncontado: precioPromoContado,
                     preciopromociontarjetacredito: precioPromoTC,
                     preciopromocioncredito: precioPromoCredito,
@@ -1644,8 +1667,8 @@
                     descuentopromociontarjetacredito: dsctoTC,
                     descuentopromocioncredito: dsctoCredito,
                     descuentoigualarprecio: dsctoIgualar,
-                    margenpreciolistacontado: margenPrecioLista,
-                    margenpreciolistacredito: margenPrecioLista,
+                    margenpreciolistacontado: margenPrecioListaContado,
+                    margenpreciolistacredito: margenPrecioListaCredito,
                     margenpromocioncontado: margenPromoContado,
                     margenpromociontarjetacredito: margenPromoTC,
                     margenpromocioncredito: margenPromoCredito,
@@ -3109,7 +3132,13 @@
                 excedenteu: $c.data("excedenteu"), excedentes: $c.data("excedentes"),
                 m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"),
                 m2u: $c.data("m2u"), m2s: $c.data("m2s"),
-                m12u: $c.data("m12u"), m12s: $c.data("m12s")
+                m12u: $c.data("m12u"), m12s: $c.data("m12s"),
+                margenmincontado: $c.data("margenmincontado"),
+                margenmintc: $c.data("margenmintc"),
+                margenmincredito: $c.data("margenmincredito"),
+                margenminigualar: $c.data("margenminigualar"),
+                preciolistacontado: $c.data("preciolistacontado"),
+                preciolistacredito: $c.data("preciolistacredito")
             });
         });
 
