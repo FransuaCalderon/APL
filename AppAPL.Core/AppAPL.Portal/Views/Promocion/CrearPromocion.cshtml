@@ -179,7 +179,7 @@
 
         .select2-results__option {
             font-size: 0.875rem;
-        }
+        }       
     </style>
 }
 
@@ -714,7 +714,8 @@
                             <th scope="col" class="custom-header-ingr-bg">Unidades Límite</th>
                             <th scope="col" class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                             <th scope="col" class="custom-header-ingr-bg">Medio de Pago</th>
-                            <th scope="col" class="custom-header-cons-bg">Precio Lista</th>
+                            <th scope="col" class="custom-header-cons-bg">Precio Lista Contado</th>
+                            <th scope="col" class="custom-header-cons-bg">Precio Lista Crédito</th>
                             <th scope="col" class="custom-header-ingr-bg">Precio Promo Contado</th>
                             <th scope="col" class="custom-header-ingr-bg">Precio Promo TC</th>
                             <th scope="col" class="custom-header-ingr-bg">Precio Promo Crédito</th>
@@ -733,7 +734,8 @@
                             <th scope="col" class="custom-header-ingr-bg">Aporte Propio ID Acuerdo</th>
                             <th scope="col" class="custom-header-ingr-bg">Aporte Propio 2</th>
                             <th scope="col" class="custom-header-ingr-bg">Aporte 2 Propio ID Acuerdo</th>
-                            <th scope="col" class="custom-header-calc-bg">Margen Precio Lista</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Precio Lista Contado</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Precio Lista Crédito</th>
                             <th scope="col" class="custom-header-calc-bg">Margen Promo Contado</th>
                             <th scope="col" class="custom-header-calc-bg">Margen Promo TC</th>
                             <th scope="col" class="custom-header-calc-bg">Margen Promo Crédito</th>
@@ -872,6 +874,7 @@
                 <table class="table table-bordered table-sm">
                     <thead class="sticky-top text-nowrap">
                         <tr class="text-center tabla-items-header">
+                            <th scope="col" style="width: 40px; background-color: #a4c995;">Sel.</th>
                             <th scope="col" class="table-sticky-col" style="min-width: 220px; background-color: #a4c995;">Combo</th>
                             <th scope="col" class="custom-header-cons-bg">Costo</th>
                             <th scope="col" class="custom-header-cons-bg">Stock Bodega</th>
@@ -882,7 +885,8 @@
                             <th scope="col" class="custom-header-ingr-bg">Unidades Límite</th>
                             <th scope="col" class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                             <th scope="col" class="custom-header-ingr-bg">Medio de Pago</th>
-                            <th scope="col" class="custom-header-cons-bg">Precio Lista</th>
+                            <th scope="col" class="custom-header-cons-bg">Precio Lista Contado</th>
+                            <th scope="col" class="custom-header-cons-bg">Precio Lista Crédito</th>
                             <th scope="col" class="custom-header-ingr-bg">Precio Promo Contado</th>
                             <th scope="col" class="custom-header-ingr-bg">Precio Promo TC</th>
                             <th scope="col" class="custom-header-ingr-bg">Precio Promo Crédito</th>
@@ -1303,13 +1307,7 @@
                 <h1 class="fs-5 fw-bold text-center mb-3 border-bottom pb-2">Creación del Combo</h1>
 
                 <div class="row mb-3 align-items-center justify-content-center">
-                    <div class="col-md-3">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light text-dark fw-bold">Codigo</span>
-                            <input type="text" class="form-control" id="codigoComboModal" placeholder="Ej: 567">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
+                    <div class="col-md-9">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-light text-dark fw-bold">Nombre de Combo</span>
                             <input type="text" class="form-control" id="nombreComboModal" placeholder="Ej: Cine en Casa 4K">
