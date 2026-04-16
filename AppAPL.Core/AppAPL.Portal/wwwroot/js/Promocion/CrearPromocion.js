@@ -1072,27 +1072,28 @@
                 const filas = data.map(item => {
                     return [
                         `<input type="checkbox" class="form-check-input item-checkbox"
-                        data-codigo="${item.codigo || item.iditem || ''}"
-                        data-descripcion="${item.descripcion || item.nombre || ''}"
-                        data-costo="${item.costo || 0}"
-                        data-stock="${item.stock || 0}"
-                        data-optimo="${item.optimo || 0}"
-                        data-excedenteu="${item.excedente_u || 0}"
-                        data-excedentes="${item.excedente_s || item.excedente_d || 0}"
-                        data-m0u="${item.m0_u || 0}"
-                        data-m0s="${item.m0_s || item.m0_d || 0}"
-                        data-m1u="${item.m1_u || 0}"
-                        data-m1s="${item.m1_s || item.m1_d || 0}"
-                        data-m2u="${item.m2_u || 0}"
-                        data-m2s="${item.m2_s || item.m2_d || 0}"
-                        data-m12u="${item.m12_u || 0}"
-                        data-m12s="${item.m12_s || item.m12_d || 0}"
-                        data-margenmincontado="${item.margen_min_contado || 0}"
-                        data-margenmintc="${item.margen_min_tarjeta_credito || 0}"
-                        data-margenmincredito="${item.margen_min_precio_credito || 0}"
-                        data-margenminigualar="${item.margen_min_igualar || 0}"
-                        data-preciolistacontado="${item.precio_lista_contado || 0}"
-                        data-preciolistacredito="${item.precio_lista_credito || 0}">`,
+                    data-codigo="${item.codigo || item.iditem || ''}"
+                    data-descripcion="${item.descripcion || item.nombre || ''}"
+                    data-costo="${item.costo || 0}"
+                    data-stock="${item.stock || 0}"
+                    data-optimo="${item.optimo || 0}"
+                    data-excedenteu="${item.excedente_u || 0}"
+                    data-excedentes="${item.excedente_s || item.excedente_d || 0}"
+                    data-m0u="${item.m0_u || 0}"
+                    data-m0s="${item.m0_s || item.m0_d || 0}"
+                    data-m1u="${item.m1_u || 0}"
+                    data-m1s="${item.m1_s || item.m1_d || 0}"
+                    data-m2u="${item.m2_u || 0}"
+                    data-m2s="${item.m2_s || item.m2_d || 0}"
+                    data-m12u="${item.m12_u || 0}"
+                    data-m12s="${item.m12_s || item.m12_d || 0}"
+                    data-diasantiguedad="${item.dias_antiguedad || 0}"
+                    data-margenmincontado="${item.margen_min_contado || 0}"
+                    data-margenmintc="${item.margen_min_tarjeta_credito || 0}"
+                    data-margenmincredito="${item.margen_min_precio_credito || 0}"
+                    data-margenminigualar="${item.margen_min_igualar || 0}"
+                    data-preciolistacontado="${item.precio_lista_contado || 0}"
+                    data-preciolistacredito="${item.precio_lista_credito || 0}">`,
                         item.codigo || item.iditem || "",
                         item.descripcion || item.nombre || "",
                         formatCurrencySpanish(item.costo || 0),
@@ -2170,7 +2171,6 @@
 
             $("#tablaCreacionCombo tbody tr").each(function () {
                 const campo = $(this).data("campo");
-                // CORRECCIÓN CRÍTICA: Usar colIdx en lugar de colIndex
                 const $td = $(this).find(`td[data-colindex='${colIdx}']`);
                 if ($td.length === 0) return;
 
@@ -2200,6 +2200,13 @@
                     case "m2_usd": art.m2s = parseCurrency(val); break;
                     case "m12_u": art.m12u = parseInt(val) || 0; break;
                     case "m12_usd": art.m12s = parseCurrency(val); break;
+                    case "dias_antiguedad": art.diasantiguedad = parseInt(val) || 0; break;
+                    case "margen_min_cont": art.margenmincontado = parseFloat(val) || 0; break;
+                    case "margen_min_tc": art.margenmintc = parseFloat(val) || 0; break;
+                    case "margen_min_cred": art.margenmincredito = parseFloat(val) || 0; break;
+                    case "margen_min_igual": art.margenminigualar = parseFloat(val) || 0; break;
+                    case "precio_lista_contado": art.preciolistacontado = parseCurrency(val); break;
+                    case "precio_lista_credito": art.preciolistacredito = parseCurrency(val); break;
                     case "unidades_limite": art.unidadesLimite = parseInt(val) || 0; break;
                     case "proyeccion_vta": art.proyeccionVtas = parseInt(val) || 0; break;
                     case "promo_contado": art.promoContado = parseCurrency(val); break;
@@ -2231,7 +2238,6 @@
                 }
             });
 
-            // Recuperar otros costos si existen (CORRECCIÓN: Usar colIdx)
             const otrosCostos = $(`#trHeadersCombo th:eq(${colIdx})`).data("detalle-otros-costos") || [];
             art.otrosCostos = otrosCostos.map(oc => ({ codigoparametro: parseInt(oc.codigo, 10) || 0, costo: parseFloat(oc.valor) || 0 }));
             art.totalOtrosCostos = parseFloat($(`#trHeadersCombo th:eq(${colIdx})`).data("total-otros-costos")) || 0;
@@ -2527,6 +2533,7 @@
         });
 
         // 4. Modificar Combo - Re-abrir modal con los datos del combo seleccionado
+        // 4. Modificar Combo - Re-abrir modal con los datos del combo seleccionado
         $("#btnModificarCombo").off("click").on("click", function () {
             const $radioSeleccionado = $("#tablaCombosBody .combo-row-radio:checked");
             if ($radioSeleccionado.length === 0) {
@@ -2562,7 +2569,18 @@
                     m2u: art.m2u,
                     m2s: art.m2s,
                     m12u: art.m12u,
-                    m12s: art.m12s
+                    m12s: art.m12s,
+                    diasantiguedad: art.diasantiguedad,
+                    margenmincontado: art.margenmincontado,
+                    margenmintc: art.margenmintc,
+                    margenmincredito: art.margenmincredito,
+                    margenminigualar: art.margenminigualar,
+                    preciolistacontado: art.preciolistacontado,
+                    preciolistacredito: art.preciolistacredito,
+                    promoContado: art.promoContado,
+                    promoTC: art.promoTC,
+                    promoCredito: art.promoCredito,
+                    regalo: art.regalo
                 });
             });
         });
@@ -2889,21 +2907,21 @@
 
     function agregarColumnaACombo(item) {
         const thHtml = `
-        <th scope="col" class="table-dark" style="min-width: 200px;">
-            <div class="dropdown">
-                <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100" type="button" data-bs-toggle="dropdown">
-                    ${item.codigo} - ${item.descripcion}
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item btn-add-articulo-combo" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
-                    <li><a class="dropdown-item btn-equivalentes-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
-                    <li><a class="dropdown-item btn-competencia-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
-                    <li><a class="dropdown-item btn-otros-costos-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger btn-eliminar-col-combo" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
-                </ul>
-            </div>
-        </th>`;
+    <th scope="col" class="table-dark" style="min-width: 200px;">
+        <div class="dropdown">
+            <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100" type="button" data-bs-toggle="dropdown">
+                ${item.codigo} - ${item.descripcion}
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item btn-add-articulo-combo" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                <li><a class="dropdown-item btn-equivalentes-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
+                <li><a class="dropdown-item btn-competencia-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
+                <li><a class="dropdown-item btn-otros-costos-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger btn-eliminar-col-combo" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
+            </ul>
+        </div>
+    </th>`;
         $("#trHeadersCombo").append(thHtml);
 
         const colIndex = $("#trHeadersCombo th").length - 1;
@@ -2948,28 +2966,32 @@
                 case "igualar_precio":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-igualar-precio" readonly value="0">`; break;
                 case "dias_antiguedad":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-dias-antiguedad" readonly value="0">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-dias-antiguedad" readonly value="${item.diasantiguedad || 0}">`; break;
                 case "margen_min_cont":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen-min" readonly value="${item.margenmincontado || 0}%">`; break;
                 case "margen_min_tc":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen-min" readonly value="${item.margenmintc || 0}%">`; break;
                 case "margen_min_cred":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen-min" readonly value="${item.margenmincredito || 0}%">`; break;
                 case "margen_min_igual":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen-min" readonly value="0%">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen-min" readonly value="${item.margenminigualar || 0}%">`; break;
                 case "unidades_limite":
                 case "proyeccion_vta":
                     html += `<input type="number" class="form-control form-control-sm text-end input-combo-art val-unidades" placeholder="0" min="0">`; break;
                 case "medio_pago":
                     html += `<select class="form-select form-select-sm select-mediopago-combo">
-                                ${$("#filtroMedioPagoGeneral").html()}
-                             </select>`; break;
+                            ${$("#filtroMedioPagoGeneral").html()}
+                         </select>`; break;
                 case "precio_lista_contado":
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-precio-lista" readonly value="${formatCurrencySpanish(item.preciolistacontado || 0)}">`; break;
                 case "precio_lista_credito":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-precio-lista" readonly value="${formatCurrencySpanish(0)}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-precio-lista" readonly value="${formatCurrencySpanish(item.preciolistacredito || 0)}">`; break;
                 case "promo_contado":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-contado" placeholder="$ 0.00">`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-contado" placeholder="$ 0.00" value="${item.promoContado ? formatCurrencySpanish(item.promoContado) : ''}">`; break;
                 case "promo_tc":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-tc" placeholder="$ 0.00">`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-tc" placeholder="$ 0.00" value="${item.promoTC ? formatCurrencySpanish(item.promoTC) : ''}">`; break;
                 case "promo_credito":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-credito" placeholder="$ 0.00">`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-credito" placeholder="$ 0.00" value="${item.promoCredito ? formatCurrencySpanish(item.promoCredito) : ''}">`; break;
                 case "dscto_contado":
                 case "dscto_tc":
                 case "dscto_credito":
@@ -2986,39 +3008,39 @@
                     html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio2-combo" placeholder="$ 0.00" disabled>`; break;
                 case "aporte_prov_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
                 case "aporte_prov2_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
                 case "aporte_rebate_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFREBATE" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFREBATE" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
                 case "aporte_propio_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
                 case "aporte_propio2_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
                 case "margen_pl_contado":
                 case "margen_pl_credito":
                 case "margen_promo_contado":
@@ -3032,7 +3054,7 @@
                 case "comp_propio2":
                     html += `<input type="text" class="form-control form-control-sm text-end custom-celda-bg val-comp" readonly placeholder="$ 0.00">`; break;
                 case "regalo":
-                    html += `<div class="d-flex justify-content-center"><input class="form-check-input val-regalo" type="checkbox"></div>`; break;
+                    html += `<div class="d-flex justify-content-center"><input class="form-check-input val-regalo" type="checkbox" ${item.regalo === 'S' ? 'checked' : ''}></div>`; break;
                 default:
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly>`; break;
             }
@@ -3080,6 +3102,7 @@
                 m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"),
                 m2u: $c.data("m2u"), m2s: $c.data("m2s"),
                 m12u: $c.data("m12u"), m12s: $c.data("m12s"),
+                diasantiguedad: $c.data("diasantiguedad"),
                 margenmincontado: $c.data("margenmincontado"),
                 margenmintc: $c.data("margenmintc"),
                 margenmincredito: $c.data("margenmincredito"),
