@@ -1858,13 +1858,13 @@
                     "codigoitem": codigoCombo,
                     "descripcion": nombreCombo,
                     "descripcioncombo": nombreCombo,
-                    "costo": parseCurrency($fila.find("td:eq(1)").text()),
-                    "stockbodega": parseInt($fila.find("td:eq(2)").text()) || 0,
-                    "stocktienda": parseInt($fila.find("td:eq(3)").text()) || 0,
-                    "inventariooptimo": parseInt($fila.find("td:eq(4)").text()) || 0,
-                    "excedenteunidad": parseInt($fila.find("td:eq(5)").text()) || 0,
-                    "excedentevalor": parseCurrency($fila.find("td:eq(6)").text()),
-                    "m0unidades": 0, "m0precio": 0, "m1unidades": 0, "m1precio": 0, // Campos informativos combo
+                    "costo": parseCurrency($fila.find("td:eq(2)").text()),
+                    "stockbodega": parseInt($fila.find("td:eq(3)").text()) || 0,
+                    "stocktienda": parseInt($fila.find("td:eq(4)").text()) || 0,
+                    "inventariooptimo": parseInt($fila.find("td:eq(5)").text()) || 0,
+                    "excedenteunidad": parseInt($fila.find("td:eq(6)").text()) || 0,
+                    "excedentevalor": parseCurrency($fila.find("td:eq(7)").text()),
+                    "m0unidades": 0, "m0precio": 0, "m1unidades": 0, "m1precio": 0,
                     "m2unidades": 0, "m2precio": 0, "m12unidades": 0, "m12precio": 0,
                     "igualarprecio": 0,
                     "diasantiguedad": 0,
@@ -1876,21 +1876,21 @@
                     "unidadeslimite": parseInt($fila.find(".val-unidades-combo").val()) || 0,
                     "unidadesproyeccionventas": parseInt($fila.find(".val-proyeccion-combo").val()) || 0,
                     "proyeccionventas": parseInt($fila.find(".val-proyeccion-combo").val()) || 0,
-                    "preciolistacontado": parseCurrency($fila.find("td:eq(10)").text()),
-                    "preciolistacredito": parseCurrency($fila.find("td:eq(10)").text()),
-                    "preciopromocioncontado": parseCurrency($fila.find("td:eq(11)").text()),
-                    "preciopromociontarjetacredito": parseCurrency($fila.find("td:eq(12)").text()),
-                    "preciopromocioncredito": parseCurrency($fila.find("td:eq(13)").text()),
+                    "preciolistacontado": parseCurrency($fila.find("td:eq(11)").text()),
+                    "preciolistacredito": parseCurrency($fila.find("td:eq(12)").text()),
+                    "preciopromocioncontado": parseCurrency($fila.find("td:eq(13)").text()), 
+                    "preciopromociontarjetacredito": parseCurrency($fila.find("td:eq(14)").text()),
+                    "preciopromocioncredito": parseCurrency($fila.find("td:eq(15)").text()), 
                     "precioigualarprecio": 0,
-                    "descuentopromocioncontado": parseCurrency($fila.find("td:eq(14)").text()),
-                    "descuentopromociontarjetacredito": parseCurrency($fila.find("td:eq(15)").text()),
-                    "descuentopromocioncredito": parseCurrency($fila.find("td:eq(16)").text()),
+                    "descuentopromocioncontado": parseCurrency($fila.find("td:eq(16)").text()),
+                    "descuentopromociontarjetacredito": parseCurrency($fila.find("td:eq(17)").text()),
+                    "descuentopromocioncredito": parseCurrency($fila.find("td:eq(18)").text()),
                     "descuentoigualarprecio": 0,
                     "margenpreciolistacontado": 0,
                     "margenpreciolistacredito": 0,
-                    "margenpromocioncontado": parseFloat($fila.find("td:eq(17)").text()) || 0,
-                    "margenpromociontarjetacredito": parseFloat($fila.find("td:eq(18)").text()) || 0,
-                    "margenpromocioncredito": parseFloat($fila.find("td:eq(19)").text()) || 0,
+                    "margenpromocioncontado": parseFloat($fila.find("td:eq(19)").text()) || 0, 
+                    "margenpromociontarjetacredito": parseFloat($fila.find("td:eq(20)").text()) || 0,
+                    "margenpromocioncredito": parseFloat($fila.find("td:eq(21)").text()) || 0,
                     "margenigualarprecio": 0,
                     "marcaregalo": $fila.find("td:last-child input").is(":checked") ? "S" : "N",
                     "regalo": $fila.find("td:last-child input").is(":checked") ? "S" : "N",
@@ -1902,9 +1902,9 @@
                         if (valMP && valMP !== "TODAS") return [{ "tipoasignacion": "C", "codigos": [valMP], "codigo": [valMP] }];
                         return [{ "tipoasignacion": "T", "codigos": [], "codigo": [] }];
                     })(),
-                    "acuerdos": [], // Acuerdos globales del combo si aplicara
+                    "acuerdos": [],
                     "otroscostos": [],
-                    "componentes": listaComponentes // Aquí inyectamos la lista de piezas
+                    "componentes": listaComponentes
                 });
             });
 
@@ -2217,11 +2217,26 @@
                     case "aporte_rebate": art.aporteRebate = parseCurrency(val); break;
                     case "aporte_propio": art.aportePropio = parseCurrency(val); break;
                     case "aporte_propio2": art.aportePropio2 = parseCurrency(val); break;
-                    case "aporte_prov_id": art.idAcuerdoProveedor = parseInt(val) || 0; break;
-                    case "aporte_prov2_id": art.idAcuerdoProveedor2 = parseInt(val) || 0; break;
-                    case "aporte_rebate_id": art.idAcuerdoRebate = parseInt(val) || 0; break;
-                    case "aporte_propio_id": art.idAcuerdoPropio = parseInt(val) || 0; break;
-                    case "aporte_propio2_id": art.idAcuerdoPropio2 = parseInt(val) || 0; break;
+                    case "aporte_prov_id":
+                        art.idAcuerdoProveedor = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                        art.displayAcuerdoProveedor = $td.find("input[type='text']").val(); // Mantiene el nombre del acuerdo
+                        break;
+                    case "aporte_prov2_id":
+                        art.idAcuerdoProveedor2 = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                        art.displayAcuerdoProveedor2 = $td.find("input[type='text']").val();
+                        break;
+                    case "aporte_rebate_id":
+                        art.idAcuerdoRebate = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                        art.displayAcuerdoRebate = $td.find("input[type='text']").val();
+                        break;
+                    case "aporte_propio_id":
+                        art.idAcuerdoPropio = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                        art.displayAcuerdoPropio = $td.find("input[type='text']").val();
+                        break;
+                    case "aporte_propio2_id":
+                        art.idAcuerdoPropio2 = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                        art.displayAcuerdoPropio2 = $td.find("input[type='text']").val();
+                        break;
                     case "medio_pago":
                         const $sel = $td.find(".select-mediopago-combo");
                         const medioPagoVal = $sel.val();
@@ -2298,6 +2313,9 @@
     // FUNCIÓN AUXILIAR DE CÁLCULO PARA COLUMNAS DEL COMBO
     // ==========================================
     function recalcularColumnaCombo(colIndex) {
+        // Solo se calcula para columnas de artículos (índice 2 en adelante)
+        if (colIndex < 2) return;
+
         const getColVal = (campo, selector) => {
             const text = $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).val() || $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).text();
             return parseCurrency(text);
@@ -2307,43 +2325,58 @@
             $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).val(val);
         };
 
+        // 1. Obtener valores base del artículo
         const costo = getColVal("costo", "input");
-        const precioLista = getColVal("precio_lista_contado", "input");
+        const precioListaContado = getColVal("precio_lista_contado", "input");
+        const precioListaCredito = getColVal("precio_lista_credito", "input");
         const otrosCostos = parseFloat($(`#trHeadersCombo th:eq(${colIndex})`).data("total-otros-costos")) || 0;
 
-        const unidadesLimite = getColVal("unidades_limite", "input");
-        const proyeccionVtas = getColVal("proyeccion_vta", "input");
+        // 2. Obtener Unidades desde la columna del COMBO (td:eq(1))
+        const getComboVal = (campo) => parseCurrency($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
+        const unidadesLimite = getComboVal("unidades_limite");
+        const proyeccionVtas = getComboVal("proyeccion_vta");
         const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
 
+        // 3. Precios de Promoción ingresados
         const promoContado = getColVal("promo_contado", "input");
         const promoTC = getColVal("promo_tc", "input");
         const promoCredito = getColVal("promo_credito", "input");
 
-        setColVal("dscto_contado", "input", formatCurrencySpanish(precioLista - promoContado));
-        setColVal("dscto_tc", "input", formatCurrencySpanish(precioLista - promoTC));
-        setColVal("dscto_credito", "input", formatCurrencySpanish(precioLista - promoCredito));
+        // --- FÓRMULAS DE DESCUENTOS ---
+        setColVal("dscto_contado", "input", formatCurrencySpanish(precioListaContado - promoContado));
+        setColVal("dscto_tc", "input", formatCurrencySpanish(precioListaContado - promoTC));
+        setColVal("dscto_credito", "input", formatCurrencySpanish(precioListaCredito - promoCredito));
 
+        // 4. Aportes ingresados
         const apProv = getColVal("aporte_prov", "input");
         const apProv2 = getColVal("aporte_prov2", "input");
         const apRebate = getColVal("aporte_rebate", "input");
         const apPropio = getColVal("aporte_propio", "input");
         const apPropio2 = getColVal("aporte_propio2", "input");
 
+        // --- FÓRMULAS DE VALORES COMPROMETIDOS ---
         setColVal("comp_proveedor", "input", formatCurrencySpanish(apProv * unidades));
         setColVal("comp_proveedor2", "input", formatCurrencySpanish(apProv2 * unidades));
         setColVal("comp_rebate", "input", formatCurrencySpanish(apRebate * unidades));
         setColVal("comp_propio", "input", formatCurrencySpanish(apPropio * unidades));
         setColVal("comp_propio2", "input", formatCurrencySpanish(apPropio2 * unidades));
 
-        const calcMargen = (precioPromo) => {
-            const denominador = precioPromo + apProv + apProv2 + apRebate;
+        // --- FÓRMULAS DE MÁRGENES ---
+        const calcMargenPL = (precioLista) => {
+            if (precioLista > 0) return (((precioLista - costo) / precioLista) * 100).toFixed(2) + "%";
+            return "0.00%";
+        };
+        const calcMargenPromo = (precioPromo) => {
+            const denominador = precioPromo + apProv + apRebate;
             if (denominador > 0) return (((denominador - costo - otrosCostos) / denominador) * 100).toFixed(2) + "%";
             return "0.00%";
         };
 
-        setColVal("margen_promo_contado", "input", calcMargen(promoContado));
-        setColVal("margen_promo_tc", "input", calcMargen(promoTC));
-        setColVal("margen_promo_cred", "input", calcMargen(promoCredito));
+        setColVal("margen_pl_contado", "input", calcMargenPL(precioListaContado));
+        setColVal("margen_pl_credito", "input", calcMargenPL(precioListaCredito));
+        setColVal("margen_promo_contado", "input", calcMargenPromo(promoContado));
+        setColVal("margen_promo_tc", "input", calcMargenPromo(promoTC));
+        setColVal("margen_promo_cred", "input", calcMargenPromo(promoCredito));
     }
 
     // ==========================================
@@ -2355,10 +2388,6 @@
         $("#btnNuevoCombo").off("click").on("click", function () {
             comboEnEdicion = null;
             limpiarModalCombo();
-
-            // Generar código temporal
-            //let numRandom = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            //$("#codigoComboModal").val("CMB-" + numRandom);
         });
 
         // 2. GUARDAR COMBO → Leer artículos del modal y agregar fila a tablaCombosBody
@@ -2368,7 +2397,6 @@
             if (comboEnEdicion) {
                 codigo = comboEnEdicion;
             } else {
-                // Genera CMB-1, CMB-2, etc basado en las filas actuales
                 const numActual = $("#tablaCombosBody tr").length + 1;
                 codigo = "CMB-" + numActual;
             }
@@ -2380,121 +2408,114 @@
                 return;
             }
 
-            // Extraer artículos de las columnas dinámicas del modal
             const articulosCombo = extraerArticulosDelModalCombo();
-            console.log("articulosCombo: ", articulosCombo);
 
             if (articulosCombo.length === 0) {
                 Swal.fire("Validación", "Debe agregar al menos un artículo al combo.", "warning");
                 return;
             }
 
-
-            // --- GUARDADO EN MEMORIA ---
-            // Guardamos el detalle que luego irá en la propiedad "componentes" del API
             articulosPorComboMemoria[codigo] = articulosCombo;
 
+            // Extraemos los valores visuales EXACTOS de la columna de resumen del Modal (Índice 1)
+            const getModalComboVal = (campo) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val() || "-";
 
+            const modalCosto = getModalComboVal("costo");
+            const modalStock = getModalComboVal("stock_bodega");
+            const modalStockTienda = getModalComboVal("stock_tienda");
+            const modalOptimo = getModalComboVal("inv_optimo");
+            const modalExcU = getModalComboVal("excedentes_u");
+            const modalExcS = getModalComboVal("excedentes_usd");
 
-            // Calcular totales sumando los artículos
-            let totalCosto = 0, totalStock = 0, totalStockTienda = 0, totalOptimo = 0;
-            let totalExcU = 0, totalExcS = 0;
-            let totalPromoContado = 0, totalPromoTC = 0, totalPromoCredito = 0;
+            const modalUnidades = getModalComboVal("unidades_limite");
+            const modalProyeccion = getModalComboVal("proyeccion_vta");
+            const modalMedioPago = $(`#tablaCreacionCombo tbody tr[data-campo='medio_pago'] td:eq(1) select`).val();
+            const modalMedioPagoSel = $(`#tablaCreacionCombo tbody tr[data-campo='medio_pago'] td:eq(1) select`).data("seleccionados");
+
+            const modalPLContado = getModalComboVal("precio_lista_contado");
+            const modalPLCredito = getModalComboVal("precio_lista_credito");
+            const modalPromoContado = getModalComboVal("promo_contado");
+            const modalPromoTC = getModalComboVal("promo_tc");
+            const modalPromoCredito = getModalComboVal("promo_credito");
+            const modalDsctoContado = getModalComboVal("dscto_contado");
+            const modalDsctoTC = getModalComboVal("dscto_tc");
+            const modalDsctoCredito = getModalComboVal("dscto_credito");
+            const modalMargenContado = getModalComboVal("margen_promo_contado");
+            const modalMargenTC = getModalComboVal("margen_promo_tc");
+            const modalMargenCredito = getModalComboVal("margen_promo_cred");
+            const modalRegalo = $(`#tablaCreacionCombo tbody tr[data-campo='regalo'] td:eq(1) input[type='checkbox']`).is(":checked");
+
+            // Calculamos Aportes totales en base a los artículos porque en el resumen visual los habías ocultado
             let totalAporteProv = 0, totalAporteRebate = 0, totalAportePropio = 0;
-
-            const nombresArticulos = [];
-
             articulosCombo.forEach(a => {
-                totalCosto += a.costo || 0;
-                totalStock += a.stock || 0;
-                totalStockTienda += a.stockTienda || 0;
-                totalOptimo += a.optimo || 0;
-                totalExcU += a.excedenteu || 0;
-                totalExcS += a.excedentes || 0;
-                totalPromoContado += a.promoContado || 0;
-                totalPromoTC += a.promoTC || 0;
-                totalPromoCredito += a.promoCredito || 0;
                 totalAporteProv += (a.aporteProveedor || 0) + (a.aporteProveedor2 || 0);
                 totalAporteRebate += a.aporteRebate || 0;
                 totalAportePropio += (a.aportePropio || 0) + (a.aportePropio2 || 0);
-                nombresArticulos.push(a.codigo);
             });
-
-            const precioListaCombo = 0; // Se suma de los precios de lista si se tuvieran
-            const dsctoContado = precioListaCombo - totalPromoContado;
-            const dsctoTC = precioListaCombo - totalPromoTC;
-            const dsctoCredito = precioListaCombo - totalPromoCredito;
-
-            const calcMargenCombo = (precioPromo) => {
-                if (precioPromo > 0) return (((precioPromo - totalCosto) / precioPromo) * 100).toFixed(2) + "%";
-                return "0.00%";
-            };
 
             // Si estamos editando, eliminar la fila anterior
             if (comboEnEdicion) {
                 $(`#tablaCombosBody tr[data-codigo="${comboEnEdicion}"]`).remove();
-            }
-
-            // Verificar que no exista ya el mismo código (si no estamos editando)
-            if (!comboEnEdicion && $(`#tablaCombosBody tr[data-codigo="${codigo}"]`).length > 0) {
+            } else if ($(`#tablaCombosBody tr[data-codigo="${codigo}"]`).length > 0) {
                 Swal.fire("Atención", "Este código de combo ya existe en el detalle.", "warning");
                 return;
             }
 
-            // Construir la fila asegurando que los inputs interactivos nazcan DESHABILITADOS
+            // Construir la fila usando los valores exactos del Modal
             const filaCombo = `
                 <tr data-codigo="${codigo}" class="align-middle">
                     <td class="text-center align-middle">
                         <input type="radio" class="form-check-input combo-row-radio" name="comboRadioSel">
                     </td>
-        
                     <td class="table-sticky-col" style="background-color: #f8f9fa;">
                         <span class="text-nowrap"><span class="fw-bold">${codigo}</span> - ${nombre}</span>
                     </td>
-        
-                    <td class="text-end">${formatCurrencySpanish(totalCosto)}</td>
-                    <td class="text-end">${totalStock}</td>
-                    <td class="text-end">${totalStockTienda}</td>
-                    <td class="text-end">${totalOptimo}</td>
-                    <td class="text-end">${totalExcU}</td>
-                    <td class="text-end">${formatCurrencySpanish(totalExcS)}</td>
-                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-unidades-combo" placeholder="0"></td>
-                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo" placeholder="0"></td>
+                    <td class="text-end">${modalCosto}</td>
+                    <td class="text-end">${modalStock}</td>
+                    <td class="text-end">${modalStockTienda}</td>
+                    <td class="text-end">${modalOptimo}</td>
+                    <td class="text-end">${modalExcU}</td>
+                    <td class="text-end">${modalExcS}</td>
+                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-unidades-combo" placeholder="0" value="${modalUnidades}"></td>
+                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo" placeholder="0" value="${modalProyeccion}"></td>
                     <td class="celda-editable">
                         <select class="form-select form-select-sm select-mediopago-combo-final">
                             ${$("#filtroMedioPagoGeneral").html()}
                         </select>
                     </td>
-                    <td class="text-end">${formatCurrencySpanish(precioListaCombo)}</td>
-                    <td class="text-end">${formatCurrencySpanish(totalPromoContado)}</td>
-                    <td class="text-end">${formatCurrencySpanish(totalPromoTC)}</td>
-                    <td class="text-end">${formatCurrencySpanish(totalPromoCredito)}</td>
-                    <td class="text-end">${formatCurrencySpanish(dsctoContado)}</td>
-                    <td class="text-end">${formatCurrencySpanish(dsctoTC)}</td>
-                    <td class="text-end">${formatCurrencySpanish(dsctoCredito)}</td>
-                    <td class="text-end">${calcMargenCombo(totalPromoContado)}</td>
-                    <td class="text-end">${calcMargenCombo(totalPromoTC)}</td>
-                    <td class="text-end">${calcMargenCombo(totalPromoCredito)}</td>
+                    <td class="text-end">${modalPLContado}</td>
+                    <td class="text-end">${modalPLCredito}</td>
+                    <td class="text-end">${modalPromoContado}</td>
+                    <td class="text-end">${modalPromoTC}</td>
+                    <td class="text-end">${modalPromoCredito}</td>
+                    <td class="text-end">${modalDsctoContado}</td>
+                    <td class="text-end">${modalDsctoTC}</td>
+                    <td class="text-end">${modalDsctoCredito}</td>
+                    <td class="text-end">${modalMargenContado}</td>
+                    <td class="text-end">${modalMargenTC}</td>
+                    <td class="text-end">${modalMargenCredito}</td>
                     <td class="text-end">${formatCurrencySpanish(totalAporteProv)}</td>
                     <td class="text-end">${formatCurrencySpanish(totalAporteRebate)}</td>
                     <td class="text-end">${formatCurrencySpanish(totalAportePropio)}</td>
-                    <td class="text-center celda-editable"><input class="form-check-input" type="checkbox" disabled></td>
+                    <td class="text-center celda-editable"><input class="form-check-input" type="checkbox" disabled ${modalRegalo ? "checked" : ""}></td>
                 </tr>
             `;
 
             $("#tablaCombosBody").append(filaCombo);
 
-            // Guardar los artículos en la fila para poder re-editar luego
             const $filaInsertada = $(`#tablaCombosBody tr[data-codigo="${codigo}"]`);
             $filaInsertada.data("combo-nombre", nombre);
             $filaInsertada.data("combo-articulos", articulosCombo);
 
-            // CERRAR MODAL Y LIMPIAR
+            $filaInsertada.find(".select-mediopago-combo-final").val(modalMedioPago);
+            if (modalMedioPagoSel) {
+                $filaInsertada.find(".select-mediopago-combo-final").data("seleccionados", modalMedioPagoSel);
+            }
+
             $("#modalCrearCombo").modal("hide");
             limpiarModalCombo();
             comboEnEdicion = null;
 
-            // Si es la primera fila agregada, la seleccionamos automáticamente
             if ($("#tablaCombosBody tr").length === 1) {
                 $("#tablaCombosBody .combo-row-radio").first().prop("checked", true).trigger("change");
             }
@@ -2533,7 +2554,6 @@
         });
 
         // 4. Modificar Combo - Re-abrir modal con los datos del combo seleccionado
-        // 4. Modificar Combo - Re-abrir modal con los datos del combo seleccionado
         $("#btnModificarCombo").off("click").on("click", function () {
             const $radioSeleccionado = $("#tablaCombosBody .combo-row-radio:checked");
             if ($radioSeleccionado.length === 0) {
@@ -2546,43 +2566,39 @@
             const nombreCombo = $fila.data("combo-nombre") || "";
             const articulosGuardados = $fila.data("combo-articulos") || [];
 
+            // Leer datos del combo global (cabeceras) de la fila
+            const unidadesCombo = $fila.find(".val-unidades-combo").val();
+            const proyeccionCombo = $fila.find(".val-proyeccion-combo").val();
+            const medioPagoCombo = $fila.find(".select-mediopago-combo-final").val();
+            const seleccionadosMP = $fila.find(".select-mediopago-combo-final").data("seleccionados");
+            const regaloCombo = $fila.find("td:last-child input[type='checkbox']").is(":checked");
+
             limpiarModalCombo();
             comboEnEdicion = codigoCombo;
 
             $("#nombreComboModal").val(nombreCombo);
             $("#btnHeaderComboTotal").text(`[${codigoCombo}] ${nombreCombo}`);
 
-            // Re-agregar cada artículo como columna en el modal
-            articulosGuardados.forEach(art => {
-                agregarColumnaACombo({
-                    codigo: art.codigo,
-                    descripcion: art.descripcion,
-                    costo: art.costo,
-                    stock: art.stock,
-                    optimo: art.optimo,
-                    excedenteu: art.excedenteu,
-                    excedentes: art.excedentes,
-                    m0u: art.m0u,
-                    m0s: art.m0s,
-                    m1u: art.m1u,
-                    m1s: art.m1s,
-                    m2u: art.m2u,
-                    m2s: art.m2s,
-                    m12u: art.m12u,
-                    m12s: art.m12s,
-                    diasantiguedad: art.diasantiguedad,
-                    margenmincontado: art.margenmincontado,
-                    margenmintc: art.margenmintc,
-                    margenmincredito: art.margenmincredito,
-                    margenminigualar: art.margenminigualar,
-                    preciolistacontado: art.preciolistacontado,
-                    preciolistacredito: art.preciolistacredito,
-                    promoContado: art.promoContado,
-                    promoTC: art.promoTC,
-                    promoCredito: art.promoCredito,
-                    regalo: art.regalo
-                });
-            });
+            // Restaurar valores en la columna del Combo (td:eq(1))
+            $(`#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input`).val(unidadesCombo);
+            $(`#tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input`).val(proyeccionCombo);
+            const $mpCombo = $(`#tablaCreacionCombo tbody tr[data-campo='medio_pago'] td:eq(1) select`);
+            $mpCombo.val(medioPagoCombo);
+            if (seleccionadosMP) $mpCombo.data("seleccionados", seleccionadosMP);
+            $(`#tablaCreacionCombo tbody tr[data-campo='regalo'] td:eq(1) input[type='checkbox']`).prop("checked", regaloCombo);
+
+            // Re-agregar cada artículo como columna en el modal (esto recupera toda la data)
+            articulosGuardados.forEach(art => agregarColumnaACombo(art));
+        });
+
+        // Activa la re-calculadora si el usuario modifica las unidades del combo maestro:
+        $(document).off("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input").on("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input", function () {
+            // Re-calcula TODAS las columnas de artículos si cambia la unidad límite
+            const numCols = $("#trHeadersCombo th").length;
+            for (let i = 2; i < numCols; i++) {
+                recalcularColumnaCombo(i);
+            }
+            recalcularTotalesCombo();
         });
 
         // 5. Pintar fila al seleccionarla (Radio Button) y Habilitar campos
@@ -2732,8 +2748,6 @@
                 $("#bodyModalMedioPago input[type='checkbox']").prop("checked", false);
                 guardados.forEach(v => $(`#bodyModalMedioPago input[value='${v}']`).prop("checked", true));
 
-                // AQUÍ ESTÁ LA SOLUCIÓN: Usamos .off("click.combo"). Al ponerle ".combo" (un namespace), 
-                // le decimos a jQuery que NO borre los clics de General ni de Artículos.
                 $("#btnAceptarMedioPago").off("click.combo").on("click.combo", function () {
                     if (selectMedioPagoComboFinalActual) {
                         const seleccionados = [];
@@ -2784,11 +2798,14 @@
             acuerdoArticuloContexto.colIndex = colIndex;
         });
 
-        // Intercepción del botón de aceptar acuerdos genérico para Combos
-        const oldBtnAceptarAcuerdoArticulo = $._data($("#btnAceptarAcuerdoArticulo")[0], "events")?.click[0].handler;
+        // === BLOQUE MODIFICADO: Intercepción del botón de aceptar acuerdos y sumas en tiempo real ===
 
-        $("#btnAceptarAcuerdoArticulo").off("click").on("click", function (e) {
+        // Intercepción del botón de aceptar acuerdos genérico para Combos
+        $("#btnAceptarAcuerdoArticulo").on("click", function (e) {
             if (acuerdoArticuloContexto && acuerdoArticuloContexto.esCombo) {
+                // ESTO ES CLAVE: Detiene la ejecución del evento global de "Artículos" para evitar la alerta
+                e.stopImmediatePropagation();
+
                 if (!acuerdoArticuloTemporal) {
                     Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return;
                 }
@@ -2828,20 +2845,22 @@
                 else if (tipo === "TFPROPIO" && slot === 2) setInputAporte("aporte_propio2");
 
                 recalcularColumnaCombo(colIdx);
+                recalcularTotalesCombo(); // Actualiza la suma en la fila del combo
                 $("#modalAcuerdoArticulo").modal("hide");
                 acuerdoArticuloTemporal = null;
                 acuerdoArticuloContexto = null;
-            } else {
-                if (oldBtnAceptarAcuerdoArticulo) oldBtnAceptarAcuerdoArticulo(e);
             }
         });
 
-        // Cálculos dinámicos al teclear en inputs de la columna del combo
+        // Cálculos dinámicos al teclear en inputs de la columna del combo (Sumas en tiempo real)
         $(document).off("input change", "#tablaCreacionCombo tbody input.input-combo-art").on("input change", "#tablaCreacionCombo tbody input.input-combo-art", function () {
             this.value = this.value.replace(/[^0-9.,]/g, '');
             const colIndex = $(this).closest("td").data("colindex");
             recalcularColumnaCombo(colIndex);
+            recalcularTotalesCombo(); // Hace que al escribir en el artículo, la fila combo sume al instante
         });
+
+        // ============================================================================================
 
         $("#btnNuevoCombo").html('<i class="fa-regular fa-file"></i> Nuevo Combo');
     }
@@ -2875,56 +2894,102 @@
     // RECALCULAR TOTALES DEL COMBO (COLUMNA PRINCIPAL)
     // ==========================================
     function recalcularTotalesCombo() {
-        // Campos que son números enteros (cantidades)
-        const camposNum = [
-            "stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u",
-            "m0_u", "m1_u", "m2_u", "m12_u"
-        ];
-        // Campos que son valores en dólares
+        const camposNum = ["stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u", "m0_u", "m1_u", "m2_u", "m12_u"];
+
+        // Agregamos los Descuentos y Promociones para que se sumen solitos en la columna del Combo
         const camposMoneda = [
             "costo", "excedentes_usd", "m0_usd", "m1_usd", "m2_usd", "m12_usd",
-            "precio_lista_contado", "precio_lista_credito"
+            "precio_lista_contado", "precio_lista_credito",
+            "promo_contado", "promo_tc", "promo_credito",
+            "dscto_contado", "dscto_tc", "dscto_credito",
+            "aporte_prov", "aporte_prov2", "aporte_rebate", "aporte_propio", "aporte_propio2"
         ];
 
-        // Sumar campos enteros
+        const setComboVal = (campo, val) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(val);
+        const getComboVal = (campo) => parseCurrency($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
+
+        // 1. Sumar campos numéricos
         camposNum.forEach(campo => {
             let suma = 0;
             $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:gt(1) input`).each(function () {
                 suma += parseInt($(this).val().replace(/[^0-9-]/g, '')) || 0;
             });
-            $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(suma);
+            setComboVal(campo, suma);
         });
 
-        // Sumar campos de moneda
+        // 2. Sumar campos de moneda
         camposMoneda.forEach(campo => {
             let suma = 0;
             $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:gt(1) input`).each(function () {
                 suma += parseCurrency($(this).val());
             });
-            $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(formatCurrencySpanish(suma));
+            setComboVal(campo, formatCurrencySpanish(suma));
         });
+
+        // 3. VACIAR Valores Comprometidos del Combo (para que no se vea nada)
+        const camposComprometidos = ["comp_proveedor", "comp_proveedor2", "comp_rebate", "comp_propio", "comp_propio2"];
+        camposComprometidos.forEach(campo => setComboVal(campo, ""));
+
+        // 4. Calcular MÁRGENES globales del Combo usando las sumas
+        const totalCosto = getComboVal("costo");
+        let totalOtrosCostos = 0;
+        $("#trHeadersCombo th:gt(1)").each(function () {
+            totalOtrosCostos += parseFloat($(this).data("total-otros-costos")) || 0;
+        });
+
+        const totalPLContado = getComboVal("precio_lista_contado");
+        const totalPLCredito = getComboVal("precio_lista_credito");
+        const totalPromoContado = getComboVal("promo_contado");
+        const totalPromoTC = getComboVal("promo_tc");
+        const totalPromoCredito = getComboVal("promo_credito");
+        const totalApProv = getComboVal("aporte_prov");
+        const totalApRebate = getComboVal("aporte_rebate");
+
+        const calcMargenPLCombo = (precioLista) => {
+            if (precioLista > 0) return (((precioLista - totalCosto) / precioLista) * 100).toFixed(2) + "%";
+            return "0.00%";
+        };
+
+        const calcMargenPromoCombo = (precioPromo) => {
+            const denominador = precioPromo + totalApProv + totalApRebate;
+            if (denominador > 0) return (((denominador - totalCosto - totalOtrosCostos) / denominador) * 100).toFixed(2) + "%";
+            return "0.00%";
+        };
+
+        setComboVal("margen_pl_contado", calcMargenPLCombo(totalPLContado));
+        setComboVal("margen_pl_credito", calcMargenPLCombo(totalPLCredito));
+        setComboVal("margen_promo_contado", calcMargenPromoCombo(totalPromoContado));
+        setComboVal("margen_promo_tc", calcMargenPromoCombo(totalPromoTC));
+        setComboVal("margen_promo_cred", calcMargenPromoCombo(totalPromoCredito));
     }
 
     function agregarColumnaACombo(item) {
+        const formatVal = (val) => (val !== undefined && val !== null && val !== '') ? formatCurrencySpanish(val) : '';
+
         const thHtml = `
-    <th scope="col" class="table-dark" style="min-width: 200px;">
-        <div class="dropdown">
-            <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100" type="button" data-bs-toggle="dropdown">
-                ${item.codigo} - ${item.descripcion}
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item btn-add-articulo-combo" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
-                <li><a class="dropdown-item btn-equivalentes-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
-                <li><a class="dropdown-item btn-competencia-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
-                <li><a class="dropdown-item btn-otros-costos-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger btn-eliminar-col-combo" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
-            </ul>
-        </div>
-    </th>`;
+        <th scope="col" class="table-dark" style="min-width: 200px;">
+            <div class="dropdown">
+                <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100" type="button" data-bs-toggle="dropdown">
+                    ${item.codigo} - ${item.descripcion}
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item btn-add-articulo-combo" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                    <li><a class="dropdown-item btn-equivalentes-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
+                    <li><a class="dropdown-item btn-competencia-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
+                    <li><a class="dropdown-item btn-otros-costos-combo" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger btn-eliminar-col-combo" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
+                </ul>
+            </div>
+        </th>`;
         $("#trHeadersCombo").append(thHtml);
 
         const colIndex = $("#trHeadersCombo th").length - 1;
+
+        if (item.otrosCostos && item.otrosCostos.length > 0) {
+            $(`#trHeadersCombo th:eq(${colIndex})`).data("detalle-otros-costos", item.otrosCostos);
+            $(`#trHeadersCombo th:eq(${colIndex})`).data("total-otros-costos", item.totalOtrosCostos || 0);
+        }
 
         $("#tablaCreacionCombo tbody tr").each(function () {
             const campo = $(this).data("campo");
@@ -2940,7 +3005,7 @@
                 case "stock_bodega":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-stock" readonly value="${item.stock || 0}">`; break;
                 case "stock_tienda":
-                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-stock-tienda" readonly value="0">`; break;
+                    html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-stock-tienda" readonly value="${item.stockTienda || 0}">`; break;
                 case "inv_optimo":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-optimo" readonly value="${item.optimo || 0}">`; break;
                 case "excedentes_u":
@@ -2975,72 +3040,76 @@
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen-min" readonly value="${item.margenmincredito || 0}%">`; break;
                 case "margen_min_igual":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen-min" readonly value="${item.margenminigualar || 0}%">`; break;
+
+                // Bloqueados
                 case "unidades_limite":
                 case "proyeccion_vta":
-                    html += `<input type="number" class="form-control form-control-sm text-end input-combo-art val-unidades" placeholder="0" min="0">`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end custom-celda-bg" disabled placeholder="-">`; break;
                 case "medio_pago":
-                    html += `<select class="form-select form-select-sm select-mediopago-combo">
-                            ${$("#filtroMedioPagoGeneral").html()}
-                         </select>`; break;
+                    html += `<select class="form-select form-select-sm custom-celda-bg" disabled><option value="">-</option></select>`; break;
+                case "regalo":
+                    html += `<div class="d-flex justify-content-center text-muted">-</div>`; break;
+
                 case "precio_lista_contado":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-precio-lista" readonly value="${formatCurrencySpanish(item.preciolistacontado || 0)}">`; break;
                 case "precio_lista_credito":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-precio-lista" readonly value="${formatCurrencySpanish(item.preciolistacredito || 0)}">`; break;
                 case "promo_contado":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-contado" placeholder="$ 0.00" value="${item.promoContado ? formatCurrencySpanish(item.promoContado) : ''}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-contado" placeholder="$ 0.00" value="${formatVal(item.promoContado)}">`; break;
                 case "promo_tc":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-tc" placeholder="$ 0.00" value="${item.promoTC ? formatCurrencySpanish(item.promoTC) : ''}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-tc" placeholder="$ 0.00" value="${formatVal(item.promoTC)}">`; break;
                 case "promo_credito":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-credito" placeholder="$ 0.00" value="${item.promoCredito ? formatCurrencySpanish(item.promoCredito) : ''}">`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art val-precio-promo val-promo-credito" placeholder="$ 0.00" value="${formatVal(item.promoCredito)}">`; break;
                 case "dscto_contado":
                 case "dscto_tc":
                 case "dscto_credito":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-dscto" readonly placeholder="0.00">`; break;
+
                 case "aporte_prov":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-proveedor-combo" placeholder="$ 0.00" disabled>`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-proveedor-combo" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor)}" ${item.idAcuerdoProveedor ? '' : 'disabled'}>`; break;
                 case "aporte_prov2":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-proveedor2-combo" placeholder="$ 0.00" disabled>`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-proveedor2-combo" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor2)}" ${item.idAcuerdoProveedor2 ? '' : 'disabled'}>`; break;
                 case "aporte_rebate":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-rebate-combo" placeholder="$ 0.00" disabled>`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-rebate-combo" placeholder="$ 0.00" value="${formatVal(item.aporteRebate)}" ${item.idAcuerdoRebate ? '' : 'disabled'}>`; break;
                 case "aporte_propio":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio-combo" placeholder="$ 0.00" disabled>`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio-combo" placeholder="$ 0.00" value="${formatVal(item.aportePropio)}" ${item.idAcuerdoPropio ? '' : 'disabled'}>`; break;
                 case "aporte_propio2":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio2-combo" placeholder="$ 0.00" disabled>`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio2-combo" placeholder="$ 0.00" value="${formatVal(item.aportePropio2)}" ${item.idAcuerdoPropio2 ? '' : 'disabled'}>`; break;
                 case "aporte_prov_id":
                     html += `
-                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>`; break;
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="${item.idAcuerdoProveedor || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor || item.idAcuerdoProveedor || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
                 case "aporte_prov2_id":
                     html += `
-                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>`; break;
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="${item.idAcuerdoProveedor2 || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor2 || item.idAcuerdoProveedor2 || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
                 case "aporte_rebate_id":
                     html += `
-                <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFREBATE" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>`; break;
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="${item.idAcuerdoRebate || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoRebate || item.idAcuerdoRebate || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFREBATE" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
                 case "aporte_propio_id":
                     html += `
-                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>`; break;
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="${item.idAcuerdoPropio || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio || item.idAcuerdoPropio || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
                 case "aporte_propio2_id":
                     html += `
-                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly>
-                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>`; break;
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="${item.idAcuerdoPropio2 || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio2 || item.idAcuerdoPropio2 || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
                 case "margen_pl_contado":
                 case "margen_pl_credito":
                 case "margen_promo_contado":
@@ -3053,8 +3122,6 @@
                 case "comp_propio":
                 case "comp_propio2":
                     html += `<input type="text" class="form-control form-control-sm text-end custom-celda-bg val-comp" readonly placeholder="$ 0.00">`; break;
-                case "regalo":
-                    html += `<div class="d-flex justify-content-center"><input class="form-check-input val-regalo" type="checkbox" ${item.regalo === 'S' ? 'checked' : ''}></div>`; break;
                 default:
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly>`; break;
             }
@@ -3062,6 +3129,8 @@
             html += `</td>`;
             $(this).append(html);
         });
+
+        recalcularColumnaCombo(colIndex);
         recalcularTotalesCombo();
     }
 
