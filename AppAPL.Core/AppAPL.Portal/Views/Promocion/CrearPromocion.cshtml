@@ -197,6 +197,110 @@
         body.modal-open {
         overflow: hidden !important;
         }
+
+        /* === CONTROL DE ANCHO DE COLUMNAS EN MODAL CREAR COMBO === */
+        
+        /* Ancho fijo para las columnas de artículos (dinámicas) */
+        #tablaCreacionCombo thead th:not(.table-sticky-col) {
+        min-width: 180px !important;
+        max-width: 180px !important;
+        width: 180px !important;
+        }
+        
+        /* Botón del dropdown del header */
+        #tablaCreacionCombo thead th .header-combo-btn {
+        white-space: normal !important;
+        text-align: left !important;
+        padding: 0.35rem 0.4rem !important;
+        font-size: 0.75rem !important;
+        line-height: 1.15 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        overflow: hidden !important;
+        }
+        
+        /* Contenido del header: código + descripción apilados */
+        #tablaCreacionCombo thead th .header-combo-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+        }
+        
+        /* Código del artículo - primera línea, bold */
+        #tablaCreacionCombo thead th .header-combo-codigo {
+        font-weight: bold !important;
+        font-size: 0.8rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 100% !important;
+        }
+        
+        /* Descripción del artículo - segunda línea, con truncado */
+        #tablaCreacionCombo thead th .header-combo-desc {
+        font-weight: normal !important;
+        font-size: 0.7rem !important;
+        opacity: 0.85 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 100% !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        }
+        
+        /* Flecha del dropdown */
+        #tablaCreacionCombo thead th .header-combo-btn::after {
+        flex-shrink: 0 !important;
+        align-self: center !important;
+        margin-left: 0 !important;
+        }
+        
+        /* Ancho fijo también para las celdas del cuerpo bajo cada columna de artículo */
+        #tablaCreacionCombo tbody td[data-colindex] {
+        min-width: 180px !important;
+        max-width: 180px !important;
+        width: 180px !important;
+        }
+        
+        /* Los inputs dentro de esas celdas deben ocupar todo el ancho disponible */
+        #tablaCreacionCombo tbody td[data-colindex] input,
+        #tablaCreacionCombo tbody td[data-colindex] select {
+        width: 100% !important;
+        min-width: 0 !important;
+        }
+        
+        /* Input-groups dentro de celdas también deben respetar el ancho */
+        #tablaCreacionCombo tbody td[data-colindex] .input-group {
+        width: 100% !important;
+        flex-wrap: nowrap !important;
+        }
+        
+        /* La primera columna (etiquetas sticky) mantiene su ancho */
+        #tablaCreacionCombo thead th.table-sticky-col,
+        #tablaCreacionCombo tbody td.table-sticky-col {
+        min-width: 250px !important;
+        max-width: 250px !important;
+        width: 250px !important;
+        }
+        
+        /* Asegurar que la tabla no colapse el ancho fijo */
+        #tablaCreacionCombo {
+        table-layout: auto !important;
+        }
+
+        /* Fix: checkbox deshabilitado PERO marcado debe verse marcado (azul) */
+        input[type="checkbox"]:disabled:checked {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        opacity: 1 !important;
+        }
     </style>
 }
 

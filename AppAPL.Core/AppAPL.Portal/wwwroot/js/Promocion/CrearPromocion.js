@@ -3051,10 +3051,13 @@
         const formatVal = (val) => (val !== undefined && val !== null && val !== '') ? formatCurrencySpanish(val) : '';
 
         const thHtml = `
-        <th scope="col" class="table-dark" style="min-width: 200px;">
+        <th scope="col" class="table-dark">
             <div class="dropdown">
-                <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100" type="button" data-bs-toggle="dropdown">
-                    ${item.codigo} - ${item.descripcion}
+                <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100 header-combo-btn" type="button" data-bs-toggle="dropdown" title="${item.codigo} - ${item.descripcion}">
+                    <span class="header-combo-content">
+                        <span class="header-combo-codigo">${item.codigo}</span>
+                        <span class="header-combo-desc">${item.descripcion}</span>
+                    </span>
                 </button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item btn-add-articulo-combo" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
