@@ -902,7 +902,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 commandType: CommandType.StoredProcedure
                 );
 
-            var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandAproPromoDTO>();
+            var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandModPromoDTO>();
             var segmentos = await multi.ReadAsync<SegmentoBandejaDTO>();
             var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
             var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
