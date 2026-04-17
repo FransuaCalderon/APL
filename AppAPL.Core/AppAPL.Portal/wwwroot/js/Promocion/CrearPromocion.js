@@ -253,6 +253,15 @@
         const uniqueAcceptBtns = [...new Set(CONFIG_MULTIPLE.map(c => c.btnAccept))];
         uniqueAcceptBtns.forEach(btnAcceptSelector => {
             $(btnAcceptSelector).off("click.acceptMulti").on("click.acceptMulti", function () {
+                // Si el modal de crear combo está abierto, significa que estamos en contexto combo, no ejecutar
+                if ($("#modalCrearCombo").hasClass("show")) {
+                    return;
+                }
+                // Si el modal de consulta de items está abierto con contexto combo, tampoco
+                if (window.contextoModalItems === "COMBOS") {
+                    return;
+                }
+
                 const targetBtnSelector = $(this).data("target-btn");
                 const targetBodySelector = $(this).data("target-body");
                 const targetId = $(this).data("target-id");
@@ -2720,7 +2729,10 @@
 
                 $("#btnAceptarMedioPago").off("click.combo click.articulo");
 
-                $("#btnAceptarMedioPago").on("click.combo", function () {
+                $("#btnAceptarMedioPago").on("click.combo", function (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+
                     if (selectMedioPagoComboFinalActual) {
                         const seleccionados = [];
                         $("#bodyModalMedioPago input[type='checkbox']:checked").each(function () {
@@ -2741,6 +2753,12 @@
                         }
                         selectMedioPagoComboFinalActual = null;
                         btnMedioPagoComboFinalActual = null;
+                    }
+
+                    // Cerrar SOLO el modal de Medio de Pago
+                    const modalMPInstance = bootstrap.Modal.getInstance(document.getElementById('ModalMedioPago'));
+                    if (modalMPInstance) {
+                        modalMPInstance.hide();
                     }
                 });
 
@@ -2800,7 +2818,10 @@
             $("#btnAceptarMedioPago").off("click.combo click.articulo");
 
             // Re-vincular handler para combo-final
-            $("#btnAceptarMedioPago").on("click.combo", function () {
+            $("#btnAceptarMedioPago").on("click.combo", function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+
                 if (selectMedioPagoComboFinalActual) {
                     const seleccionados = [];
                     $("#bodyModalMedioPago input[type='checkbox']:checked").each(function () {
@@ -2816,6 +2837,12 @@
                     }
                     selectMedioPagoComboFinalActual = null;
                     btnMedioPagoComboFinalActual = null;
+                }
+
+                // Cerrar SOLO el modal de Medio de Pago (no tocar el padre)
+                const modalMPInstance = bootstrap.Modal.getInstance(document.getElementById('ModalMedioPago'));
+                if (modalMPInstance) {
+                    modalMPInstance.hide();
                 }
             });
 
@@ -3333,11 +3360,42 @@
             $('body').addClass('modal-open');
         });
 
-        // Cuando se cierra cualquier modal: limpiar y re-sincronizar
+        // Cuando se cierra cualquier modal: limpiar SOLO si es necesario
         $(document).off('hidden.bs.modal.fixBackdrop').on('hidden.bs.modal.fixBackdrop', '.modal', function () {
+            const $modalCerrado = $(this);
+
             // Pequeño delay para que Bootstrap termine su animación interna
             setTimeout(function () {
-                window.limpiarBackdropsHuerfanos();
+                // Verificar cuántos modales siguen visibles
+                const $modalesRestantes = $('.modal.show');
+                const cantidadRestantes = $modalesRestantes.length;
+
+                if (cantidadRestantes === 0) {
+                    // No hay modales abiertos → limpiar todo
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css({ 'padding-right': '', 'overflow': '' });
+                } else {
+                    // Hay modales abiertos → solo limpiar backdrops SOBRANTES
+                    const $backdrops = $('.modal-backdrop');
+                    if ($backdrops.length > cantidadRestantes) {
+                        $backdrops.slice(cantidadRestantes).remove();
+                    }
+
+                    // CRÍTICO: Asegurar que body mantenga la clase modal-open
+                    $('body').addClass('modal-open').css('overflow', 'hidden');
+
+                    // Re-asegurar que el modal restante tenga z-index visible
+                    $modalesRestantes.each(function (index) {
+                        const zIndex = 1050 + (10 * index);
+                        $(this).css('z-index', zIndex);
+                    });
+
+                    // Re-sincronizar backdrops que quedaron
+                    $('.modal-backdrop').each(function (index) {
+                        const zIndexBackdrop = 1050 + (10 * index) - 1;
+                        $(this).css('z-index', zIndexBackdrop);
+                    });
+                }
             }, 50);
         });
 
@@ -3615,7 +3673,10 @@
                 $("#bodyModalMedioPago input[type='checkbox']").prop("checked", false);
                 guardados.forEach(v => $(`#bodyModalMedioPago input[value='${v}']`).prop("checked", true));
 
-                $("#btnAceptarMedioPago").off("click.articulo").on("click.articulo", function () {
+                $("#btnAceptarMedioPago").off("click.articulo").on("click.articulo", function (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+
                     if (filaActualMedioPago) {
                         const seleccionados = [];
                         $("#bodyModalMedioPago input[type='checkbox']:checked").each(function () {
@@ -3627,6 +3688,12 @@
                             filaActualMedioPago.find(".select-mediopago-articulo").val("");
                         }
                         filaActualMedioPago = null;
+                    }
+
+                    // Cerrar SOLO el modal de Medio de Pago
+                    const modalMPInstance = bootstrap.Modal.getInstance(document.getElementById('ModalMedioPago'));
+                    if (modalMPInstance) {
+                        modalMPInstance.hide();
                     }
                 });
                 $("#ModalMedioPago").modal("show");
