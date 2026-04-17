@@ -950,7 +950,6 @@
                 "body_request": body
             };
 
-            
             $.ajax({
                 url: "/api/apigee-router-proxy",
                 method: "POST",
@@ -959,8 +958,11 @@
                 success: function (res) {
                     const respuestaNegocio = res.json_response || res;
                     if (respuestaNegocio.codigoretorno == 1) {
+                        // Limpiar backdrops antes de mostrar SweetAlert
+                        window.limpiarBackdropsHuerfanos && window.limpiarBackdropsHuerfanos();
                         Swal.fire("Éxito", "Promoción Guardada: " + respuestaNegocio.mensaje, "success").then(() => {
                             resetearFormulario(tipo);
+                            window.limpiarBackdropsHuerfanos && window.limpiarBackdropsHuerfanos();
                         });
                     } else {
                         Swal.fire("Atención", respuestaNegocio.mensaje || "Error en base de datos", "warning");
@@ -1771,7 +1773,6 @@
     }
 
     async function guardarPromocionCombo() {
-        // 1. Validaciones de Cabecera (Descripción, Motivo, Fechas)
         const motivo = parseInt($("#motivoCombos").val(), 10) || 0;
         const desc = $("#descripcionCombos").val();
         const fechaInicio = getFullISOString("#fechaInicioCombos", "#timeInicioCombos");
@@ -1782,7 +1783,6 @@
             return;
         }
 
-        // 2. Procesar Soporte (Archivo)
         const fileInput = $('#inputFileCombos')[0].files[0];
         if (!fileInput) {
             Swal.fire("Archivo requerido", "Debe adjuntar el soporte de la promoción", "warning");
@@ -1798,8 +1798,6 @@
 
         try {
             const base64Completo = await leerArchivo(fileInput);
-
-            // 3. Armar Arreglo de Combos (según el esquema "articulos")
             const combosParaAPI = [];
             const $filasCombos = $("#tablaCombosBody tr");
 
@@ -1812,11 +1810,8 @@
                 const $fila = $(this);
                 const codigoCombo = String($fila.data("codigo"));
                 const nombreCombo = $fila.data("combo-nombre");
-
-                // Recuperamos los componentes de la memoria global (detalle por artículo dentro del combo)
                 const componentesMemoria = articulosPorComboMemoria[codigoCombo] || [];
 
-                // 1. Mapeo de Componentes (las piezas del combo)
                 const listaComponentes = componentesMemoria.map(art => ({
                     "codigoarticulo": String(art.codigo),
                     "descripcion": art.descripcion,
@@ -1838,7 +1833,7 @@
                     "margenminimotarjetacredito": 0,
                     "margenminimopreciocredito": 0,
                     "margenminimoigualar": 0,
-                    "preciolistacontado": 0, // Si lo tienes en el modal, capturalo
+                    "preciolistacontado": 0,
                     "preciolistacredito": 0,
                     "preciopromocioncontado": art.promoContado || 0,
                     "preciopromociontarjetacredito": art.promoTC || 0,
@@ -1853,7 +1848,6 @@
                     "jsonotroscostos": art.otrosCostos || []
                 }));
 
-                // 2. Mapeo del Objeto Principal (el Combo en sí)
                 combosParaAPI.push({
                     "codigoitem": codigoCombo,
                     "descripcion": nombreCombo,
@@ -1878,9 +1872,9 @@
                     "proyeccionventas": parseInt($fila.find(".val-proyeccion-combo").val()) || 0,
                     "preciolistacontado": parseCurrency($fila.find("td:eq(11)").text()),
                     "preciolistacredito": parseCurrency($fila.find("td:eq(12)").text()),
-                    "preciopromocioncontado": parseCurrency($fila.find("td:eq(13)").text()), 
+                    "preciopromocioncontado": parseCurrency($fila.find("td:eq(13)").text()),
                     "preciopromociontarjetacredito": parseCurrency($fila.find("td:eq(14)").text()),
-                    "preciopromocioncredito": parseCurrency($fila.find("td:eq(15)").text()), 
+                    "preciopromocioncredito": parseCurrency($fila.find("td:eq(15)").text()),
                     "precioigualarprecio": 0,
                     "descuentopromocioncontado": parseCurrency($fila.find("td:eq(16)").text()),
                     "descuentopromociontarjetacredito": parseCurrency($fila.find("td:eq(17)").text()),
@@ -1888,7 +1882,7 @@
                     "descuentoigualarprecio": 0,
                     "margenpreciolistacontado": 0,
                     "margenpreciolistacredito": 0,
-                    "margenpromocioncontado": parseFloat($fila.find("td:eq(19)").text()) || 0, 
+                    "margenpromocioncontado": parseFloat($fila.find("td:eq(19)").text()) || 0,
                     "margenpromociontarjetacredito": parseFloat($fila.find("td:eq(20)").text()) || 0,
                     "margenpromocioncredito": parseFloat($fila.find("td:eq(21)").text()) || 0,
                     "margenigualarprecio": 0,
@@ -1907,7 +1901,6 @@
                     "componentes": listaComponentes
                 });
             });
-
 
             const determinarAsignacion = (idSelector) => {
                 const val = $(idSelector).val();
@@ -1935,9 +1928,6 @@
                 { tiposegmento: "SEGMEDIOPAGO", codigos: [], tipoasignacion: "T" }
             ];
 
-
-
-            // 4. Construcción del Body Final
             const body = {
                 "tipoclaseetiqueta": "PRCOMBO",
                 "idopcion": getIdOpcionSeguro(),
@@ -1955,14 +1945,10 @@
                     "nombreusuario": getUsuario()
                 },
                 "acuerdos": [],
-                "segmentos": segmentos, // Aquí llamarías a tu lógica de segmentos actual
+                "segmentos": segmentos,
                 "articulos": combosParaAPI
             };
 
-            console.log("Payload Final:", body);
-            console.log("articulosPorComboMemoria: ", articulosPorComboMemoria);
-
-            // Envío AJAX
             $.ajax({
                 url: "/api/apigee-router-proxy",
                 method: "POST",
@@ -1978,7 +1964,7 @@
                     const respuesta = res.json_response || res;
                     if (respuesta.codigoretorno == 1) {
                         Swal.fire("Éxito", "Promoción por Combos Guardada: " + respuesta.mensaje, "success")
-                            .then(() => resetearFormulario("Articulos"));
+                            .then(() => resetearFormulario("Combos"));
                     } else {
                         Swal.fire("Atención", respuesta.mensaje || "Error en base de datos", "warning");
                     }
@@ -2269,7 +2255,6 @@
      * resetea los campos de código/nombre.
      */
     function limpiarModalCombo() {
-        // Eliminar columnas dinámicas de artículos (todas después de las 2 primeras)
         const numCols = $("#trHeadersCombo th").length;
         for (let i = numCols - 1; i >= 2; i--) {
             $("#trHeadersCombo th:eq(" + i + ")").remove();
@@ -2278,22 +2263,21 @@
             });
         }
 
-        // Resetear campos
-        //$("#codigoComboModal").val("");
         $("#nombreComboModal").val("");
         $("#btnHeaderComboTotal").text("Nuevo Combo");
 
-        // Resetear inputs de la columna total (col index 1 → segundo td en cada fila)
         $("#tablaCreacionCombo tbody tr").each(function () {
             const $td = $(this).find("td:eq(1)");
             const $input = $td.find("input");
+            const $select = $td.find("select");
+            const $btn = $td.find("button"); // Botón del input-group
+
             if ($input.length > 0) {
                 if ($input.attr("type") === "checkbox") {
                     $input.prop("checked", false);
                 } else {
                     const placeholder = $input.attr("placeholder") || "";
                     if ($input.prop("readonly")) {
-                        // Para campos calculados/totales, resetear a valor por defecto
                         if (placeholder.includes("$") || placeholder === "") {
                             $input.val("$ 0.00");
                         } else {
@@ -2303,6 +2287,15 @@
                         $input.val("");
                     }
                 }
+            }
+
+            // Limpiar Select y esconder Botón de Medio de Pago
+            if ($select.length > 0) {
+                $select.val("");
+                $select.removeData("seleccionados");
+            }
+            if ($btn.length > 0) {
+                $btn.addClass("d-none").removeClass("btn-success").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
             }
         });
 
@@ -2382,42 +2375,34 @@
     // ==========================================
     // LÓGICA PRINCIPAL DE COMBOS
     // ==========================================
+    // ==========================================
+    // LÓGICA PRINCIPAL DE COMBOS
+    // ==========================================
+    // ==========================================
+    // LÓGICA PRINCIPAL DE COMBOS
+    // ==========================================
+    // ==========================================
+    // LÓGICA PRINCIPAL DE COMBOS
+    // ==========================================
     function initLogicaCombos() {
 
-        // 1. Nuevo Combo - Abrir modal limpio
         $("#btnNuevoCombo").off("click").on("click", function () {
             comboEnEdicion = null;
             limpiarModalCombo();
         });
 
-        // 2. GUARDAR COMBO → Leer artículos del modal y agregar fila a tablaCombosBody
+        // 2. GUARDAR COMBO
         $("#btnConfirmarCombo").off("click").on("click", function () {
-            // 1. Lógica de Código Automático
-            let codigo = "";
-            if (comboEnEdicion) {
-                codigo = comboEnEdicion;
-            } else {
-                const numActual = $("#tablaCombosBody tr").length + 1;
-                codigo = "CMB-" + numActual;
-            }
-
+            let codigo = comboEnEdicion ? comboEnEdicion : "CMB-" + ($("#tablaCombosBody tr").length + 1);
             const nombre = $("#nombreComboModal").val().trim();
 
-            if (!nombre) {
-                Swal.fire("Validación", "Debe ingresar un nombre para el combo.", "warning");
-                return;
-            }
+            if (!nombre) { Swal.fire("Validación", "Debe ingresar un nombre para el combo.", "warning"); return; }
 
             const articulosCombo = extraerArticulosDelModalCombo();
-
-            if (articulosCombo.length === 0) {
-                Swal.fire("Validación", "Debe agregar al menos un artículo al combo.", "warning");
-                return;
-            }
+            if (articulosCombo.length === 0) { Swal.fire("Validación", "Debe agregar al menos un artículo al combo.", "warning"); return; }
 
             articulosPorComboMemoria[codigo] = articulosCombo;
 
-            // Extraemos los valores visuales EXACTOS de la columna de resumen del Modal (Índice 1)
             const getModalComboVal = (campo) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val() || "-";
 
             const modalCosto = getModalComboVal("costo");
@@ -2429,8 +2414,10 @@
 
             const modalUnidades = getModalComboVal("unidades_limite");
             const modalProyeccion = getModalComboVal("proyeccion_vta");
-            const modalMedioPago = $(`#tablaCreacionCombo tbody tr[data-campo='medio_pago'] td:eq(1) select`).val();
-            const modalMedioPagoSel = $(`#tablaCreacionCombo tbody tr[data-campo='medio_pago'] td:eq(1) select`).data("seleccionados");
+
+            const $selectMPModal = $(`#tablaCreacionCombo tbody tr[data-campo='medio_pago'] td:eq(1) select`);
+            const modalMedioPago = $selectMPModal.val();
+            const modalMedioPagoSel = $selectMPModal.data("seleccionados");
 
             const modalPLContado = getModalComboVal("precio_lista_contado");
             const modalPLCredito = getModalComboVal("precio_lista_credito");
@@ -2445,7 +2432,6 @@
             const modalMargenCredito = getModalComboVal("margen_promo_cred");
             const modalRegalo = $(`#tablaCreacionCombo tbody tr[data-campo='regalo'] td:eq(1) input[type='checkbox']`).is(":checked");
 
-            // Calculamos Aportes totales en base a los artículos porque en el resumen visual los habías ocultado
             let totalAporteProv = 0, totalAporteRebate = 0, totalAportePropio = 0;
             articulosCombo.forEach(a => {
                 totalAporteProv += (a.aporteProveedor || 0) + (a.aporteProveedor2 || 0);
@@ -2453,20 +2439,20 @@
                 totalAportePropio += (a.aportePropio || 0) + (a.aportePropio2 || 0);
             });
 
-            // Si estamos editando, eliminar la fila anterior
             if (comboEnEdicion) {
                 $(`#tablaCombosBody tr[data-codigo="${comboEnEdicion}"]`).remove();
             } else if ($(`#tablaCombosBody tr[data-codigo="${codigo}"]`).length > 0) {
-                Swal.fire("Atención", "Este código de combo ya existe en el detalle.", "warning");
-                return;
+                Swal.fire("Atención", "Este código de combo ya existe en el detalle.", "warning"); return;
             }
 
-            // Construir la fila usando los valores exactos del Modal
+            // Construimos el botón para Medio de Pago en la tabla principal
+            const btnMPHtml = (modalMedioPago === "7" && modalMedioPagoSel && modalMedioPagoSel.length > 0)
+                ? `<button class="btn btn-success btn-sm btn-editar-mp-combo" type="button"><i class="fa-solid fa-list-check"></i> (${modalMedioPagoSel.length})</button>`
+                : `<button class="btn btn-outline-secondary btn-sm d-none btn-editar-mp-combo" type="button"><i class="fa-solid fa-list-check"></i></button>`;
+
             const filaCombo = `
                 <tr data-codigo="${codigo}" class="align-middle">
-                    <td class="text-center align-middle">
-                        <input type="radio" class="form-check-input combo-row-radio" name="comboRadioSel">
-                    </td>
+                    <td class="text-center align-middle"><input type="radio" class="form-check-input combo-row-radio" name="comboRadioSel"></td>
                     <td class="table-sticky-col" style="background-color: #f8f9fa;">
                         <span class="text-nowrap"><span class="fw-bold">${codigo}</span> - ${nombre}</span>
                     </td>
@@ -2479,9 +2465,12 @@
                     <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-unidades-combo" placeholder="0" value="${modalUnidades}"></td>
                     <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo" placeholder="0" value="${modalProyeccion}"></td>
                     <td class="celda-editable">
-                        <select class="form-select form-select-sm select-mediopago-combo-final">
-                            ${$("#filtroMedioPagoGeneral").html()}
-                        </select>
+                        <div class="input-group input-group-sm" style="min-width:140px;">
+                            ${btnMPHtml}
+                            <select class="form-select select-mediopago-combo-final">
+                                ${$("#filtroMedioPagoGeneral").html()}
+                            </select>
+                        </div>
                     </td>
                     <td class="text-end">${modalPLContado}</td>
                     <td class="text-end">${modalPLCredito}</td>
@@ -2507,12 +2496,25 @@
             $filaInsertada.data("combo-nombre", nombre);
             $filaInsertada.data("combo-articulos", articulosCombo);
 
-            $filaInsertada.find(".select-mediopago-combo-final").val(modalMedioPago);
-            if (modalMedioPagoSel) {
-                $filaInsertada.find(".select-mediopago-combo-final").data("seleccionados", modalMedioPagoSel);
+            const $filaSelect = $filaInsertada.find(".select-mediopago-combo-final");
+            $filaSelect.val(modalMedioPago);
+            if (modalMedioPago === "7" && modalMedioPagoSel) {
+                $filaSelect.data("seleccionados", modalMedioPagoSel);
             }
 
-            $("#modalCrearCombo").modal("hide");
+            // Cierre limpio del modal
+            const modalCombo = bootstrap.Modal.getInstance(document.getElementById('modalCrearCombo'));
+            if (modalCombo) {
+                modalCombo.hide();
+            } else {
+                $("#modalCrearCombo").modal("hide");
+            }
+
+            // Limpiar backdrops después de cerrar (usa el helper global)
+            setTimeout(() => {
+                window.limpiarBackdropsHuerfanos && window.limpiarBackdropsHuerfanos();
+            }, 300);
+
             limpiarModalCombo();
             comboEnEdicion = null;
 
@@ -2520,31 +2522,16 @@
                 $("#tablaCombosBody .combo-row-radio").first().prop("checked", true).trigger("change");
             }
 
-            Swal.fire({
-                toast: true, position: "top-end", icon: "success",
-                title: `Combo "${nombre}" agregado.`,
-                showConfirmButton: false, timer: 2000
-            });
+            Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Combo "${nombre}" agregado.`, showConfirmButton: false, timer: 2000 });
         });
 
-        // 3. Eliminar Combo de la tabla
         $("#btnEliminarCombo").off("click").on("click", function () {
             const $radioSeleccionado = $("#tablaCombosBody .combo-row-radio:checked");
-            if ($radioSeleccionado.length === 0) {
-                Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un combo del detalle para eliminar." });
-                return;
-            }
+            if ($radioSeleccionado.length === 0) { Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un combo." }); return; }
 
             const $fila = $radioSeleccionado.closest("tr");
-
             Swal.fire({
-                title: "¿Está seguro?",
-                text: "Se eliminará el combo seleccionado.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#6c757d",
-                confirmButtonText: "Sí, Eliminar"
+                title: "¿Está seguro?", text: "Se eliminará el combo seleccionado.", icon: "warning", showCancelButton: true, confirmButtonColor: "#d33", confirmButtonText: "Sí, Eliminar"
             }).then((result) => {
                 if (result.isConfirmed) {
                     $fila.remove();
@@ -2553,20 +2540,15 @@
             });
         });
 
-        // 4. Modificar Combo - Re-abrir modal con los datos del combo seleccionado
         $("#btnModificarCombo").off("click").on("click", function () {
             const $radioSeleccionado = $("#tablaCombosBody .combo-row-radio:checked");
-            if ($radioSeleccionado.length === 0) {
-                Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un combo del detalle para modificar." });
-                return;
-            }
+            if ($radioSeleccionado.length === 0) { Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un combo del detalle para modificar." }); return; }
 
             const $fila = $radioSeleccionado.closest("tr");
             const codigoCombo = $fila.data("codigo");
             const nombreCombo = $fila.data("combo-nombre") || "";
             const articulosGuardados = $fila.data("combo-articulos") || [];
 
-            // Leer datos del combo global (cabeceras) de la fila
             const unidadesCombo = $fila.find(".val-unidades-combo").val();
             const proyeccionCombo = $fila.find(".val-proyeccion-combo").val();
             const medioPagoCombo = $fila.find(".select-mediopago-combo-final").val();
@@ -2579,36 +2561,33 @@
             $("#nombreComboModal").val(nombreCombo);
             $("#btnHeaderComboTotal").text(`[${codigoCombo}] ${nombreCombo}`);
 
-            // Restaurar valores en la columna del Combo (td:eq(1))
             $(`#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input`).val(unidadesCombo);
             $(`#tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input`).val(proyeccionCombo);
+
             const $mpCombo = $(`#tablaCreacionCombo tbody tr[data-campo='medio_pago'] td:eq(1) select`);
+            const $mpBtn = $mpCombo.closest(".input-group").find("button");
+
             $mpCombo.val(medioPagoCombo);
-            if (seleccionadosMP) $mpCombo.data("seleccionados", seleccionadosMP);
+            if (medioPagoCombo === "7" && seleccionadosMP) {
+                $mpCombo.data("seleccionados", seleccionadosMP);
+                $mpBtn.removeClass("d-none btn-outline-secondary").addClass("btn-success").html(`<i class="fa-solid fa-list-check"></i> (${seleccionadosMP.length})`);
+            }
             $(`#tablaCreacionCombo tbody tr[data-campo='regalo'] td:eq(1) input[type='checkbox']`).prop("checked", regaloCombo);
 
-            // Re-agregar cada artículo como columna en el modal (esto recupera toda la data)
             articulosGuardados.forEach(art => agregarColumnaACombo(art));
         });
 
-        // Activa la re-calculadora si el usuario modifica las unidades del combo maestro:
         $(document).off("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input").on("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input", function () {
-            // Re-calcula TODAS las columnas de artículos si cambia la unidad límite
             const numCols = $("#trHeadersCombo th").length;
-            for (let i = 2; i < numCols; i++) {
-                recalcularColumnaCombo(i);
-            }
+            for (let i = 2; i < numCols; i++) { recalcularColumnaCombo(i); }
             recalcularTotalesCombo();
         });
 
-        // 5. Pintar fila al seleccionarla (Radio Button) y Habilitar campos
         $(document).off("change", ".combo-row-radio").on("change", ".combo-row-radio", function () {
-            // Deshabilitar todas primero
             $("#tablaCombosBody tr").removeClass("table-active");
             $("#tablaCombosBody .celda-editable input, #tablaCombosBody .celda-editable button, #tablaCombosBody .celda-editable select").prop("disabled", true);
             $("#tablaCombosBody td:last-child input[type='checkbox']").prop("disabled", true).css("pointer-events", "none");
 
-            // Habilitar solo la fila seleccionada
             const $fila = $(this).closest("tr");
             $fila.addClass("table-active");
             $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").prop("disabled", false);
@@ -2619,11 +2598,9 @@
         // EVENTOS PARA BOTONES DE ACCIÓN POR ARTÍCULO EN COMBO
         // -------------------------------------------------------------
 
-        // Equivalentes
         $(document).off("click", ".btn-equivalentes-combo").on("click", ".btn-equivalentes-combo", function (e) {
             e.preventDefault();
-            const codigo = $(this).data("codigo");
-            consultarServicioAdicional("api/Promocion/consultar-articulo-equivalente", codigo, function (data) {
+            consultarServicioAdicional("api/Promocion/consultar-articulo-equivalente", $(this).data("codigo"), function (data) {
                 const $tbody = $("#tbodyEquivalentes");
                 $tbody.empty();
                 if (!data.length) {
@@ -2652,11 +2629,9 @@
             });
         });
 
-        // Precios Competencia
         $(document).off("click", ".btn-competencia-combo").on("click", ".btn-competencia-combo", function (e) {
             e.preventDefault();
-            const codigo = $(this).data("codigo");
-            consultarServicioAdicional("api/Promocion/consultar-articulo-precio-competencia", codigo, function (data) {
+            consultarServicioAdicional("api/Promocion/consultar-articulo-precio-competencia", $(this).data("codigo"), function (data) {
                 const $tbody = $("#tbodyPreciosCompetencia");
                 $tbody.empty();
                 if (!data.length) {
@@ -2673,14 +2648,11 @@
             });
         });
 
-        // Otros Costos
         let colIndexCostosActual = null;
         $(document).off("click", ".btn-otros-costos-combo").on("click", ".btn-otros-costos-combo", function (e) {
             e.preventDefault();
-            const codigo = $(this).data("codigo");
             colIndexCostosActual = $(this).closest("th").index();
-
-            consultarServicioAdicional("api/Promocion/consultar-otros-costos", codigo, function (data) {
+            consultarServicioAdicional("api/Promocion/consultar-otros-costos", $(this).data("codigo"), function (data) {
                 const $tbody = $("#tbodyOtrosCostos");
                 $tbody.empty();
                 if (!data.length) {
@@ -2707,14 +2679,11 @@
         });
 
         $(document).off("click", "#btnAplicarOtrosCostosCombo").on("click", "#btnAplicarOtrosCostosCombo", function () {
-            let totalOtrosCostos = 0;
-            let seleccionados = [];
+            let totalOtrosCostos = 0, seleccionados = [];
             $("#tbodyOtrosCostos .chk-otro-costo-combo:checked").each(function () {
                 const valor = parseFloat($(this).data("valor")) || 0;
                 totalOtrosCostos += valor;
-                seleccionados.push({
-                    codigo: $(this).data("codigo"), nombre: $(this).data("nombre"), valor: valor
-                });
+                seleccionados.push({ codigo: $(this).data("codigo"), nombre: $(this).data("nombre"), valor: valor });
             });
 
             if (colIndexCostosActual !== null) {
@@ -2724,31 +2693,34 @@
                 recalcularColumnaCombo(colIndexCostosActual);
             }
             $("#modalOtrosCostos").modal("hide");
-            if (totalOtrosCostos > 0) {
-                Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Otros costos aplicados: ${formatCurrencySpanish(totalOtrosCostos)}`, showConfirmButton: false, timer: 2000 });
-            }
+            if (totalOtrosCostos > 0) Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Costos aplicados: ${formatCurrencySpanish(totalOtrosCostos)}`, showConfirmButton: false, timer: 2000 });
         });
 
         // -------------------------------------------------------------
-        // MEDIO DE PAGO COMBO (Modal de Creación y Tabla Final)
+        // MEDIO DE PAGO COMBO CON BOTON VERDE Y TEXTO
         // -------------------------------------------------------------
         let selectMedioPagoComboFinalActual = null;
+        let btnMedioPagoComboFinalActual = null;
 
-        // Usamos una sola lógica para cualquier select de Medio de Pago en el módulo de Combos
-        $(document).off("change.comboMedioPago", ".select-mediopago-combo, .select-mediopago-combo-final").on("change.comboMedioPago", ".select-mediopago-combo, .select-mediopago-combo-final", function () {
+        // 1. Manejo del Select normal (cuando el usuario CAMBIA el dropdown)
+        $(document).off("change.comboMedioPago", ".select-mediopago-combo, .select-mediopago-combo-final").on("change.comboMedioPago", ".select-mediopago-combo, .select-mediopago-combo-final", function (event) {
             const $select = $(this);
             const val = $select.val();
+            const $btn = $select.siblings("button");
 
-            // Si elige "Varios" (Valor 7)
             if (val === "7") {
                 selectMedioPagoComboFinalActual = $select;
-                const guardados = $select.data("seleccionados") || [];
+                btnMedioPagoComboFinalActual = $btn;
 
-                // Limpiamos el modal y marcamos los checkboxes guardados previamente
+                if ($btn.length) $btn.removeClass("d-none");
+
+                const guardados = $select.data("seleccionados") || [];
                 $("#bodyModalMedioPago input[type='checkbox']").prop("checked", false);
                 guardados.forEach(v => $(`#bodyModalMedioPago input[value='${v}']`).prop("checked", true));
 
-                $("#btnAceptarMedioPago").off("click.combo").on("click.combo", function () {
+                $("#btnAceptarMedioPago").off("click.combo click.articulo");
+
+                $("#btnAceptarMedioPago").on("click.combo", function () {
                     if (selectMedioPagoComboFinalActual) {
                         const seleccionados = [];
                         $("#bodyModalMedioPago input[type='checkbox']:checked").each(function () {
@@ -2757,18 +2729,135 @@
 
                         selectMedioPagoComboFinalActual.data("seleccionados", seleccionados);
 
-                        // Si no seleccionó nada y dio aceptar, regresamos el select a vacío
-                        if (seleccionados.length === 0) selectMedioPagoComboFinalActual.val("");
+                        if (seleccionados.length === 0) {
+                            selectMedioPagoComboFinalActual.val("");
+                            if (btnMedioPagoComboFinalActual && btnMedioPagoComboFinalActual.length) {
+                                btnMedioPagoComboFinalActual.addClass("d-none").removeClass("btn-success").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
+                            }
+                        } else {
+                            if (btnMedioPagoComboFinalActual && btnMedioPagoComboFinalActual.length) {
+                                btnMedioPagoComboFinalActual.removeClass("btn-outline-secondary").addClass("btn-success").html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+                            }
+                        }
                         selectMedioPagoComboFinalActual = null;
+                        btnMedioPagoComboFinalActual = null;
                     }
                 });
 
-                // Abrimos el modal SOLO aquí mediante JS
-                $("#ModalMedioPago").modal("show");
+                // ====== APERTURA SEGURA ======
+                const $modal = $("#ModalMedioPago");
+
+                if ($modal.hasClass("show")) {
+                    const inst = bootstrap.Modal.getInstance($modal[0]);
+                    if (inst) inst.hide();
+                }
+
+                setTimeout(function () {
+                    const $modalesAbiertos = $('.modal.show');
+                    const $backdropsActuales = $('.modal-backdrop');
+
+                    if ($backdropsActuales.length > $modalesAbiertos.length) {
+                        $backdropsActuales.slice($modalesAbiertos.length).remove();
+                    }
+
+                    let modalInstance = bootstrap.Modal.getInstance($modal[0]);
+                    if (!modalInstance) {
+                        modalInstance = new bootstrap.Modal($modal[0], {
+                            backdrop: true,
+                            keyboard: true
+                        });
+                    }
+                    modalInstance.show();
+                }, 50);
             } else {
-                // Si elige cualquier otro, limpiamos la data guardada
                 $select.removeData("seleccionados");
+                if ($btn.length) {
+                    $btn.addClass("d-none").removeClass("btn-success").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
+                }
             }
+        });
+
+        // 2. Manejo cuando hacen Clic en el BOTÓN VERDE (Para editar Medios de Pago ya seleccionados)
+        // 2. Manejo cuando hacen Clic en el BOTÓN VERDE (Para editar Medios de Pago ya seleccionados)
+        $(document).off("click.editarMpCombo", ".btn-editar-mp-combo").on("click.editarMpCombo", ".btn-editar-mp-combo", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            const $btn = $(this);
+            const $select = $btn.siblings(".select-mediopago-combo-final");
+
+            // Guardar referencias
+            selectMedioPagoComboFinalActual = $select;
+            btnMedioPagoComboFinalActual = $btn;
+
+            // Pre-marcar los checkboxes
+            const guardados = $select.data("seleccionados") || [];
+            $("#bodyModalMedioPago input[type='checkbox']").prop("checked", false);
+            guardados.forEach(v => $(`#bodyModalMedioPago input[value='${v}']`).prop("checked", true));
+
+            // Limpiar handlers previos del botón Aceptar
+            $("#btnAceptarMedioPago").off("click.combo click.articulo");
+
+            // Re-vincular handler para combo-final
+            $("#btnAceptarMedioPago").on("click.combo", function () {
+                if (selectMedioPagoComboFinalActual) {
+                    const seleccionados = [];
+                    $("#bodyModalMedioPago input[type='checkbox']:checked").each(function () {
+                        seleccionados.push($(this).val());
+                    });
+                    selectMedioPagoComboFinalActual.data("seleccionados", seleccionados);
+
+                    if (seleccionados.length === 0) {
+                        selectMedioPagoComboFinalActual.val("");
+                        btnMedioPagoComboFinalActual.addClass("d-none").removeClass("btn-success").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
+                    } else {
+                        btnMedioPagoComboFinalActual.removeClass("btn-outline-secondary").addClass("btn-success").html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+                    }
+                    selectMedioPagoComboFinalActual = null;
+                    btnMedioPagoComboFinalActual = null;
+                }
+            });
+
+            // ====== APERTURA SEGURA CON DETECCIÓN DE MODAL PADRE ======
+            const $modal = $("#ModalMedioPago");
+
+            // Si por alguna razón este modal ya está visible, cerrarlo primero
+            if ($modal.hasClass("show")) {
+                const inst = bootstrap.Modal.getInstance($modal[0]);
+                if (inst) inst.hide();
+            }
+
+            setTimeout(function () {
+                const $modalesAbiertos = $('.modal.show');
+                const $backdropsActuales = $('.modal-backdrop');
+
+                if ($backdropsActuales.length > $modalesAbiertos.length) {
+                    $backdropsActuales.slice($modalesAbiertos.length).remove();
+                }
+
+                // FORZAR z-index ALTO antes de mostrar
+                const cantidadAbiertos = $modalesAbiertos.length;
+                const zIndexHijo = 1050 + (10 * (cantidadAbiertos + 1));
+                $modal.css('z-index', zIndexHijo);
+
+                let modalInstance = bootstrap.Modal.getInstance($modal[0]);
+                if (!modalInstance) {
+                    modalInstance = new bootstrap.Modal($modal[0], {
+                        backdrop: true,
+                        keyboard: true
+                    });
+                }
+                modalInstance.show();
+
+                // Ajustar backdrop después de mostrar
+                setTimeout(function () {
+                    const $backdropsTras = $('.modal-backdrop');
+                    if ($backdropsTras.length > 0) {
+                        $backdropsTras.last().css('z-index', zIndexHijo - 1);
+                    }
+                }, 100);
+            }, 50);
         });
 
         // -------------------------------------------------------------
@@ -2785,82 +2874,50 @@
             const $inputDisplay = $btn.closest(".input-group").find("input[type='text']");
             const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
 
-            const titulos = {
-                "TFPROVEDOR": "Acuerdos - Fondo Proveedor" + (slot === 2 ? " (2)" : ""),
-                "TFREBATE": "Acuerdos - Fondo Rebate",
-                "TFPROPIO": "Acuerdos - Fondo Propio" + (slot === 2 ? " (2)" : "")
-            };
+            const titulos = { "TFPROVEDOR": "Acuerdos Proveedor", "TFREBATE": "Acuerdos Rebate", "TFPROPIO": "Acuerdos Propio" };
+            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slot, null);
 
-            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, null);
-
-            // Asignar variables al contexto global para ser procesado al aceptar
             acuerdoArticuloContexto.esCombo = true;
             acuerdoArticuloContexto.colIndex = colIndex;
         });
 
-        // === BLOQUE MODIFICADO: Intercepción del botón de aceptar acuerdos y sumas en tiempo real ===
-
-        // Intercepción del botón de aceptar acuerdos genérico para Combos
         $("#btnAceptarAcuerdoArticulo").on("click", function (e) {
             if (acuerdoArticuloContexto && acuerdoArticuloContexto.esCombo) {
-                // ESTO ES CLAVE: Detiene la ejecución del evento global de "Artículos" para evitar la alerta
                 e.stopImmediatePropagation();
-
-                if (!acuerdoArticuloTemporal) {
-                    Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return;
-                }
+                if (!acuerdoArticuloTemporal) { Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return; }
 
                 const tipo = acuerdoArticuloContexto.tipoFondo;
                 const slot = acuerdoArticuloContexto.slot;
                 const colIdx = acuerdoArticuloContexto.colIndex;
                 const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo);
+                const getVal = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input.acuerdo-id-hidden`).val();
 
-                const getVal = (campo) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIdx}'] input.acuerdo-id-hidden`).val();
-
-                if (tipo === "TFPROVEDOR") {
-                    const idOtro = slot === 1 ? getVal("aporte_prov2_id") : getVal("aporte_prov_id");
-                    if (idOtro && idOtro === idSeleccionado) {
-                        Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: "Ya fue seleccionado." }); return;
-                    }
-                } else if (tipo === "TFPROPIO") {
-                    const idOtro = slot === 1 ? getVal("aporte_propio2_id") : getVal("aporte_propio_id");
-                    if (idOtro && idOtro === idSeleccionado) {
-                        Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: "Ya fue seleccionado." }); return;
-                    }
-                }
+                if (tipo === "TFPROVEDOR" && (slot === 1 ? getVal("aporte_prov2_id") : getVal("aporte_prov_id")) === idSeleccionado) { Swal.fire({ icon: "warning", title: "Duplicado" }); return; }
+                if (tipo === "TFPROPIO" && (slot === 1 ? getVal("aporte_propio2_id") : getVal("aporte_propio_id")) === idSeleccionado) { Swal.fire({ icon: "warning", title: "Duplicado" }); return; }
 
                 acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
                 acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
 
                 const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
-                const setInputAporte = (campo) => {
-                    const $inp = $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIdx}'] input.aporte-valor`);
-                    $inp.prop("disabled", false).attr("data-max", maxVal).val("");
-                };
+                const setInputAporte = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input.aporte-valor`).prop("disabled", false).attr("data-max", maxVal).val("");
 
-                if (tipo === "TFPROVEDOR" && slot === 1) setInputAporte("aporte_prov");
-                else if (tipo === "TFPROVEDOR" && slot === 2) setInputAporte("aporte_prov2");
+                if (tipo === "TFPROVEDOR") setInputAporte(slot === 1 ? "aporte_prov" : "aporte_prov2");
                 else if (tipo === "TFREBATE") setInputAporte("aporte_rebate");
-                else if (tipo === "TFPROPIO" && slot === 1) setInputAporte("aporte_propio");
-                else if (tipo === "TFPROPIO" && slot === 2) setInputAporte("aporte_propio2");
+                else if (tipo === "TFPROPIO") setInputAporte(slot === 1 ? "aporte_propio" : "aporte_propio2");
 
                 recalcularColumnaCombo(colIdx);
-                recalcularTotalesCombo(); // Actualiza la suma en la fila del combo
+                recalcularTotalesCombo();
                 $("#modalAcuerdoArticulo").modal("hide");
                 acuerdoArticuloTemporal = null;
                 acuerdoArticuloContexto = null;
             }
         });
 
-        // Cálculos dinámicos al teclear en inputs de la columna del combo (Sumas en tiempo real)
         $(document).off("input change", "#tablaCreacionCombo tbody input.input-combo-art").on("input change", "#tablaCreacionCombo tbody input.input-combo-art", function () {
             this.value = this.value.replace(/[^0-9.,]/g, '');
-            const colIndex = $(this).closest("td").data("colindex");
-            recalcularColumnaCombo(colIndex);
-            recalcularTotalesCombo(); // Hace que al escribir en el artículo, la fila combo sume al instante
+            recalcularColumnaCombo($(this).closest("td").data("colindex"));
+            recalcularTotalesCombo();
         });
-
-        // ============================================================================================
 
         $("#btnNuevoCombo").html('<i class="fa-regular fa-file"></i> Nuevo Combo');
     }
@@ -3205,25 +3262,83 @@
     $(function () {
         console.log("=== CrearPromocion JS Loaded ===");
 
-        // --- FIX: AJUSTE DINÁMICO Y LIMPIEZA DE Z-INDEX PARA MODALES ---
-        $(document).on('show.bs.modal', '.modal', function () {
-            const zIndex = 1050 + (10 * $('.modal:visible').length);
+        // --- FIX DEFINITIVO: GESTIÓN DE BACKDROPS PARA EVITAR PANTALLA NEGRA ---
+
+        // Helper global para limpiar backdrops huérfanos (compatible con modales anidados)
+        window.limpiarBackdropsHuerfanos = function () {
+            // Contar modales realmente visibles
+            const $modalesVisibles = $('.modal').filter(function () {
+                return $(this).hasClass('show') && $(this).css('display') !== 'none';
+            });
+            const cantidadVisibles = $modalesVisibles.length;
+            const $backdrops = $('.modal-backdrop');
+
+            if (cantidadVisibles === 0) {
+                // No hay modales visibles → eliminar TODO
+                $backdrops.remove();
+                $('body').removeClass('modal-open').css({ 'padding-right': '', 'overflow': '' });
+            } else {
+                // Hay modales visibles → asegurar que haya EXACTAMENTE el mismo número de backdrops
+                if ($backdrops.length > cantidadVisibles) {
+                    // Eliminar backdrops sobrantes (los últimos del DOM)
+                    $backdrops.slice(cantidadVisibles).remove();
+                }
+
+                // Re-sincronizar z-index de cada modal visible y su backdrop correspondiente
+                $modalesVisibles.each(function (index) {
+                    const zIndexModal = 1050 + (10 * index);
+                    $(this).css('z-index', zIndexModal);
+                });
+
+                // Re-asignar z-index a backdrops en el orden correcto
+                $('.modal-backdrop').each(function (index) {
+                    const zIndexBackdrop = 1050 + (10 * index) - 1;
+                    $(this).css('z-index', zIndexBackdrop);
+                });
+
+                $('body').addClass('modal-open');
+            }
+        };
+
+        // Antes de mostrar un modal: NO limpiar nada, solo preparar z-index
+        $(document).off('show.bs.modal.fixBackdrop').on('show.bs.modal.fixBackdrop', '.modal', function () {
+            // Contar modales que YA están visibles (sin contar este que se va a abrir)
+            const modalesYaAbiertos = $('.modal.show').length;
+            const zIndex = 1050 + (10 * modalesYaAbiertos);
             $(this).css('z-index', zIndex);
-            setTimeout(() => {
-                $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
-            }, 0);
         });
 
-        // Limpieza de pantalla oscura al cerrar modales
-        $(document).on('hidden.bs.modal', '.modal', function () {
-            if ($('.modal:visible').length > 0) {
-                // Si aún hay modales abiertos, devuelve el scroll al body
-                $(document.body).addClass('modal-open');
-            } else {
-                // Si ya no hay modales, elimina cualquier fondo negro atascado
-                $('.modal-backdrop').remove();
-                $('body').removeClass('modal-open').css({ 'padding-right': '', 'overflow': '' });
+        // Después de mostrar el modal: ajustar TODOS los backdrops correctamente
+        $(document).off('shown.bs.modal.fixBackdrop').on('shown.bs.modal.fixBackdrop', '.modal', function () {
+            // El modal recién mostrado SIEMPRE debe quedar al frente
+            const $modalActual = $(this);
+            const $todosModalesVisibles = $('.modal.show');
+            const totalVisibles = $todosModalesVisibles.length;
+
+            // Asignar al modal actual el z-index MÁS ALTO
+            const zIndexModalActual = 1050 + (10 * (totalVisibles - 1));
+            $modalActual.css('z-index', zIndexModalActual);
+
+            // Los demás modales mantienen su z-index relativo (no los modificamos drásticamente)
+            // Pero sí re-sincronizamos backdrops
+            const $backdrops = $('.modal-backdrop');
+
+            // El último backdrop creado pertenece al modal actual
+            if ($backdrops.length > 0) {
+                const $ultimoBackdrop = $backdrops.last();
+                $ultimoBackdrop.css('z-index', zIndexModalActual - 1);
             }
+
+            // Asegurar que body tenga la clase
+            $('body').addClass('modal-open');
+        });
+
+        // Cuando se cierra cualquier modal: limpiar y re-sincronizar
+        $(document).off('hidden.bs.modal.fixBackdrop').on('hidden.bs.modal.fixBackdrop', '.modal', function () {
+            // Pequeño delay para que Bootstrap termine su animación interna
+            setTimeout(function () {
+                window.limpiarBackdropsHuerfanos();
+            }, 50);
         });
 
         CONFIG_MULTIPLE.push(
@@ -3286,11 +3401,41 @@
             }
         });
 
-        $("#promocionTipo").on("change", function () {
+        // Handler ÚNICO para cambio de tipo de promoción
+        $("#promocionTipo").off("change.tipoPromo").on("change.tipoPromo", function () {
+            // 1. Cerrar TODOS los modales abiertos de forma segura
+            $('.modal.show').each(function () {
+                const instance = bootstrap.Modal.getInstance(this);
+                if (instance) {
+                    instance.hide();
+                }
+            });
+
+            // 2. Limpiar backdrops inmediatamente
+            setTimeout(function () {
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').css({ 'padding-right': '', 'overflow': '' });
+            }, 200);
+
+            // 3. Cambiar el formulario visible
             togglePromocionForm();
             const tipo = getTipoPromocion();
             if (tipo == idCatalogoArticulo) cargarMotivosPromociones("#motivoArticulos");
             if (tipo == idCatalogoCombos) cargarMotivosPromociones("#motivoCombos");
+
+            // 4. Limpiar todos los formularios
+            resetearFormulario("General");
+            resetearFormulario("Articulos");
+            resetearFormulario("Combos");
+
+            // 5. Limpiar memoria de combos
+            articulosPorComboMemoria = {};
+            comboEnEdicion = null;
+            limpiarModalCombo();
+
+            // 6. Establecer contexto global
+            window.contextoModalItems = (tipo == idCatalogoCombos) ? "COMBOS" : "ARTICULOS";
+            $("#modalCrearCombo").data("estaba-abierto", false);
         });
 
         cargarTiposPromocion(async function () {
@@ -3636,5 +3781,45 @@
 
 
         $("#btnGuardarPromocionCombos").on("click", () => guardarPromocionCombo());
+
+        // Limpieza específica al cerrar el modal de Medio de Pago
+        $("#ModalMedioPago").off("hidden.bs.modal.cleanup").on("hidden.bs.modal.cleanup", function () {
+            // Limpiar todos los handlers temporales del botón Aceptar
+            $("#btnAceptarMedioPago").off("click.combo click.articulo");
+
+            // Limpiar referencias globales si quedaron colgadas
+            if (typeof selectMedioPagoComboFinalActual !== 'undefined') {
+                selectMedioPagoComboFinalActual = null;
+            }
+            if (typeof btnMedioPagoComboFinalActual !== 'undefined') {
+                btnMedioPagoComboFinalActual = null;
+            }
+            if (typeof filaActualMedioPago !== 'undefined') {
+                filaActualMedioPago = null;
+            }
+
+            // Si el modal padre (#modalCrearCombo) sigue abierto, restaurar foco a él
+            const $modalCombo = $("#modalCrearCombo");
+            if ($modalCombo.hasClass("show")) {
+                // Asegurar que body tenga modal-open
+                $('body').addClass('modal-open');
+
+                // Reasignar z-index correcto al modal padre
+                $modalCombo.css('z-index', 1050);
+
+                // Verificar que su backdrop esté presente y visible
+                const $backdrops = $('.modal-backdrop');
+                if ($backdrops.length > 0) {
+                    $backdrops.first().css('z-index', 1049).addClass('show');
+                }
+            } else {
+                // No hay modal padre, limpiar todo
+                setTimeout(function () {
+                    if (window.limpiarBackdropsHuerfanos) {
+                        window.limpiarBackdropsHuerfanos();
+                    }
+                }, 100);
+            }
+        });
     });
 })();

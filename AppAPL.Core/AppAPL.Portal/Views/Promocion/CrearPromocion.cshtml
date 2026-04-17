@@ -180,6 +180,23 @@
         .select2-results__option {
             font-size: 0.875rem;
         }       
+
+        /* === FIX PARA MODALES ANIDADOS === */
+        .modal {
+        overflow-x: hidden;
+        overflow-y: auto;
+        }
+        
+        /* Eliminar backdrops fantasma sin clase show */
+        .modal-backdrop:not(.show) {
+        display: none !important;
+        opacity: 0 !important;
+        }
+        
+        /* Garantizar que body.modal-open mantenga scroll bloqueado */
+        body.modal-open {
+        overflow: hidden !important;
+        }
     </style>
 }
 
@@ -1437,9 +1454,14 @@
                             <tr data-campo="medio_pago">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Medio de Pago</td>
                                 <td class="align-middle">
-                                    <select class="form-select form-select-sm select-mediopago-combo" id="selectMedioPagoModalCombo">
-                                        <option value="">Seleccione...</option>
-                                    </select>
+                                    <div class="input-group input-group-sm">
+                                        <button class="btn btn-outline-secondary d-none btn-mediopago-combo" type="button" data-bs-toggle="modal" data-bs-target="#ModalMedioPago">
+                                            <i class="fa-solid fa-list-check"></i>
+                                        </button>
+                                        <select class="form-select select-mediopago-combo" id="selectMedioPagoModalCombo">
+                                            <option value="">Seleccione...</option>
+                                        </select>
+                                    </div>
                                 </td>
                             </tr>
                             <tr data-campo="precio_lista_contado">
