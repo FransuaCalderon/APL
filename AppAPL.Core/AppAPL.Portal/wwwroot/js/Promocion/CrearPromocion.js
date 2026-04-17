@@ -253,12 +253,8 @@
         const uniqueAcceptBtns = [...new Set(CONFIG_MULTIPLE.map(c => c.btnAccept))];
         uniqueAcceptBtns.forEach(btnAcceptSelector => {
             $(btnAcceptSelector).off("click.acceptMulti").on("click.acceptMulti", function () {
-                // Si el modal de crear combo está abierto, significa que estamos en contexto combo, no ejecutar
+                // Si el modal de crear combo está abierto, es para los selects dentro del modal
                 if ($("#modalCrearCombo").hasClass("show")) {
-                    return;
-                }
-                // Si el modal de consulta de items está abierto con contexto combo, tampoco
-                if (window.contextoModalItems === "COMBOS") {
                     return;
                 }
 
@@ -2456,8 +2452,8 @@
 
             // Construimos el botón para Medio de Pago en la tabla principal
             const btnMPHtml = (modalMedioPago === "7" && modalMedioPagoSel && modalMedioPagoSel.length > 0)
-                ? `<button class="btn btn-success btn-sm btn-editar-mp-combo" type="button"><i class="fa-solid fa-list-check"></i> (${modalMedioPagoSel.length})</button>`
-                : `<button class="btn btn-outline-secondary btn-sm d-none btn-editar-mp-combo" type="button"><i class="fa-solid fa-list-check"></i></button>`;
+                ? `<button class="btn btn-success btn-sm btn-editar-mp-combo" type="button" disabled><i class="fa-solid fa-list-check"></i> (${modalMedioPagoSel.length})</button>`
+                : `<button class="btn btn-outline-secondary btn-sm d-none btn-editar-mp-combo" type="button" disabled><i class="fa-solid fa-list-check"></i></button>`;
 
             const filaCombo = `
                 <tr data-codigo="${codigo}" class="align-middle">
@@ -2471,12 +2467,12 @@
                     <td class="text-end">${modalOptimo}</td>
                     <td class="text-end">${modalExcU}</td>
                     <td class="text-end">${modalExcS}</td>
-                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-unidades-combo" placeholder="0" value="${modalUnidades}"></td>
-                    <td class="celda-editable"><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo" placeholder="0" value="${modalProyeccion}"></td>
-                    <td class="celda-editable">
+                   <td><input type="number" class="form-control form-control-sm text-end val-unidades-combo" placeholder="0" value="${modalUnidades}" disabled></td>
+                    <td><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo" placeholder="0" value="${modalProyeccion}" disabled></td>
+                    <td>
                         <div class="input-group input-group-sm" style="min-width:140px;">
                             ${btnMPHtml}
-                            <select class="form-select select-mediopago-combo-final">
+                            <select class="form-select select-mediopago-combo-final" disabled>
                                 ${$("#filtroMedioPagoGeneral").html()}
                             </select>
                         </div>
@@ -2495,7 +2491,7 @@
                     <td class="text-end">${formatCurrencySpanish(totalAporteProv)}</td>
                     <td class="text-end">${formatCurrencySpanish(totalAporteRebate)}</td>
                     <td class="text-end">${formatCurrencySpanish(totalAportePropio)}</td>
-                    <td class="text-center celda-editable"><input class="form-check-input" type="checkbox" disabled ${modalRegalo ? "checked" : ""}></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" disabled ${modalRegalo ? "checked" : ""}></td>
                 </tr>
             `;
 
@@ -2594,13 +2590,7 @@
 
         $(document).off("change", ".combo-row-radio").on("change", ".combo-row-radio", function () {
             $("#tablaCombosBody tr").removeClass("table-active");
-            $("#tablaCombosBody .celda-editable input, #tablaCombosBody .celda-editable button, #tablaCombosBody .celda-editable select").prop("disabled", true);
-            $("#tablaCombosBody td:last-child input[type='checkbox']").prop("disabled", true).css("pointer-events", "none");
-
-            const $fila = $(this).closest("tr");
-            $fila.addClass("table-active");
-            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").prop("disabled", false);
-            $fila.find("td:last-child input[type='checkbox']").prop("disabled", false).css("pointer-events", "auto");
+            $(this).closest("tr").addClass("table-active");
         });
 
         // -------------------------------------------------------------

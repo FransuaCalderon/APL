@@ -522,6 +522,10 @@ function renderizarTablaArticulosSimple(articulos) {
     $('#contenedor-tabla-articulos').html(html).fadeIn();
 }
 
+// ===============================================================
+// REEMPLAZAR EN: ~/js/Promocion/ConsultarPromocion.js
+// ===============================================================
+
 function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articulosacuerdos, articulosotros) {
     let html = `
         <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
@@ -543,10 +547,20 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
                     <th class="custom-header-cons-bg">Vta M-1($)</th>
                     <th class="custom-header-cons-bg">Vta M-2(u)</th>
                     <th class="custom-header-cons-bg">Vta M-2($)</th>
+                    <th class="custom-header-cons-bg">Vta M-12(u)</th>
+                    <th class="custom-header-cons-bg">Vta M-12($)</th>
+                    <th class="custom-header-cons-bg">Vta Igualar</th>
+                    <th class="custom-header-cons-bg">Dias Igualar</th>
+                    <th class="custom-header-cons-bg">Marg.Min Contado</th>
+                    <th class="custom-header-cons-bg">Marg.Min TC</th>
+                    <th class="custom-header-cons-bg">Marg.Min Crédito</th>
+                    <th class="custom-header-cons-bg">Marg.Min Igualar</th>
                     <th class="custom-header-ingr-bg">Uds. Límite</th>
                     <th class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                     <th class="custom-header-ingr-bg">Medio de Pago</th>
-                    <th class="custom-header-ingr-bg">Otros Costos</th> <th class="custom-header-cons-bg">Precio Lista</th>
+                    <th class="custom-header-ingr-bg">Otros Costos</th>
+                    <th class="custom-header-cons-bg">Precio Lista Contado</th>
+                    <th class="custom-header-cons-bg">Precio Lista Crédito</th>
                     <th class="custom-header-ingr-bg">Precio Promo Contado</th>
                     <th class="custom-header-ingr-bg">Precio Promo TC</th>
                     <th class="custom-header-ingr-bg">Precio Promo Crédito</th>
@@ -561,7 +575,8 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
                     <th class="custom-header-ingr-bg">Aporte Rebate Acuerdo</th>
                     <th class="custom-header-ingr-bg">Aporte Propio</th>
                     <th class="custom-header-ingr-bg">Aporte Propio Acuerdo</th>
-                    <th class="custom-header-calc-bg">Margen PL</th>
+                    <th class="custom-header-calc-bg">Margen PL Contado</th>
+                    <th class="custom-header-calc-bg">Margen PL Crédito</th>
                     <th class="custom-header-calc-bg">Margen Promo Contado</th>
                     <th class="custom-header-calc-bg">Margen Promo TC</th>
                     <th class="custom-header-calc-bg">Margen Promo Crédito</th>
@@ -575,7 +590,7 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
         const idPromocionArticulo = art.idpromocionarticulo || 0;
 
         const medioPagoHtml = generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem);
-        // CORRECCIÓN AQUÍ: Pasamos idPromocionArticulo en lugar de codigoItem
+        // Aquí mantenemos tu columna de Otros Costos que mencionaste que estaba perfecta
         const otrosCostosHtml = generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo);
 
         const ac = obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo);
@@ -602,10 +617,20 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
             <td class="text-end">${formatearMoneda(art.m1precio)}</td>
             <td class="text-end">${art.m2unidades || 0}</td>
             <td class="text-end">${formatearMoneda(art.m2precio)}</td>
+            <td class="text-end">${art.m12unidades || 0}</td>
+            <td class="text-end">${formatearMoneda(art.m12precio || 0)}</td>
+            <td class="text-end">${formatearMoneda(art.igualarprecio || 0)}</td>
+            <td class="text-end">${art.diasantiguedad || 0}</td>
+            <td class="text-end">${(art.margenminimocontado || 0).toFixed(2)}%</td>
+            <td class="text-end">${(art.margenminimotarjetacredito || 0).toFixed(2)}%</td>
+            <td class="text-end">${(art.margenminimocredito || 0).toFixed(2)}%</td>
+            <td class="text-end">${(art.margenminimoigualar || 0).toFixed(2)}%</td>
             <td class="text-end">${art.unidadeslimite || 0}</td>
             <td class="text-end">${art.unidadesproyeccionventas || 0}</td>
             <td class="text-center align-middle">${medioPagoHtml}</td>
-            <td class="text-center align-middle">${otrosCostosHtml}</td> <td class="text-end">${formatearMoneda(art.preciolistacontado)}</td>
+            <td class="text-center align-middle">${otrosCostosHtml}</td>
+            <td class="text-end">${formatearMoneda(art.preciolistacontado)}</td>
+            <td class="text-end">${formatearMoneda(art.preciolistacredito)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromocioncontado)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromociontarjetacredito)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromocioncredito)}</td>
@@ -621,6 +646,7 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
             <td class="text-end">${formatearMoneda(apProp)}</td>
             <td class="text-start" style="font-size:0.75rem;">${propioDisplay}</td>
             <td class="text-end">${(art.margenpreciolistacontado || 0).toFixed(2)}%</td>
+            <td class="text-end">${(art.margenpreciolistacredito || 0).toFixed(2)}%</td>
             <td class="text-end">${(art.margenpromocioncontado || 0).toFixed(2)}%</td>
             <td class="text-end">${(art.margenpromociontarjetacredito || 0).toFixed(2)}%</td>
             <td class="text-end">${(art.margenpromocioncredito || 0).toFixed(2)}%</td>
