@@ -1850,7 +1850,11 @@
                         ...(art.idAcuerdoPropio ? [{ "idacuerdo": art.idAcuerdoPropio, "valoraporte": art.aportePropio, "valorcomprometido": 0 }] : []),
                         ...(art.idAcuerdoPropio2 ? [{ "idacuerdo": art.idAcuerdoPropio2, "valoraporte": art.aportePropio2, "valorcomprometido": 0 }] : [])
                     ],
-                    "jsonotroscostos": art.otrosCostos || []
+                    //"jsonotroscostos": art.otrosCostos || []
+                    "jsonotroscostos": (art.otrosCostos || []).map(oc => ({
+                        codigoparametro: parseInt(oc.codigo, 10) || 0,
+                        costo: parseFloat(oc.valor) || 0
+                    }))
                 }));
 
                 combosParaAPI.push({
@@ -1953,6 +1957,8 @@
                 "segmentos": segmentos,
                 "articulos": combosParaAPI
             };
+
+            console.log("body: ", body);
 
             $.ajax({
                 url: "/api/apigee-router-proxy",
@@ -2244,8 +2250,13 @@
                 }
             });
 
+            /*
             const otrosCostos = $(`#trHeadersCombo th:eq(${colIdx})`).data("detalle-otros-costos") || [];
             art.otrosCostos = otrosCostos.map(oc => ({ codigoparametro: parseInt(oc.codigo, 10) || 0, costo: parseFloat(oc.valor) || 0 }));
+            art.totalOtrosCostos = parseFloat($(`#trHeadersCombo th:eq(${colIdx})`).data("total-otros-costos")) || 0;*/
+
+            const otrosCostos = $(`#trHeadersCombo th:eq(${colIdx})`).data("detalle-otros-costos") || [];
+            art.otrosCostos = otrosCostos; // <-- Mantenemos la estructura original para la memoria
             art.totalOtrosCostos = parseFloat($(`#trHeadersCombo th:eq(${colIdx})`).data("total-otros-costos")) || 0;
 
             if (art.codigo && art.codigo.trim() !== "" && art.codigo !== "Auto") {
@@ -2648,6 +2659,7 @@
         });
 
         let colIndexCostosActual = null;
+        /*
         $(document).off("click", ".btn-otros-costos-combo").on("click", ".btn-otros-costos-combo", function (e) {
             e.preventDefault();
             colIndexCostosActual = $(this).closest("th").index();
@@ -2665,6 +2677,43 @@
                             <td class="align-middle">${item.nombre || ''}</td>
                             <td class="text-end align-middle">${formatCurrencySpanish(item.valor)}</td>
                         </tr>`);
+                    });
+                }
+                $("#btnAplicarOtrosCostos").addClass("d-none");
+                if ($("#btnAplicarOtrosCostosCombo").length === 0) {
+                    $("#btnAplicarOtrosCostos").after('<button type="button" class="btn btn-primary" id="btnAplicarOtrosCostosCombo">Aplicar</button>');
+                } else {
+                    $("#btnAplicarOtrosCostosCombo").removeClass("d-none");
+                }
+                $("#modalOtrosCostos").modal("show");
+            });
+        });*/
+
+        $(document).off("click", ".btn-otros-costos-combo").on("click", ".btn-otros-costos-combo", function (e) {
+            e.preventDefault();
+            colIndexCostosActual = $(this).closest("th").index();
+
+            // 1. Recuperamos los costos que ya estaban guardados en esta columna
+            const costosGuardados = $(`#trHeadersCombo th:eq(${colIndexCostosActual})`).data("detalle-otros-costos") || [];
+            const codigosGuardados = costosGuardados.map(c => String(c.codigo));
+
+            consultarServicioAdicional("api/Promocion/consultar-otros-costos", $(this).data("codigo"), function (data) {
+                const $tbody = $("#tbodyOtrosCostos");
+                $tbody.empty();
+                if (!data.length) {
+                    $tbody.html('<tr><td colspan="3" class="text-center text-muted">No hay otros costos aplicables.</td></tr>');
+                } else {
+                    data.forEach(item => {
+                        // 2. Verificamos si este item estaba en memoria
+                        const isChecked = codigosGuardados.includes(String(item.codigo)) ? "checked" : "";
+
+                        $tbody.append(`<tr>
+                    <td class="text-center align-middle">
+                        <input class="form-check-input chk-otro-costo-combo" type="checkbox" data-codigo="${item.codigo}" data-nombre="${item.nombre}" data-valor="${item.valor}" ${isChecked}>
+                    </td>
+                    <td class="align-middle">${item.nombre || ''}</td>
+                    <td class="text-end align-middle">${formatCurrencySpanish(item.valor)}</td>
+                </tr>`);
                     });
                 }
                 $("#btnAplicarOtrosCostos").addClass("d-none");
