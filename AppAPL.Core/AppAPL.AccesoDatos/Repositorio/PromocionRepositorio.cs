@@ -1066,7 +1066,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             //int filasAfectadas = 1;
-            /*
+            
             int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_PROMOCIONES.sp_crear_promocion",
                 parameters,
@@ -1094,12 +1094,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 mensaje = mensajeSalida,
                 codigoRetorno = codigoSalida
             };
-            return retorno;*/
-
-            return new ControlErroresDTO()
-            {
-                codigoRetorno = 1
-            };
+            return retorno;
         }
 
         public async Task<ControlErroresDTO> AprobarPromocion(AprobarPromocionRequest promocion)
