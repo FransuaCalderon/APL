@@ -202,11 +202,11 @@ function abrirModalVisualizarSegmento(titulo, detalles) {
     modal.show();
 }
 
-function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
+function generarHtmlMedioPagoArticulo(articulossegmentos, idPromocionArticulo) {
     if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
 
     const items = articulossegmentos.filter(s =>
-        s.codigoitem === codigoItem && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO"
+        s.idpromocionarticulo === idPromocionArticulo && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO"
     );
 
     if (items.length === 0) return "Todos";
@@ -258,12 +258,67 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
 }
 
 // ===============================================================
-// NUEVO: Generar HTML para Otros Costos
+// HELPER: Generar HTML Medio Pago para Combos
+// ===============================================================
+function generarHtmlMedioPagoCombo(articulossegmentos, idPromocionArticulo) {
+    if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
+
+    const items = articulossegmentos.filter(s =>
+        s.idpromocionarticulo === idPromocionArticulo && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO"
+    );
+
+    if (items.length === 0) return "Todos";
+
+    const primerItem = items[0];
+    const tipoAsig = (primerItem.tipoasignacion || "").toString().toUpperCase();
+    if (tipoAsig === "T") return "Todos";
+
+    const mapa = {};
+    items.forEach(i => {
+        const cod = (i.codigo_detalle || "").toString().trim();
+        const nom = (i.nombre_medio_pago || i.nombre_detalle || "").toString().trim();
+
+        if (cod.toUpperCase() === "TODOS") return;
+
+        if (cod.includes(",")) {
+            const cods = cod.split(",");
+            const noms = nom.split(",");
+            cods.forEach((c, idx) => {
+                const cTrim = c.trim();
+                const nTrim = (noms[idx] || "").trim();
+                if (cTrim && !mapa[cTrim]) mapa[cTrim] = { codigo: cTrim, nombre: nTrim };
+            });
+        } else {
+            const key = cod || nom;
+            if (key && !mapa[key]) mapa[key] = { codigo: cod, nombre: nom };
+        }
+    });
+
+    const detalles = Object.values(mapa);
+
+    if (detalles.length > 1) {
+        const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
+        return `<button type="button" class="btn btn-success btn-sm btn-ver-mediopago-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
+    }
+
+    if (detalles.length === 1) {
+        let cod = detalles[0].codigo;
+        let nom = detalles[0].nombre;
+        if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
+        if (cod.toUpperCase() === "TODOS") return "Todos";
+
+        // Cambio aquí: Retorna SOLO la descripción (nombre) en lugar del código y nombre
+        return nom || cod || "Todos";
+    }
+    return "Todos";
+}
+
+// ===============================================================
+// Generar HTML para Otros Costos
 // ===============================================================
 function generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo) {
     if (!articulosotros || !Array.isArray(articulosotros)) return "N/A";
 
-    // Filtrar usando 'idpromocionarticulo'
     const items = articulosotros.filter(s => s.idpromocionarticulo === idPromocionArticulo);
 
     if (items.length === 0) return "N/A";
@@ -347,13 +402,13 @@ $(document).ready(function () {
         if (url) { const a = document.createElement("a"); a.href = url; a.download = nombre || "soporte.pdf"; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
     });
 
-    // Evento para abrir el modal de "Medios de Pago" desde la tabla de artículos
+    // Evento para abrir el modal de "Medios de Pago" desde la tabla de artículos/combos
     $(document).on("click", ".btn-ver-mediopago-grid", function () {
         const detalles = $(this).data("detalles");
         abrirModalVisualizarSegmento("Medios de Pago Seleccionados", detalles);
     });
 
-    // NUEVO: Evento dinámico Otros Costos en Grilla
+    // Evento dinámico Otros Costos en Grilla
     $(document).on("click", ".btn-ver-otroscostos-grid", function () {
         const detalles = $(this).data("detalles");
         abrirModalVisualizarSegmento("Otros Costos Seleccionados", detalles);
@@ -480,11 +535,14 @@ function abrirModalEditar(idPromocion, idAprobacion) {
     $('#tabla-aprobaciones-promocion').html('');
     $('#contenedor-tabla-articulos').html('').hide();
     $('#contenedor-tabla-combos').html('').hide();
+    $('#contenedor-tabla-combos-completa').html('').hide();
+
     $('#seccion-detalle-general').hide();
     $('#seccion-detalle-articulos').hide();
+    $('#seccion-detalle-combos').hide();
 
-    // ARTICULO
-    $("#btnVerCanalArt, #btnVerGrupoAlmacenArt, #btnVerAlmacenArt, #btnVerTipoClienteArt")
+    // ARTICULOS Y COMBOS
+    $("#btnVerCanalArt, #btnVerGrupoAlmacenArt, #btnVerAlmacenArt, #btnVerTipoClienteArt, #btnVerCanalComb, #btnVerGrupoAlmacenComb, #btnVerAlmacenComb, #btnVerTipoClienteComb")
         .addClass("d-none").removeClass("btn-success").addClass("btn-outline-secondary")
         .html('<i class="fa-solid fa-list-check"></i>').off("click");
 
@@ -505,7 +563,7 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                 const cab = data.cabecera || {};
                 const segmentos = data.segmentos || [];
                 const acuerdos = data.acuerdos || [];
-                const articulosotros = data.articulosotros || []; // NUEVO: Extraer articulosotros
+                const articulosotros = data.articulosotros || [];
                 const tipoPromocion = (cab.etiqueta_clase_promocion || data.tipopromocion || "").toUpperCase();
 
                 datosAprobacionActual = {
@@ -532,6 +590,7 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                 // =================================================================
                 if (tipoPromocion === "PRARTICULO") {
                     $('#seccion-detalle-general').hide();
+                    $('#seccion-detalle-combos').hide();
                     $('#seccion-detalle-articulos').show();
 
                     configurarCampoSegmentoArticulo("#verCanalArt", "#btnVerCanalArt", segmentos, "SEGCANAL", "Canales Seleccionados");
@@ -540,14 +599,31 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                     configurarCampoSegmentoArticulo("#verTipoClienteArt", "#btnVerTipoClienteArt", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
 
                     if (data.articulos && data.articulos.length > 0) {
-                        // NUEVO: Pasar articulosotros a la funcion
                         renderizarTablaArticulosCompleta(data.articulos, data.articulossegmentos || [], data.articulosacuerdos || [], articulosotros);
                     } else {
                         $('#contenedor-tabla-articulos').html('<div class="alert alert-info text-center">No hay artículos en esta promoción.</div>').show();
                     }
+
+                } else if (tipoPromocion === "PRCOMBO") {
+                    $('#seccion-detalle-general').hide();
+                    $('#seccion-detalle-articulos').hide();
+                    $('#seccion-detalle-combos').show();
+
+                    configurarCampoSegmentoArticulo("#verCanalComb", "#btnVerCanalComb", segmentos, "SEGCANAL", "Canales Seleccionados");
+                    configurarCampoSegmentoArticulo("#verGrupoAlmacenComb", "#btnVerGrupoAlmacenComb", segmentos, "SEGGRUPOALMACEN", "Grupos Almacén Seleccionados");
+                    configurarCampoSegmentoArticulo("#verAlmacenComb", "#btnVerAlmacenComb", segmentos, "SEGALMACEN", "Almacenes Seleccionados");
+                    configurarCampoSegmentoArticulo("#verTipoClienteComb", "#btnVerTipoClienteComb", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
+
+                    if (data.articulos && data.articulos.length > 0) {
+                        renderizarTablaCombosCompleta(data.articulos, data.articulossegmentos || []);
+                    } else {
+                        $('#contenedor-tabla-combos-completa').html('<div class="alert alert-info text-center">No hay combos en esta promoción.</div>').show();
+                    }
+
                 } else {
                     $('#seccion-detalle-general').show();
                     $('#seccion-detalle-articulos').hide();
+                    $('#seccion-detalle-combos').hide();
 
                     configurarCampoSegmentoGeneral("#verMarca", "#btnVerMarca", segmentos, "SEGMARCA", "Marcas Seleccionadas");
                     configurarCampoSegmentoGeneral("#verDivision", "#btnVerDivision", segmentos, "SEGDIVISION", "Divisiones Seleccionadas");
@@ -620,9 +696,8 @@ function renderizarTablaArticulosSimple(articulos) {
 }
 
 // ===================================================================
-// TABLA ARTÍCULOS COMPLETA (para PRARTICULO) - DataTable con búsqueda y paginación
+// TABLA ARTÍCULOS COMPLETA (para PRARTICULO)
 // ===================================================================
-// NUEVO: Agregado parametro articulosotros
 function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articulosacuerdos, articulosotros) {
     let html = `
         <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
@@ -674,8 +749,10 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
     articulos.forEach(art => {
         const codigoItem = art.codigoitem || "";
         const idPromocionArticulo = art.idpromocionarticulo || 0;
-        const medioPagoHtml = generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem);
-        const otrosCostosHtml = generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo); // NUEVO
+
+        // Pasamos el ID exacto del artículo para evitar duplicados en la visualización
+        const medioPagoHtml = generarHtmlMedioPagoArticulo(articulossegmentos, idPromocionArticulo);
+        const otrosCostosHtml = generarHtmlOtrosCostosArticulo(articulosotros, idPromocionArticulo);
         const ac = obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo);
         const esRegalo = (art.marcaregalo ?? "").toString().trim().toUpperCase() === "S";
 
@@ -730,15 +807,9 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
     html += `</tbody></table></div>`;
     $('#contenedor-tabla-articulos').html(html).fadeIn();
 
-    // Inicializar DataTable con paginación de 10 y scroll horizontal
     dtArticulosDetalle = $('#dt-articulos-detalle').DataTable({
-        destroy: true,
-        deferRender: true,
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50],
-        pagingType: 'simple_numbers',
-        searching: true,
-        scrollX: true,
+        destroy: true, deferRender: true, pageLength: 10, lengthMenu: [5, 10, 25, 50],
+        pagingType: 'simple_numbers', searching: true, scrollX: true,
         dom: '<"row"<"col-12"tr>><"row mt-2"<"col-sm-5"i><"col-sm-7 d-flex justify-content-end"p>>',
         columnDefs: [{ targets: 0, className: "text-start" }],
         order: [[0, 'asc']],
@@ -754,12 +825,14 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
         }
     });
 
-    // Conectar buscador externo al DataTable
     $("#buscarArticuloDetalle").off("keyup").on("keyup", function () {
         dtArticulosDetalle.search($(this).val()).draw();
     });
 }
 
+// ===================================================================
+// TABLA COMBOS SIMPLE (para General)
+// ===================================================================
 function renderizarTablaCombos(combos) {
     let html = `<h6 class="fw-bold mb-2 mt-3"><i class="fa fa-layer-group text-primary"></i> Detalle de Combos</h6>
         <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
@@ -777,6 +850,146 @@ function renderizarTablaCombos(combos) {
     });
     html += `</tbody></table></div>`;
     $('#contenedor-tabla-combos').html(html).fadeIn();
+}
+
+// ===============================================================
+// RENDERIZAR TABLA COMBOS COMPLETA (Específica para PRCOMBO)
+// ===============================================================
+function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
+    const combosMap = {};
+
+    articulos.forEach((art, index) => {
+        const cod = art.codigo_combo;
+        if (!cod) return;
+
+        // Se usa idpromocionarticulo para garantizar que cada registro de combo se muestre individualmente
+        const key = art.idpromocionarticulo || `${cod}_${index}`;
+
+        if (!combosMap[key]) {
+            combosMap[key] = {
+                id_promo_art: art.idpromocionarticulo,
+                codigo: cod,
+                descripcion: art.descripcion_combo,
+                costo: art.costo_combo || 0,
+                unidades_limite: art.combo_unidades_limite || 0,
+                proyeccion: art.combo_unidades_proyeccion || 0,
+                pl_contado: art.combo_precio_lista_contado || 0,
+                pl_credito: art.combo_precio_lista_credito || 0,
+                promo_contado: art.combo_precio_promo_contado || 0,
+                promo_tc: art.combo_precio_promo_tc || 0,
+                promo_credito: art.combo_precio_promo_credito || 0,
+                dscto_contado: art.combo_desc_promo_contado || 0,
+                dscto_tc: art.combo_desc_promo_tc || 0,
+                dscto_credito: art.combo_desc_promo_credito || 0,
+                margen_contado: art.combo_margen_promo_contado || 0,
+                margen_tc: art.combo_margen_promo_tc || 0,
+                margen_credito: art.combo_margen_promo_credito || 0,
+                regalo: art.combo_marca_regalo === "S",
+                stock_bodega: 0,
+                stock_tienda: 0,
+                inv_optimo: 0,
+                excedente_u: 0,
+                excedente_usd: 0
+            };
+        }
+
+        // Sumatoria de inventarios de los componentes de este combo (si el array trae los componentes)
+        if (art.comp_codigo_item) {
+            combosMap[key].stock_bodega += (art.comp_stock_bodega || 0);
+            combosMap[key].stock_tienda += (art.comp_stock_tienda || 0);
+            combosMap[key].inv_optimo += (art.comp_inventario_optimo || 0);
+            combosMap[key].excedente_u += (art.comp_excedente_unidad || 0);
+            combosMap[key].excedente_usd += (art.comp_excedente_valor || 0);
+        }
+    });
+
+    const combosArray = Object.values(combosMap);
+
+    let html = `
+        <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
+            <input type="text" id="buscarComboDetalleCompleto" class="form-control form-control-sm ms-auto" placeholder="Buscar combo..." style="width: 280px;">
+        </div>
+        <div class="table-responsive border rounded" style="overflow-x: auto;">
+            <table id="dt-combos-detalle-completa" class="table table-bordered table-sm table-hover mb-0" style="width:100%">
+                <thead class="sticky-top text-nowrap">
+                    <tr class="text-center tabla-items-header">
+                        <th class="custom-header-cons-bg" style="min-width: 220px;">Combo</th>
+                        <th class="custom-header-cons-bg">Costo</th>
+                        <th class="custom-header-cons-bg">Stock Bodega</th>
+                        <th class="custom-header-cons-bg">Stock Tienda</th>
+                        <th class="custom-header-cons-bg">Inv. Óptimo</th>
+                        <th class="custom-header-cons-bg">Excedente(u)</th>
+                        <th class="custom-header-cons-bg">Excedente($)</th>
+                        <th class="custom-header-ingr-bg">Uds. Límite</th>
+                        <th class="custom-header-ingr-bg">Proyección Vtas(u)</th>
+                        <th class="custom-header-ingr-bg">Medio de Pago</th>
+                        <th class="custom-header-cons-bg">Precio Lista Cont.</th>
+                        <th class="custom-header-cons-bg">Precio Lista Créd.</th>
+                        <th class="custom-header-ingr-bg">Precio Promo Cont.</th>
+                        <th class="custom-header-ingr-bg">Precio Promo TC</th>
+                        <th class="custom-header-ingr-bg">Precio Promo Créd.</th>
+                        <th class="custom-header-calc-bg">Dscto Promo Cont.</th>
+                        <th class="custom-header-calc-bg">Dscto Promo TC</th>
+                        <th class="custom-header-calc-bg">Dscto Promo Créd.</th>
+                        <th class="custom-header-calc-bg">Margen Promo Cont.</th>
+                        <th class="custom-header-calc-bg">Margen Promo TC</th>
+                        <th class="custom-header-calc-bg">Margen Promo Créd.</th>
+                        <th class="custom-header-ingr-bg">Regalo</th>
+                    </tr>
+                </thead>
+                <tbody class="text-nowrap tabla-items-body bg-white">`;
+
+    combosArray.forEach(cmb => {
+        // Obtenemos los medios de pago en base al ID único de la fila del combo
+        const medioPagoHtml = generarHtmlMedioPagoCombo(articulossegmentos, cmb.id_promo_art);
+
+        html += `<tr>
+            <td class="fw-bold text-start">${cmb.codigo} - ${cmb.descripcion}</td>
+            <td class="text-end">${formatearMoneda(cmb.costo)}</td>
+            <td class="text-end">${cmb.stock_bodega}</td>
+            <td class="text-end">${cmb.stock_tienda}</td>
+            <td class="text-end">${cmb.inv_optimo}</td>
+            <td class="text-end">${cmb.excedente_u}</td>
+            <td class="text-end">${formatearMoneda(cmb.excedente_usd)}</td>
+            <td class="text-end">${cmb.unidades_limite}</td>
+            <td class="text-end">${cmb.proyeccion}</td>
+            <td class="text-center align-middle">${medioPagoHtml}</td>
+            <td class="text-end">${formatearMoneda(cmb.pl_contado)}</td>
+            <td class="text-end">${formatearMoneda(cmb.pl_credito)}</td>
+            <td class="text-end">${formatearMoneda(cmb.promo_contado)}</td>
+            <td class="text-end">${formatearMoneda(cmb.promo_tc)}</td>
+            <td class="text-end">${formatearMoneda(cmb.promo_credito)}</td>
+            <td class="text-end">${formatearMoneda(cmb.dscto_contado)}</td>
+            <td class="text-end">${formatearMoneda(cmb.dscto_tc)}</td>
+            <td class="text-end">${formatearMoneda(cmb.dscto_credito)}</td>
+            <td class="text-end">${cmb.margen_contado.toFixed(2)}%</td>
+            <td class="text-end">${cmb.margen_tc.toFixed(2)}%</td>
+            <td class="text-end">${cmb.margen_credito.toFixed(2)}%</td>
+            <td class="text-center">${cmb.regalo ? '<i class="fa-solid fa-check text-success"></i>' : ''}</td>
+        </tr>`;
+    });
+
+    html += `</tbody></table></div>`;
+    $('#contenedor-tabla-combos-completa').html(html).fadeIn();
+
+    const dtCombos = $('#dt-combos-detalle-completa').DataTable({
+        destroy: true, deferRender: true, pageLength: 10, lengthMenu: [5, 10, 25, 50],
+        pagingType: 'simple_numbers', searching: true, scrollX: true,
+        dom: '<"row"<"col-12"tr>><"row mt-2"<"col-sm-5"i><"col-sm-7 d-flex justify-content-end"p>>',
+        columnDefs: [{ targets: 0, className: "text-start" }],
+        order: [[0, 'asc']],
+        language: {
+            decimal: "", emptyTable: "No hay combos disponibles",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ combos",
+            infoEmpty: "Mostrando 0 a 0 de 0 combos",
+            search: "Buscar:", zeroRecords: "No se encontraron combos coincidentes",
+            paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+        }
+    });
+
+    $("#buscarComboDetalleCompleto").off("keyup").on("keyup", function () {
+        dtCombos.search($(this).val()).draw();
+    });
 }
 
 function cerrarDetalle() {
