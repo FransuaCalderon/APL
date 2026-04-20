@@ -321,7 +321,6 @@ namespace AppAPL.Api.Controllers
             
             // 5. Si todo está OK, procedemos al servicio
             var retorno = await servicio.CrearAsync(promocion);
-            return Ok(retorno);
             if (retorno.Id > 0) // Usando tu lógica de éxito
             {
                 logger.LogInformation(retorno.mensaje);
