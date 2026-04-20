@@ -1843,6 +1843,17 @@
                     "preciopromocioncontado": art.promoContado || 0,
                     "preciopromociontarjetacredito": art.promoTC || 0,
                     "preciopromocioncredito": art.promoCredito || 0,
+
+                    // NUEVOS CAMPOS DEL ESQUEMA
+                    "descuentopromocioncontado": art.dsctoContado || 0,
+                    "descuentopromociontarjetacredito": art.dsctoTC || 0,
+                    "descuentopromocioncredito": art.dsctoCredito || 0,
+                    "margenpreciolistacontado": art.margenPLContado || 0,
+                    "margenpreciolistacredito": art.margenPLCredito || 0,
+                    "margenpromocioncontado": art.margenPromoContado || 0,
+                    "margenpromociontarjetacredito": art.margenPromoTC || 0,
+                    "margenpromocioncredito": art.margenPromoCredito || 0,
+
                     "jsonacuerdos": [
                         ...(art.idAcuerdoProveedor ? [{ "idacuerdo": art.idAcuerdoProveedor, "valoraporte": art.aporteProveedor, "valorcomprometido": 0 }] : []),
                         ...(art.idAcuerdoProveedor2 ? [{ "idacuerdo": art.idAcuerdoProveedor2, "valoraporte": art.aporteProveedor2, "valorcomprometido": 0 }] : []),
@@ -1852,10 +1863,12 @@
                     ],
                     //"jsonotroscostos": art.otrosCostos || []
                     "jsonotroscostos": (art.otrosCostos || []).map(oc => ({
-                        codigoparametro: parseInt(oc.codigo, 10) || 0,
-                        costo: parseFloat(oc.valor) || 0
+                        codigo: parseInt(oc.codigo, 10) || 0,
+                        costos: parseFloat(oc.valor) || 0
                     }))
                 }));
+
+                const esRegalo = $fila.find("td:last-child input").is(":checked") ? "S" : "N";
 
                 combosParaAPI.push({
                     "codigoitem": codigoCombo,
@@ -1895,8 +1908,8 @@
                     "margenpromociontarjetacredito": parseFloat($fila.find("td:eq(20)").text()) || 0,
                     "margenpromocioncredito": parseFloat($fila.find("td:eq(21)").text()) || 0,
                     "margenigualarprecio": 0,
-                    "marcaregalo": $fila.find("td:last-child input").is(":checked") ? "S" : "N",
-                    "regalo": $fila.find("td:last-child input").is(":checked") ? "S" : "N",
+                    "marcaregalo": esRegalo,
+                    "regalo": esRegalo,
                     "mediospago": (function () {
                         const selMP = $fila.find(".select-mediopago-combo-final");
                         const valMP = selMP.val();
@@ -1904,6 +1917,16 @@
                         if (valMP === "7") return [{ "tipoasignacion": "D", "codigos": codesMP, "codigo": codesMP }];
                         if (valMP && valMP !== "TODAS") return [{ "tipoasignacion": "C", "codigos": [valMP], "codigo": [valMP] }];
                         return [{ "tipoasignacion": "T", "codigos": [], "codigo": [] }];
+                    })(),
+
+                    // AHORA INCLUYE LA PROPIEDAD "jsonmediopago" CON SU ARRAY "codigo"
+                    "jsonmediopago": (function () {
+                        const selMP = $fila.find(".select-mediopago-combo-final");
+                        const valMP = selMP.val();
+                        const codesMP = selMP.data("seleccionados") || [];
+                        if (valMP === "7") return [{ "tipoasignacion": "D", "codigo": codesMP }];
+                        if (valMP && valMP !== "TODAS") return [{ "tipoasignacion": "C", "codigo": [valMP] }];
+                        return [{ "tipoasignacion": "T", "codigo": [] }];
                     })(),
                     "acuerdos": [],
                     "otroscostos": [],
@@ -1959,7 +1982,6 @@
             };
 
             console.log("body: ", body);
-
             $.ajax({
                 url: "/api/apigee-router-proxy",
                 method: "POST",
@@ -2209,6 +2231,17 @@
                     case "promo_contado": art.promoContado = parseCurrency(val); break;
                     case "promo_tc": art.promoTC = parseCurrency(val); break;
                     case "promo_credito": art.promoCredito = parseCurrency(val); break;
+
+                    // NUEVOS CAMPOS AGREGADOS SEGÚN EL ESQUEMA
+                    case "dscto_contado": art.dsctoContado = parseCurrency(val); break;
+                    case "dscto_tc": art.dsctoTC = parseCurrency(val); break;
+                    case "dscto_credito": art.dsctoCredito = parseCurrency(val); break;
+                    case "margen_pl_contado": art.margenPLContado = parseFloat(val) || 0; break;
+                    case "margen_pl_credito": art.margenPLCredito = parseFloat(val) || 0; break;
+                    case "margen_promo_contado": art.margenPromoContado = parseFloat(val) || 0; break;
+                    case "margen_promo_tc": art.margenPromoTC = parseFloat(val) || 0; break;
+                    case "margen_promo_cred": art.margenPromoCredito = parseFloat(val) || 0; break;
+
                     case "aporte_prov": art.aporteProveedor = parseCurrency(val); break;
                     case "aporte_prov2": art.aporteProveedor2 = parseCurrency(val); break;
                     case "aporte_rebate": art.aporteRebate = parseCurrency(val); break;
