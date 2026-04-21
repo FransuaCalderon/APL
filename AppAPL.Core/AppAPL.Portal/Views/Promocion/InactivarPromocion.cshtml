@@ -14,312 +14,312 @@
 
 <style>
     /* =====================================================
-                   GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN
-                ===================================================== */
+    GRILLA ESTILO IMAGEN - CABECERA PROMOCIÓN
+    ===================================================== */
     .promo-form-grid {
-        border: 1px solid #ccc;
-        background: #fff;
-        font-size: 0.8rem;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-size: 0.8rem;
     }
 
     .promo-header-row {
-        display: flex;
-        align-items: center;
-        border-bottom: 1px solid #ccc;
-        padding: 4px 6px;
-        gap: 8px;
-        background: #fff;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding: 4px 6px;
+    gap: 8px;
+    background: #fff;
     }
 
     .promo-header-row .promo-label {
-        font-weight: 700;
-        white-space: nowrap;
-        font-size: 0.8rem;
-        color: #222;
+    font-weight: 700;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    color: #222;
     }
 
     .promo-header-row .promo-id-input {
-        flex: 1;
-        border: 1px solid #ccc;
-        padding: 3px 6px;
-        font-size: 0.8rem;
-        background: #f0f0f0;
-        color: #333;
-        border-radius: 2px;
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 3px 6px;
+    font-size: 0.8rem;
+    background: #f0f0f0;
+    color: #333;
+    border-radius: 2px;
     }
 
     .promo-header-row .promo-icons {
-        display: flex;
-        gap: 4px;
+    display: flex;
+    gap: 4px;
     }
 
     .promo-header-row .promo-icon-btn {
-        width: 28px;
-        height: 28px;
-        border: 1px solid #bbb;
-        background: #f5f5f5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 2px;
-        color: #555;
-        font-size: 0.8rem;
+    width: 28px;
+    height: 28px;
+    border: 1px solid #bbb;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    color: #555;
+    font-size: 0.8rem;
     }
 
     .promo-section {
-        display: flex;
-        border-bottom: 1px solid #ccc;
+    display: flex;
+    border-bottom: 1px solid #ccc;
     }
 
     .promo-section:last-child {
-        border-bottom: none;
+    border-bottom: none;
     }
 
     .promo-col {
-        flex: 1;
-        border-right: 1px solid #ccc;
-        display: flex;
-        flex-direction: column;
+    flex: 1;
+    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
     }
 
     .promo-col:last-child {
-        border-right: none;
+    border-right: none;
     }
 
     .promo-col-header {
-        font-weight: 700;
-        text-align: center;
-        padding: 4px 6px;
-        background: #fff;
-        border-bottom: 1px solid #ccc;
-        color: #222;
-        font-size: 0.78rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 4px 6px;
+    background: #fff;
+    border-bottom: 1px solid #ccc;
+    color: #222;
+    font-size: 0.78rem;
     }
 
     .promo-col-value {
-        padding: 3px 6px;
-        background: #fff;
+    padding: 3px 6px;
+    background: #fff;
     }
 
     .promo-col-value input[type="text"], .promo-col-value select {
-        width: 100%;
-        border: 1px solid #ccc;
-        padding: 3px 6px;
-        font-size: 0.78rem;
-        background: #f0f0f0;
-        color: #333;
-        border-radius: 2px;
-        height: 28px;
+    width: 100%;
+    border: 1px solid #ccc;
+    padding: 3px 6px;
+    font-size: 0.78rem;
+    background: #f0f0f0;
+    color: #333;
+    border-radius: 2px;
+    height: 28px;
     }
 
     .promo-col-value input[type="text"]:focus, .promo-col-value select:focus {
-        outline: none;
+    outline: none;
     }
 
     .promo-col.col-xs {
-        flex: 0 0 80px;
-        max-width: 80px;
+    flex: 0 0 80px;
+    max-width: 80px;
     }
 
     .promo-col.col-sm {
-        flex: 0 0 110px;
-        max-width: 110px;
+    flex: 0 0 110px;
+    max-width: 110px;
     }
 
     .promo-col.col-md {
-        flex: 0 0 160px;
-        max-width: 160px;
+    flex: 0 0 160px;
+    max-width: 160px;
     }
 
     /* Inputs con botón pegado a la izquierda */
     .input-with-icon {
-        display: flex;
-        gap: 0;
+    display: flex;
+    gap: 0;
     }
 
     .input-with-icon input {
-        border-left: none !important;
-        border-radius: 0 2px 2px 0 !important;
+    border-left: none !important;
+    border-radius: 0 2px 2px 0 !important;
     }
 
     .input-with-icon .icon-btn {
-        min-width: 28px;
-        padding: 0 6px;
-        height: 28px;
-        border: 1px solid #ccc;
-        border-right: none;
-        background: #e8e8e8;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 2px 0 0 2px;
-        color: #666;
-        font-size: 0.75rem;
+    min-width: 28px;
+    padding: 0 6px;
+    height: 28px;
+    border: 1px solid #ccc;
+    border-right: none;
+    background: #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px 0 0 2px;
+    color: #666;
+    font-size: 0.75rem;
     }
 
     .promo-col-value.center-value {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
     }
 
     .promo-col-value input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        accent-color: #0d6efd;
-        cursor: default;
+    width: 16px;
+    height: 16px;
+    accent-color: #0d6efd;
+    cursor: default;
     }
 
     /* ESTILOS TABLA ARTÍCULOS */
     .tabla-items-header th {
-        background-color: #a4c995;
-        color: #343a40;
-        font-weight: bold;
-        vertical-align: middle;
-        text-align: center;
-        border: 1px solid #dee2e6;
-        font-size: 0.75rem;
+    background-color: #a4c995;
+    color: #343a40;
+    font-weight: bold;
+    vertical-align: middle;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    font-size: 0.75rem;
     }
 
     .custom-header-cons-bg {
-        background-color: #a4c995 !important;
-        color: #343a40 !important;
+    background-color: #a4c995 !important;
+    color: #343a40 !important;
     }
 
     .custom-header-ingr-bg {
-        background-color: #FFEC99 !important;
-        color: #343a40 !important;
+    background-color: #FFEC99 !important;
+    color: #343a40 !important;
     }
 
     .custom-header-calc-bg {
-        background-color: #FFBF47 !important;
-        color: #343a40 !important;
+    background-color: #FFBF47 !important;
+    color: #343a40 !important;
     }
 
     .tabla-items-body td {
-        font-size: 0.78rem;
-        vertical-align: middle;
+    font-size: 0.78rem;
+    vertical-align: middle;
     }
 
     .detalle-header-articulos {
-        background-color: #343a40;
-        color: white;
-        padding: 6px 15px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 0.95rem;
-        border-radius: 4px;
+    background-color: #343a40;
+    color: white;
+    padding: 6px 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.95rem;
+    border-radius: 4px;
     }
 
     /* MODAL TABLAS LOG/APROBACIONES */
     #tablaLog thead tr:first-child th, #tablaAprobaciones thead tr:first-child th {
-        background-color: #8B0000 !important;
-        color: #fff;
-        text-align: center;
-        font-weight: bold;
-        padding: 8px;
-        font-size: 0.95rem;
+    background-color: #8B0000 !important;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    padding: 8px;
+    font-size: 0.95rem;
     }
 
     #tablaLog thead tr:nth-child(2) th, #tablaAprobaciones thead tr:nth-child(2) th {
-        background-color: #1a237e !important;
-        color: #fff;
-        text-align: center;
-        white-space: nowrap;
+    background-color: #1a237e !important;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
     }
 
     /* MODAL VISOR PDF */
     #modalVisorPdf .modal-dialog {
-        max-width: 90vw;
-        height: 90vh;
+    max-width: 90vw;
+    height: 90vh;
     }
 
     #modalVisorPdf .modal-content {
-        height: 90vh;
-        display: flex;
-        flex-direction: column;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
     }
 
     #modalVisorPdf .modal-header {
-        background: #1a237e;
-        color: #fff;
-        padding: 8px 16px;
-        border-bottom: none;
+    background: #1a237e;
+    color: #fff;
+    padding: 8px 16px;
+    border-bottom: none;
     }
 
     #modalVisorPdf .modal-header .btn-close {
-        filter: invert(1);
+    filter: invert(1);
     }
 
     #modalVisorPdf .modal-body {
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        overflow: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
     }
 
     #modalVisorPdf .modal-footer {
-        padding: 6px 16px;
-        border-top: 1px solid #ddd;
-        background: #f8f8f8;
+    padding: 6px 16px;
+    border-top: 1px solid #ddd;
+    background: #f8f8f8;
     }
 
     #pdfVisorContenido {
-        flex: 1;
-        width: 100%;
-        height: 100%;
+    flex: 1;
+    width: 100%;
+    height: 100%;
     }
 
     #pdfIframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-        background: #525659;
-        display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #525659;
+    display: block;
     }
 
     #pdfSpinner {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-        height: 100%;
-        background: #525659;
-        color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 100%;
+    background: #525659;
+    color: #fff;
     }
 
     #pdfVisorError {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-        height: 100%;
-        background: #f8d7da;
-        color: #842029;
-        font-size: 0.9rem;
-        padding: 20px;
-        text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 100%;
+    background: #f8d7da;
+    color: #842029;
+    font-size: 0.9rem;
+    padding: 20px;
+    text-align: center;
     }
 
     /* ===================================================== */
     /* ALINEACIÓN DE BOTONES DEL FOOTER                      */
     /* ===================================================== */
     .btn-uniforme {
-        min-width: 130px;
-        height: 38px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 0 15px;
+    min-width: 130px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 15px;
     }
 
-        .btn-uniforme i {
-            margin: 0 !important;
-        }
+    .btn-uniforme i {
+    margin: 0 !important;
+    }
 </style>
 
 <h2>Inactivación - Promociones</h2>
@@ -435,8 +435,54 @@
                     </div>
                 </div>
 
+                <div id="seccion-detalle-combos" style="display:none;">
+                    <div class="row g-1 mt-2">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold col-form-label-sm mb-0">Canal</label>
+                            <div class="input-group input-group-sm">
+                                <button id="btnVerCanalComb" class="btn btn-outline-secondary btn-sm d-none" type="button">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </button>
+                                <input type="text" class="form-control form-control-sm" id="verCanalComb" readonly disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold col-form-label-sm mb-0">Grupo Almacén</label>
+                            <div class="input-group input-group-sm">
+                                <button id="btnVerGrupoAlmacenComb" class="btn btn-outline-secondary btn-sm d-none" type="button">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </button>
+                                <input type="text" class="form-control form-control-sm" id="verGrupoAlmacenComb" readonly disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold col-form-label-sm mb-0">Almacén</label>
+                            <div class="input-group input-group-sm">
+                                <button id="btnVerAlmacenComb" class="btn btn-outline-secondary btn-sm d-none" type="button">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </button>
+                                <input type="text" class="form-control form-control-sm" id="verAlmacenComb" readonly disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold col-form-label-sm mb-0">Tipo de Cliente</label>
+                            <div class="input-group input-group-sm">
+                                <button id="btnVerTipoClienteComb" class="btn btn-outline-secondary btn-sm d-none" type="button">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </button>
+                                <input type="text" class="form-control form-control-sm" id="verTipoClienteComb" readonly disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detalle-header-articulos mt-3" style="background-color: #343a40;">
+                        <i class="fa-solid fa-layer-group me-1"></i> Detalle de los Combos
+                    </div>
+                </div>
+
                 <div class="col-12 mt-2" id="contenedor-tabla-articulos" style="display:none;"></div>
                 <div class="col-12 mt-2" id="contenedor-tabla-combos" style="display:none;"></div>
+                <div class="col-12 mt-2" id="contenedor-tabla-combos-completa" style="display:none;"></div>
 
             </form>
         </div>
@@ -557,5 +603,3 @@
         </div>
     </div>
 </div>
-
-<!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->
