@@ -719,6 +719,8 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
                     <th class="custom-header-cons-bg">Vta M-1($)</th>
                     <th class="custom-header-cons-bg">Vta M-2(u)</th>
                     <th class="custom-header-cons-bg">Vta M-2($)</th>
+                    <th class="custom-header-cons-bg">Vta M-12(u)</th>
+                    <th class="custom-header-cons-bg">Vta M-12($)</th>
                     <th class="custom-header-ingr-bg">Uds. Límite</th>
                     <th class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                     <th class="custom-header-ingr-bg">Medio de Pago</th>
@@ -777,10 +779,13 @@ function renderizarTablaArticulosCompleta(articulos, articulossegmentos, articul
             <td class="text-end">${formatearMoneda(art.m1precio)}</td>
             <td class="text-end">${art.m2unidades || 0}</td>
             <td class="text-end">${formatearMoneda(art.m2precio)}</td>
+            <td class="text-end">${art.m12unidades || 0}</td>
+            <td class="text-end">${formatearMoneda(art.m12precio || 0)}</td>
             <td class="text-end">${art.unidadeslimite || 0}</td>
             <td class="text-end">${art.unidadesproyeccionventas || 0}</td>
             <td class="text-center align-middle">${medioPagoHtml}</td>
-            <td class="text-center align-middle">${otrosCostosHtml}</td> <td class="text-end">${formatearMoneda(art.preciolistacontado)}</td>
+            <td class="text-center align-middle">${otrosCostosHtml}</td> 
+            <td class="text-end">${formatearMoneda(art.preciolistacontado)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromocioncontado)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromociontarjetacredito)}</td>
             <td class="text-end">${formatearMoneda(art.preciopromocioncredito)}</td>
