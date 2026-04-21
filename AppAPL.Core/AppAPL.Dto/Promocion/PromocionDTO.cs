@@ -320,8 +320,8 @@ namespace AppAPL.Dto.Promocion
     public class CabeceraBandInacPromoDTO
     {
        
-        public int IdPromocion { get; set; }
-        public string Descripcion { get; set; }
+        public int? IdPromocion { get; set; }
+        public string? Descripcion { get; set; }
         public int id_motivo { get; set; }
         public string nombre_motivo { get; set; }
         public int id_clase_promocion { get; set; }
@@ -337,8 +337,8 @@ namespace AppAPL.Dto.Promocion
         public int? cantidad_articulos { get; set; }
 
 
-        public DateTime fecha_inicio { get; set; }
-        public DateTime fecha_fin { get; set; }
+        public DateTime? fecha_inicio { get; set; }
+        public DateTime? fecha_fin { get; set; }
 
         public int id_estado_promocion { get; set; }
         public string nombre_estado_promocion { get; set; }
@@ -621,9 +621,12 @@ namespace AppAPL.Dto.Promocion
         public string? nombre_tipo_fondo { get; set; }
         public string? etiqueta_clase_acuerdo { get; set; }
         public string? nombre_clase_acuerdo { get; set; }
+
         public decimal? valor_aporte { get; set; }
         public decimal? valor_comprometido { get; set; }
+        public decimal? valor_disponible { get; set; }
         public decimal? valor_liquidado { get; set; }
+
         public int? id_estado_detalle { get; set; }
         public string? nombre_estado_detalle { get; set; }
         public string? etiqueta_estado_detalle { get; set; }
