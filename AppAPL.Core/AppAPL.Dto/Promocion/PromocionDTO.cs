@@ -853,7 +853,7 @@ namespace AppAPL.Dto.Promocion
 
 
         public List<MedioPagoComboJsonDto>? JsonMedioPago { get; set; }
-        public List<ComponenteDto>? Componentes { get; set; }
+        public List<ComponenteDto>? JsonArticulosComponentes { get; set; }
     }
 
     public class MedioPagoArticuloDto

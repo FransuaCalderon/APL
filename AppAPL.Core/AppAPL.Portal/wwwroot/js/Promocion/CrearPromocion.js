@@ -1930,7 +1930,7 @@
                     })(),
                     "acuerdos": [],
                     "otroscostos": [],
-                    "componentes": listaComponentes
+                    "jsonarticuloscomponentes": listaComponentes
                 });
             });
 
