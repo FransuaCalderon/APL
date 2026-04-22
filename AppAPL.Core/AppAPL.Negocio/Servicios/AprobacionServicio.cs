@@ -19,5 +19,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<AprobacionPorIdDTO>> ObtenerAprobacionesPorId(int entidad, int identidad)
             => repo.ObtenerAprobacionesPorId(entidad,identidad);
+
+        public Task<IEnumerable<AprobacionGeneralDTO>> ObtenerAprobacionesPromocion(string entidad, int identidad)
+            => repo.ObtenerAprobacionesPromocion(entidad, identidad);
     }
 }

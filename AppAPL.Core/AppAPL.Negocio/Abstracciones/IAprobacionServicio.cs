@@ -12,5 +12,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<AprobacionGeneralDTO>> ObtenerAprobacionesGenerales(string entidad, int identidad);
         Task<IEnumerable<AprobacionDTO>> ObtenerAprobaciones(string entidad, int identidad, string idTipoProceso);
         Task<IEnumerable<AprobacionPorIdDTO>> ObtenerAprobacionesPorId(int entidad, int identidad);
+        Task<IEnumerable<AprobacionGeneralDTO>> ObtenerAprobacionesPromocion(string entidad, int identidad);
     }
 }

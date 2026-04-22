@@ -20,6 +20,17 @@ namespace AppAPL.Api.Controllers
             return listaAprobaciones.ToList();
         }
 
+        [HttpGet("consultar-aprobaciones-promocion/{entidad}/{identidad:int}")]
+        //[SwaggerOperation(Summary = "Obtiene id tipo proceso, con parámetro extra opcional.")]
+        public async Task<ActionResult<List<AprobacionGeneralDTO>>> ObtenerAprobacionesPromocion(string entidad, int identidad
+            //[SwaggerParameter(Description = "Parámetro opcional", Required = false)] string? idTipoProceso = null
+            )
+        {
+            var listaAprobaciones = await servicio.ObtenerAprobacionesPromocion(entidad.ToUpper(), identidad);
+
+            return listaAprobaciones.ToList();
+        }
+
         [HttpGet("consultar-aprobaciones/{entidad}/{identidad:int}/{idTipoProceso}")]
        
         public async Task<ActionResult<List<AprobacionDTO>>> ObtenerTodos(string entidad, int identidad, string idTipoProceso)
