@@ -94,7 +94,7 @@ namespace AppAPL.Api.Handlers
                     string tiposclientes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGTIPOCLIENTE");
                     string mediospagos = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGMEDIOPAGO");
 
-                    var motivo = await catalogoRepo.ObtenerPorIdAsync(reqCreacion.Promocion.Motivo);
+                    var motivo = await catalogoRepo.ObtenerPorIdAsync(reqCreacion.Promocion.motivo);
 
 
                     var descuentoTotal = reqCreacion.Acuerdos?.Sum(a => a.ValorComprometido) ?? 0;
@@ -109,13 +109,13 @@ namespace AppAPL.Api.Handlers
                         {
                            
                             { "IdPromocion",  retorno.Id.ToString() },
-                            { "Descripcion",  reqCreacion.Promocion.Descripcion },
+                            { "Descripcion",  reqCreacion.Promocion.descripcion },
                             { "Motivo",  motivo.Nombre },
-                            { "FechaInicio",  reqCreacion.Promocion.FechaHoraInicio.ToString() },
-                            { "FechaFin",  reqCreacion.Promocion.FechaHoraFin.ToString() },
+                            { "FechaInicio",  reqCreacion.Promocion.fechaHoraInicio.ToString() },
+                            { "FechaFin",  reqCreacion.Promocion.fechaHoraFin.ToString() },
                             { "Estado",  "Nuevo" },
                             { "DescuentoTotal",  descuentoTotal.ToString("N2") },
-                            { "Regalo",  reqCreacion.Promocion.MarcaRegalo },
+                            { "Regalo",  reqCreacion.Promocion.marcaRegalo },
 
                             { "Marca",  marcas },
                             { "Division",  divisiones },
@@ -136,7 +136,7 @@ namespace AppAPL.Api.Handlers
                             { "PorcentajePropio",  acPropioReg?.PorcentajeDescuento.ToString("N2") ?? "" },
                             { "ValorComprometidoPropio",  acPropioReg?.ValorComprometido.ToString("N2") ?? "" },
 
-                            { "Firma",  reqCreacion.Promocion.NombreUsuario },
+                            { "Firma",  reqCreacion.Promocion.nombreUsuario },
                         };
 
                     foreach (var proveedor in proveedores)
