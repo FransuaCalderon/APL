@@ -838,6 +838,42 @@
             return;
         }
 
+        // =========================================================================
+        // NUEVAS VALIDACIONES: % Descuento y $ Comprometido deben ser > 0
+        // =========================================================================
+        if (idProvSeleccionado > 0) {
+            const dsctoProv = parseFloat($("#descuentoProveedorGeneral").val()) || 0;
+            const compProv = parseCurrency($("#fondoValorTotalGeneral").val());
+
+            if (dsctoProv <= 0) {
+                Swal.fire("Validación", "El % Dscto Prov. debe ser mayor a 0 al tener un Acuerdo Proveedor seleccionado.", "warning");
+                $("#descuentoProveedorGeneral").focus();
+                return;
+            }
+            if (compProv <= 0) {
+                Swal.fire("Validación", "El $ Comprometido Prov. debe ser mayor a 0 al tener un Acuerdo Proveedor seleccionado.", "warning");
+                $("#fondoValorTotalGeneral").focus();
+                return;
+            }
+        }
+
+        if (idPropSeleccionado > 0) {
+            const dsctoProp = parseFloat($("#descuentoPropioGeneral").val()) || 0;
+            const compProp = parseCurrency($("#comprometidoPropioGeneral").val());
+
+            if (dsctoProp <= 0) {
+                Swal.fire("Validación", "El % Dscto Prop debe ser mayor a 0 al tener un Acuerdo Propio seleccionado.", "warning");
+                $("#descuentoPropioGeneral").focus();
+                return;
+            }
+            if (compProp <= 0) {
+                Swal.fire("Validación", "El $ Comprometido Propio debe ser mayor a 0 al tener un Acuerdo Propio seleccionado.", "warning");
+                $("#comprometidoPropioGeneral").focus();
+                return;
+            }
+        }
+        // =========================================================================
+
         const grupoVal = $(`#filtroGrupoAlmacen${sufijo}`).val();
         if (!grupoVal || grupoVal === "") {
             Swal.fire("Validación", "Debe seleccionar un Grupo de Almacén.", "warning");
@@ -963,7 +999,6 @@
                 success: function (res) {
                     const respuestaNegocio = res.json_response || res;
                     if (respuestaNegocio.codigoretorno == 1) {
-                        // Limpiar backdrops antes de mostrar SweetAlert
                         window.limpiarBackdropsHuerfanos && window.limpiarBackdropsHuerfanos();
                         Swal.fire("Éxito", "Promoción Guardada: " + respuestaNegocio.mensaje, "success").then(() => {
                             resetearFormulario(tipo);

@@ -1012,7 +1012,7 @@ function cargarAprobacionesPromocion(entidad, idEntidad, tipoProceso) {
 
     $('#tabla-aprobaciones-promocion').html(`<div class="text-center p-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2 small text-muted">Cargando historial...</p></div>`);
 
-    const payload = { code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Aprobacion/consultar-aprobaciones-generales", client: "APL", endpoint_query_params: `/ENTPROMOCION/${idEntidad}` };
+    const payload = { code_app: "APP20260128155212346", http_method: "GET", endpoint_path: "api/Aprobacion/consultar-aprobaciones-promocion", client: "APL", endpoint_query_params: `/ENTPROMOCION/${idEntidad}` };
 
     $.ajax({
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
