@@ -279,7 +279,7 @@ namespace AppAPL.Api.Controllers
         [Email("ENTPROMOCION", TipoProceso.Creacion)]
         public async Task<ActionResult<ControlErroresDTO>> Insertar([FromBody] CrearPromocionRequestDTO promocion)
         {
-            
+            /*
             // 1. Validar que el string no sea nulo o vacío
             if (string.IsNullOrEmpty(promocion.ArchivoSoporteBase64))
             {
@@ -318,7 +318,7 @@ namespace AppAPL.Api.Controllers
                     mensaje = $"Extensión {extensionArchivo} no permitida. Solo se aceptan: {string.Join(", ", extensionesPermitidas)}"
                 });
             }
-            
+            */
             // 5. Si todo está OK, procedemos al servicio
             var retorno = await servicio.CrearAsync(promocion);
             if (retorno.Id > 0) // Usando tu lógica de éxito

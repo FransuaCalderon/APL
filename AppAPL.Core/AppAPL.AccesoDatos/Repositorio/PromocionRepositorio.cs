@@ -1048,7 +1048,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_json_acuerdos = JsonSerializer.Serialize(promocion.Acuerdos, options),
                 p_json_segmentos = JsonSerializer.Serialize(promocion.Segmentos, options),
                 p_json_articulos = JsonSerializer.Serialize(promocion.Articulos, options),
-
+                p_json_articulos_componentes = JsonSerializer.Serialize(promocion.articulos_componentes, options),
 
                 p_idopcion = promocion.IdOpcion,
                 p_idcontrolinterfaz = promocion.IdControlInterfaz,
@@ -1148,7 +1148,8 @@ namespace AppAPL.AccesoDatos.Repositorio
 
         private async Task<string> ProcesarArchivoBase64(string base64String, string nombreOriginal)
         {
-            if (string.IsNullOrEmpty(base64String)) return string.Empty;
+            //if (string.IsNullOrEmpty(base64String)) return string.Empty;
+            if (string.IsNullOrEmpty(base64String)) return "sin archivo";
 
             // 1. Obtener el nombre desde el JSON (o usar uno por defecto)
             string nombreCarpetaConfig = configuration.GetValue<string>("ConfiguracionArchivos:ArchivoSoportes") ?? "ArchivoSoportes";

@@ -745,6 +745,7 @@ namespace AppAPL.Dto.Promocion
         public List<AcuerdoDTO> Acuerdos { get; set; }
         public List<SegmentoDTO> Segmentos { get; set; }
         public List<ArticuloDTO>? Articulos { get; set; }
+        public List<ArticuloComponenteWrapperDto>? articulos_componentes { get; set; }
     }
 
     public class PromocionDataDTO
@@ -765,53 +766,31 @@ namespace AppAPL.Dto.Promocion
         public int IdAcuerdo { get; set; }
         public decimal PorcentajeDescuento { get; set; }
         public decimal ValorComprometido { get; set; }
-        //public decimal? valorAporte { get; set; }
         public string? etiqueta_tipo_fondo { get; set; }
 
     }
 
     public class SegmentoDTO
     {
-        public string? TipoSegmento { get; set; } = string.Empty; // Ej: "SEGMARCA"
-        public string? TipoAsignacion { get; set; } = string.Empty;        // 'T' (Todos) o 'C' (Codigos)
-        public List<string>? Codigos { get; set; }       // Array de strings ["001", "002"]
+        public string tipoSegmento { get; set; } = string.Empty;
+        public string tipoAsignacion { get; set; } = string.Empty;
+        public List<string>? codigos { get; set; }
     }
 
 
     public class ArticuloDTO
     {
-        // ---------------------------------------------------
-        // PATHs EXCLUSIVOS DE PRARTICULO
-        // ---------------------------------------------------
         public string? codigoItem { get; set; }
         public string? descripcion { get; set; }
-        public string? marcaRegalo { get; set; }
-        public decimal? margenMinimoIgualar { get; set; }
-        public int? unidadesProyeccionVentas { get; set; }
-        public decimal? precioIgualarPrecio { get; set; }
-        public decimal? descuentoIgualarPrecio { get; set; }
-        public decimal? margenIgualarPrecio { get; set; }
-        public List<AcuerdoArticuloDto>? acuerdos { get; set; }
-        public List<OtroCostoArticuloDto>? otrosCostos { get; set; }
+        public string? descripcionCombo { get; set; } // Viene en PRCOMBO
 
-        // ---------------------------------------------------
-        // PATHs EXCLUSIVOS DE PRCOMBO (Cabecera)
-        // ---------------------------------------------------
-        public string? descripcionCombo { get; set; }
-        public string? regalo { get; set; }
-        public decimal? margenMinimoIgualarPrecio { get; set; }
-        public int? proyeccionVentas { get; set; }
-        public List<ComponenteComboDto>? jsonArticulosComponentes { get; set; }
-
-        // ---------------------------------------------------
-        // PATHs COMPARTIDOS (Se usan tanto en PRARTICULO como en PRCOMBO)
-        // ---------------------------------------------------
-        public decimal? costo { get; set; }
+        public decimal costo { get; set; }
         public int? stockBodega { get; set; }
         public int? stockTienda { get; set; }
         public int? inventarioOptimo { get; set; }
         public int? excedenteUnidad { get; set; }
         public decimal? excedenteValor { get; set; }
+
         public int? m0Unidades { get; set; }
         public decimal? m0Precio { get; set; }
         public int? m1Unidades { get; set; }
@@ -820,26 +799,45 @@ namespace AppAPL.Dto.Promocion
         public decimal? m2Precio { get; set; }
         public decimal? m12Unidades { get; set; }
         public decimal? m12Precio { get; set; }
+
         public decimal? igualarPrecio { get; set; }
         public int? diasAntiguedad { get; set; }
+
         public decimal? margenMinimoContado { get; set; }
         public decimal? margenMinimoTarjetaCredito { get; set; }
         public decimal? margenMinimoCredito { get; set; }
+        public decimal? margenMinimoIgualar { get; set; }
+        public decimal? margenMinimoIgualarPrecio { get; set; } // Viene en PRCOMBO
+
         public int? unidadesLimite { get; set; }
+        public int? unidadesProyeccionVentas { get; set; }
+        public int? proyeccionVentas { get; set; } // Viene en PRCOMBO
+
         public decimal? precioListaContado { get; set; }
         public decimal? precioListaCredito { get; set; }
         public decimal? precioPromocionContado { get; set; }
         public decimal? precioPromocionTarjetaCredito { get; set; }
         public decimal? precioPromocionCredito { get; set; }
+        public decimal? precioIgualarPrecio { get; set; }
+
         public decimal? descuentoPromocionContado { get; set; }
         public decimal? descuentoPromocionTarjetaCredito { get; set; }
         public decimal? descuentoPromocionCredito { get; set; }
+        public decimal? descuentoIgualarPrecio { get; set; }
+
         public decimal? margenPrecioListaContado { get; set; }
         public decimal? margenPrecioListaCredito { get; set; }
         public decimal? margenPromocionContado { get; set; }
         public decimal? margenPromocionTarjetaCredito { get; set; }
         public decimal? margenPromocionCredito { get; set; }
+        public decimal? margenIgualarPrecio { get; set; }
+
+        public string? marcaRegalo { get; set; }
+        public string? regalo { get; set; } // Viene en PRCOMBO
+
         public List<MedioPagoArticuloDto>? mediosPago { get; set; }
+        public List<AcuerdoArticuloDto>? acuerdos { get; set; }
+        public List<OtroCostoArticuloDto>? otrosCostos { get; set; }
     }
 
     public class AcuerdoArticuloDto
@@ -883,16 +881,22 @@ namespace AppAPL.Dto.Promocion
         public decimal? Costos { get; set; } // Alias usado en algunos nodos del SP
     }
 
-    public class ComponenteComboDto
+    // $. p_json_articulos_componentes
+    public class ArticuloComponenteWrapperDto
     {
-        public string? codigoArticulo { get; set; }
-        public string? descripcion { get; set; }
-        public decimal? costo { get; set; }
+        public int rnArticulo { get; set; }
+        public List<ComponenteDetalleDto> componentes { get; set; } = new();
+    }
+
+    public class ComponenteDetalleDto
+    {
+        public string codigoArticulo { get; set; } = string.Empty;
+        public string descripcion { get; set; } = string.Empty;
+        public decimal costo { get; set; }
+
         public int? stockBodega { get; set; }
         public int? stockTienda { get; set; }
         public int? inventarioOptimo { get; set; }
-
-        // El SP extrae literalmente 'excedenteU' y 'excedenteUSD' aquí
         public int? excedenteU { get; set; }
         public decimal? excedenteUSD { get; set; }
 
@@ -910,7 +914,7 @@ namespace AppAPL.Dto.Promocion
 
         public decimal? margenMinimoContado { get; set; }
         public decimal? margenMinimoTarjetaCredito { get; set; }
-        public decimal? margenMinimoPrecioCredito { get; set; } // En Componentes usa este nombre
+        public decimal? margenMinimoPrecioCredito { get; set; }
         public decimal? margenMinimoIgualar { get; set; }
 
         public decimal? precioListaContado { get; set; }
@@ -918,16 +922,18 @@ namespace AppAPL.Dto.Promocion
         public decimal? precioPromocionContado { get; set; }
         public decimal? precioPromocionTarjetaCredito { get; set; }
         public decimal? precioPromocionCredito { get; set; }
+
         public decimal? descuentoPromocionContado { get; set; }
         public decimal? descuentoPromocionTarjetaCredito { get; set; }
         public decimal? descuentoPromocionCredito { get; set; }
+
         public decimal? margenPrecioListaContado { get; set; }
         public decimal? margenPrecioListaCredito { get; set; }
         public decimal? margenPromocionContado { get; set; }
         public decimal? margenPromocionTarjetaCredito { get; set; }
         public decimal? margenPromocionCredito { get; set; }
 
-        public List<AcuerdoArticuloDto>? jsonAcuerdos { get; set; }
+        public List<ArticuloAcuerdoDto>? jsonAcuerdos { get; set; }
         public List<OtroCostoComponenteDto>? jsonOtrosCostos { get; set; }
     }
 

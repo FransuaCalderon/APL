@@ -698,21 +698,21 @@ namespace AppAPL.Api.Handlers
         {
             // 1. Buscamos el segmento específico dentro de la lista del DTO
             var segmento = segmentos?.FirstOrDefault(s =>
-                s.TipoSegmento.Equals(tipoSegmentoBusqueda, StringComparison.OrdinalIgnoreCase));
+                s.tipoSegmento.Equals(tipoSegmentoBusqueda, StringComparison.OrdinalIgnoreCase));
 
             // 2. Si no existe el segmento, devolvemos un string vacío
             if (segmento == null) return string.Empty;
 
             // 3. Si el tipo de asignación es 'T' (Todos), devolvemos solo esa palabra
-            if (segmento.TipoAsignacion == "T")
+            if (segmento.tipoAsignacion == "T")
             {
                 return "TODOS";
             }
 
             // 4. Si tiene códigos, los unimos usando <br> para el HTML
-            if (segmento.Codigos != null && segmento.Codigos.Any())
+            if (segmento.codigos != null && segmento.codigos.Any())
             {
-                return string.Join("<br>", segmento.Codigos);
+                return string.Join("<br>", segmento.codigos);
             }
 
             return "Sin códigos";
