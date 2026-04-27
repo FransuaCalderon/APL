@@ -186,7 +186,7 @@ namespace AppAPL.Api.Handlers
                     //proceso para obtener los proveedores de los acuerdos
                     foreach (var item in reqModif.Acuerdos)
                     {
-                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId(item.IdAcuerdo);
+                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.IdAcuerdo);
 
                         var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
 
@@ -231,9 +231,9 @@ namespace AppAPL.Api.Handlers
                         { "Descripcion", Comparar(reqModif.Promocion.Descripcion, promocionAntiguo.cabecera.Descripcion) },
                         { "Motivo", Comparar(motivo2?.Nombre ?? "", promocionAntiguo.cabecera.nombre_motivo) },
                         { "FechaInicio", Comparar(reqModif.Promocion.FechaHoraInicio.ToString("yyyy-MM-dd HH:mm"),
-                                                  promocionAntiguo.cabecera.fecha_inicio.ToString("yyyy-MM-dd HH:mm")) },
+                                                  promocionAntiguo.cabecera.fecha_inicio) },
                         { "FechaFin", Comparar(reqModif.Promocion.FechaHoraFin.ToString("yyyy-MM-dd HH:mm"),
-                                               promocionAntiguo.cabecera.fecha_fin.ToString("yyyy-MM-dd HH:mm")) },
+                                               promocionAntiguo.cabecera.fecha_fin) },
                         { "Estado", "Modificado" },
                         { "DescuentoTotal", descuentoTotal3.ToString("N2")},
                         { "Regalo", Comparar(reqModif.Promocion.MarcaRegalo, promocionAntiguo.cabecera.MarcaRegalo) },
@@ -253,23 +253,23 @@ namespace AppAPL.Api.Handlers
 
                         // --- ACUERDO PROVEEDOR ---
                         { "AcuerdoProveedor", Comparar(acProveedorReg2?.IdAcuerdo.ToString() ?? "",
-                                                      acProveedorAnt2?.IDACUERDO.ToString() ?? "") },
+                                                      acProveedorAnt2?.idacuerdo.ToString() ?? "") },
 
-                        { "PorcentajeProveedor", Comparar(acProveedorReg2?.PorcentajeDescuento.ToString("N2") ?? "0.00",
-                                                         acProveedorAnt2?.porcentaje_descuento.ToString("N2") ?? "0.00") },
+                        { "PorcentajeProveedor", Comparar(acProveedorReg2?.PorcentajeDescuento.ToString() ?? "0.00",
+                                                         acProveedorAnt2?.porcentaje_descuento.ToString() ?? "0.00") },
 
-                        { "ValorComprometidoProveedor", Comparar(acProveedorReg2?.ValorComprometido.ToString("N2") ?? "0.00",
-                                                                acProveedorAnt2?.valor_comprometido.ToString("N2") ?? "0.00") },
+                        { "ValorComprometidoProveedor", Comparar(acProveedorReg2?.ValorComprometido.ToString() ?? "0.00",
+                                                                acProveedorAnt2?.valor_comprometido.ToString() ?? "0.00") },
 
                         // --- ACUERDO PROPIO ---
                         { "AcuerdoPropio", Comparar(acPropioReg2?.IdAcuerdo.ToString() ?? "",
-                                                   acPropioAnt2?.IDACUERDO.ToString() ?? "") },
+                                                   acPropioAnt2?.idacuerdo.ToString() ?? "") },
 
-                        { "PorcentajePropio", Comparar(acPropioReg2?.PorcentajeDescuento.ToString("N2") ?? "0.00",
-                                                      acPropioAnt2?.porcentaje_descuento.ToString("N2") ?? "0.00") },
+                        { "PorcentajePropio", Comparar(acPropioReg2?.PorcentajeDescuento.ToString() ?? "0.00",
+                                                      acPropioAnt2?.porcentaje_descuento.ToString() ?? "0.00") },
 
-                        { "ValorComprometidoPropio", Comparar(acPropioReg2?.ValorComprometido.ToString("N2") ?? "0.00",
-                                                             acPropioAnt2?.valor_comprometido.ToString("N2") ?? "0.00") },
+                        { "ValorComprometidoPropio", Comparar(acPropioReg2?.ValorComprometido.ToString() ?? "0.00",
+                                                             acPropioAnt2?.valor_comprometido.ToString() ?? "0.00") },
                         { "Firma", reqModif.Promocion.NombreUsuario } // Este no suele compararse, es quien firma la modif.
                     };
 
@@ -344,7 +344,7 @@ namespace AppAPL.Api.Handlers
                     //proceso para obtener los proveedores de los acuerdos
                     foreach (var item in promocionAprobacion.acuerdos)
                     {
-                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId(item.IDACUERDO);
+                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.IDACUERDO);
 
                         var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
 
@@ -402,12 +402,12 @@ namespace AppAPL.Api.Handlers
                             
 
                             { "AcuerdoProveedor",  acProveedorReg3?.IDACUERDO.ToString() ?? "" },
-                            { "PorcentajeProveedor",  acProveedorReg3?.porcentaje_descuento.ToString("N2") ?? "" },
-                            { "ValorComprometidoProveedor",  acProveedorReg3?.valor_comprometido.ToString("N2") ?? "" },
+                            { "PorcentajeProveedor",  acProveedorReg3?.porcentaje_descuento.ToString() ?? "" },
+                            { "ValorComprometidoProveedor",  acProveedorReg3?.valor_comprometido.ToString() ?? "" },
 
                             { "AcuerdoPropio",  acPropioReg3?.IDACUERDO.ToString() ?? "" },
-                            { "PorcentajePropio",  acPropioReg3?.porcentaje_descuento.ToString("N2") ?? "" },
-                            { "ValorComprometidoPropio",  acPropioReg3?.valor_comprometido.ToString("N2") ?? "" },
+                            { "PorcentajePropio",  acPropioReg3?.porcentaje_descuento.ToString() ?? "" },
+                            { "ValorComprometidoPropio",  acPropioReg3?.valor_comprometido.ToString() ?? "" },
 
                             { "Firma",  reqAprobacion.NombreUsuario },
                         };
@@ -586,7 +586,7 @@ namespace AppAPL.Api.Handlers
                     //proceso para obtener los proveedores de los acuerdos
                     foreach (var item in promocionAprobacion2.acuerdos)
                     {
-                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId(item.IDACUERDO);
+                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.IDACUERDO);
 
                         var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
 
@@ -642,12 +642,12 @@ namespace AppAPL.Api.Handlers
 
 
                             { "AcuerdoProveedor",  acProveedorReg5?.IDACUERDO.ToString() ?? "" },
-                            { "PorcentajeProveedor",  acProveedorReg5?.porcentaje_descuento.ToString("N2") ?? "" },
-                            { "ValorComprometidoProveedor",  acProveedorReg5?.valor_comprometido.ToString("N2") ?? "" },
+                            { "PorcentajeProveedor",  acProveedorReg5?.porcentaje_descuento.ToString() ?? "" },
+                            { "ValorComprometidoProveedor",  acProveedorReg5?.valor_comprometido.ToString() ?? "" },
 
                             { "AcuerdoPropio",  acPropioReg5?.IDACUERDO.ToString() ?? "" },
-                            { "PorcentajePropio",  acPropioReg5?.porcentaje_descuento.ToString("N2") ?? "" },
-                            { "ValorComprometidoPropio",  acPropioReg5?.valor_comprometido.ToString("N2") ?? "" },
+                            { "PorcentajePropio",  acPropioReg5?.porcentaje_descuento.ToString() ?? "" },
+                            { "ValorComprometidoPropio",  acPropioReg5?.valor_comprometido.ToString() ?? "" },
 
                             { "Firma",  reqAprobacion2.NombreUsuario },
                         };

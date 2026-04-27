@@ -774,12 +774,12 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandInacPromoDTO>();
             var segmentos = await multi.ReadAsync<SegmentoBandejaDTO>();
-            var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
+            var acuerdos = await multi.ReadAsync<AcuerdoBandInacDTO>();
 
-            var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
-            var articulosSegmentos = await multi.ReadAsync<ArticuloSegmentoDTO>();
-            var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoDTO>();
-            var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosDTO>();
+            var articulos = await multi.ReadAsync<ArticuloBandInacPromoDTO>();
+            var articulosSegmentos = await multi.ReadAsync<ArticuloSegmentoInacDTO>();
+            var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoInacDTO>();
+            var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosInacDTO>();
 
             string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
@@ -843,9 +843,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
             var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
 
-            var articulosSegmentos = await multi.ReadAsync<ArticuloSegmentoDTO>();
-            var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoDTO>();
-            var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosDTO>();
+            var articulosSegmentos = await multi.ReadAsync<ArticuloSegmentoAproDTO>();
+            var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoAproDTO>();
+            var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosAproDTO>();
 
             string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
@@ -884,13 +884,19 @@ namespace AppAPL.AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters(paramObject);
 
 
-            parameters.Add("p_cursor_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_art_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_art_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
-            parameters.Add("p_cursor_art_otros", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_cabecera", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_segmento", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_acuerdo", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_articulo", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_articulo_segmento", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_articulo_segmentodetalle", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_articulo_acuerdo", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_articulo_otros_costos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_articulo_componente", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_articulo_componente_acuerdo", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_promocion_articulo_componente_otros_costos", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
             parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
@@ -903,13 +909,19 @@ namespace AppAPL.AccesoDatos.Repositorio
                 );
 
             var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandModPromoDTO>();
-            var segmentos = await multi.ReadAsync<SegmentoBandejaDTO>();
-            var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
-            var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
+            var segmentos = await multi.ReadAsync<SegmentoBandModDTO>();
+            var acuerdos = await multi.ReadAsync<AcuerdoBandModDTO>();
+            var articulos = await multi.ReadAsync<ArticuloBandModPromoDTO>();
 
-            var articulosSegmentos = await multi.ReadAsync<ArticuloSegmentoDTO>();
-            var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoDTO>();
-            var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosDTO>();
+            var articulosSegmento = await multi.ReadAsync<ArticuloBandModSegmentoDTO>();
+            var articulosSegmentoDetalle = await multi.ReadAsync<ArticuloBandModSegmentoDetalleDTO>();
+            var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoModDTO>();
+            var articulosOtrosCostos = await multi.ReadAsync<ArticuloOtrosCostosModDTO>();
+
+
+            var articulosComponentes = await multi.ReadAsync<ArticuloComponenteModDTO>();
+            var articulosCompAcuerdo = await multi.ReadAsync<ArticuloComponenteAcuerdoModDTO>();
+            var articulosCompOtrosCostos = await multi.ReadAsync<ArticuloComponenteOtrosCostosModDTO>();
 
 
             string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
@@ -924,9 +936,16 @@ namespace AppAPL.AccesoDatos.Repositorio
                 segmentos = segmentos.ToList(),
                 acuerdos = acuerdos.ToList(),
                 articulos = articulos.ToList(),
-                articulosSegmentos = articulosSegmentos.ToList(),
+                articulosSegmento = articulosSegmento.ToList(),
+                articulosSegmentoDetalle = articulosSegmentoDetalle.ToList(),
                 articulosAcuerdos = articulosAcuerdos.ToList(),
-                articulosOtros =    articulosOtros.ToList(),
+                articulosOtrosCostos = articulosOtrosCostos.ToList(),
+
+                articulosComponentes = articulosComponentes.ToList(),
+                articulosCompAcuerdo = articulosCompAcuerdo.ToList(),
+                articulosCompOtrosCostos = articulosCompOtrosCostos.ToList(),
+
+
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida
@@ -953,8 +972,15 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_art_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_segmentodetalle", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_art_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_art_otros", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_componentes", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_comp_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_comp_otros", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
+
             parameters.Add("p_clase_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
@@ -966,14 +992,19 @@ namespace AppAPL.AccesoDatos.Repositorio
                 commandType: CommandType.StoredProcedure
                 );
 
-            var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandInacPromoDTO>();
+            var cabecera = await multi.ReadFirstOrDefaultAsync<CabeceraBandGenPromoDTO>();
             var segmentos = await multi.ReadAsync<SegmentoBandejaDTO>();
-            var acuerdos = await multi.ReadAsync<AcuerdoBandAproDTO>();
+            var acuerdos = await multi.ReadAsync<AcuerdoBandGenDTO>();
 
-            var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
-            var articulosSegmentos = await multi.ReadAsync<ArticuloSegmentoDTO>();
-            var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoDTO>();
-            var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosDTO>();
+            var articulos = await multi.ReadAsync<ArticuloBandGenPromoDTO>();
+            var articulosSegmento = await multi.ReadAsync<ArticuloSegmentoGenDTO>();
+            var articulosSegmentoDetalle = await multi.ReadAsync<ArticuloSegmentoDetalleGenDTO>();
+            var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoGenDTO>();
+            var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosGenDTO>();
+
+            var articulosComponente = await multi.ReadAsync<ArticuloComponenteGenDTO>();
+            var articulosCompAcuerdos = await multi.ReadAsync<ArticuloCompAcuerdoGenDTO>();
+            var articulosCompOtrosCostos = await multi.ReadAsync<ArticuloCompOtrosCostosGenDTO>();
 
             string? clasePromocion = parameters.Get<string>("p_clase_promocion");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
@@ -987,9 +1018,15 @@ namespace AppAPL.AccesoDatos.Repositorio
                 segmentos = segmentos.ToList(),
                 acuerdos = acuerdos.ToList(),
                 articulos = articulos.ToList(),
-                articulosSegmentos = articulosSegmentos.ToList(),
+                articulosSegmento = articulosSegmento.ToList(),
+                articulosSegmentoDetalle = articulosSegmentoDetalle.ToList(),
                 articulosAcuerdos = articulosAcuerdos.ToList(),
                 articulosOtros = articulosOtros.ToList(),
+
+                articulosComponente = articulosComponente.ToList(),
+                articulosCompAcuerdos = articulosCompAcuerdos.ToList(),
+                articulosCompOtrosCostos = articulosCompOtrosCostos.ToList(),
+
                 clase_promocion = clasePromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida

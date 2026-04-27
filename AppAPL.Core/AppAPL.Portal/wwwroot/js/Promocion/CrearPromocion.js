@@ -1646,11 +1646,11 @@
                 const regalo = $fila.find("td:eq(56) input[type='checkbox']").is(":checked") ? "S" : "N";
 
                 const acuerdosArticulo = [];
-                if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor, valorcomprometido: compProveedor, etiqueta_tipo_fondo: "TFPROVEDOR" });
-                if (idAcuerdoProveedor2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor2, valoraporte: aporteProveedor2, valorcomprometido: compProveedor2, etiqueta_tipo_fondo: "TFPROVEDOR" });
-                if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoRebate, valoraporte: aporteRebate, valorcomprometido: compRebate, etiqueta_tipo_fondo: "TFREBATE" });
-                if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio, valoraporte: aportePropio, valorcomprometido: compPropio, etiqueta_tipo_fondo: "TFPROPIO" });
-                if (idAcuerdoPropio2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio2, valoraporte: aportePropio2, valorcomprometido: compPropio2, etiqueta_tipo_fondo: "TFPROPIO" });
+                if (idAcuerdoProveedor > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor, valoraporte: aporteProveedor, valorcomprometido: compProveedor });
+                if (idAcuerdoProveedor2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoProveedor2, valoraporte: aporteProveedor2, valorcomprometido: compProveedor2 });
+                if (idAcuerdoRebate > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoRebate, valoraporte: aporteRebate, valorcomprometido: compRebate });
+                if (idAcuerdoPropio > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio, valoraporte: aportePropio, valorcomprometido: compPropio });
+                if (idAcuerdoPropio2 > 0) acuerdosArticulo.push({ idacuerdo: idAcuerdoPropio2, valoraporte: aportePropio2, valorcomprometido: compPropio2 });
 
                 const mediosPago = [];
                 const mediosPagoSeleccionados = $selectMedioPago.data("seleccionados") || [];
@@ -1698,9 +1698,14 @@
                     margenminimocontado: margenMinContado,
                     margenminimotarjetacredito: margenMinTC,
                     margenminimocredito: margenMinCredito,
+
                     margenminimoigualar: margenMinIgualar,
+                    margenminimoigualarprecio: margenMinIgualar, // <-- Añadir este
+
                     unidadeslimite: unidadesLimite,
                     unidadesproyeccionventas: proyeccionVtas,
+                    proyeccionventas: proyeccionVtas,            // <-- Añadir este
+
                     preciolistacontado: precioListaContado,
                     preciolistacredito: precioListaCredito,
                     preciopromocioncontado: precioPromoContado,
@@ -1718,6 +1723,7 @@
                     margenpromocioncredito: margenPromoCredito,
                     margenigualarprecio: margenIgualar,
                     marcaregalo: regalo,
+                    regalo: regalo,                              // <-- Añadir este
                     mediospago: mediosPago,
                     acuerdos: acuerdosArticulo,
                     otroscostos: otrosCostosMapeados
@@ -1839,6 +1845,7 @@
         try {
             const base64Completo = await leerArchivo(fileInput);
             const combosParaAPI = [];
+            const articulosComponentesParaAPI = []; // <-- NUEVO ARREGLO
             const $filasCombos = $("#tablaCombosBody tr");
 
             if ($filasCombos.length === 0) {
@@ -1846,12 +1853,14 @@
                 return;
             }
 
-            $filasCombos.each(function () {
+            $filasCombos.each(function (index) {
+                const rnArticulo = index + 1; // <-- Identificador para vincular el combo con sus componentes
                 const $fila = $(this);
                 const codigoCombo = String($fila.data("codigo"));
                 const nombreCombo = $fila.data("combo-nombre");
                 const componentesMemoria = articulosPorComboMemoria[codigoCombo] || [];
 
+                //componentes de los articulos
                 const listaComponentes = componentesMemoria.map(art => ({
                     "codigoarticulo": String(art.codigo),
                     "descripcion": art.descripcion,
@@ -1905,6 +1914,7 @@
 
                 const esRegalo = $fila.find("td:last-child input").is(":checked") ? "S" : "N";
 
+                //ARTICULOS
                 combosParaAPI.push({
                     "codigoitem": codigoCombo,
                     "descripcion": nombreCombo,
@@ -1917,12 +1927,9 @@
                     "excedentevalor": parseCurrency($fila.find("td:eq(7)").text()),
                     "m0unidades": 0, "m0precio": 0, "m1unidades": 0, "m1precio": 0,
                     "m2unidades": 0, "m2precio": 0, "m12unidades": 0, "m12precio": 0,
-                    "igualarprecio": 0,
-                    "diasantiguedad": 0,
-                    "margenminimocontado": 0,
-                    "margenminimotarjetacredito": 0,
-                    "margenminimocredito": 0,
-                    "margenminimoigualar": 0,
+                    "igualarprecio": 0, "diasantiguedad": 0,
+                    "margenminimocontado": 0, "margenminimotarjetacredito": 0,
+                    "margenminimocredito": 0, "margenminimoigualar": 0,
                     "margenminimoigualarprecio": 0,
                     "unidadeslimite": parseInt($fila.find(".val-unidades-combo").val()) || 0,
                     "unidadesproyeccionventas": parseInt($fila.find(".val-proyeccion-combo").val()) || 0,
@@ -1936,9 +1943,7 @@
                     "descuentopromocioncontado": parseCurrency($fila.find("td:eq(16)").text()),
                     "descuentopromociontarjetacredito": parseCurrency($fila.find("td:eq(17)").text()),
                     "descuentopromocioncredito": parseCurrency($fila.find("td:eq(18)").text()),
-                    "descuentoigualarprecio": 0,
-                    "margenpreciolistacontado": 0,
-                    "margenpreciolistacredito": 0,
+                    "descuentoigualarprecio": 0, "margenpreciolistacontado": 0, "margenpreciolistacredito": 0,
                     "margenpromocioncontado": parseFloat($fila.find("td:eq(19)").text()) || 0,
                     "margenpromociontarjetacredito": parseFloat($fila.find("td:eq(20)").text()) || 0,
                     "margenpromocioncredito": parseFloat($fila.find("td:eq(21)").text()) || 0,
@@ -1949,24 +1954,24 @@
                         const selMP = $fila.find(".select-mediopago-combo-final");
                         const valMP = selMP.val();
                         const codesMP = selMP.data("seleccionados") || [];
-                        if (valMP === "7") return [{ "tipoasignacion": "D", "codigos": codesMP, "codigo": codesMP }];
-                        if (valMP && valMP !== "TODAS") return [{ "tipoasignacion": "C", "codigos": [valMP], "codigo": [valMP] }];
-                        return [{ "tipoasignacion": "T", "codigos": [], "codigo": [] }];
+                        if (valMP === "7") return [{ "tipoasignacion": "D", "codigos": codesMP }];
+                        if (valMP && valMP !== "TODAS") return [{ "tipoasignacion": "C", "codigos": [valMP] }];
+                        return [{ "tipoasignacion": "T", "codigos": [] }];
                     })(),
-
-                    // AHORA INCLUYE LA PROPIEDAD "jsonmediopago" CON SU ARRAY "codigo"
-                    "jsonmediopago": (function () {
-                        const selMP = $fila.find(".select-mediopago-combo-final");
-                        const valMP = selMP.val();
-                        const codesMP = selMP.data("seleccionados") || [];
-                        if (valMP === "7") return [{ "tipoasignacion": "D", "codigo": codesMP }];
-                        if (valMP && valMP !== "TODAS") return [{ "tipoasignacion": "C", "codigo": [valMP] }];
-                        return [{ "tipoasignacion": "T", "codigo": [] }];
-                    })(),
+                    // ELIMINADO: La propiedad jsonmediopago ya no está en el Swagger
                     "acuerdos": [],
-                    "otroscostos": [],
-                    "jsonarticuloscomponentes": listaComponentes
+                    "otroscostos": []
+                    // ELIMINADO: La propiedad jsonarticuloscomponentes ya no va aquí adentro
                 });
+
+                // PUSH AL NUEVO ARREGLO RAÍZ
+                articulosComponentesParaAPI.push({
+                    "rnarticulo": rnArticulo,
+                    "componentes": listaComponentes
+                });
+
+
+
             });
 
             const determinarAsignacion = (idSelector) => {
@@ -2013,7 +2018,8 @@
                 },
                 "acuerdos": [],
                 "segmentos": segmentos,
-                "articulos": combosParaAPI
+                "articulos": combosParaAPI,
+                "articulos_componentes": articulosComponentesParaAPI // <-- NUEVA PROPIEDAD AGREGADA
             };
 
             console.log("body: ", body);
