@@ -1772,11 +1772,7 @@ namespace AppAPL.Dto.Promocion
         public decimal? valorComprometido { get; set; }
     }
 
-    public class OtroCostoDto
-    {
-        public int? codigoParametro { get; set; }
-        public decimal? costo { get; set; }
-    }
+    
 
     // $. p_json_articulos_componentes
     public class ArticuloComponenteWrapperDto
@@ -1835,11 +1831,86 @@ namespace AppAPL.Dto.Promocion
     }
 
 
-    // modificar promocion articulo dto -------------------------------------
+    
+    public class AcuerdoBandAproDTO
+    {
+        public int IDPROMOCIONACUERDO { get; set; }
+        public int IDPROMOCION { get; set; }
+        public int IDACUERDO { get; set; }
+        public string descripcion_acuerdo { get; set; }
+        public string nombre_proveedor { get; set; }
+        public decimal porcentaje_descuento { get; set; }
+        public decimal valor_comprometido { get; set; }
+        public decimal valor_disponible { get; set; }
+        public decimal valor_liquidado { get; set; }
+        public int id_estado_detalle { get; set; }
+        public string nombre_estado_detalle { get; set; }
+        public string etiqueta_estado_detalle { get; set; }
+        public string etiqueta_tipo_fondo { get; set; }
+        public string etiqueta_clase_acuerdo { get; set; }
+    }
+
+    public class InactivarPromocionRequest
+    {
+        public int IdPromocion { get; set; }
+        public string? NombreUsuarioIngreso { get; set; }
+
+        public int? IdOpcion { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEvento { get; set; }
+        public string? NombreUsuario { get; set; }
+
+    }
+
+
+    public class ActualizarPromocionRequest
+    {
+        public int IdPromocion { get; set; }
+        public string ClasePromocion { get; set; } // 'PRGENERAL', 'PRARTICULO' o 'PRCOMBO'
+        public PromocionModDto Promocion { get; set; }
+        public List<AcuerdoModDto> Acuerdos { get; set; }
+        public List<SegmentoDTO> Segmentos { get; set; }
+        public List<ArticuloModPromocionDTO>? Articulos { get; set; }
+        public List<ComponenteRootModDto>? articulos_componentes { get; set; }
+
+
+        public string? NombreArchivoSoporte { get; set; }
+        public string? ArchivoSoporteBase64 { get; set; }
+        public string? rutaArchivoAntiguo { get; set; }
+
+        public int IdTipoProceso { get; set; }
+
+        // Parámetros para el LOG
+        public int IdOpcion { get; set; }
+        public string IdControlInterfaz { get; set; }
+        public string IdEventoEtiqueta { get; set; }
+    }
+
+    public class PromocionModDto
+    {
+        public string Descripcion { get; set; } = string.Empty;
+        public int Motivo { get; set; }
+        public DateTime FechaHoraInicio { get; set; } // Formato ISO: YYYY-MM-DDTHH:mm:ss.fffZ
+        public DateTime FechaHoraFin { get; set; }
+        public string? MarcaRegalo { get; set; }
+        public string? IdUsuarioModifica { get; set; } = string.Empty;
+        public string? IdUsuarioIngreso { get; set; } = string.Empty;
+        public string? NombreUsuario { get; set; } = string.Empty;
+    }
+
+    public class AcuerdoModDto
+    {
+        public string Accion { get; set; } // 'I', 'U', 'D'
+        public int? IdPromocionAcuerdo { get; set; } // Solo para 'U' y 'D'
+        public int? IdAcuerdo { get; set; }
+        public decimal? PorcentajeDescuento { get; set; }
+        public decimal? ValorComprometido { get; set; }
+        public string? etiqueta_tipo_fondo { get; set; }
+    }
 
     public class ArticuloModPromocionDTO
     {
-        public string accion { get; set; } = string.Empty;
+        public string accion { get; set; }
         public int? idPromocionArticulo { get; set; }
 
         // Nombres extraídos para PRARTICULO
@@ -1894,94 +1965,33 @@ namespace AppAPL.Dto.Promocion
         public decimal? margenPromocionCredito { get; set; }
 
         // Nodos anidados
-        public List<MedioPagoArticuloDto>? mediosPago { get; set; }
-        public List<ArticuloAcuerdoDto>? acuerdos { get; set; }
-        public List<OtroCostoDto>? otrosCostos { get; set; }
+        public List<MedioPagoArticuloModDto>? mediosPago { get; set; }
+        public List<ArticuloAcuerdoModDto>? acuerdos { get; set; }
+        public List<OtroCostoModDto>? otrosCostos { get; set; }
     }
 
-
-
-    //--------------------------
-
-
-
-    public class AcuerdoBandAproDTO
+    public class MedioPagoArticuloModDto
     {
-        public int IDPROMOCIONACUERDO { get; set; }
-        public int IDPROMOCION { get; set; }
-        public int IDACUERDO { get; set; }
-        public string descripcion_acuerdo { get; set; }
-        public string nombre_proveedor { get; set; }
-        public decimal porcentaje_descuento { get; set; }
-        public decimal valor_comprometido { get; set; }
-        public decimal valor_disponible { get; set; }
-        public decimal valor_liquidado { get; set; }
-        public int id_estado_detalle { get; set; }
-        public string nombre_estado_detalle { get; set; }
-        public string etiqueta_estado_detalle { get; set; }
-        public string etiqueta_tipo_fondo { get; set; }
-        public string etiqueta_clase_acuerdo { get; set; }
+        public string tipoAsignacion { get; set; } = string.Empty;
+        public List<string>? codigos { get; set; }
     }
 
-    public class InactivarPromocionRequest
+    public class ArticuloAcuerdoModDto
     {
-        public int IdPromocion { get; set; }
-        public string? NombreUsuarioIngreso { get; set; }
-
-        public int? IdOpcion { get; set; }
-        public string? IdControlInterfaz { get; set; }
-        public string? IdEvento { get; set; }
-        public string? NombreUsuario { get; set; }
-
+        public int? idAcuerdo { get; set; }
+        public decimal? valorAporte { get; set; }
+        public decimal? valorComprometido { get; set; }
     }
 
-
-    public class ActualizarPromocionRequest
+    public class OtroCostoModDto
     {
-        public int IdPromocion { get; set; }
-        public string ClasePromocion { get; set; } // 'PRGENERAL', 'PRARTICULO' o 'PRCOMBO'
-        public PromocionModDto Promocion { get; set; }
-        public List<AcuerdoModDto> Acuerdos { get; set; }
-        public List<SegmentoDTO> Segmentos { get; set; }
-        public List<ArticuloModPromocionDTO>? Articulos { get; set; }
-        public List<ComponenteRootDto>? articulos_componentes { get; set; }
-
-
-        public string? NombreArchivoSoporte { get; set; }
-        public string? ArchivoSoporteBase64 { get; set; }
-        public string rutaArchivoAntiguo { get; set; }
-
-        public int IdTipoProceso { get; set; }
-
-        // Parámetros para el LOG
-        public int IdOpcion { get; set; }
-        public string IdControlInterfaz { get; set; }
-        public string IdEventoEtiqueta { get; set; }
+        public int? codigoParametro { get; set; }
+        public decimal? costo { get; set; }
     }
 
-    public class PromocionModDto
-    {
-        public string Descripcion { get; set; } = string.Empty;
-        public int Motivo { get; set; }
-        public DateTime FechaHoraInicio { get; set; } // Formato ISO: YYYY-MM-DDTHH:mm:ss.fffZ
-        public DateTime FechaHoraFin { get; set; }
-        public string? MarcaRegalo { get; set; }
-        public string? IdUsuarioModifica { get; set; } = string.Empty;
-        public string? IdUsuarioIngreso { get; set; } = string.Empty;
-        public string? NombreUsuario { get; set; } = string.Empty;
-    }
 
-    public class AcuerdoModDto
-    {
-        public string Accion { get; set; } // 'I', 'U', 'D'
-        public int? IdPromocionAcuerdo { get; set; } // Solo para 'U' y 'D'
-        public int? IdAcuerdo { get; set; }
-        public decimal? PorcentajeDescuento { get; set; }
-        public decimal? ValorComprometido { get; set; }
-        public string? etiqueta_tipo_fondo { get; set; }
-    }
 
-    public class ComponenteRootDto
+    public class ComponenteRootModDto
     {
         public string accion { get; set; } = string.Empty;
         public List<ComponenteDetalleModDto>? jsonArticulosComponentes { get; set; }
@@ -1999,6 +2009,8 @@ namespace AppAPL.Dto.Promocion
         public int? inventarioOptimo { get; set; }
         public int? excedenteU { get; set; }
         public decimal? excedenteUSD { get; set; }
+
+
         public int? ventaHistoricaM0U { get; set; }
         public decimal? ventaHistoricaM0USD { get; set; }
         public int? ventaHistoricaM1U { get; set; }
@@ -2007,20 +2019,30 @@ namespace AppAPL.Dto.Promocion
         public decimal? ventaHistoricaM2USD { get; set; }
         public decimal? ventaHistoricaM12U { get; set; }
         public decimal? ventaHistoricaM12USD { get; set; }
+
+
         public decimal? igualarPrecio { get; set; }
         public int? diasAntiguedad { get; set; }
+
+
         public decimal? margenMinimoContado { get; set; }
         public decimal? margenMinimoTarjetaCredito { get; set; }
         public decimal? margenMinimoPrecioCredito { get; set; }
         public decimal? margenMinimoIgualar { get; set; }
+
+
         public decimal? precioListaContado { get; set; }
         public decimal? precioListaCredito { get; set; }
         public decimal? precioPromocionContado { get; set; }
         public decimal? precioPromocionTarjetaCredito { get; set; }
         public decimal? precioPromocionCredito { get; set; }
+
+
         public decimal? descuentoPromocionContado { get; set; }
         public decimal? descuentoPromocionTarjetaCredito { get; set; }
         public decimal? descuentoPromocionCredito { get; set; }
+
+
         public decimal? margenPrecioListaContado { get; set; }
         public decimal? margenPrecioListaCredito { get; set; }
         public decimal? margenPromocionContado { get; set; }
