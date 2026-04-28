@@ -100,5 +100,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticulosEquivalentes(string codigo)
             => repo.ConsultarArticulosEquivalentes(codigo);
+
+        public Task<BuscarPromocionesResponse?> BuscarPromocionesAsync(BuscarPromocionesRequest request)
+            => repo.BuscarPromocionesAsync(request);
     }
 }

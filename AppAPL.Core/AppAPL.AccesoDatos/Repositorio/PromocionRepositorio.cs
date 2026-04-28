@@ -2,12 +2,14 @@
 using AppAPL.AccesoDatos.Oracle;
 using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
+using AppAPL.Dto.Fondos;
 using AppAPL.Dto.Opciones;
 using AppAPL.Dto.Promocion;
 using Dapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Oracle.ManagedDataAccess.Client;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -1340,6 +1342,69 @@ namespace AppAPL.AccesoDatos.Repositorio
                 codigoRetorno = codigoSalida
             };
             return retorno;
+        }
+
+
+        public async Task<BuscarPromocionesResponse?> BuscarPromocionesAsync(BuscarPromocionesRequest request)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new 
+            {
+                P_CODIGOARTICULO = request.codigoarticulo,
+                P_FECHAHORA = request.fechahora,
+                P_CANAL = request.canal,
+                P_ALMACEN = request.almacen,
+                P_IDCLIENTE = request.idcliente,
+                P_TIPOCLIENTE = request.tipocliente,
+            };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+
+            parameters.Add("p_resultado", OracleDbType.Clob, ParameterDirection.Output);
+            parameters.Add("p_codigo_error", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_error", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            await connection.ExecuteAsync(
+                "APL_PKG_BUSCAR_PROMOCIONES.SP_BUSCAR_PROMOCIONES",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+            int? codigoSalida = parameters.Get<int>("p_codigo_error");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_error");
+
+            // Dapper extrae el CLOB directamente como string
+            string? jsonResultado = parameters.Get<string?>("p_resultado");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+
+            // 5. Validamos si hubo error a nivel de Oracle o si el JSON vino vacío
+            if (codigoSalida != 0 || string.IsNullOrWhiteSpace(jsonResultado))
+            {
+                return new BuscarPromocionesResponse
+                {
+                    exito = false,
+                    codigoError = codigoSalida ?? -99,
+                    mensajeError = mensajeSalida ?? "Error desconocido o JSON vacío desde la BD.",
+                    totalRegistros = 0,
+                    data = new List<object>()
+                };
+            }
+
+            // 6. Deserializamos el JSON de Oracle a tu DTO usando System.Text.Json (nativo en .NET 9)
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var response = JsonSerializer.Deserialize<BuscarPromocionesResponse>(jsonResultado, options);
+
+            if (response != null)
+            {
+                // Le inyectamos los códigos del SP por si el front los necesita
+                response.codigoError = codigoSalida.Value;
+                response.mensajeError = mensajeSalida;
+            }
+
+            return response;
         }
 
 

@@ -2066,4 +2066,24 @@ namespace AppAPL.Dto.Promocion
         public decimal? costos { get; set; }
     }
 
+    public class BuscarPromocionesRequest
+    {
+        public string codigoarticulo { get; set; }
+        public DateTime fechahora { get; set; }
+        public string canal { get; set; }
+        public string almacen { get; set; }
+        public string idcliente { get; set; }
+        public string tipocliente { get; set; }
+    }
+
+    public class BuscarPromocionesResponse
+    {
+        public bool exito { get; set; }
+        public int totalRegistros { get; set; }
+        public List<object> data { get; set; }
+
+        
+        public int codigoError { get; set; }
+        public string mensajeError { get; set; }
+    }
 }
