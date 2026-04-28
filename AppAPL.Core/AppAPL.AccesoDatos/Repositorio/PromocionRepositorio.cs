@@ -1285,6 +1285,7 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_json_acuerdos = JsonSerializer.Serialize(promocion.Acuerdos, options),
                 p_json_segmentos = JsonSerializer.Serialize(promocion.Segmentos, options),
                 p_json_articulos = JsonSerializer.Serialize(promocion.Articulos, options),
+                p_json_articulos_componentes = JsonSerializer.Serialize(promocion.articulos_componentes, options),
                 p_archivosoporte = !string.IsNullOrEmpty(rutaFisicaFinal) ? rutaFisicaFinal : promocion.rutaArchivoAntiguo,
                 p_idtipoproceso = promocion.IdTipoProceso,
 
