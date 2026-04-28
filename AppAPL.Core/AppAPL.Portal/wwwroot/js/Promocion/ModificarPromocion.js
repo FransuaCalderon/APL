@@ -16,6 +16,12 @@ let acuerdoArticuloTemporal = null;
 let acuerdoArticuloContexto = null;
 let filaActualMedioPago = null;
 
+// --- VARIABLES PARA COMBOS ---
+let comboEnEdicion = null;
+let articulosPorComboMemoria = {};
+let combosBDOriginal = []; // Para detectar combos eliminados al guardar
+window.contextoModalItems = "ARTICULOS";
+
 // ===============================================================
 // CONFIGURACIÓN MÚLTIPLE (Segmentos)
 // ===============================================================
@@ -115,16 +121,21 @@ function formatearFecha(fechaString) {
 }
 
 function obtenerSoloFecha(fechaString) {
-    if (!fechaString || !fechaString.includes("T")) return "";
-    const parteFecha = fechaString.split("T")[0];
+    if (!fechaString) return "";
+    // Soporta tanto "2026-04-27T00:00:00" como "2026-04-27 00:00:00"
+    const parteFecha = fechaString.split(/[T ]/)[0];
+    if (!parteFecha || !parteFecha.includes("-")) return "";
     const [anio, mes, dia] = parteFecha.split("-");
+    if (!anio || !mes || !dia) return "";
     return `${dia}/${mes}/${anio}`;
 }
 
 function obtenerSoloHora(fechaString) {
-    if (!fechaString || !fechaString.includes("T")) return "00:00";
-    const parteHora = fechaString.split("T")[1];
-    return parteHora.substring(0, 5);
+    if (!fechaString) return "00:00";
+    // Soporta tanto "2026-04-27T00:00:00" como "2026-04-27 00:00:00"
+    const partes = fechaString.split(/[T ]/);
+    if (partes.length < 2) return "00:00";
+    return partes[1].substring(0, 5);
 }
 
 function unirFechaHora(idInputFecha, idInputHora) {
@@ -1122,6 +1133,862 @@ function consultarServicioAdicional(endpoint_path, codigoArticulo, callbackExito
     });
 }
 
+
+// ===============================================================
+// LÓGICA DE COMBOS - MODIFICAR
+// ===============================================================
+
+function poblarCombosDesdeAPI(data) {
+    const articulos = data.articulos || [];
+    const articulossegmento = data.articulossegmento || [];
+    const articulossegmentodetalle = data.articulossegmentodetalle || [];
+    const articuloscomponentes = data.articuloscomponentes || [];
+    const articuloscompacuerdo = data.articuloscompacuerdo || [];
+    const articuloscompotroscostos = data.articuloscompotroscostos || [];
+
+    const $tbody = $("#tablaCombosBodyMod");
+    $tbody.empty();
+    articulosPorComboMemoria = {};
+    combosBDOriginal = [];
+
+    // 1. Construir mapa de combos (cada artículo es un combo)
+    const combosMap = {};
+    articulos.forEach(art => {
+        const idCombo = art.idpromocionarticulo;
+        combosMap[idCombo] = {
+            idpromocionarticulo: idCombo,
+            codigocombo: art.codigo_combo || "",
+            descripcion: art.descripcion_combo || "",
+            costo: art.costo_combo || 0,
+            stockbodega: art.stockbodega || 0,
+            stocktienda: art.stocktienda || 0,
+            inventariooptimo: art.inventariooptimo || 0,
+            excedenteunidad: art.excedenteunidad || 0,
+            excedentevalor: art.excedentevalor || 0,
+            unidadeslimite: art.combo_unidades_limite || 0,
+            unidadesproyeccionventas: art.combo_unidades_proyeccion || 0,
+            preciolistacontado: art.combo_precio_lista_contado || 0,
+            preciolistacredito: art.combo_precio_lista_credito || 0,
+            preciopromocioncontado: art.combo_precio_promo_contado || 0,
+            preciopromociontarjetacredito: art.combo_precio_promo_tc || 0,
+            preciopromocioncredito: art.combo_precio_promo_credito || 0,
+            descuentopromocioncontado: art.combo_desc_promo_contado || 0,
+            descuentopromociontarjetacredito: art.combo_desc_promo_tc || 0,
+            descuentopromocioncredito: art.combo_desc_promo_credito || 0,
+            margenpromocioncontado: art.combo_margen_promo_contado || 0,
+            margenpromociontarjetacredito: art.combo_margen_promo_tc || 0,
+            margenpromocioncredito: art.combo_margen_promo_credito || 0,
+            marcaregalo: (art.combo_marca_regalo || "N").toString().trim().toUpperCase() === "S",
+            componentes: []
+        };
+        combosBDOriginal.push(idCombo);
+    });
+
+    // 2. Asociar componentes a cada combo
+    articuloscomponentes.forEach(comp => {
+        const idCombo = comp.idpromocionarticulo;
+        if (!combosMap[idCombo]) return;
+
+        // Buscar acuerdos de este componente
+        const idCompUnico = comp.idpromocionarticulocomponente;
+        const acuerdosComp = articuloscompacuerdo.filter(a => a.idpromocionarticulocomponente === idCompUnico);
+        const acProv = acuerdosComp.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR");
+        const acProv2 = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR")[1];
+        const acRebate = acuerdosComp.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFREBATE");
+        const acProp = acuerdosComp.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO");
+        const acProp2 = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO")[1];
+
+        // Buscar otros costos de este componente
+        const otrosCostosComp = articuloscompotroscostos
+            .filter(o => o.idpromocionarticulocomponente === idCompUnico)
+            .map(oc => ({
+                codigo: oc.codigoparametro,
+                nombre: oc.descripcion_parametro,
+                valor: parseFloat(oc.costo) || 0
+            }));
+        const totalOtrosCostosComp = otrosCostosComp.reduce((s, c) => s + c.valor, 0);
+
+        combosMap[idCombo].componentes.push({
+            codigo: comp.componente_codigoitem,
+            descripcion: comp.componente_descripcion,
+            costo: comp.componente_costo || 0,
+            stock: comp.componente_stock_bodega || 0,
+            stockTienda: comp.componente_stock_tienda || 0,
+            optimo: comp.componente_inventario_optimo || 0,
+            excedenteu: comp.componente_excedente_unidad || 0,
+            excedentes: comp.componente_excedente_valor || 0,
+            m0u: comp.componente_m0_unidades || 0, m0s: comp.componente_m0_precio || 0,
+            m1u: comp.componente_m1_unidades || 0, m1s: comp.componente_m1_precio || 0,
+            m2u: comp.componente_m2_unidades || 0, m2s: comp.componente_m2_precio || 0,
+            m12u: comp.componente_m12_unidades || 0, m12s: comp.componente_m12_precio || 0,
+            preciolistacontado: comp.componente_precio_lista_contado || 0,
+            preciolistacredito: comp.componente_precio_lista_credito || 0,
+            promoContado: comp.componente_precio_promo_contado || 0,
+            promoTC: comp.componente_precio_promo_tc || 0,
+            promoCredito: comp.componente_precio_promo_credito || 0,
+            dsctoContado: comp.componente_desc_promo_contado || 0,
+            dsctoTC: comp.componente_desc_promo_tc || 0,
+            dsctoCredito: comp.componente_desc_promo_credito || 0,
+            margenPLContado: comp.componente_margen_pl_contado || 0,
+            margenPLCredito: comp.componente_margen_pl_credito || 0,
+            margenPromoContado: comp.componente_margen_promo_contado || 0,
+            margenPromoTC: comp.componente_margen_promo_tc || 0,
+            margenPromoCredito: comp.componente_margen_promo_credito || 0,
+            // Acuerdos del componente
+            idAcuerdoProveedor: acProv ? acProv.idacuerdo : 0,
+            displayAcuerdoProveedor: acProv ? `${acProv.idacuerdo} - ${acProv.nombre_proveedor || ""}` : "",
+            aporteProveedor: acProv ? (acProv.valor_aporte || 0) : 0,
+            idAcuerdoProveedor2: acProv2 ? acProv2.idacuerdo : 0,
+            displayAcuerdoProveedor2: acProv2 ? `${acProv2.idacuerdo} - ${acProv2.nombre_proveedor || ""}` : "",
+            aporteProveedor2: acProv2 ? (acProv2.valor_aporte || 0) : 0,
+            idAcuerdoRebate: acRebate ? acRebate.idacuerdo : 0,
+            displayAcuerdoRebate: acRebate ? `${acRebate.idacuerdo} - ${acRebate.nombre_proveedor || ""}` : "",
+            aporteRebate: acRebate ? (acRebate.valor_aporte || 0) : 0,
+            idAcuerdoPropio: acProp ? acProp.idacuerdo : 0,
+            displayAcuerdoPropio: acProp ? `${acProp.idacuerdo} - ${acProp.nombre_proveedor || ""}` : "",
+            aportePropio: acProp ? (acProp.valor_aporte || 0) : 0,
+            idAcuerdoPropio2: acProp2 ? acProp2.idacuerdo : 0,
+            displayAcuerdoPropio2: acProp2 ? `${acProp2.idacuerdo} - ${acProp2.nombre_proveedor || ""}` : "",
+            aportePropio2: acProp2 ? (acProp2.valor_aporte || 0) : 0,
+            // Otros costos
+            otrosCostos: otrosCostosComp,
+            totalOtrosCostos: totalOtrosCostosComp,
+            mediosPago: []
+        });
+    });
+
+    // 3. Renderizar cada combo en la tabla
+    Object.values(combosMap).forEach(combo => {
+        const codigoCombo = combo.codigocombo;
+        articulosPorComboMemoria[codigoCombo] = combo.componentes;
+
+        // Medios de Pago para este combo (vienen en articulossegmento + articulossegmentodetalle)
+        const segmentoMP = articulossegmento.find(s =>
+            s.idpromocionarticulo === combo.idpromocionarticulo &&
+            (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO"
+        );
+
+        let medioPagoVal = "";
+        let mpSeleccionados = [];
+        let btnMPHtml = `<button class="btn btn-outline-secondary btn-sm d-none btn-editar-mp-combo-mod" type="button" disabled><i class="fa-solid fa-list-check"></i></button>`;
+
+        if (segmentoMP) {
+            const tipoAsig = (segmentoMP.tipoasignacion || "").toUpperCase();
+            if (tipoAsig !== "T") {
+                const detallesMP = articulossegmentodetalle.filter(d =>
+                    d.idpromocionarticulosegmento === segmentoMP.idpromocionarticulosegmento
+                );
+                mpSeleccionados = detallesMP.map(d => d.codigo_medio_pago).filter(c => c);
+                if (mpSeleccionados.length > 1) {
+                    medioPagoVal = "7";
+                    btnMPHtml = `<button class="btn btn-success btn-sm btn-editar-mp-combo-mod" type="button" disabled><i class="fa-solid fa-list-check"></i> (${mpSeleccionados.length})</button>`;
+                } else if (mpSeleccionados.length === 1) {
+                    medioPagoVal = mpSeleccionados[0];
+                }
+            }
+        }
+
+        const filaCombo = `
+            <tr data-codigo="${codigoCombo}" data-idpromocionarticulo="${combo.idpromocionarticulo}" data-accion="U" class="align-middle">
+                <td class="text-center align-middle"><input type="radio" class="form-check-input combo-row-radio-mod" name="comboRadioSelMod"></td>
+                <td class="table-sticky-col" style="background-color: #f8f9fa;">
+                    <span class="text-nowrap"><span class="fw-bold">${codigoCombo}</span> - ${combo.descripcion}</span>
+                </td>
+                <td class="text-end">${formatCurrencySpanish(combo.costo)}</td>
+                <td class="text-end">${combo.stockbodega}</td>
+                <td class="text-end">${combo.stocktienda}</td>
+                <td class="text-end">${combo.inventariooptimo}</td>
+                <td class="text-end">${combo.excedenteunidad}</td>
+                <td class="text-end">${formatCurrencySpanish(combo.excedentevalor)}</td>
+                <td><input type="number" class="form-control form-control-sm text-end val-unidades-combo-mod" placeholder="0" value="${combo.unidadeslimite}" disabled></td>
+                <td><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo-mod" placeholder="0" value="${combo.unidadesproyeccionventas}" disabled></td>
+                <td>
+                    <div class="input-group input-group-sm" style="min-width:140px;">
+                        ${btnMPHtml}
+                        <select class="form-select select-mediopago-combo-final-mod" disabled>
+                            ${generarOpcionesMedioPago()}
+                        </select>
+                    </div>
+                </td>
+                <td class="text-end">${formatCurrencySpanish(combo.preciolistacontado)}</td>
+                <td class="text-end">${formatCurrencySpanish(combo.preciolistacredito)}</td>
+                <td class="text-end">${formatCurrencySpanish(combo.preciopromocioncontado)}</td>
+                <td class="text-end">${formatCurrencySpanish(combo.preciopromociontarjetacredito)}</td>
+                <td class="text-end">${formatCurrencySpanish(combo.preciopromocioncredito)}</td>
+                <td class="text-end">${formatCurrencySpanish(combo.descuentopromocioncontado)}</td>
+                <td class="text-end">${formatCurrencySpanish(combo.descuentopromociontarjetacredito)}</td>
+                <td class="text-end">${formatCurrencySpanish(combo.descuentopromocioncredito)}</td>
+                <td class="text-end">${parseFloat(combo.margenpromocioncontado).toFixed(2)}%</td>
+                <td class="text-end">${parseFloat(combo.margenpromociontarjetacredito).toFixed(2)}%</td>
+                <td class="text-end">${parseFloat(combo.margenpromocioncredito).toFixed(2)}%</td>
+                <td class="text-end">${formatCurrencySpanish(0)}</td>
+                <td class="text-end">${formatCurrencySpanish(0)}</td>
+                <td class="text-end">${formatCurrencySpanish(0)}</td>
+                <td class="text-center"><input class="form-check-input" type="checkbox" disabled ${combo.marcaregalo ? "checked" : ""}></td>
+            </tr>`;
+        $tbody.append(filaCombo);
+
+        const $filaInsertada = $tbody.find(`tr[data-codigo="${codigoCombo}"]`).last();
+        $filaInsertada.data("combo-nombre", combo.descripcion);
+        $filaInsertada.data("combo-articulos", combo.componentes);
+
+        const $filaSelect = $filaInsertada.find(".select-mediopago-combo-final-mod");
+        $filaSelect.val(medioPagoVal);
+        if (medioPagoVal === "7") $filaSelect.data("seleccionados", mpSeleccionados);
+    });
+
+    if ($tbody.find("tr").length > 0) {
+        $tbody.find("tr").first().find(".combo-row-radio-mod").prop("checked", true).trigger("change");
+    }
+}
+
+function limpiarModalComboMod() {
+    const numCols = $("#trHeadersCombo th").length;
+    for (let i = numCols - 1; i >= 2; i--) {
+        $("#trHeadersCombo th:eq(" + i + ")").remove();
+        $("#tablaCreacionCombo tbody tr").each(function () {
+            $(this).find("td:eq(" + i + ")").remove();
+        });
+    }
+
+    $("#nombreComboModalMod").val("");
+    $("#btnHeaderComboTotalMod").text("Combo");
+
+    $("#tablaCreacionCombo tbody tr").each(function () {
+        const $td = $(this).find("td:eq(1)");
+        const $input = $td.find("input");
+        const $select = $td.find("select");
+        const $btn = $td.find("button");
+
+        if ($input.length > 0) {
+            if ($input.attr("type") === "checkbox") {
+                $input.prop("checked", false);
+            } else {
+                const placeholder = $input.attr("placeholder") || "";
+                if ($input.prop("readonly")) {
+                    if (placeholder.includes("$") || placeholder === "") {
+                        $input.val("$ 0.00");
+                    } else {
+                        $input.val($input.hasClass("custom-celda-bg") ? "-" : "0%");
+                    }
+                } else {
+                    $input.val("");
+                }
+            }
+        }
+        if ($select.length > 0) {
+            $select.val("").removeData("seleccionados");
+        }
+        if ($btn.length > 0) {
+            $btn.addClass("d-none").removeClass("btn-success").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
+        }
+    });
+
+    comboEnEdicion = null;
+}
+
+function recalcularColumnaComboMod(colIndex) {
+    if (colIndex < 2) return;
+
+    const getColVal = (campo, selector) => {
+        const text = $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).val() ||
+            $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).text();
+        return parseCurrencyToNumber(text);
+    };
+    const setColVal = (campo, selector, val) => {
+        $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).val(val);
+    };
+
+    const costo = getColVal("costo", "input");
+    const precioListaContado = getColVal("precio_lista_contado", "input");
+    const precioListaCredito = getColVal("precio_lista_credito", "input");
+    const otrosCostos = parseFloat($(`#trHeadersCombo th:eq(${colIndex})`).data("total-otros-costos")) || 0;
+
+    const getComboVal = (campo) => parseCurrencyToNumber($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
+    const unidadesLimite = getComboVal("unidades_limite");
+    const proyeccionVtas = getComboVal("proyeccion_vta");
+    const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
+
+    const promoContado = getColVal("promo_contado", "input");
+    const promoTC = getColVal("promo_tc", "input");
+    const promoCredito = getColVal("promo_credito", "input");
+
+    setColVal("dscto_contado", "input", formatCurrencySpanish(precioListaContado - promoContado));
+    setColVal("dscto_tc", "input", formatCurrencySpanish(precioListaContado - promoTC));
+    setColVal("dscto_credito", "input", formatCurrencySpanish(precioListaCredito - promoCredito));
+
+    const apProv = getColVal("aporte_prov", "input");
+    const apProv2 = getColVal("aporte_prov2", "input");
+    const apRebate = getColVal("aporte_rebate", "input");
+    const apPropio = getColVal("aporte_propio", "input");
+    const apPropio2 = getColVal("aporte_propio2", "input");
+
+    setColVal("comp_proveedor", "input", formatCurrencySpanish(apProv * unidades));
+    setColVal("comp_proveedor2", "input", formatCurrencySpanish(apProv2 * unidades));
+    setColVal("comp_rebate", "input", formatCurrencySpanish(apRebate * unidades));
+    setColVal("comp_propio", "input", formatCurrencySpanish(apPropio * unidades));
+    setColVal("comp_propio2", "input", formatCurrencySpanish(apPropio2 * unidades));
+
+    const calcMargenPL = (precioLista) => {
+        if (precioLista > 0) return (((precioLista - costo) / precioLista) * 100).toFixed(2) + "%";
+        return "0.00%";
+    };
+    const calcMargenPromo = (precioPromo) => {
+        const denominador = precioPromo + apProv + apRebate;
+        if (denominador > 0) return (((denominador - costo - otrosCostos) / denominador) * 100).toFixed(2) + "%";
+        return "0.00%";
+    };
+
+    setColVal("margen_pl_contado", "input", calcMargenPL(precioListaContado));
+    setColVal("margen_pl_credito", "input", calcMargenPL(precioListaCredito));
+    setColVal("margen_promo_contado", "input", calcMargenPromo(promoContado));
+    setColVal("margen_promo_tc", "input", calcMargenPromo(promoTC));
+    setColVal("margen_promo_cred", "input", calcMargenPromo(promoCredito));
+}
+
+function recalcularTotalesComboMod() {
+    const camposNum = ["stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u"];
+    const camposMoneda = [
+        "costo", "excedentes_usd",
+        "precio_lista_contado", "precio_lista_credito",
+        "promo_contado", "promo_tc", "promo_credito",
+        "dscto_contado", "dscto_tc", "dscto_credito",
+        "aporte_prov", "aporte_prov2", "aporte_rebate", "aporte_propio", "aporte_propio2"
+    ];
+
+    const setComboVal = (campo, val) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(val);
+    const getComboVal = (campo) => parseCurrencyToNumber($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
+
+    camposNum.forEach(campo => {
+        let suma = 0;
+        $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:gt(1) input`).each(function () {
+            suma += parseInt($(this).val().replace(/[^0-9-]/g, '')) || 0;
+        });
+        setComboVal(campo, suma);
+    });
+
+    camposMoneda.forEach(campo => {
+        let suma = 0;
+        $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:gt(1) input`).each(function () {
+            suma += parseCurrencyToNumber($(this).val());
+        });
+        setComboVal(campo, formatCurrencySpanish(suma));
+    });
+
+    const camposComprometidos = ["comp_proveedor", "comp_proveedor2", "comp_rebate", "comp_propio", "comp_propio2"];
+    camposComprometidos.forEach(campo => setComboVal(campo, ""));
+
+    const totalCosto = getComboVal("costo");
+    let totalOtrosCostos = 0;
+    $("#trHeadersCombo th:gt(1)").each(function () {
+        totalOtrosCostos += parseFloat($(this).data("total-otros-costos")) || 0;
+    });
+
+    const totalPLContado = getComboVal("precio_lista_contado");
+    const totalPLCredito = getComboVal("precio_lista_credito");
+    const totalPromoContado = getComboVal("promo_contado");
+    const totalPromoTC = getComboVal("promo_tc");
+    const totalPromoCredito = getComboVal("promo_credito");
+    const totalApProv = getComboVal("aporte_prov");
+    const totalApRebate = getComboVal("aporte_rebate");
+
+    const calcMargenPLCombo = (precioLista) => {
+        if (precioLista > 0) return (((precioLista - totalCosto) / precioLista) * 100).toFixed(2) + "%";
+        return "0.00%";
+    };
+    const calcMargenPromoCombo = (precioPromo) => {
+        const denominador = precioPromo + totalApProv + totalApRebate;
+        if (denominador > 0) return (((denominador - totalCosto - totalOtrosCostos) / denominador) * 100).toFixed(2) + "%";
+        return "0.00%";
+    };
+
+    setComboVal("margen_pl_contado", calcMargenPLCombo(totalPLContado));
+    setComboVal("margen_pl_credito", calcMargenPLCombo(totalPLCredito));
+    setComboVal("margen_promo_contado", calcMargenPromoCombo(totalPromoContado));
+    setComboVal("margen_promo_tc", calcMargenPromoCombo(totalPromoTC));
+    setComboVal("margen_promo_cred", calcMargenPromoCombo(totalPromoCredito));
+}
+
+function agregarColumnaAComboMod(item) {
+    const formatVal = (val) => (val !== undefined && val !== null && val !== '') ? formatCurrencySpanish(val) : '';
+
+    const thHtml = `
+        <th class="table-dark">
+            <div class="dropdown">
+                <button class="btn btn-dark dropdown-toggle btn-sm border-0 w-100 header-combo-btn" type="button" data-bs-toggle="dropdown" title="${item.codigo} - ${item.descripcion}">
+                    <span class="header-combo-content">
+                        <span class="header-combo-codigo">${item.codigo}</span>
+                        <span class="header-combo-desc">${item.descripcion}</span>
+                    </span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item btn-add-articulo-combo-mod" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger btn-eliminar-col-combo-mod" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
+                </ul>
+            </div>
+        </th>`;
+    $("#trHeadersCombo").append(thHtml);
+
+    const colIndex = $("#trHeadersCombo th").length - 1;
+
+    $("#tablaCreacionCombo tbody tr").each(function () {
+        const campo = $(this).data("campo");
+        let html = `<td class="align-middle" data-colindex="${colIndex}">`;
+
+        switch (campo) {
+            case "art_codigo":
+                html += `<input type="hidden" class="art-codigo-hidden" value="${item.codigo}"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.codigo}">`; break;
+            case "art_descripcion":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg" readonly value="${item.descripcion}">`; break;
+            case "costo":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.costo)}">`; break;
+            case "stock_bodega":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.stock || 0}">`; break;
+            case "stock_tienda":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.stockTienda || 0}">`; break;
+            case "inv_optimo":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.optimo || 0}">`; break;
+            case "excedentes_u":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.excedenteu || 0}">`; break;
+            case "excedentes_usd":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.excedentes || 0)}">`; break;
+            case "unidades_limite":
+            case "proyeccion_vta":
+                html += `<input type="text" class="form-control form-control-sm text-end custom-celda-bg" disabled placeholder="-">`; break;
+            case "medio_pago":
+                html += `<select class="form-select form-select-sm custom-celda-bg" disabled><option value="">-</option></select>`; break;
+            case "regalo":
+                html += `<div class="d-flex justify-content-center text-muted">-</div>`; break;
+            case "precio_lista_contado":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.preciolistacontado || 0)}">`; break;
+            case "precio_lista_credito":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.preciolistacredito || 0)}">`; break;
+            case "promo_contado":
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod" placeholder="$ 0.00" value="${formatVal(item.promoContado)}">`; break;
+            case "promo_tc":
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod" placeholder="$ 0.00" value="${formatVal(item.promoTC)}">`; break;
+            case "promo_credito":
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod" placeholder="$ 0.00" value="${formatVal(item.promoCredito)}">`; break;
+            case "dscto_contado":
+            case "dscto_tc":
+            case "dscto_credito":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="0.00">`; break;
+            case "aporte_prov":
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor aporte-proveedor-combo-mod" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor)}" ${item.idAcuerdoProveedor ? '' : 'disabled'}>`; break;
+            case "aporte_prov2":
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor2)}" ${item.idAcuerdoProveedor2 ? '' : 'disabled'}>`; break;
+            case "aporte_rebate":
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteRebate)}" ${item.idAcuerdoRebate ? '' : 'disabled'}>`; break;
+            case "aporte_propio":
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio)}" ${item.idAcuerdoPropio ? '' : 'disabled'}>`; break;
+            case "aporte_propio2":
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio2)}" ${item.idAcuerdoPropio2 ? '' : 'disabled'}>`; break;
+            case "aporte_prov_id":
+                html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="${item.idAcuerdoProveedor || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
+            case "aporte_prov2_id":
+                html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="${item.idAcuerdoProveedor2 || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor2 || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
+            case "aporte_rebate_id":
+                html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="${item.idAcuerdoRebate || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoRebate || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFREBATE" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
+            case "aporte_propio_id":
+                html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="${item.idAcuerdoPropio || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
+            case "aporte_propio2_id":
+                html += `
+                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="${item.idAcuerdoPropio2 || ''}">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio2 || ''}">
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>`; break;
+            case "margen_pl_contado":
+            case "margen_pl_credito":
+            case "margen_promo_contado":
+            case "margen_promo_tc":
+            case "margen_promo_cred":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="0.00%">`; break;
+            case "comp_proveedor":
+            case "comp_proveedor2":
+            case "comp_rebate":
+            case "comp_propio":
+            case "comp_propio2":
+                html += `<input type="text" class="form-control form-control-sm text-end custom-celda-bg" readonly placeholder="$ 0.00">`; break;
+            default:
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly>`; break;
+        }
+        html += `</td>`;
+        $(this).append(html);
+    });
+
+    recalcularColumnaComboMod(colIndex);
+    recalcularTotalesComboMod();
+}
+
+function extraerArticulosDelModalComboMod() {
+    const articulos = [];
+    const numColumnas = $("#trHeadersCombo th").length;
+
+    for (let colIdx = 2; colIdx < numColumnas; colIdx++) {
+        const art = { mediosPago: [], acuerdos: [], otrosCostos: [] };
+
+        $("#tablaCreacionCombo tbody tr").each(function () {
+            const campo = $(this).data("campo");
+            const $td = $(this).find(`td[data-colindex='${colIdx}']`);
+            if ($td.length === 0) return;
+
+            const $input = $td.find("input[type='text'], input[type='number'], input[type='hidden']");
+            const $checkbox = $td.find("input[type='checkbox']");
+
+            let val = $input.length > 0 ? $input.val() : $td.text();
+
+            switch (campo) {
+                case "art_codigo": art.codigo = val; break;
+                case "art_descripcion": art.descripcion = val; break;
+                case "costo": art.costo = parseCurrencyToNumber(val); break;
+                case "stock_bodega": art.stock = parseInt(val) || 0; break;
+                case "stock_tienda": art.stockTienda = parseInt(val) || 0; break;
+                case "inv_optimo": art.optimo = parseInt(val) || 0; break;
+                case "excedentes_u": art.excedenteu = parseInt(val) || 0; break;
+                case "excedentes_usd": art.excedentes = parseCurrencyToNumber(val); break;
+                case "precio_lista_contado": art.preciolistacontado = parseCurrencyToNumber(val); break;
+                case "precio_lista_credito": art.preciolistacredito = parseCurrencyToNumber(val); break;
+                case "promo_contado": art.promoContado = parseCurrencyToNumber(val); break;
+                case "promo_tc": art.promoTC = parseCurrencyToNumber(val); break;
+                case "promo_credito": art.promoCredito = parseCurrencyToNumber(val); break;
+                case "dscto_contado": art.dsctoContado = parseCurrencyToNumber(val); break;
+                case "dscto_tc": art.dsctoTC = parseCurrencyToNumber(val); break;
+                case "dscto_credito": art.dsctoCredito = parseCurrencyToNumber(val); break;
+                case "margen_pl_contado": art.margenPLContado = parseFloat(val) || 0; break;
+                case "margen_pl_credito": art.margenPLCredito = parseFloat(val) || 0; break;
+                case "margen_promo_contado": art.margenPromoContado = parseFloat(val) || 0; break;
+                case "margen_promo_tc": art.margenPromoTC = parseFloat(val) || 0; break;
+                case "margen_promo_cred": art.margenPromoCredito = parseFloat(val) || 0; break;
+                case "aporte_prov": art.aporteProveedor = parseCurrencyToNumber(val); break;
+                case "aporte_prov2": art.aporteProveedor2 = parseCurrencyToNumber(val); break;
+                case "aporte_rebate": art.aporteRebate = parseCurrencyToNumber(val); break;
+                case "aporte_propio": art.aportePropio = parseCurrencyToNumber(val); break;
+                case "aporte_propio2": art.aportePropio2 = parseCurrencyToNumber(val); break;
+                case "aporte_prov_id":
+                    art.idAcuerdoProveedor = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                    art.displayAcuerdoProveedor = $td.find("input[type='text']").val();
+                    break;
+                case "aporte_prov2_id":
+                    art.idAcuerdoProveedor2 = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                    art.displayAcuerdoProveedor2 = $td.find("input[type='text']").val();
+                    break;
+                case "aporte_rebate_id":
+                    art.idAcuerdoRebate = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                    art.displayAcuerdoRebate = $td.find("input[type='text']").val();
+                    break;
+                case "aporte_propio_id":
+                    art.idAcuerdoPropio = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                    art.displayAcuerdoPropio = $td.find("input[type='text']").val();
+                    break;
+                case "aporte_propio2_id":
+                    art.idAcuerdoPropio2 = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
+                    art.displayAcuerdoPropio2 = $td.find("input[type='text']").val();
+                    break;
+                case "regalo": art.regalo = $checkbox.is(":checked") ? "S" : "N"; break;
+            }
+        });
+
+        if (art.codigo && art.codigo.trim() !== "" && art.codigo !== "Auto") {
+            articulos.push(art);
+        }
+    }
+    return articulos;
+}
+
+function initLogicaCombosMod() {
+    // BOTÓN NUEVO COMBO
+    $("#btnNuevoComboMod").off("click").on("click", function () {
+        comboEnEdicion = null;
+        limpiarModalComboMod();
+    });
+
+    // BOTÓN MODIFICAR COMBO
+    $("#btnModificarComboMod").off("click").on("click", function () {
+        const $radio = $("#tablaCombosBodyMod .combo-row-radio-mod:checked");
+        if ($radio.length === 0) {
+            Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un combo para modificar." });
+            return;
+        }
+        const $fila = $radio.closest("tr");
+        const codigoCombo = $fila.data("codigo");
+        const nombreCombo = $fila.data("combo-nombre") || "";
+        const articulosGuardados = $fila.data("combo-articulos") || [];
+
+        const unidadesCombo = $fila.find(".val-unidades-combo-mod").val();
+        const proyeccionCombo = $fila.find(".val-proyeccion-combo-mod").val();
+        const medioPagoCombo = $fila.find(".select-mediopago-combo-final-mod").val();
+        const seleccionadosMP = $fila.find(".select-mediopago-combo-final-mod").data("seleccionados");
+        const regaloCombo = $fila.find("td:last-child input[type='checkbox']").is(":checked");
+
+        limpiarModalComboMod();
+        comboEnEdicion = codigoCombo;
+
+        $("#nombreComboModalMod").val(nombreCombo);
+        $("#btnHeaderComboTotalMod").text(`[${codigoCombo}] ${nombreCombo}`);
+
+        $(`#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input`).val(unidadesCombo);
+        $(`#tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input`).val(proyeccionCombo);
+
+        const $mpCombo = $(`#tablaCreacionCombo tbody tr[data-campo='medio_pago'] td:eq(1) select`);
+        const $mpBtn = $mpCombo.closest(".input-group").find("button");
+
+        $mpCombo.val(medioPagoCombo);
+        if (medioPagoCombo === "7" && seleccionadosMP) {
+            $mpCombo.data("seleccionados", seleccionadosMP);
+            $mpBtn.removeClass("d-none btn-outline-secondary").addClass("btn-success").html(`<i class="fa-solid fa-list-check"></i> (${seleccionadosMP.length})`);
+        }
+        $(`#tablaCreacionCombo tbody tr[data-campo='regalo'] td:eq(1) input[type='checkbox']`).prop("checked", regaloCombo);
+
+        articulosGuardados.forEach(art => agregarColumnaAComboMod(art));
+    });
+
+    // BOTÓN ELIMINAR COMBO
+    $("#btnEliminarComboMod").off("click").on("click", function () {
+        const $radio = $("#tablaCombosBodyMod .combo-row-radio-mod:checked");
+        if ($radio.length === 0) {
+            Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar un combo." });
+            return;
+        }
+        const $fila = $radio.closest("tr");
+        Swal.fire({
+            title: "¿Está seguro?", text: "Se eliminará el combo seleccionado.",
+            icon: "warning", showCancelButton: true, confirmButtonColor: "#d33", confirmButtonText: "Sí, Eliminar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $fila.remove();
+                Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Combo eliminado", showConfirmButton: false, timer: 1500 });
+            }
+        });
+    });
+
+    // BOTÓN CONFIRMAR COMBO (Guardar al detalle)
+    $("#btnConfirmarComboMod").off("click").on("click", function () {
+        let codigo = comboEnEdicion ? comboEnEdicion : "CMB-NEW-" + ($("#tablaCombosBodyMod tr").length + 1);
+        const nombre = $("#nombreComboModalMod").val().trim();
+
+        if (!nombre) { Swal.fire("Validación", "Debe ingresar un nombre para el combo.", "warning"); return; }
+
+        const articulosCombo = extraerArticulosDelModalComboMod();
+        if (articulosCombo.length === 0) { Swal.fire("Validación", "Debe agregar al menos un artículo al combo.", "warning"); return; }
+
+        articulosPorComboMemoria[codigo] = articulosCombo;
+
+        const getModalComboVal = (campo) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val() || "-";
+
+        const modalCosto = getModalComboVal("costo");
+        const modalStock = getModalComboVal("stock_bodega");
+        const modalStockTienda = getModalComboVal("stock_tienda");
+        const modalOptimo = getModalComboVal("inv_optimo");
+        const modalExcU = getModalComboVal("excedentes_u");
+        const modalExcS = getModalComboVal("excedentes_usd");
+        const modalUnidades = getModalComboVal("unidades_limite");
+        const modalProyeccion = getModalComboVal("proyeccion_vta");
+
+        const $selectMPModal = $(`#tablaCreacionCombo tbody tr[data-campo='medio_pago'] td:eq(1) select`);
+        const modalMedioPago = $selectMPModal.val();
+        const modalMedioPagoSel = $selectMPModal.data("seleccionados");
+
+        const modalPLContado = getModalComboVal("precio_lista_contado");
+        const modalPLCredito = getModalComboVal("precio_lista_credito");
+        const modalPromoContado = getModalComboVal("promo_contado");
+        const modalPromoTC = getModalComboVal("promo_tc");
+        const modalPromoCredito = getModalComboVal("promo_credito");
+        const modalDsctoContado = getModalComboVal("dscto_contado");
+        const modalDsctoTC = getModalComboVal("dscto_tc");
+        const modalDsctoCredito = getModalComboVal("dscto_credito");
+        const modalMargenContado = getModalComboVal("margen_promo_contado");
+        const modalMargenTC = getModalComboVal("margen_promo_tc");
+        const modalMargenCredito = getModalComboVal("margen_promo_cred");
+        const modalRegalo = $(`#tablaCreacionCombo tbody tr[data-campo='regalo'] td:eq(1) input[type='checkbox']`).is(":checked");
+
+        let totalAporteProv = 0, totalAporteRebate = 0, totalAportePropio = 0;
+        articulosCombo.forEach(a => {
+            totalAporteProv += (a.aporteProveedor || 0) + (a.aporteProveedor2 || 0);
+            totalAporteRebate += a.aporteRebate || 0;
+            totalAportePropio += (a.aportePropio || 0) + (a.aportePropio2 || 0);
+        });
+
+        let idPromocionArticulo = 0;
+        let accion = "I";
+        if (comboEnEdicion) {
+            const $filaExistente = $(`#tablaCombosBodyMod tr[data-codigo="${comboEnEdicion}"]`);
+            idPromocionArticulo = $filaExistente.data("idpromocionarticulo") || 0;
+            accion = idPromocionArticulo > 0 ? "U" : "I";
+            $filaExistente.remove();
+        }
+
+        const btnMPHtml = (modalMedioPago === "7" && modalMedioPagoSel && modalMedioPagoSel.length > 0)
+            ? `<button class="btn btn-success btn-sm btn-editar-mp-combo-mod" type="button" disabled><i class="fa-solid fa-list-check"></i> (${modalMedioPagoSel.length})</button>`
+            : `<button class="btn btn-outline-secondary btn-sm d-none btn-editar-mp-combo-mod" type="button" disabled><i class="fa-solid fa-list-check"></i></button>`;
+
+        const filaCombo = `
+            <tr data-codigo="${codigo}" data-idpromocionarticulo="${idPromocionArticulo}" data-accion="${accion}" class="align-middle">
+                <td class="text-center align-middle"><input type="radio" class="form-check-input combo-row-radio-mod" name="comboRadioSelMod"></td>
+                <td class="table-sticky-col" style="background-color: #f8f9fa;">
+                    <span class="text-nowrap"><span class="fw-bold">${codigo}</span> - ${nombre}</span>
+                </td>
+                <td class="text-end">${modalCosto}</td>
+                <td class="text-end">${modalStock}</td>
+                <td class="text-end">${modalStockTienda}</td>
+                <td class="text-end">${modalOptimo}</td>
+                <td class="text-end">${modalExcU}</td>
+                <td class="text-end">${modalExcS}</td>
+                <td><input type="number" class="form-control form-control-sm text-end val-unidades-combo-mod" placeholder="0" value="${modalUnidades}" disabled></td>
+                <td><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo-mod" placeholder="0" value="${modalProyeccion}" disabled></td>
+                <td>
+                    <div class="input-group input-group-sm" style="min-width:140px;">
+                        ${btnMPHtml}
+                        <select class="form-select select-mediopago-combo-final-mod" disabled>
+                            ${generarOpcionesMedioPago()}
+                        </select>
+                    </div>
+                </td>
+                <td class="text-end">${modalPLContado}</td>
+                <td class="text-end">${modalPLCredito}</td>
+                <td class="text-end">${modalPromoContado}</td>
+                <td class="text-end">${modalPromoTC}</td>
+                <td class="text-end">${modalPromoCredito}</td>
+                <td class="text-end">${modalDsctoContado}</td>
+                <td class="text-end">${modalDsctoTC}</td>
+                <td class="text-end">${modalDsctoCredito}</td>
+                <td class="text-end">${modalMargenContado}</td>
+                <td class="text-end">${modalMargenTC}</td>
+                <td class="text-end">${modalMargenCredito}</td>
+                <td class="text-end">${formatCurrencySpanish(totalAporteProv)}</td>
+                <td class="text-end">${formatCurrencySpanish(totalAporteRebate)}</td>
+                <td class="text-end">${formatCurrencySpanish(totalAportePropio)}</td>
+                <td class="text-center"><input class="form-check-input" type="checkbox" disabled ${modalRegalo ? "checked" : ""}></td>
+            </tr>`;
+
+        $("#tablaCombosBodyMod").append(filaCombo);
+
+        const $filaInsertada = $(`#tablaCombosBodyMod tr[data-codigo="${codigo}"]`);
+        $filaInsertada.data("combo-nombre", nombre);
+        $filaInsertada.data("combo-articulos", articulosCombo);
+
+        const $filaSelect = $filaInsertada.find(".select-mediopago-combo-final-mod");
+        $filaSelect.val(modalMedioPago);
+        if (modalMedioPago === "7" && modalMedioPagoSel) {
+            $filaSelect.data("seleccionados", modalMedioPagoSel);
+        }
+
+        const modalCombo = bootstrap.Modal.getInstance(document.getElementById('modalCrearComboMod'));
+        if (modalCombo) modalCombo.hide();
+
+        limpiarModalComboMod();
+        comboEnEdicion = null;
+
+        Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Combo "${nombre}" guardado.`, showConfirmButton: false, timer: 2000 });
+    });
+
+    // SELECCIÓN DE FILA EN COMBOS
+    $(document).off("change", ".combo-row-radio-mod").on("change", ".combo-row-radio-mod", function () {
+        $("#tablaCombosBodyMod tr").removeClass("table-active");
+        $(this).closest("tr").addClass("table-active");
+    });
+
+    // ELIMINAR COLUMNA EN MODAL DE COMBO
+    $(document).off("click", ".btn-eliminar-col-combo-mod").on("click", ".btn-eliminar-col-combo-mod", function (e) {
+        e.preventDefault();
+        const colIndex = $(this).closest("th").index();
+        Swal.fire({
+            title: "¿Eliminar artículo del combo?", icon: "warning",
+            showCancelButton: true, confirmButtonText: "Sí, eliminar"
+        }).then((res) => {
+            if (res.isConfirmed) {
+                $(`#trHeadersCombo th:eq(${colIndex})`).remove();
+                $("#tablaCreacionCombo tbody tr").each(function () {
+                    $(this).find(`td:eq(${colIndex})`).remove();
+                });
+                recalcularTotalesComboMod();
+            }
+        });
+    });
+
+    // ACTUALIZAR HEADER NOMBRE COMBO
+    $("#btnActualizarHeaderComboMod").off("click").on("click", function () {
+        const nom = $("#nombreComboModalMod").val().trim();
+        if (nom) {
+            const prefijo = comboEnEdicion ? `[${comboEnEdicion}] ` : "";
+            $("#btnHeaderComboTotalMod").text(`${prefijo}${nom}`);
+        } else {
+            Swal.fire("Atención", "Ingrese un nombre para el combo", "warning");
+        }
+    });
+
+    // RECÁLCULO DE INPUTS EN MODAL COMBO
+    $(document).off("input change", "#tablaCreacionCombo tbody input.input-combo-art-mod").on("input change", "#tablaCreacionCombo tbody input.input-combo-art-mod", function () {
+        this.value = this.value.replace(/[^0-9.,]/g, '');
+        recalcularColumnaComboMod($(this).closest("td").data("colindex"));
+        recalcularTotalesComboMod();
+    });
+
+    // CAMBIO DE UNIDADES LÍMITE/PROYECCIÓN EN COLUMNA DEL COMBO
+    $(document).off("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input").on("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input", function () {
+        const numCols = $("#trHeadersCombo th").length;
+        for (let i = 2; i < numCols; i++) recalcularColumnaComboMod(i);
+        recalcularTotalesComboMod();
+    });
+
+    // BUSCAR ACUERDO POR ARTÍCULO EN COMBO
+    $(document).off("click", ".btn-buscar-acuerdo-combo-mod").on("click", ".btn-buscar-acuerdo-combo-mod", function () {
+        const $btn = $(this);
+        const colIndex = $btn.closest("td").data("colindex");
+        const tipoFondo = $btn.data("tipofondo");
+        const slot = parseInt($btn.data("slot")) || 1;
+        const $tdCodigo = $(`#tablaCreacionCombo tbody tr[data-campo='art_codigo'] td[data-colindex='${colIndex}']`);
+        const codigoItem = $tdCodigo.find(".art-codigo-hidden").val();
+
+        const $inputDisplay = $btn.closest(".input-group").find("input[type='text']");
+        const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
+
+        const titulos = { "TFPROVEDOR": "Acuerdos Proveedor", "TFREBATE": "Acuerdos Rebate", "TFPROPIO": "Acuerdos Propio" };
+        abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slot, null);
+
+        acuerdoArticuloContexto.esCombo = true;
+        acuerdoArticuloContexto.colIndex = colIndex;
+    });
+
+    // CONTEXTO PARA AÑADIR ARTÍCULOS A COMBO
+    $(document).off("click", ".btn-add-articulo-combo-mod").on("click", ".btn-add-articulo-combo-mod", function () {
+        window.contextoModalItems = "COMBOS_MOD";
+        $("#modalCrearComboMod").data("estaba-abierto", true);
+    });
+
+    // RE-ABRIR MODAL COMBO AL CERRAR ITEMS
+    $("#modalConsultaItems").off("hidden.bs.modal.combosMod").on("hidden.bs.modal.combosMod", function () {
+        if (window.contextoModalItems === "COMBOS_MOD" || $("#modalCrearComboMod").data("estaba-abierto")) {
+            $("#modalCrearComboMod").data("estaba-abierto", false);
+            setTimeout(() => {
+                $("#modalCrearComboMod").modal("show");
+                window.contextoModalItems = "ARTICULOS";
+            }, 300);
+        }
+    });
+}
+
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
@@ -1131,6 +1998,7 @@ $(document).ready(function () {
     initLogicaSeleccionMultiple();
     initValidacionesFinancieras();
     initDatepickers();
+    initLogicaCombosMod();
 
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
@@ -1246,6 +2114,41 @@ $(document).ready(function () {
     $("#btnAceptarAcuerdoArticulo").on("click", function () {
         if (!acuerdoArticuloTemporal) { Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return; }
         if (acuerdoArticuloContexto) {
+
+            // ====== MANEJO PARA COMBOS ======
+            if (acuerdoArticuloContexto.esCombo) {
+                const tipo = acuerdoArticuloContexto.tipoFondo;
+                const slot = acuerdoArticuloContexto.slot;
+                const colIdx = acuerdoArticuloContexto.colIndex;
+                const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo);
+                const getVal = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input.acuerdo-id-hidden`).val();
+
+                if (tipo === "TFPROVEDOR" && (slot === 1 ? getVal("aporte_prov2_id") : getVal("aporte_prov_id")) === idSeleccionado) {
+                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado" }); return;
+                }
+                if (tipo === "TFPROPIO" && (slot === 1 ? getVal("aporte_propio2_id") : getVal("aporte_propio_id")) === idSeleccionado) {
+                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado" }); return;
+                }
+
+                acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
+                acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
+
+                const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
+                const setInputAporte = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input.aporte-valor`).prop("disabled", false).attr("data-max", maxVal).val("");
+
+                if (tipo === "TFPROVEDOR") setInputAporte(slot === 1 ? "aporte_prov" : "aporte_prov2");
+                else if (tipo === "TFREBATE") setInputAporte("aporte_rebate");
+                else if (tipo === "TFPROPIO") setInputAporte(slot === 1 ? "aporte_propio" : "aporte_propio2");
+
+                recalcularColumnaComboMod(colIdx);
+                recalcularTotalesComboMod();
+                $("#modalAcuerdoArticulo").modal("hide");
+                acuerdoArticuloTemporal = null;
+                acuerdoArticuloContexto = null;
+                return;
+            }
+
+            // ====== MANEJO ORIGINAL PARA ARTÍCULOS (sin cambios) ======
             const tipo = acuerdoArticuloContexto.tipoFondo;
             const slot = acuerdoArticuloContexto.slot;
             const $fila = acuerdoArticuloContexto.$fila;
@@ -1255,14 +2158,14 @@ $(document).ready(function () {
                 const otroSlotClass = slot === 1 ? ".acuerdo-prov2-hidden" : ".acuerdo-prov1-hidden";
                 const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
                 if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
-                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en el otro slot. Elija uno diferente.` });
+                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en el otro slot.` });
                     return;
                 }
             } else if (tipo === "TFPROPIO") {
                 const otroSlotClass = slot === 1 ? ".acuerdo-propio2-hidden" : ".acuerdo-propio1-hidden";
                 const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
                 if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
-                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en el otro slot. Elija uno diferente.` });
+                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en el otro slot.` });
                     return;
                 }
             }
@@ -1373,7 +2276,13 @@ $(document).ready(function () {
             });
         });
         if (items.length === 0) { Swal.fire("Atención", "Seleccione al menos un item.", "info"); return; }
-        agregarItemsATablaArticulos(items);
+
+        if (window.contextoModalItems === "COMBOS_MOD") {
+            items.forEach(item => agregarColumnaAComboMod(item));
+        } else {
+            agregarItemsATablaArticulos(items);
+        }
+
         $("#modalConsultaItems").modal("hide");
         $("#checkTodosItems").prop("checked", false);
     });
@@ -1508,15 +2417,10 @@ function poblarFormulario(data) {
     $('#modalTipoPromocion').val(cab.etiqueta_clase_promocion || "");
     $('#promocionDescripcion').val(cab.descripcion || "");
 
-    const fechaInicioFormateada = obtenerSoloFecha(cab.fecha_inicio);
-    const horaInicioFormateada = obtenerSoloHora(cab.fecha_inicio);
-    $('#promocionFechaInicio').val(fechaInicioFormateada);
-    $('#promocionHoraInicio').val(horaInicioFormateada);
-
-    const fechaFinFormateada = obtenerSoloFecha(cab.fecha_fin);
-    const horaFinFormateada = obtenerSoloHora(cab.fecha_fin);
-    $('#promocionFechaFin').val(fechaFinFormateada);
-    $('#promocionHoraFin').val(horaFinFormateada);
+    $('#promocionFechaInicio').val(obtenerSoloFecha(cab.fecha_inicio));
+    $('#promocionHoraInicio').val(obtenerSoloHora(cab.fecha_inicio));
+    $('#promocionFechaFin').val(obtenerSoloFecha(cab.fecha_fin));
+    $('#promocionHoraFin').val(obtenerSoloHora(cab.fecha_fin));
 
     $('#verEstadoPromocion').val(cab.nombre_estado_promocion || cab.estado || "");
 
@@ -1541,6 +2445,7 @@ function poblarFormulario(data) {
         $("#seccionGeneralAcuerdos").hide();
         $("#seccionArticuloSegmentos").show();
         $("#seccionArticuloDetalle").show();
+        $("#seccionComboDetalle").hide();
 
         poblarSelectSegmento("canal", segmentos, "SEGCANAL");
         poblarSelectSegmento("grupo", segmentos, "SEGGRUPOALMACEN");
@@ -1548,11 +2453,25 @@ function poblarFormulario(data) {
 
         poblarArticulosDesdeAPI(data);
 
+    } else if (tipoPromocion === "PRCOMBO") {
+        $("#seccionGeneralSegmentos").hide();
+        $("#seccionGeneralAcuerdos").hide();
+        $("#seccionArticuloSegmentos").show();
+        $("#seccionArticuloDetalle").hide();
+        $("#seccionComboDetalle").show();
+
+        poblarSelectSegmento("canal", segmentos, "SEGCANAL");
+        poblarSelectSegmento("grupo", segmentos, "SEGGRUPOALMACEN");
+        poblarSelectSegmento("tipocliente", segmentos, "SEGTIPOCLIENTE");
+
+        poblarCombosDesdeAPI(data);
+
     } else {
         $("#seccionGeneralSegmentos").show();
         $("#seccionGeneralAcuerdos").show();
         $("#seccionArticuloSegmentos").hide();
         $("#seccionArticuloDetalle").hide();
+        $("#seccionComboDetalle").hide();
 
         poblarSelectSegmento("marca", segmentos, "SEGMARCA");
         poblarSelectSegmento("division", segmentos, "SEGDIVISION");
@@ -1608,10 +2527,14 @@ function resetFormulario() {
     propioTemporal = null;
     acuerdoArticuloTemporal = null;
     acuerdoArticuloContexto = null;
+    comboEnEdicion = null;
+    articulosPorComboMemoria = {};
+    combosBDOriginal = [];
 
     $("#tablaArticulosBody").empty();
+    $("#tablaCombosBodyMod").empty();
     $("#seccionGeneralSegmentos, #seccionGeneralAcuerdos").show();
-    $("#seccionArticuloSegmentos, #seccionArticuloDetalle").hide();
+    $("#seccionArticuloSegmentos, #seccionArticuloDetalle, #seccionComboDetalle").hide();
 
     isPopulating = false;
 }
@@ -1646,6 +2569,8 @@ async function guardarPromocion() {
 
     if (tipoPromocion === "PRARTICULO") {
         await guardarPromocionArticulos();
+    } else if (tipoPromocion === "PRCOMBO") {
+        await guardarPromocionCombos();
     } else {
         await guardarPromocionGeneral();
     }
@@ -1955,6 +2880,222 @@ async function guardarPromocionArticulos() {
         rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
         idopcion: getIdOpcionSeguro(), idcontrolinterfaz: "BTNGRABAR", ideventoetiqueta: "EVCLICK"
+    };
+
+    enviarGuardado(body);
+}
+
+async function guardarPromocionCombos() {
+    const $filas = $("#tablaCombosBodyMod tr");
+    if ($filas.length === 0) {
+        return Swal.fire("Validación", "Debe tener al menos un combo en el detalle.", "warning");
+    }
+
+    const combos = await consultarCombos("TPMODIFICACION");
+    const tipoProceso = combos && combos.length > 0 ? combos[0] : null;
+
+    const fileInput = $('#inputArchivoSoporte')[0].files[0];
+    const leerArchivo = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = e => reject(e);
+    });
+    const base64Completo = fileInput ? await leerArchivo(fileInput) : null;
+
+    const obtenerValorCampo = (configId, selectId, triggerVal) => {
+        const valSelect = $(selectId).val();
+        if (valSelect === triggerVal || (configId === "tipocliente" && valSelect === "4")) {
+            const conf = CONFIG_MULTIPLE.find(c => c.id === configId);
+            return $(conf.btnOpen).data("seleccionados") || [];
+        }
+        return valSelect && valSelect !== "" ? [valSelect] : [];
+    };
+
+    const determinarAsignacion = (idSelector) => {
+        const val = $(idSelector).val();
+        if (!val || val === "T" || val === "TODOS") return "T";
+        if (val === "3" || val === "7" || val === "4") return "C";
+        return "C";
+    };
+
+    const segmentos = [
+        { tiposegmento: "SEGCANAL", codigos: obtenerValorCampo("canal", "#segCanal", "3"), tipoasignacion: determinarAsignacion("#segCanal") },
+        { tiposegmento: "SEGGRUPOALMACEN", codigos: obtenerValorCampo("grupo", "#segGrupoAlmacen", "3"), tipoasignacion: determinarAsignacion("#segGrupoAlmacen") },
+        { tiposegmento: "SEGALMACEN", codigos: obtenerValorCampo("almacen", "#segAlmacen", "3"), tipoasignacion: determinarAsignacion("#segAlmacen") },
+        { tiposegmento: "SEGTIPOCLIENTE", codigos: obtenerValorCampo("tipocliente", "#segTipoCliente", "3"), tipoasignacion: determinarAsignacion("#segTipoCliente") },
+        { tiposegmento: "SEGMARCA", codigos: [], tipoasignacion: "T" },
+        { tiposegmento: "SEGDIVISION", codigos: [], tipoasignacion: "T" },
+        { tiposegmento: "SEGDEPARTAMENTO", codigos: [], tipoasignacion: "T" },
+        { tiposegmento: "SEGCLASE", codigos: [], tipoasignacion: "T" },
+        { tiposegmento: "SEGMEDIOPAGO", codigos: [], tipoasignacion: "T" }
+    ];
+
+    const articulos = [];
+    const articulosComponentes = [];
+    const idsEnTabla = [];
+
+    $filas.each(function (index) {
+        const $fila = $(this);
+        const codigoCombo = String($fila.data("codigo"));
+        const idPromocionArticulo = $fila.data("idpromocionarticulo") || 0;
+        const accion = $fila.data("accion") || "U";
+        const nombreCombo = $fila.data("combo-nombre") || "";
+        const componentes = articulosPorComboMemoria[codigoCombo] || [];
+
+        if (idPromocionArticulo > 0) idsEnTabla.push(idPromocionArticulo);
+
+        const rnArticulo = index + 1;
+
+        const listaComponentes = componentes.map(art => ({
+            codigoarticulo: String(art.codigo),
+            descripcion: art.descripcion,
+            costo: art.costo || 0,
+            stockbodega: art.stock || 0,
+            stocktienda: art.stockTienda || 0,
+            inventariooptimo: art.optimo || 0,
+            excedenteu: art.excedenteu || 0,
+            excedenteusd: art.excedentes || 0,
+            ventahistoricam0u: art.m0u || 0, ventahistoricam0usd: art.m0s || 0,
+            ventahistoricam1u: art.m1u || 0, ventahistoricam1usd: art.m1s || 0,
+            ventahistoricam2u: art.m2u || 0, ventahistoricam2usd: art.m2s || 0,
+            ventahistoricam12u: art.m12u || 0, ventahistoricam12usd: art.m12s || 0,
+            margenminimocontado: 0, margenminimotarjetacredito: 0,
+            margenminimopreciocredito: 0, margenminimoigualar: 0,
+            preciolistacontado: 0, preciolistacredito: 0,
+            preciopromocioncontado: art.promoContado || 0,
+            preciopromociontarjetacredito: art.promoTC || 0,
+            preciopromocioncredito: art.promoCredito || 0,
+            descuentopromocioncontado: art.dsctoContado || 0,
+            descuentopromociontarjetacredito: art.dsctoTC || 0,
+            descuentopromocioncredito: art.dsctoCredito || 0,
+            margenpreciolistacontado: art.margenPLContado || 0,
+            margenpreciolistacredito: art.margenPLCredito || 0,
+            margenpromocioncontado: art.margenPromoContado || 0,
+            margenpromociontarjetacredito: art.margenPromoTC || 0,
+            margenpromocioncredito: art.margenPromoCredito || 0,
+            jsonacuerdos: [
+                ...(art.idAcuerdoProveedor ? [{ idacuerdo: art.idAcuerdoProveedor, valoraporte: art.aporteProveedor, valorcomprometido: 0 }] : []),
+                ...(art.idAcuerdoProveedor2 ? [{ idacuerdo: art.idAcuerdoProveedor2, valoraporte: art.aporteProveedor2, valorcomprometido: 0 }] : []),
+                ...(art.idAcuerdoRebate ? [{ idacuerdo: art.idAcuerdoRebate, valoraporte: art.aporteRebate, valorcomprometido: 0 }] : []),
+                ...(art.idAcuerdoPropio ? [{ idacuerdo: art.idAcuerdoPropio, valoraporte: art.aportePropio, valorcomprometido: 0 }] : []),
+                ...(art.idAcuerdoPropio2 ? [{ idacuerdo: art.idAcuerdoPropio2, valoraporte: art.aportePropio2, valorcomprometido: 0 }] : [])
+            ],
+            jsonotroscostos: (art.otrosCostos || []).map(oc => ({
+                codigo: parseInt(oc.codigo, 10) || 0,
+                costos: parseFloat(oc.valor) || 0
+            }))
+        }));
+
+        const esRegalo = $fila.find("td:last-child input").is(":checked") ? "S" : "N";
+
+        articulos.push({
+            accion: accion,
+            idpromocionarticulo: idPromocionArticulo,
+            codigoitem: codigoCombo,
+            descripcion: nombreCombo,
+            descripcioncombo: nombreCombo,
+            costo: parseCurrencyToNumber($fila.find("td:eq(2)").text()),
+            stockbodega: parseInt($fila.find("td:eq(3)").text()) || 0,
+            stocktienda: parseInt($fila.find("td:eq(4)").text()) || 0,
+            inventariooptimo: parseInt($fila.find("td:eq(5)").text()) || 0,
+            excedenteunidad: parseInt($fila.find("td:eq(6)").text()) || 0,
+            excedentevalor: parseCurrencyToNumber($fila.find("td:eq(7)").text()),
+            m0unidades: 0, m0precio: 0, m1unidades: 0, m1precio: 0,
+            m2unidades: 0, m2precio: 0, m12unidades: 0, m12precio: 0,
+            igualarprecio: 0, diasantiguedad: 0,
+            margenminimocontado: 0, margenminimotarjetacredito: 0,
+            margenminimocredito: 0, margenminimoigualar: 0,
+            unidadeslimite: parseInt($fila.find(".val-unidades-combo-mod").val()) || 0,
+            unidadesproyeccionventas: parseInt($fila.find(".val-proyeccion-combo-mod").val()) || 0,
+            preciolistacontado: parseCurrencyToNumber($fila.find("td:eq(11)").text()),
+            preciolistacredito: parseCurrencyToNumber($fila.find("td:eq(12)").text()),
+            preciopromocioncontado: parseCurrencyToNumber($fila.find("td:eq(13)").text()),
+            preciopromociontarjetacredito: parseCurrencyToNumber($fila.find("td:eq(14)").text()),
+            preciopromocioncredito: parseCurrencyToNumber($fila.find("td:eq(15)").text()),
+            precioigualarprecio: 0,
+            descuentopromocioncontado: parseCurrencyToNumber($fila.find("td:eq(16)").text()),
+            descuentopromociontarjetacredito: parseCurrencyToNumber($fila.find("td:eq(17)").text()),
+            descuentopromocioncredito: parseCurrencyToNumber($fila.find("td:eq(18)").text()),
+            descuentoigualarprecio: 0,
+            margenpreciolistacontado: 0, margenpreciolistacredito: 0,
+            margenpromocioncontado: parseFloat($fila.find("td:eq(19)").text()) || 0,
+            margenpromociontarjetacredito: parseFloat($fila.find("td:eq(20)").text()) || 0,
+            margenpromocioncredito: parseFloat($fila.find("td:eq(21)").text()) || 0,
+            margenigualarprecio: 0,
+            marcaregalo: esRegalo,
+            mediospago: (function () {
+                const selMP = $fila.find(".select-mediopago-combo-final-mod");
+                const valMP = selMP.val();
+                const codesMP = selMP.data("seleccionados") || [];
+                if (valMP === "7") return [{ tipoasignacion: "D", codigos: codesMP }];
+                if (valMP && valMP !== "TODAS") return [{ tipoasignacion: "C", codigos: [valMP] }];
+                return [{ tipoasignacion: "T", codigos: [] }];
+            })(),
+            acuerdos: [],
+            otroscostos: []
+        });
+
+        articulosComponentes.push({
+            rnarticulo: rnArticulo,
+            componentes: listaComponentes
+        });
+    });
+
+    // Detectar combos eliminados (estaban en BD pero no en la tabla)
+    combosBDOriginal.forEach(idBD => {
+        if (!idsEnTabla.includes(idBD)) {
+            articulos.push({
+                accion: "D",
+                idpromocionarticulo: idBD,
+                codigoitem: "",
+                descripcion: "",
+                costo: 0, stockbodega: 0, stocktienda: 0, inventariooptimo: 0,
+                excedenteunidad: 0, excedentevalor: 0,
+                m0unidades: 0, m0precio: 0, m1unidades: 0, m1precio: 0,
+                m2unidades: 0, m2precio: 0, m12unidades: 0, m12precio: 0,
+                igualarprecio: 0, diasantiguedad: 0,
+                unidadeslimite: 0, unidadesproyeccionventas: 0,
+                preciolistacontado: 0, preciolistacredito: 0,
+                preciopromocioncontado: 0, preciopromociontarjetacredito: 0,
+                preciopromocioncredito: 0, precioigualarprecio: 0,
+                descuentopromocioncontado: 0, descuentopromociontarjetacredito: 0,
+                descuentopromocioncredito: 0, descuentoigualarprecio: 0,
+                margenminimocontado: 0, margenminimotarjetacredito: 0,
+                margenminimocredito: 0, margenminimoigualar: 0,
+                margenpreciolistacontado: 0, margenpreciolistacredito: 0,
+                margenpromocioncontado: 0, margenpromociontarjetacredito: 0,
+                margenpromocioncredito: 0, margenigualarprecio: 0,
+                marcaregalo: "N", mediospago: [], acuerdos: [], otroscostos: []
+            });
+        }
+    });
+
+    const body = {
+        idpromocion: parseInt($('#modalPromocionId').val(), 10) || 0,
+        clasepromocion: $('#modalTipoPromocion').val() || "",
+        promocion: {
+            descripcion: $('#promocionDescripcion').val(),
+            motivo: parseInt($('#promocionMotivo').val(), 10) || 0,
+            fechahorainicio: unirFechaHora("promocionFechaInicio", "promocionHoraInicio"),
+            fechahorafin: unirFechaHora("promocionFechaFin", "promocionHoraFin"),
+            marcaregalo: $('#promocionMarcaRegalo').is(':checked') ? "✓" : "",
+            idusuariomodifica: obtenerUsuarioActual(),
+            nombreusuario: obtenerUsuarioActual()
+        },
+        acuerdos: [],
+        segmentos: segmentos,
+        articulos: articulos,
+        articulos_componentes: articulosComponentes,
+        ...(base64Completo ? {
+            archivosoportebase64: base64Completo,
+            nombrearchivosoporte: fileInput.name
+        } : {}),
+        rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
+        idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
+        idopcion: getIdOpcionSeguro(),
+        idcontrolinterfaz: "BTNGRABAR",
+        ideventoetiqueta: "EVCLICK"
     };
 
     enviarGuardado(body);
