@@ -2069,11 +2069,11 @@ namespace AppAPL.Dto.Promocion
     public class BuscarPromocionesRequest
     {
         public string codigoarticulo { get; set; }
-        public DateTime fechahora { get; set; }
-        public string canal { get; set; }
-        public string almacen { get; set; }
-        public string idcliente { get; set; }
-        public string tipocliente { get; set; }
+        public DateTime? fechahora { get; set; }
+        public string? canal { get; set; }
+        public string? almacen { get; set; }
+        public string? idcliente { get; set; }
+        public string? tipocliente { get; set; }
     }
 
     public class BuscarPromocionesResponse

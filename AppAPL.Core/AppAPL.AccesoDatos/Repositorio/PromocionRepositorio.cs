@@ -1358,6 +1358,8 @@ namespace AppAPL.AccesoDatos.Repositorio
                 P_IDCLIENTE = request.idcliente,
                 P_TIPOCLIENTE = request.tipocliente,
             };
+
+            logger.LogInformation($"parametros para enviar al sp: {paramObject.ToString()}");
             var parameters = new OracleDynamicParameters(paramObject);
 
 
