@@ -1,6 +1,7 @@
 ﻿using AppAPL.Api.Attributes;
 using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
+using AppAPL.Dto.Fondos;
 using AppAPL.Dto.Promocion;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
@@ -394,6 +395,25 @@ namespace AppAPL.Api.Controllers
                 return BadRequest(retorno);
             }
             
+        }
+
+        
+        [HttpPost("buscar-promociones")]
+        public async Task<ActionResult<BuscarPromocionesResponse>> BuscarPromociones(BuscarPromocionesRequest request)
+        {
+            // 1. Validación rápida de entrada
+            if (string.IsNullOrWhiteSpace(request.codigoarticulo))
+            {
+                return BadRequest(new
+                {
+                    exito = false,
+                    mensajeError = "El código de artículo es obligatorio."
+                });
+            }
+
+            var resultado = await servicio.BuscarPromocionesAsync(request);
+            
+            return resultado;
         }
     }
 }

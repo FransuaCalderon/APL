@@ -72,6 +72,7 @@ namespace AppAPL.AccesoDatos.Oracle
         }
 
         // 🔹 Obtener valor de parámetro OUT
+        // 🔹 Obtener valor de parámetro OUT
         public T? Get<T>(string name)
         {
             var param = _parameters.FirstOrDefault(p =>
@@ -88,18 +89,23 @@ namespace AppAPL.AccesoDatos.Oracle
             if (param.Value is INullable nullable && nullable.IsNull)
                 return default;
 
-            // Soporte específico para tipos Oracle
+            object finalValue = param.Value;
+
+            // Soporte específico para extraer el valor base de los tipos Oracle
             if (param.Value is OracleDecimal od)
-                return (T)Convert.ChangeType(od.ToInt32(), typeof(T));
+                finalValue = od.Value; // Usar .Value en lugar de ToInt32() para no perder decimales
+            else if (param.Value is OracleString os)
+                finalValue = os.Value;
+            else if (param.Value is OracleDate odate)
+                finalValue = odate.Value;
+            else if (param.Value is OracleClob oclob) // <-- ESTA ES LA SOLUCIÓN AL ERROR
+                finalValue = oclob.Value;
 
-            if (param.Value is OracleString os)
-                return (T)Convert.ChangeType(os.Value, typeof(T));
+            // Extraer el tipo real en caso de que T sea un Nullable (ej. int?, decimal?)
+            Type targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
-            if (param.Value is OracleDate odate)
-                return (T)Convert.ChangeType(odate.Value, typeof(T));
-
-            // Valor normal
-            return (T)Convert.ChangeType(param.Value, typeof(T));
+            // Convertir el valor final extraído al tipo destino
+            return (T)Convert.ChangeType(finalValue, targetType);
         }
 
         // 🔹 Método requerido por Dapper
