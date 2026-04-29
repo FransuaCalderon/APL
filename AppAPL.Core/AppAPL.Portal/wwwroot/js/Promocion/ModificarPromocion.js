@@ -22,6 +22,10 @@ let articulosPorComboMemoria = {};
 let combosBDOriginal = []; // Para detectar combos eliminados al guardar
 window.contextoModalItems = "ARTICULOS";
 
+// --- VARIABLES PARA FIX DE MEDIO DE PAGO EN COMBOS ---
+let selectMedioPagoComboFinalActualMod = null;
+let btnMedioPagoComboFinalActualMod = null;
+
 // ===============================================================
 // CONFIGURACIÓN MÚLTIPLE (Segmentos)
 // ===============================================================
@@ -1952,7 +1956,6 @@ function initLogicaCombosMod() {
         recalcularTotalesComboMod();
     });
 
-    // BUSCAR ACUERDO POR ARTÍCULO EN COMBO
     $(document).off("click", ".btn-buscar-acuerdo-combo-mod").on("click", ".btn-buscar-acuerdo-combo-mod", function () {
         const $btn = $(this);
         const colIndex = $btn.closest("td").data("colindex");
@@ -1969,6 +1972,201 @@ function initLogicaCombosMod() {
 
         acuerdoArticuloContexto.esCombo = true;
         acuerdoArticuloContexto.colIndex = colIndex;
+
+        // FIX Z-INDEX: Forzar que el modal de acuerdos se posicione frente al modal de combos
+        setTimeout(function () {
+            const $modalAcuerdo = $("#modalAcuerdoArticulo");
+            const cantidadAbiertos = $('.modal.show').length;
+            const zIndexHijo = 1050 + (10 * (cantidadAbiertos + 1));
+            $modalAcuerdo.css('z-index', zIndexHijo);
+            setTimeout(function () {
+                const $backdropsTras = $('.modal-backdrop');
+                if ($backdropsTras.length > 0) {
+                    $backdropsTras.last().css('z-index', zIndexHijo - 1);
+                }
+            }, 100);
+        }, 100);
+    });
+
+    // =================================================================================
+    // 2. AGREGAR: LÓGICA DEL SELECT DE MEDIOS DE PAGO EN COMBOS MOD
+    // =================================================================================
+    $(document).off("change.comboMedioPagoMod", ".select-mediopago-combo-mod, .select-mediopago-combo-final-mod").on("change.comboMedioPagoMod", ".select-mediopago-combo-mod, .select-mediopago-combo-final-mod", function (event) {
+        const $select = $(this);
+        const val = $select.val();
+        const $btn = $select.siblings("button");
+
+        if (val === "7") {
+            selectMedioPagoComboFinalActualMod = $select;
+            btnMedioPagoComboFinalActualMod = $btn;
+
+            if ($btn.length) $btn.removeClass("d-none");
+
+            const guardados = $select.data("seleccionados") || [];
+            $("#bodyModalMedioPago input[type='checkbox']").prop("checked", false);
+            guardados.forEach(v => $(`#bodyModalMedioPago input[value='${v}']`).prop("checked", true));
+
+            $("#btnAceptarMedioPago").off("click.comboMod click.articulo");
+            $("#btnAceptarMedioPago").on("click.comboMod", function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                if (selectMedioPagoComboFinalActualMod) {
+                    const seleccionados = [];
+                    $("#bodyModalMedioPago input[type='checkbox']:checked").each(function () {
+                        seleccionados.push($(this).val());
+                    });
+                    selectMedioPagoComboFinalActualMod.data("seleccionados", seleccionados);
+
+                    if (seleccionados.length === 0) {
+                        selectMedioPagoComboFinalActualMod.val("");
+                        if (btnMedioPagoComboFinalActualMod && btnMedioPagoComboFinalActualMod.length) {
+                            btnMedioPagoComboFinalActualMod.addClass("d-none").removeClass("btn-success").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
+                        }
+                    } else {
+                        if (btnMedioPagoComboFinalActualMod && btnMedioPagoComboFinalActualMod.length) {
+                            btnMedioPagoComboFinalActualMod.removeClass("btn-outline-secondary").addClass("btn-success").html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+                        }
+                    }
+                    selectMedioPagoComboFinalActualMod = null;
+                    btnMedioPagoComboFinalActualMod = null;
+                }
+                const modalMPInstance = bootstrap.Modal.getInstance(document.getElementById('ModalMedioPago'));
+                if (modalMPInstance) modalMPInstance.hide();
+            });
+
+            // FIX Z-INDEX AL ABRIR MODAL MEDIO PAGO
+            const $modal = $("#ModalMedioPago");
+            if ($modal.hasClass("show")) {
+                const inst = bootstrap.Modal.getInstance($modal[0]);
+                if (inst) inst.hide();
+            }
+
+            setTimeout(function () {
+                const $modalesAbiertos = $('.modal.show');
+                const $backdropsActuales = $('.modal-backdrop');
+                if ($backdropsActuales.length > $modalesAbiertos.length) {
+                    $backdropsActuales.slice($modalesAbiertos.length).remove();
+                }
+                const cantidadAbiertos = $modalesAbiertos.length;
+                const zIndexHijo = 1050 + (10 * (cantidadAbiertos + 1));
+                $modal.css('z-index', zIndexHijo);
+
+                let modalInstance = bootstrap.Modal.getInstance($modal[0]);
+                if (!modalInstance) {
+                    modalInstance = new bootstrap.Modal($modal[0], { backdrop: true, keyboard: true });
+                }
+                modalInstance.show();
+
+                setTimeout(function () {
+                    const $backdropsTras = $('.modal-backdrop');
+                    if ($backdropsTras.length > 0) {
+                        $backdropsTras.last().css('z-index', zIndexHijo - 1);
+                    }
+                }, 100);
+            }, 50);
+
+        } else {
+            $select.removeData("seleccionados");
+            if ($btn.length) {
+                $btn.addClass("d-none").removeClass("btn-success").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
+            }
+        }
+    });
+
+    // =================================================================================
+    // 3. AGREGAR: LÓGICA DEL BOTÓN VERDE DE MEDIO DE PAGO EN COMBOS MOD
+    // =================================================================================
+    $(document).off("click.editarMpComboMod", ".btn-editar-mp-combo-mod").on("click.editarMpComboMod", ".btn-editar-mp-combo-mod", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        const $btn = $(this);
+        const $select = $btn.siblings(".select-mediopago-combo-final-mod, .select-mediopago-combo-mod");
+
+        selectMedioPagoComboFinalActualMod = $select;
+        btnMedioPagoComboFinalActualMod = $btn;
+
+        const guardados = $select.data("seleccionados") || [];
+        $("#bodyModalMedioPago input[type='checkbox']").prop("checked", false);
+        guardados.forEach(v => $(`#bodyModalMedioPago input[value='${v}']`).prop("checked", true));
+
+        $("#btnAceptarMedioPago").off("click.comboMod click.articulo");
+        $("#btnAceptarMedioPago").on("click.comboMod", function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            if (selectMedioPagoComboFinalActualMod) {
+                const seleccionados = [];
+                $("#bodyModalMedioPago input[type='checkbox']:checked").each(function () {
+                    seleccionados.push($(this).val());
+                });
+                selectMedioPagoComboFinalActualMod.data("seleccionados", seleccionados);
+
+                if (seleccionados.length === 0) {
+                    selectMedioPagoComboFinalActualMod.val("");
+                    btnMedioPagoComboFinalActualMod.addClass("d-none").removeClass("btn-success").addClass("btn-outline-secondary").html(`<i class="fa-solid fa-list-check"></i>`);
+                } else {
+                    btnMedioPagoComboFinalActualMod.removeClass("btn-outline-secondary").addClass("btn-success").html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+                }
+                selectMedioPagoComboFinalActualMod = null;
+                btnMedioPagoComboFinalActualMod = null;
+            }
+            const modalMPInstance = bootstrap.Modal.getInstance(document.getElementById('ModalMedioPago'));
+            if (modalMPInstance) modalMPInstance.hide();
+        });
+
+        // FIX Z-INDEX AL ABRIR
+        const $modal = $("#ModalMedioPago");
+        if ($modal.hasClass("show")) {
+            const inst = bootstrap.Modal.getInstance($modal[0]);
+            if (inst) inst.hide();
+        }
+
+        setTimeout(function () {
+            const $modalesAbiertos = $('.modal.show');
+            const $backdropsActuales = $('.modal-backdrop');
+            if ($backdropsActuales.length > $modalesAbiertos.length) {
+                $backdropsActuales.slice($modalesAbiertos.length).remove();
+            }
+            const cantidadAbiertos = $modalesAbiertos.length;
+            const zIndexHijo = 1050 + (10 * (cantidadAbiertos + 1));
+            $modal.css('z-index', zIndexHijo);
+
+            let modalInstance = bootstrap.Modal.getInstance($modal[0]);
+            if (!modalInstance) {
+                modalInstance = new bootstrap.Modal($modal[0], { backdrop: true, keyboard: true });
+            }
+            modalInstance.show();
+
+            setTimeout(function () {
+                const $backdropsTras = $('.modal-backdrop');
+                if ($backdropsTras.length > 0) {
+                    $backdropsTras.last().css('z-index', zIndexHijo - 1);
+                }
+            }, 100);
+        }, 50);
+    });
+
+    // =================================================================================
+    // 4. AGREGAR: LIMPIEZA DEL MODAL MEDIO DE PAGO PARA DEVOLVER EL FOCO A COMBOS MOD
+    // =================================================================================
+    $("#ModalMedioPago").off("hidden.bs.modal.cleanupMod").on("hidden.bs.modal.cleanupMod", function () {
+        $("#btnAceptarMedioPago").off("click.comboMod click.articulo");
+
+        if (typeof selectMedioPagoComboFinalActualMod !== 'undefined') selectMedioPagoComboFinalActualMod = null;
+        if (typeof btnMedioPagoComboFinalActualMod !== 'undefined') btnMedioPagoComboFinalActualMod = null;
+
+        const $modalComboMod = $("#modalCrearComboMod");
+        if ($modalComboMod.hasClass("show")) {
+            $('body').addClass('modal-open');
+            $modalComboMod.css('z-index', 1050);
+            const $backdrops = $('.modal-backdrop');
+            if ($backdrops.length > 0) {
+                $backdrops.first().css('z-index', 1049).addClass('show');
+            }
+        }
     });
 
     // CONTEXTO PARA AÑADIR ARTÍCULOS A COMBO
@@ -2932,117 +3130,187 @@ async function guardarPromocionCombos() {
     ];
 
     const articulos = [];
-    const articulosComponentes = [];
+    const articulos_componentes = [];
     const idsEnTabla = [];
+    let errorFila = "";
 
     $filas.each(function (index) {
         const $fila = $(this);
         const codigoCombo = String($fila.data("codigo"));
-        const idPromocionArticulo = $fila.data("idpromocionarticulo") || 0;
+        const idPromocionArticulo = parseInt($fila.data("idpromocionarticulo")) || 0;
         const accion = $fila.data("accion") || "U";
         const nombreCombo = $fila.data("combo-nombre") || "";
         const componentes = articulosPorComboMemoria[codigoCombo] || [];
+        const numFila = index + 1;
 
         if (idPromocionArticulo > 0) idsEnTabla.push(idPromocionArticulo);
 
-        const rnArticulo = index + 1;
+        const unidadesLimite = parseInt($fila.find(".val-unidades-combo-mod").val()) || 0;
+        const proyeccionVtas = parseInt($fila.find(".val-proyeccion-combo-mod").val()) || 0;
 
-        const listaComponentes = componentes.map(art => ({
-            codigoarticulo: String(art.codigo),
-            descripcion: art.descripcion,
-            costo: art.costo || 0,
-            stockbodega: art.stock || 0,
-            stocktienda: art.stockTienda || 0,
-            inventariooptimo: art.optimo || 0,
-            excedenteu: art.excedenteu || 0,
-            excedenteusd: art.excedentes || 0,
-            ventahistoricam0u: art.m0u || 0, ventahistoricam0usd: art.m0s || 0,
-            ventahistoricam1u: art.m1u || 0, ventahistoricam1usd: art.m1s || 0,
-            ventahistoricam2u: art.m2u || 0, ventahistoricam2usd: art.m2s || 0,
-            ventahistoricam12u: art.m12u || 0, ventahistoricam12usd: art.m12s || 0,
-            margenminimocontado: 0, margenminimotarjetacredito: 0,
-            margenminimopreciocredito: 0, margenminimoigualar: 0,
-            preciolistacontado: 0, preciolistacredito: 0,
-            preciopromocioncontado: art.promoContado || 0,
-            preciopromociontarjetacredito: art.promoTC || 0,
-            preciopromocioncredito: art.promoCredito || 0,
-            descuentopromocioncontado: art.dsctoContado || 0,
-            descuentopromociontarjetacredito: art.dsctoTC || 0,
-            descuentopromocioncredito: art.dsctoCredito || 0,
-            margenpreciolistacontado: art.margenPLContado || 0,
-            margenpreciolistacredito: art.margenPLCredito || 0,
-            margenpromocioncontado: art.margenPromoContado || 0,
-            margenpromociontarjetacredito: art.margenPromoTC || 0,
-            margenpromocioncredito: art.margenPromoCredito || 0,
-            jsonacuerdos: [
-                ...(art.idAcuerdoProveedor ? [{ idacuerdo: art.idAcuerdoProveedor, valoraporte: art.aporteProveedor, valorcomprometido: 0 }] : []),
-                ...(art.idAcuerdoProveedor2 ? [{ idacuerdo: art.idAcuerdoProveedor2, valoraporte: art.aporteProveedor2, valorcomprometido: 0 }] : []),
-                ...(art.idAcuerdoRebate ? [{ idacuerdo: art.idAcuerdoRebate, valoraporte: art.aporteRebate, valorcomprometido: 0 }] : []),
-                ...(art.idAcuerdoPropio ? [{ idacuerdo: art.idAcuerdoPropio, valoraporte: art.aportePropio, valorcomprometido: 0 }] : []),
-                ...(art.idAcuerdoPropio2 ? [{ idacuerdo: art.idAcuerdoPropio2, valoraporte: art.aportePropio2, valorcomprometido: 0 }] : [])
-            ],
-            jsonotroscostos: (art.otrosCostos || []).map(oc => ({
-                codigo: parseInt(oc.codigo, 10) || 0,
-                costos: parseFloat(oc.valor) || 0
-            }))
-        }));
+        if (unidadesLimite > 0 && proyeccionVtas > 0) {
+            errorFila = `Combo Fila ${numFila}: Solo Unidades Límite O Proyección Vtas, no ambas.`;
+            return false;
+        }
+        if (unidadesLimite === 0 && proyeccionVtas === 0) {
+            errorFila = `Combo Fila ${numFila}: Ingrese Unidades Límite o Proyección Vtas.`;
+            return false;
+        }
 
-        const esRegalo = $fila.find("td:last-child input").is(":checked") ? "S" : "N";
+        // Medios de Pago del combo
+        const $selectMP = $fila.find(".select-mediopago-combo-final-mod");
+        const valMP = $selectMP.val();
+        const seleccionadosMP = $selectMP.data("seleccionados") || [];
+        let mediospago = [];
+        if (valMP === "7" && seleccionadosMP.length > 0) {
+            mediospago.push({ tipoasignacion: "C", codigos: seleccionadosMP });
+        } else if (valMP && valMP !== "" && valMP !== "TODAS" && valMP !== "TODOS") {
+            mediospago.push({ tipoasignacion: "C", codigos: [valMP] });
+        } else {
+            mediospago.push({ tipoasignacion: "T", codigos: [] });
+        }
 
+        const esRegalo = $fila.find("td:last-child input[type='checkbox']").is(":checked") ? "S" : "N";
+        const unidadesParaCalculo = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
+
+        // ===== ARTÍCULO (CABECERA DEL COMBO) =====
         articulos.push({
             accion: accion,
             idpromocionarticulo: idPromocionArticulo,
-            codigoitem: codigoCombo,
-            descripcion: nombreCombo,
+            codigoitem: accion === "I" ? "" : codigoCombo,
+            descripcion: accion === "I" ? "" : nombreCombo,
             descripcioncombo: nombreCombo,
+            unidadesproyeccionventas: proyeccionVtas,
+            proyeccionventas: proyeccionVtas,
+            unidadeslimite: unidadesLimite,
+            margenminimoigualar: 0,
+            margenminimoigualarprecio: 0,
+            precioigualarprecio: 0,
+            descuentoigualarprecio: 0,
+            margenigualarprecio: 0,
+            marcaregalo: esRegalo,
+            regalo: esRegalo,
             costo: parseCurrencyToNumber($fila.find("td:eq(2)").text()),
             stockbodega: parseInt($fila.find("td:eq(3)").text()) || 0,
             stocktienda: parseInt($fila.find("td:eq(4)").text()) || 0,
             inventariooptimo: parseInt($fila.find("td:eq(5)").text()) || 0,
             excedenteunidad: parseInt($fila.find("td:eq(6)").text()) || 0,
             excedentevalor: parseCurrencyToNumber($fila.find("td:eq(7)").text()),
-            m0unidades: 0, m0precio: 0, m1unidades: 0, m1precio: 0,
-            m2unidades: 0, m2precio: 0, m12unidades: 0, m12precio: 0,
-            igualarprecio: 0, diasantiguedad: 0,
-            margenminimocontado: 0, margenminimotarjetacredito: 0,
-            margenminimocredito: 0, margenminimoigualar: 0,
-            unidadeslimite: parseInt($fila.find(".val-unidades-combo-mod").val()) || 0,
-            unidadesproyeccionventas: parseInt($fila.find(".val-proyeccion-combo-mod").val()) || 0,
+            m0unidades: 0, m0precio: 0,
+            m1unidades: 0, m1precio: 0,
+            m2unidades: 0, m2precio: 0,
+            m12unidades: 0, m12precio: 0,
+            igualarprecio: 0,
+            diasantiguedad: 0,
+            margenminimocontado: 0,
+            margenminimotarjetacredito: 0,
+            margenminimocredito: 0,
             preciolistacontado: parseCurrencyToNumber($fila.find("td:eq(11)").text()),
             preciolistacredito: parseCurrencyToNumber($fila.find("td:eq(12)").text()),
             preciopromocioncontado: parseCurrencyToNumber($fila.find("td:eq(13)").text()),
             preciopromociontarjetacredito: parseCurrencyToNumber($fila.find("td:eq(14)").text()),
             preciopromocioncredito: parseCurrencyToNumber($fila.find("td:eq(15)").text()),
-            precioigualarprecio: 0,
             descuentopromocioncontado: parseCurrencyToNumber($fila.find("td:eq(16)").text()),
             descuentopromociontarjetacredito: parseCurrencyToNumber($fila.find("td:eq(17)").text()),
             descuentopromocioncredito: parseCurrencyToNumber($fila.find("td:eq(18)").text()),
-            descuentoigualarprecio: 0,
-            margenpreciolistacontado: 0, margenpreciolistacredito: 0,
+            margenpreciolistacontado: 0,
+            margenpreciolistacredito: 0,
             margenpromocioncontado: parseFloat($fila.find("td:eq(19)").text()) || 0,
             margenpromociontarjetacredito: parseFloat($fila.find("td:eq(20)").text()) || 0,
             margenpromocioncredito: parseFloat($fila.find("td:eq(21)").text()) || 0,
-            margenigualarprecio: 0,
-            marcaregalo: esRegalo,
-            mediospago: (function () {
-                const selMP = $fila.find(".select-mediopago-combo-final-mod");
-                const valMP = selMP.val();
-                const codesMP = selMP.data("seleccionados") || [];
-                if (valMP === "7") return [{ tipoasignacion: "D", codigos: codesMP }];
-                if (valMP && valMP !== "TODAS") return [{ tipoasignacion: "C", codigos: [valMP] }];
-                return [{ tipoasignacion: "T", codigos: [] }];
-            })(),
+            mediospago: mediospago,
             acuerdos: [],
             otroscostos: []
         });
 
-        articulosComponentes.push({
-            rnarticulo: rnArticulo,
-            componentes: listaComponentes
+        // ===== COMPONENTES DEL COMBO =====
+        const jsonArticulosComponentes = componentes.map(art => {
+            const idCompBD = art.idpromocionarticulocomponente || 0;
+            const accionComp = idCompBD > 0 ? "U" : "I";
+
+            return {
+                accion: accionComp,
+                idpromocionarticulocomponente: idCompBD,
+                codigoarticulo: String(art.codigo),
+                descripcion: art.descripcion || "",
+                costo: art.costo || 0,
+                stockbodega: art.stock || 0,
+                stocktienda: art.stockTienda || 0,
+                inventariooptimo: art.optimo || 0,
+                excedenteu: art.excedenteu || 0,
+                excedenteusd: art.excedentes || 0,
+                ventahistoricam0u: art.m0u || 0,
+                ventahistoricam0usd: art.m0s || 0,
+                ventahistoricam1u: art.m1u || 0,
+                ventahistoricam1usd: art.m1s || 0,
+                ventahistoricam2u: art.m2u || 0,
+                ventahistoricam2usd: art.m2s || 0,
+                ventahistoricam12u: art.m12u || 0,
+                ventahistoricam12usd: art.m12s || 0,
+                igualarprecio: 0,
+                diasantiguedad: 0,
+                margenminimocontado: 0,
+                margenminimotarjetacredito: 0,
+                margenminimopreciocredito: 0,
+                margenminimoigualar: 0,
+                preciolistacontado: art.preciolistacontado || 0,
+                preciolistacredito: art.preciolistacredito || 0,
+                preciopromocioncontado: art.promoContado || 0,
+                preciopromociontarjetacredito: art.promoTC || 0,
+                preciopromocioncredito: art.promoCredito || 0,
+                descuentopromocioncontado: art.dsctoContado || 0,
+                descuentopromociontarjetacredito: art.dsctoTC || 0,
+                descuentopromocioncredito: art.dsctoCredito || 0,
+                margenpreciolistacontado: art.margenPLContado || 0,
+                margenpreciolistacredito: art.margenPLCredito || 0,
+                margenpromocioncontado: art.margenPromoContado || 0,
+                margenpromociontarjetacredito: art.margenPromoTC || 0,
+                margenpromocioncredito: art.margenPromoCredito || 0,
+                jsonacuerdos: [
+                    ...(art.idAcuerdoProveedor ? [{
+                        idacuerdo: art.idAcuerdoProveedor,
+                        valoraporte: art.aporteProveedor || 0,
+                        valorcomprometido: (art.aporteProveedor || 0) * unidadesParaCalculo
+                    }] : []),
+                    ...(art.idAcuerdoProveedor2 ? [{
+                        idacuerdo: art.idAcuerdoProveedor2,
+                        valoraporte: art.aporteProveedor2 || 0,
+                        valorcomprometido: (art.aporteProveedor2 || 0) * unidadesParaCalculo
+                    }] : []),
+                    ...(art.idAcuerdoRebate ? [{
+                        idacuerdo: art.idAcuerdoRebate,
+                        valoraporte: art.aporteRebate || 0,
+                        valorcomprometido: (art.aporteRebate || 0) * unidadesParaCalculo
+                    }] : []),
+                    ...(art.idAcuerdoPropio ? [{
+                        idacuerdo: art.idAcuerdoPropio,
+                        valoraporte: art.aportePropio || 0,
+                        valorcomprometido: (art.aportePropio || 0) * unidadesParaCalculo
+                    }] : []),
+                    ...(art.idAcuerdoPropio2 ? [{
+                        idacuerdo: art.idAcuerdoPropio2,
+                        valoraporte: art.aportePropio2 || 0,
+                        valorcomprometido: (art.aportePropio2 || 0) * unidadesParaCalculo
+                    }] : [])
+                ],
+                jsonotroscostos: (art.otrosCostos || []).map(oc => ({
+                    codigo: parseInt(oc.codigo, 10) || 0,
+                    costos: parseFloat(oc.valor) || 0
+                }))
+            };
+        });
+
+        articulos_componentes.push({
+            accion: accion,
+            jsonarticuloscomponentes: jsonArticulosComponentes
         });
     });
 
-    // Detectar combos eliminados (estaban en BD pero no en la tabla)
+    if (errorFila) {
+        return Swal.fire("Validación de Detalle", errorFila, "warning");
+    }
+
+    // ===== DETECTAR COMBOS ELIMINADOS =====
     combosBDOriginal.forEach(idBD => {
         if (!idsEnTabla.includes(idBD)) {
             articulos.push({
@@ -3050,49 +3318,66 @@ async function guardarPromocionCombos() {
                 idpromocionarticulo: idBD,
                 codigoitem: "",
                 descripcion: "",
-                costo: 0, stockbodega: 0, stocktienda: 0, inventariooptimo: 0,
+                descripcioncombo: "",
+                unidadesproyeccionventas: 0,
+                proyeccionventas: 0,
+                unidadeslimite: 0,
+                margenminimoigualar: 0,
+                margenminimoigualarprecio: 0,
+                precioigualarprecio: 0,
+                descuentoigualarprecio: 0,
+                margenigualarprecio: 0,
+                marcaregalo: "N",
+                regalo: "N",
+                costo: 0,
+                stockbodega: 0, stocktienda: 0, inventariooptimo: 0,
                 excedenteunidad: 0, excedentevalor: 0,
-                m0unidades: 0, m0precio: 0, m1unidades: 0, m1precio: 0,
-                m2unidades: 0, m2precio: 0, m12unidades: 0, m12precio: 0,
+                m0unidades: 0, m0precio: 0,
+                m1unidades: 0, m1precio: 0,
+                m2unidades: 0, m2precio: 0,
+                m12unidades: 0, m12precio: 0,
                 igualarprecio: 0, diasantiguedad: 0,
-                unidadeslimite: 0, unidadesproyeccionventas: 0,
+                margenminimocontado: 0, margenminimotarjetacredito: 0, margenminimocredito: 0,
                 preciolistacontado: 0, preciolistacredito: 0,
-                preciopromocioncontado: 0, preciopromociontarjetacredito: 0,
-                preciopromocioncredito: 0, precioigualarprecio: 0,
-                descuentopromocioncontado: 0, descuentopromociontarjetacredito: 0,
-                descuentopromocioncredito: 0, descuentoigualarprecio: 0,
-                margenminimocontado: 0, margenminimotarjetacredito: 0,
-                margenminimocredito: 0, margenminimoigualar: 0,
+                preciopromocioncontado: 0, preciopromociontarjetacredito: 0, preciopromocioncredito: 0,
+                descuentopromocioncontado: 0, descuentopromociontarjetacredito: 0, descuentopromocioncredito: 0,
                 margenpreciolistacontado: 0, margenpreciolistacredito: 0,
-                margenpromocioncontado: 0, margenpromociontarjetacredito: 0,
-                margenpromocioncredito: 0, margenigualarprecio: 0,
-                marcaregalo: "N", mediospago: [], acuerdos: [], otroscostos: []
+                margenpromocioncontado: 0, margenpromociontarjetacredito: 0, margenpromocioncredito: 0,
+                mediospago: [],
+                acuerdos: [],
+                otroscostos: []
+            });
+
+            articulos_componentes.push({
+                accion: "D",
+                jsonarticuloscomponentes: []
             });
         }
     });
 
+    const usuario = obtenerUsuarioActual();
+
     const body = {
         idpromocion: parseInt($('#modalPromocionId').val(), 10) || 0,
-        clasepromocion: $('#modalTipoPromocion').val() || "",
+        clasepromocion: $('#modalTipoPromocion').val() || "PRCOMBO",
         promocion: {
             descripcion: $('#promocionDescripcion').val(),
             motivo: parseInt($('#promocionMotivo').val(), 10) || 0,
             fechahorainicio: unirFechaHora("promocionFechaInicio", "promocionHoraInicio"),
             fechahorafin: unirFechaHora("promocionFechaFin", "promocionHoraFin"),
-            marcaregalo: $('#promocionMarcaRegalo').is(':checked') ? "✓" : "",
-            idusuariomodifica: obtenerUsuarioActual(),
-            nombreusuario: obtenerUsuarioActual()
+            marcaregalo: $('#promocionMarcaRegalo').is(':checked') ? "S" : "N",
+            idusuariomodifica: usuario,
+            idusuarioingreso: usuario,
+            nombreusuario: usuario
         },
         acuerdos: [],
         segmentos: segmentos,
         articulos: articulos,
-        articulos_componentes: articulosComponentes,
-        ...(base64Completo ? {
-            archivosoportebase64: base64Completo,
-            nombrearchivosoporte: fileInput.name
-        } : {}),
-        rutaarchivoantiguo: promocionTemporal.cabecera.archivosoporte,
-        idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
+        articulos_componentes: articulos_componentes,
+        nombrearchivosoporte: fileInput ? fileInput.name : "",
+        archivosoportebase64: base64Completo || "",
+        rutaarchivoantiguo: (promocionTemporal && promocionTemporal.cabecera) ? (promocionTemporal.cabecera.archivosoporte || "") : "",
+        idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 1,
         idopcion: getIdOpcionSeguro(),
         idcontrolinterfaz: "BTNGRABAR",
         ideventoetiqueta: "EVCLICK"

@@ -167,66 +167,20 @@ function abrirModalVisualizarSegmento(titulo, detalles) {
     new bootstrap.Modal(document.getElementById("modalVerSegmento")).show();
 }
 
-function generarHtmlMedioPagoArticulo(articulossegmentos, idPromocionArticulo) {
-    if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
-    const items = articulossegmentos.filter(s => s.idpromocionarticulo === idPromocionArticulo && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO");
-    if (items.length === 0) return "Todos";
+function generarHtmlMedioPagoArticulo(articulossegmentodetalle, idPromocionArticulo) {
+    if (!articulossegmentodetalle || !Array.isArray(articulossegmentodetalle)) return "Todos";
 
-    const primerItem = items[0];
-    const tipoAsig = (primerItem.tipoasignacion || "").toString().toUpperCase();
-    if (tipoAsig === "T") return "Todos";
-
-    const mapa = {};
-    items.forEach(i => {
-        const cod = (i.codigo_detalle || "").toString().trim();
-        const nom = (i.nombre_medio_pago || i.nombre_detalle || "").toString().trim();
-        if (cod.toUpperCase() === "TODOS") return;
-
-        if (cod.includes(",")) {
-            const cods = cod.split(",");
-            const noms = nom.split(",");
-            cods.forEach((c, idx) => {
-                const cTrim = c.trim();
-                const nTrim = (noms[idx] || "").trim();
-                if (cTrim && !mapa[cTrim]) mapa[cTrim] = { codigo: cTrim, nombre: nTrim };
-            });
-        } else {
-            const key = cod || nom;
-            if (key && !mapa[key]) mapa[key] = { codigo: cod, nombre: nom };
-        }
-    });
-
-    const detalles = Object.values(mapa);
-    if (detalles.length > 1) {
-        const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
-        return `<button type="button" class="btn btn-success btn-sm btn-ver-mediopago-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
-    }
-    if (detalles.length === 1) {
-        let cod = detalles[0].codigo; let nom = detalles[0].nombre;
-        if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
-        if (cod.toUpperCase() === "TODOS") return "Todos";
-        if (cod && nom) return `${cod} - ${nom}`;
-        return cod || nom || "Todos";
-    }
-    return "Todos";
-}
-
-function generarHtmlMedioPagoCombo(articulossegmentos, idPromocionArticulo) {
-    if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
-
-    const items = articulossegmentos.filter(s =>
-        s.idpromocionarticulo === idPromocionArticulo && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO"
+    // Filtramos directamente los detalles que pertenecen al artículo y tienen datos de medio de pago
+    const items = articulossegmentodetalle.filter(s =>
+        s.idpromocionarticulo === idPromocionArticulo &&
+        (s.codigo_medio_pago || s.nombre_medio_pago)
     );
 
     if (items.length === 0) return "Todos";
 
-    const primerItem = items[0];
-    const tipoAsig = (primerItem.tipoasignacion || "").toString().toUpperCase();
-    if (tipoAsig === "T") return "Todos";
-
     const mapa = {};
     items.forEach(i => {
-        const cod = (i.codigo_detalle || "").toString().trim();
+        const cod = (i.codigo_medio_pago || i.codigo_detalle || "").toString().trim();
         const nom = (i.nombre_medio_pago || i.nombre_detalle || "").toString().trim();
 
         if (cod.toUpperCase() === "TODOS") return;
@@ -257,9 +211,67 @@ function generarHtmlMedioPagoCombo(articulossegmentos, idPromocionArticulo) {
         let nom = detalles[0].nombre;
         if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
         if (cod.toUpperCase() === "TODOS") return "Todos";
-
-        return nom || cod || "Todos";
+        if (cod && nom) return `${cod} - ${nom}`;
+        return cod || nom || "Todos";
     }
+
+    return "Todos";
+}
+
+function generarHtmlMedioPagoCombo(articulossegmentodetalle, idPromocionArticulo, codigoCombo) {
+    if (!articulossegmentodetalle || !Array.isArray(articulossegmentodetalle)) return "Todos";
+
+    // Filtramos buscando que coincida el codigo_combo o el idpromocionarticulo
+    const items = articulossegmentodetalle.filter(s => {
+        let coincide = false;
+        // Priorizamos la búsqueda por código de combo
+        if (codigoCombo && s.codigo_combo === codigoCombo) {
+            coincide = true;
+        } else if (idPromocionArticulo && s.idpromocionarticulo === idPromocionArticulo) {
+            coincide = true;
+        }
+        return coincide && (s.codigo_medio_pago || s.nombre_medio_pago);
+    });
+
+    if (items.length === 0) return "Todos";
+
+    const mapa = {};
+    items.forEach(i => {
+        const cod = (i.codigo_medio_pago || i.codigo_detalle || "").toString().trim();
+        const nom = (i.nombre_medio_pago || i.nombre_detalle || "").toString().trim();
+
+        if (cod.toUpperCase() === "TODOS") return;
+
+        if (cod.includes(",")) {
+            const cods = cod.split(",");
+            const noms = nom.split(",");
+            cods.forEach((c, idx) => {
+                const cTrim = c.trim();
+                const nTrim = (noms[idx] || "").trim();
+                if (cTrim && !mapa[cTrim]) mapa[cTrim] = { codigo: cTrim, nombre: nTrim };
+            });
+        } else {
+            const key = cod || nom;
+            if (key && !mapa[key]) mapa[key] = { codigo: cod, nombre: nom };
+        }
+    });
+
+    const detalles = Object.values(mapa);
+
+    if (detalles.length > 1) {
+        const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
+        return `<button type="button" class="btn btn-success btn-sm btn-ver-mediopago-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
+    }
+
+    if (detalles.length === 1) {
+        let cod = detalles[0].codigo;
+        let nom = detalles[0].nombre;
+        if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
+        if (cod.toUpperCase() === "TODOS") return "Todos";
+        if (cod && nom) return `${cod} - ${nom}`;
+        return cod || nom || "Todos";
+    }
+
     return "Todos";
 }
 
@@ -492,7 +504,7 @@ function abrirModalEditar(idPromocion) {
                     configurarCampoSegmentoArticulo("#verTipoClienteArt", "#btnVerTipoClienteArt", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
 
                     if (data.articulos && data.articulos.length > 0) {
-                        renderizarTablaArticulosCompleta(data.articulos, data.articulossegmentos || [], data.articulosacuerdos || [], articulosotros);
+                        renderizarTablaArticulosCompleta(data.articulos, data.articulossegmentodetalle || [], data.articulosacuerdos || [], articulosotros);
                     } else {
                         $('#contenedor-tabla-articulos').html('<div class="alert alert-info text-center">No hay artículos en esta promoción.</div>').show();
                     }
@@ -508,7 +520,7 @@ function abrirModalEditar(idPromocion) {
                     configurarCampoSegmentoArticulo("#verTipoClienteComb", "#btnVerTipoClienteComb", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
 
                     if (data.articulos && data.articulos.length > 0) {
-                        renderizarTablaCombosCompleta(data.articulos, data.articulossegmentos || []);
+                        renderizarTablaCombosCompleta(data.articulos, data.articulossegmentodetalle || []);
                     } else {
                         $('#contenedor-tabla-combos-completa').html('<div class="alert alert-info text-center">No hay combos en esta promoción.</div>').show();
                     }
@@ -830,7 +842,7 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
                 <tbody class="text-nowrap tabla-items-body bg-white">`;
 
     combosArray.forEach(cmb => {
-        const medioPagoHtml = generarHtmlMedioPagoCombo(articulossegmentos, cmb.id_promo_art);
+        const medioPagoHtml = generarHtmlMedioPagoCombo(articulossegmentos, cmb.id_promo_art, cmb.codigo);
 
         html += `<tr>
             <td class="fw-bold text-start">${cmb.codigo} - ${cmb.descripcion}</td>

@@ -260,12 +260,27 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, idPromocionArticulo) {
 // ===============================================================
 // HELPER: Generar HTML Medio Pago para Combos
 // ===============================================================
-function generarHtmlMedioPagoCombo(articulossegmentos, idPromocionArticulo) {
+function generarHtmlMedioPagoCombo(articulossegmentos, idPromocionArticulo, codigoCombo, idPromocionCombo) {
     if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
 
-    const items = articulossegmentos.filter(s =>
-        s.idpromocionarticulo === idPromocionArticulo && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO"
-    );
+    // Filtramos siendo ultra flexibles con las llaves de relación
+    const items = articulossegmentos.filter(s => {
+        const tag = (s.etiqueta_tipo_segmento || "").toUpperCase();
+        if (tag !== "SEGMEDIOPAGO") return false;
+
+        let coincide = false;
+        const targetCodigo = (codigoCombo || "").toString().trim().toUpperCase();
+        const sCodigo = (s.codigo_combo || s.codigocombo || "").toString().trim().toUpperCase();
+
+        // 1. Validar por coincidencia de Código del Combo
+        if (targetCodigo && sCodigo && targetCodigo === sCodigo) coincide = true;
+        // 2. Validar por coincidencia de ID Promoción Artículo
+        if (idPromocionArticulo && s.idpromocionarticulo === idPromocionArticulo) coincide = true;
+        // 3. Validar por coincidencia de ID Promoción Combo (por si el backend usa esta llave)
+        if (idPromocionCombo && (s.idpromocioncombo === idPromocionCombo || s.idpromocionarticulo === idPromocionCombo)) coincide = true;
+
+        return coincide;
+    });
 
     if (items.length === 0) return "Todos";
 
@@ -307,7 +322,6 @@ function generarHtmlMedioPagoCombo(articulossegmentos, idPromocionArticulo) {
         if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
         if (cod.toUpperCase() === "TODOS") return "Todos";
 
-        // Cambio aquí: Retorna SOLO la descripción (nombre) en lugar del código y nombre
         return nom || cod || "Todos";
     }
     return "Todos";
@@ -873,6 +887,7 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
         if (!combosMap[key]) {
             combosMap[key] = {
                 id_promo_art: art.idpromocionarticulo,
+                id_promo_combo: art.idpromocioncombo || 0,
                 codigo: cod,
                 descripcion: art.descripcion_combo,
                 costo: art.costo_combo || 0,
@@ -945,8 +960,7 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
                 <tbody class="text-nowrap tabla-items-body bg-white">`;
 
     combosArray.forEach(cmb => {
-        // Obtenemos los medios de pago en base al ID único de la fila del combo
-        const medioPagoHtml = generarHtmlMedioPagoCombo(articulossegmentos, cmb.id_promo_art);
+        const medioPagoHtml = generarHtmlMedioPagoCombo(articulossegmentos, cmb.id_promo_art, cmb.codigo, cmb.id_promo_combo);
 
         html += `<tr>
             <td class="fw-bold text-start">${cmb.codigo} - ${cmb.descripcion}</td>

@@ -258,6 +258,10 @@
                     return;
                 }
 
+                if (this.id === "btnAceptarMedioPago" && !$("#formGeneral").is(":visible")) {
+                    return;
+                }
+
                 const targetBtnSelector = $(this).data("target-btn");
                 const targetBodySelector = $(this).data("target-body");
                 const targetId = $(this).data("target-id");
