@@ -367,7 +367,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_msg_respuesta", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
             int filasAfectadas = await connection.ExecuteAsync(
-                "APL_PKG_PROMOCIONES.sp_proceso_inactivacion_promocion",
+                "APL_PKG_CONFIGURA_PARAMETRO.PR_MANTENIMIENTO_PARAMETROS",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );

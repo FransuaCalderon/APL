@@ -651,15 +651,15 @@
 									  
 					<!-- linea 1 -->
 					<div class="col-md-12 text-center">
-						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre del Grupo</label>
-						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre">
+						<label for="inputNuevoNombreGrupo" class="form-label fw-bold  ">Nombre del Grupo</label>
+						<input type="text" class="form-control " id="inputNuevoNombreGrupo" placeholder="Ingrese Nombre">
 					</div>
 	  
 				</form>
 
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarNuevoGrupo">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -1115,15 +1115,15 @@
 									  
 					<!-- linea 1 -->
 					<div class="col-md-12 text-center">
-						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre del Grupo</label>
-						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre" value="Grupo Norte Artefacta">
+						<label for="inputModifNombreGrupo" class="form-label fw-bold  ">Nombre del Grupo</label>
+						<input type="text" class="form-control " id="inputModifNombreGrupo" placeholder="Ingrese Nombre" value="Grupo Norte Artefacta">
 					</div>
 	  
 				</form>
 
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarModifGrupo">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -1408,15 +1408,16 @@
 									  
 					<!-- linea 1 -->
 					<div class="col-md-12 text-center">
-						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre del Grupo</label>
-						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre" disabled>
+						<input type="hidden" id="inputIdElimGrupo">
+						<label for="inputElimNombreGrupo" class="form-label fw-bold  ">Nombre del Grupo</label>
+						<input type="text" class="form-control " id="inputElimNombreGrupo" placeholder="Ingrese Nombre" disabled>
 					</div>
 	  
 				</form>
 
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-primary" id="btnConfirmarElimGrupo">Eliminar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>

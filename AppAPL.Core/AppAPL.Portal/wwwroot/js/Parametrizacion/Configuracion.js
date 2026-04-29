@@ -28,7 +28,192 @@
     $(document).on('click', '.btn-action', function (e) {
         e.stopPropagation();
     });
+
+
+
+
+    // ==========================================
+    // AÑADIR NUEVO GRUPO
+    // ==========================================
+
+    // Limpiar el modal cuando se abre para que no quede el texto anterior
+    $('#modalNuevoGrupo').on('show.bs.modal', function () {
+        $('#inputNuevoNombreGrupo').val('');
+    });
+
+    $('#btnGuardarNuevoGrupo').click(function () {
+        guardarGrupoAlmacen();
+    });
+
+
+    // ==========================================
+    // MODIFICAR GRUPO
+    // ==========================================
+
+    // 1. Cuando se abre el modal, capturamos los datos de la fila y llenamos los inputs
+    $('#modalModificarGrupo').on('show.bs.modal', function (event) {
+        // 'event.relatedTarget' es el botón del lapicito que disparó el modal
+        const $boton = $(event.relatedTarget);
+        const $fila = $boton.closest('tr');
+
+        const idParam = $boton.data('id');
+        const nombreGrupo = $fila.data('nombre');
+
+        // Llenamos el input visible y el oculto
+        $('#inputIdModifGrupo').val(idParam);
+        $('#inputModifNombreGrupo').val(nombreGrupo);
+    });
+
+    // 2. Evento para guardar la modificación
+    $('#btnGuardarModifGrupo').click(function () {
+        modificarGrupoAlmacen();
+    });
+
+
+    // ==========================================
+    // ELIMINAR GRUPO
+    // ==========================================
+
+    // 1. Llenar el modal de confirmación
+    $('#modalEliminarGrupo').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        const $fila = $boton.closest('tr');
+
+        $('#inputIdElimGrupo').val($boton.data('id'));
+        $('#inputElimNombreGrupo').val($fila.data('nombre'));
+    });
+
+    // 2. Evento para confirmar eliminación
+    $('#btnConfirmarElimGrupo').click(function () {
+        eliminarGrupoAlmacen();
+    });
 });
+
+function getUsuario() {
+    return window.usuarioActual || "admin";
+}
+
+function getIdOpcionSeguro() {
+    try {
+        return (
+            (window.obtenerIdOpcionActual && window.obtenerIdOpcionActual()) ||
+            (window.obtenerInfoOpcionActual && window.obtenerInfoOpcionActual().idOpcion) ||
+            null
+        );
+    } catch (e) {
+        console.error("Error obteniendo idOpcion:", e);
+        return null;
+    }
+}
+
+function guardarGrupoAlmacen() {
+    const nombreGrupo = $('#inputNuevoNombreGrupo').val().trim();
+
+    if (nombreGrupo === "") {
+        Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe ingresar un nombre para el grupo.' });
+        return;
+    }
+
+    const body = {
+        "tipo_mant": 1,
+        "opcion": "I",
+        "idparametro": 0,
+        "idparametrotipo": 0,
+        "nombre": nombreGrupo,
+        "codigoparametro": 0,
+        "idusuario": getUsuario(),
+        "idparametrodato": 0,
+        
+    }
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros", 
+        client: "APL",
+        body_request: body // <-- Ajusta la estructura según tu API
+    };
+    console.log("body: ", body);
+    return;
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $('#modalNuevoGrupo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Éxito', text: 'Grupo creado correctamente.', timer: 1500 });
+                cargarGrupoAlmacen(); // Refresca la tabla
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo guardar el grupo." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "crear el grupo"); }
+    });
+}
+
+function modificarGrupoAlmacen() {
+    const idParam = $('#inputIdModifGrupo').val();
+    const nuevoNombre = $('#inputModifNombreGrupo').val().trim();
+
+    if (nuevoNombre === "") return Swal.fire({ icon: 'warning', title: 'Atención', text: 'El nombre no puede estar vacío.' });
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "PUT", // O POST, dependiendo de tu API
+        endpoint_path: "api/Parametrizacion/actualizar-grupo-almacen", // <-- CAMBIA ESTO
+        client: "APL",
+        body_request: { idparametro: idParam, nombre: nuevoNombre } // <-- Ajusta esto
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $('#modalModificarGrupo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Éxito', text: 'Grupo actualizado.', timer: 1500 });
+
+                // Si el grupo modificado estaba seleccionado, actualizamos el título de la segunda tabla
+                if ($('#caption-almacen-grupo').text().includes($('#inputModifNombreGrupo').data('nombreAnterior'))) {
+                    $('#caption-almacen-grupo').text(`Almacenes Asignados a: ${nuevoNombre}`);
+                }
+                cargarGrupoAlmacen();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "actualizar el grupo"); }
+    });
+}
+
+function eliminarGrupoAlmacen() {
+    const idParam = $('#inputIdElimGrupo').val();
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "DELETE", // O POST, dependiendo de tu API
+        endpoint_path: `api/Parametrizacion/eliminar-grupo-almacen/${idParam}`, // <-- CAMBIA ESTO
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $('#modalEliminarGrupo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Éxito', text: 'Grupo eliminado.', timer: 1500 });
+
+                // Limpiamos la segunda tabla por si acaso borramos el grupo que estábamos viendo
+                $('#caption-almacen-grupo').text('Seleccione un Grupo de Almacenes');
+                $('#tbody-almacenes-asignados').empty();
+
+                cargarGrupoAlmacen();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el grupo." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "eliminar el grupo"); }
+    });
+}
 
 function manejarErrorGlobal(xhr, accion) {
     console.error(`Error al ${accion}:`, xhr.responseText);
@@ -69,37 +254,44 @@ function crearListadoConfiguracion(data) {
         return;
     }
 
+    // MAPEO: Conectamos el 'nombre' del API con el ID del <div> en tu HTML y su respectivo ícono
+    // IMPORTANTE: Las llaves de la izquierda deben ser idénticas a la data que trae tu SP.
+    const mapaTabs = {
+        "Grupos de Almacenes": { id: "list-home", icon: "fa-regular fa-house" },
+        "Medios de Pago": { id: "list-profile", icon: "fa-regular fa-credit-card" },
+        "Cantidad Aportes por Marca y Proveedor": { id: "list-settings", icon: "fa-solid fa-wallet" },
+        "Cantidad Aportes por Marca": { id: "list-messages", icon: "fa-solid fa-wallet" },
+        "Porcentaje de Incremento": { id: "list-porcentaje-incremento-precios", icon: "fa-solid fa-tag" },
+        "Cantidad Aportes Propio por Articulo": { id: "list-aporte-propio-articulo", icon: "fa-solid fa-wallet" },
+        "Precio Competencia por Artticulo": { id: "list-precio-competencia", icon: "fa-solid fa-tag" }, // Mantuve "Artticulo" con doble 't' porque así viene en tu JSON
+        "Margen Mínimo": { id: "list-margen-minimo-articulo", icon: "fa-solid fa-tag" },
+        "Otros Costos": { id: "list-otros-costos-articulo", icon: "fa-solid fa-tag" }
+    };
+
     let htmlGenerado = '';
 
     $.each(data, function (index, item) {
-        // El primer elemento se marca como activo para que coincida con el diseño original
+        // El primer elemento se marca como activo
         const claseActive = (index === 0) ? 'active' : '';
 
-        // Generamos IDs únicos basados en el idparametro del SP
-        const idLink = `list-item-${item.idparametro}-list`;
-        const hrefTarget = `#list-item-${item.idparametro}`;
-        const ariaControl = `list-item-${item.idparametro}`;
+        // Buscamos la configuración en el mapa usando el nombre exacto que trae el JSON.
+        // Si el nombre cambia o llega uno nuevo, se le asignará un ID genérico por defecto.
+        const conf = mapaTabs[item.nombre] || { id: `tab-desconocido-${index}`, icon: "fa-solid fa-circle-chevron-right" };
 
-        // Mapeo opcional de iconos: como el JSON no trae iconos, 
-        // puedes usar uno genérico o definir una lógica según el codigoparametro
-        let icono = 'fa-solid fa-circle-chevron-right';
-
-        // Ejemplo de cómo podrías mantener tus iconos originales:
-        // if(item.nombre.includes("Pagos")) icono = "fa-regular fa-credit-card";
-        // if(item.nombre.includes("Almacenes")) icono = "fa-regular fa-house";
-
+        // Armamos la etiqueta <a> apuntando al href correcto
         htmlGenerado += `
             <a class="list-group-item list-group-item-action border-0 ${claseActive}" 
-               id="${idLink}" 
+               id="${conf.id}-list" 
                data-bs-toggle="list" 
-               href="${hrefTarget}" 
+               href="#${conf.id}" 
                role="tab" 
-               aria-controls="${ariaControl}">
-                <i class="${icono}"></i> ${item.nombre}
+               aria-controls="${conf.id}">
+                <i class="${conf.icon}"></i> ${item.nombre}
             </a>
         `;
     });
 
+    // Inyectamos el menú dinámico y funcional
     $contenedorLista.html(htmlGenerado);
 }
 
