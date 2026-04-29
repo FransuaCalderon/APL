@@ -236,3 +236,7 @@ VALUES ('Tipo Cliente', '', '', 20, 1, SYSDATE, NULL, NULL, 1, 'SEGTIPOCLIENTE')
 INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
 VALUES ('Medio Pago', '', '', 20, 1, SYSDATE, NULL, NULL, 1, 'SEGMEDIOPAGO');
 
+--Promociones SECUENCIALRETAIL 15-04-2026
+INSERT INTO APL_TB_CATALOGO (Nombre, Adicional, Abreviatura, IdCatalogoTipo, IdUsuarioCreacion, FechaCreacion, IdUsuarioModificacion, FechaModificacion, IdEstado, IdEtiqueta) 
+VALUES ('Secuencial Retail', '0', '', 16, 1, SYSDATE, NULL, NULL, 1, 'SECUENCIALRETAIL');
+

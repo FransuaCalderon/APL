@@ -11,6 +11,7 @@ CREATE TABLE Apl_Tb_Promocion (
     MarcaProcesoAprobacion  CHAR(1)         NOT NULL,
     NumeroLoteAprobacion    NUMBER(10)      NOT NULL,
 	ArchivoSoporte          VARCHAR2(200)   NOT NULL,
+	IDSECRETAIL             NUMBER(18,0),
     
     CONSTRAINT PK_Apl_Tb_Promociones PRIMARY KEY (IdPromocion)
 );

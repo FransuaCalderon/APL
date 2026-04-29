@@ -16,6 +16,8 @@ CREATE TABLE APL_TB_PROMOCIONARTICULO (
     M1Precio                    NUMBER(18,2) NOT NULL,
     M2Unidades                  NUMBER(10) NOT NULL,
     M2Precio                    NUMBER(18,2) NOT NULL,
+	M12Unidades                 NUMBER(18,2) NOT NULL,
+	M12Precio                   NUMBER(18,2) NOT NULL,
     IgualarPrecio               NUMBER(18,2) NOT NULL,
     DiasAntinguedad             NUMBER(10) NOT NULL,
     MargenMinimoContado         NUMBER(18,2) NOT NULL,
