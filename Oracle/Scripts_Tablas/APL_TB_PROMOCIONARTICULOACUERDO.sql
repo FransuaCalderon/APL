@@ -5,6 +5,7 @@ CREATE TABLE APL_TB_PROMOCIONARTICULOACUERDO (
     IdAcuerdo                   NUMBER(18,0) NOT NULL,
     ValorAporte                 NUMBER(18,2) NOT NULL,
     ValorComprometido           NUMBER(18,2) NOT NULL,
+	ValorDisponible             NUMBER(18,2) NOT NULL,
     ValorLiquidado              NUMBER(18,2) NOT NULL,
     EstadoRegistro              NUMBER(10) NOT NULL,
     
