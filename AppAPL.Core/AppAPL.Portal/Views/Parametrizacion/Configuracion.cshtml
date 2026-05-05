@@ -678,16 +678,22 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
+				<!-- Información visual del grupo seleccionado -->
+				<p class="text-primary fw-bold" id="txtGrupoSeleccionadoModal"></p>
 					
 				<!-- Selector de tipo de Promocion -->
 				<div class="row g-1 border-bottom">
 					<div class="col">
 						<div class="input-group input-group-sm mb-1">
-							<label class="input-group-text" for="inputGroupSelectGrupo">Almacen</label>
-							<select class="form-select" id="inputGroupSelectGrupo">
+							<label class="input-group-text" for="selectNuevoAlmacen">Almacen</label>
+							<!-- El id debe ser único -->
+							<select class="form-select" id="selectNuevoAlmacen">
+
+								<!--
 								<option value="1">Riocentro Sur</option>
 								<option value="2">La Prosperina</option>
-								<option value="3">Duran</option>
+								<option value="3">Duran</option>-->
+
 							</select>
 						</div>
 					</div>
@@ -695,7 +701,7 @@
 						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarNuevoAlmacen">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -1115,6 +1121,8 @@
 									  
 					<!-- linea 1 -->
 					<div class="col-md-12 text-center">
+						<input type="hidden" id="inputIdModifGrupo">
+						<input type="hidden" id="inputCodParamModifGrupo">
 						<label for="inputModifNombreGrupo" class="form-label fw-bold  ">Nombre del Grupo</label>
 						<input type="text" class="form-control " id="inputModifNombreGrupo" placeholder="Ingrese Nombre" value="Grupo Norte Artefacta">
 					</div>
@@ -1409,6 +1417,7 @@
 					<!-- linea 1 -->
 					<div class="col-md-12 text-center">
 						<input type="hidden" id="inputIdElimGrupo">
+						<input type="hidden" id="inputCodigoParamElimGrupo">
 						<label for="inputElimNombreGrupo" class="form-label fw-bold  ">Nombre del Grupo</label>
 						<input type="text" class="form-control " id="inputElimNombreGrupo" placeholder="Ingrese Nombre" disabled>
 					</div>
@@ -1438,22 +1447,18 @@
 					
 				<!-- Selector de tipo de Promocion -->
 				<div class="row g-1 border-bottom">
-					<div class="col">
-						<div class="input-group input-group-sm mb-1">
-							<label class="input-group-text" for="inputGroupSelectGrupo">Almacen</label>
-							<select class="form-select" id="inputGroupSelectGrupo" disabled>
-								<option value="1">Riocentro Sur</option>
-								<option value="2">La Prosperina</option>
-								<option value="3">Duran</option>
-								<option value="4" selected>Mall del Sol</option>
-							</select>
-						</div>
+					<div class="col-md-12 text-center">
+						<!-- Campos para manejar la eliminación -->
+						<input type="hidden" id="inputIdElimAlmacen">
+						<input type="hidden" id="inputCodigoElimAlmacen">
+						<label for="inputElimNombreAlmacen" class="form-label fw-bold">Almacen a Eliminar</label>
+						<input type="text" class="form-control text-center" id="inputElimNombreAlmacen" disabled>
 					</div>
 				</div>
 						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-primary" id="btnConfirmarElimAlmacen">Eliminar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
