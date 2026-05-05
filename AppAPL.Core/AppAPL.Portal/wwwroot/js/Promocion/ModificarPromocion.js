@@ -20,6 +20,7 @@ let filaActualMedioPago = null;
 let comboEnEdicion = null;
 let articulosPorComboMemoria = {};
 let combosBDOriginal = []; // Para detectar combos eliminados al guardar
+let componentesOriginalesPorCombo = {}; // { idpromocionarticulo: [ids_componentes_originales] }
 window.contextoModalItems = "ARTICULOS";
 
 // --- VARIABLES PARA FIX DE MEDIO DE PAGO EN COMBOS ---
@@ -253,6 +254,8 @@ function cargarCombosPromociones() {
             });
 
             window._mediosPagoData = mediosPagoFiltrados;
+            // Llenar el select de medio de pago dentro del modal de Modificar Combo
+            $("#selectMedioPagoModalComboMod").html(generarOpcionesMedioPago());
             llenarComboYModal($("#segCanal"), $("#bodyModalCanal"), data.canales, "Seleccione...", "3", "canal");
             llenarComboYModal($("#segGrupoAlmacen"), $("#bodyModalGrupoAlmacen"), data.gruposalmacenes, "Seleccione...", "3", "grupo", "Todos");
             llenarComboYModal($("#segMedioPago"), $("#bodyModalMedioPago"), mediosPagoFiltrados, "Seleccione...", "7", "mediopago");
@@ -1154,8 +1157,9 @@ function poblarCombosDesdeAPI(data) {
     $tbody.empty();
     articulosPorComboMemoria = {};
     combosBDOriginal = [];
+    componentesOriginalesPorCombo = {};
 
-    // 1. Construir mapa de combos (cada artículo es un combo)
+    // 1. Construir mapa de combos
     const combosMap = {};
     articulos.forEach(art => {
         const idCombo = art.idpromocionarticulo;
@@ -1188,21 +1192,24 @@ function poblarCombosDesdeAPI(data) {
         combosBDOriginal.push(idCombo);
     });
 
-    // 2. Asociar componentes a cada combo
+    // 2. Asociar componentes
     articuloscomponentes.forEach(comp => {
         const idCombo = comp.idpromocionarticulo;
         if (!combosMap[idCombo]) return;
 
-        // Buscar acuerdos de este componente
         const idCompUnico = comp.idpromocionarticulocomponente;
         const acuerdosComp = articuloscompacuerdo.filter(a => a.idpromocionarticulocomponente === idCompUnico);
-        const acProv = acuerdosComp.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR");
-        const acProv2 = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR")[1];
-        const acRebate = acuerdosComp.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFREBATE");
-        const acProp = acuerdosComp.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO");
-        const acProp2 = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO")[1];
 
-        // Buscar otros costos de este componente
+        const acuerdosProv = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR");
+        const acProv = acuerdosProv[0] || null;
+        const acProv2 = acuerdosProv[1] || null;
+
+        const acuerdosProp = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO");
+        const acProp = acuerdosProp[0] || null;
+        const acProp2 = acuerdosProp[1] || null;
+
+        const acRebate = acuerdosComp.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFREBATE");
+
         const otrosCostosComp = articuloscompotroscostos
             .filter(o => o.idpromocionarticulocomponente === idCompUnico)
             .map(oc => ({
@@ -1213,6 +1220,7 @@ function poblarCombosDesdeAPI(data) {
         const totalOtrosCostosComp = otrosCostosComp.reduce((s, c) => s + c.valor, 0);
 
         combosMap[idCombo].componentes.push({
+            idpromocionarticulocomponente: idCompUnico || 0, // <<< NUEVO: clave para evitar duplicación
             codigo: comp.componente_codigoitem,
             descripcion: comp.componente_descripcion,
             costo: comp.componente_costo || 0,
@@ -1238,7 +1246,7 @@ function poblarCombosDesdeAPI(data) {
             margenPromoContado: comp.componente_margen_promo_contado || 0,
             margenPromoTC: comp.componente_margen_promo_tc || 0,
             margenPromoCredito: comp.componente_margen_promo_credito || 0,
-            // Acuerdos del componente
+            // Acuerdos
             idAcuerdoProveedor: acProv ? acProv.idacuerdo : 0,
             displayAcuerdoProveedor: acProv ? `${acProv.idacuerdo} - ${acProv.nombre_proveedor || ""}` : "",
             aporteProveedor: acProv ? (acProv.valor_aporte || 0) : 0,
@@ -1254,19 +1262,22 @@ function poblarCombosDesdeAPI(data) {
             idAcuerdoPropio2: acProp2 ? acProp2.idacuerdo : 0,
             displayAcuerdoPropio2: acProp2 ? `${acProp2.idacuerdo} - ${acProp2.nombre_proveedor || ""}` : "",
             aportePropio2: acProp2 ? (acProp2.valor_aporte || 0) : 0,
-            // Otros costos
             otrosCostos: otrosCostosComp,
             totalOtrosCostos: totalOtrosCostosComp,
             mediosPago: []
         });
     });
 
-    // 3. Renderizar cada combo en la tabla
+    // 3. Renderizar combos
     Object.values(combosMap).forEach(combo => {
         const codigoCombo = combo.codigocombo;
         articulosPorComboMemoria[codigoCombo] = combo.componentes;
 
-        // Medios de Pago para este combo (vienen en articulossegmento + articulossegmentodetalle)
+        // <<< NUEVO: registrar IDs originales por combo para detectar eliminados al guardar
+        componentesOriginalesPorCombo[combo.idpromocionarticulo] = combo.componentes
+            .filter(c => c.idpromocionarticulocomponente > 0)
+            .map(c => c.idpromocionarticulocomponente);
+
         const segmentoMP = articulossegmento.find(s =>
             s.idpromocionarticulo === combo.idpromocionarticulo &&
             (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO"
@@ -1514,6 +1525,24 @@ function recalcularTotalesComboMod() {
 }
 
 function agregarColumnaAComboMod(item) {
+    // ===== FIX: Evitar duplicación de artículos en el combo =====
+    const codigoNuevo = String(item.codigo || "");
+    if (codigoNuevo) {
+        let yaExiste = false;
+        $("#tablaCreacionCombo tbody tr[data-campo='art_codigo'] td:gt(1)").each(function () {
+            const codigoExistente = $(this).find(".art-codigo-hidden").val();
+            if (String(codigoExistente) === codigoNuevo) {
+                yaExiste = true;
+                return false;
+            }
+        });
+        if (yaExiste) {
+            console.warn(`Artículo ${codigoNuevo} ya existe en el combo, se omite duplicado.`);
+            return;
+        }
+    }
+    // ===== FIN FIX =====
+
     const formatVal = (val) => (val !== undefined && val !== null && val !== '') ? formatCurrencySpanish(val) : '';
 
     const thHtml = `
@@ -1976,13 +2005,12 @@ function initLogicaCombosMod() {
         // FIX Z-INDEX: Forzar que el modal de acuerdos se posicione frente al modal de combos
         setTimeout(function () {
             const $modalAcuerdo = $("#modalAcuerdoArticulo");
-            const cantidadAbiertos = $('.modal.show').length;
-            const zIndexHijo = 1050 + (10 * (cantidadAbiertos + 1));
-            $modalAcuerdo.css('z-index', zIndexHijo);
+            $("#modalCrearComboMod").css('z-index', 1055);
+            $modalAcuerdo.css('z-index', 1075);
             setTimeout(function () {
                 const $backdropsTras = $('.modal-backdrop');
                 if ($backdropsTras.length > 0) {
-                    $backdropsTras.last().css('z-index', zIndexHijo - 1);
+                    $backdropsTras.last().css('z-index', 1070);
                 }
             }, 100);
         }, 100);
@@ -2043,14 +2071,13 @@ function initLogicaCombosMod() {
             }
 
             setTimeout(function () {
-                const $modalesAbiertos = $('.modal.show');
                 const $backdropsActuales = $('.modal-backdrop');
+                const $modalesAbiertos = $('.modal.show');
                 if ($backdropsActuales.length > $modalesAbiertos.length) {
                     $backdropsActuales.slice($modalesAbiertos.length).remove();
                 }
-                const cantidadAbiertos = $modalesAbiertos.length;
-                const zIndexHijo = 1050 + (10 * (cantidadAbiertos + 1));
-                $modal.css('z-index', zIndexHijo);
+
+                $("#modalCrearComboMod").css('z-index', 1055);
 
                 let modalInstance = bootstrap.Modal.getInstance($modal[0]);
                 if (!modalInstance) {
@@ -2058,10 +2085,12 @@ function initLogicaCombosMod() {
                 }
                 modalInstance.show();
 
+                $modal.css('z-index', 1065);
+
                 setTimeout(function () {
                     const $backdropsTras = $('.modal-backdrop');
                     if ($backdropsTras.length > 0) {
-                        $backdropsTras.last().css('z-index', zIndexHijo - 1);
+                        $backdropsTras.last().css('z-index', 1060);
                     }
                 }, 100);
             }, 50);
@@ -2077,7 +2106,7 @@ function initLogicaCombosMod() {
     // =================================================================================
     // 3. AGREGAR: LÓGICA DEL BOTÓN VERDE DE MEDIO DE PAGO EN COMBOS MOD
     // =================================================================================
-    $(document).off("click.editarMpComboMod", ".btn-editar-mp-combo-mod").on("click.editarMpComboMod", ".btn-editar-mp-combo-mod", function (e) {
+    $(document).off("click.editarMpComboMod", ".btn-editar-mp-combo-mod, .btn-mediopago-combo-mod").on("click.editarMpComboMod", ".btn-editar-mp-combo-mod, .btn-mediopago-combo-mod", function (e) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -2125,14 +2154,14 @@ function initLogicaCombosMod() {
         }
 
         setTimeout(function () {
-            const $modalesAbiertos = $('.modal.show');
             const $backdropsActuales = $('.modal-backdrop');
+            const $modalesAbiertos = $('.modal.show');
             if ($backdropsActuales.length > $modalesAbiertos.length) {
                 $backdropsActuales.slice($modalesAbiertos.length).remove();
             }
-            const cantidadAbiertos = $modalesAbiertos.length;
-            const zIndexHijo = 1050 + (10 * (cantidadAbiertos + 1));
-            $modal.css('z-index', zIndexHijo);
+
+            // Fijar z-index del modal combo para que quede debajo
+            $("#modalCrearComboMod").css('z-index', 1055);
 
             let modalInstance = bootstrap.Modal.getInstance($modal[0]);
             if (!modalInstance) {
@@ -2140,10 +2169,13 @@ function initLogicaCombosMod() {
             }
             modalInstance.show();
 
+            // Medio de pago encima del combo
+            $modal.css('z-index', 1065);
+
             setTimeout(function () {
                 const $backdropsTras = $('.modal-backdrop');
                 if ($backdropsTras.length > 0) {
-                    $backdropsTras.last().css('z-index', zIndexHijo - 1);
+                    $backdropsTras.last().css('z-index', 1060);
                 }
             }, 100);
         }, 50);
@@ -2161,10 +2193,25 @@ function initLogicaCombosMod() {
         const $modalComboMod = $("#modalCrearComboMod");
         if ($modalComboMod.hasClass("show")) {
             $('body').addClass('modal-open');
-            $modalComboMod.css('z-index', 1050);
+            $modalComboMod.css('z-index', 1055);
             const $backdrops = $('.modal-backdrop');
             if ($backdrops.length > 0) {
-                $backdrops.first().css('z-index', 1049).addClass('show');
+                $backdrops.first().css('z-index', 1050).addClass('show');
+            }
+        }
+    });
+
+    // =================================================================================
+    // 5. LIMPIEZA DEL MODAL ACUERDO ARTÍCULO PARA DEVOLVER EL FOCO A COMBOS MOD
+    // =================================================================================
+    $("#modalAcuerdoArticulo").off("hidden.bs.modal.cleanupComboMod").on("hidden.bs.modal.cleanupComboMod", function () {
+        const $modalComboMod = $("#modalCrearComboMod");
+        if ($modalComboMod.hasClass("show")) {
+            $('body').addClass('modal-open');
+            $modalComboMod.css('z-index', 1055);
+            const $backdrops = $('.modal-backdrop');
+            if ($backdrops.length > 0) {
+                $backdrops.first().css('z-index', 1050).addClass('show');
             }
         }
     });
@@ -3270,27 +3317,32 @@ async function guardarPromocionCombos() {
                     ...(art.idAcuerdoProveedor ? [{
                         idacuerdo: art.idAcuerdoProveedor,
                         valoraporte: art.aporteProveedor || 0,
-                        valorcomprometido: (art.aporteProveedor || 0) * unidadesParaCalculo
+                        valorcomprometido: (art.aporteProveedor || 0) * unidadesParaCalculo,
+                        etiqueta_tipo_fondo: "TFPROVEDOR"
                     }] : []),
                     ...(art.idAcuerdoProveedor2 ? [{
                         idacuerdo: art.idAcuerdoProveedor2,
                         valoraporte: art.aporteProveedor2 || 0,
-                        valorcomprometido: (art.aporteProveedor2 || 0) * unidadesParaCalculo
+                        valorcomprometido: (art.aporteProveedor2 || 0) * unidadesParaCalculo,
+                        etiqueta_tipo_fondo: "TFPROVEDOR"
                     }] : []),
                     ...(art.idAcuerdoRebate ? [{
                         idacuerdo: art.idAcuerdoRebate,
                         valoraporte: art.aporteRebate || 0,
-                        valorcomprometido: (art.aporteRebate || 0) * unidadesParaCalculo
+                        valorcomprometido: (art.aporteRebate || 0) * unidadesParaCalculo,
+                        etiqueta_tipo_fondo: "TFREBATE"
                     }] : []),
                     ...(art.idAcuerdoPropio ? [{
                         idacuerdo: art.idAcuerdoPropio,
                         valoraporte: art.aportePropio || 0,
-                        valorcomprometido: (art.aportePropio || 0) * unidadesParaCalculo
+                        valorcomprometido: (art.aportePropio || 0) * unidadesParaCalculo,
+                        etiqueta_tipo_fondo: "TFPROPIO"
                     }] : []),
                     ...(art.idAcuerdoPropio2 ? [{
                         idacuerdo: art.idAcuerdoPropio2,
                         valoraporte: art.aportePropio2 || 0,
-                        valorcomprometido: (art.aportePropio2 || 0) * unidadesParaCalculo
+                        valorcomprometido: (art.aportePropio2 || 0) * unidadesParaCalculo,
+                        etiqueta_tipo_fondo: "TFPROPIO"
                     }] : [])
                 ],
                 jsonotroscostos: (art.otrosCostos || []).map(oc => ({
