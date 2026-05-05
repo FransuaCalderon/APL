@@ -195,8 +195,8 @@
 																																								
 					<div class="row">
 																
-						<div class="table-responsive d-flex justify-content-center" style="height: 450px">
-							<table class="table table-hover table-bordered w-75">
+						<div class="table-responsive d-flex justify-content-center" >
+							<table class="table table-hover table-bordered ">
 								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
 								<thead class="text-white text-nowrap">
 									<tr class="text-center">
@@ -213,8 +213,8 @@
 										</th>
 									</tr>
 								</thead>
-								<tbody class="text-nowrap">
-														
+								<tbody id="tbody-medios-pago" class="text-nowrap">
+									<!--
 									<tr class="m-0 p-0">
 																
 										<td class="align-middle">Visa Platinium Banco Pichincha</td>
@@ -288,7 +288,7 @@
 										</td>
 									</tr>
 															
-												
+												-->
 															
 								</tbody>
 							</table>
@@ -385,8 +385,8 @@
 										</th>
 									</tr>
 								</thead>
-								<tbody class="text-nowrap">
-														
+								<tbody id="tbody-aportes-marca-proveedor" class="text-nowrap">
+									<!--					
 									<tr class="m-0 p-0">
 																
 										<td class="align-middle">0190007510001-ALMACENES JUAN ELJURI CIA. LTDA</td>
@@ -404,7 +404,9 @@
 										</td>
 									</tr>
 															
-															
+									-->
+
+
 												
 															
 								</tbody>
@@ -724,15 +726,15 @@
 									  
 					<!-- linea 1 -->
 					<div class="col-md-12 text-center">
-						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre Medio Pago</label>
-						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre">
+						<label for="inputNuevoNombreMedioPago" class="form-label fw-bold  ">Nombre Medio Pago</label>
+						<input type="text" class="form-control " id="inputNuevoNombreMedioPago" placeholder="Ingrese Nombre">
 					</div>
 	  
 				</form>
 
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarNuevoMedioPago">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -801,27 +803,35 @@
 									  
 					<!-- linea 1 -->
 					<div class="col-md-4 text-center">
-						<label for="inputGroupSelectMarca" class="form-label fw-bold  ">Marca</label>
-						<select class="form-select" id="inputGroupSelectMarca">
+						<label for="selectNuevoMarcaMP" class="form-label fw-bold  ">Marca</label>
+						<select class="form-select" id="selectNuevoMarcaMP">
+
+							<!--
 							<option value="1" selected>SONY</option>
 							<option value="2">MABE</option>
 							<option value="3">HP</option>
 							<option value="4">Samsumg</option>
+							-->
+
 						</select>
 					</div>
 							  
 					<div class="col-md-6 text-center">
-						<label for="inputGroupSelectProveedor" class="form-label fw-bold  ">Proveedor</label>
-						<select class="form-select" id="inputGroupSelectproveedor">
+						<label for="selectNuevoProveedorMP" class="form-label fw-bold  ">Proveedor</label>
+						<select class="form-select" id="selectNuevoProveedorMP">
+
+							<!--
 							<option value="09190007510001" selected>ALMACENES JUAN ELJURI CIA. LTDA</option>
 							<option value="2">MABE</option>
 							<option value="3">HP</option>
 							<option value="4">Samsumg</option>
+							-->
+
 						</select>
 					</div>
 					<div class="col-md-2 text-center">
-						<label for="inputNumAporte" class="form-label fw-bold  ">No.Aporte</label>
-						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
+						<label for="inputNuevoNumAporteMP" class="form-label fw-bold  ">No.Aporte</label>
+						<input type="text" class="form-control " id="inputNuevoNumAporteMP" placeholder="Ingrese No. Aporte" value="0">
 					</div>
 	  
 				</form>
@@ -830,7 +840,7 @@
 						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarNuevoAMP">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -1153,15 +1163,17 @@
 									  
 					<!-- linea 1 -->
 					<div class="col-md-12 text-center">
-						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre Medio Pago</label>
-						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre">
+						<input type="hidden" id="inputIdModifMedioPago">
+						<input type="hidden" id="inputCodigoModifMedioPago">
+						<label for="inputModifNombreMedioPago" class="form-label fw-bold  ">Nombre Medio Pago</label>
+						<input type="text" class="form-control " id="inputModifNombreMedioPago" placeholder="Ingrese Nombre">
 					</div>
 	  
 				</form>
 
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarModifMedioPago">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -1225,29 +1237,23 @@
 					
 					
 				<form class="row g-1 ">
-									  
+					<input type="hidden" id="inputIdModifAMP">
 					<!-- linea 1 -->
 					<div class="col-md-4 text-center">
-						<label for="inputGroupSelectMarca" class="form-label fw-bold  ">Marca</label>
-						<select class="form-select" id="inputGroupSelectMarca" disabled>
-							<option value="1" selected>SONY</option>
-							<option value="2">MABE</option>
-							<option value="3">HP</option>
-							<option value="4">Samsumg</option>
+						<label for="inputModifMarcaAMP" class="form-label fw-bold  ">Marca</label>
+						<select class="form-select" id="inputModifMarcaAMP" disabled>
+							
 						</select>
 					</div>
 							  
 					<div class="col-md-6 text-center">
-						<label for="inputGroupSelectProveedor" class="form-label fw-bold  ">Proveedor</label>
-						<select class="form-select" id="inputGroupSelectproveedor" disabled>
-							<option value="09190007510001" selected>ALMACENES JUAN ELJURI CIA. LTDA</option>
-							<option value="2">MABE</option>
-							<option value="3">HP</option>
-							<option value="4">Samsumg</option>
+						<label for="inputModifProveedorAMP" class="form-label fw-bold  ">Proveedor</label>
+						<select class="form-select" id="inputModifProveedorAMP" disabled>
+							
 						</select>
 					</div>
 					<div class="col-md-2 text-center">
-						<label for="inputNumAporte" class="form-label fw-bold  ">No.Aporte</label>
+						<label for="inputModifNumAporteMP" class="form-label fw-bold  ">No.Aporte</label>
 						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
 					</div>
 	  
@@ -1257,7 +1263,7 @@
 						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarModifAMP">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -1466,7 +1472,7 @@
 	</div>
 </div>
 
-<!-- Modal Añadir Medio Pago-->
+<!-- Modal eliminar Medio Pago-->
 <div class="modal fade" id="modalEliminaMedioPago" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -1480,15 +1486,17 @@
 									  
 					<!-- linea 1 -->
 					<div class="col-md-12 text-center">
-						<label for="inputDescripcion" class="form-label fw-bold  ">Nombre Medio Pago</label>
-						<input type="text" class="form-control " id="inputDescripcion" placeholder="Ingrese Nombre" disabled>
+						<input type="hidden" id="inputIdElimMedioPago">
+						<input type="hidden" id="inputCodElimMedioPago">
+						<label for="inputElimNombreMedioPago" class="form-label fw-bold">Nombre Medio Pago</label>
+						<input type="text" class="form-control " id="inputElimNombreMedioPago" placeholder="Ingrese Nombre" disabled>
 					</div>
 	  
 				</form>
 
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnConfirmarElimMedioPago">Eliminar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -1540,57 +1548,25 @@
 </div>
 
 <!-- Modal Eliminar aporte Marca/Proveedor-->
-<div class="modal fade" id="modalEliminarAporteMarcaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modalEliminarAporteMarcaProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Aporte por Marca/Proveedor</h1>
-					
+				<h1 class="modal-title fs-5">Eliminar Aporte por Marca/Proveedor</h1>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-					
-					
-				<form class="row g-1 ">
-									  
-					<!-- linea 1 -->
-					<div class="col-md-4 text-center">
-						<label for="inputGroupSelectMarca" class="form-label fw-bold  ">Marca</label>
-						<select class="form-select" id="inputGroupSelectMarca" disabled>
-							<option value="1" selected>SONY</option>
-							<option value="2">MABE</option>
-							<option value="3">HP</option>
-							<option value="4">Samsumg</option>
-						</select>
-					</div>
-							  
-					<div class="col-md-6 text-center">
-						<label for="inputGroupSelectProveedor" class="form-label fw-bold  ">Proveedor</label>
-						<select class="form-select" id="inputGroupSelectproveedor" disabled>
-							<option value="09190007510001" selected>ALMACENES JUAN ELJURI CIA. LTDA</option>
-							<option value="2">MABE</option>
-							<option value="3">HP</option>
-							<option value="4">Samsumg</option>
-						</select>
-					</div>
-					<div class="col-md-2 text-center">
-						<label for="inputNumAporte" class="form-label fw-bold  ">No.Aporte</label>
-						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2" disabled>
-					</div>
-	  
-				</form>
-					
-									
-						
+				<input type="hidden" id="inputIdElimAMP">
+				<p class="text-center">¿Está seguro de eliminar el aporte para la marca <b id="txtElimMarcaAMP"></b> y el proveedor <b id="txtElimProvAMP"></b>?</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-danger" id="btnConfirmarElimAMP">Eliminar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					
 			</div>
 		</div>
 	</div>
 </div>
+
 
 <!-- Modal Eliminar aporte propio por articulo-->
 <div class="modal fade" id="modalEliminarAportePropioArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">

@@ -11,7 +11,19 @@ $(document).ready(function () {
         window.apiBaseUrl = config.apiBaseUrl;
         cargarConfiguracion();
         cargarGrupoAlmacen();
-        cargarComboAlmacenes();     
+        cargarComboAlmacenes();  
+
+        cargarComboMarcas();
+        cargarComboProveedores();
+    });
+
+    // Escuchar cuando se hace clic en la opción de Medios de Pago en el menú dinámico
+    $(document).on('shown.bs.tab', 'a[href="#list-profile"]', function () {
+        cargarMediosPago();
+    });
+
+    $(document).on('shown.bs.tab', 'a[href="#list-settings"]', function () {
+        cargarAportesMarcaProveedor();
     });
 
     // 1. Escuchar el clic en cualquier fila de la tabla de Grupos
@@ -145,6 +157,71 @@ $(document).ready(function () {
     $('#btnConfirmarElimGrupo').click(function () {
         eliminarGrupoAlmacen();
     });
+
+
+    // ==========================================
+    // AÑADIR NUEVO MEDIO DE PAGO
+    // ==========================================
+
+    // Limpiar el modal al abrir
+    $('#modalNuevoMedioPago').on('show.bs.modal', function () {
+        $('#inputNuevoNombreMedioPago').val('');
+    });
+
+    $('#btnGuardarNuevoMedioPago').click(function () {
+        guardarMediosPagos();
+    });
+
+
+    // ==========================================
+    // MODIFICAR MEDIO DE PAGO
+    // ==========================================
+
+    // Llenar el modal al abrir
+    $('#modalModificaMedioPago').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        const $fila = $boton.closest('tr');
+
+        // Capturamos los datos que inyectamos en la fila/botón en el paso anterior
+        const idParam = $boton.data('id');
+        const codParam = $boton.data('codigo');
+        const nombreMedioPago = $fila.find('td:eq(0)').text().trim();
+
+        $('#inputIdModifMedioPago').val(idParam);
+        $('#inputCodigoModifMedioPago').val(codParam);
+        $('#inputModifNombreMedioPago').val(nombreMedioPago);
+    });
+
+    $('#btnGuardarModifMedioPago').click(function () {
+        modificarMediosPagos();
+    });
+
+
+    // ==========================================
+    // ELIMINAR MEDIO DE PAGO
+    // ==========================================
+
+    // Llenar el modal al abrir
+    $('#modalEliminaMedioPago').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        const $fila = $boton.closest('tr');
+
+        $('#inputIdElimMedioPago').val($boton.data('id'));
+        $('#inputCodElimMedioPago').val($boton.data('codigo'));
+        $('#inputElimNombreMedioPago').val($fila.find('td:eq(0)').text().trim());
+    });
+
+    $('#btnConfirmarElimMedioPago').click(function () {
+        eliminarMediosPagos();
+    });
+
+
+
+    $('#btnGuardarNuevoAMP').click(function () {
+        guardarAMP();
+    });
+
+
 });
 
 function getUsuario() {
@@ -163,6 +240,417 @@ function getIdOpcionSeguro() {
         return null;
     }
 }
+
+function cargarAportesMarcaProveedor() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Parametrizacion/consultar-aporte-marca-prov", // Ajustar según Swagger
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                crearListadoAportesMarcaProveedor(response.json_response || []);
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "cargar aportes"); }
+    });
+}
+
+function crearListadoAportesMarcaProveedor(data) {
+    const $tbody = $('#tbody-aportes-marca-proveedor');
+    $tbody.empty();
+
+    if (!data || data.length === 0) {
+        $tbody.append('<tr><td colspan="4" class="text-center text-muted">No hay registros.</td></tr>');
+        return;
+    }
+
+    let html = '';
+    $.each(data, function (index, item) {
+        html += `
+            <tr data-id="${item.idparametrodato}" data-idparam="${item.idparametro}">
+                <td class="align-middle text-wrap">${item.nombre_proveedor}</td>
+                <td class="align-middle">${item.nombre_marca}</td>
+                <td class="align-middle text-center">${item.numero_aporte}</td>
+                <td class="align-middle text-center">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarAporteMarcaProveedor" 
+                                data-id="${item.idparametrodato}" data-num="${item.numero_aporte}" style="color:#0d6efd;">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalEliminarAporteMarcaProveedor" 
+                                data-id="${item.idparametrodato}" data-marca="${item.nombre_marca}" data-prov="${item.nombre_proveedor}" style="color:red;">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+    });
+    $tbody.html(html);
+}
+
+
+// Función para obtener los medios de pago desde el API
+function cargarMediosPago() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Parametrizacion/consultar-medios-pago", // Confirma esta ruta con tu Swagger
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                crearListadoMediosPago(response.json_response || []);
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudieron cargar los medios de pago." });
+            }
+        },
+        error: function (xhr) {
+            manejarErrorGlobal(xhr, "cargar los medios de pago");
+        }
+    });
+}
+
+// Función para renderizar las filas de la tabla
+function crearListadoMediosPago(data) {
+    const $tbody = $('#tbody-medios-pago');
+    $tbody.empty();
+
+    if (!data || data.length === 0) {
+        $tbody.append('<tr><td colspan="2" class="text-center text-muted">No se encontraron registros.</td></tr>');
+        return;
+    }
+
+    let htmlFilas = '';
+
+    $.each(data, function (index, item) {
+        // Almacenamos idparametro y codigoparametro en atributos data-
+        htmlFilas += `
+            <tr class="m-0 p-0" data-id="${item.idparametro}" data-codigo="${item.codigoparametro}">
+                <td class="align-middle">${item.nombre}</td>
+                <td class="">
+                    <div class="btn-toolbar d-flex justify-content-center" role="toolbar">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn-action edit-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalModificaMedioPago" 
+                                    data-id="${item.idparametro}" 
+                                    data-codigo="${item.codigoparametro}"
+                                    style="border:none; background:none; color:#0d6efd;">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" class="btn-action delete-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEliminaMedioPago" 
+                                    data-id="${item.idparametro}" 
+                                    data-codigo="${item.codigoparametro}"
+                                    style="border:none; background:none; color:red">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </td>
+            </tr>`;
+    });
+
+    $tbody.html(htmlFilas);
+}
+
+
+//APORTA MARCA PROVEEDOR
+function guardarAMP() {
+
+    // Para la marca, el código está directo en el .val()
+    const codigoMarca = $('#selectNuevoMarcaMP').val();
+
+    // Para el proveedor, capturamos el option seleccionado
+    const $opcionProveedor = $('#selectNuevoProveedorMP option:selected');
+    const codigoProveedor = $opcionProveedor.val(); // Trae el "codigo"
+    const identificacionProveedor = $opcionProveedor.data('identificacion'); // Trae la "identificacion"
+
+    // Validamos que hayan seleccionado ambos
+    if (!codigoMarca || !codigoProveedor) {
+        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe seleccionar una Marca y un Proveedor.' });
+    }
+
+    const aportes = $('#inputNuevoNumAporteMP').val();
+
+    console.log("codigoMarca: ", codigoMarca);
+    console.log("codigoProveedor: ", codigoProveedor);
+    console.log("aportes: ", aportes);
+
+    const body = {
+        "tipo_mant": 0,
+        "opcion": "string",
+        "idparametro": 0,
+        "idparametrotipo": 0,
+        "nombre": "string",
+        "codigoparametro": 0,
+        "idusuario": getUsuario(),
+        "idparametrodato": 0,
+        "codigorelacion1": "string", //marca
+        "codigorelacion2": "string", //proveedor
+        "valor1": 0 //numero de aportes
+        
+    }
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/crear-aporte-marca-proveedor",
+        client: "APL",
+        body_request: body
+    };
+
+    console.log("body: ", body);
+    return;
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $('#modalNuevoAporteMarcaProveedor').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500 });
+                cargarAportesMarcaProveedor();
+            }
+        }
+    });
+}
+
+// ==========================================
+// CARGAR COMBO DE MARCAS
+// ==========================================
+function cargarComboMarcas() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/consultar-combos", 
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                // Aquí extraemos específicamente el arreglo "marcas" del objeto JSON
+                const dataMarcas = response.json_response.marcas || [];
+                llenarSelectMarcas(dataMarcas);
+            } else {
+                console.error("No se pudieron cargar las marcas.");
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "cargar la lista de marcas"); }
+    });
+}
+
+function llenarSelectMarcas(data) {
+    const $select = $('#selectNuevoMarcaMP'); // El ID de tu select en el HTML
+    $select.empty();
+
+    if (!data || data.length === 0) {
+        $select.append('<option value="">No hay marcas disponibles</option>');
+        return;
+    }
+
+    $select.append('<option value="" selected disabled>Seleccione una marca...</option>');
+
+    // Recorremos el arreglo de marcas
+    $.each(data, function (index, item) {
+        // Guardamos el código en el value
+        $select.append(`<option value="${item.codigo}">${item.nombre}</option>`);
+    });
+}
+
+// ==========================================
+// CARGAR COMBO DE PROVEEDORES
+// ==========================================
+function cargarComboProveedores() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Proveedor/listar", // <-- CAMBIA ESTO por tu ruta real
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                llenarSelectProveedores(response.json_response || []);
+            } else {
+                console.error("No se pudieron cargar los proveedores.");
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "cargar la lista de proveedores"); }
+    });
+}
+
+function llenarSelectProveedores(data) {
+    const $select = $('#selectNuevoProveedorMP'); // El ID de tu select en el HTML
+    $select.empty();
+
+    if (!data || data.length === 0) {
+        $select.append('<option value="">No hay proveedores disponibles</option>');
+        return;
+    }
+
+    $select.append('<option value="" selected disabled>Seleccione un proveedor...</option>');
+
+    // Recorremos el arreglo de proveedores
+    $.each(data, function (index, item) {
+        // Guardamos el código en el value, y la identificación en un data-attribute
+        // Mostramos ambos en el texto para que el usuario sepa a quién elige
+        $select.append(`<option value="${item.codigo}" data-identificacion="${item.identificacion}">${item.identificacion} - ${item.nombre}</option>`);
+    });
+}
+
+
+//MEDIOS DE PAGOS
+function guardarMediosPagos() {
+    const nombreMedioPago = $('#inputNuevoNombreMedioPago').val().trim();
+
+    if (!nombreMedioPago) {
+        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe ingresar un nombre para el Medio de Pago.' });
+    }
+
+    const body = {
+        "tipo_mant": 3,
+        "opcion": "I",
+        "idparametro": 0,
+        "idparametrotipo": 2,
+        "nombre": nombreMedioPago,
+        "codigoparametro": 0,
+        "idusuario": getUsuario()
+    }
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros", // <-- Ajusta ruta
+        client: "APL",
+        body_request: body
+    };
+
+    //console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $('#modalNuevoMedioPago').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Éxito', text: 'Medio de pago creado correctamente.', timer: 1500 });
+                cargarMediosPago(); // Refresca la tabla
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo guardar el medio de pago." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "crear el medio de pago"); }
+    });
+}
+
+
+function modificarMediosPagos() {
+    const idParam = $('#inputIdModifMedioPago').val();
+    const codParam = $('#inputCodigoModifMedioPago').val();
+    const nuevoNombre = $('#inputModifNombreMedioPago').val().trim();
+
+    if (!nuevoNombre) return Swal.fire({ icon: 'warning', title: 'Atención', text: 'El nombre no puede estar vacío.' });
+
+    const body = {
+        "tipo_mant": 3,
+        "opcion": "M",
+        "idparametro": idParam,
+        "idparametrotipo": 2,
+        "nombre": nuevoNombre,
+        "codigoparametro": codParam,
+        "idusuario": getUsuario()
+    }
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros", 
+        client: "APL",
+        body_request: body
+    };
+
+    console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $('#modalModificaMedioPago').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Éxito', text: 'Medio de pago actualizado.', timer: 1500 });
+                cargarMediosPago(); // Refresca la tabla
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "actualizar el medio de pago"); }
+    });
+}
+
+
+function eliminarMediosPagos() {
+    const idParam = $('#inputIdElimMedioPago').val();
+    const codigoParametro = $('#inputCodElimMedioPago').val();
+
+    const body = {
+        "tipo_mant": 3,
+        "opcion": "E",
+        "idparametro": idParam,
+        "idparametrotipo": 2,
+        //"nombre": nuevoNombre,
+        "codigoparametro": codigoParametro,
+        "idusuario": getUsuario()
+    }
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros",
+        client: "APL",
+        body_request: body
+    };
+
+
+    //console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $('#modalEliminaMedioPago').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Éxito', text: 'Medio de pago eliminado.', timer: 1500 });
+                cargarMediosPago(); // Refresca la tabla
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el registro." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "eliminar el medio de pago"); }
+    });
+}
+
+
+
+
 
 // ==========================================
 // CARGAR COMBO DE ALMACENES (SELECT)
@@ -474,6 +962,11 @@ function eliminarGrupoAlmacen() {
         error: function (xhr) { manejarErrorGlobal(xhr, "eliminar el grupo"); }
     });
 }
+
+
+
+
+
 
 function manejarErrorGlobal(xhr, accion) {
     console.error(`Error al ${accion}:`, xhr.responseText);
