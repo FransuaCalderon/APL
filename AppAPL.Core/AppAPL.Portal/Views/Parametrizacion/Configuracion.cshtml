@@ -732,87 +732,32 @@
 
 
 <!-- Modal Anadir nuevo precio de competencia por articulo-->
-<div class="modal fade" id="modalNuevoPrecioComp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modalNuevoPrecioComp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Precio de la Competencia</h1>
-					
+				<h1 class="modal-title fs-5">Nuevo Precio de Competencia</h1>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-					
-					
-				<form class="row g-1 ">
-									  
-					<!-- linea 1 -->
-					<div class="col-md-12 text-center">
-						<label for="datosarticulos" class="form-label fw-bold  ">Artículos</label>
-						<div class="table-responsive d-flex justify-content-center">
-							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;" id="datosarticulos">
-								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
-								<thead class="text-white text-nowrap">
-									<tr class="">
-													
-										<th class="table-primary text-center align-middle" style="width: 15%;">Codigo</th>
-										<th class="table-primary text-center align-middle" style="width: 70%;">Nombre Artículo</th>
-										<th class="table-primary text-center align-middle" style="width: 15%;"> Acción</th>
-									</tr>
-								</thead>
-								<tbody class="text-nowrap">
-											
-									<tr class="m-0 p-0">
-										<td class="align-middle">10203040</td>
-										<td class="align-middle">TV 65 Pulgadas Smart SONY 4k</td>
-										<td class="">
-											<div>
-												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel1" value="" aria-label="...">
-											</div>
-										</td>
-									</tr>
-									<tr class="m-0 p-0">
-										<td class="align-middle">52608488</td>
-										<td class="align-middle">CONGELADOR SAMSUMG</td>
-										<td class="">
-											<div>
-												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel2" value="" aria-label="...">
-											</div>
-										</td>
-									</tr>
-												
-									
-												
-								</tbody>
-							</table>
-						</div>
-								
-							  
+				<form class="row g-2">
+					<div class="col-md-5">
+						<label for="inputNuevoCodArticuloPC" class="form-label fw-bold">Cod. Artículo</label>
+						<input type="text" class="form-control" id="inputNuevoCodArticuloPC" placeholder="Ej: ART-123">
 					</div>
-									  
-									  
-					<!-- linea 2 -->
-					<div class="col-md-6 text-center">
-						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
-						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					<div class="col-md-4">
+						<label for="inputNuevoNombreCompPC" class="form-label fw-bold">Competencia</label>
+						<input type="text" class="form-control" id="inputNuevoNombreCompPC" placeholder="Ej: La Ganga">
 					</div>
-					<div class="col-md-4 text-center">
-						<label for="inputCompetencia" class="form-label fw-bold  ">Nombre Competencia</label>
-						<input type="text" class="form-control " id="inputCompetencia" placeholder="Ingrese Nombre de la Competencia" value="">
+					<div class="col-md-3">
+						<label for="inputNuevoPrecioPC" class="form-label fw-bold">Precio Contado</label>
+						<input type="number" step="0.01" min="0" class="form-control text-end" id="inputNuevoPrecioPC" placeholder="0.00">
 					</div>
-					<div class="col-md-2 text-center">
-						<label for="inputNumAporte" class="form-label fw-bold  ">Precio Contado</label>
-						<input type="text" class="form-control " id="inputNumAporte" placeholder="9,999.99" value="">
-					</div>
-	  
 				</form>
-					
-									
-						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarNuevoPC">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					
 			</div>
 		</div>
 	</div>
@@ -1094,47 +1039,38 @@
 </div>
 
 <!-- Modal Modificar precio de competencia por articulo-->
-<div class="modal fade" id="modalModificarPrecioComp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modalModificarPrecioComp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h1 class="modal-title fs-5" id="staticBackdropLabel">Modificar Precio de la Competencia</h1>
-					
+				<h1 class="modal-title fs-5">Modificar Precio de Competencia</h1>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-					
-					
-				<form class="row g-1 ">
-									  
-					<!-- linea 1 -->
-					<!-- linea 2 -->
-					<div class="col-md-6 text-center">
-						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
-						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+				<input type="hidden" id="inputIdModifPC">
+				<form class="row g-2">
+					<div class="col-md-5">
+						<label class="form-label fw-bold">Artículo</label>
+						<input type="text" class="form-control" id="inputModifNombreArtPC" disabled>
 					</div>
-					<div class="col-md-4 text-center">
-						<label for="inputCompetencia" class="form-label fw-bold  ">Nombre Competencia</label>
-						<input type="text" class="form-control " id="inputCompetencia" placeholder="Ingrese Nombre de la Competencia" value="COMANDATO">
+					<div class="col-md-4">
+						<label class="form-label fw-bold">Competencia</label>
+						<input type="text" class="form-control" id="inputModifNombreCompPC" disabled>
 					</div>
-					<div class="col-md-2 text-center">
-						<label for="inputNumAporte" class="form-label fw-bold  ">Precio Contado</label>
-						<input type="text" class="form-control " id="inputNumAporte" placeholder="9,999.99" value="1,547.46">
+					<div class="col-md-3">
+						<label for="inputModifPrecioPC" class="form-label fw-bold">Precio Contado</label>
+						<input type="number" step="0.01" min="0" class="form-control text-end" id="inputModifPrecioPC">
 					</div>
-	  
 				</form>
-					
-									
-						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarModifPC">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					
 			</div>
 		</div>
 	</div>
 </div>
+
 
 <!-- Modal Modificar Margen Minimo por articulo-->
 <div class="modal fade" id="modalModificarMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -1372,47 +1308,25 @@
 </div>
 
 <!-- Modal Elimnar precio de competencia por articulo-->
-<div class="modal fade" id="modalEliminarPrecioComp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
+<div class="modal fade" id="modalEliminarPrecioComp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Precio de la Competencia</h1>
-					
+				<h1 class="modal-title fs-5">Eliminar Precio Competencia</h1>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
-			<div class="modal-body">
-					
-					
-				<form class="row g-1 ">
-									  
-					<!-- linea 1 -->
-					<!-- linea 2 -->
-					<div class="col-md-6 text-center">
-						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
-						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
-					</div>
-					<div class="col-md-4 text-center">
-						<label for="inputCompetencia" class="form-label fw-bold  ">Nombre Competencia</label>
-						<input type="text" class="form-control " id="inputCompetencia" placeholder="Ingrese Nombre de la Competencia" value="COMANDATO" disabled>
-					</div>
-					<div class="col-md-2 text-center">
-						<label for="inputNumAporte" class="form-label fw-bold  ">Precio Contado</label>
-						<input type="text" class="form-control " id="inputNumAporte" placeholder="9,999.99" value="1,547.46" disabled>
-					</div>
-	  
-				</form>
-					
-									
-						
+			<div class="modal-body text-center">
+				<input type="hidden" id="inputIdElimPC">
+				<p>¿Está seguro de eliminar el precio registrado de <b id="txtElimCompPC"></b> para el artículo <b id="txtElimArtPC"></b>?</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-danger" id="btnConfirmarElimPC">Eliminar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					
 			</div>
 		</div>
 	</div>
 </div>
+
 
 <!-- Modal Eliminar Margen Minimo por articulo-->
 <div class="modal fade" id="modalEliminarMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">

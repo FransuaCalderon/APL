@@ -565,8 +565,7 @@ $(document).ready(function () {
         $.each(data, function (index, item) {
             html += `
                 <tr data-id="${item.idparametrodato}">
-                    <td class="text-center align-middle">${item.codigo_articulo}</td>
-                    <td class="align-middle text-wrap">${item.nombre_articulo}</td>
+                    <td class="text-center align-middle">${item.codigo_articulo} - ${item.nombre_articulo}</td>
                     <td class="align-middle text-wrap">${item.nombre_competencia}</td>
                     <td class="text-end align-middle">$ ${parseFloat(item.precio_contado).toFixed(2)}</td>
                     <td class="text-center align-middle">
@@ -1956,7 +1955,16 @@ function crearListadoConfiguracion(data) {
         "Cantidad Aportes por Marca": { id: "list-messages", icon: "fa-solid fa-wallet" },
         "Porcentaje de Incremento": { id: "list-porcentaje-incremento-precios", icon: "fa-solid fa-tag" },
         "Cantidad Aportes Propio por Articulo": { id: "list-aporte-propio-articulo", icon: "fa-solid fa-wallet" },
-        "Precio Competencia por Articulo": { id: "list-precio-competencia", icon: "fa-solid fa-tag" }, // Mantuve "Artticulo" con doble 't' porque así viene en tu JSON
+
+        // --- BLINDAJE PARA PRECIO COMPETENCIA ---
+        "Precio Competencia por Articulo": { id: "list-precio-competencia", icon: "fa-solid fa-tag" },
+        "Precio Competencia por Artticulo": { id: "list-precio-competencia", icon: "fa-solid fa-tag" },
+        "Precios de la Competencia": { id: "list-precio-competencia", icon: "fa-solid fa-tag" },
+        "Precios de la Competencia por Articulo": { id: "list-precio-competencia", icon: "fa-solid fa-tag" },
+        // ----------------------------------------
+
+
+
         "Margen Mínimo": { id: "list-margen-minimo-articulo", icon: "fa-solid fa-tag" },
         "Otros Costos": { id: "list-otros-costos-articulo", icon: "fa-solid fa-tag" }
     };
