@@ -12,6 +12,53 @@
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
+<style>
+    /* Estilos exactos de ConsultarPromocion para los iconos */
+    .promo-icons {
+    display: flex;
+    flex-direction: row; /* Fuerza a que estén horizontales */
+    flex-wrap: nowrap;
+    gap: 4px;
+    }
+
+    .promo-icon-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #bbb;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    color: #555;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    }
+
+    .promo-icon-btn:hover {
+    background: #e8e8e8;
+    color: #333;
+    }
+
+    /* MODAL TABLAS LOG/APROBACIONES */
+    #tablaLog thead tr:first-child th, #tablaAprobaciones thead tr:first-child th {
+    background-color: #8B0000 !important;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    padding: 8px;
+    font-size: 0.95rem;
+    }
+
+    #tablaLog thead tr:nth-child(2) th, #tablaAprobaciones thead tr:nth-child(2) th {
+    background-color: #1a237e !important;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    }
+</style>
+
 <h2>Consulta - Acuerdo</h2>
 <hr class="separador-fondos" />
 
@@ -64,21 +111,33 @@
                         <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
                     </div>
                 </div>
-                <div class="col-md-3 mt-0">
+                <div class="col mt-0">
                     <label class="form-label fw-bold col-form-label-sm">$ Valor Acuerdo</label>
                     <input type="text" class="form-control form-control-sm text-end fw-bold bg-light" id="verValorAcuerdo" readonly disabled>
                 </div>
-                <div class="col-md-3 mt-0">
+                <div class="col mt-0">
                     <label class="form-label fw-bold col-form-label-sm">$ Disponible</label>
                     <input type="text" class="form-control form-control-sm text-end" id="verValorDisponible" readonly disabled>
                 </div>
-                <div class="col-md-3 mt-0">
+                <div class="col mt-0">
                     <label class="form-label fw-bold col-form-label-sm">$ Comprometido</label>
                     <input type="text" class="form-control form-control-sm text-end" id="verValorComprometido" readonly disabled>
                 </div>
-                <div class="col-md-3 mt-0">
+                <div class="col mt-0">
                     <label class="form-label fw-bold col-form-label-sm">$ Liquidado</label>
                     <input type="text" class="form-control form-control-sm text-end" id="verValorLiquidado" readonly disabled>
+                </div>
+                
+                <!-- Nuevos Botones -->
+                <div class="col-auto mt-0 d-flex align-items-end pb-1">
+                    <div class="promo-icons">
+                        <div class="promo-icon-btn" id="btnVerLogAcuerdo" title="Registro de Log">
+                            <i class="fa-regular fa-rectangle-list"></i>
+                        </div>
+                        <div class="promo-icon-btn" id="btnVerAprobacionesAcuerdo" title="Registro de Aprobaciones">
+                            <i class="fa-regular fa-calendar-check"></i>
+                        </div>
+                    </div>
                 </div>
 
                 <hr class="mt-3 mb-3" />
@@ -91,6 +150,66 @@
 
         <div class="card-footer text-end">
             <button type="button" class="btn btn-secondary" id="btnVolverAbajo">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegistroLog" tabindex="-1" aria-labelledby="modalLogLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title fw-bold" id="modalLogLabel"><i class="fa-regular fa-rectangle-list me-2"></i>Registro de Log</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-2">
+                <div id="logSpinner" class="text-center py-4" style="display:none;">
+                    <div class="spinner-border text-danger" role="status"><span class="visually-hidden">Cargando...</span></div>
+                    <p class="mt-2 text-muted small">Cargando registros...</p>
+                </div>
+                <div id="contenedorTablaLog" style="display:none;">
+                    <div class="table-responsive">
+                        <table id="tablaLog" class="table table-bordered table-hover table-sm mb-0">
+                            <thead>
+                                <tr><th colspan="8">Registro de Log</th></tr>
+                                <tr><th>IdLog</th><th>Fecha</th><th>Usuario</th><th>Opción</th><th>Acción</th><th>Entidad</th><th>Tipo Proceso</th><th>Datos</th></tr>
+                            </thead>
+                            <tbody id="tbodyLog"></tbody>
+                        </table>
+                    </div>
+                    <div id="logSinDatos" class="alert alert-info text-center mt-2" style="display:none;">No se encontraron registros de log para esta promoción.</div>
+                </div>
+            </div>
+            <div class="modal-footer py-2"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegistroAprobaciones" tabindex="-1" aria-labelledby="modalAprobacionesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title fw-bold" id="modalAprobacionesLabel"><i class="fa-regular fa-calendar-check me-2"></i>Registro de Aprobaciones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-2">
+                <div id="aprobacionesSpinner" class="text-center py-4" style="display:none;">
+                    <div class="spinner-border text-danger" role="status"><span class="visually-hidden">Cargando...</span></div>
+                    <p class="mt-2 text-muted small">Cargando registros...</p>
+                </div>
+                <div id="contenedorTablaAprobaciones" style="display:none;">
+                    <div class="table-responsive">
+                        <table id="tablaAprobaciones" class="table table-bordered table-hover table-sm mb-0">
+                            <thead>
+                                <tr><th colspan="8">Registro de Aprobaciones</th></tr>
+                                <tr><th>Tipo Solicitud</th><th>Usuario Solicita</th><th>Fecha Solicitud</th><th>Usuario Aprobador</th><th>Fecha Aprobación</th><th>Nivel</th><th>Estado</th><th>Lote</th></tr>
+                            </thead>
+                            <tbody id="tbodyAprobaciones"></tbody>
+                        </table>
+                    </div>
+                    <div id="aprobacionesSinDatos" class="alert alert-info text-center mt-2" style="display:none;">No se encontraron registros de aprobaciones para esta promoción.</div>
+                </div>
+            </div>
+            <div class="modal-footer py-2"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button></div>
         </div>
     </div>
 </div>

@@ -19,8 +19,9 @@ let filaActualMedioPago = null;
 // --- VARIABLES PARA COMBOS ---
 let comboEnEdicion = null;
 let articulosPorComboMemoria = {};
-let combosBDOriginal = []; // Para detectar combos eliminados al guardar
-let componentesOriginalesPorCombo = {}; // { idpromocionarticulo: [ids_componentes_originales] }
+let combosBDOriginal = [];
+let componentesOriginalesPorCombo = {};
+let colIndexCostosActualMod = null; // ← AGREGAR ESTA LÍNEA
 window.contextoModalItems = "ARTICULOS";
 
 // --- VARIABLES PARA FIX DE MEDIO DE PAGO EN COMBOS ---
@@ -113,6 +114,60 @@ $(document).on("click", ".select-mediopago-articulo", function () {
 function manejarErrorGlobal(xhr, accion) {
     console.error(`Error al ${accion}:`, xhr.responseText);
     Swal.fire({ icon: 'error', title: 'Error', text: `No se pudo completar la acción: ${accion}.` });
+}
+
+function validarAporte2ProveedorYEjecutar(marcaSeleccionada, callbackExito, callbackFallo) {
+    if (!marcaSeleccionada || marcaSeleccionada === "TODAS") {
+        if (callbackFallo) callbackFallo();
+        return;
+    }
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/ValidacionAporte/consultar-aporte-por-marca",
+        client: "APL",
+        endpoint_query_params: "/" + marcaSeleccionada
+    };
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (res) {
+            const data = res.json_response || res || [];
+            const permiteAporte2 = data.some(item => item.numero_aporte === "2");
+            if (permiteAporte2) callbackExito();
+            else if (callbackFallo) callbackFallo();
+        },
+        error: function () { if (callbackFallo) callbackFallo(); }
+    });
+}
+
+function validarAporte2PropioYEjecutar(codigoArticulo, callbackExito, callbackFallo) {
+    if (!codigoArticulo) {
+        if (callbackFallo) callbackFallo();
+        return;
+    }
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/ValidacionAporte/consultar-aporte-por-articulo",
+        client: "APL",
+        endpoint_query_params: "/" + codigoArticulo
+    };
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (res) {
+            const data = res.json_response || res || [];
+            const permiteAporte2 = data.some(item => item.numero_aporte === "2");
+            if (permiteAporte2) callbackExito();
+            else if (callbackFallo) callbackFallo();
+        },
+        error: function () { if (callbackFallo) callbackFallo(); }
+    });
 }
 
 function formatearFecha(fechaString) {
@@ -1531,10 +1586,7 @@ function agregarColumnaAComboMod(item) {
         let yaExiste = false;
         $("#tablaCreacionCombo tbody tr[data-campo='art_codigo'] td:gt(1)").each(function () {
             const codigoExistente = $(this).find(".art-codigo-hidden").val();
-            if (String(codigoExistente) === codigoNuevo) {
-                yaExiste = true;
-                return false;
-            }
+            if (String(codigoExistente) === codigoNuevo) { yaExiste = true; return false; }
         });
         if (yaExiste) {
             console.warn(`Artículo ${codigoNuevo} ya existe en el combo, se omite duplicado.`);
@@ -1556,6 +1608,9 @@ function agregarColumnaAComboMod(item) {
                 </button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item btn-add-articulo-combo-mod" href="#" data-bs-toggle="modal" data-bs-target="#modalConsultaItems"><i class="fa-solid fa-plus"></i> Añadir Artículo</a></li>
+                    <li><a class="dropdown-item btn-equivalentes-combo-mod" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-arrows-left-right"></i> Equivalentes</a></li>
+                    <li><a class="dropdown-item btn-competencia-combo-mod" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-tags"></i> Precios Competencia</a></li>
+                    <li><a class="dropdown-item btn-otros-costos-combo-mod" href="#" data-codigo="${item.codigo}"><i class="fa-solid fa-coins"></i> Otros Costos</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger btn-eliminar-col-combo-mod" href="#"><i class="fa-solid fa-trash"></i> Eliminar Artículo</a></li>
                 </ul>
@@ -1564,6 +1619,11 @@ function agregarColumnaAComboMod(item) {
     $("#trHeadersCombo").append(thHtml);
 
     const colIndex = $("#trHeadersCombo th").length - 1;
+
+    if (item.otrosCostos && item.otrosCostos.length > 0) {
+        $(`#trHeadersCombo th:eq(${colIndex})`).data("detalle-otros-costos", item.otrosCostos);
+        $(`#trHeadersCombo th:eq(${colIndex})`).data("total-otros-costos", item.totalOtrosCostos || 0);
+    }
 
     $("#tablaCreacionCombo tbody tr").each(function () {
         const campo = $(this).data("campo");
@@ -1985,6 +2045,7 @@ function initLogicaCombosMod() {
         recalcularTotalesComboMod();
     });
 
+    // BUSCAR Y REEMPLAZAR este bloque dentro de initLogicaCombosMod:
     $(document).off("click", ".btn-buscar-acuerdo-combo-mod").on("click", ".btn-buscar-acuerdo-combo-mod", function () {
         const $btn = $(this);
         const colIndex = $btn.closest("td").data("colindex");
@@ -1997,23 +2058,162 @@ function initLogicaCombosMod() {
         const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
 
         const titulos = { "TFPROVEDOR": "Acuerdos Proveedor", "TFREBATE": "Acuerdos Rebate", "TFPROPIO": "Acuerdos Propio" };
-        abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slot, null);
 
-        acuerdoArticuloContexto.esCombo = true;
-        acuerdoArticuloContexto.colIndex = colIndex;
-
-        // FIX Z-INDEX: Forzar que el modal de acuerdos se posicione frente al modal de combos
-        setTimeout(function () {
-            const $modalAcuerdo = $("#modalAcuerdoArticulo");
-            $("#modalCrearComboMod").css('z-index', 1055);
-            $modalAcuerdo.css('z-index', 1075);
+        const ejecutarModal = () => {
+            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slot, null);
+            acuerdoArticuloContexto.esCombo = true;
+            acuerdoArticuloContexto.colIndex = colIndex;
             setTimeout(function () {
-                const $backdropsTras = $('.modal-backdrop');
-                if ($backdropsTras.length > 0) {
-                    $backdropsTras.last().css('z-index', 1070);
-                }
+                const $modalAcuerdo = $("#modalAcuerdoArticulo");
+                $("#modalCrearComboMod").css('z-index', 1055);
+                $modalAcuerdo.css('z-index', 1075);
+                setTimeout(function () {
+                    const $backdropsTras = $('.modal-backdrop');
+                    if ($backdropsTras.length > 0) { $backdropsTras.last().css('z-index', 1070); }
+                }, 100);
             }, 100);
-        }, 100);
+        };
+
+        if (tipoFondo === "TFPROVEDOR" && slot === 2) {
+            let marcaSeleccionada = "";
+            const marcasModalChecked = [];
+            $("#filtroMarcaModal .filtro-item-checkbox:checked").each(function () { marcasModalChecked.push($(this).val()); });
+            if (marcasModalChecked.length > 0) {
+                marcaSeleccionada = marcasModalChecked[0];
+            } else {
+                const valMarca = $("#segMarca").val();
+                if (valMarca === "3") {
+                    const sel = $("#btnMarca").data("seleccionados") || [];
+                    marcaSeleccionada = sel.length > 0 ? sel[0] : "";
+                } else if (valMarca && valMarca !== "TODAS" && valMarca !== "") {
+                    marcaSeleccionada = valMarca;
+                }
+            }
+            validarAporte2ProveedorYEjecutar(marcaSeleccionada, ejecutarModal, function () {
+                $btn.prop("disabled", true);
+                $inputDisplay.prop("disabled", true);
+                $(`#tablaCreacionCombo tbody tr[data-campo='aporte_prov2'] td[data-colindex='${colIndex}'] input`).prop("disabled", true);
+            });
+        } else if (tipoFondo === "TFPROPIO" && slot === 2) {
+            validarAporte2PropioYEjecutar(codigoItem, ejecutarModal, function () {
+                $btn.prop("disabled", true);
+                $inputDisplay.prop("disabled", true);
+                $(`#tablaCreacionCombo tbody tr[data-campo='aporte_propio2'] td[data-colindex='${colIndex}'] input`).prop("disabled", true);
+            });
+        } else {
+            ejecutarModal();
+        }
+    });
+
+    // ← AGREGAR ESTOS NUEVOS HANDLERS JUSTO DESPUÉS:
+
+    // Equivalentes en combo mod
+    $(document).off("click", ".btn-equivalentes-combo-mod").on("click", ".btn-equivalentes-combo-mod", function (e) {
+        e.preventDefault();
+        consultarServicioAdicional("api/Promocion/consultar-articulo-equivalente", $(this).data("codigo"), function (data) {
+            const $tbody = $("#tbodyEquivalentes");
+            $tbody.empty();
+            if (!data.length) {
+                $tbody.html('<tr><td colspan="14" class="text-center text-muted">No existen equivalentes para este artículo.</td></tr>');
+            } else {
+                data.forEach(item => {
+                    $tbody.append(`<tr>
+                    <td>${item.codigo || ''} - ${item.descripcion || ''}</td>
+                    <td class="text-end">${formatCurrencySpanish(item.costo)}</td>
+                    <td class="text-center">${item.stock_bodega || 0}</td>
+                    <td class="text-center">${item.stock_tiendas || 0}</td>
+                    <td class="text-center">${item.inventario_optimo || 0}</td>
+                    <td class="text-center">${item.excedentes_unidades || 0}</td>
+                    <td class="text-end">${formatCurrencySpanish(item.excedentes_dolares)}</td>
+                    <td class="text-center">${item.dias_antiguedad || 0}</td>
+                    <td class="text-center">${item.m0_unidades || 0}</td>
+                    <td class="text-end">${formatCurrencySpanish(item.m0_dolares)}</td>
+                    <td class="text-center">${item.m1_unidades || 0}</td>
+                    <td class="text-end">${formatCurrencySpanish(item.m1_dolares)}</td>
+                    <td class="text-center">${item.m2_unidades || 0}</td>
+                    <td class="text-end">${formatCurrencySpanish(item.m2_dolares)}</td>
+                </tr>`);
+                });
+            }
+            $("#modalEquivalentes").modal("show");
+        });
+    });
+
+    // Precios Competencia en combo mod
+    $(document).off("click", ".btn-competencia-combo-mod").on("click", ".btn-competencia-combo-mod", function (e) {
+        e.preventDefault();
+        consultarServicioAdicional("api/Promocion/consultar-articulo-precio-competencia", $(this).data("codigo"), function (data) {
+            const $tbody = $("#tbodyPreciosCompetencia");
+            $tbody.empty();
+            if (!data.length) {
+                $tbody.html('<tr><td colspan="2" class="text-center text-muted">No hay precios de competencia registrados.</td></tr>');
+            } else {
+                data.forEach(item => {
+                    $tbody.append(`<tr>
+                    <td>${item.nombre_competencia || ''}</td>
+                    <td class="text-end">${formatCurrencySpanish(item.precio_contado)}</td>
+                </tr>`);
+                });
+            }
+            $("#modalPreciosCompetencia").modal("show");
+        });
+    });
+
+    // Otros Costos en combo mod
+    $(document).off("click", ".btn-otros-costos-combo-mod").on("click", ".btn-otros-costos-combo-mod", function (e) {
+        e.preventDefault();
+        colIndexCostosActualMod = $(this).closest("th").index();
+        const costosGuardados = $(`#trHeadersCombo th:eq(${colIndexCostosActualMod})`).data("detalle-otros-costos") || [];
+        const codigosGuardados = costosGuardados.map(c => String(c.codigo));
+
+        consultarServicioAdicional("api/Promocion/consultar-otros-costos", $(this).data("codigo"), function (data) {
+            const $tbody = $("#tbodyOtrosCostos");
+            $tbody.empty();
+            if (!data.length) {
+                $tbody.html('<tr><td colspan="3" class="text-center text-muted">No hay otros costos aplicables.</td></tr>');
+            } else {
+                data.forEach(item => {
+                    const isChecked = codigosGuardados.includes(String(item.codigo)) ? "checked" : "";
+                    $tbody.append(`<tr>
+                    <td class="text-center align-middle">
+                        <input class="form-check-input chk-otro-costo-combo-mod" type="checkbox"
+                            data-codigo="${item.codigo}" data-nombre="${item.nombre}" data-valor="${item.valor}" ${isChecked}>
+                    </td>
+                    <td class="align-middle">${item.nombre || ''}</td>
+                    <td class="text-end align-middle">${formatCurrencySpanish(item.valor)}</td>
+                </tr>`);
+                });
+            }
+            $("#btnAplicarOtrosCostos").addClass("d-none");
+            if ($("#btnAplicarOtrosCostosComboMod").length === 0) {
+                $("#btnAplicarOtrosCostos").after('<button type="button" class="btn btn-primary" id="btnAplicarOtrosCostosComboMod">Aplicar</button>');
+            } else {
+                $("#btnAplicarOtrosCostosComboMod").removeClass("d-none");
+            }
+            $("#modalOtrosCostos").modal("show");
+        });
+    });
+
+    // Aplicar Otros Costos en combo mod
+    $(document).off("click", "#btnAplicarOtrosCostosComboMod").on("click", "#btnAplicarOtrosCostosComboMod", function () {
+        let totalOtrosCostos = 0;
+        const seleccionados = [];
+        $("#tbodyOtrosCostos .chk-otro-costo-combo-mod:checked").each(function () {
+            const valor = parseFloat($(this).data("valor")) || 0;
+            totalOtrosCostos += valor;
+            seleccionados.push({ codigo: $(this).data("codigo"), nombre: $(this).data("nombre"), valor: valor });
+        });
+        if (colIndexCostosActualMod !== null) {
+            const $th = $(`#trHeadersCombo th:eq(${colIndexCostosActualMod})`);
+            $th.data("total-otros-costos", totalOtrosCostos);
+            $th.data("detalle-otros-costos", seleccionados);
+            recalcularColumnaComboMod(colIndexCostosActualMod);
+            recalcularTotalesComboMod();
+        }
+        $("#modalOtrosCostos").modal("hide");
+        if (totalOtrosCostos > 0) {
+            Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Costos aplicados: ${formatCurrencySpanish(totalOtrosCostos)}`, showConfirmButton: false, timer: 2000 });
+        }
     });
 
     // =================================================================================
@@ -2353,7 +2553,40 @@ $(document).ready(function () {
             "TFREBATE": "Acuerdos - Fondo Rebate",
             "TFPROPIO": "Acuerdos - Fondo Propio" + (slot === 2 ? " (2)" : "")
         };
-        abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, $fila);
+
+        const ejecutarModal = () => {
+            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, $fila);
+        };
+
+        if (tipoFondo === "TFPROVEDOR" && slot === 2) {
+            let marcaSeleccionada = "";
+            const marcasModalChecked = [];
+            $("#filtroMarcaModal .filtro-item-checkbox:checked").each(function () { marcasModalChecked.push($(this).val()); });
+            if (marcasModalChecked.length > 0) {
+                marcaSeleccionada = marcasModalChecked[0];
+            } else {
+                const valMarca = $("#segMarca").val();
+                if (valMarca === "3") {
+                    const sel = $("#btnMarca").data("seleccionados") || [];
+                    marcaSeleccionada = sel.length > 0 ? sel[0] : "";
+                } else if (valMarca && valMarca !== "TODAS" && valMarca !== "") {
+                    marcaSeleccionada = valMarca;
+                }
+            }
+            validarAporte2ProveedorYEjecutar(marcaSeleccionada, ejecutarModal, function () {
+                $btn.prop("disabled", true);
+                $inputDisplay.prop("disabled", true);
+                $fila.find(".aporte-proveedor2").prop("disabled", true);
+            });
+        } else if (tipoFondo === "TFPROPIO" && slot === 2) {
+            validarAporte2PropioYEjecutar(codigoItem, ejecutarModal, function () {
+                $btn.prop("disabled", true);
+                $inputDisplay.prop("disabled", true);
+                $fila.find(".aporte-propio2").prop("disabled", true);
+            });
+        } else {
+            ejecutarModal();
+        }
     });
 
     $("#btnAceptarAcuerdoArticulo").on("click", function () {

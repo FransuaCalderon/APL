@@ -16,6 +16,53 @@
     <script src="~/js/Fondo/ConsultarFondo.js" asp-append-version="true"></script>
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
 }
+
+<style>
+    /* Estilos exactos de ConsultarPromocion para los iconos */
+    .promo-icons {
+        display: flex;
+        flex-direction: row; /* Fuerza a que estén horizontales */
+        flex-wrap: nowrap;
+        gap: 4px;
+    }
+
+    .promo-icon-btn {
+        width: 28px;
+        height: 28px;
+        border: 1px solid #bbb;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        color: #555;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .promo-icon-btn:hover {
+        background: #e8e8e8;
+        color: #333;
+    }
+
+    /* MODAL TABLAS LOG/APROBACIONES */
+    #tablaLog thead tr:first-child th, #tablaAprobaciones thead tr:first-child th {
+        background-color: #8B0000 !important;
+        color: #fff;
+        text-align: center;
+        font-weight: bold;
+        padding: 8px;
+        font-size: 0.95rem;
+    }
+
+    #tablaLog thead tr:nth-child(2) th, #tablaAprobaciones thead tr:nth-child(2) th {
+        background-color: #1a237e !important;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+    }
+</style>
 <h2 class="titulo-fondos">Consulta - Fondos</h2>
 <hr class="separador-fondos" />
 
@@ -80,21 +127,29 @@
                     </div> 
                 </div>
 
-                <div class="custom-form-row">
-                    <div class="custom-form-col">
-                        <label class="custom-label">Valor Disponible <span class="text-danger"></span></label>
-                        <!-- ✅ CAMBIO DE type="number" A type="text" -->
+                <div class="custom-form-row" style="display: flex; align-items: flex-end; gap: 10px;">
+                    <div class="custom-form-col" style="flex: 1;">
+                        <label class="custom-label">Valor Disponible</label>
                         <input type="text" class="custom-input" id="modal-fondo-disponible" name="valor_disponible" disabled>
                     </div>
-                    <div class="custom-form-col">
-                        <label class="custom-label">Valor Comprometido <span class="text-danger"></span></label>
-                        <!-- ✅ CAMBIO DE type="number" A type="text" -->
+                    <div class="custom-form-col" style="flex: 1;">
+                        <label class="custom-label">Valor Comprometido</label>
                         <input type="text" class="custom-input" id="modal-fondo-comprometido" name="valor_comprometido" disabled>
                     </div>
-                    <div class="custom-form-col">
-                        <label class="custom-label">Valor Liquidado <span class="text-danger"></span></label>
-                        <!-- ✅ CAMBIO DE type="number" A type="text" -->
+                    <div class="custom-form-col" style="flex: 1;">
+                        <label class="custom-label">Valor Liquidado</label>
                         <input type="text" class="custom-input" id="modal-fondo-liquidado" name="valor_liquidado" disabled>
+                    </div>
+    
+                    <div class="custom-form-col" style="flex: 0 0 auto; padding-bottom: 2px;">
+                        <div class="promo-icons">
+                            <div class="promo-icon-btn" id="btnVerLogFondo" title="Registro de Log">
+                                <i class="fa-regular fa-rectangle-list"></i>
+                            </div>
+                            <div class="promo-icon-btn" id="btnVerAprobacionesFondo" title="Registro de Aprobaciones">
+                                <i class="fa-regular fa-calendar-check"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -118,4 +173,63 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalRegistroLog" tabindex="-1" aria-labelledby="modalLogLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title fw-bold" id="modalLogLabel"><i class="fa-regular fa-rectangle-list me-2"></i>Registro de Log</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-2">
+                <div id="logSpinner" class="text-center py-4" style="display:none;">
+                    <div class="spinner-border text-danger" role="status"><span class="visually-hidden">Cargando...</span></div>
+                    <p class="mt-2 text-muted small">Cargando registros...</p>
+                </div>
+                <div id="contenedorTablaLog" style="display:none;">
+                    <div class="table-responsive">
+                        <table id="tablaLog" class="table table-bordered table-hover table-sm mb-0">
+                            <thead>
+                                <tr><th colspan="8">Registro de Log</th></tr>
+                                <tr><th>IdLog</th><th>Fecha</th><th>Usuario</th><th>Opción</th><th>Acción</th><th>Entidad</th><th>Tipo Proceso</th><th>Datos</th></tr>
+                            </thead>
+                            <tbody id="tbodyLog"></tbody>
+                        </table>
+                    </div>
+                    <div id="logSinDatos" class="alert alert-info text-center mt-2" style="display:none;">No se encontraron registros de log para esta promoción.</div>
+                </div>
+            </div>
+            <div class="modal-footer py-2"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegistroAprobaciones" tabindex="-1" aria-labelledby="modalAprobacionesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title fw-bold" id="modalAprobacionesLabel"><i class="fa-regular fa-calendar-check me-2"></i>Registro de Aprobaciones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-2">
+                <div id="aprobacionesSpinner" class="text-center py-4" style="display:none;">
+                    <div class="spinner-border text-danger" role="status"><span class="visually-hidden">Cargando...</span></div>
+                    <p class="mt-2 text-muted small">Cargando registros...</p>
+                </div>
+                <div id="contenedorTablaAprobaciones" style="display:none;">
+                    <div class="table-responsive">
+                        <table id="tablaAprobaciones" class="table table-bordered table-hover table-sm mb-0">
+                            <thead>
+                                <tr><th colspan="8">Registro de Aprobaciones</th></tr>
+                                <tr><th>Tipo Solicitud</th><th>Usuario Solicita</th><th>Fecha Solicitud</th><th>Usuario Aprobador</th><th>Fecha Aprobación</th><th>Nivel</th><th>Estado</th><th>Lote</th></tr>
+                            </thead>
+                            <tbody id="tbodyAprobaciones"></tbody>
+                        </table>
+                    </div>
+                    <div id="aprobacionesSinDatos" class="alert alert-info text-center mt-2" style="display:none;">No se encontraron registros de aprobaciones para esta promoción.</div>
+                </div>
+            </div>
+            <div class="modal-footer py-2"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button></div>
+        </div>
+    </div>
+</div>
 <!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->

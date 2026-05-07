@@ -84,6 +84,16 @@ $(document).ready(function () {
         }
     });
 
+    // Listeners para los nuevos botones de auditoría
+    $("#btnVerLogFondo").on("click", function () {
+        const idFondo = $("#modal-fondo-id").val();
+        if (idFondo) abrirModalLogFondo(idFondo);
+    });
+
+    $("#btnVerAprobacionesFondo").on("click", function () {
+        const idFondo = $("#modal-fondo-id").val();
+        if (idFondo) abrirModalAprobacionesFondo(idFondo);
+    });
 });
 
 // ===================================================================
@@ -810,5 +820,106 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+function abrirModalLogFondo(idFondo) {
+    $("#tbodyLog").empty(); $("#logSinDatos, #contenedorTablaLog").hide(); $("#logSpinner").show();
+    new bootstrap.Modal(document.getElementById("modalRegistroLog")).show();
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Auditoria/consultar-logs-general",
+        client: "APL",
+        endpoint_query_params: `/ENTFONDO/${idFondo}`
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            $("#logSpinner").hide(); $("#contenedorTablaLog").show();
+            if (response && response.code_status === 200) {
+                const logs = response.json_response || [];
+                if (logs.length === 0) { $("#logSinDatos").show(); return; }
+
+                let html = "";
+                window._logsCacheFondo = {}; // Caché para almacenar los JSON
+
+                logs.forEach(log => {
+                    window._logsCacheFondo[log.idlog] = log.datos; // Guardamos la data
+
+                    // Condición para pintar el botón si hay datos
+                    const btnDatos = (log.datos && log.datos.toString().trim() !== "")
+                        ? `<button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1" title="Ver datos" onclick="verDatosLogFondo(${log.idlog})"><i class="fa-regular fa-file-lines"></i></button>`
+                        : "";
+
+                    html += `<tr>
+                        <td class="text-center fw-bold">${log.idlog ?? ""}</td>
+                        <td class="text-center text-nowrap">${log.fecha ?? ""}</td>
+                        <td class="text-center">${log.usuario ?? ""}</td>
+                        <td>${log.opcion || log.opción || ""}</td>
+                        <td>${log.accion || log.acción || ""}</td>
+                        <td class="text-center">${log.entidad ?? ""}</td>
+                        <td class="text-center">${log.tipo_proceso ?? ""}</td>
+                        <td class="text-center">${btnDatos}</td>
+                    </tr>`;
+                });
+                $("#tbodyLog").html(html);
+            } else { $("#logSinDatos").show(); }
+        },
+        error: () => { $("#logSpinner").hide(); $("#logSinDatos").show(); }
+    });
+}
+
+// NUEVA FUNCIÓN: Muestra el SweetAlert con el JSON formateado
+function verDatosLogFondo(idLog) {
+    const datos = window._logsCacheFondo && window._logsCacheFondo[idLog];
+    if (!datos) {
+        Swal.fire({ icon: "info", title: `Log #${idLog}`, text: "No hay datos disponibles para este registro." });
+        return;
+    }
+
+    let contenido = datos;
+    try {
+        contenido = JSON.stringify(JSON.parse(datos), null, 2);
+    } catch (e) { }
+
+    Swal.fire({
+        icon: "info",
+        title: `Datos del Log #${idLog}`,
+        html: `<pre style="text-align:left; font-size:0.78rem; max-height:350px; overflow-y:auto; background:#f8f8f8; border:1px solid #ddd; border-radius:4px; padding:10px; white-space:pre-wrap; word-break:break-all;">${contenido}</pre>`,
+        width: 700,
+        confirmButtonText: "Cerrar"
+    });
+}
+
+function abrirModalAprobacionesFondo(idFondo) {
+    $("#tbodyAprobaciones").empty(); $("#aprobacionesSinDatos, #contenedorTablaAprobaciones").hide(); $("#aprobacionesSpinner").show();
+    new bootstrap.Modal(document.getElementById("modalRegistroAprobaciones")).show();
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Aprobacion/consultar-aprobaciones-generales",
+        client: "APL",
+        endpoint_query_params: `/ENTFONDO/${idFondo}` // Nota: Cambiamos a ENTFONDO
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            $("#aprobacionesSpinner").hide(); $("#contenedorTablaAprobaciones").show();
+            if (response && response.code_status === 200) {
+                const aprob = response.json_response || [];
+                if (aprob.length === 0) { $("#aprobacionesSinDatos").show(); return; }
+                let html = "";
+                aprob.forEach(apr => {
+                    html += `<tr><td>${apr.tipo_solicitud}</td><td>${apr.usuario_solicita}</td><td>${formatearFecha(apr.fecha_solicitud)}</td><td>${apr.usuario_aprobador || ""}</td><td>${formatearFecha(apr.fecha_aprobacion)}</td><td>${apr.nivel}</td><td>${apr.estado}</td><td>${apr.lote}</td></tr>`;
+                });
+                $("#tbodyAprobaciones").html(html);
+            } else { $("#aprobacionesSinDatos").show(); }
+        },
+        error: () => { $("#aprobacionesSpinner").hide(); $("#aprobacionesSinDatos").show(); }
+    });
+}
 
 // Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
