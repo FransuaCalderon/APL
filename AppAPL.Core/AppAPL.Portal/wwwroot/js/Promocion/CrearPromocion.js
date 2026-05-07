@@ -220,6 +220,76 @@
         });
     }
 
+    function validarAporte2ProveedorYEjecutar(marcaSeleccionada, callbackExito, callbackFallo) {
+        if (!marcaSeleccionada || marcaSeleccionada === "TODAS") {
+            if (callbackFallo) callbackFallo();
+            return;
+        }
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/ValidacionAporte/consultar-aporte-por-marca",
+            client: "APL",
+            endpoint_query_params: "/" + marcaSeleccionada
+        };
+
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (res) {
+                const data = res.json_response || res || [];
+                const permiteAporte2 = data.some(item => item.numero_aporte === "2");
+
+                if (permiteAporte2) {
+                    callbackExito(); // Abre el modal
+                } else {
+                    if (callbackFallo) callbackFallo(); // Lo deshabilita silenciosamente
+                }
+            },
+            error: function () {
+                if (callbackFallo) callbackFallo();
+            }
+        });
+    }
+
+    function validarAporte2PropioYEjecutar(codigoArticulo, callbackExito, callbackFallo) {
+        if (!codigoArticulo) {
+            if (callbackFallo) callbackFallo();
+            return;
+        }
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "GET",
+            endpoint_path: "api/ValidacionAporte/consultar-aporte-por-articulo",
+            client: "APL",
+            endpoint_query_params: "/" + codigoArticulo
+        };
+
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (res) {
+                const data = res.json_response || res || [];
+                const permiteAporte2 = data.some(item => item.numero_aporte === "2");
+
+                if (permiteAporte2) {
+                    callbackExito(); // Abre el modal
+                } else {
+                    if (callbackFallo) callbackFallo(); // Lo deshabilita silenciosamente
+                }
+            },
+            error: function () {
+                if (callbackFallo) callbackFallo();
+            }
+        });
+    }
+
     function initLogicaSeleccionMultiple() {
         CONFIG_MULTIPLE.forEach(conf => {
             $(conf.select).off("change").on("change", function () {
@@ -3019,10 +3089,51 @@
             const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
 
             const titulos = { "TFPROVEDOR": "Acuerdos Proveedor", "TFREBATE": "Acuerdos Rebate", "TFPROPIO": "Acuerdos Propio" };
-            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slot, null);
 
-            acuerdoArticuloContexto.esCombo = true;
-            acuerdoArticuloContexto.colIndex = colIndex;
+            const ejecutarModal = () => {
+                abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slot, null);
+                acuerdoArticuloContexto.esCombo = true;
+                acuerdoArticuloContexto.colIndex = colIndex;
+            };
+
+            // Interceptar solo si es Proveedor y es el Aporte 2
+            if (tipoFondo === "TFPROVEDOR" && slot === 2) {
+                let marcaSeleccionada = "";
+
+                // 1. Buscar la marca en el Modal de Consulta de Items
+                const marcasModal = getSelectedFilterValuesPromo("filtroMarcaModal");
+                if (marcasModal && marcasModal.length > 0) {
+                    marcaSeleccionada = marcasModal[0];
+                }
+                // 2. Si no hay, buscar en el filtro general
+                else {
+                    let marcaGen = $("#filtroMarcaGeneral").val();
+                    if (marcaGen === "3") {
+                        const sel = $("#btnMarcaGeneral").data("seleccionados") || [];
+                        marcaSeleccionada = sel.length > 0 ? sel[0] : "";
+                    } else if (marcaGen && marcaGen !== "TODAS" && marcaGen !== "TODOS") {
+                        marcaSeleccionada = marcaGen;
+                    }
+                }
+
+                // Ejecutar la validación mandando la función de Fallo para deshabilitar
+                validarAporte2ProveedorYEjecutar(marcaSeleccionada, ejecutarModal, function () {
+                    $btn.prop("disabled", true);
+                    $inputDisplay.prop("disabled", true);
+                    $(`#tablaCreacionCombo tbody tr[data-campo='aporte_prov2'] td[data-colindex='${colIndex}'] input`).prop("disabled", true);
+                });
+            }
+            // NUEVO: Interceptar si es Propio y es el Aporte 2 en el Combo
+            else if (tipoFondo === "TFPROPIO" && slot === 2) {
+                validarAporte2PropioYEjecutar(codigoItem, ejecutarModal, function () {
+                    $btn.prop("disabled", true);
+                    $inputDisplay.prop("disabled", true);
+                    $(`#tablaCreacionCombo tbody tr[data-campo='aporte_propio2'] td[data-colindex='${colIndex}'] input`).prop("disabled", true);
+                });
+            }
+            else {
+                ejecutarModal();
+            }
         });
 
         $("#btnAceptarAcuerdoArticulo").on("click", function (e) {
@@ -3862,7 +3973,49 @@
                 "TFREBATE": "Acuerdos - Fondo Rebate",
                 "TFPROPIO": "Acuerdos - Fondo Propio" + (slot === 2 ? " (2)" : "")
             };
-            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, $fila);
+
+            const ejecutarModal = () => {
+                abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, $fila);
+            };
+
+            // Interceptar solo si es Proveedor y es el Aporte 2
+            if (tipoFondo === "TFPROVEDOR" && slot === 2) {
+                let marcaSeleccionada = "";
+
+                // 1. Buscar la marca en el Modal de Consulta de Items
+                const marcasModal = getSelectedFilterValuesPromo("filtroMarcaModal");
+                if (marcasModal && marcasModal.length > 0) {
+                    marcaSeleccionada = marcasModal[0];
+                }
+                // 2. Si no hay, buscar en el filtro general
+                else {
+                    let marcaGen = $("#filtroMarcaGeneral").val();
+                    if (marcaGen === "3") {
+                        const sel = $("#btnMarcaGeneral").data("seleccionados") || [];
+                        marcaSeleccionada = sel.length > 0 ? sel[0] : "";
+                    } else if (marcaGen && marcaGen !== "TODAS" && marcaGen !== "TODOS") {
+                        marcaSeleccionada = marcaGen;
+                    }
+                }
+
+                // Ejecutar la validación mandando la función de Fallo para deshabilitar
+                validarAporte2ProveedorYEjecutar(marcaSeleccionada, ejecutarModal, function () {
+                    $btn.prop("disabled", true);
+                    $inputDisplay.prop("disabled", true);
+                    $fila.find(".aporte-proveedor2").prop("disabled", true);
+                });
+            }
+            // NUEVO: Interceptar si es Propio y es el Aporte 2
+            else if (tipoFondo === "TFPROPIO" && slot === 2) {
+                validarAporte2PropioYEjecutar(codigoItem, ejecutarModal, function () {
+                    $btn.prop("disabled", true);
+                    $inputDisplay.prop("disabled", true);
+                    $fila.find(".aporte-propio2").prop("disabled", true);
+                });
+            }
+            else {
+                ejecutarModal();
+            }
         });
 
         $("#btnAceptarAcuerdoArticulo").on("click", function () {
