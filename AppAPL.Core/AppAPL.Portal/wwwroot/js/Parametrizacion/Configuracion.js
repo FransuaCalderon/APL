@@ -398,6 +398,10 @@ $(document).ready(function () {
         modificarAPA();
     });
 
+    $('#btnConfirmarElimAPA').click(function () {
+        eliminarAPA();
+    });
+
     // ==========================================
     // 1. CARGA DE TABLA: PRECIO COMPETENCIA
     // ==========================================
@@ -543,6 +547,7 @@ $(document).ready(function () {
     $('#modalModificarAporteArticulo').on('show.bs.modal', function (event) {
         const $boton = $(event.relatedTarget);
         $('#inputIdModifAPA').val($boton.data('id'));
+        $('#inputCodModifAPA').val($boton.data('codigo'));
         $('#inputModifArticuloAPA').val($boton.data('nombre'));
         $('#inputModifNumAporteAPA').val($boton.data('num'));
     });
@@ -551,6 +556,7 @@ $(document).ready(function () {
     $('#modalEliminarAportePropioArticulo').on('show.bs.modal', function (event) {
         const $boton = $(event.relatedTarget);
         $('#inputIdElimAPA').val($boton.data('id'));
+        $('#inputCodElimAPA').val($boton.data('codigo'));
         $('#txtElimArtAPA').text($boton.data('nombre'));
     });
 
@@ -563,9 +569,10 @@ $(document).ready(function () {
         }
     });
 
+    /*
     $('#btnGuardarNuevoAPA').off('click').on('click', guardarAPA);
     $('#btnGuardarModifAPA').off('click').on('click', modificarAPA);
-    $('#btnConfirmarElimAPA').off('click').on('click', eliminarAPA);
+    $('#btnConfirmarElimAPA').off('click').on('click', eliminarAPA);*/
 });
 
 function getUsuario() {
@@ -588,6 +595,98 @@ function getIdOpcionSeguro() {
 
 
 // --- Lógica de DataTables y Renderizado ---
+
+// 2. Función que consulta al API
+function cargarAportesPropioArticulo() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        // IMPORTANTE: Verifica que esta ruta sea exacta a la de tu Swagger
+        endpoint_path: "api/Parametrizacion/consultar-aporte-articulo",
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                // Llamamos a la función que dibuja el HTML (que te pasé en el mensaje anterior)
+                crearListadoAportesPropioArticulo(response.json_response || []);
+            } else {
+                // Si el API responde 200 pero tu backend mandó un code_status distinto
+                console.warn("No se encontraron registros o hubo un problema en el backend.");
+                crearListadoAportesPropioArticulo([]); // Dibujamos la tabla vacía
+            }
+        },
+        error: function (xhr) {
+            manejarErrorGlobal(xhr, "cargar aportes propios por artículo");
+        }
+    });
+}
+
+function crearListadoAportesPropioArticulo(data) {
+    // Seleccionamos el cuerpo de la tabla en la pestaña correspondiente
+    const $tbody = $('#tbody-aporte-propio-articulo');
+
+    // 1. Limpiamos la tabla antes de inyectar los nuevos datos
+    $tbody.empty();
+
+    // 2. Si no hay datos, mostramos un mensaje amigable
+    if (!data || data.length === 0) {
+        $tbody.append('<tr><td colspan="3" class="text-center text-muted">No hay registros de aportes propios configurados.</td></tr>');
+        return;
+    }
+
+    let html = '';
+
+    // 3. Recorremos el listado que viene del API
+    $.each(data, function (index, item) {
+        // Armamos la fila con los nombres de campos de tu esquema JSON
+        html += `
+            <tr data-id="${item.idparametrodato}">
+                <td class="align-middle text-wrap">
+                    ${item.codigo_articulo} - ${item.nombre_articulo}
+                </td>
+                
+                <td class="text-center align-middle">
+                    ${item.numero_aporte}
+                </td>
+                
+                <td class="text-center align-middle">
+                    <div class="btn-group btn-group-sm">
+                        
+                        <button type="button" class="btn btn-action" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#modalModificarAporteArticulo" 
+                                data-id="${item.idparametrodato}" 
+                                data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" 
+                                data-num="${item.numero_aporte}" 
+                                data-codigo="${item.codigo_articulo}" 
+                                style="color:#0d6efd;" title="Modificar">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        
+                        <button type="button" class="btn btn-action" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#modalEliminarAportePropioArticulo" 
+                                data-id="${item.idparametrodato}" 
+                                data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" 
+                                data-codigo="${item.codigo_articulo}" 
+                                style="color:red;" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        
+                    </div>
+                </td>
+            </tr>`;
+    });
+
+    // 4. Inyectamos todo el bloque de HTML de una sola vez para mejorar el rendimiento
+    $tbody.html(html);
+}
 
 function cargarArticulosModalAPA() {
     const $tabla = $('#datosarticulosAPA');
@@ -654,150 +753,7 @@ function inicializarDataTablesArticulosAPA(data) {
     });
 }
 
-function crearListadoAportesPropioArticulo(data) {
-    const $tbody = $('#tbody-aporte-propio-articulo');
-    $tbody.empty();
 
-    if (!data || data.length === 0) {
-        $tbody.append('<tr><td colspan="4" class="text-center text-muted">No hay registros.</td></tr>');
-        return;
-    }
-
-    let html = '';
-    $.each(data, function (index, item) {
-        html += `
-            <tr data-id="${item.idparametrodato}">
-                <td class="align-middle text-wrap">${item.codigo_articulo} - ${item.nombre_articulo}</td>
-                <td class="text-center align-middle">${item.numero_aporte}</td>
-                <td class="text-center align-middle">
-                    <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarAporteArticulo" 
-                                data-id="${item.idparametrodato}" data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" data-num="${item.numero_aporte}" style="color:#0d6efd;">
-                            <i class="fa-regular fa-pen-to-square"></i>
-                        </button>
-                        <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalEliminarAportePropioArticulo" 
-                                data-id="${item.idparametrodato}" data-nombre="${item.nombre_articulo}" style="color:red;">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>`;
-    });
-    $tbody.html(html);
-}
-
-
-// --- Funciones CRUD al API ---
-
-function guardarAPA() {
-    const codArticulo = $('#inputNuevoArticuloAPA').data('codigo');
-    const numAporte = $('#inputNuevoNumAporteAPA').val().trim();
-
-    if (!codArticulo || numAporte === "") {
-        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Seleccione un artículo e ingrese el número de aportes.' });
-    }
-
-    // Validación de duplicados en la tabla principal
-    let yaExiste = false;
-    $('#tbody-aporte-propio-articulo tr').each(function () {
-        const textoCelda = $(this).find('td:eq(0)').text().trim();
-        let codEnTabla = textoCelda;
-        if (textoCelda.includes('-')) {
-            codEnTabla = textoCelda.substring(0, textoCelda.indexOf('-')).trim();
-        }
-        if (codEnTabla.toString() === codArticulo.toString()) {
-            yaExiste = true;
-            return false;
-        }
-    });
-
-    if (yaExiste) {
-        return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `El artículo con código ${codArticulo} ya está configurado.` });
-    }
-
-    const $menu = $('#list-tab a.active');
-    const payload = {
-        code_app: "APP20260128155212346",
-        http_method: "POST",
-        endpoint_path: "api/Parametrizacion/crear-aporte-articulo",
-        client: "APL",
-        json_body: {
-            idparametrotipo: $menu.data('idparametrotipo'),
-            idparametro: $menu.data('idparametro'),
-            codigoparametro: $menu.data('codigoparametro'),
-            codigo_articulo: codArticulo.toString(),
-            numero_aporte: numAporte.toString()
-        }
-    };
-
-    $.ajax({
-        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
-        success: function (response) {
-            if (response.code_status === 200) {
-                $('#modalNuevoAporteArticulo').modal('hide');
-                Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500 });
-                cargarAportesPropioArticulo();
-            } else {
-                Swal.fire({ icon: "error", title: "Error", text: "No se pudo guardar la configuración." });
-            }
-        },
-        error: function (xhr) { manejarErrorGlobal(xhr, "crear el aporte por artículo"); }
-    });
-}
-
-function modificarAPA() {
-    const id = $('#inputIdModifAPA').val();
-    const num = $('#inputModifNumAporteAPA').val().trim();
-
-    if (num === "") return Swal.fire({ icon: 'warning', text: 'Ingrese el número de aportes.' });
-
-    const payload = {
-        code_app: "APP20260128155212346",
-        http_method: "PUT",
-        endpoint_path: "api/Parametrizacion/actualizar-aporte-articulo",
-        client: "APL",
-        json_body: { idparametrodato: parseInt(id), numero_aporte: num.toString() }
-    };
-
-    $.ajax({
-        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
-        success: function (response) {
-            if (response.code_status === 200) {
-                $('#modalModificarAporteArticulo').modal('hide');
-                Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1500 });
-                cargarAportesPropioArticulo();
-            } else {
-                Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar la configuración." });
-            }
-        },
-        error: function (xhr) { manejarErrorGlobal(xhr, "actualizar el aporte"); }
-    });
-}
-
-function eliminarAPA() {
-    const id = $('#inputIdElimAPA').val();
-
-    const payload = {
-        code_app: "APP20260128155212346",
-        http_method: "DELETE",
-        endpoint_path: `api/Parametrizacion/eliminar-aporte-articulo/${id}`,
-        client: "APL"
-    };
-
-    $.ajax({
-        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
-        success: function (response) {
-            if (response.code_status === 200) {
-                $('#modalEliminarAportePropioArticulo').modal('hide');
-                Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500 });
-                cargarAportesPropioArticulo();
-            } else {
-                Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el registro." });
-            }
-        },
-        error: function (xhr) { manejarErrorGlobal(xhr, "eliminar el aporte"); }
-    });
-}
 
 
 
@@ -1272,6 +1228,161 @@ function crearListadoMediosPago(data) {
     $tbody.html(htmlFilas);
 }
 
+
+
+//APORTE PROPIO POR ARTICULO
+function guardarAPA() {
+    const codArticulo = $('#inputNuevoArticuloAPA').data('codigo');
+    const numAporte = $('#inputNuevoNumAporteAPA').val().trim();
+
+    if (!codArticulo || numAporte === "") {
+        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Seleccione un artículo e ingrese el número de aportes.' });
+    }
+
+    // Validación de duplicados en la tabla principal
+    let yaExiste = false;
+    $('#tbody-aporte-propio-articulo tr').each(function () {
+        const textoCelda = $(this).find('td:eq(0)').text().trim();
+        let codEnTabla = textoCelda;
+        if (textoCelda.includes('-')) {
+            codEnTabla = textoCelda.substring(0, textoCelda.indexOf('-')).trim();
+        }
+        if (codEnTabla.toString() === codArticulo.toString()) {
+            yaExiste = true;
+            return false;
+        }
+    });
+
+    if (yaExiste) {
+        return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `El artículo con código ${codArticulo} ya está configurado.` });
+    }
+
+    const $menu = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 6,
+        "opcion": "I",
+        "idparametro": $menu.data('idparametro'),
+        "codigoparametro": $menu.data('codigoparametro'),
+        "idusuario": getUsuario(),
+        //"idparametrodato": 0,
+        "codigorelacion1": codArticulo.toString(),
+        "valor1": parseFloat(numAporte)
+    };
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros",
+        client: "APL",
+        body_request: body
+    };
+
+    //console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalNuevoAporteArticulo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500 });
+                cargarAportesPropioArticulo();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo guardar la configuración." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "crear el aporte por artículo"); }
+    });
+}
+
+function modificarAPA() {
+    const id = $('#inputIdModifAPA').val();
+    const num = $('#inputModifNumAporteAPA').val().trim();
+    const codArticulo = $('#inputCodModifAPA').val();
+
+    if (num === "") return Swal.fire({ icon: 'warning', text: 'Ingrese el número de aportes.' });
+
+    //json_body: { idparametrodato: parseInt(id), numero_aporte: num.toString() }
+
+    const $menu = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 6,
+        "opcion": "M",
+        "idparametro": $menu.data('idparametro'),
+        "codigoparametro": $menu.data('codigoparametro'),
+        "idusuario": getUsuario(),
+        "idparametrodato": parseInt(id),
+        "codigorelacion1": codArticulo,
+        "valor1": parseFloat(num)
+    };
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros",
+        client: "APL",
+        body_request: body
+    };
+
+    //console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalModificarAporteArticulo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1500 });
+                cargarAportesPropioArticulo();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar la configuración." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "actualizar el aporte"); }
+    });
+}
+
+function eliminarAPA() {
+    const id = $('#inputIdElimAPA').val();
+    const codArticulo = $('#inputCodElimAPA').val();
+
+    const $menu = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 6,
+        "opcion": "E",
+        "idparametro": $menu.data('idparametro'),
+        "codigoparametro": $menu.data('codigoparametro'),
+        "idusuario": getUsuario(),
+        "idparametrodato": parseInt(id),
+        "codigorelacion1": codArticulo,
+        //"valor1": parseFloat(num)
+    };
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros",
+        client: "APL",
+        body_request: body
+    };
+
+    //console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalEliminarAportePropioArticulo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500 });
+                cargarAportesPropioArticulo();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el registro." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "eliminar el aporte"); }
+    });
+}
 
 
 //MARGEN MINIMO
