@@ -136,6 +136,13 @@ namespace AppAPL.Dto.Acuerdo
 
     }
 
+    public class ArticuloParametrizacionDTO
+    {
+        public string Codigo { get; set; }
+        public string Descripcion { get; set; }
+
+    }
+
     public class BandejaAprobacionAcuerdoDTO
     {
         public string Solicitud { get; set; }

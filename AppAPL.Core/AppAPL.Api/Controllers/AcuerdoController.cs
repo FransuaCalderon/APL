@@ -3,6 +3,7 @@ using AppAPL.Dto;
 using AppAPL.Dto.Acuerdo;
 using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -11,7 +12,7 @@ namespace AppAPL.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    public class AcuerdoController(ILogger<AcuerdoController> logger, IAcuerdoServicio servicio) : ControllerBase
+    public class AcuerdoController(ILogger<AcuerdoController> logger, IAcuerdoServicio servicio, IMapper mapper) : ControllerBase
     {
 
         [HttpGet("consultar-acuerdo-fondo/{idFondo:int}")]
@@ -42,6 +43,16 @@ namespace AppAPL.Api.Controllers
         public async Task<ActionResult<List<ArticuloDTO>>> ConsultarArticulos(ConsultarArticuloDTO dto)
         {
             var listaArticulos = await servicio.ConsultarArticulos(dto);
+
+            return listaArticulos.ToList();
+        }
+
+        [HttpGet("consultar-articulos-parametrizacion")]
+        public async Task<ActionResult<List<ArticuloParametrizacionDTO>>> ConsultarArticulosParametrizacion()
+        {
+            var listaArticulos = await servicio.ConsultarArticulosParametrizacion();
+
+            //var listaMapeado = mapper.Map<List<ArticuloParametrizacionDTO>>(listaArticulos.ToList());
 
             return listaArticulos.ToList();
         }

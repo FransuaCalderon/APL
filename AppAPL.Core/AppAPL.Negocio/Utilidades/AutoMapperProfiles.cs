@@ -14,9 +14,11 @@ namespace AppAPL.Negocio.Utilidades
     {
         public AutoMapperProfiles()
         {
-           /* CreateMap<BandejaAprobacionAcuerdoRawDTO, BandejaAprobacionAcuerdoDTO>()
-                .ForMember(dto => dto.articulos,
-                config => config.MapFrom(bandapro => this.DeserializarArticulos(bandapro.articulos_json)));*/
+            /* CreateMap<BandejaAprobacionAcuerdoRawDTO, BandejaAprobacionAcuerdoDTO>()
+                 .ForMember(dto => dto.articulos,
+                 config => config.MapFrom(bandapro => this.DeserializarArticulos(bandapro.articulos_json)));*/
+
+            CreateMap<ArticuloDTO, ArticuloParametrizacionDTO>();
                 
         }
 

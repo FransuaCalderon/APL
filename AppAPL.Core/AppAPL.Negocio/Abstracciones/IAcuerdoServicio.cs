@@ -31,5 +31,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<ControlErroresDTO> ActualizarAsync(ActualizarAcuerdoDTO actualizarAcuerdoDTO);
         Task<BandInacAcuerdoPorIDDTO?> ObtenerBandejaInactivacionPorId(int idAcuerdo);
         Task<IEnumerable<AcuerdoPromocionDTO>> ConsultarAcuerdoPromocion(int idAcuerdo);
+        Task<IEnumerable<ArticuloParametrizacionDTO>> ConsultarArticulosParametrizacion();
     }
 }
