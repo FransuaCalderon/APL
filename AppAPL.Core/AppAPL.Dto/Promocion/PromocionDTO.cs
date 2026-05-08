@@ -2083,7 +2083,7 @@ namespace AppAPL.Dto.Promocion
         public List<object> data { get; set; }
 
         
-        public int codigoError { get; set; }
-        public string mensajeError { get; set; }
+        public int? codigoError { get; set; }
+        public string? mensajeError { get; set; }
     }
 }
