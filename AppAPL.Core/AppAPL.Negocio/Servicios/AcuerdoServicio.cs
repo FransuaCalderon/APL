@@ -13,7 +13,7 @@ using Org.BouncyCastle.Asn1.Mozilla;
 
 namespace AppAPL.Negocio.Servicios
 {
-    public class AcuerdoServicio (IAcuerdoRepositorio repo, IMapper mapper) : IAcuerdoServicio
+    public class AcuerdoServicio (IAcuerdoRepositorio repo) : IAcuerdoServicio
     {
         
 
@@ -68,5 +68,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<AcuerdoPromocionDTO>> ConsultarAcuerdoPromocion(int idAcuerdo)
             => repo.ConsultarAcuerdoPromocion(idAcuerdo);
+
+        public Task<IEnumerable<ArticuloParametrizacionDTO>> ConsultarArticulosParametrizacion()
+            => repo.ConsultarArticulosParametrizacion();
     }
 }

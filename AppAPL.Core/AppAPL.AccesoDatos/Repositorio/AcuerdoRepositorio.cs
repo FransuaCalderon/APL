@@ -147,6 +147,43 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<IEnumerable<ArticuloParametrizacionDTO>> ConsultarArticulosParametrizacion()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            
+            /*
+            var paramObject = new
+            {
+                // 🚀 Uso de '?? Enumerable.Empty<string>()' para manejar la nulidad
+                p_marcas = String.Join(",", dto.Marcas ?? Enumerable.Empty<string>()),
+                p_divisiones = String.Join(",", dto.Divisiones ?? Enumerable.Empty<string>()),
+                p_departamentos = String.Join(",", dto.Departamentos ?? Enumerable.Empty<string>()),
+                p_clases = String.Join(",", dto.Clases ?? Enumerable.Empty<string>()),
+                p_codigo = codigoArticuloParam
+            };*/
+
+            //logger.LogInformation($"parametros antes de enviar a sp: {paramObject.ToString()}");
+
+            //var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+
+            //parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<ArticuloParametrizacionDTO>(
+                "select CODIGO,DESCRIPCION from APL_TB_ARTEFACTA_ARTICULO",
+                null,
+                commandType: CommandType.Text
+            );
+
+            return datos;
+        }
+
+
+
         public async Task<FiltrosItemsDTO> CargarCombosFiltrosItems()
         {
             using var connection = factory.CreateOpenConnection();

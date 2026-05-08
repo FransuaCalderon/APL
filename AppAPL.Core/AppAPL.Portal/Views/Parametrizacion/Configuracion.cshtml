@@ -364,7 +364,7 @@
 																																								
 					<div class="row">
 																
-						<div class="table-responsive d-flex justify-content-center">
+						<div class="table-responsive d-flex justify-content-center" style="height: 450px; overflow-y: auto;">
 							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
 								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
 								<thead class="text-white text-nowrap">
@@ -381,8 +381,8 @@
 										</th>
 									</tr>
 								</thead>
-								<tbody class="text-nowrap">
-														
+								<tbody id="tbody-margen-minimo" class="text-nowrap">
+														<!--
 									<tr class="m-0 p-0">
 																
 										<td class="align-middle">10203040-TV 65 Pulgadas Smart SONY 4k</td>
@@ -401,7 +401,8 @@
 																	
 										</td>
 									</tr>
-															
+												-->
+
 															
 												
 															
@@ -677,6 +678,7 @@
 								</thead>
 								<tbody class="text-nowrap">
 											
+									<!--
 									<tr class="m-0 p-0">
 										<td class="align-middle">10203040</td>
 										<td class="align-middle">TV 65 Pulgadas Smart SONY 4k</td>
@@ -695,7 +697,7 @@
 											</div>
 										</td>
 									</tr>
-												
+									-->
 									
 												
 								</tbody>
@@ -707,13 +709,13 @@
 									  
 									  
 					<!-- linea 2 -->
-					<div class="col-md-10 text-center">
-						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
-						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					<div class="col-md-9 text-center">
+						<label for="inputNuevoArticuloAPA" class="form-label fw-bold">Artículo Seleccionado</label>
+						<input type="text" class="form-control" id="inputNuevoArticuloAPA" disabled>
 					</div>
-					<div class="col-md-2 text-center">
-						<label for="inputNumAporte" class="form-label fw-bold  ">No. Aporte</label>
-						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
+					<div class="col-md-3 text-center">
+						<label for="inputNuevoNumAporteAPA" class="form-label fw-bold">No. Aporte</label>
+						<input type="number" step="1" min="0" max="100" class="form-control text-center input-rango-100" id="inputNuevoNumAporteAPA">
 					</div>
 	  
 				</form>
@@ -722,7 +724,7 @@
 						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarNuevoAPA">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -764,101 +766,62 @@
 </div>
 
 <!-- Modal Anadir nuevo Margen Minimo por articulo-->
-<div class="modal fade" id="modalNuevoMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modalNuevoMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h1 class="modal-title fs-5" id="staticBackdropLabel">Nuevo Margen Minimo por articulo</h1>
-					
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<h1 class="modal-title fs-5">Nuevo Margen Mínimo por Artículo</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 			</div>
 			<div class="modal-body">
-					
-					
-				<form class="row g-1 ">
-									  
-					<!-- linea 1 -->
-					<div class="col-md-12 text-center">
-						<label for="datosarticulos" class="form-label fw-bold  ">Artículos</label>
-						<div class="table-responsive d-flex justify-content-center">
-							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;" id="datosarticulos">
-								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
-								<thead class="text-white text-nowrap">
-									<tr class="">
-													
-										<th class="table-primary text-center align-middle" style="width: 15%;">Codigo</th>
-										<th class="table-primary text-center align-middle" style="width: 70%;">Nombre Artículo</th>
-										<th class="table-primary text-center align-middle" style="width: 15%;"> Acción</th>
+				<form class="row g-1">
+					<div class="col-md-12 text-center mb-3">
+						<label class="form-label fw-bold">Catálogo de Artículos</label>
+						<div class="table-responsive d-flex justify-content-center border" style="height: 600px; overflow-y: auto;">
+							<table class="table table-hover table-bordered mb-0" style="table-layout: fixed; width: 100%;" id="datosarticulosMM">
+								<thead class="text-white text-nowrap" style="position: sticky; top: 0; z-index: 2;">
+									<tr>
+										<th class="table-primary text-center align-middle" style="width: 20%;">Código</th>
+										<th class="table-primary text-center align-middle" style="width: 65%;">Nombre Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;">Acción</th>
 									</tr>
 								</thead>
 								<tbody class="text-nowrap">
-											
-									<tr class="m-0 p-0">
-										<td class="align-middle">10203040</td>
-										<td class="align-middle">TV 65 Pulgadas Smart SONY 4k</td>
-										<td class="">
-											<div>
-												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel1" value="" aria-label="...">
-											</div>
-										</td>
-									</tr>
-									<tr class="m-0 p-0">
-										<td class="align-middle">52608488</td>
-										<td class="align-middle">CONGELADOR SAMSUMG</td>
-										<td class="">
-											<div>
-												<input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel2" value="" aria-label="...">
-											</div>
-										</td>
-									</tr>
-												
-									
-												
 								</tbody>
 							</table>
 						</div>
-								
-							  
 					</div>
-									  
-									  
-					<!-- linea 2 -->
+                    
 					<div class="col-md-4 text-center">
-						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
-						<input type="text" class="form-control " id="inputArticulo" placeholder="" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+						<label for="inputNuevoArticuloMM" class="form-label fw-bold">Artículo Seleccionado</label>
+						<input type="text" class="form-control" id="inputNuevoArticuloMM" disabled>
 					</div>
 					<div class="col-md-2 text-center">
-						<label for="inputMargenContado" class="form-label fw-bold  ">% Contado</label>
-						<input type="text" class="form-control " id="inputMargenContado" placeholder="99.99 %" value="">
+						<label for="inputNuevoContadoMM" class="form-label fw-bold">% Contado</label>
+						<input type="number" step="0.01" min="0" max="100" class="form-control input-porcentaje-mm text-center" id="inputNuevoContadoMM">
 					</div>
 					<div class="col-md-2 text-center">
-						<label for="inputMargenTC" class="form-label fw-bold  ">% Tarj.Cr</label>
-						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="">
+						<label for="inputNuevoTarjCrMM" class="form-label fw-bold">% Tarj.Cr</label>
+						<input type="number" step="0.01" min="0" max="100" class="form-control input-porcentaje-mm text-center" id="inputNuevoTarjCrMM">
 					</div>
-	  
 					<div class="col-md-2 text-center">
-						<label for="inputMargenCredito" class="form-label fw-bold  ">% Crédito</label>
-						<input type="text" class="form-control " id="inputMargenCredito" placeholder="99.99 %" value="">
+						<label for="inputNuevoCreditoMM" class="form-label fw-bold">% Crédito</label>
+						<input type="number" step="0.01" min="0" max="100" class="form-control input-porcentaje-mm text-center" id="inputNuevoCreditoMM">
 					</div>
-
 					<div class="col-md-2 text-center">
-						<label for="inputMargenIgualar" class="form-label fw-bold  ">% Igualar</label>
-						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="">
+						<label for="inputNuevoIgualarMM" class="form-label fw-bold">% Igualar</label>
+						<input type="number" step="0.01" min="0" max="100" class="form-control input-porcentaje-mm text-center" id="inputNuevoIgualarMM">
 					</div>
-
 				</form>
-					
-									
-						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarNuevoMM">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					
 			</div>
 		</div>
 	</div>
 </div>
+
 
 <!--MODALES PARA MODIFICAR-->
 <!-- Modal Modificar Grupo de Almacenes-->
@@ -1012,16 +975,16 @@
 					
 					
 				<form class="row g-1 ">
-							 
+					<input type="hidden" id="inputIdModifAPA">
 									  
 					<!-- linea 1 -->
-					<div class="col-md-10 text-center">
-						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
-						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+					<div class="col-md-9 text-center">
+						<label class="form-label fw-bold">Artículo</label>
+						<input type="text" class="form-control" id="inputModifArticuloAPA" disabled>
 					</div>
-					<div class="col-md-2 text-center">
-						<label for="inputNumAporte" class="form-label fw-bold  ">No. Aporte</label>
-						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2">
+					<div class="col-md-3 text-center">
+						<label for="inputModifNumAporteAPA" class="form-label fw-bold">No. Aporte</label>
+						<input type="number" step="1" min="0" max="100" class="form-control text-center input-rango-100" id="inputModifNumAporteAPA">
 					</div>
 	  
 				</form>
@@ -1030,7 +993,7 @@
 						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarModifAPA">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 					
 			</div>
@@ -1048,6 +1011,7 @@
 			</div>
 			<div class="modal-body">
 				<input type="hidden" id="inputIdModifPC">
+				<input type="hidden" id="inputCodModifPC">
 				<form class="row g-2">
 					<div class="col-md-5">
 						<label class="form-label fw-bold">Artículo</label>
@@ -1073,58 +1037,47 @@
 
 
 <!-- Modal Modificar Margen Minimo por articulo-->
-<div class="modal fade" id="modalModificarMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modalModificarMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h1 class="modal-title fs-5" id="staticBackdropLabel">Modificar Margen Minimo por articulo</h1>
-					
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<h1 class="modal-title fs-5">Modificar Margen Mínimo</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 			</div>
 			<div class="modal-body">
-					
-					
-				<form class="row g-1 ">
-									  
-					<!-- linea 1 -->
-					<!-- linea 2 -->
+				<form class="row g-1">
+					<input type="hidden" id="inputIdModifMM">
+					<input type="hidden" id="inputCodArtModifMM">
+                    
 					<div class="col-md-4 text-center">
-						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
-						<input type="text" class="form-control " id="inputArticulo" placeholder="" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
+						<label class="form-label fw-bold">Artículo</label>
+						<input type="text" class="form-control" id="inputModifArticuloMM" disabled>
 					</div>
 					<div class="col-md-2 text-center">
-						<label for="inputMargenContado" class="form-label fw-bold  ">% Contado</label>
-						<input type="text" class="form-control " id="inputMargenContado" placeholder="99.99 %" value="">
+						<label for="inputModifContadoMM" class="form-label fw-bold">% Contado</label>
+						<input type="number" step="0.01" min="0" max="100" class="form-control input-porcentaje-mm text-center" id="inputModifContadoMM">
 					</div>
 					<div class="col-md-2 text-center">
-						<label for="inputMargenTC" class="form-label fw-bold  ">% Tarj.Cr</label>
-						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="">
+						<label for="inputModifTarjCrMM" class="form-label fw-bold">% Tarj.Cr</label>
+						<input type="number" step="0.01" min="0" max="100" class="form-control input-porcentaje-mm text-center" id="inputModifTarjCrMM">
 					</div>
-	  
 					<div class="col-md-2 text-center">
-						<label for="inputMargenCredito" class="form-label fw-bold  ">% Crédito</label>
-						<input type="text" class="form-control " id="inputMargenCredito" placeholder="99.99 %" value="">
+						<label for="inputModifCreditoMM" class="form-label fw-bold">% Crédito</label>
+						<input type="number" step="0.01" min="0" max="100" class="form-control input-porcentaje-mm text-center" id="inputModifCreditoMM">
 					</div>
-
 					<div class="col-md-2 text-center">
-						<label for="inputMargenIgualar" class="form-label fw-bold  ">% Igualar</label>
-						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="">
+						<label for="inputModifIgualarMM" class="form-label fw-bold">% Igualar</label>
+						<input type="number" step="0.01" min="0" max="100" class="form-control input-porcentaje-mm text-center" id="inputModifIgualarMM">
 					</div>
-
 				</form>
-					
-									
-						
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Grabar</button>
+				<button type="button" class="btn btn-primary" id="btnGuardarModifMM">Grabar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					
 			</div>
 		</div>
 	</div>
 </div>
-
 
 <!--MODALES PARA ELIMINAR-->
 <!-- Modal Eliminar Grupo de Almacenes-->
@@ -1269,43 +1222,25 @@
 
 
 <!-- Modal Eliminar aporte propio por articulo-->
-<div class="modal fade" id="modalEliminarAportePropioArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
+<div class="modal fade" id="modalEliminarAportePropioArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Aporte Propio por Articulo</h1>
-					
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<h1 class="modal-title fs-5">Eliminar Aporte Propio</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 			</div>
-			<div class="modal-body">
-					
-					
-				<form class="row g-1 ">
-							 
-									  
-					<!-- linea 1 -->
-					<div class="col-md-10 text-center">
-						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
-						<input type="text" class="form-control " id="inputArticulo" placeholder="Ingrese No. Aporte" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
-					</div>
-					<div class="col-md-2 text-center">
-						<label for="inputNumAporte" class="form-label fw-bold  ">No. Aporte</label>
-						<input type="text" class="form-control " id="inputNumAporte" placeholder="Ingrese No. Aporte" value="2" disabled>
-					</div>
-	  
-				</form>
-					
-									
-						
+			<div class="modal-body text-center">
+				<input type="hidden" id="inputIdElimAPA">
+				<p class="fs-6">¿Está seguro de eliminar el límite de aportes para el artículo <br><b id="txtElimArtAPA"></b>?</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-danger" id="btnConfirmarElimAPA">Eliminar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					
 			</div>
 		</div>
 	</div>
 </div>
+
 
 <!-- Modal Elimnar precio de competencia por articulo-->
 <div class="modal fade" id="modalEliminarPrecioComp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
@@ -1317,6 +1252,8 @@
 			</div>
 			<div class="modal-body text-center">
 				<input type="hidden" id="inputIdElimPC">
+				<input type="hidden" id="inputCodElimPC">
+				<input type="hidden" id="inputCompElimPC">
 				<p>¿Está seguro de eliminar el precio registrado de <b id="txtElimCompPC"></b> para el artículo <b id="txtElimArtPC"></b>?</p>
 			</div>
 			<div class="modal-footer">
@@ -1329,53 +1266,21 @@
 
 
 <!-- Modal Eliminar Margen Minimo por articulo-->
-<div class="modal fade" id="modalEliminarMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
+<div class="modal fade" id="modalEliminarMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h1 class="modal-title fs-5" id="staticBackdropLabel">Eliminar Margen Minimo por articulo</h1>
-					
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<h1 class="modal-title fs-5">Eliminar Margen Mínimo</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 			</div>
-			<div class="modal-body">
-					
-					
-				<form class="row g-1 ">
-									  
-					<!-- linea 1 -->
-					<!-- linea 2 -->
-					<div class="col-md-4 text-center">
-						<label for="inputArticulo" class="form-label fw-bold  ">Articulo</label>
-						<input type="text" class="form-control " id="inputArticulo" placeholder="" value="10203040-TV 65 Pulgadas Smart SONY 4k" disabled>
-					</div>
-					<div class="col-md-2 text-center">
-						<label for="inputMargenContado" class="form-label fw-bold  ">% Contado</label>
-						<input type="text" class="form-control " id="inputMargenContado" placeholder="99.99 %" value="" disabled>
-					</div>
-					<div class="col-md-2 text-center">
-						<label for="inputMargenTC" class="form-label fw-bold  ">% Tarj.Cr</label>
-						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="" disabled>
-					</div>
-	  
-					<div class="col-md-2 text-center">
-						<label for="inputMargenCredito" class="form-label fw-bold  ">% Crédito</label>
-						<input type="text" class="form-control " id="inputMargenCredito" placeholder="99.99 %" value="" disabled>
-					</div>
-
-					<div class="col-md-2 text-center">
-						<label for="inputMargenIgualar" class="form-label fw-bold  ">% Igualar</label>
-						<input type="text" class="form-control " id="inputMargenTC" placeholder="99.99 %" value="" disabled>
-					</div>
-
-				</form>
-					
-									
-						
+			<div class="modal-body text-center">
+				<input type="hidden" id="inputIdElimMM">
+				<input type="hidden" id="inputCodArtElimMM">
+				<p class="fs-6">¿Está seguro de eliminar el margen mínimo configurado para el artículo <br><b id="txtElimArtMM"></b>?</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary">Eliminar</button>
+				<button type="button" class="btn btn-danger" id="btnConfirmarElimMM">Eliminar</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-					
 			</div>
 		</div>
 	</div>

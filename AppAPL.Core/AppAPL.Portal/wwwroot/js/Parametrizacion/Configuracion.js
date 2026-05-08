@@ -376,58 +376,7 @@ $(document).ready(function () {
         cargarAportesPropioArticulo();
     });
 
-    function cargarAportesPropioArticulo() {
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "GET",
-            endpoint_path: "api/Parametrizacion/consultar-aporte-articulo", // Ajustar según Swagger
-            client: "APL"
-        };
-
-        $.ajax({
-            url: "/api/apigee-router-proxy",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(payload),
-            success: function (response) {
-                if (response && response.code_status === 200) {
-                    crearListadoAportesPropioArticulo(response.json_response || []);
-                }
-            },
-            error: function (xhr) { manejarErrorGlobal(xhr, "cargar aportes por artículo"); }
-        });
-    }
-
-    function crearListadoAportesPropioArticulo(data) {
-        const $tbody = $('#tbody-aporte-propio-articulo');
-        $tbody.empty();
-
-        if (!data || data.length === 0) {
-            $tbody.append('<tr><td colspan="4" class="text-center text-muted">No hay registros.</td></tr>');
-            return;
-        }
-
-        let html = '';
-        $.each(data, function (index, item) {
-            html += `
-            <tr data-id="${item.idparametrodato}">
-                <td class="text-center align-middle">${item.codigo_articulo} - ${item.nombre_articulo}</td>
-                <td class="text-center align-middle">${item.numero_aporte}</td>
-                <td class="text-center align-middle">
-                    <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarAporteArticulo" 
-                                data-id="${item.idparametrodato}" data-nombre="${item.nombre_articulo}" data-num="${item.numero_aporte}" style="color:#0d6efd;">
-                            <i class="fa-regular fa-pen-to-square"></i>
-                        </button>
-                        <button type="button" class="btn btn-action" onclick="eliminarAporteArticulo(${item.idparametrodato})" style="color:red;">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>`;
-        });
-        $tbody.html(html);
-    }
+    
 
     // Validación de rango 0-100 para los inputs de esta sección
     $('#inputNuevoNumAporteArt, #inputModifNumAporteArt').on('input', function () {
@@ -440,90 +389,13 @@ $(document).ready(function () {
 
     // Guardar Nuevo
     $('#btnGuardarNuevoAPA').click(function () {
-        const codArticulo = $('#selectNuevoArticulo').val();
-        const numAporte = $('#inputNuevoNumAporteArt').val().trim();
-        const nombreArticulo = $('#selectNuevoArticulo option:selected').text().trim();
-
-        if (!codArticulo || numAporte === "") {
-            return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Seleccione un artículo e ingrese el número de aportes.' });
-        }
-
-        // Validar duplicado en la tabla
-        let yaExiste = false;
-        $('#tbody-aporte-propio-articulo tr').each(function () {
-            if ($(this).find('td:eq(0)').text().trim() === codArticulo) {
-                yaExiste = true;
-                return false;
-            }
-        });
-
-        if (yaExiste) {
-            return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `El artículo con código ${codArticulo} ya está configurado.` });
-        }
-
-        const $menu = $('#list-tab a.active');
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "POST",
-            endpoint_path: "api/Parametrizacion/crear-aporte-articulo",
-            client: "APL",
-            json_body: {
-                idparametrotipo: $menu.data('idparametrotipo'),
-                idparametro: $menu.data('idparametro'),
-                codigoparametro: $menu.data('codigoparametro'),
-                codigo_articulo: codArticulo,
-                numero_aporte: numAporte
-            }
-        };
-
-        $.ajax({
-            url: "/api/apigee-router-proxy",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(payload),
-            success: function (response) {
-                if (response.code_status === 200) {
-                    $('#modalNuevoAporteArticulo').modal('hide');
-                    Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500 });
-                    cargarAportesPropioArticulo();
-                }
-            }
-        });
+        guardarAPA();
     });
 
-    // Modificar
-    $('#modalModificarAporteArticulo').on('show.bs.modal', function (event) {
-        const $boton = $(event.relatedTarget);
-        $('#inputIdModifAPA').val($boton.data('id'));
-        $('#inputModifNombreArt').val($boton.data('nombre'));
-        $('#inputModifNumAporteArt').val($boton.data('num'));
-    });
+    
 
     $('#btnGuardarModifAPA').click(function () {
-        const id = $('#inputIdModifAPA').val();
-        const num = $('#inputModifNumAporteArt').val();
-
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "PUT",
-            endpoint_path: "api/Parametrizacion/actualizar-aporte-articulo",
-            client: "APL",
-            json_body: { idparametrodato: parseInt(id), numero_aporte: num }
-        };
-
-        $.ajax({
-            url: "/api/apigee-router-proxy",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(payload),
-            success: function (response) {
-                if (response.code_status === 200) {
-                    $('#modalModificarAporteArticulo').modal('hide');
-                    Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1500 });
-                    cargarAportesPropioArticulo();
-                }
-            }
-        });
+        modificarAPA();
     });
 
     // ==========================================
@@ -532,65 +404,6 @@ $(document).ready(function () {
     $(document).on('shown.bs.tab', 'a[href="#list-precio-competencia"]', function () {
         cargarPreciosCompetencia();
     });
-
-    function cargarPreciosCompetencia() {
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "GET",
-            endpoint_path: "api/Parametrizacion/consultar-precios-competencia", // <-- Ajusta a tu Swagger
-            client: "APL"
-        };
-
-        $.ajax({
-            url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
-            success: function (response) {
-                if (response && response.code_status === 200) {
-                    crearListadoPrecioCompetencia(response.json_response || []);
-                }
-            },
-            error: function (xhr) { manejarErrorGlobal(xhr, "cargar precios de competencia"); }
-        });
-    }
-
-    function crearListadoPrecioCompetencia(data) {
-        const $tbody = $('#tbody-precio-competencia');
-        $tbody.empty();
-
-        if (!data || data.length === 0) {
-            $tbody.append('<tr><td colspan="5" class="text-center text-muted">No hay registros de competencia.</td></tr>');
-            return;
-        }
-
-        let html = '';
-        $.each(data, function (index, item) {
-            html += `
-                <tr data-id="${item.idparametrodato}">
-                    <td class="text-center align-middle">${item.codigo_articulo} - ${item.nombre_articulo}</td>
-                    <td class="align-middle text-wrap">${item.nombre_competencia}</td>
-                    <td class="text-end align-middle">$ ${parseFloat(item.precio_contado).toFixed(2)}</td>
-                    <td class="text-center align-middle">
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarPrecioComp" 
-                                    data-id="${item.idparametrodato}" 
-                                    data-nombreart="${item.nombre_articulo}" 
-                                    data-competencia="${item.nombre_competencia}" 
-                                    data-precio="${item.precio_contado}" 
-                                    style="color:#0d6efd;">
-                                <i class="fa-regular fa-pen-to-square"></i>
-                            </button>
-                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalEliminarPrecioComp" 
-                                    data-id="${item.idparametrodato}" 
-                                    data-nombreart="${item.nombre_articulo}" 
-                                    data-competencia="${item.nombre_competencia}" 
-                                    style="color:red;">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>`;
-        });
-        $tbody.html(html);
-    }
 
     // ==========================================
     // 2. NUEVO PRECIO COMPETENCIA
@@ -601,56 +414,7 @@ $(document).ready(function () {
     });
 
     $('#btnGuardarNuevoPC').click(function () {
-        const codArticulo = $('#inputNuevoCodArticuloPC').val().trim();
-        const competencia = $('#inputNuevoNombreCompPC').val().trim();
-        const precio = $('#inputNuevoPrecioPC').val().trim();
-
-        if (!codArticulo || !competencia || precio === "") {
-            return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe llenar todos los campos.' });
-        }
-
-        // Validación de duplicados (Mismo código de artículo y misma competencia)
-        let yaExiste = false;
-        $('#tbody-precio-competencia tr').each(function () {
-            const codFila = $(this).find('td:eq(0)').text().trim();
-            const compFila = $(this).find('td:eq(2)').text().trim();
-
-            if (codFila === codArticulo && compFila.toLowerCase() === competencia.toLowerCase()) {
-                yaExiste = true;
-                return false;
-            }
-        });
-
-        if (yaExiste) {
-            return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `Ya existe un precio de "${competencia}" para el artículo ${codArticulo}.` });
-        }
-
-        const $menuActivo = $('#list-tab a.active');
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "POST",
-            endpoint_path: "api/Parametrizacion/crear-precio-competencia", // <-- Ajusta a tu Swagger
-            client: "APL",
-            json_body: {
-                idparametrotipo: $menuActivo.data('idparametrotipo'),
-                idparametro: $menuActivo.data('idparametro'),
-                codigoparametro: $menuActivo.data('codigoparametro'),
-                codigo_articulo: codArticulo,
-                nombre_competencia: competencia,
-                precio_contado: parseFloat(precio).toString() // Manteniendo el tipo string de tu esquema JSON
-            }
-        };
-
-        $.ajax({
-            url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
-            success: function (response) {
-                if (response && response.code_status === 200) {
-                    $('#modalNuevoPrecioComp').modal('hide');
-                    Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500 });
-                    cargarPreciosCompetencia();
-                }
-            }
-        });
+        guardarPC();
     });
 
     // ==========================================
@@ -659,38 +423,14 @@ $(document).ready(function () {
     $('#modalModificarPrecioComp').on('show.bs.modal', function (event) {
         const $boton = $(event.relatedTarget);
         $('#inputIdModifPC').val($boton.data('id'));
+        $('#inputCodModifPC').val($boton.data('codigo'));
         $('#inputModifNombreArtPC').val($boton.data('nombreart'));
         $('#inputModifNombreCompPC').val($boton.data('competencia'));
         $('#inputModifPrecioPC').val($boton.data('precio'));
     });
 
     $('#btnGuardarModifPC').click(function () {
-        const idParamDato = $('#inputIdModifPC').val();
-        const nuevoPrecio = $('#inputModifPrecioPC').val().trim();
-
-        if (nuevoPrecio === "") return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Ingrese el nuevo precio.' });
-
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "PUT", // o POST
-            endpoint_path: "api/Parametrizacion/actualizar-precio-competencia", // <-- Ajusta a tu Swagger
-            client: "APL",
-            json_body: {
-                idparametrodato: parseInt(idParamDato),
-                precio_contado: parseFloat(nuevoPrecio).toString()
-            }
-        };
-
-        $.ajax({
-            url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
-            success: function (response) {
-                if (response.code_status === 200) {
-                    $('#modalModificarPrecioComp').modal('hide');
-                    Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1500 });
-                    cargarPreciosCompetencia();
-                }
-            }
-        });
+        modificarPC();
     });
 
     // ==========================================
@@ -699,31 +439,133 @@ $(document).ready(function () {
     $('#modalEliminarPrecioComp').on('show.bs.modal', function (event) {
         const $boton = $(event.relatedTarget);
         $('#inputIdElimPC').val($boton.data('id'));
+        $('#inputCodElimPC').val($boton.data('codigo'));
+        $('#inputCompElimPC').val($boton.data('competencia'));
         $('#txtElimArtPC').text($boton.data('nombreart'));
         $('#txtElimCompPC').text($boton.data('competencia'));
     });
 
     $('#btnConfirmarElimPC').click(function () {
-        const idParamDato = $('#inputIdElimPC').val();
-
-        const payload = {
-            code_app: "APP20260128155212346",
-            http_method: "DELETE", // o POST
-            endpoint_path: `api/Parametrizacion/eliminar-precio-competencia/${idParamDato}`, // <-- Ajusta a tu Swagger
-            client: "APL"
-        };
-
-        $.ajax({
-            url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
-            success: function (response) {
-                if (response.code_status === 200) {
-                    $('#modalEliminarPrecioComp').modal('hide');
-                    Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500 });
-                    cargarPreciosCompetencia();
-                }
-            }
-        });
+        eliminarPC();
     });
+
+
+    // ==========================================
+    // 1. CARGA DE TABLA: MARGEN MÍNIMO
+    // ==========================================
+    $(document).on('shown.bs.tab', 'a[href="#list-margen-minimo-articulo"]', function () {
+        cargarMargenMinimo();
+    });
+
+    
+
+    // Validación de rango 0-100 para todos los inputs de margen
+    $('.input-porcentaje-mm').on('input', function () {
+        let valor = parseFloat($(this).val());
+        if (!isNaN(valor)) {
+            if (valor > 100) $(this).val(100);
+            else if (valor < 0) $(this).val(0);
+        }
+    });
+
+    // ==========================================
+    // 2. NUEVO MARGEN MÍNIMO
+    // ==========================================
+    // Limpiar modal Nuevo al abrir
+    $('#modalNuevoMargenMinimoArticulo').on('show.bs.modal', function () {
+        $('#inputNuevoArticuloMM').val('').data('codigo', '');
+        $('#inputNuevoContadoMM, #inputNuevoTarjCrMM, #inputNuevoCreditoMM, #inputNuevoIgualarMM').val('');
+        cargarArticulosModalMM(); // La función DataTables que ya tenías
+    });
+
+    $('#btnGuardarNuevoMM').click(function () {
+        guardarMM();
+    });
+
+    
+    // Llenar Modal Modificar al abrir
+    $('#modalModificarMargenMinimoArticulo').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        $('#inputIdModifMM').val($boton.data('id'));
+        $('#inputCodArtModifMM').val($boton.data('codigo'));
+        $('#inputModifArticuloMM').val($boton.data('nombre'));
+        $('#inputModifContadoMM').val(parseFloat($boton.data('contado')));
+        $('#inputModifTarjCrMM').val(parseFloat($boton.data('tarjeta')));
+        $('#inputModifCreditoMM').val(parseFloat($boton.data('credito')));
+        $('#inputModifIgualarMM').val(parseFloat($boton.data('igualar')));
+    });
+
+    $('#btnGuardarModifMM').click(function () {
+        modificarMM();
+    });
+
+    // ==========================================
+    // 4. ELIMINAR MARGEN MÍNIMO
+    // ==========================================
+    // Llenar Modal Eliminar al abrir
+    $('#modalEliminarMargenMinimoArticulo').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        $('#inputIdElimMM').val($boton.data('id'));
+        $('#inputCodArtElimMM').val($boton.data('codigo'));
+        $('#txtElimArtMM').text($boton.data('nombre')); // Pasamos el nombre completo a la etiqueta <b>
+    });
+
+    $('#btnConfirmarElimMM').click(function () {
+        eliminarMM();
+    });
+
+    
+
+    // Evento Radio Button (Artículos)
+    $(document).on('change', '.radio-seleccion-articulo-mm', function () {
+        const codigo = $(this).data('codigo');
+        const nombre = $(this).data('nombre');
+        $('#inputNuevoArticuloMM').val(`${codigo} - ${nombre}`);
+        $('#inputNuevoArticuloMM').data('codigo', codigo);
+    });
+
+    // Limpiar modal Nuevo al abrir y cargar tabla
+    $('#modalNuevoAporteArticulo').on('show.bs.modal', function () {
+        $('#inputNuevoArticuloAPA').val('').data('codigo', '');
+        $('#inputNuevoNumAporteAPA').val('');
+        cargarArticulosModalAPA();
+    });
+
+    // Evento Radio Button (Artículos)
+    $(document).on('change', '.radio-seleccion-articulo-apa', function () {
+        const codigo = $(this).data('codigo');
+        const nombre = $(this).data('nombre');
+        $('#inputNuevoArticuloAPA').val(`${codigo} - ${nombre}`);
+        $('#inputNuevoArticuloAPA').data('codigo', codigo);
+    });
+
+    // Llenar Modal Modificar al abrir
+    $('#modalModificarAporteArticulo').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        $('#inputIdModifAPA').val($boton.data('id'));
+        $('#inputModifArticuloAPA').val($boton.data('nombre'));
+        $('#inputModifNumAporteAPA').val($boton.data('num'));
+    });
+
+    // Llenar Modal Eliminar al abrir
+    $('#modalEliminarAportePropioArticulo').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        $('#inputIdElimAPA').val($boton.data('id'));
+        $('#txtElimArtAPA').text($boton.data('nombre'));
+    });
+
+    // Validación genérica de rangos 0-100 para los inputs
+    $(document).on('input', '.input-rango-100', function () {
+        let valor = parseFloat($(this).val());
+        if (!isNaN(valor)) {
+            if (valor > 100) $(this).val(100);
+            else if (valor < 0) $(this).val(0);
+        }
+    });
+
+    $('#btnGuardarNuevoAPA').off('click').on('click', guardarAPA);
+    $('#btnGuardarModifAPA').off('click').on('click', modificarAPA);
+    $('#btnConfirmarElimAPA').off('click').on('click', eliminarAPA);
 });
 
 function getUsuario() {
@@ -742,6 +584,459 @@ function getIdOpcionSeguro() {
         return null;
     }
 }
+
+
+
+// --- Lógica de DataTables y Renderizado ---
+
+function cargarArticulosModalAPA() {
+    const $tabla = $('#datosarticulosAPA');
+    const $tbody = $('#modalNuevoAporteArticulo #datosarticulosAPA tbody');
+
+    if ($.fn.DataTable.isDataTable('#datosarticulosAPA')) {
+        $tabla.DataTable().clear().destroy();
+    }
+
+    $tbody.html(`
+        <tr>
+            <td colspan="3" class="text-center py-4">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted fw-bold">Descargando catálogo de artículos...</p>
+            </td>
+        </tr>
+    `);
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/consultar-articulos-parametrizacion",
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            $tbody.empty();
+            if (response && response.code_status === 200 && response.json_response) {
+                inicializarDataTablesArticulosAPA(response.json_response);
+            } else {
+                $tbody.html('<tr><td colspan="3" class="text-center text-muted">No se encontraron artículos.</td></tr>');
+            }
+        },
+        error: function (xhr) {
+            $tbody.html('<tr><td colspan="3" class="text-center text-danger fw-bold">Error al cargar los artículos.</td></tr>');
+            manejarErrorGlobal(xhr, "cargar los artículos");
+        }
+    });
+}
+
+function inicializarDataTablesArticulosAPA(data) {
+    $('#datosarticulosAPA').DataTable({
+        data: data,
+        deferRender: true,
+        pageLength: 10,
+        lengthMenu: [10, 25, 50],
+        destroy: true,
+        autoWidth: false,
+        language: { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+        columns: [
+            { data: 'codigo', className: 'align-middle text-center' },
+            { data: 'descripcion', className: 'align-middle text-wrap' },
+            {
+                data: null,
+                orderable: false,
+                className: 'text-center align-middle',
+                render: function (data, type, row) {
+                    return `<input class="form-check-input radio-seleccion-articulo-apa" type="radio" name="radioArticuloAPA" data-codigo="${row.codigo}" data-nombre="${row.descripcion}">`;
+                }
+            }
+        ]
+    });
+}
+
+function crearListadoAportesPropioArticulo(data) {
+    const $tbody = $('#tbody-aporte-propio-articulo');
+    $tbody.empty();
+
+    if (!data || data.length === 0) {
+        $tbody.append('<tr><td colspan="4" class="text-center text-muted">No hay registros.</td></tr>');
+        return;
+    }
+
+    let html = '';
+    $.each(data, function (index, item) {
+        html += `
+            <tr data-id="${item.idparametrodato}">
+                <td class="align-middle text-wrap">${item.codigo_articulo} - ${item.nombre_articulo}</td>
+                <td class="text-center align-middle">${item.numero_aporte}</td>
+                <td class="text-center align-middle">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarAporteArticulo" 
+                                data-id="${item.idparametrodato}" data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" data-num="${item.numero_aporte}" style="color:#0d6efd;">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalEliminarAportePropioArticulo" 
+                                data-id="${item.idparametrodato}" data-nombre="${item.nombre_articulo}" style="color:red;">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+    });
+    $tbody.html(html);
+}
+
+
+// --- Funciones CRUD al API ---
+
+function guardarAPA() {
+    const codArticulo = $('#inputNuevoArticuloAPA').data('codigo');
+    const numAporte = $('#inputNuevoNumAporteAPA').val().trim();
+
+    if (!codArticulo || numAporte === "") {
+        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Seleccione un artículo e ingrese el número de aportes.' });
+    }
+
+    // Validación de duplicados en la tabla principal
+    let yaExiste = false;
+    $('#tbody-aporte-propio-articulo tr').each(function () {
+        const textoCelda = $(this).find('td:eq(0)').text().trim();
+        let codEnTabla = textoCelda;
+        if (textoCelda.includes('-')) {
+            codEnTabla = textoCelda.substring(0, textoCelda.indexOf('-')).trim();
+        }
+        if (codEnTabla.toString() === codArticulo.toString()) {
+            yaExiste = true;
+            return false;
+        }
+    });
+
+    if (yaExiste) {
+        return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `El artículo con código ${codArticulo} ya está configurado.` });
+    }
+
+    const $menu = $('#list-tab a.active');
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/crear-aporte-articulo",
+        client: "APL",
+        json_body: {
+            idparametrotipo: $menu.data('idparametrotipo'),
+            idparametro: $menu.data('idparametro'),
+            codigoparametro: $menu.data('codigoparametro'),
+            codigo_articulo: codArticulo.toString(),
+            numero_aporte: numAporte.toString()
+        }
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalNuevoAporteArticulo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500 });
+                cargarAportesPropioArticulo();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo guardar la configuración." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "crear el aporte por artículo"); }
+    });
+}
+
+function modificarAPA() {
+    const id = $('#inputIdModifAPA').val();
+    const num = $('#inputModifNumAporteAPA').val().trim();
+
+    if (num === "") return Swal.fire({ icon: 'warning', text: 'Ingrese el número de aportes.' });
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "PUT",
+        endpoint_path: "api/Parametrizacion/actualizar-aporte-articulo",
+        client: "APL",
+        json_body: { idparametrodato: parseInt(id), numero_aporte: num.toString() }
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalModificarAporteArticulo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1500 });
+                cargarAportesPropioArticulo();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar la configuración." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "actualizar el aporte"); }
+    });
+}
+
+function eliminarAPA() {
+    const id = $('#inputIdElimAPA').val();
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "DELETE",
+        endpoint_path: `api/Parametrizacion/eliminar-aporte-articulo/${id}`,
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalEliminarAportePropioArticulo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500 });
+                cargarAportesPropioArticulo();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el registro." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "eliminar el aporte"); }
+    });
+}
+
+
+
+
+function cargarArticulosModalMM() {
+    const $tabla = $('#datosarticulosMM');
+    const $tbody = $('#modalNuevoMargenMinimoArticulo #datosarticulosMM tbody');
+
+    // 1. ANTES DEL API: Destruimos la tabla si ya existe y ponemos el spinner
+    if ($.fn.DataTable.isDataTable('#datosarticulos')) {
+        $tabla.DataTable().clear().destroy();
+    }
+
+    $tbody.html(`
+            <tr>
+                <td colspan="3" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2 text-muted fw-bold">Descargando catálogo de artículos, por favor espere...</p>
+                </td>
+            </tr>
+        `);
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/consultar-articulos-parametrizacion",
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            // 2. CUANDO RESPONDE EL API: Vaciamos el spinner
+            $tbody.empty();
+
+            if (response && response.code_status === 200 && response.json_response) {
+                // Le enviamos el JSON entero a DataTables en vez de hacer un $.each
+                inicializarDataTablesArticulos(response.json_response);
+            } else {
+                $tbody.html('<tr><td colspan="3" class="text-center text-muted">No se encontraron artículos.</td></tr>');
+            }
+        },
+        error: function (xhr) {
+            $tbody.html('<tr><td colspan="3" class="text-center text-danger fw-bold">Error al cargar los artículos.</td></tr>');
+            manejarErrorGlobal(xhr, "cargar los artículos");
+        }
+    });
+}
+
+function inicializarDataTablesArticulos(data) {
+    $('#datosarticulosMM').DataTable({
+        data: data, // Le pasamos el array de 4MB
+        deferRender: true, // MAGIA: Solo dibuja en el HTML los registros visibles
+        pageLength: 10,    // Muestra 10 registros por página
+        lengthMenu: [10, 25, 50], // Opciones de paginación
+        destroy: true,     // Permite reinicializar la tabla si se cierra y abre el modal
+        autoWidth: false,
+        language: {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sSearch": "Buscar en catálogo:",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            }
+        },
+        columns: [
+            // Columna 1: Código
+            {
+                data: 'codigo',
+                className: 'align-middle text-center'
+            },
+            // Columna 2: Descripción
+            {
+                data: 'descripcion',
+                className: 'align-middle text-wrap'
+            },
+            // Columna 3: Acción (El Radio Button)
+            {
+                data: null,
+                orderable: false, // Quitamos las flechitas de ordenar en esta columna
+                className: 'text-center align-middle',
+                render: function (data, type, row) {
+                    // Aquí dibujamos el botón con los datos de la fila
+                    return `<input class="form-check-input radio-seleccion-articulo-mm" type="radio" name="radioArticuloMM" data-codigo="${row.codigo}" data-nombre="${row.descripcion}">`;
+                }
+            }
+        ]
+    });
+}
+
+
+function cargarMargenMinimo() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Parametrizacion/consultar-margen-minimo", // <-- Ajusta a tu Swagger
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            console.log("response: ", response);
+            if (response && response.code_status === 200) {
+                crearListadoMargenMinimo(response.json_response || []);
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "cargar márgenes mínimos"); }
+    });
+}
+
+function crearListadoMargenMinimo(data) {
+    // En tu HTML la tabla de margen mínimo no tiene un ID en el tbody, 
+    // así que la buscamos usando el ID del tab.
+    const $tbody = $('#list-margen-minimo-articulo tbody');
+    $tbody.empty();
+
+    if (!data || data.length === 0) {
+        $tbody.append('<tr><td colspan="6" class="text-center text-muted">No hay registros de margen mínimo.</td></tr>');
+        return;
+    }
+
+    let html = '';
+    $.each(data, function (index, item) {
+        html += `
+                <tr data-id="${item.idparametrodato}">
+                    <td class="align-middle text-wrap">${item.codigo_articulo} - ${item.nombre_articulo}</td>
+                    <td class="text-center align-middle">${item.margen_minimo_contado}</td>
+                    <td class="text-center align-middle">${item.margen_minimo_tarjeta_credito}</td>
+                    <td class="text-center align-middle">${item.margen_minimo_credito}</td>
+                    <td class="text-center align-middle">${item.margen_minimo_igualar_precio}</td>
+                    <td class="text-center align-middle">
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarMargenMinimoArticulo" 
+                                    data-id="${item.idparametrodato}" 
+                                    data-codigo="${item.codigo_articulo}" 
+                                    data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" 
+                                    data-contado="${item.margen_minimo_contado}" 
+                                    data-tarjeta="${item.margen_minimo_tarjeta_credito}" 
+                                    data-credito="${item.margen_minimo_credito}" 
+                                    data-igualar="${item.margen_minimo_igualar_precio}" 
+                                    style="color:#0d6efd;">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalEliminarMargenMinimoArticulo" 
+                                    data-id="${item.idparametrodato}" 
+                                    data-codigo="${item.codigo_articulo}" 
+                                    data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" 
+                                    style="color:red;">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+    });
+    $tbody.html(html);
+}
+
+
+
+
+
+
+function cargarPreciosCompetencia() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Parametrizacion/consultar-precios-competencia", // <-- Ajusta a tu Swagger
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                crearListadoPrecioCompetencia(response.json_response || []);
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "cargar precios de competencia"); }
+    });
+}
+
+function crearListadoPrecioCompetencia(data) {
+    const $tbody = $('#tbody-precio-competencia');
+    $tbody.empty();
+
+    if (!data || data.length === 0) {
+        $tbody.append('<tr><td colspan="5" class="text-center text-muted">No hay registros de competencia.</td></tr>');
+        return;
+    }
+
+    let html = '';
+    $.each(data, function (index, item) {
+        html += `
+                <tr data-id="${item.idparametrodato}">
+                    <td class="text-center align-middle">${item.codigo_articulo} - ${item.nombre_articulo}</td>
+                    <td class="align-middle text-wrap">${item.nombre_competencia}</td>
+                    <td class="text-end align-middle">$ ${parseFloat(item.precio_contado).toFixed(2)}</td>
+                    <td class="text-center align-middle">
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarPrecioComp" 
+                                    data-id="${item.idparametrodato}" 
+                                    data-nombreart="${item.nombre_articulo}" 
+                                    data-competencia="${item.nombre_competencia}" 
+                                    data-precio="${item.precio_contado}" 
+                                    data-codigo="${item.codigo_articulo}" 
+                                    style="color:#0d6efd;">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalEliminarPrecioComp" 
+                                    data-id="${item.idparametrodato}" 
+                                    data-nombreart="${item.nombre_articulo}" 
+                                    data-competencia="${item.nombre_competencia}"
+                                    data-codigo="${item.codigo_articulo}" 
+                                    style="color:red;">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+    });
+    $tbody.html(html);
+}
+
+
+
 
 function cargarDatosPorcentaje() {
     const payload = {
@@ -976,6 +1271,351 @@ function crearListadoMediosPago(data) {
 
     $tbody.html(htmlFilas);
 }
+
+
+
+//MARGEN MINIMO
+// ==========================================
+// CRUD: MARGEN MÍNIMO POR ARTÍCULO
+// ==========================================
+
+// 1. Guardar Nuevo (Mantenimiento: Insertar)
+function guardarMM() {
+    const codArticulo = $('#inputNuevoArticuloMM').data('codigo');
+    const mContado = $('#inputNuevoContadoMM').val();
+    const mTarjeta = $('#inputNuevoTarjCrMM').val();
+    const mCredito = $('#inputNuevoCreditoMM').val();
+    const mIgualar = $('#inputNuevoIgualarMM').val();
+
+    if (!codArticulo || mContado === "" || mTarjeta === "" || mCredito === "" || mIgualar === "") {
+        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe seleccionar un artículo y llenar todos los porcentajes.' });
+    }
+
+    // Validación de duplicados en la tabla
+    let yaExiste = false;
+    $('#list-margen-minimo-articulo tbody tr').each(function () {
+        const textoCelda = $(this).find('td:eq(0)').text().trim();
+        let codEnTabla = textoCelda;
+        if (textoCelda.includes('-')) {
+            codEnTabla = textoCelda.substring(0, textoCelda.indexOf('-')).trim();
+        }
+        if (codEnTabla.toString() === codArticulo.toString()) {
+            yaExiste = true;
+            return false;
+        }
+    });
+
+    if (yaExiste) {
+        return Swal.fire({ icon: 'warning', title: 'Artículo Duplicado', text: `El artículo ${codArticulo} ya tiene un margen configurado.` });
+    }
+
+    const $menuActivo = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 8, // Asegúrate de que 8 sea la opción correcta en tu backend
+        "opcion": "I",
+        "idparametro": $menuActivo.data('idparametro'),
+        "codigoparametro": $menuActivo.data('codigoparametro'),
+        "idusuario": getUsuario(),
+        "codigorelacion1": codArticulo.toString(),
+        "valor1": parseFloat(mContado),
+        "valor2": parseFloat(mTarjeta),
+        "valor3": parseFloat(mCredito),
+        "valor4": parseFloat(mIgualar)
+    };
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros",
+        client: "APL",
+        body_request: body
+    };
+
+    //console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $('#modalNuevoMargenMinimoArticulo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500 });
+                cargarMargenMinimo();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo guardar la configuración." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "crear margen mínimo"); }
+    });
+}
+
+// 2. Modificar (Mantenimiento: Modificar)
+function modificarMM() {
+    const idParamDato = $('#inputIdModifMM').val();
+    const codArticulo = $('#inputCodArtModifMM').val();
+    const mContado = $('#inputModifContadoMM').val();
+    const mTarjeta = $('#inputModifTarjCrMM').val();
+    const mCredito = $('#inputModifCreditoMM').val();
+    const mIgualar = $('#inputModifIgualarMM').val();
+
+    if (mContado === "" || mTarjeta === "" || mCredito === "" || mIgualar === "") {
+        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Todos los porcentajes son obligatorios.' });
+    }
+
+    const $menuActivo = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 8,
+        "opcion": "M",
+        "idparametro": $menuActivo.data('idparametro'),
+        "codigoparametro": $menuActivo.data('codigoparametro'),
+        "idusuario": getUsuario(),
+        "idparametrodato": parseInt(idParamDato),
+        "codigorelacion1": codArticulo.toString(),
+        "valor1": parseFloat(mContado),
+        "valor2": parseFloat(mTarjeta),
+        "valor3": parseFloat(mCredito),
+        "valor4": parseFloat(mIgualar)
+    };
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros",
+        client: "APL",
+        body_request: body
+    };
+
+    //console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalModificarMargenMinimoArticulo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1500 });
+                cargarMargenMinimo();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo modificar." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "modificar margen mínimo"); }
+    });
+}
+
+// 3. Eliminar (Mantenimiento: Eliminar)
+function eliminarMM() {
+    const idParamDato = $('#inputIdElimMM').val();
+    const codArticulo = $('#inputCodArtElimMM').val();
+
+    const $menuActivo = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 8,
+        "opcion": "E",
+        "idparametro": $menuActivo.data('idparametro'),
+        "codigoparametro": $menuActivo.data('codigoparametro'),
+        "idusuario": getUsuario(),
+        "idparametrodato": parseInt(idParamDato),
+        "codigorelacion1": codArticulo.toString()
+    };
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros",
+        client: "APL",
+        body_request: body
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalEliminarMargenMinimoArticulo').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500 });
+                cargarMargenMinimo();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el registro." });
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "eliminar margen mínimo"); }
+    });
+}
+
+
+
+//PRECIO COMPETENCIA
+function guardarPC() {
+    const codArticulo = $('#inputNuevoCodArticuloPC').val().trim();
+    const competencia = $('#inputNuevoNombreCompPC').val().trim();
+    const precio = $('#inputNuevoPrecioPC').val().trim();
+
+    if (!codArticulo || !competencia || precio === "") {
+        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe llenar todos los campos.' });
+    }
+
+    // Validación de duplicados (Mismo código de artículo y misma competencia)
+    let yaExiste = false;
+    $('#tbody-precio-competencia tr').each(function () {
+        const codFila = $(this).find('td:eq(0)').text().trim();
+        const compFila = $(this).find('td:eq(1)').text().trim();
+
+        let codFilaLimpio = codFila;
+        if (codFila.includes('-')) {
+            // Tomamos desde el inicio (0) hasta la posición donde está el primer guión, y quitamos espacios
+            codFilaLimpio = codFila.substring(0, codFila.indexOf('-')).trim();
+        }
+
+        // Puedes dejar estos console.log si quieres ver la magia en acción en la consola
+         console.log("codLimpio: ", codFilaLimpio);
+         console.log("compFila: ", compFila);
+
+        // Ahora comparamos el código limpio con lo que ingresó el usuario
+        if (codFilaLimpio === codArticulo && compFila.toLowerCase() === competencia.toLowerCase()) {
+            yaExiste = true;
+            return false; // Rompe el ciclo each
+        }
+    });
+
+    if (yaExiste) {
+        return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `Ya existe un precio de "${competencia}" para el artículo ${codArticulo}.` });
+    }
+
+    const $menuActivo = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 7,
+        "opcion": "I",
+        "idparametro": $menuActivo.data('idparametro'),
+        "codigoparametro": $menuActivo.data('codigoparametro'),
+        "idusuario": getUsuario(),
+        //"idparametrodato": 0,
+        "codigorelacion1": codArticulo,
+        "codigorelacion2": competencia,
+        "valor1": parseFloat(precio)
+    };
+
+    // Armamos el body exactamente con todos los campos de tu esquema
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST", // O PUT, verifica con tu backend
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros", // <-- Revisa tu ruta
+        client: "APL",
+        body_request: body
+    };
+
+    console.log("body: ", body);
+    return;
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $('#modalNuevoPrecioComp').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500 });
+                cargarPreciosCompetencia();
+            }
+        }
+    });
+}
+
+function modificarPC() {
+    const idParamDato = $('#inputIdModifPC').val();
+    const nuevoPrecio = $('#inputModifPrecioPC').val().trim();
+    const competencia = $('#inputModifNombreCompPC').val().trim();
+    const codArticulo = $('#inputCodModifPC').val();
+
+    if (nuevoPrecio === "") return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Ingrese el nuevo precio.' });
+
+    /*
+    json_body: {
+            idparametrodato: parseInt(idParamDato),
+            precio_contado: parseFloat(nuevoPrecio).toString()
+        }
+    */
+
+    const $menuActivo = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 7,
+        "opcion": "M",
+        "idparametro": $menuActivo.data('idparametro'),
+        "codigoparametro": $menuActivo.data('codigoparametro'),
+        "idusuario": getUsuario(),
+        "idparametrodato": idParamDato,
+        "codigorelacion1": codArticulo,
+        "codigorelacion2": competencia,
+        "valor1": parseFloat(nuevoPrecio)
+    };
+
+    // Armamos el body exactamente con todos los campos de tu esquema
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST", // O PUT, verifica con tu backend
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros", // <-- Revisa tu ruta
+        client: "APL",
+        body_request: body
+    };
+
+    //console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalModificarPrecioComp').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1500 });
+                cargarPreciosCompetencia();
+            }
+        }
+    });
+}
+
+function eliminarPC() {
+    const idParamDato = $('#inputIdElimPC').val();
+    const competencia = $('#inputCompElimPC').val().trim();
+    const codArticulo = $('#inputCodElimPC').val();
+
+    const $menuActivo = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 7,
+        "opcion": "E",
+        "idparametro": $menuActivo.data('idparametro'),
+        "codigoparametro": $menuActivo.data('codigoparametro'),
+        "idusuario": getUsuario(),
+        "idparametrodato": idParamDato,
+        "codigorelacion1": codArticulo,
+        "codigorelacion2": competencia,
+        //"valor1": parseFloat(nuevoPrecio)
+    };
+
+    // Armamos el body exactamente con todos los campos de tu esquema
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST", // O PUT, verifica con tu backend
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros", // <-- Revisa tu ruta
+        client: "APL",
+        body_request: body
+    };
+
+
+    //console.log("body: ", body);
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response.code_status === 200) {
+                $('#modalEliminarPrecioComp').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500 });
+                cargarPreciosCompetencia();
+            }
+        }
+    });
+}
+
+//APORTE PROPIO POR ARTICULO
 
 
 
