@@ -3074,10 +3074,10 @@
             }, 50);
         });
 
-        // -------------------------------------------------------------
-        // BUSCADOR DE ACUERDOS COMBO
-        // -------------------------------------------------------------
-        $(document).off("click", ".btn-buscar-acuerdo-combo").on("click", ".btn-buscar-acuerdo-combo", function () {
+        // =====================================================================
+        // Lupa Combos (Ambos módulos: Crear y Modificar)
+        // =====================================================================
+        $(document).off("click", ".btn-buscar-acuerdo-combo, .btn-buscar-acuerdo-combo-mod").on("click", ".btn-buscar-acuerdo-combo, .btn-buscar-acuerdo-combo-mod", function () {
             const $btn = $(this);
             const colIndex = $btn.closest("td").data("colindex");
             const tipoFondo = $btn.data("tipofondo");
@@ -3090,49 +3090,22 @@
 
             const titulos = { "TFPROVEDOR": "Acuerdos Proveedor", "TFREBATE": "Acuerdos Rebate", "TFPROPIO": "Acuerdos Propio" };
 
-            const ejecutarModal = () => {
-                abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slot, null);
-                acuerdoArticuloContexto.esCombo = true;
-                acuerdoArticuloContexto.colIndex = colIndex;
-            };
+            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slot, null);
 
-            // Interceptar solo si es Proveedor y es el Aporte 2
-            if (tipoFondo === "TFPROVEDOR" && slot === 2) {
-                let marcaSeleccionada = "";
+            acuerdoArticuloContexto.esCombo = true;
+            acuerdoArticuloContexto.colIndex = colIndex;
 
-                // 1. Buscar la marca en el Modal de Consulta de Items
-                const marcasModal = getSelectedFilterValuesPromo("filtroMarcaModal");
-                if (marcasModal && marcasModal.length > 0) {
-                    marcaSeleccionada = marcasModal[0];
-                }
-                // 2. Si no hay, buscar en el filtro general
-                else {
-                    let marcaGen = $("#filtroMarcaGeneral").val();
-                    if (marcaGen === "3") {
-                        const sel = $("#btnMarcaGeneral").data("seleccionados") || [];
-                        marcaSeleccionada = sel.length > 0 ? sel[0] : "";
-                    } else if (marcaGen && marcaGen !== "TODAS" && marcaGen !== "TODOS") {
-                        marcaSeleccionada = marcaGen;
-                    }
-                }
-
-                // Ejecutar la validación mandando la función de Fallo para deshabilitar
-                validarAporte2ProveedorYEjecutar(marcaSeleccionada, ejecutarModal, function () {
-                    $btn.prop("disabled", true);
-                    $inputDisplay.prop("disabled", true);
-                    $(`#tablaCreacionCombo tbody tr[data-campo='aporte_prov2'] td[data-colindex='${colIndex}'] input`).prop("disabled", true);
-                });
-            }
-            // NUEVO: Interceptar si es Propio y es el Aporte 2 en el Combo
-            else if (tipoFondo === "TFPROPIO" && slot === 2) {
-                validarAporte2PropioYEjecutar(codigoItem, ejecutarModal, function () {
-                    $btn.prop("disabled", true);
-                    $inputDisplay.prop("disabled", true);
-                    $(`#tablaCreacionCombo tbody tr[data-campo='aporte_propio2'] td[data-colindex='${colIndex}'] input`).prop("disabled", true);
-                });
-            }
-            else {
-                ejecutarModal();
+            // Si estamos en Modificar, aplicamos el fix de z-index
+            if ($btn.hasClass("btn-buscar-acuerdo-combo-mod")) {
+                setTimeout(function () {
+                    const $modalAcuerdo = $("#modalAcuerdoArticulo");
+                    $("#modalCrearComboMod").css('z-index', 1055);
+                    $modalAcuerdo.css('z-index', 1075);
+                    setTimeout(function () {
+                        const $backdropsTras = $('.modal-backdrop');
+                        if ($backdropsTras.length > 0) { $backdropsTras.last().css('z-index', 1070); }
+                    }, 100);
+                }, 100);
             }
         });
 
@@ -3356,7 +3329,6 @@
                 case "margen_min_igual":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen-min" readonly value="${item.margenminigualar || 0}%">`; break;
 
-                // Bloqueados
                 case "unidades_limite":
                 case "proyeccion_vta":
                     html += `<input type="text" class="form-control form-control-sm text-end custom-celda-bg" disabled placeholder="-">`; break;
@@ -3382,49 +3354,61 @@
 
                 case "aporte_prov":
                     html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-proveedor-combo" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor)}" ${item.idAcuerdoProveedor ? '' : 'disabled'}>`; break;
+
+                // ✅ Aporte 2 Proveedor input (Nace disabled)
                 case "aporte_prov2":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-proveedor2-combo" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor2)}" ${item.idAcuerdoProveedor2 ? '' : 'disabled'}>`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-proveedor2-combo" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor2)}" disabled>`; break;
+
                 case "aporte_rebate":
                     html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-rebate-combo" placeholder="$ 0.00" value="${formatVal(item.aporteRebate)}" ${item.idAcuerdoRebate ? '' : 'disabled'}>`; break;
                 case "aporte_propio":
                     html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio-combo" placeholder="$ 0.00" value="${formatVal(item.aportePropio)}" ${item.idAcuerdoPropio ? '' : 'disabled'}>`; break;
+
+                // ✅ Aporte 2 Propio input (Nace disabled)
                 case "aporte_propio2":
-                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio2-combo" placeholder="$ 0.00" value="${formatVal(item.aportePropio2)}" ${item.idAcuerdoPropio2 ? '' : 'disabled'}>`; break;
+                    html += `<input type="text" class="form-control form-control-sm text-end input-combo-art aporte-valor aporte-propio2-combo" placeholder="$ 0.00" value="${formatVal(item.aportePropio2)}" disabled>`; break;
+
                 case "aporte_prov_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="${item.idAcuerdoProveedor || ''}">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor || item.idAcuerdoProveedor || ''}">
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="${item.idAcuerdoProveedor || ''}">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor || item.idAcuerdoProveedor || ''}">
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
+
+                // ✅ Aporte 2 Proveedor ID - Input y Lupa nacen disabled
                 case "aporte_prov2_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="${item.idAcuerdoProveedor2 || ''}">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor2 || item.idAcuerdoProveedor2 || ''}">
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="${item.idAcuerdoProveedor2 || ''}">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor2 || item.idAcuerdoProveedor2 || ''}" disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
+
                 case "aporte_rebate_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="${item.idAcuerdoRebate || ''}">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoRebate || item.idAcuerdoRebate || ''}">
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFREBATE" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="${item.idAcuerdoRebate || ''}">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoRebate || item.idAcuerdoRebate || ''}">
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFREBATE" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
                 case "aporte_propio_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="${item.idAcuerdoPropio || ''}">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio || item.idAcuerdoPropio || ''}">
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="${item.idAcuerdoPropio || ''}">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio || item.idAcuerdoPropio || ''}">
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
+
+                // ✅ Aporte 2 Propio ID - Input y Lupa nacen disabled
                 case "aporte_propio2_id":
                     html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="${item.idAcuerdoPropio2 || ''}">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio2 || item.idAcuerdoPropio2 || ''}">
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="${item.idAcuerdoPropio2 || ''}">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio2 || item.idAcuerdoPropio2 || ''}" disabled>
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROPIO" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>`; break;
+
                 case "margen_pl_contado":
                 case "margen_pl_credito":
                 case "margen_promo_contado":
@@ -3447,6 +3431,46 @@
 
         recalcularColumnaCombo(colIndex);
         recalcularTotalesCombo();
+
+        // ============================================================
+        // ✅ NUEVO: VALIDACIÓN AUTOMÁTICA APORTES SLOT 2 PARA COMBOS
+        // ============================================================
+
+        // ---- Validar Aporte 2 Proveedor ----
+        const $btnProv2 = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_prov2_id'] td[data-colindex='${colIndex}'] button`);
+        const $inputProv2Display = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_prov2_id'] td[data-colindex='${colIndex}'] input[type='text']`);
+
+        let marcaSeleccionada = "";
+        const marcasModalChecked = [];
+        $("#filtroMarcaModal .filtro-item-checkbox:checked").each(function () { marcasModalChecked.push($(this).val()); });
+
+        if (marcasModalChecked.length > 0) {
+            marcaSeleccionada = marcasModalChecked[0];
+        } else {
+            const valMarca = $("#filtroMarcaGeneral").val();
+            if (valMarca === "3") {
+                const sel = $("#btnMarcaGeneral").data("seleccionados") || [];
+                marcaSeleccionada = sel.length > 0 ? sel[0] : "";
+            } else if (valMarca && valMarca !== "TODAS" && valMarca !== "TODOS") {
+                marcaSeleccionada = valMarca;
+            }
+        }
+
+        validarAporte2ProveedorYEjecutar(marcaSeleccionada, function () {
+            // Habilita el botón de búsqueda y el input display
+            $btnProv2.prop("disabled", false);
+            $inputProv2Display.prop("disabled", false);
+        });
+
+        // ---- Validar Aporte 2 Propio ----
+        const $btnProp2 = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_propio2_id'] td[data-colindex='${colIndex}'] button`);
+        const $inputProp2Display = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_propio2_id'] td[data-colindex='${colIndex}'] input[type='text']`);
+
+        validarAporte2PropioYEjecutar(item.codigo, function () {
+            // Habilita el botón de búsqueda y el input display
+            $btnProp2.prop("disabled", false);
+            $inputProp2Display.prop("disabled", false);
+        });
     }
 
     // 5. Eliminar una columna dinámica del Combo
@@ -3636,17 +3660,36 @@
             { id: "almacenCombos", select: "#filtroAlmacenCombos", btnOpen: "#btnAlmacenCombos", body: "#bodyModalAlmacen", btnAccept: "#btnAceptarAlmacen", triggerVal: "3" }
         );
 
-        // LÓGICA DE SELECCIÓN DE FILA (HABILITAR CAMPOS AMARILLOS)
+        // =====================================================================
+        // NUEVA LÓGICA: Selección de fila en Artículos con validación automática
+        // =====================================================================
         $(document).off("change", ".item-row-radio").on("change", ".item-row-radio", function () {
-            $("#tablaArticulosBody tr").removeClass("table-active");
-            $("#tablaArticulosBody .celda-editable input, #tablaArticulosBody .celda-editable button, #tablaArticulosBody .celda-editable select").prop("disabled", true);
-            $("#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-proveedor2, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio, #tablaArticulosBody .aporte-propio2").prop("disabled", true);
-            $("#tablaArticulosBody td:last-child input[type='checkbox']").prop("disabled", true).css("pointer-events", "none");
+            const $tablaBody = $(this).closest("tbody");
+            $tablaBody.find("tr").removeClass("table-active");
+
+            // Bloquear todo inicialmente
+            $tablaBody.find(".celda-editable input, .celda-editable button, .celda-editable select").prop("disabled", true);
+            $tablaBody.find(".aporte-proveedor, .aporte-proveedor2, .aporte-rebate, .aporte-propio, .aporte-propio2").prop("disabled", true);
+            $tablaBody.find("td:last-child input[type='checkbox']").prop("disabled", true).css("pointer-events", "none");
 
             const $fila = $(this).closest("tr");
             $fila.addClass("table-active");
 
-            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select").not(".aporte-proveedor, .aporte-proveedor2, .aporte-rebate, .aporte-propio, .aporte-propio2").prop("disabled", false);
+            // Habilitar campos base (EXCEPTO los aportes y botones de Aporte 2)
+            $fila.find(".celda-editable input, .celda-editable button, .celda-editable select")
+                .not(".aporte-proveedor, .aporte-proveedor2, .aporte-rebate, .aporte-propio, .aporte-propio2, button[data-slot='2'], input[class*='prov2'], input[class*='propio2']")
+                .prop("disabled", false);
+
+            // Forzar botones e inputs de slot 2 a disabled por defecto
+            const $btnProv2 = $fila.find("button[data-tipofondo='TFPROVEDOR'][data-slot='2']");
+            const $inputDisplayProv2 = $btnProv2.siblings("input[type='text']");
+            $btnProv2.prop("disabled", true);
+            $inputDisplayProv2.prop("disabled", true);
+
+            const $btnProp2 = $fila.find("button[data-tipofondo='TFPROPIO'][data-slot='2']");
+            const $inputDisplayPropio2 = $btnProp2.siblings("input[type='text']");
+            $btnProp2.prop("disabled", true);
+            $inputDisplayPropio2.prop("disabled", true);
 
             const tieneProvedor = $fila.find(".acuerdo-prov1-hidden").val();
             const tieneProvedor2 = $fila.find(".acuerdo-prov2-hidden").val();
@@ -3655,12 +3698,56 @@
             const tienePropio2 = $fila.find(".acuerdo-propio2-hidden").val();
 
             if (tieneProvedor) $fila.find(".aporte-proveedor").prop("disabled", false);
-            if (tieneProvedor2) $fila.find(".aporte-proveedor2").prop("disabled", false);
             if (tieneRebate) $fila.find(".aporte-rebate").prop("disabled", false);
             if (tienePropio) $fila.find(".aporte-propio").prop("disabled", false);
-            if (tienePropio2) $fila.find(".aporte-propio2").prop("disabled", false);
 
             $fila.find("td:last-child input[type='checkbox']").prop("disabled", false).css("pointer-events", "auto");
+
+            // --- VALIDACIÓN AUTOMÁTICA APORTE 2 EN SEGUNDO PLANO ---
+            const codigoItem = $fila.data("codigo");
+
+            // 1. Proveedor 2
+            if (tieneProvedor2) {
+                // Si ya tiene guardado un acuerdo, se habilita directo
+                $btnProv2.prop("disabled", false);
+                $inputDisplayProv2.prop("disabled", false);
+                $fila.find(".aporte-proveedor2").prop("disabled", false);
+            } else {
+                let marcaSeleccionada = "";
+                const marcasModalChecked = [];
+                $("#filtroMarcaModal .filtro-item-checkbox:checked").each(function () { marcasModalChecked.push($(this).val()); });
+                if (marcasModalChecked.length > 0) {
+                    marcaSeleccionada = marcasModalChecked[0];
+                } else {
+                    // Soporta tanto Crear (filtroMarcaGeneral) como Modificar (segMarca)
+                    const valMarca = $("#segMarca").length ? $("#segMarca").val() : $("#filtroMarcaGeneral").val();
+                    if (valMarca === "3") {
+                        const sel = $("#btnMarca").length ? $("#btnMarca").data("seleccionados") : $("#btnMarcaGeneral").data("seleccionados") || [];
+                        marcaSeleccionada = sel && sel.length > 0 ? sel[0] : "";
+                    } else if (valMarca && valMarca !== "TODAS" && valMarca !== "TODOS") {
+                        marcaSeleccionada = valMarca;
+                    }
+                }
+
+                validarAporte2ProveedorYEjecutar(marcaSeleccionada, function () {
+                    // Éxito: Habilitamos el botón para buscar
+                    $btnProv2.prop("disabled", false);
+                    $inputDisplayProv2.prop("disabled", false);
+                });
+            }
+
+            // 2. Propio 2
+            if (tienePropio2) {
+                $btnProp2.prop("disabled", false);
+                $inputDisplayPropio2.prop("disabled", false);
+                $fila.find(".aporte-propio2").prop("disabled", false);
+            } else {
+                validarAporte2PropioYEjecutar(codigoItem, function () {
+                    // Éxito: Habilitamos el botón para buscar
+                    $btnProp2.prop("disabled", false);
+                    $inputDisplayPropio2.prop("disabled", false);
+                });
+            }
         });
 
         $("#filtroCanalCombos").html($("#filtroCanalGeneral").html());
@@ -3959,7 +4046,10 @@
             });
         });
 
-        $(document).on("click", ".btn-buscar-acuerdo-art", function () {
+        // =====================================================================
+        // Lupa Artículos (Limpia y sin validación redundante)
+        // =====================================================================
+        $(document).off("click", ".btn-buscar-acuerdo-art").on("click", ".btn-buscar-acuerdo-art", function () {
             const $btn = $(this);
             const tipoFondo = $btn.data("tipofondo");
             const slot = parseInt($btn.data("slot")) || 1;
@@ -3974,48 +4064,7 @@
                 "TFPROPIO": "Acuerdos - Fondo Propio" + (slot === 2 ? " (2)" : "")
             };
 
-            const ejecutarModal = () => {
-                abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, $fila);
-            };
-
-            // Interceptar solo si es Proveedor y es el Aporte 2
-            if (tipoFondo === "TFPROVEDOR" && slot === 2) {
-                let marcaSeleccionada = "";
-
-                // 1. Buscar la marca en el Modal de Consulta de Items
-                const marcasModal = getSelectedFilterValuesPromo("filtroMarcaModal");
-                if (marcasModal && marcasModal.length > 0) {
-                    marcaSeleccionada = marcasModal[0];
-                }
-                // 2. Si no hay, buscar en el filtro general
-                else {
-                    let marcaGen = $("#filtroMarcaGeneral").val();
-                    if (marcaGen === "3") {
-                        const sel = $("#btnMarcaGeneral").data("seleccionados") || [];
-                        marcaSeleccionada = sel.length > 0 ? sel[0] : "";
-                    } else if (marcaGen && marcaGen !== "TODAS" && marcaGen !== "TODOS") {
-                        marcaSeleccionada = marcaGen;
-                    }
-                }
-
-                // Ejecutar la validación mandando la función de Fallo para deshabilitar
-                validarAporte2ProveedorYEjecutar(marcaSeleccionada, ejecutarModal, function () {
-                    $btn.prop("disabled", true);
-                    $inputDisplay.prop("disabled", true);
-                    $fila.find(".aporte-proveedor2").prop("disabled", true);
-                });
-            }
-            // NUEVO: Interceptar si es Propio y es el Aporte 2
-            else if (tipoFondo === "TFPROPIO" && slot === 2) {
-                validarAporte2PropioYEjecutar(codigoItem, ejecutarModal, function () {
-                    $btn.prop("disabled", true);
-                    $inputDisplay.prop("disabled", true);
-                    $fila.find(".aporte-propio2").prop("disabled", true);
-                });
-            }
-            else {
-                ejecutarModal();
-            }
+            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo] || "Acuerdos", codigoItem, $inputDisplay, $inputId, slot, $fila);
         });
 
         $("#btnAceptarAcuerdoArticulo").on("click", function () {

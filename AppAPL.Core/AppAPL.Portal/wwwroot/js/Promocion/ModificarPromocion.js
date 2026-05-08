@@ -1247,6 +1247,9 @@ function poblarCombosDesdeAPI(data) {
         combosBDOriginal.push(idCombo);
     });
 
+    // Helper para distinguir slot por numero_aporte
+    const getNumAporte = (a) => String(a.numero_aporte ?? a.numeroaporte ?? "").trim();
+
     // 2. Asociar componentes
     articuloscomponentes.forEach(comp => {
         const idCombo = comp.idpromocionarticulo;
@@ -1255,14 +1258,37 @@ function poblarCombosDesdeAPI(data) {
         const idCompUnico = comp.idpromocionarticulocomponente;
         const acuerdosComp = articuloscompacuerdo.filter(a => a.idpromocionarticulocomponente === idCompUnico);
 
+        // ===== PROVEEDOR (slots 1 y 2) =====
         const acuerdosProv = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR");
-        const acProv = acuerdosProv[0] || null;
-        const acProv2 = acuerdosProv[1] || null;
+        let acProv = acuerdosProv.find(a => getNumAporte(a) === "1") || null;
+        let acProv2 = acuerdosProv.find(a => getNumAporte(a) === "2") || null;
 
+        // Fallback: si no llega numero_aporte (backend antiguo), respetar orden
+        if (!acProv && !acProv2 && acuerdosProv.length > 0) {
+            acProv = acuerdosProv[0] || null;
+            acProv2 = acuerdosProv[1] || null;
+        } else {
+            // Si solo uno tiene numero_aporte y el otro no, asignar el sin marca al slot libre
+            const sinNumero = acuerdosProv.filter(a => getNumAporte(a) === "");
+            if (!acProv && sinNumero.length > 0) acProv = sinNumero[0];
+            if (!acProv2 && sinNumero.length > 1) acProv2 = sinNumero[1];
+        }
+
+        // ===== PROPIO (slots 1 y 2) =====
         const acuerdosProp = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO");
-        const acProp = acuerdosProp[0] || null;
-        const acProp2 = acuerdosProp[1] || null;
+        let acProp = acuerdosProp.find(a => getNumAporte(a) === "1") || null;
+        let acProp2 = acuerdosProp.find(a => getNumAporte(a) === "2") || null;
 
+        if (!acProp && !acProp2 && acuerdosProp.length > 0) {
+            acProp = acuerdosProp[0] || null;
+            acProp2 = acuerdosProp[1] || null;
+        } else {
+            const sinNumeroP = acuerdosProp.filter(a => getNumAporte(a) === "");
+            if (!acProp && sinNumeroP.length > 0) acProp = sinNumeroP[0];
+            if (!acProp2 && sinNumeroP.length > 1) acProp2 = sinNumeroP[1];
+        }
+
+        // ===== REBATE (un solo slot) =====
         const acRebate = acuerdosComp.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFREBATE");
 
         const otrosCostosComp = articuloscompotroscostos
@@ -1275,7 +1301,7 @@ function poblarCombosDesdeAPI(data) {
         const totalOtrosCostosComp = otrosCostosComp.reduce((s, c) => s + c.valor, 0);
 
         combosMap[idCombo].componentes.push({
-            idpromocionarticulocomponente: idCompUnico || 0, // <<< NUEVO: clave para evitar duplicación
+            idpromocionarticulocomponente: idCompUnico || 0,
             codigo: comp.componente_codigoitem,
             descripcion: comp.componente_descripcion,
             costo: comp.componente_costo || 0,
@@ -1328,7 +1354,6 @@ function poblarCombosDesdeAPI(data) {
         const codigoCombo = combo.codigocombo;
         articulosPorComboMemoria[codigoCombo] = combo.componentes;
 
-        // <<< NUEVO: registrar IDs originales por combo para detectar eliminados al guardar
         componentesOriginalesPorCombo[combo.idpromocionarticulo] = combo.componentes
             .filter(c => c.idpromocionarticulocomponente > 0)
             .map(c => c.idpromocionarticulocomponente);
@@ -1620,6 +1645,9 @@ function agregarColumnaAComboMod(item) {
 
     const colIndex = $("#trHeadersCombo th").length - 1;
 
+    // ✅ Guardar siempre el id del componente en el header (necesario al modificar)
+    $(`#trHeadersCombo th:eq(${colIndex})`).data("idpromocionarticulocomponente", item.idpromocionarticulocomponente || 0);
+
     if (item.otrosCostos && item.otrosCostos.length > 0) {
         $(`#trHeadersCombo th:eq(${colIndex})`).data("detalle-otros-costos", item.otrosCostos);
         $(`#trHeadersCombo th:eq(${colIndex})`).data("total-otros-costos", item.totalOtrosCostos || 0);
@@ -1669,14 +1697,16 @@ function agregarColumnaAComboMod(item) {
                 html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="0.00">`; break;
             case "aporte_prov":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor aporte-proveedor-combo-mod" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor)}" ${item.idAcuerdoProveedor ? '' : 'disabled'}>`; break;
+            // ✅ FIX: Aporte 2 Proveedor input - DESHABILITADO por defecto si no hay acuerdo
             case "aporte_prov2":
-                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor2)}" ${item.idAcuerdoProveedor2 ? '' : 'disabled'}>`; break;
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor2)}" disabled>`; break;
             case "aporte_rebate":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteRebate)}" ${item.idAcuerdoRebate ? '' : 'disabled'}>`; break;
             case "aporte_propio":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio)}" ${item.idAcuerdoPropio ? '' : 'disabled'}>`; break;
+            // ✅ FIX: Aporte 2 Propio input - DESHABILITADO por defecto
             case "aporte_propio2":
-                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio2)}" ${item.idAcuerdoPropio2 ? '' : 'disabled'}>`; break;
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio2)}" disabled>`; break;
             case "aporte_prov_id":
                 html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="${item.idAcuerdoProveedor || ''}">
@@ -1684,12 +1714,13 @@ function agregarColumnaAComboMod(item) {
                         <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor || ''}">
                         <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
+            // ✅ FIX: Aporte 2 Proveedor ID - DESHABILITADO por defecto
             case "aporte_prov2_id":
                 html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="${item.idAcuerdoProveedor2 || ''}">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor2 || ''}">
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor2 || ''}" disabled>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
             case "aporte_rebate_id":
                 html += `
@@ -1705,12 +1736,13 @@ function agregarColumnaAComboMod(item) {
                         <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio || ''}">
                         <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
+            // ✅ FIX: Aporte 2 Propio ID - DESHABILITADO por defecto
             case "aporte_propio2_id":
                 html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="${item.idAcuerdoPropio2 || ''}">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio2 || ''}">
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio2 || ''}" disabled>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
             case "margen_pl_contado":
             case "margen_pl_credito":
@@ -1733,6 +1765,66 @@ function agregarColumnaAComboMod(item) {
 
     recalcularColumnaComboMod(colIndex);
     recalcularTotalesComboMod();
+
+    // ============================================================
+    // ✅ NUEVO: VALIDACIÓN AUTOMÁTICA APORTES SLOT 2 (Prov2 y Propio2)
+    // ============================================================
+
+    // ---- Validar Aporte 2 Proveedor ----
+    const $btnProv2 = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_prov2_id'] td[data-colindex='${colIndex}'] button`);
+    const $inputProv2Display = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_prov2_id'] td[data-colindex='${colIndex}'] input[type='text']`);
+    const $inputAporteProv2 = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_prov2'] td[data-colindex='${colIndex}'] input`);
+
+    if (item.idAcuerdoProveedor2) {
+        // Ya tiene acuerdo guardado -> habilitar siempre
+        $btnProv2.prop("disabled", false);
+        $inputProv2Display.prop("disabled", false);
+        $inputAporteProv2.prop("disabled", false);
+    } else {
+        // Sin acuerdo -> validar marca contra el endpoint de aporte 2
+        let marcaSeleccionada = "";
+        const marcasModalChecked = [];
+        $("#filtroMarcaModal .filtro-item-checkbox:checked").each(function () { marcasModalChecked.push($(this).val()); });
+        if (marcasModalChecked.length > 0) {
+            marcaSeleccionada = marcasModalChecked[0];
+        } else {
+            const valMarca = $("#segMarca").val();
+            if (valMarca === "3") {
+                const sel = $("#btnMarca").data("seleccionados") || [];
+                marcaSeleccionada = sel.length > 0 ? sel[0] : "";
+            } else if (valMarca && valMarca !== "TODAS" && valMarca !== "") {
+                marcaSeleccionada = valMarca;
+            }
+        }
+
+        validarAporte2ProveedorYEjecutar(marcaSeleccionada, function () {
+            // Permite Aporte 2 -> habilitar el botón (input de aporte queda disabled hasta seleccionar acuerdo)
+            $btnProv2.prop("disabled", false);
+            $inputProv2Display.prop("disabled", false);
+        }, function () {
+            // No permite -> permanece deshabilitado (ya estaba)
+        });
+    }
+
+    // ---- Validar Aporte 2 Propio ----
+    const $btnProp2 = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_propio2_id'] td[data-colindex='${colIndex}'] button`);
+    const $inputProp2Display = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_propio2_id'] td[data-colindex='${colIndex}'] input[type='text']`);
+    const $inputAportePropio2 = $(`#tablaCreacionCombo tbody tr[data-campo='aporte_propio2'] td[data-colindex='${colIndex}'] input`);
+
+    if (item.idAcuerdoPropio2) {
+        // Ya tiene acuerdo -> habilitar siempre
+        $btnProp2.prop("disabled", false);
+        $inputProp2Display.prop("disabled", false);
+        $inputAportePropio2.prop("disabled", false);
+    } else {
+        // Validar artículo contra endpoint de aporte 2 propio
+        validarAporte2PropioYEjecutar(item.codigo, function () {
+            $btnProp2.prop("disabled", false);
+            $inputProp2Display.prop("disabled", false);
+        }, function () {
+            // No permite -> permanece deshabilitado
+        });
+    }
 }
 
 function extraerArticulosDelModalComboMod() {
@@ -1741,6 +1833,12 @@ function extraerArticulosDelModalComboMod() {
 
     for (let colIdx = 2; colIdx < numColumnas; colIdx++) {
         const art = { mediosPago: [], acuerdos: [], otrosCostos: [] };
+
+        // ✅ FIX: Recuperar idpromocionarticulocomponente y otrosCostos del header
+        const $thCol = $(`#trHeadersCombo th:eq(${colIdx})`);
+        art.idpromocionarticulocomponente = parseInt($thCol.data("idpromocionarticulocomponente")) || 0;
+        art.otrosCostos = $thCol.data("detalle-otros-costos") || [];
+        art.totalOtrosCostos = parseFloat($thCol.data("total-otros-costos")) || 0;
 
         $("#tablaCreacionCombo tbody tr").each(function () {
             const campo = $(this).data("campo");
@@ -3437,7 +3535,6 @@ async function guardarPromocionCombos() {
             return false;
         }
 
-        // Medios de Pago del combo
         const $selectMP = $fila.find(".select-mediopago-combo-final-mod");
         const valMP = $selectMP.val();
         const seleccionadosMP = $selectMP.data("seleccionados") || [];
@@ -3508,30 +3605,100 @@ async function guardarPromocionCombos() {
             const idCompBD = art.idpromocionarticulocomponente || 0;
             const accionComp = idCompBD > 0 ? "U" : "I";
 
+            // ✅ FIX: Construir acuerdos con numero_aporte para distinguir slot 1 vs slot 2
+            const acuerdosComponente = [];
+            if (art.idAcuerdoProveedor) {
+                acuerdosComponente.push({
+                    idacuerdo: art.idAcuerdoProveedor,
+                    valoraporte: art.aporteProveedor || 0,
+                    valorcomprometido: (art.aporteProveedor || 0) * unidadesParaCalculo,
+                    etiqueta_tipo_fondo: "TFPROVEDOR",
+                    numero_aporte: "1",
+                    numeroaporte: "1"
+                });
+            }
+            if (art.idAcuerdoProveedor2) {
+                acuerdosComponente.push({
+                    idacuerdo: art.idAcuerdoProveedor2,
+                    valoraporte: art.aporteProveedor2 || 0,
+                    valorcomprometido: (art.aporteProveedor2 || 0) * unidadesParaCalculo,
+                    etiqueta_tipo_fondo: "TFPROVEDOR",
+                    numero_aporte: "2",
+                    numeroaporte: "2"
+                });
+            }
+            if (art.idAcuerdoRebate) {
+                acuerdosComponente.push({
+                    idacuerdo: art.idAcuerdoRebate,
+                    valoraporte: art.aporteRebate || 0,
+                    valorcomprometido: (art.aporteRebate || 0) * unidadesParaCalculo,
+                    etiqueta_tipo_fondo: "TFREBATE",
+                    numero_aporte: "1",
+                    numeroaporte: "1"
+                });
+            }
+            if (art.idAcuerdoPropio) {
+                acuerdosComponente.push({
+                    idacuerdo: art.idAcuerdoPropio,
+                    valoraporte: art.aportePropio || 0,
+                    valorcomprometido: (art.aportePropio || 0) * unidadesParaCalculo,
+                    etiqueta_tipo_fondo: "TFPROPIO",
+                    numero_aporte: "1",
+                    numeroaporte: "1"
+                });
+            }
+            if (art.idAcuerdoPropio2) {
+                acuerdosComponente.push({
+                    idacuerdo: art.idAcuerdoPropio2,
+                    valoraporte: art.aportePropio2 || 0,
+                    valorcomprometido: (art.aportePropio2 || 0) * unidadesParaCalculo,
+                    etiqueta_tipo_fondo: "TFPROPIO",
+                    numero_aporte: "2",
+                    numeroaporte: "2"
+                });
+            }
+
+            const otrosCostosComponente = (art.otrosCostos || []).map(oc => ({
+                codigoparametro: parseInt(oc.codigo, 10) || 0,
+                costo: parseFloat(oc.valor) || 0
+            }));
+
             return {
                 accion: accionComp,
                 idpromocionarticulocomponente: idCompBD,
                 codigoarticulo: String(art.codigo),
+                codigoitem: String(art.codigo),
                 descripcion: art.descripcion || "",
                 costo: art.costo || 0,
                 stockbodega: art.stock || 0,
                 stocktienda: art.stockTienda || 0,
                 inventariooptimo: art.optimo || 0,
                 excedenteu: art.excedenteu || 0,
+                excedenteunidad: art.excedenteu || 0,
                 excedenteusd: art.excedentes || 0,
+                excedentevalor: art.excedentes || 0,
                 ventahistoricam0u: art.m0u || 0,
                 ventahistoricam0usd: art.m0s || 0,
+                m0unidades: art.m0u || 0,
+                m0precio: art.m0s || 0,
                 ventahistoricam1u: art.m1u || 0,
                 ventahistoricam1usd: art.m1s || 0,
+                m1unidades: art.m1u || 0,
+                m1precio: art.m1s || 0,
                 ventahistoricam2u: art.m2u || 0,
                 ventahistoricam2usd: art.m2s || 0,
+                m2unidades: art.m2u || 0,
+                m2precio: art.m2s || 0,
                 ventahistoricam12u: art.m12u || 0,
                 ventahistoricam12usd: art.m12s || 0,
+                m12unidades: art.m12u || 0,
+                m12precio: art.m12s || 0,
                 igualarprecio: 0,
                 diasantiguedad: 0,
                 margenminimocontado: 0,
                 margenminimotarjetacredito: 0,
                 margenminimopreciocredito: 0,
+                margenminimocredito: 0,
                 margenminimoigualar: 0,
                 preciolistacontado: art.preciolistacontado || 0,
                 preciolistacredito: art.preciolistacredito || 0,
@@ -3546,47 +3713,18 @@ async function guardarPromocionCombos() {
                 margenpromocioncontado: art.margenPromoContado || 0,
                 margenpromociontarjetacredito: art.margenPromoTC || 0,
                 margenpromocioncredito: art.margenPromoCredito || 0,
-                jsonacuerdos: [
-                    ...(art.idAcuerdoProveedor ? [{
-                        idacuerdo: art.idAcuerdoProveedor,
-                        valoraporte: art.aporteProveedor || 0,
-                        valorcomprometido: (art.aporteProveedor || 0) * unidadesParaCalculo,
-                        etiqueta_tipo_fondo: "TFPROVEDOR"
-                    }] : []),
-                    ...(art.idAcuerdoProveedor2 ? [{
-                        idacuerdo: art.idAcuerdoProveedor2,
-                        valoraporte: art.aporteProveedor2 || 0,
-                        valorcomprometido: (art.aporteProveedor2 || 0) * unidadesParaCalculo,
-                        etiqueta_tipo_fondo: "TFPROVEDOR"
-                    }] : []),
-                    ...(art.idAcuerdoRebate ? [{
-                        idacuerdo: art.idAcuerdoRebate,
-                        valoraporte: art.aporteRebate || 0,
-                        valorcomprometido: (art.aporteRebate || 0) * unidadesParaCalculo,
-                        etiqueta_tipo_fondo: "TFREBATE"
-                    }] : []),
-                    ...(art.idAcuerdoPropio ? [{
-                        idacuerdo: art.idAcuerdoPropio,
-                        valoraporte: art.aportePropio || 0,
-                        valorcomprometido: (art.aportePropio || 0) * unidadesParaCalculo,
-                        etiqueta_tipo_fondo: "TFPROPIO"
-                    }] : []),
-                    ...(art.idAcuerdoPropio2 ? [{
-                        idacuerdo: art.idAcuerdoPropio2,
-                        valoraporte: art.aportePropio2 || 0,
-                        valorcomprometido: (art.aportePropio2 || 0) * unidadesParaCalculo,
-                        etiqueta_tipo_fondo: "TFPROPIO"
-                    }] : [])
-                ],
-                jsonotroscostos: (art.otrosCostos || []).map(oc => ({
-                    codigo: parseInt(oc.codigo, 10) || 0,
-                    costos: parseFloat(oc.valor) || 0
-                }))
+                acuerdos: acuerdosComponente,
+                otroscostos: otrosCostosComponente,
+                jsonacuerdos: acuerdosComponente,
+                jsonotroscostos: otrosCostosComponente
             };
         });
 
         articulos_componentes.push({
             accion: accion,
+            idpromocionarticulo: idPromocionArticulo,
+            codigocombo: codigoCombo,
+            articuloscomponentes: jsonArticulosComponentes,
             jsonarticuloscomponentes: jsonArticulosComponentes
         });
     });
@@ -3635,6 +3773,9 @@ async function guardarPromocionCombos() {
 
             articulos_componentes.push({
                 accion: "D",
+                idpromocionarticulo: idBD,
+                codigocombo: "",
+                articuloscomponentes: [],
                 jsonarticuloscomponentes: []
             });
         }
