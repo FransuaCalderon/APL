@@ -378,12 +378,51 @@ $(document).ready(function () {
 
     
 
-    // Validación de rango 0-100 para los inputs de esta sección
-    $('#inputNuevoNumAporteArt, #inputModifNumAporteArt').on('input', function () {
-        let valor = parseFloat($(this).val());
-        if (!isNaN(valor)) {
-            if (valor > 100) $(this).val(100);
-            else if (valor < 0) $(this).val(0);
+    // ==========================================================
+    // VALIDACIÓN GLOBAL: PROTEGER TODOS LOS INPUTS DE NÚMEROS
+    // ==========================================================
+
+    // 1. Evitar que escriban la letra "e", "E", o signos de suma/resta
+    $(document).on('keydown', 'input[type="number"]', function (e) {
+        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+            e.preventDefault();
+        }
+    });
+
+    // 2. Validación exacta para estructura Oracle NUMBER(10,2)
+    $(document).on('input', 'input[type="number"]', function () {
+        // Evitar números negativos
+        if ($(this).val() < 0) {
+            $(this).val(0);
+            return;
+        }
+
+        let valorStr = $(this).val();
+
+        // Si el usuario ingresó un punto decimal
+        if (valorStr.includes('.')) {
+            let partes = valorStr.split('.');
+            let enteros = partes[0];
+            let decimales = partes[1];
+
+            // Limitamos a 8 dígitos enteros (antes del punto)
+            if (enteros.length > 8) {
+                enteros = enteros.slice(0, 8);
+            }
+            // Limitamos a 2 dígitos decimales (después del punto)
+            if (decimales.length > 2) {
+                decimales = decimales.slice(0, 2);
+            }
+
+            // Volvemos a unir el número
+            $(this).val(enteros + '.' + decimales);
+        }
+        // Si es un número entero sin punto decimal
+        else {
+            // Limitamos estrictamente a 8 dígitos enteros
+            if (valorStr.length > 8) {
+                $(this).val(valorStr.slice(0, 8));
+            }
         }
     });
 
@@ -589,6 +628,63 @@ $(document).ready(function () {
     $('#btnGuardarNuevoAPA').off('click').on('click', guardarAPA);
     $('#btnGuardarModifAPA').off('click').on('click', modificarAPA);
     $('#btnConfirmarElimAPA').off('click').on('click', eliminarAPA);*/
+
+
+
+    // ==========================================================
+    // LIMPIEZA DE MODALES FALTANTES DE "NUEVO" (Al Abrir)
+    // ==========================================================
+
+    // Limpiar modal Nuevo Almacén
+    $('#modalNuevoAlmacen').on('show.bs.modal', function () {
+        $('#selectNuevoAlmacen').val('');
+    });
+
+    // Limpiar modal Nuevo Aporte por Marca
+    $('#modalNuevoAporteMarca').on('show.bs.modal', function () {
+        $('#selectNuevoMarcaAM').val('');
+        $('#inputNuevoNumAporteAM').val('0'); // O vacío '' según prefieras
+    });
+
+    // Limpiar modal Nuevo Aporte por Marca y Proveedor
+    $('#modalNuevoAporteMarcaProveedor').on('show.bs.modal', function () {
+        $('#selectNuevoMarcaMP, #selectNuevoProveedorMP').val('');
+        $('#inputNuevoNumAporteMP').val('0');
+    });
+
+
+    // ==========================================================
+    // LIMPIEZA TOTAL DE MODALES "MODIFICAR" (Al Cerrar)
+    // ==========================================================
+
+    $('#modalModificarGrupo').on('hidden.bs.modal', function () {
+        $('#inputIdModifGrupo, #inputCodParamModifGrupo, #inputModifNombreGrupo').val('');
+    });
+
+    $('#modalModificaMedioPago').on('hidden.bs.modal', function () {
+        $('#inputIdModifMedioPago, #inputCodigoModifMedioPago, #inputModifNombreMedioPago').val('');
+    });
+
+    $('#modalModificarAporteMarca').on('hidden.bs.modal', function () {
+        $('#inputIdModifAM, #selectModifMarcaAM, #inputModifNumAporteAM').val('');
+    });
+
+    $('#modalModificarAporteMarcaProveedor').on('hidden.bs.modal', function () {
+        $('#inputIdModifAMP, #selectModifMarcaMP, #selectModifProveedorMP, #inputModifNumAporteMP').val('');
+    });
+
+    $('#modalModificarAporteArticulo').on('hidden.bs.modal', function () {
+        $('#inputIdModifAPA, #inputCodModifAPA, #inputModifArticuloAPA, #inputModifNumAporteAPA').val('');
+    });
+
+    $('#modalModificarPrecioComp').on('hidden.bs.modal', function () {
+        $('#inputIdModifPC, #inputCodModifPC, #inputModifNombreArtPC, #inputModifNombreCompPC, #inputModifPrecioPC').val('');
+    });
+
+    $('#modalModificarMargenMinimoArticulo').on('hidden.bs.modal', function () {
+        $('#inputIdModifMM, #inputCodArtModifMM, #inputModifArticuloMM, #inputModifContadoMM, #inputModifTarjCrMM, #inputModifCreditoMM, #inputModifIgualarMM').val('');
+    });
+
 });
 
 function getUsuario() {
