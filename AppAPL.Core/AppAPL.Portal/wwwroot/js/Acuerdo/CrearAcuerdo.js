@@ -912,7 +912,7 @@
                 // Pero como es el PRIMER ítem, lo desbloqueamos manualmente por default
                 // para que el usuario empiece a trabajar de inmediato
                 $primerFila.find(".celda-editable input").prop("disabled", false);
-                $primerFila.find('input[name="unidadesLimite"]').focus();
+                $primerFila.find('input[name="unidadesLimite"]').trigger("focus");
             }
         }
 
@@ -1585,7 +1585,7 @@
             });
         } else {
             $fila.find(".celda-editable input").prop("disabled", false);
-            $fila.find('input[name="unidadesLimite"]').focus();
+            $fila.find('input[name="unidadesLimite"]').trigger("focus");
 
             Swal.fire({
                 toast: true,
@@ -1657,7 +1657,7 @@
     // -----------------------------
     // ✅ Init principal
     // -----------------------------
-    $(document).ready(function () {
+    $(function () {
         console.log("=== CrearAcuerdo INIT (Estructura Post-REST) ===");
 
         toggleAcuerdoForm();
@@ -2023,3 +2023,5 @@
         });
     });
 })();
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

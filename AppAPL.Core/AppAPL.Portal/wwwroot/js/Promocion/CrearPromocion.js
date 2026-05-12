@@ -1,4 +1,6 @@
-﻿(function () {
+﻿// ~/js/Promocion/CrearPromocion.js
+
+(function () {
     "use strict";
 
     // ==========================================
@@ -921,12 +923,12 @@
 
             if (dsctoProv <= 0) {
                 Swal.fire("Validación", "El % Dscto Prov. debe ser mayor a 0 al tener un Acuerdo Proveedor seleccionado.", "warning");
-                $("#descuentoProveedorGeneral").focus();
+                $("#descuentoProveedorGeneral").trigger("focus");
                 return;
             }
             if (compProv <= 0) {
                 Swal.fire("Validación", "El $ Comprometido Prov. debe ser mayor a 0 al tener un Acuerdo Proveedor seleccionado.", "warning");
-                $("#fondoValorTotalGeneral").focus();
+                $("#fondoValorTotalGeneral").trigger("focus");
                 return;
             }
         }
@@ -937,16 +939,15 @@
 
             if (dsctoProp <= 0) {
                 Swal.fire("Validación", "El % Dscto Prop debe ser mayor a 0 al tener un Acuerdo Propio seleccionado.", "warning");
-                $("#descuentoPropioGeneral").focus();
+                $("#descuentoPropioGeneral").trigger("focus");
                 return;
             }
             if (compProp <= 0) {
                 Swal.fire("Validación", "El $ Comprometido Propio debe ser mayor a 0 al tener un Acuerdo Propio seleccionado.", "warning");
-                $("#comprometidoPropioGeneral").focus();
+                $("#comprometidoPropioGeneral").trigger("focus");
                 return;
             }
         }
-        // =========================================================================
 
         const grupoVal = $(`#filtroGrupoAlmacen${sufijo}`).val();
         if (!grupoVal || grupoVal === "") {
@@ -4212,3 +4213,5 @@
         });
     });
 })();
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

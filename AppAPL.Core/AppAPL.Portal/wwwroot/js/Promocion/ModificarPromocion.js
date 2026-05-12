@@ -601,7 +601,7 @@ function consultarAcuerdos(tipoFondo, tablaId, onSeleccion) {
                 $tbody.append(row);
             });
 
-            $(`#${tablaId} .acuerdo-radio`).change(function () {
+            $(`#${tablaId} .acuerdo-radio`).on("change", function () {
                 $(`#${tablaId} tr`).removeClass("table-active");
                 $(this).closest("tr").addClass("table-active");
                 const d = $(this).data();
@@ -2535,7 +2535,7 @@ function initLogicaCombosMod() {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
     cargarFiltrosJerarquia();
     cargarCombosPromociones();
     initLogicaSeleccionMultiple();
@@ -2587,7 +2587,7 @@ $(document).ready(function () {
         proveedorTemporal = null;
         consultarAcuerdos("TFPROVEDOR", "tablaProveedores", (s) => proveedorTemporal = s);
     });
-    $("#btnAceptarProveedor").click(function () {
+    $("#btnAceptarProveedor").on("click", function () {
         if (proveedorTemporal) {
             $("#fondoProveedorText").val(proveedorTemporal.display);
             $("#fondoProveedorId").val(proveedorTemporal.idAcuerdo);
@@ -2601,7 +2601,7 @@ $(document).ready(function () {
         propioTemporal = null;
         consultarAcuerdos("TFPROPIO", "tablaAcuerdosPropios", (s) => propioTemporal = s);
     });
-    $("#btnAceptarAcuerdoPropio").click(function () {
+    $("#btnAceptarAcuerdoPropio").on("click", function () {
         if (propioTemporal) {
             $("#acuerdoPropioText").val(propioTemporal.display);
             $("#acuerdoPropioId").val(propioTemporal.idAcuerdo);
@@ -3857,8 +3857,8 @@ function initDatepickers() {
     $.datepicker.setDefaults($.datepicker.regional["es"] || {});
     $('#promocionFechaInicio').datepicker({ dateFormat: "dd/mm/yy", onSelect: function () { const d = $(this).datepicker("getDate"); if (d) { d.setDate(d.getDate() + 1); $('#promocionFechaFin').datepicker("option", "minDate", d); } } });
     $('#promocionFechaFin').datepicker({ dateFormat: "dd/mm/yy", minDate: 1 });
-    $('#btnFechaInicio').click(() => $('#promocionFechaInicio').datepicker('show'));
-    $('#btnFechaFin').click(() => $('#promocionFechaFin').datepicker('show'));
+    $('#btnFechaInicio').on('click', () => $('#promocionFechaInicio').datepicker('show'));
+    $('#btnFechaFin').on('click', () => $('#promocionFechaFin').datepicker('show'));
 }
 
 // ===============================================================
@@ -3888,3 +3888,5 @@ function cerrarVisorPDF() {
     const iframe = document.getElementById("pdfIframe"); if (iframe) iframe.src = "about:blank";
     const modal = bootstrap.Modal.getInstance(document.getElementById("modalVisorPdf")); if (modal) modal.hide();
 }
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

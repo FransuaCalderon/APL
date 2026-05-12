@@ -1,15 +1,14 @@
-﻿@{
+﻿@* ~/Views/Fondo/InactivarFondo.cshtml *@
+@{
     ViewData["Title"] = "Inactivación de Fondos";
 }
 
 @{
-    // 1. C# obtiene el valor del ViewBag
     var usuarioActual = ViewBag.UsuarioActual as string;
 }
 
 @section Scripts {
     <script>
-        // Variable global con el usuario logueado
         window.usuarioActual = '@usuarioActual';
     </script>
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
@@ -22,11 +21,10 @@
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
-<div class="table-responsive" class="text-center">
+<div class="table-responsive">
     <div id="tabla">
     </div>
 </div>
-
 
 <!-- Modal Personalizado -->
 <div id="modalVisualizarFondo" class="custom-modal">

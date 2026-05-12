@@ -15,7 +15,7 @@ using Oracle.ManagedDataAccess.Client;
 
 namespace AppAPL.AccesoDatos.Repositorio
 {
-    public class ProveedorRepositorio(OracleConnectionFactory factory, ILogger<ProveedorRepositorio> logger) : IProveedorRepositorio
+    public class ProveedorRepositorio(OracleConnectionFactory factory) : IProveedorRepositorio
     {
         public async Task<IEnumerable<ProveedorDTO>> ListarAsync(string? etiqueta = "")
         {

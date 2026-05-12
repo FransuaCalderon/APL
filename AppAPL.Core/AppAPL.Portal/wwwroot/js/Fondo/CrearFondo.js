@@ -289,7 +289,7 @@ function ejecutarGuardadoFondo() {
 // INITIALIZATION
 // ===============================================================
 
-$(document).ready(function () {
+$(function () {
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
         cargarTipoFondo();

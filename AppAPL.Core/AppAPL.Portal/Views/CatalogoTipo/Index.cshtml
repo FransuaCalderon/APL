@@ -1,16 +1,14 @@
-﻿@using AppAPL.Dto.CatalogoTipo
+﻿@* ~/Views/CatalogoTipo/Index.cshtml *@
+@using AppAPL.Dto.CatalogoTipo
 
 @{
-    // Viene del ViewBag que llenamos en el controlador
     var usuarioActual = ViewBag.UsuarioActual as string;
 }
 
 @section Scripts {
     <script>
-        // Variable global con el usuario logueado
         window.usuarioActual = '@usuarioActual';
     </script>
-    <script sr
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
     <script src="~/js/TipoCatalogo/TipoCatalogo.js" asp-append-version="true"></script>
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
@@ -19,28 +17,6 @@
 <h2>Tipo de Catalogo</h2>
 
 <hr>
-
-<style>
-    /* Cambia el color de fondo del botón de paginación activo */
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-        background: #6c757d !important; /* Un tono de gris de Bootstrap */
-        color: white !important; /* Asegura que el texto sea blanco y legible */
-        border-color: #6c757d !important; /* Cambia el color del borde para que coincida */
-    }
-
-    /* Cambia el color del texto de los otros botones de paginación */
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        color: #6c757d !important;
-    }
-
-        /* Cambia el color y fondo de los botones al pasar el mouse sobre ellos */
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            border-color: #6c757d !important;
-            color: #6c757d !important;
-            background: rgba(108, 117, 125, 0.1) !important; /* Un fondo gris claro al pasar el mouse */
-        }
-</style>
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 

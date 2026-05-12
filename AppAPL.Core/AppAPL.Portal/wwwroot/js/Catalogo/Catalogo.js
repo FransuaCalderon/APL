@@ -18,7 +18,7 @@ function obtenerUsuarioActual() {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
     console.log("=== INICIO DE CARGA - Catalogo (Estructura Post-REST) ===");
 
     $.get("/config", function (config) {

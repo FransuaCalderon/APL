@@ -303,7 +303,7 @@ function obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo) {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
     console.log("=== INICIO - InactivarPromocion (Estructura Híbrida) ===");
 
     $.get("/config", function (config) {
@@ -989,3 +989,5 @@ function abrirModalAprobaciones(idPromocion) {
         error: function () { $("#aprobacionesSpinner").hide(); $("#contenedorTablaAprobaciones").show(); $("#aprobacionesSinDatos").show(); }
     });
 }
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

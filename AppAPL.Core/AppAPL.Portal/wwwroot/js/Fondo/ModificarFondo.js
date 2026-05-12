@@ -1,5 +1,4 @@
-﻿// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
-// ~/js/Fondo/ModificarFondo.js
+﻿// ~/js/Fondo/ModificarFondo.js
 
 // ===============================================================
 // Variables globales
@@ -24,7 +23,7 @@ function obtenerUsuarioActual() {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
     console.log("=== INICIO DE CARGA DE PÁGINA - ModificarFondo (Estructura Post-REST) ===");
 
     const usuarioFinal = obtenerUsuarioActual();
@@ -706,3 +705,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

@@ -22,7 +22,7 @@ function obtenerUsuarioActual() {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
     console.log("=== INICIO DE CARGA DE PÁGINA - AprobarFondo (Estructura Post-REST) ===");
 
     const usuarioFinal = obtenerUsuarioActual();

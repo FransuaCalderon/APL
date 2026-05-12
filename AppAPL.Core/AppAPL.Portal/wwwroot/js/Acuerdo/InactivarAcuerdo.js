@@ -52,7 +52,7 @@ function formatearFecha(f) {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
     console.log("=== INICIO - InactivarAcuerdo (Estructura Post-REST) ===");
 
     // Cargar config (apiBaseUrl) y luego la bandeja

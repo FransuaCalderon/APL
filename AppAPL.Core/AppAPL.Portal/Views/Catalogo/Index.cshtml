@@ -1,15 +1,13 @@
-﻿@* Asumiendo que usarás un DTO similar. Ajusta el namespace si es necesario. *@
+﻿@* ~/Views/Catalogo/Index.cshtml *@
 @using AppAPL.Dto.Catalogo
 
 
 @{
-    // Viene del ViewBag que llenamos en el controlador
     var usuarioActual = ViewBag.UsuarioActual as string;
 }
 
 @section Scripts {
     <script>
-        // Variable global con el usuario logueado
         window.usuarioActual = '@usuarioActual';
     </script>
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
@@ -20,48 +18,6 @@
 <h2>Catálogo</h2>
 
 <hr />
-
-<style>
-    /* Estilos de paginación (sin cambios) */
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-        background: #6c757d !important;
-        color: white !important;
-        border-color: #6c757d !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        color: #6c757d !important;
-    }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            border-color: #6c757d !important;
-            color: #6c757d !important;
-            background: rgba(108, 117, 125, 0.1) !important;
-        }
-
-    /* Estilos para el filtro de Tipo Catálogo */
-    .filtro-container {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
-        padding: 10px 15px;
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-    }
-
-        .filtro-container label {
-            font-weight: 600;
-            margin-bottom: 0;
-            white-space: nowrap;
-        }
-
-        .filtro-container select {
-            width: 200px;
-        }
-</style>
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 

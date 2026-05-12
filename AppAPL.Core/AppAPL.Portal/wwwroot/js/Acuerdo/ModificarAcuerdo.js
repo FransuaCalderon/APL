@@ -134,7 +134,7 @@ function formatearMoneda(valor) {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
     console.log("=== INICIO - ModificarAcuerdo (Estructura Post-REST) ===");
 
     toggleAcuerdoForm();
@@ -2093,7 +2093,7 @@ function modificarItemSeleccionado() {
         });
     } else {
         $fila.find(".celda-editable input").prop("disabled", false);
-        $fila.find('input[name="unidadesLimite"]').focus();
+        $fila.find('input[name="unidadesLimite"]').trigger("focus");
 
         Swal.fire({
             toast: true,

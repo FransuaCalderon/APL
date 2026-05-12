@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http; // Necesario para HttpContext.Session
+﻿// Controllers/LoginController.cs
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace AppAPL.Portal.Controllers
 {

@@ -183,7 +183,7 @@ function consultarProveedor() {
     });
 }
 
-$(document).ready(function () {
+$(function () {
     console.log("cargando fondos");
 
     $.get("/config", function (config) {
@@ -449,3 +449,5 @@ $(document).ready(function () {
         });
     });
 });
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

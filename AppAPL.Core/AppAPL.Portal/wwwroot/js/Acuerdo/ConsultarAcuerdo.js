@@ -48,7 +48,7 @@ function formatearFecha(f) {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
     console.log("=== INICIO - ConsultarAcuerdo (Estructura Post-REST) ===");
 
     $.get("/config", function (config) {

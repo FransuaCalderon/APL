@@ -1,5 +1,5 @@
 ﻿// wwwroot/js/site.js
-$(document).ready(function () {
+$(function () {
 
     console.log("🚀 Usuario actual:", window.usuarioActual);
 

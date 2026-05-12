@@ -40,7 +40,7 @@ document.head.appendChild(style);
 // ===================================================================
 // DOCUMENT READY
 // ===================================================================
-$(document).ready(function () {
+$(function () {
     console.log("=== INICIO DE CARGA DE PÁGINA - InactivarFondo (Estructura Post-REST) ===");
 
     const usuarioFinal = obtenerUsuarioActual();

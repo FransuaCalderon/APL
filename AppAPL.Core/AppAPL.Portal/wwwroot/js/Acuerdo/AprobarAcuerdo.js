@@ -53,7 +53,7 @@ function manejarErrorGlobal(xhr, accion) {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
 
     console.log("=== INICIO DE CARGA DE PÁGINA - AprobarAcuerdo (Estructura Post-REST) ===");
 

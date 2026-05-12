@@ -112,13 +112,11 @@ label {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     box-sizing: border-box;
-    /* El efecto placeholder gris */
-    &::placeholder
-
-{
-    color: #adb5bd;
 }
 
+/* El efecto placeholder gris */
+.form-control::placeholder {
+    color: #adb5bd;
 }
 
 /* Contenedor del select para la flecha personalizada */

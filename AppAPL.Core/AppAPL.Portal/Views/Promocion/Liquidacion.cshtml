@@ -1,0 +1,130 @@
+﻿@* ~/Views/Promocion/Liquidacion.cshtml *@
+@{
+    ViewData["Title"] = "Liquidación de Promociones";
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+
+@section Scripts {
+    <script>window.usuarioActual = '@usuarioActual';</script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <script src="~/js/Promocion/Liquidacion.js" asp-append-version="true"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+}
+
+<link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
+
+<div class="d-flex justify-content-between align-items-center">
+    <h2>Liquidación - Promociones</h2>
+</div>
+
+<hr class="separador-fondos" />
+
+<div id="vistaTabla">
+    <div class="mb-3 text-end">
+        <button type="button" class="btn btn-primary btn-uniforme" id="btnLiquidarMasivo">
+            <i class="fa-solid fa-check-double custom-btn-icon"></i> Liquidar Seleccionados
+        </button>
+    </div>
+    <div class="table-responsive">
+        <div id="tabla"></div>
+    </div>
+</div>
+
+<div id="vistaDetalle" style="display:none;">
+    <div class="card border-secondary mb-3">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-dark">Detalle de la Promoción #<span id="lblIdPromocion"></span></h5>
+            <button type="button" class="btn btn-sm btn-outline-dark" id="btnVolverTabla">
+                <i class="fa-solid fa-arrow-left"></i> Volver a la Bandeja
+            </button>
+        </div>
+
+        <div class="card-body p-2">
+            <form id="formVisualizar">
+
+                <div class="promo-form-grid">
+                    <div class="promo-header-row">
+                        <span class="promo-label">Promoción</span>
+                        <input type="text" class="promo-id-input" id="verPromocionHeader" readonly>
+                        <div class="promo-icons">
+                            <div class="promo-icon-btn text-danger" id="btnVerSoporte" title="Ver Soporte" style="cursor:pointer;">
+                                <i class="fa-regular fa-file-pdf"></i>
+                            </div>
+                            <div class="promo-icon-btn" id="btnVerLog" title="Registro de Log" style="cursor:pointer;">
+                                <i class="fa-regular fa-rectangle-list"></i>
+                            </div>
+                            <div class="promo-icon-btn" id="btnVerAprobaciones" title="Registro de Aprobaciones" style="cursor:pointer;">
+                                <i class="fa-regular fa-calendar-check"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="promo-section">
+                        <div class="promo-col"><div class="promo-col-header">Descripción</div><div class="promo-col-value"><input type="text" id="verDescripcion" readonly></div></div>
+                        <div class="promo-col col-md"><div class="promo-col-header">Motivo</div><div class="promo-col-value"><input type="text" id="verMotivo" readonly></div></div>
+                        <div class="promo-col col-md"><div class="promo-col-header">Inicio: Fecha - Hora</div><div class="promo-col-value"><input type="text" id="verFechaInicio" readonly></div></div>
+                        <div class="promo-col col-md"><div class="promo-col-header">Fin: Fecha - Hora</div><div class="promo-col-value"><input type="text" id="verFechaFin" readonly></div></div>
+                        <div class="promo-col col-md"><div class="promo-col-header">Estado</div><div class="promo-col-value"><input type="text" id="verEstado" readonly></div></div>
+                    </div>
+                </div>
+
+                <div id="seccion-detalle-general" style="display:none;">
+                    <div class="promo-form-grid mt-2">
+                        <div class="promo-section">
+                            <div class="promo-col"><div class="promo-col-header">Marca</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerMarca" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verMarca" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">División</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerDivision" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verDivision" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Departamento</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerDepartamento" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verDepartamento" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Clase</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerClase" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verClase" readonly></div></div></div>
+                            <div class="promo-col col-md"><div class="promo-col-header">Artículo</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerArticuloGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verArticulo" readonly></div></div></div>
+                        </div>
+
+                        <div class="promo-section">
+                            <div class="promo-col"><div class="promo-col-header">Canal</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerCanalGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verCanal" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Grupo</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerGrupoAlmacenGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verGrupoAlmacen" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Almacén</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerAlmacenGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verAlmacen" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Tipo de Cliente</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerTipoClienteGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verTipoCliente" readonly></div></div></div>
+                            <div class="promo-col"><div class="promo-col-header">Medio Pago</div><div class="promo-col-value"><div class="input-with-icon"><button type="button" id="btnVerMedioPagoGen" class="icon-btn"><i class="fa-solid fa-list-check"></i></button><input type="text" id="verMedioPago" readonly></div></div></div>
+                        </div>
+
+                        <div class="promo-section">
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Prov.</div><div class="promo-col-value"><input type="text" id="verDsctoProv" readonly></div></div>
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap;">ID Acuerdo Proveedor</div><div class="promo-col-value"><div class="input-with-icon"><span class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></span><input type="text" id="verIdAcuerdoProv" readonly></div></div></div>
+                            <div class="promo-col col-md"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">$ Comprometido Proveed.</div><div class="promo-col-value"><input type="text" id="verComprometidoProv" readonly></div></div>
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Prop.</div><div class="promo-col-value"><input type="text" id="verDsctoProp" readonly></div></div>
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap;">ID Acuerdo Propio</div><div class="promo-col-value"><div class="input-with-icon"><span class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></span><input type="text" id="verIdAcuerdoProp" readonly></div></div></div>
+                            <div class="promo-col col-md"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">$ Comprometido Propio</div><div class="promo-col-value"><input type="text" id="verComprometidoProp" readonly></div></div>
+                            <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Total</div><div class="promo-col-value"><input type="text" id="verDsctoTotal" readonly></div></div>
+                            <div class="promo-col col-xs"><div class="promo-col-header" style="text-align: center;">Regalo</div><div class="promo-col-value center-value"><input type="checkbox" id="verRegalo" onclick="return false;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN ARTÍCULOS Y COMBOS (Omitido por brevedad, es idéntico a InactivarPromocion.cshtml) -->
+                <div id="seccion-detalle-articulos" style="display:none;">...</div>
+                <div id="seccion-detalle-combos" style="display:none;">...</div>
+
+                <div class="col-12 mt-2" id="contenedor-tabla-articulos" style="display:none;"></div>
+                <div class="col-12 mt-2" id="contenedor-tabla-combos" style="display:none;"></div>
+                <div class="col-12 mt-2" id="contenedor-tabla-combos-completa" style="display:none;"></div>
+
+            </form>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2 mt-3">
+            <button type="button" class="btn btn-secondary btn-uniforme" id="btnVolverAbajo">
+                Cerrar
+            </button>
+            <button type="button" class="btn btn-primary btn-uniforme" id="btnLiquidarPromocion">
+                <i class="fa-solid fa-check-double custom-btn-icon"></i> Liquidar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODALES (Omitido por brevedad, son idénticos a InactivarPromocion.cshtml) -->
+<div class="modal fade" id="modalVerSegmento" ...>...</div>
+<div class="modal fade" id="modalVisorPdf" ...>...</div>
+<div class="modal fade" id="modalRegistroLog" ...>...</div>
+<div class="modal fade" id="modalRegistroAprobaciones" ...>...</div>
+
+<!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->

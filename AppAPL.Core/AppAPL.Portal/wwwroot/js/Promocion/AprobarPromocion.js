@@ -371,7 +371,7 @@ function obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo) {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
 
     console.log("=== INICIO DE CARGA DE PÁGINA - AprobarPromocion (Estructura Post-REST) ===");
 
@@ -1127,3 +1127,5 @@ function configurarCampoSegmentoGeneral(inputId, btnId, segmentos, etiqueta, tit
             .off("click");
     }
 }
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL

@@ -1,4 +1,5 @@
-﻿@{
+﻿@* ~/Views/Acuerdo/ConsultarAcuerdo.cshtml *@
+@{
     ViewData["Title"] = "Consulta de Acuerdos";
     var usuarioActual = ViewBag.UsuarioActual as string;
 }
@@ -12,54 +13,8 @@
 
 <link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
 
-<style>
-    /* Estilos exactos de ConsultarPromocion para los iconos */
-    .promo-icons {
-    display: flex;
-    flex-direction: row; /* Fuerza a que estén horizontales */
-    flex-wrap: nowrap;
-    gap: 4px;
-    }
-
-    .promo-icon-btn {
-    width: 28px;
-    height: 28px;
-    border: 1px solid #bbb;
-    background: #f5f5f5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 2px;
-    color: #555;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    }
-
-    .promo-icon-btn:hover {
-    background: #e8e8e8;
-    color: #333;
-    }
-
-    /* MODAL TABLAS LOG/APROBACIONES */
-    #tablaLog thead tr:first-child th, #tablaAprobaciones thead tr:first-child th {
-    background-color: #8B0000 !important;
-    color: #fff;
-    text-align: center;
-    font-weight: bold;
-    padding: 8px;
-    font-size: 0.95rem;
-    }
-
-    #tablaLog thead tr:nth-child(2) th, #tablaAprobaciones thead tr:nth-child(2) th {
-    background-color: #1a237e !important;
-    color: #fff;
-    text-align: center;
-    white-space: nowrap;
-    }
-</style>
-
 <h2>Consulta - Acuerdo</h2>
+
 <hr class="separador-fondos" />
 
 <div id="vistaTabla" class="table-responsive">
@@ -213,3 +168,5 @@
         </div>
     </div>
 </div>
+
+<!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->

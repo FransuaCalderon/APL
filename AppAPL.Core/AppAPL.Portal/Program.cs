@@ -136,16 +136,15 @@ app.MapPost("/api/apigee-router-proxy", async (
         }
         foreach (var key in form.Keys)
         {
-            multipartContent.Add(new StringContent(form[key]), key);
+            multipartContent.Add(new StringContent(form[key].ToString() ?? string.Empty), key);
         }
         contentToSend = multipartContent;
     }
     else
     {
-        // Lógica para JSON NORMAL (la que tenías antes)
         using var reader = new StreamReader(context.Request.Body);
         var requestBody = await reader.ReadToEndAsync();
-        contentToSend = new StringContent(requestBody, Encoding.UTF8, "application/json");
+        contentToSend = new StringContent(requestBody ?? string.Empty, Encoding.UTF8, "application/json");
     }
 
     var response = await client.PostAsync(urlUnicomer, contentToSend);

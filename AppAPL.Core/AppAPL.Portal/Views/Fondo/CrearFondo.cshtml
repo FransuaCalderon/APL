@@ -1,4 +1,5 @@
-﻿@{
+﻿@* ~/Views/Fondo/CrearFondo.cshtml *@
+@{
     ViewData["Title"] = "Creación de Fondos";
     // Viene del ViewBag que llenamos en el controlador
     var usuarioActual = ViewBag.UsuarioActual as string;
@@ -6,59 +7,15 @@
 
 @section Scripts {
     <script>
-        // Variable global con el usuario logueado
         window.usuarioActual = '@usuarioActual';
     </script>
-    <!-- jQuery -->
-    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
 
-    <!-- jQuery UI (para el Datepicker) -->
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
-
-    <!-- Script de localización para español -->
     <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-
-    <!-- *** ¡MODIFICADO! *** -->
-    <!-- 2. Carga el archivo de la VISTA después (apuntando a CraerFondo.js) -->
     <script src="~/js/Fondo/CrearFondo.js" asp-append-version="true"></script>
-
-    <!-- Estilo simple para que el datepicker se parezca a Bootstrap -->
-    <style>
-        .ui-datepicker {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            font-size: 0.9rem; /* Tamaño de letra más acorde */
-            z-index: 1056 !important; /* Asegura que se muestre sobre otros elementos (como modales si los usaras) */
-        }
-        /* Para que el check de la tabla se vea bien */
-        #tablaProveedores img {
-            height: 1.2em;
-        }
-
-        /* ✅ NUEVO: Estilos para DataTables dentro del modal */
-        #tablaProveedores_wrapper .dataTables_info {
-            font-size: 0.8rem;
-            padding-top: 0.5rem;
-        }
-
-        #tablaProveedores_wrapper > div:last-child {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-        }
-
-        #tablaProveedores_wrapper .dataTables_info {
-            font-size: 0.8rem;
-            padding-top: 0.5rem;
-            text-align: center !important;
-        }
-
-        #tablaProveedores_wrapper .dataTables_paginate {
-            float: none !important;
-            padding-top: 0.5rem;
-        }
-    </style>
 
     <!-- *** ¡MODIFICADO! *** Script para inicializar el Datepicker en Español y con botones -->
     <script>

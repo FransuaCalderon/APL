@@ -310,7 +310,7 @@ function obtenerAcuerdosArticulo(articulosacuerdos, idPromocionArticulo) {
 // ===============================================================
 // DOCUMENT READY
 // ===============================================================
-$(document).ready(function () {
+$(function () {
     console.log("=== INICIO - ConsultarPromocion (Estructura Híbrida) ===");
 
     $.get("/config", function (config) {
@@ -383,7 +383,7 @@ function cerrarVisorPDF() {
     const modal = bootstrap.Modal.getInstance(document.getElementById("modalVisualizadorPdf")); if (modal) modal.hide();
 }
 
-$(document).ready(function () {
+$(function () {
     $('#modalVisualizadorPdf').on('hidden.bs.modal', function () { cerrarVisorPDF(); });
 });
 
@@ -962,3 +962,5 @@ function abrirModalAprobaciones(idPromocion) {
         error: function () { $("#aprobacionesSpinner").hide(); $("#contenedorTablaAprobaciones").show(); $("#aprobacionesSinDatos").show(); }
     });
 }
+
+// Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
