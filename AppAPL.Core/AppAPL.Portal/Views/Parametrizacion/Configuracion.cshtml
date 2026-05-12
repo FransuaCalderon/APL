@@ -46,175 +46,154 @@
 	<div class="col-9 border-start">
 		<div class="tab-content" id="nav-tabContent">
 			<div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
-										
-				<div class="col-12  mt-1">
+				<div class="col-12 mt-1">
 					<div class="row">
 						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
 							Configuración de Grupos de Almacenes
 						</div>
 					</div>
-					<div class="">
-																								
-								
-						<div class="row">
-													
-							<div class="col-5 mx-0 my-2">
-												
-								<div class="table-responsive" style="height: 350px">
-									<table class="table table-hover table-bordered">
-										<caption class="caption-top  text-end px-3 border">Buscar...</caption>
-										<thead class="text-white text-nowrap">
-											<tr class="text-center">
-																		
-												<th scope="col" class="table-dark text-center align-middle" style="">Grupos Almacenes</th>
-												<th scope="col" class="table-dark d-flex justify-content-between align-items-center" style="">
-													Acción
-													<div class="dropdown">
-														<button class="btn btn-dark  dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-														</button>
-														<ul class="dropdown-menu">
-															<li data-bs-toggle="modal" data-bs-target="#modalNuevoGrupo"><a class="dropdown-item" href="#" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i> Añadir Grupo</a></li>
-														</ul>
-													</div>
-												</th>
-											</tr>
-										</thead>
-										<tbody class="text-nowrap" id="tbody-grupo-almacen">
-											
-										</tbody>
-									</table>
-								</div>
-													
+
+					<div class="row">
+						<div class="col-5 mx-0 my-2">
+							<div class="table-responsive">
+								<table class="table table-hover table-bordered w-100" id="tabla-grupo-almacen">
+									<thead class="text-white text-nowrap">
+										<tr class="text-center">
+											<th class="table-dark align-middle">Grupos Almacenes</th>
+											<th class="table-dark align-middle" style="width: 25%;">
+												Acción
+												<div class="dropdown d-inline">
+													<button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown"></button>
+													<ul class="dropdown-menu">
+														<li data-bs-toggle="modal" data-bs-target="#modalNuevoGrupo">
+															<a class="dropdown-item" href="#" style="color:black">
+																<i class="fa-regular fa-square-plus"></i> Añadir Grupo
+															</a>
+														</li>
+													</ul>
+												</div>
+											</th>
+										</tr>
+									</thead>
+									<tbody class="text-nowrap">
+									</tbody>
+								</table>
 							</div>
-												
-							<div class="col-7 mx-0 my-2">
-													
-																	
-								<div class="table-responsive" style="height: 350px; overflow-y: auto;">
-									<table class="table table-hover table-bordered ">
-										<caption id="caption-almacen-grupo" class="caption-top  text-center px-3 border">
-											Almacenes Asignados a
-											</caption>
-										<thead class="text-white text-nowrap">
-											<tr class="text-center">
-																					
-												<th scope="col" class="table-dark text-center align-middle" style="">Almacen</th>
-												<th scope="col" class="table-dark d-flex justify-content-between align-items-center" style="">
-													Acción
-													<div class="dropdown">
-														<button class="btn btn-dark  dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-														</button>
-														<ul class="dropdown-menu">
-															<li data-bs-toggle="modal" data-bs-target="#modalNuevoAlmacen"><a class="dropdown-item" href="#" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i> Añadir Almacen</a></li>
-														</ul>
-													</div>
-												</th>
-											</tr>
-										</thead>
-										<tbody id="tbody-almacenes-asignados" class="text-nowrap">
-																
-										</tbody>
-									</table>
-								</div>
-																
-														
-							</div>
-													
-													
 						</div>
-										  
+
+						<div class="col-7 mx-0 my-2">
+							<div id="caption-almacen-grupo" class="fw-bold text-center mb-2 p-2 border bg-light">
+								Seleccione un Grupo de Almacenes...
+							</div>
+    
+							<div class="table-responsive">
+								<table class="table table-hover table-bordered w-100" id="tabla-almacenes-asignados">
+									<thead class="text-white text-nowrap">
+										<tr class="text-center">
+											<th class="table-dark align-middle">Almacen</th>
+											<th class="table-dark align-middle" style="width: 20%;">
+												Acción
+												<div class="dropdown d-inline">
+													<button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
+													<ul class="dropdown-menu">
+														<li data-bs-toggle="modal" data-bs-target="#modalNuevoAlmacen">
+															<a class="dropdown-item" href="#" style="color:black">
+																<i class="fa-regular fa-square-plus"></i> Añadir Almacen
+															</a>
+														</li>
+													</ul>
+												</div>
+											</th>
+										</tr>
+									</thead>
+									<tbody class="text-nowrap">
+									</tbody>
+								</table>
+							</div>
+						</div>
 					</div>
 				</div>
-									  						  								  								  
 			</div>
-								  
+			
 			<div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
-				<div class="col-12  mt-1">
+				<div class="col-12 mt-1">
 					<div class="row">
 						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
 							Configuración de Medios de Pagos
 						</div>
 					</div>
-																																								
+                                                                                                    
 					<div class="row">
-																
-						<div class="table-responsive d-flex justify-content-center" >
-							<table class="table table-hover table-bordered ">
-								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+						<div class="table-responsive">
+							<table class="table table-hover table-bordered w-100" id="tabla-medios-pago">
 								<thead class="text-white text-nowrap">
 									<tr class="text-center">
-																
-										<th class="table-dark text-center align-middle">Medios de Pagos</th>
-										<th class="table-dark d-flex justify-content-center">
+										<th class="table-dark align-middle" style="width: 75%;">Medios de Pagos</th>
+										<th class="table-dark align-middle" style="width: 25%;">
 											Acción
-											<div class="dropdown">
-												<button class="btn btn-dark  dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"> </button>
+											<div class="dropdown d-inline">
+												<button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"> </button>
 												<ul class="dropdown-menu">
-													<li data-bs-toggle="modal" data-bs-target="#modalNuevoMedioPago"><a class="dropdown-item" href="#" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i> Añadir Medio Pago</a></li>
+													<li data-bs-toggle="modal" data-bs-target="#modalNuevoMedioPago">
+														<a class="dropdown-item" href="#" style="color:black">
+															<i class="fa-regular fa-square-plus"></i> Añadir Medio Pago
+														</a>
+													</li>
 												</ul>
 											</div>
 										</th>
 									</tr>
 								</thead>
-								<tbody id="tbody-medios-pago" class="text-nowrap">
-									
+								<tbody class="text-nowrap">
 								</tbody>
 							</table>
 						</div>
-											
 					</div>
 				</div>
 			</div>
 								  
 			<div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">
-				<div class="col-12  mt-1">
+				<div class="col-12 mt-1">
 					<div class="row">
 						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
 							No. máximo de Aportes permitidos por Marca
 						</div>
 					</div>
-																																								
+                                                                                                    
 					<div class="row">
-																
 						<div class="table-responsive d-flex justify-content-center">
-							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 75%;">
-								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+							<table class="table table-hover table-bordered w-100" id="tabla-aportes-marca">
 								<thead class="text-white text-nowrap">
-									<tr class="">
-																
+									<tr>
 										<th class="table-primary text-center align-middle" style="width: 55%;">Marca</th>
 										<th class="table-primary text-center align-middle" style="width: 20%;">No. Aportes</th>
 										<th class="table-primary text-center align-middle" style="width: 25%;">
 											Acción
-																 
-											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoAporteMarca" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
-							
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoAporteMarca" style="color:black">
+												<i class="fa-regular fa-square-plus"></i>
+											</button>
 										</th>
 									</tr>
 								</thead>
-								<tbody id="tbody-aportes-marca" class="text-nowrap">
-									
+								<tbody class="text-nowrap">
 								</tbody>
 							</table>
 						</div>
-											
 					</div>
 				</div>
 			</div>
-								  
+			
 			<div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">
-				<div class="col-12  mt-1">
+				<div class="col-12 mt-1">
 					<div class="row">
 						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
 							No. máximo de Aportes permitidos por Proveedor/Marca
 						</div>
 					</div>
-																																								
+                                                                                                    
 					<div class="row">
-																
 						<div class="table-responsive d-flex justify-content-center">
-							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
-								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+							<table class="table table-hover table-bordered w-100" id="tabla-aportes-marca-proveedor">
 								<thead class="text-white text-nowrap">
 									<tr class="">
 										<th class="table-primary text-center align-middle" style="width: 50%;">Proveedor</th>
@@ -222,134 +201,121 @@
 										<th class="table-primary text-center align-middle" style="width: 15%;">No. Aportes</th>
 										<th class="table-primary text-center align-middle" style="width: 15%;">
 											Acción
-																 
-											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoAporteMarcaProveedor" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
-																		  		
-																
-																
-																					
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoAporteMarcaProveedor" style="color:black">
+												<i class="fa-regular fa-square-plus"></i>
+											</button>
 										</th>
 									</tr>
 								</thead>
-								<tbody id="tbody-aportes-marca-proveedor" class="text-nowrap">
-									
+								<tbody class="text-nowrap">
 								</tbody>
 							</table>
 						</div>
-											
 					</div>
 				</div>
-								  
-								  
 			</div>
-								  
+			
+
 			<div class="tab-pane fade" id="list-aporte-propio-articulo" role="tabpanel" aria-labelledby="list-aporte-propio-articulo-list">
-				<div class="col-12  mt-1">
+				<div class="col-12 mt-1">
 					<div class="row">
 						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
 							No. máximo de Aportes Propios Permitidos por Articulo
 						</div>
 					</div>
-																																								
+                                                                                                    
 					<div class="row">
-																
 						<div class="table-responsive d-flex justify-content-center">
-							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
-								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+							<table class="table table-hover table-bordered w-100" id="tabla-aporte-propio-articulo">
 								<thead class="text-white text-nowrap">
-									<tr class="">
-																
+									<tr>
 										<th class="table-primary text-center align-middle" style="width: 70%;">Artículo</th>
 										<th class="table-primary text-center align-middle" style="width: 15%;">No. Aportes</th>
 										<th class="table-primary text-center align-middle" style="width: 15%;">
 											Acción
-											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoAporteArticulo" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoAporteArticulo" style="color:black">
+												<i class="fa-regular fa-square-plus"></i>
+											</button>
 										</th>
 									</tr>
 								</thead>
-								<tbody id="tbody-aporte-propio-articulo" class="text-nowrap">
-								
-															
+								<tbody class="text-nowrap">
 								</tbody>
 							</table>
 						</div>
-											
 					</div>
 				</div>
 			</div>
-								  
+			
+
 			<div class="tab-pane fade" id="list-precio-competencia" role="tabpanel" aria-labelledby="list-precio-competencia-list">
-				<div class="col-12  mt-1">
+				<div class="col-12 mt-1">
 					<div class="row">
 						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
 							Precios de la Competencia por Articulo
 						</div>
 					</div>
-																																								
+                                                                                                    
 					<div class="row">
-																
 						<div class="table-responsive d-flex justify-content-center">
-							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
-								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+							<table class="table table-hover table-bordered w-100" id="tabla-precio-competencia">
 								<thead class="text-white text-nowrap">
 									<tr class="">
-																
 										<th class="table-primary text-center align-middle" style="width: 40%;">Artículo</th>
 										<th class="table-primary text-center align-middle" style="width: 30%;">Nombre Competencia</th>
 										<th class="table-primary text-center align-middle" style="width: 15%;">Precio Contado</th>
 										<th class="table-primary text-center align-middle" style="width: 15%;">
 											Acción
-											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoPrecioComp" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoPrecioComp" style="color:black">
+												<i class="fa-regular fa-square-plus"></i>
+											</button>
 										</th>
 									</tr>
 								</thead>
-								<tbody id="tbody-precio-competencia" class="text-nowrap">
-																			
+								<tbody class="text-nowrap">
 								</tbody>
 							</table>
 						</div>
-											
 					</div>
 				</div>
 			</div>
-								  
-			<div class="tab-pane fade" id="list-margen-minimo-articulo" role="tabpanel" aria-labelledby="list-margen-minimo-articulo-list">
-				<div class="col-12  mt-1">
+			
+			
+			<div class="tab-pane fade" id="list-margen-minimo" role="tabpanel" aria-labelledby="list-margen-minimo-list">
+				<div class="col-12 mt-1">
 					<div class="row">
 						<div class="col-12 mb-2 fw-semibold fs-5 border-bottom">
-							Margen Mínimo por Articulo
+							Margen Mínimo por Artículo
 						</div>
 					</div>
-																																								
+                                                                                                    
 					<div class="row">
-																
-						<div class="table-responsive d-flex justify-content-center" style="height: 450px; overflow-y: auto;">
-							<table class="table table-hover table-bordered" style="table-layout: fixed; width: 100%;">
-								<caption class="caption-top  text-end px-3 border">Buscar...</caption>
+						<div class="table-responsive d-flex justify-content-center">
+							<table class="table table-sm table-hover table-bordered w-100" id="tabla-margen-minimo">
 								<thead class="text-white text-nowrap">
-									<tr class="">
-																
-										<th class="table-primary text-center align-middle" style="width: 40%;">Artículo</th>
-										<th class="table-primary text-center align-middle" style="width: 12%;">% Contado</th>
-										<th class="table-primary text-center align-middle" style="width: 12%;">% Tarj.Cr</th>
-										<th class="table-primary text-center align-middle" style="width: 12%;">% Crédito</th>
-										<th class="table-primary text-center align-middle" style="width: 12%;">% Igualar</th>
-										<th class="table-primary text-center align-middle" style="width: 12%;">
+									<tr>
+										<th class="table-primary text-center align-middle" style="width: 35%;">Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 13%;">% Contado</th>
+										<th class="table-primary text-center align-middle" style="width: 13%;">% Tarj.Cr</th>
+										<th class="table-primary text-center align-middle" style="width: 13%;">% Crédito</th>
+										<th class="table-primary text-center align-middle" style="width: 13%;">% Igualar</th>
+										<th class="table-primary text-center align-middle" style="width: 13%;">
 											Acción
-											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoMargenMinimoArticulo" style="border:none; background:none; color:black"><i class="fa-regular fa-square-plus"></i></button>
+											<button type="button" class="btn btn-outline-light border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoMargenMinimoArticulo" style="color:black">
+												<i class="fa-regular fa-square-plus"></i>
+											</button>
 										</th>
 									</tr>
 								</thead>
-								<tbody id="tbody-margen-minimo" class="text-nowrap">
-													
+								<tbody class="text-nowrap">
 								</tbody>
 							</table>
 						</div>
-											
 					</div>
 				</div>
 			</div>
-								  
+
+					  
 			<div class="tab-pane fade" id="list-porcentaje-incremento-precios" role="tabpanel" aria-labelledby="list-porcentaje-incremento-precios-list">
 				<div class="col-12  mt-1">
 					<div class="row">
@@ -629,7 +595,7 @@
 					</div>
 					<div class="col-md-3 text-center">
 						<label for="inputNuevoNumAporteAPA" class="form-label fw-bold">No. Aporte</label>
-						<input type="number" step="1" min="0" max="100" class="form-control text-center input-rango-100" id="inputNuevoNumAporteAPA">
+						<input type="number" step="1" min="0" max="100" class="form-control text-center" id="inputNuevoNumAporteAPA">
 					</div>
 	  
 				</form>
@@ -657,9 +623,27 @@
 			</div>
 			<div class="modal-body">
 				<form class="row g-2">
+					
+					<div class="col-md-12 text-center mb-3">
+						<label class="form-label fw-bold">Catálogo de Artículos</label>
+						<div class="table-responsive d-flex justify-content-center border" style="height: 250px; overflow-y: auto;">
+							<table class="table table-hover table-bordered mb-0" style="table-layout: fixed; width: 100%;" id="datosarticulosPC">
+								<thead class="text-white text-nowrap" style="position: sticky; top: 0; z-index: 2;">
+									<tr>
+										<th class="table-primary text-center align-middle" style="width: 20%;">Código</th>
+										<th class="table-primary text-center align-middle" style="width: 65%;">Nombre Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;">Acción</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+								</tbody>
+							</table>
+						</div>
+					</div>
+
 					<div class="col-md-5">
-						<label for="inputNuevoCodArticuloPC" class="form-label fw-bold">Cod. Artículo</label>
-						<input type="text" class="form-control" id="inputNuevoCodArticuloPC" placeholder="Ej: ART-123">
+						<label for="inputNuevoArticuloPC" class="form-label fw-bold">Artículo Seleccionado</label>
+						<input type="text" class="form-control" id="inputNuevoArticuloPC" disabled>
 					</div>
 					<div class="col-md-4">
 						<label for="inputNuevoNombreCompPC" class="form-label fw-bold">Competencia</label>
@@ -678,6 +662,7 @@
 		</div>
 	</div>
 </div>
+
 
 <!-- Modal Anadir nuevo Margen Minimo por articulo-->
 <div class="modal fade" id="modalNuevoMargenMinimoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
@@ -899,7 +884,7 @@
 					</div>
 					<div class="col-md-3 text-center">
 						<label for="inputModifNumAporteAPA" class="form-label fw-bold">No. Aporte</label>
-						<input type="number" step="1" min="0" max="100" class="form-control text-center input-rango-100" id="inputModifNumAporteAPA">
+						<input type="number" step="1" min="0" max="100" class="form-control text-center" id="inputModifNumAporteAPA">
 					</div>
 	  
 				</form>

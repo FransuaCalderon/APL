@@ -414,7 +414,17 @@ $(document).ready(function () {
     // ==========================================
     // Limpiamos el modal al abrir
     $('#modalNuevoPrecioComp').on('show.bs.modal', function () {
-        $('#inputNuevoCodArticuloPC, #inputNuevoNombreCompPC, #inputNuevoPrecioPC').val('');
+        $('#inputNuevoArticuloPC').val('').data('codigo', '');
+        $('#inputNuevoNombreCompPC, #inputNuevoPrecioPC').val('');
+        cargarArticulosModalPC();
+    });
+
+
+    $(document).on('change', '.radio-seleccion-articulo-pc', function () {
+        const codigo = $(this).data('codigo');
+        const nombre = $(this).data('nombre');
+        $('#inputNuevoArticuloPC').val(`${codigo} - ${nombre}`);
+        $('#inputNuevoArticuloPC').data('codigo', codigo);
     });
 
     $('#btnGuardarNuevoPC').click(function () {
@@ -457,7 +467,7 @@ $(document).ready(function () {
     // ==========================================
     // 1. CARGA DE TABLA: MARGEN MÍNIMO
     // ==========================================
-    $(document).on('shown.bs.tab', 'a[href="#list-margen-minimo-articulo"]', function () {
+    $(document).on('shown.bs.tab', 'a[href="#list-margen-minimo"]', function () {
         cargarMargenMinimo();
     });
 
@@ -497,6 +507,12 @@ $(document).ready(function () {
         $('#inputModifTarjCrMM').val(parseFloat($boton.data('tarjeta')));
         $('#inputModifCreditoMM').val(parseFloat($boton.data('credito')));
         $('#inputModifIgualarMM').val(parseFloat($boton.data('igualar')));
+
+        console.log("$boton.data('id')", $boton.data('id'));
+        console.log("$boton.data('contado')", $boton.data('contado'));
+        console.log("$boton.data('tarjeta')", $boton.data('tarjeta'));
+        console.log("$boton.data('credito')", $boton.data('credito'));
+        console.log("$boton.data('igualar')", $boton.data('igualar'));
     });
 
     $('#btnGuardarModifMM').click(function () {
@@ -596,6 +612,75 @@ function getIdOpcionSeguro() {
 
 // --- Lógica de DataTables y Renderizado ---
 
+// ==========================================
+// CARGAR TABLA DE ARTÍCULOS: PRECIO COMPETENCIA
+// ==========================================
+function cargarArticulosModalPC() {
+    const $tabla = $('#datosarticulosPC');
+    const $tbody = $('#modalNuevoPrecioComp #datosarticulosPC tbody');
+
+    if ($.fn.DataTable.isDataTable('#datosarticulosPC')) {
+        $tabla.DataTable().clear().destroy();
+    }
+
+    $tbody.html(`
+        <tr>
+            <td colspan="3" class="text-center py-4">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted fw-bold">Descargando catálogo de artículos...</p>
+            </td>
+        </tr>
+    `);
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/consultar-articulos-parametrizacion",
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            $tbody.empty();
+            if (response && response.code_status === 200 && response.json_response) {
+                inicializarDataTablesArticulosPC(response.json_response);
+            } else {
+                $tbody.html('<tr><td colspan="3" class="text-center text-muted">No se encontraron artículos.</td></tr>');
+            }
+        },
+        error: function (xhr) {
+            $tbody.html('<tr><td colspan="3" class="text-center text-danger fw-bold">Error al cargar los artículos.</td></tr>');
+            manejarErrorGlobal(xhr, "cargar los artículos");
+        }
+    });
+}
+
+function inicializarDataTablesArticulosPC(data) {
+    $('#datosarticulosPC').DataTable({
+        data: data,
+        deferRender: true,
+        pageLength: 10,
+        lengthMenu: [10, 25, 50],
+        destroy: true,
+        autoWidth: false,
+        language: { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+        columns: [
+            { data: 'codigo', className: 'align-middle text-center' },
+            { data: 'descripcion', className: 'align-middle text-wrap' },
+            {
+                data: null,
+                orderable: false,
+                className: 'text-center align-middle',
+                render: function (data, type, row) {
+                    return `<input class="form-check-input radio-seleccion-articulo-pc" type="radio" name="radioArticuloPC" data-codigo="${row.codigo}" data-nombre="${row.descripcion}">`;
+                }
+            }
+        ]
+    });
+}
+
+
 // 2. Función que consulta al API
 function cargarAportesPropioArticulo() {
     const payload = {
@@ -627,65 +712,73 @@ function cargarAportesPropioArticulo() {
     });
 }
 
+// ==========================================
+// RENDERIZADO CON DATATABLES: APORTES PROPIO POR ARTÍCULO
+// ==========================================
 function crearListadoAportesPropioArticulo(data) {
-    // Seleccionamos el cuerpo de la tabla en la pestaña correspondiente
-    const $tbody = $('#tbody-aporte-propio-articulo');
+    const $tabla = $('#tabla-aporte-propio-articulo');
 
-    // 1. Limpiamos la tabla antes de inyectar los nuevos datos
-    $tbody.empty();
-
-    // 2. Si no hay datos, mostramos un mensaje amigable
-    if (!data || data.length === 0) {
-        $tbody.append('<tr><td colspan="3" class="text-center text-muted">No hay registros de aportes propios configurados.</td></tr>');
-        return;
+    // Destruimos la tabla previa si existe para reinicializarla
+    if ($.fn.DataTable.isDataTable('#tabla-aporte-propio-articulo')) {
+        $tabla.DataTable().clear().destroy();
     }
 
-    let html = '';
-
-    // 3. Recorremos el listado que viene del API
-    $.each(data, function (index, item) {
-        // Armamos la fila con los nombres de campos de tu esquema JSON
-        html += `
-            <tr data-id="${item.idparametrodato}">
-                <td class="align-middle text-wrap">
-                    ${item.codigo_articulo} - ${item.nombre_articulo}
-                </td>
-                
-                <td class="text-center align-middle">
-                    ${item.numero_aporte}
-                </td>
-                
-                <td class="text-center align-middle">
-                    <div class="btn-group btn-group-sm">
-                        
-                        <button type="button" class="btn btn-action" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#modalModificarAporteArticulo" 
-                                data-id="${item.idparametrodato}" 
-                                data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" 
-                                data-num="${item.numero_aporte}" 
-                                data-codigo="${item.codigo_articulo}" 
-                                style="color:#0d6efd;" title="Modificar">
-                            <i class="fa-regular fa-pen-to-square"></i>
-                        </button>
-                        
-                        <button type="button" class="btn btn-action" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#modalEliminarAportePropioArticulo" 
-                                data-id="${item.idparametrodato}" 
-                                data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" 
-                                data-codigo="${item.codigo_articulo}" 
-                                style="color:red;" title="Eliminar">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                        
-                    </div>
-                </td>
-            </tr>`;
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 10,
+        lengthMenu: [10, 20, 50],
+        autoWidth: false,
+        language: {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "emptyTable": "No hay registros de aportes propios configurados."
+        },
+        columns: [
+            {
+                // Concatenamos Código - Nombre
+                data: null,
+                className: 'align-middle text-wrap',
+                render: function (data, type, row) {
+                    return `${row.codigo_articulo} - ${row.nombre_articulo}`;
+                }
+            },
+            {
+                data: 'numero_aporte',
+                className: 'align-middle text-center'
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    // Inyectamos los datos en los data-attributes exactamente como lo esperan tus modales
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalModificarAporteArticulo" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-nombre="${row.codigo_articulo} - ${row.nombre_articulo}" 
+                                    data-num="${row.numero_aporte}" 
+                                    data-codigo="${row.codigo_articulo}" 
+                                    style="color:#0d6efd;" title="Modificar">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEliminarAportePropioArticulo" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-nombre="${row.codigo_articulo} - ${row.nombre_articulo}" 
+                                    data-codigo="${row.codigo_articulo}" 
+                                    style="color:red;" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        ]
     });
-
-    // 4. Inyectamos todo el bloque de HTML de una sola vez para mejorar el rendimiento
-    $tbody.html(html);
 }
 
 function cargarArticulosModalAPA() {
@@ -878,57 +971,90 @@ function cargarMargenMinimo() {
     });
 }
 
+// ==========================================
+// RENDERIZADO CON DATATABLES: MARGEN MÍNIMO
+// ==========================================
 function crearListadoMargenMinimo(data) {
-    // En tu HTML la tabla de margen mínimo no tiene un ID en el tbody, 
-    // así que la buscamos usando el ID del tab.
-    const $tbody = $('#list-margen-minimo-articulo tbody');
-    $tbody.empty();
+    const $tabla = $('#tabla-margen-minimo');
 
-    if (!data || data.length === 0) {
-        $tbody.append('<tr><td colspan="6" class="text-center text-muted">No hay registros de margen mínimo.</td></tr>');
-        return;
+    if ($.fn.DataTable.isDataTable('#tabla-margen-minimo')) {
+        $tabla.DataTable().clear().destroy();
     }
 
-    let html = '';
-    $.each(data, function (index, item) {
-        html += `
-                <tr data-id="${item.idparametrodato}">
-                    <td class="align-middle text-wrap">${item.codigo_articulo} - ${item.nombre_articulo}</td>
-                    <td class="text-center align-middle">${item.margen_minimo_contado}</td>
-                    <td class="text-center align-middle">${item.margen_minimo_tarjeta_credito}</td>
-                    <td class="text-center align-middle">${item.margen_minimo_credito}</td>
-                    <td class="text-center align-middle">${item.margen_minimo_igualar_precio}</td>
-                    <td class="text-center align-middle">
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 10,
+        lengthMenu: [10, 25, 50, 100], // Opciones más amplias para catálogos grandes
+        autoWidth: false,
+        language: {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "emptyTable": "No se encontraron configuraciones de margen mínimo."
+        },
+        columns: [
+            {
+                data: null,
+                className: 'align-middle text-wrap',
+                render: function (data, type, row) {
+                    return `${row.codigo_articulo} - ${row.nombre_articulo}`;
+                }
+            },
+            {
+                data: 'margen_minimo_contado',
+                className: 'align-middle text-center',
+                render: function (data, type, row) { return `${parseFloat(row.margen_minimo_contado || 0).toFixed(2)} %`; }
+            },
+            {
+                data: 'margen_minimo_tarjeta_credito',
+                className: 'align-middle text-center',
+                render: function (data, type, row) { return `${parseFloat(row.margen_minimo_tarjeta_credito || 0).toFixed(2)} %`; }
+            },
+            {
+                data: 'margen_minimo_credito',
+                className: 'align-middle text-center',
+                render: function (data, type, row) { return `${parseFloat(row.margen_minimo_credito || 0).toFixed(2)} %`; }
+            },
+            {
+                data: 'margen_minimo_igualar_precio',
+                className: 'align-middle text-center',
+                render: function (data, type, row) { return `${parseFloat(row.margen_minimo_igualar_precio || 0).toFixed(2)} %`; }
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    return `
                         <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarMargenMinimoArticulo" 
-                                    data-id="${item.idparametrodato}" 
-                                    data-codigo="${item.codigo_articulo}" 
-                                    data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" 
-                                    data-contado="${item.margen_minimo_contado}" 
-                                    data-tarjeta="${item.margen_minimo_tarjeta_credito}" 
-                                    data-credito="${item.margen_minimo_credito}" 
-                                    data-igualar="${item.margen_minimo_igualar_precio}" 
-                                    style="color:#0d6efd;">
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalModificarMargenMinimoArticulo" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-codigo="${row.codigo_articulo}" 
+                                    data-nombre="${row.nombre_articulo}" 
+                                    data-contado="${row.margen_minimo_contado}" 
+                                    data-tarjeta="${row.margen_minimo_tarjeta_credito}" 
+                                    data-credito="${row.margen_minimo_credito}" 
+                                    data-igualar="${row.margen_minimo_igualar_precio}" 
+                                    style="color:#0d6efd;" title="Modificar">
                                 <i class="fa-regular fa-pen-to-square"></i>
                             </button>
-                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalEliminarMargenMinimoArticulo" 
-                                    data-id="${item.idparametrodato}" 
-                                    data-codigo="${item.codigo_articulo}" 
-                                    data-nombre="${item.codigo_articulo} - ${item.nombre_articulo}" 
-                                    style="color:red;">
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEliminarMargenMinimoArticulo" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-codigo="${row.codigo_articulo}" 
+                                    data-nombre="${row.nombre_articulo}" 
+                                    style="color:red;" title="Eliminar">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
-                    </td>
-                </tr>`;
+                    `;
+                }
+            }
+        ]
     });
-    $tbody.html(html);
 }
-
-
-
-
-
 
 function cargarPreciosCompetencia() {
     const payload = {
@@ -949,49 +1075,82 @@ function cargarPreciosCompetencia() {
     });
 }
 
-function crearListadoPrecioCompetencia(data) {
-    const $tbody = $('#tbody-precio-competencia');
-    $tbody.empty();
 
-    if (!data || data.length === 0) {
-        $tbody.append('<tr><td colspan="5" class="text-center text-muted">No hay registros de competencia.</td></tr>');
-        return;
+// ==========================================
+// RENDERIZADO CON DATATABLES: PRECIO COMPETENCIA
+// ==========================================
+function crearListadoPrecioCompetencia(data) {
+    const $tabla = $('#tabla-precio-competencia');
+
+    if ($.fn.DataTable.isDataTable('#tabla-precio-competencia')) {
+        $tabla.DataTable().clear().destroy();
     }
 
-    let html = '';
-    $.each(data, function (index, item) {
-        html += `
-                <tr data-id="${item.idparametrodato}">
-                    <td class="text-center align-middle">${item.codigo_articulo} - ${item.nombre_articulo}</td>
-                    <td class="align-middle text-wrap">${item.nombre_competencia}</td>
-                    <td class="text-end align-middle">$ ${parseFloat(item.precio_contado).toFixed(2)}</td>
-                    <td class="text-center align-middle">
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 10,
+        lengthMenu: [10, 20, 50],
+        autoWidth: false,
+        language: {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "emptyTable": "No se encontraron precios de competencia registrados."
+        },
+        columns: [
+            {
+                data: null,
+                className: 'align-middle text-wrap',
+                render: function (data, type, row) {
+                    return `${row.codigo_articulo} - ${row.nombre_articulo}`;
+                }
+            },
+            {
+                data: 'nombre_competencia',
+                className: 'align-middle text-wrap'
+            },
+            {
+                data: 'precio_contado',
+                className: 'align-middle text-end',
+                render: function (data, type, row) {
+                    // Formateamos automáticamente como moneda a 2 decimales
+                    return `$ ${parseFloat(row.precio_contado).toFixed(2)}`;
+                }
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    return `
                         <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarPrecioComp" 
-                                    data-id="${item.idparametrodato}" 
-                                    data-nombreart="${item.nombre_articulo}" 
-                                    data-competencia="${item.nombre_competencia}" 
-                                    data-precio="${item.precio_contado}" 
-                                    data-codigo="${item.codigo_articulo}" 
-                                    style="color:#0d6efd;">
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalModificarPrecioComp" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-nombreart="${row.nombre_articulo}" 
+                                    data-competencia="${row.nombre_competencia}" 
+                                    data-precio="${row.precio_contado}" 
+                                    data-codigo="${row.codigo_articulo}" 
+                                    style="color:#0d6efd;" title="Modificar">
                                 <i class="fa-regular fa-pen-to-square"></i>
                             </button>
-                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalEliminarPrecioComp" 
-                                    data-id="${item.idparametrodato}" 
-                                    data-nombreart="${item.nombre_articulo}" 
-                                    data-competencia="${item.nombre_competencia}"
-                                    data-codigo="${item.codigo_articulo}" 
-                                    style="color:red;">
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEliminarPrecioComp" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-nombreart="${row.nombre_articulo}" 
+                                    data-competencia="${row.nombre_competencia}"
+                                    data-codigo="${row.codigo_articulo}" 
+                                    style="color:red;" title="Eliminar">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
-                    </td>
-                </tr>`;
+                    `;
+                }
+            }
+        ]
     });
-    $tbody.html(html);
 }
-
-
 
 
 function cargarDatosPorcentaje() {
@@ -1056,36 +1215,68 @@ function cargarAportesMarca() {
     });
 }
 
+// ==========================================
+// RENDERIZADO CON DATATABLES: APORTES POR MARCA
+// ==========================================
 function crearListadoAportesMarca(data) {
-    const $tbody = $('#tbody-aportes-marca');
-    $tbody.empty();
+    const $tabla = $('#tabla-aportes-marca');
 
-    if (!data || data.length === 0) {
-        $tbody.append('<tr><td colspan="3" class="text-center text-muted">No hay registros.</td></tr>');
-        return;
+    // Destruimos la tabla previa si existe para reinicializarla
+    if ($.fn.DataTable.isDataTable('#tabla-aportes-marca')) {
+        $tabla.DataTable().clear().destroy();
     }
 
-    let html = '';
-    $.each(data, function (index, item) {
-        html += `
-                <tr data-id="${item.idparametrodato}">
-                    <td class="align-middle">${item.nombre_marca}</td>
-                    <td class="align-middle text-center">${item.numero_aporte}</td>
-                    <td class="align-middle text-center">
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 10,
+        lengthMenu: [10, 20, 50],
+        autoWidth: false,
+        language: {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "emptyTable": "No se encontraron registros de aportes por marca."
+        },
+        columns: [
+            {
+                data: 'nombre_marca',
+                className: 'align-middle'
+            },
+            {
+                data: 'numero_aporte',
+                className: 'align-middle text-center'
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    // Inyectamos los datos necesarios para que los modales de Modificar y Eliminar funcionen
+                    return `
                         <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalModificarAporteMarca" 
-                                    data-id="${item.idparametrodato}" data-num="${item.numero_aporte}" data-marca="${item.codigo_marca}" style="color:#0d6efd;">
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalModificarAporteMarca" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-num="${row.numero_aporte}" 
+                                    data-marca="${row.codigo_marca}" 
+                                    style="color:#0d6efd;" title="Modificar">
                                 <i class="fa-regular fa-pen-to-square"></i>
                             </button>
-                            <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalEliminarAporteMarca" 
-                                    data-id="${item.idparametrodato}" data-nombremarca="${item.nombre_marca}" data-marca="${item.codigo_marca}" style="color:red;">
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEliminarAporteMarca" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-nombremarca="${row.nombre_marca}" 
+                                    data-marca="${row.codigo_marca}" 
+                                    style="color:red;" title="Eliminar">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
-                    </td>
-                </tr>`;
+                    `;
+                }
+            }
+        ]
     });
-    $tbody.html(html);
 }
 
 function cargarAportesMarcaProveedor() {
@@ -1110,49 +1301,74 @@ function cargarAportesMarcaProveedor() {
     });
 }
 
+// ==========================================
+// RENDERIZADO CON DATATABLES: APORTES POR MARCA Y PROVEEDOR
+// ==========================================
 function crearListadoAportesMarcaProveedor(data) {
-    const $tbody = $('#tbody-aportes-marca-proveedor');
-    $tbody.empty();
+    const $tabla = $('#tabla-aportes-marca-proveedor');
 
-    if (!data || data.length === 0) {
-        $tbody.append('<tr><td colspan="4" class="text-center text-muted">No hay registros.</td></tr>');
-        return;
+    // Destruimos la tabla previa si existe
+    if ($.fn.DataTable.isDataTable('#tabla-aportes-marca-proveedor')) {
+        $tabla.DataTable().clear().destroy();
     }
 
-    let html = '';
-    $.each(data, function (index, item) {
-        html += `
-            <tr data-id="${item.idparametrodato}">
-                <td class="align-middle text-wrap">${item.nombre_proveedor}</td>
-                <td class="align-middle">${item.nombre_marca}</td>
-                <td class="align-middle text-center">${item.numero_aporte}</td>
-                <td class="align-middle text-center">
-                    <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-action" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#modalModificarAporteMarcaProveedor" 
-                                data-id="${item.idparametrodato}" 
-                                data-num="${item.numero_aporte}"
-                                data-marca="${item.codigo_marca}" 
-                                data-proveedor="${item.identificacion_proveedor}"
-                                style="color:#0d6efd;">
-                            <i class="fa-regular fa-pen-to-square"></i>
-                        </button>
-                        <button type="button" class="btn btn-action" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#modalEliminarAporteMarcaProveedor" 
-                                data-id="${item.idparametrodato}" 
-                                data-marca="${item.nombre_marca}" 
-                                data-prov="${item.nombre_proveedor}" 
-                                data-proveedor="${item.identificacion_proveedor}"
-                                style="color:red;">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>`;
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 10,
+        lengthMenu: [10, 20, 50],
+        autoWidth: false,
+        language: {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "emptyTable": "No se encontraron registros."
+        },
+        columns: [
+            {
+                data: 'nombre_proveedor',
+                className: 'align-middle text-wrap'
+            },
+            {
+                data: 'nombre_marca',
+                className: 'align-middle'
+            },
+            {
+                data: 'numero_aporte',
+                className: 'align-middle text-center'
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    // Usamos "row" para extraer los datos de la fila y los inyectamos en los botones
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalModificarAporteMarcaProveedor" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-num="${row.numero_aporte}"
+                                    data-marca="${row.codigo_marca}" 
+                                    data-proveedor="${row.identificacion_proveedor}"
+                                    style="color:#0d6efd;" title="Modificar">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" class="btn btn-action" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEliminarAporteMarcaProveedor" 
+                                    data-id="${row.idparametrodato}" 
+                                    data-marca="${row.nombre_marca}" 
+                                    data-prov="${row.nombre_proveedor}" 
+                                    data-proveedor="${row.identificacion_proveedor}"
+                                    style="color:red;" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        ]
     });
-    $tbody.html(html);
 }
 
 
@@ -1184,48 +1400,62 @@ function cargarMediosPago() {
 }
 
 // Función para renderizar las filas de la tabla
+// Función para renderizar las filas de la tabla con DataTables
 function crearListadoMediosPago(data) {
-    const $tbody = $('#tbody-medios-pago');
-    $tbody.empty();
+    const $tabla = $('#tabla-medios-pago');
 
-    if (!data || data.length === 0) {
-        $tbody.append('<tr><td colspan="2" class="text-center text-muted">No se encontraron registros.</td></tr>');
-        return;
+    // Destruimos la tabla previa si existe
+    if ($.fn.DataTable.isDataTable('#tabla-medios-pago')) {
+        $tabla.DataTable().clear().destroy();
     }
 
-    let htmlFilas = '';
-
-    $.each(data, function (index, item) {
-        // Almacenamos idparametro y codigoparametro en atributos data-
-        htmlFilas += `
-            <tr class="m-0 p-0" data-id="${item.idparametro}" data-codigo="${item.codigoparametro}">
-                <td class="align-middle">${item.nombre}</td>
-                <td class="">
-                    <div class="btn-toolbar d-flex justify-content-center" role="toolbar">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <button type="button" class="btn-action edit-btn" 
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 10, // Mostrar 10 registros por página
+        lengthMenu: [10, 20, 50],
+        autoWidth: false,
+        language: {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "emptyTable": "No se encontraron registros de medios de pago."
+        },
+        columns: [
+            {
+                data: 'nombre',
+                className: 'align-middle text-wrap'
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    // Inyectamos también data-nombre para que los modales lo lean directo de aquí
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-action edit-btn" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#modalModificaMedioPago" 
-                                    data-id="${item.idparametro}" 
-                                    data-codigo="${item.codigoparametro}"
-                                    style="border:none; background:none; color:#0d6efd;">
+                                    data-id="${row.idparametro}" 
+                                    data-codigo="${row.codigoparametro}"
+                                    data-nombre="${row.nombre}"
+                                    style="color:#0d6efd;" title="Modificar">
                                 <i class="fa-regular fa-pen-to-square"></i>
                             </button>
-                            <button type="button" class="btn-action delete-btn" 
+                            <button type="button" class="btn btn-action delete-btn" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#modalEliminaMedioPago" 
-                                    data-id="${item.idparametro}" 
-                                    data-codigo="${item.codigoparametro}"
-                                    style="border:none; background:none; color:red">
+                                    data-id="${row.idparametro}" 
+                                    data-codigo="${row.codigoparametro}"
+                                    data-nombre="${row.nombre}"
+                                    style="color:red;" title="Eliminar">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
-                    </div>
-                </td>
-            </tr>`;
+                    `;
+                }
+            }
+        ]
     });
-
-    $tbody.html(htmlFilas);
 }
 
 
@@ -1402,23 +1632,26 @@ function guardarMM() {
         return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe seleccionar un artículo y llenar todos los porcentajes.' });
     }
 
-    // Validación de duplicados en la tabla
+    // ==========================================
+    // VALIDACIÓN DE DUPLICADOS CON DATATABLES
+    // ==========================================
     let yaExiste = false;
-    $('#list-margen-minimo-articulo tbody tr').each(function () {
-        const textoCelda = $(this).find('td:eq(0)').text().trim();
-        let codEnTabla = textoCelda;
-        if (textoCelda.includes('-')) {
-            codEnTabla = textoCelda.substring(0, textoCelda.indexOf('-')).trim();
-        }
-        if (codEnTabla.toString() === codArticulo.toString()) {
-            yaExiste = true;
-            return false;
-        }
-    });
+
+    // Verificamos si la tabla de DataTables está activa
+    if ($.fn.DataTable.isDataTable('#tabla-margen-minimo')) {
+        // Extraemos TODA la data (todas las páginas) en un arreglo
+        const dataTabla = $('#tabla-margen-minimo').DataTable().rows().data().toArray();
+
+        // Buscamos si existe alguna fila que ya tenga este código de artículo
+        yaExiste = dataTabla.some(function (row) {
+            return row.codigo_articulo.toString() === codArticulo.toString();
+        });
+    }
 
     if (yaExiste) {
         return Swal.fire({ icon: 'warning', title: 'Artículo Duplicado', text: `El artículo ${codArticulo} ya tiene un margen configurado.` });
     }
+    // ==========================================
 
     const $menuActivo = $('#list-tab a.active');
 
@@ -1558,41 +1791,39 @@ function eliminarMM() {
 
 //PRECIO COMPETENCIA
 function guardarPC() {
-    const codArticulo = $('#inputNuevoCodArticuloPC').val().trim();
+    // Capturamos el código desde el atributo data que seteó el radio button en la tabla del modal
+    const codArticulo = $('#inputNuevoArticuloPC').data('codigo');
     const competencia = $('#inputNuevoNombreCompPC').val().trim();
     const precio = $('#inputNuevoPrecioPC').val().trim();
 
     if (!codArticulo || !competencia || precio === "") {
-        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe llenar todos los campos.' });
+        return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe seleccionar un artículo de la tabla y llenar todos los campos.' });
     }
 
-    // Validación de duplicados (Mismo código de artículo y misma competencia)
+    // ==========================================
+    // VALIDACIÓN DE DUPLICADOS CON DATATABLES
+    // ==========================================
     let yaExiste = false;
-    $('#tbody-precio-competencia tr').each(function () {
-        const codFila = $(this).find('td:eq(0)').text().trim();
-        const compFila = $(this).find('td:eq(1)').text().trim();
 
-        let codFilaLimpio = codFila;
-        if (codFila.includes('-')) {
-            // Tomamos desde el inicio (0) hasta la posición donde está el primer guión, y quitamos espacios
-            codFilaLimpio = codFila.substring(0, codFila.indexOf('-')).trim();
-        }
+    // Verificamos si la tabla de DataTables está activa
+    if ($.fn.DataTable.isDataTable('#tabla-precio-competencia')) {
+        // Extraemos TODA la data (todas las páginas) en un arreglo
+        const dataTabla = $('#tabla-precio-competencia').DataTable().rows().data().toArray();
 
-        // Puedes dejar estos console.log si quieres ver la magia en acción en la consola
-         console.log("codLimpio: ", codFilaLimpio);
-         console.log("compFila: ", compFila);
-
-        // Ahora comparamos el código limpio con lo que ingresó el usuario
-        if (codFilaLimpio === codArticulo && compFila.toLowerCase() === competencia.toLowerCase()) {
-            yaExiste = true;
-            return false; // Rompe el ciclo each
-        }
-    });
+        // Buscamos si existe alguna fila que coincida en código y competencia (ignorando mayúsculas)
+        yaExiste = dataTabla.some(function (row) {
+            return row.codigo_articulo.toString() === codArticulo.toString() &&
+                row.nombre_competencia.toLowerCase() === competencia.toLowerCase();
+        });
+    }
 
     if (yaExiste) {
         return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `Ya existe un precio de "${competencia}" para el artículo ${codArticulo}.` });
     }
 
+    // ==========================================
+    // ENVÍO AL API
+    // ==========================================
     const $menuActivo = $('#list-tab a.active');
 
     const body = {
@@ -1601,23 +1832,18 @@ function guardarPC() {
         "idparametro": $menuActivo.data('idparametro'),
         "codigoparametro": $menuActivo.data('codigoparametro'),
         "idusuario": getUsuario(),
-        //"idparametrodato": 0,
-        "codigorelacion1": codArticulo,
+        "codigorelacion1": codArticulo.toString(),
         "codigorelacion2": competencia,
         "valor1": parseFloat(precio)
     };
 
-    // Armamos el body exactamente con todos los campos de tu esquema
     const payload = {
         code_app: "APP20260128155212346",
-        http_method: "POST", // O PUT, verifica con tu backend
-        endpoint_path: "api/Parametrizacion/mantenimiento-parametros", // <-- Revisa tu ruta
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros",
         client: "APL",
         body_request: body
     };
-
-    console.log("body: ", body);
-    return;
 
     $.ajax({
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
@@ -1625,9 +1851,12 @@ function guardarPC() {
             if (response && response.code_status === 200) {
                 $('#modalNuevoPrecioComp').modal('hide');
                 Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500 });
-                cargarPreciosCompetencia();
+                cargarPreciosCompetencia(); // Refresca la tabla
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo guardar." });
             }
-        }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "guardar precio de competencia"); }
     });
 }
 
@@ -1679,6 +1908,9 @@ function modificarPC() {
                 Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1500 });
                 cargarPreciosCompetencia();
             }
+        },
+        error: function (xhr) {
+            manejarErrorGlobal(xhr, "modificar precio competencia");
         }
     });
 }
@@ -1722,6 +1954,9 @@ function eliminarPC() {
                 Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500 });
                 cargarPreciosCompetencia();
             }
+        },
+        error: function (xhr) {
+            manejarErrorGlobal(xhr, "eliminar precio competencia");
         }
     });
 }
@@ -2716,7 +2951,7 @@ function crearListadoConfiguracion(data) {
 
 
 
-        "Margen Mínimo": { id: "list-margen-minimo-articulo", icon: "fa-solid fa-tag" },
+        "Margen Mínimo": { id: "list-margen-minimo", icon: "fa-solid fa-tag" },
         "Otros Costos": { id: "list-otros-costos-articulo", icon: "fa-solid fa-tag" }
     };
 
@@ -2777,63 +3012,77 @@ function cargarGrupoAlmacen() {
     });
 }
 
+// ==========================================
+// RENDERIZADO CON DATATABLES: GRUPO ALMACEN
+// ==========================================
 function crearListadoGrupoAlmacen(data) {
-    const $tbody = $('#tbody-grupo-almacen');
+    const $tabla = $('#tabla-grupo-almacen');
 
-    // 1. Limpiar la tabla antes de inyectar la nueva data
-    $tbody.empty();
-
-    // 2. Validar que el API traiga registros
-    if (!data || data.length === 0) {
-        $tbody.append('<tr><td colspan="2" class="text-center text-muted">No se encontraron grupos de almacenes.</td></tr>');
-        return;
+    // Destruimos la tabla previa si existe
+    if ($.fn.DataTable.isDataTable('#tabla-grupo-almacen')) {
+        $tabla.DataTable().clear().destroy();
     }
 
-    let htmlFilas = '';
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 5,
+        lengthMenu: [5, 10, 20],
+        autoWidth: false,
+        language: { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+        createdRow: function (row, dataItem, dataIndex) {
+            // Inyectamos las clases y datos necesarios para que funcione tu evento "click"
+            $(row).addClass('fila-grupo-almacen');
+            $(row).attr('data-codigo', dataItem.codigoparametro);
+            $(row).attr('data-nombre', dataItem.nombre);
+            $(row).attr('data-idparametro', dataItem.idparametro);
+            $(row).css('cursor', 'pointer');
 
-    // 3. Recorrer el JSON devuelto
-    $.each(data, function (index, item) {
-        // Se arma la fila (tr) inyectando 'item.nombre' en la columna correspondiente
-        // y 'item.idparametro' en los data-attributes de los botones.
-        // Dentro del $.each de crearListadoGrupoAlmacen, el <tr> debería quedar así:
-        htmlFilas += `
-            <tr class="fila-grupo-almacen" 
-                data-codigo="${item.codigoparametro}" 
-                data-nombre="${item.nombre}"
-                data-idparametro="${item.idparametro}"
-                style="cursor: pointer;">
-                <td class="align-middle">${item.nombre}</td>
-                <td class="align-middle">
-                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="First group">
-                            <button type="button" class="btn-action edit-btn" 
+            // Mantenemos el grupo sombreado si está seleccionado
+            if (grupoSeleccionadoActual.codigo === dataItem.codigoparametro) {
+                $(row).addClass('table-active');
+            }
+        },
+        columns: [
+            {
+                data: 'nombre',
+                className: 'align-middle text-wrap'
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    // Usamos "row" para obtener los datos de la fila de forma segura
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-action edit-btn" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#modalModificarGrupo" 
-                                    data-id="${item.idparametro}"
-                                    data-codigo="${item.codigoparametro}"
-                                    title="Modificar" 
-                                    style="border:none; background:none; color:#0d6efd;">
+                                    data-id="${row.idparametro}"
+                                    data-codigo="${row.codigoparametro}"
+                                    style="color:#0d6efd;" title="Modificar">
                                 <i class="fa-regular fa-pen-to-square"></i>
                             </button>
-                            <button type="button" class="btn-action delete-btn" 
+                            <button type="button" class="btn btn-action delete-btn" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#modalEliminarGrupo" 
-                                    data-id="${item.idparametro}" 
-                                    data-codigo="${item.codigoparametro}" 
-                                    title="Eliminar" 
-                                    style="border:none; background:none; color:red">
+                                    data-id="${row.idparametro}" 
+                                    data-codigo="${row.codigoparametro}" 
+                                    style="color:red;" title="Eliminar">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
-                    </div>
-                </td>
-            </tr>
-        `;
+                    `;
+                }
+            }
+        ]
     });
-
-    // 4. Insertar todo el bloque de filas en el cuerpo de la tabla
-    $tbody.html(htmlFilas);
 }
+
+// ==========================================
+// RENDERIZADO CON DATATABLES: ALMACENES ASIGNADOS
+// ==========================================
 
 function cargarAlmacenGrupo(codigo) {
     const payload =
@@ -2859,44 +3108,47 @@ function cargarAlmacenGrupo(codigo) {
 }
 
 
-// 2. Función para pintar la tabla de Almacenes Asignados
 function crearListadoAlmacenGrupo(data) {
-    const $tbody = $('#tbody-almacenes-asignados');
+    const $tabla = $('#tabla-almacenes-asignados');
 
-    // Limpiar tabla
-    $tbody.empty();
-
-    // Validar si vienen datos
-    if (!data || data.length === 0) {
-        $tbody.append('<tr><td colspan="2" class="text-center text-muted">No hay almacenes asignados a este grupo.</td></tr>');
-        return;
+    if ($.fn.DataTable.isDataTable('#tabla-almacenes-asignados')) {
+        $tabla.DataTable().clear().destroy();
     }
 
-    let htmlFilas = '';
-
-    // Recorrer el JSON devuelto
-    $.each(data, function (index, item) {
-        htmlFilas += `
-            <tr>
-                <td class="align-middle">${item.nombre_almacen}</td>
-                <td class="align-middle">
-                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="First group">
-                            <button type="button" class="btn-action edit-btn" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#modalEliminarAlmacen" 
-                                    data-id="${item.idparametrodato}"
-                                    data-codigo="${item.codigo_almacen}"
-                                    style="border:none; background:none; color:red">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        `;
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 5,
+        lengthMenu: [5, 10, 20],
+        autoWidth: false,
+        // Usamos un solo bloque language con la traducción y el mensaje de tabla vacía
+        language: {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "emptyTable": "No hay almacenes asignados a este grupo."
+        },
+        columns: [
+            {
+                data: 'nombre_almacen',
+                className: 'align-middle text-wrap'
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    // Usamos "row" explícitamente aquí también
+                    return `
+                        <button type="button" class="btn btn-action delete-btn btn-sm" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#modalEliminarAlmacen" 
+                                data-id="${row.idparametrodato}"
+                                data-codigo="${row.codigo_almacen}"
+                                style="border:none; background:none; color:red">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    `;
+                }
+            }
+        ]
     });
-
-    // Inyectar en el tbody
-    $tbody.html(htmlFilas);
 }
