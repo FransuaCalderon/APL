@@ -1409,6 +1409,44 @@ namespace AppAPL.AccesoDatos.Repositorio
             return response;
         }
 
+        public async Task<LiquidarPromocionResponse?> LiquidarPromocion(LiquidarPromocionRequest request)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                P_IDPROMOCION = request.IdPromocion,
+                P_USUARIO = request.Usuario
+            };
+
+            logger.LogInformation($"parametros para enviar al sp: {paramObject.ToString()}");
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            parameters.Add("P_COD_RESPUESTA", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("P_MENSAJE", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
+
+            await connection.ExecuteAsync(
+                "Apl_Sp_LiquidacionPromocion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+                );
+
+
+            int? codigoSalida = parameters.Get<int>("P_COD_RESPUESTA");
+            string? mensajeSalida = parameters.Get<string>("P_MENSAJE");
+
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+
+            return new LiquidarPromocionResponse()
+            {
+                CodigoRespuesta = (int)codigoSalida,
+                Mensaje = mensajeSalida
+            };
+
+        }
+
 
     }
 }

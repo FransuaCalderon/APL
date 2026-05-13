@@ -2086,4 +2086,21 @@ namespace AppAPL.Dto.Promocion
         public int? codigoError { get; set; }
         public string? mensajeError { get; set; }
     }
+
+    public class LiquidarPromocionRequest
+    {
+        [Required(ErrorMessage = "El ID de la promoción es obligatorio.")]
+        [Range(0, int.MaxValue, ErrorMessage = "El ID de la promoción debe ser mayor a 0.")]
+        public int? IdPromocion { get; init; }
+
+        [Required(ErrorMessage = "El código de usuario es obligatorio.")]
+        [MaxLength(50, ErrorMessage = "El código de usuario no puede exceder los 50 caracteres.")]
+        public string? Usuario { get; init; }
+    }
+
+    public class LiquidarPromocionResponse
+    {
+        public int CodigoRespuesta { get; init; }
+        public string? Mensaje { get; init; }
+    }
 }

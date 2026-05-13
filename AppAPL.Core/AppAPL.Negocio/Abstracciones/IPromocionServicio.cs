@@ -41,5 +41,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<AcuerdoPromocionArticuloDTO>> ConsultarAcuerdoPromocionArticulos(string etiquetaTipoFondo, string codigoItem);
         Task<IEnumerable<ArticuloEquivalenteDTO>> ConsultarArticulosEquivalentes(string codigo);
         Task<BuscarPromocionesResponse?> BuscarPromocionesAsync(BuscarPromocionesRequest request);
+        Task<LiquidarPromocionResponse?> LiquidarPromocion(LiquidarPromocionRequest request);
     }
 }

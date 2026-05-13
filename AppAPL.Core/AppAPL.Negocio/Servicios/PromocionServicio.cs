@@ -103,5 +103,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<BuscarPromocionesResponse?> BuscarPromocionesAsync(BuscarPromocionesRequest request)
             => repo.BuscarPromocionesAsync(request);
+
+        public Task<LiquidarPromocionResponse?> LiquidarPromocion(LiquidarPromocionRequest request)
+            => repo.LiquidarPromocion(request);
     }
 }

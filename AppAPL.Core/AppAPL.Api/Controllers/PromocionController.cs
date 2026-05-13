@@ -415,5 +415,21 @@ namespace AppAPL.Api.Controllers
             
             return resultado;
         }
+
+        [HttpPost("liquidar-promociones")]
+        public async Task<ActionResult<LiquidarPromocionResponse>> LiquidarPromocion(LiquidarPromocionRequest request)
+        {
+            var response = await servicio.LiquidarPromocion(request);
+
+            // 2. Evaluamos la respuesta según tu regla
+            if (response.CodigoRespuesta != 0)
+            {
+                // Retorna 400 Bad Request con el mensaje de error devuelto por Oracle
+                return BadRequest(response);
+            }
+
+            // 3. Retorna 200 OK si todo salió bien
+            return response;
+        }
     }
 }

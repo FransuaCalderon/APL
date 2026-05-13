@@ -37,6 +37,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<TipoClienteDTO>> ConsultarTipoCliente();
         Task<ControlErroresDTO> CrearAsync(CrearPromocionRequestDTO promocion);
         Task<ControlErroresDTO> InactivarPromocion(InactivarPromocionRequest promocion);
+        Task<LiquidarPromocionResponse?> LiquidarPromocion(LiquidarPromocionRequest request);
         Task<BandAproPromocionIDDTO?> ObtenerBandAproPromoPorId(int idPromocion, int idAprobacion);
         Task<BandGenPromocionIDDTO?> ObtenerBandGenPromoPorId(int idPromocion);
         Task<BandInacPromocionIDDTO?> ObtenerBandInacPromoPorId(int idPromocion);
