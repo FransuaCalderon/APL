@@ -377,7 +377,6 @@ $(document).ready(function () {
     });
 
     
-
     // ==========================================================
     // VALIDACIÓN GLOBAL: PROTEGER TODOS LOS INPUTS DE NÚMEROS
     // ==========================================================
@@ -389,7 +388,7 @@ $(document).ready(function () {
         }
     });
 
-    // 2. Validación exacta para estructura Oracle NUMBER(10,2)
+    // 2. Validación exacta: Máximo 3 enteros y 2 decimales (Ej: 999.99)
     $(document).on('input', 'input[type="number"]', function () {
         // Evitar números negativos
         if ($(this).val() < 0) {
@@ -405,9 +404,9 @@ $(document).ready(function () {
             let enteros = partes[0];
             let decimales = partes[1];
 
-            // Limitamos a 8 dígitos enteros (antes del punto)
-            if (enteros.length > 8) {
-                enteros = enteros.slice(0, 8);
+            // Limitamos a 3 dígitos enteros (antes del punto)
+            if (enteros.length > 3) {
+                enteros = enteros.slice(0, 3);
             }
             // Limitamos a 2 dígitos decimales (después del punto)
             if (decimales.length > 2) {
@@ -419,9 +418,9 @@ $(document).ready(function () {
         }
         // Si es un número entero sin punto decimal
         else {
-            // Limitamos estrictamente a 8 dígitos enteros
-            if (valorStr.length > 8) {
-                $(this).val(valorStr.slice(0, 8));
+            // Limitamos estrictamente a 3 dígitos enteros
+            if (valorStr.length > 3) {
+                $(this).val(valorStr.slice(0, 3));
             }
         }
     });
@@ -1565,23 +1564,42 @@ function guardarAPA() {
         return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Seleccione un artículo e ingrese el número de aportes.' });
     }
 
-    // Validación de duplicados en la tabla principal
+    // ==========================================
+    // VALIDACIÓN DE DUPLICADOS CON DATATABLES
+    // ==========================================
     let yaExiste = false;
-    $('#tbody-aporte-propio-articulo tr').each(function () {
-        const textoCelda = $(this).find('td:eq(0)').text().trim();
-        let codEnTabla = textoCelda;
-        if (textoCelda.includes('-')) {
-            codEnTabla = textoCelda.substring(0, textoCelda.indexOf('-')).trim();
-        }
-        if (codEnTabla.toString() === codArticulo.toString()) {
-            yaExiste = true;
-            return false;
-        }
-    });
+
+    // 1. Verificamos si la tabla usa DataTables
+    if ($.fn.DataTable.isDataTable('#tabla-aporte-propio-articulo')) {
+        const dataTabla = $('#tabla-aporte-propio-articulo').DataTable().rows().data().toArray();
+        yaExiste = dataTabla.some(function (row) {
+            // Comparamos el código del artículo que viene en el JSON
+            return row.codigo_articulo.toString() === codArticulo.toString();
+        });
+    }
+    // 2. Si usa la tabla clásica (respaldo)
+    else {
+        $('#tbody-aporte-propio-articulo tr').each(function () {
+            const textoCelda = $(this).find('td:eq(0)').text().trim();
+            let codEnTabla = textoCelda;
+            if (textoCelda.includes('-')) {
+                codEnTabla = textoCelda.substring(0, textoCelda.indexOf('-')).trim();
+            }
+            if (codEnTabla.toString() === codArticulo.toString()) {
+                yaExiste = true;
+                return false; // Funciona como un break
+            }
+        });
+    }
 
     if (yaExiste) {
-        return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `El artículo con código ${codArticulo} ya está configurado.` });
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Duplicado',
+            text: `El artículo con código ${codArticulo} ya está configurado.`
+        });
     }
+    // ==========================================
 
     const $menu = $('#list-tab a.active');
 
@@ -1733,19 +1751,35 @@ function guardarMM() {
     // ==========================================
     let yaExiste = false;
 
-    // Verificamos si la tabla de DataTables está activa
+    // 1. Verificamos si la tabla usa DataTables
     if ($.fn.DataTable.isDataTable('#tabla-margen-minimo')) {
-        // Extraemos TODA la data (todas las páginas) en un arreglo
         const dataTabla = $('#tabla-margen-minimo').DataTable().rows().data().toArray();
-
-        // Buscamos si existe alguna fila que ya tenga este código de artículo
         yaExiste = dataTabla.some(function (row) {
+            // Comparamos el código del artículo que viene en el JSON
             return row.codigo_articulo.toString() === codArticulo.toString();
+        });
+    }
+    // 2. Si usa la tabla clásica (respaldo)
+    else {
+        $('#list-margen-minimo-articulo tbody tr').each(function () {
+            const textoCelda = $(this).find('td:eq(0)').text().trim();
+            let codEnTabla = textoCelda;
+            if (textoCelda.includes('-')) {
+                codEnTabla = textoCelda.substring(0, textoCelda.indexOf('-')).trim();
+            }
+            if (codEnTabla.toString() === codArticulo.toString()) {
+                yaExiste = true;
+                return false; // Break para salir del .each()
+            }
         });
     }
 
     if (yaExiste) {
-        return Swal.fire({ icon: 'warning', title: 'Artículo Duplicado', text: `El artículo ${codArticulo} ya tiene un margen configurado.` });
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Artículo Duplicado',
+            text: `El artículo ${codArticulo} ya tiene un margen configurado.`
+        });
     }
     // ==========================================
 
@@ -1773,7 +1807,7 @@ function guardarMM() {
     };
 
     //console.log("body: ", body);
-
+    return;
     $.ajax({
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
         success: function (response) {
@@ -1900,22 +1934,45 @@ function guardarPC() {
     // VALIDACIÓN DE DUPLICADOS CON DATATABLES
     // ==========================================
     let yaExiste = false;
+    const competenciaBuscada = competencia.toLowerCase();
 
-    // Verificamos si la tabla de DataTables está activa
+    // 1. Verificamos si la tabla usa DataTables
     if ($.fn.DataTable.isDataTable('#tabla-precio-competencia')) {
-        // Extraemos TODA la data (todas las páginas) en un arreglo
         const dataTabla = $('#tabla-precio-competencia').DataTable().rows().data().toArray();
-
-        // Buscamos si existe alguna fila que coincida en código y competencia (ignorando mayúsculas)
         yaExiste = dataTabla.some(function (row) {
+            // Comparamos el código del artículo y la competencia ignorando mayúsculas
             return row.codigo_articulo.toString() === codArticulo.toString() &&
-                row.nombre_competencia.toLowerCase() === competencia.toLowerCase();
+                row.nombre_competencia.toLowerCase() === competenciaBuscada;
+        });
+    }
+    // 2. Si usa la tabla clásica (respaldo)
+    else {
+        $('#tbody-precio-competencia tr').each(function () {
+            const codFila = $(this).find('td:eq(0)').text().trim();
+            const compFila = $(this).find('td:eq(1)').text().trim().toLowerCase();
+
+            let codFilaLimpio = codFila;
+            if (codFila.includes('-')) {
+                // Tomamos desde el inicio hasta el primer guión y quitamos espacios
+                codFilaLimpio = codFila.substring(0, codFila.indexOf('-')).trim();
+            }
+
+            // Comparamos el código limpio y la competencia
+            if (codFilaLimpio === codArticulo && compFila === competenciaBuscada) {
+                yaExiste = true;
+                return false; // Break para salir del .each()
+            }
         });
     }
 
     if (yaExiste) {
-        return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `Ya existe un precio de "${competencia}" para el artículo ${codArticulo}.` });
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Duplicado',
+            text: `Ya existe un precio de "${competencia}" para el artículo ${codArticulo}.`
+        });
     }
+    // ==========================================
 
     // ==========================================
     // ENVÍO AL API
@@ -2130,18 +2187,37 @@ function guardarAM() {
         return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe seleccionar una Marca e ingresar el número de aportes.' });
     }
 
-    // Validación de duplicados
+    // ==========================================
+    // VALIDACIÓN DE DUPLICADOS CON DATATABLES
+    // ==========================================
     let combinacionYaExiste = false;
-    $('#tbody-aportes-marca tr').each(function () {
-        if ($(this).find('td:eq(0)').text().trim() === nombreMarca) {
-            combinacionYaExiste = true;
-            return false;
-        }
-    });
+
+    // 1. Verificamos si la tabla usa DataTables
+    if ($.fn.DataTable.isDataTable('#tabla-aportes-marca')) {
+        const dataTabla = $('#tabla-aportes-marca').DataTable().rows().data().toArray();
+        combinacionYaExiste = dataTabla.some(function (row) {
+            // Comparamos usando el campo exacto que viene del JSON
+            return row.nombre_marca === nombreMarca;
+        });
+    }
+    // 2. Si usa la tabla clásica (respaldo)
+    else {
+        $('#tbody-aportes-marca tr').each(function () {
+            if ($(this).find('td:eq(0)').text().trim() === nombreMarca) {
+                combinacionYaExiste = true;
+                return false; // Break para salir del .each()
+            }
+        });
+    }
 
     if (combinacionYaExiste) {
-        return Swal.fire({ icon: 'warning', title: 'Registro Duplicado', text: `Ya existe un límite configurado para la marca "${nombreMarca}".` });
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Registro Duplicado',
+            text: `Ya existe un límite configurado para la marca "${nombreMarca}".`
+        });
     }
+    // ==========================================
 
     // Datos del Menú Activo
     const $menuActivo = $('#list-tab a.active');
@@ -2292,42 +2368,45 @@ function guardarAMP() {
 
 
     // ==========================================
-    // 2. VALIDACIÓN DE DUPLICADOS EN LA TABLA
+    // VALIDACIÓN DE DUPLICADOS CON DATATABLES
     // ==========================================
     let combinacionYaExiste = false;
 
-    // Limpiamos el texto del proveedor seleccionado para quitarle la identificación y el guión.
-    // Ej: "0991400427001 - CARTIMEX S.A." se convierte en "CARTIMEX S.A."
-    // Usamos indexOf para encontrar el primer guión y tomamos todo el texto que está después.
+    // Limpiamos el texto del proveedor seleccionado
     let nombreProveedorLimpio = textoProveedor;
     if (textoProveedor.includes('-')) {
         nombreProveedorLimpio = textoProveedor.substring(textoProveedor.indexOf('-') + 1).trim();
     }
 
-    $('#tbody-aportes-marca-proveedor tr').each(function () {
-        // Obtenemos los textos exactos de la tabla
-        const provEnFila = $(this).find('td:eq(0)').text().trim();
-        const marcaEnFila = $(this).find('td:eq(1)').text().trim();
+    // 1. Verificamos si la tabla usa DataTables
+    if ($.fn.DataTable.isDataTable('#tabla-aportes-marca-proveedor')) {
+        const dataTabla = $('#tabla-aportes-marca-proveedor').DataTable().rows().data().toArray();
+        combinacionYaExiste = dataTabla.some(function (row) {
+            // Comparamos usando los campos exactos que vienen de tu JSON
+            return row.nombre_proveedor === nombreProveedorLimpio && row.nombre_marca === nombreMarca;
+        });
+    }
+    // 2. Si usa la tabla clásica (respaldo)
+    else {
+        $('#tbody-aportes-marca-proveedor tr').each(function () {
+            const provEnFila = $(this).find('td:eq(0)').text().trim();
+            const marcaEnFila = $(this).find('td:eq(1)').text().trim();
 
-        // Ahora comparamos de forma exacta el nombre limpio con el de la fila
-        if (provEnFila === nombreProveedorLimpio && marcaEnFila === nombreMarca) {
-            combinacionYaExiste = true;
-            return false; // Rompe el ciclo .each()
-        }
-    });
+            if (provEnFila === nombreProveedorLimpio && marcaEnFila === nombreMarca) {
+                combinacionYaExiste = true;
+                return false;
+            }
+        });
+    }
 
     if (combinacionYaExiste) {
-        Swal.fire({
+        return Swal.fire({
             icon: 'warning',
             title: 'Registro Duplicado',
             text: `Ya existe un límite configurado para la marca "${nombreMarca}" y el proveedor "${nombreProveedorLimpio}".`
         });
-        return; // Detiene la ejecución aquí
     }
-    /*
-    console.log("codigoMarca: ", codigoMarca);
-    console.log("codigoProveedor: ", codigoProveedor);
-    console.log("aportes: ", aportes);*/
+    // ==========================================
 
     // 1. Buscamos el enlace (<a>) que está seleccionado actualmente
     const $itemActivo = $('#list-tab a.active');
@@ -2550,6 +2629,41 @@ function guardarMediosPagos() {
         return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe ingresar un nombre para el Medio de Pago.' });
     }
 
+
+    // ==========================================
+    // VALIDACIÓN DE DUPLICADOS (MEDIOS DE PAGO)
+    // ==========================================
+    let yaExiste = false;
+    const nombreBuscado = nombreMedioPago.toLowerCase(); // Convertimos a minúscula para la comparación
+
+    // 1. Verificamos si la tabla usa DataTables
+    if ($.fn.DataTable.isDataTable('#tabla-medios-pago')) {
+        const dataTabla = $('#tabla-medios-pago').DataTable().rows().data().toArray();
+        yaExiste = dataTabla.some(function (row) {
+            // Comparamos usando el campo 'nombre' que viene de tu JSON
+            return row.nombre.toLowerCase() === nombreBuscado;
+        });
+    }
+    // 2. Si usa la tabla clásica (busca en el HTML visible)
+    else {
+        $('#tbody-medios-pago tr').each(function () {
+            const nombreEnFila = $(this).find('td:eq(0)').text().trim().toLowerCase();
+            if (nombreEnFila === nombreBuscado) {
+                yaExiste = true;
+                return false; // Break para salir del .each()
+            }
+        });
+    }
+
+    if (yaExiste) {
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Duplicado',
+            text: `Ya existe un medio de pago registrado con el nombre "${nombreMedioPago}".`
+        });
+    }
+    // ==========================================
+
     const body = {
         "tipo_mant": 3,
         "opcion": "I",
@@ -2726,10 +2840,12 @@ function llenarSelectAlmacenes(data) {
 
 //ALMACEN
 function guardarAlmacen() {
+    console.log("guardarAlmacen");
     const codigoAlmacenSeleccionado = $('#selectNuevoAlmacen').val();
 
     // Obtenemos el texto (nombre) del option que está seleccionado
     const nombreAlmacenSeleccionado = $('#selectNuevoAlmacen option:selected').text().trim();
+    console.log("nombreAlmacenSeleccionado ", nombreAlmacenSeleccionado);
     // Validar que no envíen el select vacío
     if (!codigoAlmacenSeleccionado) {
         Swal.fire({ icon: 'warning', title: 'Atención', text: 'Por favor, seleccione un almacén de la lista.' });
@@ -2737,23 +2853,28 @@ function guardarAlmacen() {
     }
 
 
-    // 2. Validar que el almacén no exista ya en la tabla
+    // ==========================================
+    // VALIDACIÓN DE DUPLICADOS CON DATATABLES
+    // ==========================================
     let almacenYaExiste = false;
 
-    // Recorremos cada fila de la tabla de almacenes
-    $('#tbody-almacenes-asignados tr').each(function () {
-        // Buscamos el texto de la primera columna (td) de la fila actual
-        const nombreEnFila = $(this).find('td:eq(0)').text().trim();
+    // Verificamos si la tabla de DataTables está inicializada
+    if ($.fn.DataTable.isDataTable('#tabla-almacenes-asignados')) {
+        // Extraemos TODA la data de la tabla (todas las páginas)
+        const dataTabla = $('#tabla-almacenes-asignados').DataTable().rows().data().toArray();
 
-        if (nombreEnFila === nombreAlmacenSeleccionado) {
-            almacenYaExiste = true;
-            return false; // El 'return false' en un .each() de jQuery funciona como un 'break' para salir del ciclo
-        }
-    });
+        // Comparamos el nombre o el código (usar nombre_almacen según tu JSON)
+        almacenYaExiste = dataTabla.some(function (row) {
+            return row.nombre_almacen === nombreAlmacenSeleccionado;
+        });
+    }
 
     if (almacenYaExiste) {
-        Swal.fire({ icon: 'warning', title: 'Duplicado', text: `El almacén "${nombreAlmacenSeleccionado}" ya está asignado a este grupo.` });
-        return; // Detenemos la ejecución para que no haga el AJAX
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Duplicado',
+            text: `El almacén "${nombreAlmacenSeleccionado}" ya está asignado a este grupo.`
+        });
     }
 
 
@@ -2776,13 +2897,6 @@ function guardarAlmacen() {
         client: "APL",
         body_request: body
     };
-
-    /*
-    console.log("body: ", body);
-    console.log("codigoparametro", grupoSeleccionadoActual.codigo);
-    console.log("codigo_almacen", codigoAlmacenSeleccionado);
-    console.log("grupoSeleccionadoActual.idparametro", grupoSeleccionadoActual.idparametro);
-    */
 
     $.ajax({
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
@@ -2858,6 +2972,41 @@ function guardarGrupoAlmacen() {
         return;
     }
 
+
+    // ==========================================
+    // VALIDACIÓN DE GRUPOS DUPLICADOS
+    // ==========================================
+    let yaExiste = false;
+    const nombreBuscado = nombreGrupo.toLowerCase(); // Convertimos a minúscula para una comparación exacta
+
+    // 1. Verificamos si la tabla usa DataTables (busca en toda la memoria, en todas las páginas)
+    if ($.fn.DataTable.isDataTable('#tabla-grupo-almacen')) {
+        const dataTabla = $('#tabla-grupo-almacen').DataTable().rows().data().toArray();
+        yaExiste = dataTabla.some(function (row) {
+            return row.nombre.toLowerCase() === nombreBuscado;
+        });
+    }
+    // 2. Si usa la tabla clásica (busca en el HTML visible)
+    else {
+        $('#tbody-grupo-almacen tr').each(function () {
+            const nombreEnFila = $(this).find('td:eq(0)').text().trim().toLowerCase();
+            if (nombreEnFila === nombreBuscado) {
+                yaExiste = true;
+                return false; // Funciona como un "break" para detener el ciclo each
+            }
+        });
+    }
+
+    if (yaExiste) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Grupo Duplicado',
+            text: `Ya existe un grupo registrado con el nombre "${nombreGrupo}".`
+        });
+        return; // Detenemos la función para que no llegue al $.ajax
+    }
+    // ==========================================
+
     const body = {
         "tipo_mant": 1,
         "opcion": "I",
@@ -2875,8 +3024,7 @@ function guardarGrupoAlmacen() {
         client: "APL",
         body_request: body // <-- Ajusta la estructura según tu API
     };
-    console.log("body: ", body);
-    //return;
+    //console.log("body: ", body);
 
     $.ajax({
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
@@ -2900,6 +3048,41 @@ function modificarGrupoAlmacen() {
 
     if (nuevoNombre === "") return Swal.fire({ icon: 'warning', title: 'Atención', text: 'El nombre no puede estar vacío.' });
 
+    /*
+    // ==========================================
+    // VALIDACIÓN DE GRUPOS DUPLICADOS
+    // ==========================================
+    let yaExiste = false;
+    const nombreBuscado = nombreGrupo.toLowerCase(); // Convertimos a minúscula para una comparación exacta
+
+    // 1. Verificamos si la tabla usa DataTables (busca en toda la memoria, en todas las páginas)
+    if ($.fn.DataTable.isDataTable('#tabla-grupo-almacen')) {
+        const dataTabla = $('#tabla-grupo-almacen').DataTable().rows().data().toArray();
+        yaExiste = dataTabla.some(function (row) {
+            return row.nombre.toLowerCase() === nombreBuscado;
+        });
+    }
+    // 2. Si usa la tabla clásica (busca en el HTML visible)
+    else {
+        $('#tbody-grupo-almacen tr').each(function () {
+            const nombreEnFila = $(this).find('td:eq(0)').text().trim().toLowerCase();
+            if (nombreEnFila === nombreBuscado) {
+                yaExiste = true;
+                return false; // Funciona como un "break" para detener el ciclo each
+            }
+        });
+    }
+
+    if (yaExiste) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Grupo Duplicado',
+            text: `Ya existe un grupo registrado con el nombre "${nombreGrupo}".`
+        });
+        return; // Detenemos la función para que no llegue al $.ajax
+    }
+    // ==========================================
+    */
     const body = {
         "tipo_mant": 1,
         "opcion": "M",
