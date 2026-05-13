@@ -249,12 +249,12 @@ function crearListado(data) {
                 <td>${c.nombre || ''}</td>
                 <td>${c.adicional || ''}</td>
                 <td>${c.abreviatura || ''}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(${c.idcatalogo})">
+                <td class="text-center align-middle">
+                    <div class="action-buttons d-flex justify-content-center align-items-center gap-2">
+                        <button class="btn-action edit-btn text-primary" title="Editar" style="background: transparent; border: none;" onclick="abrirModalEditar(${c.idcatalogo})">
                             <i class="fa-regular fa-pen-to-square"></i>
                         </button>
-                        <button class="btn-action delete-btn" title="Eliminar" onclick="confirmDelete(${c.idcatalogo})">
+                        <button class="btn-action delete-btn text-danger" title="Eliminar" style="background: transparent; border: none;" onclick="confirmDelete(${c.idcatalogo})">
                             <i class="fa-regular fa-trash-can"></i>
                         </button>
                     </div>

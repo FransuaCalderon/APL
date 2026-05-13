@@ -189,12 +189,12 @@ function crearListado(data) {
                 <td>${id}</td>
                 <td>${c.nombre || ''}</td>
                 <td>${c.descripcion || ''}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(${id})">
+                <td class="text-center align-middle">
+                    <div class="action-buttons d-flex justify-content-center align-items-center gap-2">
+                        <button class="btn-action edit-btn text-primary" title="Editar" style="background: transparent; border: none;" onclick="abrirModalEditar(${id})">
                             <i class="fa-regular fa-pen-to-square"></i>
                         </button>
-                        <button class="btn-action delete-btn" title="Eliminar" onclick="confirmDelete(${id})">
+                        <button class="btn-action delete-btn text-danger" title="Eliminar" style="background: transparent; border: none;" onclick="confirmDelete(${id})">
                             <i class="fa-regular fa-trash-can"></i>
                         </button>
                     </div>
