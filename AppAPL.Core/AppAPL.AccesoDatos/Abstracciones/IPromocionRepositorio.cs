@@ -25,6 +25,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<BandAproPromocionDTO>> ConsultarBandAprobPromocion(string usuarioAprobador);
         Task<IEnumerable<PromocionDTO>> ConsultarBandGeneral();
         Task<IEnumerable<BandInacPromocionDTO>> ConsultarBandInacPromocion();
+        Task<IEnumerable<BandLiquiPromocionDTO>> ConsultarBandLiquiPromocion();
         Task<IEnumerable<BandModPromocionDTO>> ConsultarBandModPromocion();
         Task<IEnumerable<CanalDTO>> ConsultarCanal();
         Task<IEnumerable<GrupoAlmacenDTO>> ConsultarGrupoAlmacen();

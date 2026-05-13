@@ -645,6 +645,38 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<IEnumerable<BandLiquiPromocionDTO>> ConsultarBandLiquiPromocion()
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+
+            var parameters = new OracleDynamicParameters();
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigo_resp", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje_resp", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+
+            logger.LogInformation("ejecutando sp: sp_bandeja_liquidacion");
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<BandLiquiPromocionDTO>(
+                "sp_bandeja_liquidacion",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+
+            string? mensajeSalida = parameters.Get<string>("p_mensaje_resp");
+            int? codigoSalida = parameters.Get<int>("p_codigo_resp");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
+
         public async Task<IEnumerable<BandModPromocionDTO>> ConsultarBandModPromocion()
         {
             using var connection = factory.CreateOpenConnection();

@@ -106,5 +106,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<LiquidarPromocionResponse?> LiquidarPromocion(LiquidarPromocionRequest request)
             => repo.LiquidarPromocion(request);
+
+        public Task<IEnumerable<BandLiquiPromocionDTO>> ConsultarBandLiquiPromocion()
+            => repo.ConsultarBandLiquiPromocion();
     }
 }

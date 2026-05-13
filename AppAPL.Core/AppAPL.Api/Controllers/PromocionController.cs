@@ -193,6 +193,15 @@ namespace AppAPL.Api.Controllers
             return listaBandeja.ToList();
         }
 
+        [HttpGet("consultar-bandeja-liquidacion")]
+        public async Task<ActionResult<List<BandLiquiPromocionDTO>>> ConsultarBandLiquiPromocion()
+        {
+
+            var listaBandeja = await servicio.ConsultarBandLiquiPromocion();
+
+            return listaBandeja.ToList();
+        }
+
         [HttpGet("bandeja-inactivacion-id/{idPromocion:int}")]
         public async Task<ActionResult<BandInacPromocionIDDTO>> ObtenerBandInacPromoPorId(int idPromocion)
         {

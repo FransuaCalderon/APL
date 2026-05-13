@@ -235,6 +235,20 @@ namespace AppAPL.Dto.Promocion
         public string ESTADO { get; set; }
     }
 
+    public class BandLiquiPromocionDTO
+    {
+        public int IDPROMOCION { get; set; }
+        public string DESCRIPCION { get; set; }
+        public string MOTIVO { get; set; }
+        public string CLASE_PROMOCION { get; set; }
+        public DateTime FECHA_INICIO { get; set; }
+        public DateTime FECHA_FIN { get; set; }
+        public string REGALO { get; set; }
+
+        public string SOPORTE { get; set; }
+        public string ESTADO { get; set; }
+    }
+
     public class BandModPromocionDTO
     {
         public int idpromocion { get; set; }
