@@ -759,7 +759,7 @@ function inicializarDataTablesArticulosPC(data) {
         lengthMenu: [10, 25, 50],
         destroy: true,
         autoWidth: false,
-        language: { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+        language: { "url": "/json/i18n/es-ES.json" },
         columns: [
             { data: 'codigo', className: 'align-middle text-center' },
             { data: 'descripcion', className: 'align-middle text-wrap' },
@@ -825,7 +825,7 @@ function crearListadoAportesPropioArticulo(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json",
             "emptyTable": "No hay registros de aportes propios configurados."
         },
         columns: [
@@ -925,7 +925,7 @@ function inicializarDataTablesArticulosAPA(data) {
         lengthMenu: [10, 25, 50],
         destroy: true,
         autoWidth: false,
-        language: { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+        language: { "url": "/json/i18n/es-ES.json" },
         columns: [
             { data: 'codigo', className: 'align-middle text-center' },
             { data: 'descripcion', className: 'align-middle text-wrap' },
@@ -1083,7 +1083,7 @@ function crearListadoMargenMinimo(data) {
         lengthMenu: [10, 25, 50, 100], // Opciones más amplias para catálogos grandes
         autoWidth: false,
         language: {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json",
             "emptyTable": "No se encontraron configuraciones de margen mínimo."
         },
         columns: [
@@ -1188,7 +1188,7 @@ function crearListadoPrecioCompetencia(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json",
             "emptyTable": "No se encontraron precios de competencia registrados."
         },
         columns: [
@@ -1328,7 +1328,7 @@ function crearListadoAportesMarca(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json",
             "emptyTable": "No se encontraron registros de aportes por marca."
         },
         columns: [
@@ -1414,7 +1414,7 @@ function crearListadoAportesMarcaProveedor(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json",
             "emptyTable": "No se encontraron registros."
         },
         columns: [
@@ -1511,7 +1511,7 @@ function crearListadoMediosPago(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json",
             "emptyTable": "No se encontraron registros de medios de pago."
         },
         columns: [
@@ -3308,7 +3308,7 @@ function crearListadoGrupoAlmacen(data) {
         pageLength: 5,
         lengthMenu: [5, 10, 20],
         autoWidth: false,
-        language: { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+        language: { "url": "/json/i18n/es-ES.json" },
         createdRow: function (row, dataItem, dataIndex) {
             // Inyectamos las clases y datos necesarios para que funcione tu evento "click"
             $(row).addClass('fila-grupo-almacen');
@@ -3402,7 +3402,7 @@ function crearListadoAlmacenGrupo(data) {
         autoWidth: false,
         // Usamos un solo bloque language con la traducción y el mensaje de tabla vacía
         language: {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json",
             "emptyTable": "No hay almacenes asignados a este grupo."
         },
         columns: [
