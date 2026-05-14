@@ -3294,4 +3294,36 @@ input[type="checkbox"]:disabled:checked {
     opacity: 1 !important;
 }
 
+/* 1. Reducir al máximo el espacio interior de las celdas */
+#tablaArticulosBody td {
+    padding: 0.15rem 0.25rem !important;
+    vertical-align: middle !important;
+}
+
+/* 2. Aplastar los inputs, selects y botones para que sean bajitos */
+#tablaArticulosBody .form-control,
+#tablaArticulosBody .form-select,
+#tablaArticulosBody .btn {
+    height: 24px !important;
+    min-height: 24px !important;
+    padding: 0px 6px !important;
+    font-size: 0.75rem !important;
+    line-height: 1 !important;
+    border-radius: 3px !important;
+}
+
+/* 3. OBLIGAR a que el input y el botón (lupa) se queden en la misma línea */
+#tablaArticulosBody .input-group,
+#tablaArticulosBody .input-group-sm {
+    flex-wrap: nowrap !important;
+    height: 24px !important;
+}
+
+/* 4. Ajustar los íconos (como la lupa) para que no descuadren el botón */
+#tablaArticulosBody .btn i {
+    font-size: 0.7rem !important;
+    vertical-align: middle !important;
+    line-height: 1 !important;
+}
+
 /*Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL*/ 

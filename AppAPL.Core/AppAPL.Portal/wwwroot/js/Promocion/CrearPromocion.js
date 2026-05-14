@@ -191,7 +191,15 @@
         });
 
         $("#fondoValorTotalGeneral, #comprometidoPropioGeneral").on("input", function () {
-            this.value = this.value.replace(/[^0-9.,]/g, '');
+            let valorLimpio = this.value.replace(/[^0-9.,]/g, '');
+            let valorNumerico = parseCurrency(valorLimpio);
+
+            if (valorNumerico > 10000000) {
+                valorLimpio = valorLimpio.slice(0, -1);
+            }
+            if (this.value !== valorLimpio) {
+                this.value = valorLimpio;
+            }
         });
 
         const soloNumerosDescuento = function (e) {
@@ -1307,7 +1315,7 @@
             <td class="align-middle celda-editable">
                 <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="">
                 <div class="input-group input-group-sm">
-                    <input type="text" class="form-control form-control-sm" placeholder="Seleccione..." readonly disabled>
+                    <input type="text" class="form-control" placeholder="Seleccione..." readonly disabled>
                     <button class="btn btn-outline-secondary btn-buscar-acuerdo-art" type="button" data-tipofondo="TFPROVEDOR" data-slot="1" disabled>
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
@@ -2742,7 +2750,17 @@
             articulosGuardados.forEach(art => agregarColumnaACombo(art));
         });
 
-        $(document).off("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input").on("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input", function () {
+        $(document).off("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input").on("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input", function (e) {
+            if (e.type === "input") {
+                let valorLimpio = this.value.replace(/[^0-9]/g, ''); // Solo enteros
+                let valorNumerico = parseInt(valorLimpio, 10) || 0;
+                if (valorNumerico > 10000000) {
+                    valorLimpio = valorLimpio.slice(0, -1);
+                }
+                if (this.value !== valorLimpio) {
+                    this.value = valorLimpio;
+                }
+            }
             const numCols = $("#trHeadersCombo th").length;
             for (let i = 2; i < numCols; i++) { recalcularColumnaCombo(i); }
             recalcularTotalesCombo();
@@ -3142,8 +3160,17 @@
             }
         });
 
-        $(document).off("input change", "#tablaCreacionCombo tbody input.input-combo-art").on("input change", "#tablaCreacionCombo tbody input.input-combo-art", function () {
-            this.value = this.value.replace(/[^0-9.,]/g, '');
+        $(document).off("input change", "#tablaCreacionCombo tbody input.input-combo-art").on("input change", "#tablaCreacionCombo tbody input.input-combo-art", function (e) {
+            if (e.type === "input") {
+                let valorLimpio = this.value.replace(/[^0-9.,]/g, '');
+                let valorNumerico = parseCurrency(valorLimpio);
+                if (valorNumerico > 10000000) {
+                    valorLimpio = valorLimpio.slice(0, -1);
+                }
+                if (this.value !== valorLimpio) {
+                    this.value = valorLimpio;
+                }
+            }
             recalcularColumnaCombo($(this).closest("td").data("colindex"));
             recalcularTotalesCombo();
         });
@@ -4128,7 +4155,16 @@
         });
 
         $(document).on("input", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
-            this.value = this.value.replace(/[^0-9.,]/g, '');
+            let valorLimpio = this.value.replace(/[^0-9.,]/g, '');
+            let valorNumerico = this.type === 'number' ? (parseInt(valorLimpio, 10) || 0) : parseCurrency(valorLimpio);
+
+            if (valorNumerico > 10000000) {
+                valorLimpio = valorLimpio.slice(0, -1);
+            }
+
+            if (this.value !== valorLimpio) {
+                this.value = valorLimpio;
+            }
         });
 
         $(document).on("input change", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {

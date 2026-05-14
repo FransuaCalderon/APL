@@ -33,24 +33,10 @@ $(function () {
 
     $("body").on("click", "#btnLimpiar", function () { if (tabla) tabla.search("").draw(); });
 
-    // Eventos de Liquidación
-    $("#btnLiquidarMasivo").on("click", function () { liquidarMasivo(); });
+    // Evento para liquidar desde el detalle
     $("#btnLiquidarPromocion").on("click", function () { liquidarIndividual(); });
 
-    // Checkbox seleccionar todos
-    $(document).on("change", "#chkTodos", function () {
-        if (tabla) {
-            const isChecked = $(this).prop("checked");
-            tabla.$(".chk-promo").prop("checked", isChecked);
-        }
-    });
-
-    // Control del Checkbox general si se desmarca uno individual
-    $(document).on("change", ".chk-promo", function () {
-        if (!$(this).prop("checked")) {
-            $("#chkTodos").prop("checked", false);
-        }
-    });
+    // Se eliminaron los eventos de #chkTodos, .chk-promo y #btnLiquidarMasivo
 });
 
 // ===================================================================
@@ -70,45 +56,56 @@ function cargarBandeja() {
 
 function crearListado(data) {
     if (tabla) tabla.destroy();
-    if (!data || data.length === 0) { $('#tabla').html("<div class='alert alert-info text-center'>No hay promociones para liquidar.</div>"); return; }
+    if (!data || data.length === 0) {
+        $('#tabla').html("<div class='alert alert-info text-center'>No hay promociones para liquidar.</div>");
+        return;
+    }
 
+    // Se reduce el colspan a 10 y se elimina el th del checkbox
     let html = `<table id="tabla-principal" class="table table-bordered table-striped table-hover"><thead>
-        <tr><th colspan="11" style="background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px;">BANDEJA DE LIQUIDACIÓN DE PROMOCIONES</th></tr>
+        <tr><th colspan="10" style="background-color: #CC0000 !important; color: white; text-align: center; font-weight: bold; padding: 8px;">BANDEJA DE LIQUIDACIÓN DE PROMOCIONES</th></tr>
         <tr>
-            <th class="text-center"><input type="checkbox" id="chkTodos"></th>
             <th>Acción</th><th>Id Promoción</th><th>Descripción</th><th>Motivo</th><th>Clase de Promoción</th><th>Fecha Inicio</th><th>Fecha Fin</th><th>Regalo</th><th>Soporte</th><th>Estado</th>
         </tr></thead><tbody>`;
 
     data.forEach(promo => {
         html += `<tr>
-            <td class="text-center"><input type="checkbox" class="chk-promo" value="${promo.idpromocion}"></td>
-            
-            <!-- Aquí está el cambio: Botón de Visualizar convertido a Liquidar Directo -->
-            <td class="text-center">
-                <button type="button" class="btn-action edit-btn text-primary" title="Liquidar Promoción" onclick="procesarLiquidacion([${promo.idpromocion}])">
-                    <i class="fa-solid fa-check-double"></i>
+            <!-- Columna de Acción con el botón azul -->
+            <td class="text-center align-middle">
+                <button type="button" class="btn btn-primary btn-sm" title="Liquidar Promoción" onclick="procesarLiquidacion([${promo.idpromocion}])">
+                    <i class="fa-solid fa-check-double"></i> Liquidar
                 </button>
             </td>
 
-            <td class="text-center">${promo.idpromocion ?? ""}</td><td>${promo.descripcion ?? ""}</td><td>${promo.motivo ?? ""}</td><td>${promo.clase_promocion ?? ""}</td>
-            <td class="text-center">${formatearFecha(promo.fecha_inicio)}</td><td class="text-center">${formatearFecha(promo.fecha_fin)}</td>
-            <td class="text-center">${promo.regalo && promo.regalo !== "N" ? "✓" : ""}</td><td>${obtenerNombreArchivo(promo.soporte)}</td><td>${promo.estado ?? ""}</td>
+            <td class="text-center align-middle">${promo.idpromocion ?? ""}</td>
+            <td class="align-middle">${promo.descripcion ?? ""}</td>
+            <td class="align-middle">${promo.motivo ?? ""}</td>
+            <td class="align-middle">${promo.clase_promocion ?? ""}</td>
+            <td class="text-center align-middle">${formatearFecha(promo.fecha_inicio)}</td>
+            <td class="text-center align-middle">${formatearFecha(promo.fecha_fin)}</td>
+            <td class="text-center align-middle">${promo.regalo && promo.regalo !== "N" ? "✓" : ""}</td>
+            <td class="align-middle">${obtenerNombreArchivo(promo.soporte)}</td>
+            <td class="align-middle">${promo.estado ?? ""}</td>
         </tr>`;
     });
 
     html += `</tbody></table>`;
     $("#tabla").html(html);
 
+    // Ajuste en las posiciones del DataTable porque eliminamos la columna 0
     tabla = $("#tabla-principal").DataTable({
-        pageLength: 10, lengthMenu: [5, 10, 25, 50], pagingType: 'full_numbers',
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50],
+        pagingType: 'full_numbers',
         columnDefs: [
-            { targets: 0, width: "3%", className: "dt-center", orderable: false },
-            { targets: 1, width: "5%", className: "dt-center", orderable: false },
-            { targets: 2, width: "8%", className: "dt-center" },
-            { targets: [6, 7, 8], className: "dt-center" }
+            { targets: 0, width: "10%", className: "dt-center", orderable: false }, // Acción
+            { targets: 1, width: "8%", className: "dt-center" }, // Id Promoción
+            { targets: [5, 6, 7], className: "dt-center" } // Fechas y Regalo
         ],
-        order: [[2, "desc"]],
-        language: { decimal: "", emptyTable: "No hay datos disponibles en la tabla", info: "Mostrando _START_ a _END_ de _TOTAL_ registros", infoEmpty: "Mostrando 0 a 0 de 0 registros", infoFiltered: "(filtrado de _MAX_ registros totales)", lengthMenu: "Mostrar _MENU_ registros", loadingRecords: "Cargando...", processing: "Procesando...", search: "Buscar:", zeroRecords: "No se encontraron registros coincidentes", paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" } }
+        order: [[1, "desc"]], // Ordenar por Id Promoción de forma descendente
+        language: {
+            decimal: "", emptyTable: "No hay datos disponibles en la tabla", info: "Mostrando _START_ a _END_ de _TOTAL_ registros", infoEmpty: "Mostrando 0 a 0 de 0 registros", infoFiltered: "(filtrado de _MAX_ registros totales)", lengthMenu: "Mostrar _MENU_ registros", loadingRecords: "Cargando...", processing: "Procesando...", search: "Buscar:", zeroRecords: "No se encontraron registros coincidentes", paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+        }
     });
 }
 

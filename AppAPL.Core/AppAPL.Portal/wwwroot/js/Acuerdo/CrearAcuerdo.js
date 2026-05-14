@@ -1065,6 +1065,19 @@
         const $valor = $("#fondoValorTotalGeneral");
         const $dispo = $("#fondoDisponibleGeneral");
 
+        $valor.on("input", function () {
+            let valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+            let valorNumerico = parseCurrencyToNumber(valorLimpio);
+
+            if (valorNumerico > 10000000) {
+                valorLimpio = valorLimpio.slice(0, -1);
+            }
+
+            if ($(this).val() !== valorLimpio) {
+                $(this).val(valorLimpio);
+            }
+        });
+
         $valor.on("keypress", function (event) {
             const char = event.key;
             const currentValue = $(this).val();
@@ -1086,6 +1099,32 @@
 
     function initCurrencyItems() {
         const inputsDinamicos = ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte";
+
+        $(document).on("input", inputsDinamicos, function () {
+            let valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+            let valorNumerico = parseCurrencyToNumber(valorLimpio);
+
+            if (valorNumerico > 1000000) {
+                valorLimpio = valorLimpio.slice(0, -1);
+            }
+
+            if ($(this).val() !== valorLimpio) {
+                $(this).val(valorLimpio);
+            }
+        });
+
+        $(document).on("input", "input[name='unidadesLimite']", function () {
+            let valorLimpio = $(this).val().replace(/[^\d]/g, '');
+            let valorNumerico = parseInt(valorLimpio, 10) || 0;
+
+            if (valorNumerico > 1000000) {
+                valorLimpio = valorLimpio.slice(0, -1);
+            }
+
+            if ($(this).val() !== valorLimpio) {
+                $(this).val(valorLimpio);
+            }
+        });
 
         // 1. Evitar letras y caracteres especiales (solo números, coma y punto)
         $(document).on("keypress", inputsDinamicos, function (event) {
@@ -1178,6 +1217,11 @@
             return false;
         }
 
+        if (total > 10000000) {
+            Swal.fire("Validación", "El valor total no puede exceder los $ 10.000.000.", "warning");
+            return false;
+        }
+
         return true;
     }
 
@@ -1229,6 +1273,12 @@
             }
             if (nPContado <= 0 && nPTC <= 0 && nPCredito <= 0) {
                 errorFila = `Fila ${numFila}: Debe ingresar al menos un Precio (Contado, TC o Crédito).`; return false;
+            }
+            if (nUnidades > 1000000) {
+                errorFila = `Fila ${numFila}: 'Unidades Límite' no puede exceder 1.000.000.`; return false;
+            }
+            if (nAporte > 1000000 || nPContado > 1000000 || nPTC > 1000000 || nPCredito > 1000000) {
+                errorFila = `Fila ${numFila}: Los precios y aportes no pueden exceder de $ 1.000.000.`; return false;
             }
         });
 
