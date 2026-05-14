@@ -4,6 +4,12 @@
     idparametro: null
 };
 
+let tipoCostoSeleccionadoActual = {
+    codigo: null,
+    nombre: null,
+    idparametro: null
+};
+
 $(document).ready(function () {
     console.log("=== INICIO - Parametrizacion Configuracion ===");
 
@@ -684,7 +690,126 @@ $(document).ready(function () {
         $('#inputIdModifMM, #inputCodArtModifMM, #inputModifArticuloMM, #inputModifContadoMM, #inputModifTarjCrMM, #inputModifCreditoMM, #inputModifIgualarMM').val('');
     });
 
+
+    // 1. Cargar la primera tabla cuando se abra la pestaña
+    $(document).on('shown.bs.tab', 'a[href="#list-otros-costos-articulo"]', function () {
+        cargarTiposCostos();
+    });
+
+    // 2. Escuchar el clic en cualquier fila de la primera tabla (Tipos de Costos)
+    $(document).on('click', '.fila-tipo-costo', function () {
+        // Pintar la fila seleccionada
+        $('.fila-tipo-costo').removeClass('table-active');
+        $(this).addClass('table-active');
+
+        // Llenar variable global
+        tipoCostoSeleccionadoActual.codigo = $(this).data('codigo');
+        tipoCostoSeleccionadoActual.nombre = $(this).data('nombre');
+        tipoCostoSeleccionadoActual.idparametro = $(this).data('idparametro');
+
+        // Actualizar el título de la segunda tabla
+        $('#caption-costos-articulo').text(`Artículos asignados al costo: ${tipoCostoSeleccionadoActual.nombre}`);
+
+        // Llamar al API para llenar la segunda tabla
+        cargarCostosArticulo(tipoCostoSeleccionadoActual.codigo);
+    });
+
+
+    // Abrir modal Modificar Tipo Costo
+    $('#modalModificarTipoCosto').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        $('#inputIdModifTipoCosto').val($boton.data('id'));
+        $('#inputCodParamModifTipoCosto').val($boton.data('codigo'));
+        $('#inputModifNombreTipoCosto').val($boton.data('nombre'));
+    });
+
+    // Abrir modal Eliminar Tipo Costo
+    $('#modalEliminarTipoCosto').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        $('#inputIdElimTipoCosto').val($boton.data('id'));
+        $('#inputCodigoParamElimTipoCosto').val($boton.data('codigo'));
+        $('#inputElimNombreTipoCosto').val($boton.data('nombre'));
+    });
+
+    // Eventos para la Primera Tabla (Tipos de Costos)
+    $('#btnGuardarNuevoTipoCosto').click(guardarNuevoTipoCosto);
+    $('#btnGuardarModifTipoCosto').click(modificarTipoCosto);
+    $('#btnConfirmarElimTipoCosto').click(eliminarTipoCosto);
+
+    // Cargar tabla de artículos al abrir el modal de Nuevo Costo
+    $('#modalNuevoCostoArticulo').on('show.bs.modal', function () {
+        if (!tipoCostoSeleccionadoActual.codigo) {
+            event.preventDefault();
+            return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Seleccione un Tipo de Costo primero.' });
+        }
+        $('#inputNuevoArticuloOtrosCostos').val('').data('codigo', '');
+        $('#inputNuevoValorCostoArt').val('');
+        cargarArticulosModalOtrosCostos();
+    });
+
+    // Evento Radio Button para capturar la selección del artículo
+    $(document).on('change', '.radio-seleccion-articulo-costos', function () {
+        const codigo = $(this).data('codigo');
+        const nombre = $(this).data('nombre');
+        $('#inputNuevoArticuloOtrosCostos').val(`${codigo} - ${nombre}`);
+        $('#inputNuevoArticuloOtrosCostos').data('codigo', codigo);
+    });
+
+    // Llenar datos en Modal Modificar
+    $('#modalModificarCostoArticulo').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        $('#inputIdModifCostoArt').val($boton.data('id'));
+        $('#inputCodModifCostoArt').val($boton.data('codigo'));
+        $('#inputModifNombreArtCosto').val($boton.data('nombre'));
+        $('#inputModifValorCostoArt').val($boton.data('costo'));
+    });
+
+    // Llenar datos en Modal Eliminar
+    $('#modalEliminarCostoArticulo').on('show.bs.modal', function (event) {
+        const $boton = $(event.relatedTarget);
+        $('#inputIdElimCostoArt').val($boton.data('id'));
+        $('#inputCodElimCostoArt').val($boton.data('codigo'));
+        $('#txtElimArtCosto').text($boton.data('nombre'));
+    });
+
+    // Botones de acción
+    $('#btnGuardarNuevoCostoArt').click(guardarNuevoCostoArt);
+    $('#btnGuardarModifCostoArt').click(modificarCostoArt);
+    $('#btnConfirmarElimCostoArt').click(eliminarCostoArt);
+
+
+    // ==========================================================
+    // LIMPIEZA DE MODALES: OTROS COSTOS
+    // ==========================================================
+
+    // 1. Limpiar Nuevo Tipo de Costo
+    $('#modalNuevoTipoCosto').on('hidden.bs.modal', function () {
+        $('#inputNuevoNombreTipoCosto').val('');
+    });
+
+    // 2. Limpiar Modificar Tipo de Costo
+    $('#modalModificarTipoCosto').on('hidden.bs.modal', function () {
+        $('#inputIdModifTipoCosto, #inputCodParamModifTipoCosto, #inputModifNombreTipoCosto').val('');
+    });
+
+    // 3. Limpiar Nuevo Costo por Artículo
+    $('#modalNuevoCostoArticulo').on('hidden.bs.modal', function () {
+        // Limpiamos los inputs
+        $('#inputNuevoArticuloOtrosCostos').val('').data('codigo', '');
+        $('#inputNuevoValorCostoArt').val('');
+
+        // Desmarcamos cualquier radio button que el usuario haya dejado seleccionado en la tablita
+        $('.radio-seleccion-articulo-costos').prop('checked', false);
+    });
+
+    // 4. Limpiar Modificar Costo por Artículo
+    $('#modalModificarCostoArticulo').on('hidden.bs.modal', function () {
+        $('#inputIdModifCostoArt, #inputCodModifCostoArt, #inputModifNombreArtCosto, #inputModifValorCostoArt').val('');
+    });
+
 });
+//AQUI TERMINE EL DOCUMENT READY
+
 
 function getUsuario() {
     return window.usuarioActual || "admin";
@@ -706,6 +831,182 @@ function getIdOpcionSeguro() {
 
 
 // --- Lógica de DataTables y Renderizado ---
+
+// ==========================================
+// CARGAR TABLA OTROS COSTOS
+// ==========================================
+
+function cargarTiposCostos() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Parametrizacion/consultar-otros-costos", // <-- Ajusta la ruta en tu Swagger
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                crearListadoTiposCostos(response.json_response || []);
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "cargar los tipos de costos"); }
+    });
+}
+
+function crearListadoTiposCostos(data) {
+    const $tabla = $('#tabla-tipos-costos');
+
+    if ($.fn.DataTable.isDataTable('#tabla-tipos-costos')) {
+        $tabla.DataTable().clear().destroy();
+    }
+
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 5,
+        lengthMenu: [5, 10, 20],
+        autoWidth: false,
+        language: { "url": "/json/i18n/es-ES.json?v=1.1" },
+        createdRow: function (row, dataItem, dataIndex) {
+            // Inyectamos las clases y datos para el evento "click" (igual que en Grupos)
+            $(row).addClass('fila-tipo-costo');
+            $(row).attr('data-codigo', dataItem.codigoparametro);
+            $(row).attr('data-nombre', dataItem.nombre);
+            $(row).attr('data-idparametro', dataItem.idparametro);
+            $(row).css('cursor', 'pointer');
+
+            // Mantener seleccionada si se recarga la tabla
+            if (tipoCostoSeleccionadoActual.codigo === dataItem.codigoparametro) {
+                $(row).addClass('table-active');
+            }
+        },
+        columns: [
+            {
+                data: 'nombre', // Mapeado de tu JSON: "nombre": "string"
+                className: 'align-middle text-wrap'
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-action edit-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalModificarTipoCosto" 
+                                    data-id="${row.idparametro}"
+                                    data-codigo="${row.codigoparametro}"
+                                    data-nombre="${row.nombre}"
+                                    style="color:#0d6efd;" title="Modificar">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" class="btn btn-action delete-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEliminarTipoCosto" 
+                                    data-id="${row.idparametro}" 
+                                    data-codigo="${row.codigoparametro}" 
+                                    data-nombre="${row.nombre}"
+                                    style="color:red;" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        ]
+    });
+}
+
+function cargarCostosArticulo(codigoTipoCosto) {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: `api/Parametrizacion/consultar-otros-costos-detalle/${codigoTipoCosto}`, // <-- Ajusta la ruta
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                crearListadoCostosArticulo(response.json_response || []);
+            }
+        },
+        error: function (xhr) { manejarErrorGlobal(xhr, "cargar los artículos del costo"); }
+    });
+}
+
+function crearListadoCostosArticulo(data) {
+    const $tabla = $('#tabla-otros-costos-articulo');
+
+    if ($.fn.DataTable.isDataTable('#tabla-otros-costos-articulo')) {
+        $tabla.DataTable().clear().destroy();
+    }
+
+    $tabla.DataTable({
+        data: data || [],
+        deferRender: true,
+        pageLength: 5,
+        lengthMenu: [5, 10, 20],
+        autoWidth: false,
+        language: {
+            "url": "/json/i18n/es-ES.json?v=1.1",
+            "emptyTable": "No hay artículos asignados a este tipo de costo."
+        },
+        columns: [
+            {
+                data: null,
+                className: 'align-middle text-wrap',
+                render: function (data, type, row) {
+                    // Concatenación pedida: codigo_articulo - nombre_articulo
+                    return `${row.codigo_articulo} - ${row.nombre_articulo}`;
+                }
+            },
+            {
+                data: 'costo', // Mapeado de tu JSON: "costo": 0
+                className: 'align-middle text-end',
+                render: function (data, type, row) {
+                    // Formateando a moneda
+                    return `$ ${parseFloat(row.costo).toFixed(2)}`;
+                }
+            },
+            {
+                data: null,
+                orderable: false,
+                className: 'align-middle text-center',
+                render: function (data, type, row) {
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-action edit-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalModificarCostoArticulo" 
+                                    data-id="${row.idparametrodato}"
+                                    data-codigo="${row.codigo_articulo}"
+                                    data-costo="${row.costo}"
+                                     data-nombre="${row.nombre_articulo}"
+                                    style="color:#0d6efd;" title="Modificar">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" class="btn btn-action delete-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEliminarCostoArticulo" 
+                                    data-id="${row.idparametrodato}"
+                                    data-codigo="${row.codigo_articulo}"
+                                    data-nombre="${row.nombre_articulo}"
+                                    style="color:red;" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        ]
+    });
+}
+
 
 // ==========================================
 // CARGAR TABLA DE ARTÍCULOS: PRECIO COMPETENCIA
@@ -759,7 +1060,7 @@ function inicializarDataTablesArticulosPC(data) {
         lengthMenu: [10, 25, 50],
         destroy: true,
         autoWidth: false,
-        language: { "url": "/json/i18n/es-ES.json" },
+        language: { "url": "/json/i18n/es-ES.json?v=1.1" },
         columns: [
             { data: 'codigo', className: 'align-middle text-center' },
             { data: 'descripcion', className: 'align-middle text-wrap' },
@@ -825,7 +1126,7 @@ function crearListadoAportesPropioArticulo(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "/json/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json?v=1.1",
             "emptyTable": "No hay registros de aportes propios configurados."
         },
         columns: [
@@ -925,7 +1226,7 @@ function inicializarDataTablesArticulosAPA(data) {
         lengthMenu: [10, 25, 50],
         destroy: true,
         autoWidth: false,
-        language: { "url": "/json/i18n/es-ES.json" },
+        language: { "url": "/json/i18n/es-ES.json?v=1.1" },
         columns: [
             { data: 'codigo', className: 'align-middle text-center' },
             { data: 'descripcion', className: 'align-middle text-wrap' },
@@ -1005,20 +1306,9 @@ function inicializarDataTablesArticulos(data) {
         destroy: true,     // Permite reinicializar la tabla si se cierra y abre el modal
         autoWidth: false,
         language: {
-            "sProcessing": "Procesando...",
-            "sLengthMenu": "Mostrar _MENU_ registros",
-            "sZeroRecords": "No se encontraron resultados",
-            "sEmptyTable": "Ningún dato disponible en esta tabla",
-            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
-            "sSearch": "Buscar en catálogo:",
-            "oPaginate": {
-                "sFirst": "Primero",
-                "sLast": "Último",
-                "sNext": "Siguiente",
-                "sPrevious": "Anterior"
-            }
+            "url": "/json/i18n/es-ES.json?v=1.1",
+            "emptyTable": "No se encontraron configuraciones de margen mínimo."
+            
         },
         columns: [
             // Columna 1: Código
@@ -1083,7 +1373,7 @@ function crearListadoMargenMinimo(data) {
         lengthMenu: [10, 25, 50, 100], // Opciones más amplias para catálogos grandes
         autoWidth: false,
         language: {
-            "url": "/json/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json?v=1.1",
             "emptyTable": "No se encontraron configuraciones de margen mínimo."
         },
         columns: [
@@ -1188,7 +1478,7 @@ function crearListadoPrecioCompetencia(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "/json/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json?v=1.1",
             "emptyTable": "No se encontraron precios de competencia registrados."
         },
         columns: [
@@ -1328,7 +1618,7 @@ function crearListadoAportesMarca(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "/json/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json?v=1.1",
             "emptyTable": "No se encontraron registros de aportes por marca."
         },
         columns: [
@@ -1414,7 +1704,7 @@ function crearListadoAportesMarcaProveedor(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "/json/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json?v=1.1",
             "emptyTable": "No se encontraron registros."
         },
         columns: [
@@ -1511,7 +1801,7 @@ function crearListadoMediosPago(data) {
         lengthMenu: [10, 20, 50],
         autoWidth: false,
         language: {
-            "url": "/json/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json?v=1.1",
             "emptyTable": "No se encontraron registros de medios de pago."
         },
         columns: [
@@ -1553,6 +1843,223 @@ function crearListadoMediosPago(data) {
     });
 }
 
+
+function cargarArticulosModalOtrosCostos() {
+    const $tabla = $('#datosarticulosOtrosCostos');
+    const $tbody = $('#modalNuevoCostoArticulo #datosarticulosOtrosCostos tbody');
+
+    if ($.fn.DataTable.isDataTable('#datosarticulosOtrosCostos')) {
+        $tabla.DataTable().clear().destroy();
+    }
+
+    $tbody.html('<tr><td colspan="3" class="text-center py-4"><div class="spinner-border text-primary"></div></td></tr>');
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Acuerdo/consultar-articulos-parametrizacion",
+        client: "APL"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
+        success: function (response) {
+            $tbody.empty();
+            if (response && response.code_status === 200 && response.json_response) {
+                inicializarDataTablesArticulosOtrosCostos(response.json_response);
+            }
+        }
+    });
+}
+
+function inicializarDataTablesArticulosOtrosCostos(data) {
+    $('#datosarticulosOtrosCostos').DataTable({
+        data: data,
+        deferRender: true,
+        pageLength: 10,
+        destroy: true,
+        autoWidth: false,
+        language: { "url": "/json/i18n/es-ES.json?v=1.1" },
+        columns: [
+            { data: 'codigo', className: 'align-middle text-center' },
+            { data: 'descripcion', className: 'align-middle text-wrap' },
+            {
+                data: null,
+                orderable: false,
+                className: 'text-center align-middle',
+                render: function (data, type, row) {
+                    return `<input class="form-check-input radio-seleccion-articulo-costos" type="radio" name="radioArtCostos" data-codigo="${row.codigo}" data-nombre="${row.descripcion}">`;
+                }
+            }
+        ]
+    });
+}
+
+
+// ==========================================
+// FUNCIONES CRUD
+// ==========================================
+
+//OTROS COSTOS
+function guardarNuevoTipoCosto() {
+    const nombre = $('#inputNuevoNombreTipoCosto').val().trim();
+    if (!nombre) return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Ingrese el nombre del tipo de costo.' });
+
+    // Validación de Duplicados
+    let yaExiste = false;
+    if ($.fn.DataTable.isDataTable('#tabla-tipos-costos')) {
+        const data = $('#tabla-tipos-costos').DataTable().rows().data().toArray();
+        yaExiste = data.some(x => x.nombre.toLowerCase() === nombre.toLowerCase());
+    }
+    if (yaExiste) return Swal.fire({ icon: 'warning', title: 'Duplicado', text: `El costo "${nombre}" ya existe.` });
+
+    const $menu = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 10,
+        "opcion": "I",
+        "idparametro": $menu.data('idparametro'),
+        "idparametrotipo": $menu.data('idparametrotipo'),
+        "nombre": nombre,
+        "codigoparametro": $menu.data('codigoparametro'),
+        "idusuario": getUsuario(),
+    };
+
+    ejecutarMantenimientoCostos(body, '#modalNuevoTipoCosto', cargarTiposCostos);
+}
+
+function modificarTipoCosto() {
+    const id = $('#inputIdModifTipoCosto').val();
+    const codigo = $('#inputCodParamModifTipoCosto').val();
+    const nombre = $('#inputModifNombreTipoCosto').val().trim();
+
+    if (!nombre) return Swal.fire({ icon: 'warning', text: 'El nombre es obligatorio.' });
+
+    const $menu = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 10,
+        "opcion": "M",
+        "idparametro": parseInt(id),
+        "idparametrotipo": $menu.data('idparametrotipo'),
+        "nombre": nombre,
+        "codigoparametro": codigo,
+        "idusuario": getUsuario(),
+    };
+
+
+    ejecutarMantenimientoCostos(body, '#modalModificarTipoCosto', cargarTiposCostos);
+}
+
+function eliminarTipoCosto() {
+
+    const $menu = $('#list-tab a.active');
+
+    const body = {
+        "tipo_mant": 10,
+        "opcion": "E",
+        "idparametro": parseInt($('#inputIdElimTipoCosto').val()),
+        "idparametrotipo": $menu.data('idparametrotipo'),
+        //"nombre": nombre,
+        "codigoparametro": $('#inputCodigoParamElimTipoCosto').val(),
+        "idusuario": getUsuario(),
+    };
+
+
+    ejecutarMantenimientoCostos(body, '#modalEliminarTipoCosto', function () {
+        $('#caption-costos-articulo').text('Seleccione un Tipo de Costo...');
+        $('#tabla-otros-costos-articulo').DataTable().clear().draw();
+        cargarTiposCostos();
+    });
+}
+
+//OTROS COSTOS DETALLE
+
+function guardarNuevoCostoArt() {
+    const codArticulo = $('#inputNuevoArticuloOtrosCostos').data('codigo');
+    const costo = $('#inputNuevoValorCostoArt').val();
+
+    if (!codArticulo || costo === "") return Swal.fire({ icon: 'warning', text: 'Seleccione artículo e ingrese costo.' });
+
+    // Validación duplicados
+    let yaExiste = $('#tabla-otros-costos-articulo').DataTable().rows().data().toArray().some(x => x.codigo_articulo.toString() === codArticulo.toString());
+    if (yaExiste) return Swal.fire({ icon: 'warning', text: 'El artículo ya tiene un costo asignado aquí.' });
+
+
+    const body = {
+        "tipo_mant": 11,
+        "opcion": "I",
+        "idparametro": tipoCostoSeleccionadoActual.idparametro,
+        "codigoparametro": tipoCostoSeleccionadoActual.codigo,
+        "idusuario": getUsuario(),
+        //"idparametrodato": 0,
+        "codigorelacion1": codArticulo.toString(),
+        "valor1": parseFloat(costo)
+    };
+
+    ejecutarMantenimientoCostos(body, '#modalNuevoCostoArticulo', () => cargarCostosArticulo(tipoCostoSeleccionadoActual.codigo));
+}
+
+function modificarCostoArt() {
+    const body = {
+        "tipo_mant": 11,
+        "opcion": "M",
+        "idparametro": tipoCostoSeleccionadoActual.idparametro,
+        "codigoparametro": tipoCostoSeleccionadoActual.codigo,
+        "idusuario": getUsuario(),
+        "idparametrodato": parseInt($('#inputIdModifCostoArt').val()),
+        "codigorelacion1": $('#inputCodModifCostoArt').val(),
+        "valor1": parseFloat($('#inputModifValorCostoArt').val())
+    };
+
+    ejecutarMantenimientoCostos(body, '#modalModificarCostoArticulo', () => cargarCostosArticulo(tipoCostoSeleccionadoActual.codigo));
+}
+
+function eliminarCostoArt() {
+
+    const body = {
+        "tipo_mant": 11,
+        "opcion": "E",
+        "idparametro": tipoCostoSeleccionadoActual.idparametro,
+        "codigoparametro": tipoCostoSeleccionadoActual.codigo,
+        "idusuario": getUsuario(),
+        "idparametrodato": parseInt($('#inputIdElimCostoArt').val()),
+        "codigorelacion1": $('#inputCodElimCostoArt').val()
+        //"valor1": parseFloat($('#inputModifValorCostoArt').val())
+    };
+
+    ejecutarMantenimientoCostos(body, '#modalEliminarCostoArticulo', () => cargarCostosArticulo(tipoCostoSeleccionadoActual.codigo));
+}
+
+
+function ejecutarMantenimientoCostos(body, modalId, callbackSuccess) {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "POST",
+        endpoint_path: "api/Parametrizacion/mantenimiento-parametros",
+        client: "APL",
+        body_request: body
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                $(modalId).modal('hide');
+                Swal.fire({ icon: 'success', title: 'Éxito', timer: 1500, showConfirmButton: false });
+                if (callbackSuccess) callbackSuccess();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: response.message || "No se pudo completar la operación." });
+            }
+        },
+        error: function (xhr) {
+            manejarErrorGlobal(xhr, "procesar la solicitud de costos");
+        }
+    });
+}
 
 
 //APORTE PROPIO POR ARTICULO
@@ -3048,41 +3555,7 @@ function modificarGrupoAlmacen() {
 
     if (nuevoNombre === "") return Swal.fire({ icon: 'warning', title: 'Atención', text: 'El nombre no puede estar vacío.' });
 
-    /*
-    // ==========================================
-    // VALIDACIÓN DE GRUPOS DUPLICADOS
-    // ==========================================
-    let yaExiste = false;
-    const nombreBuscado = nombreGrupo.toLowerCase(); // Convertimos a minúscula para una comparación exacta
-
-    // 1. Verificamos si la tabla usa DataTables (busca en toda la memoria, en todas las páginas)
-    if ($.fn.DataTable.isDataTable('#tabla-grupo-almacen')) {
-        const dataTabla = $('#tabla-grupo-almacen').DataTable().rows().data().toArray();
-        yaExiste = dataTabla.some(function (row) {
-            return row.nombre.toLowerCase() === nombreBuscado;
-        });
-    }
-    // 2. Si usa la tabla clásica (busca en el HTML visible)
-    else {
-        $('#tbody-grupo-almacen tr').each(function () {
-            const nombreEnFila = $(this).find('td:eq(0)').text().trim().toLowerCase();
-            if (nombreEnFila === nombreBuscado) {
-                yaExiste = true;
-                return false; // Funciona como un "break" para detener el ciclo each
-            }
-        });
-    }
-
-    if (yaExiste) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Grupo Duplicado',
-            text: `Ya existe un grupo registrado con el nombre "${nombreGrupo}".`
-        });
-        return; // Detenemos la función para que no llegue al $.ajax
-    }
-    // ==========================================
-    */
+   
     const body = {
         "tipo_mant": 1,
         "opcion": "M",
@@ -3308,7 +3781,7 @@ function crearListadoGrupoAlmacen(data) {
         pageLength: 5,
         lengthMenu: [5, 10, 20],
         autoWidth: false,
-        language: { "url": "/json/i18n/es-ES.json" },
+        language: { "url": "/json/i18n/es-ES.json?v=1.1" },
         createdRow: function (row, dataItem, dataIndex) {
             // Inyectamos las clases y datos necesarios para que funcione tu evento "click"
             $(row).addClass('fila-grupo-almacen');
@@ -3402,7 +3875,7 @@ function crearListadoAlmacenGrupo(data) {
         autoWidth: false,
         // Usamos un solo bloque language con la traducción y el mensaje de tabla vacía
         language: {
-            "url": "/json/i18n/es-ES.json",
+            "url": "/json/i18n/es-ES.json?v=1.1",
             "emptyTable": "No hay almacenes asignados a este grupo."
         },
         columns: [

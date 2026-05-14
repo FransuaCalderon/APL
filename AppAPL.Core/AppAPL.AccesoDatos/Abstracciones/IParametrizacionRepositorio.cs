@@ -17,6 +17,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
         Task<IEnumerable<MargenMinimoDTO>> ConsultarMargenMinimo();
         Task<IEnumerable<MediosPagoConfigDTO>> ConsultarMediosPago();
         Task<IEnumerable<OtrosCostosConfigDTO>> ConsultarOtrosCostos();
+        Task<IEnumerable<OtroCostosConfigDetalleDTO>> ConsultarOtrosCostosDetalle(int codigo);
         Task<IEnumerable<ParametroConfigDTO>> ConsultarParametros();
         Task<IEnumerable<PorcIncrementoDTO>> ConsultarPorcIncremento();
         Task<IEnumerable<PreciosCompetenciaDTO>> ConsultarPreciosCompetencia();

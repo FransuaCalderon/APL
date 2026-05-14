@@ -21,5 +21,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<PorcIncrementoDTO>> ConsultarPorcIncremento();
         Task<IEnumerable<OtrosCostosConfigDTO>> ConsultarOtrosCostos();
         Task<MantenimientoParametrosResponseDTO> MantParametros(MantenimientoParametrosRequestDTO request);
+        Task<IEnumerable<OtroCostosConfigDetalleDTO>> ConsultarOtrosCostosDetalle(int codigo);
     }
 }

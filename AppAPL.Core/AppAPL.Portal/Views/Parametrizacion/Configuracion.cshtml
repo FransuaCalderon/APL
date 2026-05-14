@@ -55,13 +55,13 @@
 
 
 					<div class="row">
-						<div class="col-5 mx-0 my-2">
+						<div class="col-12 mb-4">
 							<div class="fw-bold text-center mb-2 p-2 border bg-light">
 								Listado de Grupos
 							</div>
 
 							<div>
-								<table class="table table-hover table-bordered w-100" id="tabla-grupo-almacen">
+								<table class="table table-sm table-hover table-bordered w-100" id="tabla-grupo-almacen">
 									<thead class="text-white text-nowrap">
 										<tr class="text-center">
 											<th class="table-dark align-middle">Grupos Almacenes</th>
@@ -86,13 +86,13 @@
 							</div>
 						</div>
 
-						<div class="col-7 mx-0 my-2">
+						<div class="col-12">
 							<div id="caption-almacen-grupo" class="fw-bold text-center mb-2 p-2 border bg-light">
 								Seleccione un Grupo de Almacenes...
 							</div>
     
 							<div class="table-responsive">
-								<table class="table table-hover table-bordered" id="tabla-almacenes-asignados">
+								<table class="table table-sm table-hover table-bordered" id="tabla-almacenes-asignados">
 									<thead class="text-white text-nowrap">
 										<tr class="text-center">
 											<th class="table-dark align-middle">Almacen</th>
@@ -362,20 +362,73 @@
 							Otros Costos por Artículo
 						</div>
 					</div>
-        
-					<div class="row mt-5 justify-content-center">
-						<div class="col-md-6 text-center mt-4">
-							<div class="alert alert-info shadow-sm border-info" role="alert">
-								<i class="fa-solid fa-person-digging fa-3x mb-3 text-info"></i>
-								<h4 class="alert-heading fw-bold">¡Próximamente!</h4>
-								<p class="mb-0 fs-6">Este módulo se encuentra actualmente <b>en desarrollo</b>. Pronto estará disponible para su uso.</p>
+
+					<div class="row">
+						<div class="col-12 mb-4">
+							<div class="fw-bold text-center mb-2 p-2 border bg-light">
+								Listado de Tipos de Costos
+							</div>
+
+							<div>
+								<table class="table table-sm table-hover table-bordered w-100" id="tabla-tipos-costos">
+									<thead class="text-white text-nowrap">
+										<tr class="text-center">
+											<th class="table-dark align-middle">Tipos Costos</th>
+											<th class="table-dark align-middle" style="width: 25%;">
+												Acción
+												<div class="dropdown d-inline">
+													<button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown"></button>
+													<ul class="dropdown-menu">
+														<li>
+															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalNuevoTipoCosto" style="color:black">
+																<i class="fa-regular fa-square-plus"></i> Añadir Tipo Costo
+															</a>
+														</li>
+													</ul>
+												</div>
+											</th>
+										</tr>
+									</thead>
+									<tbody class="text-nowrap">
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div id="caption-costos-articulo" class="fw-bold text-center mb-2 p-2 border bg-light">
+								Seleccione un Tipo de Costo...
+							</div>
+
+							<div class="table-responsive">
+								<table class="table table-sm table-hover table-bordered w-100" id="tabla-otros-costos-articulo">
+									<thead class="text-white text-nowrap">
+										<tr class="text-center">
+											<th class="table-dark align-middle">Artículo</th>
+											<th class="table-dark align-middle" style="width: 20%;">Costos</th>
+											<th class="table-dark align-middle" style="width: 25%;">
+												Acción
+												<div class="dropdown d-inline">
+													<button class="btn btn-dark dropdown-toggle btn-sm border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
+													<ul class="dropdown-menu">
+														<li>
+															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalNuevoCostoArticulo" style="color:black">
+																<i class="fa-regular fa-square-plus"></i> Añadir Costo a Artículo
+															</a>
+														</li>
+													</ul>
+												</div>
+											</th>
+										</tr>
+									</thead>
+									<tbody class="text-nowrap">
+									</tbody>
+								</table>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-								  
-								
 								
 								
 								
@@ -744,6 +797,74 @@
 	</div>
 </div>
 
+<!-- Modal Anadir nuevo otros costos-->
+<div class="modal fade" id="modalNuevoTipoCosto" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5">Añadir Tipo de Costo</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form class="row g-1">
+					<div class="col-md-12 text-center">
+						<label for="inputNuevoNombreTipoCosto" class="form-label fw-bold">Nombre del Tipo de Costo</label>
+						<input type="text" class="form-control" id="inputNuevoNombreTipoCosto" placeholder="Ingrese nombre del costo">
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="btnGuardarNuevoTipoCosto">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Anadir nuevo otros costos detalle-->
+<div class="modal fade" id="modalNuevoCostoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5">Nuevo Costo por Artículo</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form class="row g-1">
+					<div class="col-md-12 text-center mb-3">
+						<label class="form-label fw-bold">Catálogo de Artículos</label>
+						<div class="table-responsive d-flex justify-content-center border" style="height: 400px; overflow-y: auto;">
+							<table class="table table-hover table-bordered mb-0" style="table-layout: fixed; width: 100%;" id="datosarticulosOtrosCostos">
+								<thead class="text-white text-nowrap" style="position: sticky; top: 0; z-index: 2;">
+									<tr>
+										<th class="table-primary text-center align-middle" style="width: 20%;">Código</th>
+										<th class="table-primary text-center align-middle" style="width: 65%;">Nombre Artículo</th>
+										<th class="table-primary text-center align-middle" style="width: 15%;">Acción</th>
+									</tr>
+								</thead>
+								<tbody class="text-nowrap">
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="col-md-9 text-center">
+						<label for="inputNuevoArticuloOtrosCostos" class="form-label fw-bold">Artículo Seleccionado</label>
+						<input type="text" class="form-control" id="inputNuevoArticuloOtrosCostos" disabled>
+					</div>
+					<div class="col-md-3 text-center">
+						<label for="inputNuevoValorCostoArt" class="form-label fw-bold">Costo</label>
+						<input type="number" step="0.01" min="0" class="form-control text-center" id="inputNuevoValorCostoArt" placeholder="0.00">
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="btnGuardarNuevoCostoArt">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 
 <!--MODALES PARA MODIFICAR-->
 <!-- Modal Modificar Grupo de Almacenes-->
@@ -1002,6 +1123,63 @@
 	</div>
 </div>
 
+<!-- Modal Modificar otros costos-->
+<div class="modal fade" id="modalModificarTipoCosto" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5">Modificar Tipo de Costo</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form class="row g-1">
+					<input type="hidden" id="inputIdModifTipoCosto">
+					<input type="hidden" id="inputCodParamModifTipoCosto">
+					<div class="col-md-12 text-center">
+						<label for="inputModifNombreTipoCosto" class="form-label fw-bold">Nombre del Tipo de Costo</label>
+						<input type="text" class="form-control" id="inputModifNombreTipoCosto" placeholder="Ingrese nombre">
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="btnGuardarModifTipoCosto">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Modificar otros costos detalle-->
+<div class="modal fade" id="modalModificarCostoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5">Modificar Costo de Artículo</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form class="row g-1">
+					<input type="hidden" id="inputIdModifCostoArt">
+					<input type="hidden" id="inputCodModifCostoArt">
+					<div class="col-md-9 text-center">
+						<label class="form-label fw-bold">Artículo</label>
+						<input type="text" class="form-control" id="inputModifNombreArtCosto" disabled>
+					</div>
+					<div class="col-md-3 text-center">
+						<label for="inputModifValorCostoArt" class="form-label fw-bold">Costo</label>
+						<input type="number" step="0.01" min="0" class="form-control text-center" id="inputModifValorCostoArt">
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="btnGuardarModifCostoArt">Grabar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
 <!--MODALES PARA ELIMINAR-->
 <!-- Modal Eliminar Grupo de Almacenes-->
 <div class="modal fade" id="modalEliminarGrupo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -1209,3 +1387,69 @@
 		</div>
 	</div>
 </div>
+
+<!-- Modal Eliminar otros costos-->
+<div class="modal fade" id="modalEliminarTipoCosto" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5">Eliminar Tipo de Costo</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form class="row g-1">
+					<input type="hidden" id="inputIdElimTipoCosto">
+					<input type="hidden" id="inputCodigoParamElimTipoCosto">
+					<div class="col-md-12 text-center">
+						<label for="inputElimNombreTipoCosto" class="form-label fw-bold">Tipo de Costo a Eliminar</label>
+						<input type="text" class="form-control text-center" id="inputElimNombreTipoCosto" disabled>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="btnConfirmarElimTipoCosto">Eliminar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Modal Eliminar otros costos detalle-->
+<div class="modal fade" id="modalEliminarCostoArticulo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5">Eliminar Costo</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body text-center">
+				<input type="hidden" id="inputIdElimCostoArt">
+				<input type="hidden" id="inputCodElimCostoArt">
+				<p class="fs-6">¿Está seguro de eliminar el costo para el artículo <br><b id="txtElimArtCosto"></b>?</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" id="btnConfirmarElimCostoArt">Eliminar</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<style>
+	/* 1. Forzar a DataTables a reducir el padding (espacio interior) de las celdas */
+	table.dataTable.table-sm > tbody > tr > td,
+	table.dataTable.table-sm > thead > tr > th {
+	padding: 0.2rem 0.5rem !important;
+	vertical-align: middle !important;
+	}
+
+	/* 2. Achicar los botones de acción para que no estiren la fila hacia arriba y abajo */
+	.btn-action {
+	padding: 0.1rem 0.4rem !important; /* Menos espacio dentro del botón */
+	font-size: 0.85rem !important; /* Ícono ligeramente más pequeño */
+	line-height: 1 !important;
+	}
+</style>

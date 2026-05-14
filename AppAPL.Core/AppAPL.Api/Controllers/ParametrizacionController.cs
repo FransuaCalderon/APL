@@ -3,6 +3,7 @@ using AppAPL.Dto;
 using AppAPL.Dto.Parametrizacion;
 using AppAPL.Negocio.Abstracciones;
 using Microsoft.AspNetCore.Mvc;
+using MimeKit.Tnef;
 
 namespace AppAPL.Api.Controllers
 {
@@ -96,6 +97,14 @@ namespace AppAPL.Api.Controllers
             var listaOtrosCostos = await servicio.ConsultarOtrosCostos();
 
             return listaOtrosCostos.ToList();
+        }
+
+        [HttpGet("consultar-otros-costos-detalle/{codigo:int}")]
+        public async Task<ActionResult<List<OtroCostosConfigDetalleDTO>>> ConsultarOtrosCostosDetalle(int codigo)
+        {
+            var listaOtrosCostosDetalle = await servicio.ConsultarOtrosCostosDetalle(codigo);
+
+            return listaOtrosCostosDetalle.ToList();
         }
 
 

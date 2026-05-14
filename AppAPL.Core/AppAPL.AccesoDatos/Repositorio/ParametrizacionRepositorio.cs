@@ -327,6 +327,34 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<IEnumerable<OtroCostosConfigDetalleDTO>> ConsultarOtrosCostosDetalle(int codigo)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new { p_codigo = codigo };
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            // 🔹 Agregar los parámetros de salida
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cod_respuesta", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_msg_respuesta", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            // 🔹 Ejecutar el SP
+            var datos = await connection.QueryAsync<OtroCostosConfigDetalleDTO>(
+                "APL_PKG_CONFIGURA_PARAMETRO.PR_CONSULTA_OTROS_COSTOS_DETALLE",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_cod_respuesta");
+            string? mensajeSalida = parameters.Get<string>("p_msg_respuesta");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
 
         public async Task<MantenimientoParametrosResponseDTO> MantParametros(MantenimientoParametrosRequestDTO request)
         {

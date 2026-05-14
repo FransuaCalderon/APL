@@ -164,7 +164,7 @@ namespace AppAPL.Dto.Parametrizacion
 
     public class OtrosCostosConfigDTO
     {
-        public int idparametrodato { get; set; }
+        //public int idparametrodato { get; set; }
 
         public int idparametro { get; set; }
 
@@ -173,7 +173,24 @@ namespace AppAPL.Dto.Parametrizacion
         public string? nombre { get; set; }
 
         
-        public string? Costo { get; set; }
+        //public string? Costo { get; set; }
+    }
+
+    public class OtroCostosConfigDetalleDTO
+    {
+        public int idparametrodato { get; set; }
+
+        public int idparametro { get; set; }
+
+        public int codigoparametro { get; set; }
+
+        public string nombre_parametro { get; set; }
+
+        public string codigo_articulo { get; set; }
+
+        public string nombre_articulo { get; set; }
+
+        public decimal costo { get; set; }
     }
 
     public class MantenimientoParametrosRequestDTO

@@ -46,5 +46,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<MantenimientoParametrosResponseDTO> MantParametros(MantenimientoParametrosRequestDTO request)
             => repo.MantParametros(request);
+
+        public Task<IEnumerable<OtroCostosConfigDetalleDTO>> ConsultarOtrosCostosDetalle(int codigo)
+            => repo.ConsultarOtrosCostosDetalle(codigo);
     }
 }
