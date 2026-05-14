@@ -88,6 +88,53 @@ $(function () {
         }
     });
 
+    // ===================================================================
+    // VALIDACIÓN CAMPO VALOR FONDO EN MODAL
+    // ===================================================================
+
+    // 1. BLOQUEAR caracteres inválidos al presionar tecla
+    $("#modal-fondo-valor").on("keypress", function (e) {
+        const char = String.fromCharCode(e.which);
+        if (!/[\d.,]/.test(char)) {
+            e.preventDefault();
+        }
+    });
+
+    // 2. TAMBIÉN bloquear en el evento input (cubre pegar con ratón y escribir)
+    $("#modal-fondo-valor").on("input", function () {
+        let valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+        let valorNumerico = desformatearMoneda(valorLimpio);
+
+        if (valorNumerico > 10000000) {
+            valorLimpio = valorLimpio.slice(0, -1);
+        }
+        if ($(this).val() !== valorLimpio) {
+            $(this).val(valorLimpio);
+        }
+    });
+
+    // 3. AL SALIR DEL CAMPO
+    $("#modal-fondo-valor").on("blur", function () {
+        let num = desformatearMoneda($(this).val());
+
+        if (num > 10000000) {
+            Swal.fire('Atención', 'El valor total no puede ser mayor a $ 10.000.000.', 'warning');
+            num = 10000000; // Auto-corrige al tope máximo
+        }
+        const formatted = formatearMoneda(num);
+        $(this).val(formatted);
+
+        // Si al modificar el fondo también se debe reiniciar el disponible a este valor,
+        // descomenta la siguiente línea:
+        // $("#modal-fondo-disponible").val(formatted);
+    });
+
+    // 4. AL ENTRAR AL CAMPO: mostrar solo el número limpio para facilitar edición
+    $("#modal-fondo-valor").on("focus", function () {
+        const num = desformatearMoneda($(this).val());
+        $(this).val(num === 0 ? '' : String(num));
+    });
+
 });
 
 // ===================================================================
@@ -529,7 +576,7 @@ function crearListado(data) {
         var fondo = data[i];
         var id = fondo.idfondo;
 
-        var editButton = '<button type="button" class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(' + id + ')">' +
+        var editButton = '<button type="button" class="btn-action edit-btn" title="Editar" onclick="abrirModalEditar(' + id + ')" style="border:none; background:none; color:#0d6efd;">' +
             '<i class="fa-regular fa-pen-to-square"></i>' +
             '</button>';
 

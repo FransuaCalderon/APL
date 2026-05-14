@@ -521,37 +521,57 @@ function poblarSelectSegmento(configId, segmentos, etiqueta) {
 // ===============================================================
 function initValidacionesFinancieras() {
     $("#descuentoProveedor, #descuentoPropio")
-        .off("focus input blur")
-        .on("focus", function () {
-            if (parseFloat($(this).val()) === 0) $(this).val("");
-        })
-        .on("input", function () {
-            this.value = this.value.replace(/[^0-9.]/g, '');
-            calcularTotalDescuento();
-        })
-        .on("blur", function () {
-            let val = parseFloat($(this).val()) || 0;
-            $(this).val(val > 0 ? val.toFixed(2) : "");
-            calcularTotalDescuento();
-        });
+    .off("focus input blur")
+    .on("focus", function () {
+        if (parseFloat($(this).val()) === 0) $(this).val("");
+    })
+    .on("input", function () {
+        this.value = this.value.replace(/[^0-9.]/g, '');
+        calcularTotalDescuento();
+    })
+    .on("blur", function () {
+        let val = parseFloat($(this).val()) || 0;
+        $(this).val(val > 0 ? val.toFixed(2) : "");
+        calcularTotalDescuento();
+    });
 
     $("#fondoValorTotal, #comprometidoPropio")
-        .off("focus input blur")
-        .on("focus", function () {
-            let valStr = $(this).val().replace(/[^0-9.,]/g, '');
-            if (valStr.includes(',') && !valStr.includes('.')) valStr = valStr.replace(',', '.');
-            else if (valStr.includes(',') && valStr.includes('.')) valStr = valStr.replace(/\./g, '').replace(',', '.');
-            let val = parseFloat(valStr);
-            $(this).val(!isNaN(val) && val > 0 ? val : "");
-        })
-        .on("input", function () {
-            this.value = this.value.replace(/[^0-9.]/g, '');
-        })
-        .on("blur", function () {
-            let valStr = $(this).val().replace(/[^0-9.]/g, '');
-            let valorIngresado = parseFloat(valStr) || 0;
-            $(this).val(valorIngresado > 0 ? formatCurrencySpanish(valorIngresado) : "");
-        });
+    .off("focus input blur keypress")
+    .on("focus", function () {
+        let valStr = $(this).val().replace(/[^0-9.,]/g, '');
+        if (valStr.includes(',') && !valStr.includes('.')) valStr = valStr.replace(',', '.');
+        else if (valStr.includes(',') && valStr.includes('.')) valStr = valStr.replace(/\./g, '').replace(',', '.');
+        let val = parseFloat(valStr);
+        $(this).val(!isNaN(val) && val > 0 ? val : "");
+    })
+    .on("input", function () {
+        let valorLimpio = this.value.replace(/[^0-9.,]/g, '');
+        let valorNumerico = parseCurrencyToNumber(valorLimpio);
+
+        if (valorNumerico > 10000000) {
+            valorLimpio = valorLimpio.slice(0, -1);
+        }
+        if (this.value !== valorLimpio) {
+            this.value = valorLimpio;
+        }
+    })
+    .on("keypress", function (event) {
+        const char = event.key;
+        if (char >= "0" && char <= "9") return true;
+        if ((char === "," || char === ".") && $(this).val().indexOf(",") === -1 && $(this).val().indexOf(".") === -1) return true;
+        event.preventDefault();
+        return false;
+    })
+    .on("blur", function () {
+        let valStr = $(this).val().replace(/[^0-9.,]/g, '');
+        let valorIngresado = parseCurrencyToNumber(valStr) || 0;
+
+        if (valorIngresado > 10000000) {
+            Swal.fire('Atención', 'El valor total no puede ser mayor a $ 10.000.000.', 'warning');
+            valorIngresado = 10000000;
+        }
+        $(this).val(valorIngresado > 0 ? formatCurrencySpanish(valorIngresado) : "");
+    });
 }
 
 function calcularTotalDescuento() {
@@ -2136,8 +2156,55 @@ function initLogicaCombosMod() {
         recalcularTotalesComboMod();
     });
 
-    // CAMBIO DE UNIDADES LÍMITE/PROYECCIÓN EN COLUMNA DEL COMBO
-    $(document).off("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input").on("input change", "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input", function () {
+    // RECÁLCULO DE INPUTS EN MODAL COMBO (Costos y Aportes)
+    $(document).off("input", "#tablaCreacionCombo tbody input.input-combo-art-mod").on("input", "#tablaCreacionCombo tbody input.input-combo-art-mod", function () {
+        let valorLimpio = this.value.replace(/[^0-9.,]/g, '');
+        let valorNumerico = parseCurrencyToNumber(valorLimpio);
+
+        if (valorNumerico > 10000000) {
+            valorLimpio = valorLimpio.slice(0, -1);
+        }
+        if (this.value !== valorLimpio) {
+            this.value = valorLimpio;
+        }
+    });
+
+    $(document).off("keypress", "#tablaCreacionCombo tbody input.input-combo-art-mod").on("keypress", "#tablaCreacionCombo tbody input.input-combo-art-mod", function (event) {
+        const char = event.key;
+        if (char >= "0" && char <= "9") return true;
+        if (char === "," || char === ".") return true;
+        event.preventDefault();
+        return false;
+    });
+
+    $(document).off("keyup change", "#tablaCreacionCombo tbody input.input-combo-art-mod").on("keyup change", "#tablaCreacionCombo tbody input.input-combo-art-mod", function () {
+        recalcularColumnaComboMod($(this).closest("td").data("colindex"));
+        recalcularTotalesComboMod();
+    });
+
+    // CAMBIO DE UNIDADES LÍMITE/PROYECCIÓN EN COLUMNA DEL COMBO (Solo enteros)
+    const selectoresUnidadesMod = "#tablaCreacionCombo tbody tr[data-campo='unidades_limite'] td:eq(1) input, #tablaCreacionCombo tbody tr[data-campo='proyeccion_vta'] td:eq(1) input";
+
+    $(document).off("input", selectoresUnidadesMod).on("input", selectoresUnidadesMod, function () {
+        let valorLimpio = this.value.replace(/[^0-9]/g, ''); // Solo enteros
+        let valorNumerico = parseInt(valorLimpio, 10) || 0;
+
+        if (valorNumerico > 10000000) {
+            valorLimpio = valorLimpio.slice(0, -1);
+        }
+        if (this.value !== valorLimpio) {
+            this.value = valorLimpio;
+        }
+    });
+
+    $(document).off("keypress", selectoresUnidadesMod).on("keypress", selectoresUnidadesMod, function (event) {
+        const char = event.key;
+        if (char >= "0" && char <= "9") return true;
+        event.preventDefault();
+        return false;
+    });
+
+    $(document).off("keyup change", selectoresUnidadesMod).on("keyup change", selectoresUnidadesMod, function () {
         const numCols = $("#trHeadersCombo th").length;
         for (let i = 2; i < numCols; i++) recalcularColumnaComboMod(i);
         recalcularTotalesComboMod();
@@ -2762,9 +2829,32 @@ $(function () {
         acuerdoArticuloTemporal = null; acuerdoArticuloContexto = null;
     });
 
-    $(document).on("input change", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
-        this.value = this.value.replace(/[^0-9.,]/g, '');
-        recalcularFilaArticulo($(this).closest("tr"));
+    // 1. Limitar a 10 millones en Artículos
+    $(document).off("input", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']").on("input", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
+        let valorLimpio = this.value.replace(/[^0-9.,]/g, '');
+        let valorNumerico = this.type === 'number' ? (parseInt(valorLimpio, 10) || 0) : parseCurrencyToNumber(valorLimpio);
+
+        if (valorNumerico > 10000000) {
+            valorLimpio = valorLimpio.slice(0, -1);
+        }
+        if (this.value !== valorLimpio) {
+            this.value = valorLimpio;
+        }
+    });
+
+    // 2. Bloquear letras
+    $(document).off("keypress", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']").on("keypress", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function (event) {
+        const char = event.key;
+        if (char >= "0" && char <= "9") return true;
+        if (this.type !== 'number' && (char === "," || char === ".")) return true;
+        event.preventDefault();
+        return false;
+    });
+
+    // 3. Recalcular
+    $(document).off("keyup change", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']").on("keyup change", "#tablaArticulosBody input[type='text'], #tablaArticulosBody input[type='number']", function () {
+        const $fila = $(this).closest("tr");
+        recalcularFilaArticulo($fila);
     });
 
     $(document).on("blur", "#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-proveedor2, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio, #tablaArticulosBody .aporte-propio2", function () {

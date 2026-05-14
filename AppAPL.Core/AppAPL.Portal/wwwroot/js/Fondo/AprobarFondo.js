@@ -440,8 +440,8 @@ function crearListado(data) {
     for (var i = 0; i < data.length; i++) {
         var fondo = data[i];
 
-        var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + fondo.idfondo + ', ' + fondo.idaprobacion + ')">' +
-            '<i class="fa-regular fa-eye"></i>' +
+        var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + fondo.idfondo + ', ' + fondo.idaprobacion + ')" style="border:none; background:none; color:#0d6efd;">' +
+            '<i class="fa-regular fa-pen-to-square"></i>' +
             '</button>';
 
         html += "<tr>";

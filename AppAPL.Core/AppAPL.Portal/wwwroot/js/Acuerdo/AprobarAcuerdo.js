@@ -198,8 +198,8 @@ function crearListado(data) {
         var acuerdo = data[i];
 
         // Botón de visualizar (Llama a abrirModalEditar)
-        var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + acuerdo.idacuerdo + ', ' + acuerdo.idaprobacion + ')">' +
-            '<i class="fa-regular fa-eye"></i>' +
+        var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + acuerdo.idacuerdo + ', ' + acuerdo.idaprobacion + ')" style="border:none; background:none; color:#0d6efd;">' +
+            '<i class="fa-regular fa-pen-to-square"></i>' +
             '</button>';
         var claseAcuerdoHTML = (acuerdo.nombre_clase_acuerdo ?? "");
         if (acuerdo.cantidad_articulos > 0) {

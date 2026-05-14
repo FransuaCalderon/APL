@@ -150,8 +150,8 @@ function crearListado(data) {
 
         html += `<tr>
             <td class='text-center'>
-                <button type="button" class="btn-action edit-btn" onclick="abrirModalEditar(${acuerdo.idacuerdo})">
-                    <i class="fa-regular fa-pen-to-square"></i>
+                <button type="button" class="btn-action edit-btn" onclick="abrirModalEditar(${acuerdo.idacuerdo})" style="border:none; background:none; color:#0d6efd;">
+                    <i class="fa-regular fa-eye"></i>
                 </button>
             </td>
             <td>${acuerdo.idacuerdo ?? ""}</td>

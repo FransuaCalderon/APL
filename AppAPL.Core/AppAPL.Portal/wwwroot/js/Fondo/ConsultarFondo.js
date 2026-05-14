@@ -593,7 +593,7 @@ function crearListado(data) {
         var fondo = data[i];
         var id = fondo.idfondo;
 
-        var viewButton = '<button type="button" class="btn-action edit-btn" title="Visualizar" onclick="abrirModalEditar(' + id + ')">' +
+        var viewButton = '<button type="button" class="btn-action edit-btn" title="Visualizar" onclick="abrirModalEditar(' + id + ')" style="border:none; background:none; color:#0d6efd;">' +
             '<i class="fa-regular fa-pen-to-square"></i>' +
             '</button>';
 

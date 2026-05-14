@@ -413,7 +413,7 @@ function crearListado(data) {
 
     datos.forEach(promo => {
         html += `<tr>
-            <td class="text-center"><button type="button" class="btn-action view-btn" title="Ver Detalle" onclick="abrirModalEditar(${promo.idpromocion})"><i class="fa-regular fa-eye"></i></button></td>
+            <td class="text-center"><button type="button" class="btn-action view-btn" title="Ver Detalle" onclick="abrirModalEditar(${promo.idpromocion})"  style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-eye"></i></button></td>
             <td class="text-center">${promo.idpromocion ?? ""}</td><td>${promo.descripcion ?? ""}</td><td>${promo.nombre_motivo ?? ""}</td><td>${promo.clase_promocion ?? ""}</td>
             <td class="text-center">${formatearFecha(promo.fecha_inicio)}</td><td class="text-center">${formatearFecha(promo.fecha_fin)}</td>
             <td class="text-center">${promo.regalo && promo.regalo !== "N" ? "✓" : ""}</td><td>${obtenerNombreArchivo(promo.soporte)}</td><td>${promo.estado ?? ""}</td>

@@ -492,7 +492,7 @@ function crearListado(data) {
 
     for (var i = 0; i < data.length; i++) {
         var promo = data[i];
-        var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + promo.idpromocion + ', ' + promo.idaprobacion + ')"><i class="fa-regular fa-eye"></i></button>';
+        var viewButton = '<button type="button" class="btn-action view-btn" title="Visualizar/Aprobar" onclick="abrirModalEditar(' + promo.idpromocion + ', ' + promo.idaprobacion + ')" style="border:none; background:none; color:#0d6efd;"><i class="fa-regular fa-pen-to-square"></i></button>';
         var clasePromocionHTML = (promo.nombre_clase_promocion ?? "");
         if (promo.cantidad_articulos > 0) clasePromocionHTML += '<sup style="font-size: 0.8em; margin-left: 2px; font-weight: bold;">' + promo.cantidad_articulos + '</sup>';
 

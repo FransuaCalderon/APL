@@ -2248,63 +2248,143 @@ function initCurrencyGeneral() {
     const $valor = $("#acuerdoValorTotalGeneral");
     const $dispo = $("#acuerdoDisponibleGeneral");
 
+    // 1. Limitar a 10 millones y caracteres válidos
+    $valor.on("input", function () {
+        let valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+        let valorNumerico = parseCurrencyToNumber(valorLimpio);
+
+        if (valorNumerico > 10000000) {
+            valorLimpio = valorLimpio.slice(0, -1);
+        }
+        if ($(this).val() !== valorLimpio) {
+            $(this).val(valorLimpio);
+        }
+    });
+
     $valor.on("keypress", function (event) {
         const char = event.key;
-        const currentValue = $(this).val();
-
         if (char >= "0" && char <= "9") return true;
-        if (char === "," && currentValue.indexOf(",") === -1) return true;
-
+        if ((char === "," || char === ".") && $(this).val().indexOf(",") === -1 && $(this).val().indexOf(".") === -1) return true;
         event.preventDefault();
         return false;
     });
 
+    // 2. Formatear y validar tope al salir
     $valor.on("blur", function () {
-        const rawValue = $(this).val().replace(",", ".");
-        const formattedValue = formatCurrencySpanish(rawValue);
+        let num = parseCurrencyToNumber($(this).val());
+        if (num > 10000000) {
+            Swal.fire('Atención', 'El valor total no puede ser mayor a $ 10.000.000.', 'warning');
+            num = 10000000;
+        }
+        const formattedValue = formatCurrencySpanish(num);
         $(this).val(formattedValue);
         $dispo.val(formattedValue);
+    });
+
+    // 3. Limpiar al enfocar
+    $valor.on("focus", function () {
+        const num = parseCurrencyToNumber($(this).val());
+        $(this).val(num === 0 ? '' : String(num));
     });
 }
 
 function initCurrencyItems() {
-    // ✅ NUEVO: Limpia el formato de moneda al hacer clic o tab para que no se ponga en 0
-    $(document).on("focus", ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte", function () {
+    const inputsDinamicos = ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte";
+
+    // 1. Limpiar formato al entrar
+    $(document).on("focus", inputsDinamicos, function () {
         if (!$(this).prop("disabled")) {
             let valorReal = parseCurrencyToNumber($(this).val());
-            // Si el valor es mayor a 0, muestra el número limpio. Si es 0, lo deja vacío para que escribas directo.
             $(this).val(valorReal === 0 ? "" : valorReal);
         }
     });
 
-    // Opcional: Si también te pasa con las "Unidades Límite", agrega esto:
     $(document).on("focus", "input[name='unidadesLimite']", function () {
         if (!$(this).prop("disabled") && $(this).val() == "0") {
             $(this).val("");
         }
     });
 
-    // 👇 Tus eventos existentes se mantienen igual 👇
-    $(document).on(
-        "blur",
-        ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte",
-        function () {
-            if (!$(this).prop("disabled")) {
-                const rawValue = $(this).val().replace(",", ".");
-                $(this).val(formatCurrencySpanish(rawValue));
-                calcularTotalesItems();
-            }
-        }
-    );
+    // 2. Validar límite en inputs de moneda (10 millones)
+    $(document).on("input", inputsDinamicos, function () {
+        let valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+        let valorNumerico = parseCurrencyToNumber(valorLimpio);
 
-    $(document).on("change", "input[name='unidadesLimite']", function () {
-        calcularTotalesItems();
+        if (valorNumerico > 10000000) {
+            valorLimpio = valorLimpio.slice(0, -1);
+        }
+        if ($(this).val() !== valorLimpio) {
+            $(this).val(valorLimpio);
+        }
     });
 
-    $(document).on("keyup", ".item-precio-contado, .item-precio-tc, .item-precio-credito", function () {
+    // 3. Validar límite en unidades (10 millones enteros)
+    $(document).on("input", "input[name='unidadesLimite']", function () {
+        let valorLimpio = $(this).val().replace(/[^\d]/g, '');
+        let valorNumerico = parseInt(valorLimpio, 10) || 0;
+
+        if (valorNumerico > 10000000) {
+            valorLimpio = valorLimpio.slice(0, -1);
+        }
+        if ($(this).val() !== valorLimpio) {
+            $(this).val(valorLimpio);
+        }
+    });
+
+    // 4. Bloquear letras
+    $(document).on("keypress", inputsDinamicos, function (event) {
+        const char = event.key;
+        if (char >= "0" && char <= "9") return true;
+        if (char === "," || char === ".") return true;
+        event.preventDefault();
+        return false;
+    });
+
+    $(document).on("keypress", "input[name='unidadesLimite']", function (event) {
+        const char = event.key;
+        if (char >= "0" && char <= "9") return true;
+        event.preventDefault();
+        return false;
+    });
+
+    // 5. Formatear y calcular al salir
+    $(document).on("blur", inputsDinamicos, function () {
+        if (!$(this).prop("disabled")) {
+            const valStr = String($(this).val()).trim();
+            if (valStr === "") {
+                $(this).val("");
+            } else {
+                let numLimpio = parseCurrencyToNumber(valStr);
+                if (numLimpio > 10000000) {
+                    Swal.fire('Atención', 'El valor no puede exceder $ 10.000.000.', 'warning');
+                    numLimpio = 10000000;
+                }
+                $(this).val(formatCurrencySpanish(numLimpio));
+            }
+            calcularTotalesItems();
+        }
+    });
+
+    $(document).on("blur", "input[name='unidadesLimite']", function () {
+        if (!$(this).prop("disabled")) {
+            let num = parseInt($(this).val(), 10) || 0;
+            if (num > 10000000) {
+                Swal.fire('Atención', 'Las unidades no pueden exceder 10.000.000.', 'warning');
+                $(this).val(10000000);
+            }
+            calcularTotalesItems();
+        }
+    });
+
+    // 6. Recálculos al teclear y cambiar
+    $(document).on("keyup", inputsDinamicos + ", input[name='unidadesLimite']", function () {
         if (!$(this).prop("disabled")) {
             calcularTotalesItems();
         }
+    });
+
+    $(document).on("change", "input[name='unidadesLimite']", function () {
+        calcularTotalesItems();
     });
 }
 
@@ -2346,7 +2426,7 @@ function crearListado(data) {
 
         html += `<tr>
             <td class='text-center'>
-                <button type="button" class="btn-action edit-btn" onclick="abrirModalEditar(${acuerdo.idacuerdo})">
+                <button type="button" class="btn-action edit-btn" onclick="abrirModalEditar(${acuerdo.idacuerdo})" style="border:none; background:none; color:#0d6efd;">
                     <i class="fa-regular fa-pen-to-square"></i>
                 </button>
             </td>
