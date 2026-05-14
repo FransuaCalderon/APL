@@ -218,7 +218,6 @@ function ejecutarGuardadoFondo() {
     const idOpcionActual = window.obtenerIdOpcionActual();
     const usuario = window.usuarioActual || "admin";
 
-    // ✅ CORRECCIÓN: toISO recibe fecha en formato dd/mm/yyyy del datepicker
     const toISO = (f) => {
         if (!f) return null;
         const p = f.split('/');
@@ -226,7 +225,6 @@ function ejecutarGuardadoFondo() {
         return new Date(p[2], p[1] - 1, p[0]).toISOString();
     };
 
-    // ✅ CORRECCIÓN: usar parsearMoneda que maneja correctamente el formato es-EC
     const body = {
         descripcion: $("#fondoDescripcion").val(),
         idproveedor: $("#fondoProveedorId").val(),
@@ -241,7 +239,11 @@ function ejecutarGuardadoFondo() {
         idevento: "EVCLICK"
     };
 
-    console.log("Valor parseado para guardar:", body.valorfondo); // ✅ Verificación en consola
+    console.log("Valor parseado para guardar:", body.valorfondo);
+
+    if (body.valorfondo > 10000000) {
+        return Swal.fire('Error', 'El valor total excede el máximo permitido de $ 10.000.000.', 'error');
+    }
 
     if (!body.fechainiciovigencia || !body.fechafinvigencia) {
         return Swal.fire('Error', 'Las fechas no son válidas.', 'error');
@@ -337,19 +339,26 @@ $(function () {
         }
     });
 
-    // 2. TAMBIÉN bloquear en el evento input (cubre pegar con ratón)
+    // 2. TAMBIÉN bloquear en el evento input (cubre pegar con ratón y escribir en tiempo real)
     $("#fondoValorTotal").on("input", function () {
-        // Eliminar cualquier caracter que no sea dígito, punto o coma
-        const valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+        let valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+        let valorNumerico = parsearMoneda(valorLimpio);
+        if (valorNumerico > 10000000) {
+            valorLimpio = valorLimpio.slice(0, -1);
+        }
         if ($(this).val() !== valorLimpio) {
             $(this).val(valorLimpio);
         }
     });
 
-    // 3. AL SALIR DEL CAMPO: formatear con $ al inicio y separadores correctos
+    // 3. AL SALIR DEL CAMPO
     $("#fondoValorTotal").on("blur", function () {
-        const num = parsearMoneda($(this).val());
-        // ✅ $ al INICIO, formato es-EC (punto=miles, coma=decimal)
+        let num = parsearMoneda($(this).val());
+
+        if (num > 10000000) {
+            Swal.fire('Atención', 'El valor total no puede ser mayor a $ 10.000.000.', 'warning');
+            num = 10000000; // Opcional: auto-corrige el valor al tope máximo (o cámbialo a 0)
+        }
         const formatted = formatearMonedaInput(num);
         $(this).val(formatted);
         $("#fondoDisponible").val(formatted);
