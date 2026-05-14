@@ -2313,8 +2313,6 @@ function guardarMM() {
         body_request: body
     };
 
-    //console.log("body: ", body);
-    return;
     $.ajax({
         url: "/api/apigee-router-proxy", method: "POST", contentType: "application/json", data: JSON.stringify(payload),
         success: function (response) {
@@ -3445,9 +3443,6 @@ function eliminarAlmacen() {
         client: "APL",
         body_request: body
     };
-
-    //console.log("body: ", body);
-    //return;
 
 
     $.ajax({
