@@ -47,7 +47,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<PromocionDTO>(
                 "APL_PKG_PROMOCIONES.sp_bandeja_consulta_promocion",
-                null, //aqui van los parametros
+                parameters, //aqui van los parametros
                 commandType: CommandType.StoredProcedure
             );
 

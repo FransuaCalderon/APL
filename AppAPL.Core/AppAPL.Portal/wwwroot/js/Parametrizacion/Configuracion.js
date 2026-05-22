@@ -924,8 +924,9 @@ function cargarCostosArticulo(codigoTipoCosto) {
     const payload = {
         code_app: "APP20260128155212346",
         http_method: "GET",
-        endpoint_path: `api/Parametrizacion/consultar-otros-costos-detalle/${codigoTipoCosto}`, // <-- Ajusta la ruta
-        client: "APL"
+        endpoint_path: `api/Parametrizacion/consultar-otros-costos-detalle`, // <-- Ajusta la ruta
+        client: "APL",
+        endpoint_query_params: `/${codigoTipoCosto}`
     };
 
     $.ajax({
@@ -3836,8 +3837,9 @@ function cargarAlmacenGrupo(codigo) {
     {
         code_app: "APP20260128155212346",
         http_method: "GET",
-        endpoint_path: `api/Parametrizacion/consultar-almacen-grupo/${codigo}`,
-        client: "APL"
+        endpoint_path: `api/Parametrizacion/consultar-almacen-grupo`,
+        client: "APL",
+        "endpoint_query_params": `/${codigo}`
     };
 
     $.ajax({
