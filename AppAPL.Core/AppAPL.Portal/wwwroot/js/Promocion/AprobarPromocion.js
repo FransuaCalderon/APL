@@ -432,28 +432,112 @@ $(function () {
 // ===================================================================
 // VISOR DE PDF EMBEBIDO
 // ===================================================================
+// Función auxiliar para convertir el Base64 a Blob
+function base64ToBlob(base64, contentType) {
+    const byteCharacters = atob(base64); // Decodifica el Base64
+    const byteArrays = [];
+
+    // Procesamos en fragmentos para no saturar la memoria con archivos grandes
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+    }
+    return new Blob(byteArrays, { type: contentType });
+}
+
 function abrirVisorPDF(nombreArchivo) {
-    $("#pdfSpinner").show(); $("#pdfVisorContenido").hide(); $("#pdfVisorError").hide(); $("#btnDescargarPdf").hide();
+    $("#pdfSpinner").show();
+    $("#pdfVisorContenido").hide();
+    $("#pdfVisorError").hide();
+    $("#btnDescargarPdf").hide();
+
     const nombreLegible = obtenerNombreArchivo(nombreArchivo);
     $("#modalVisorPdfLabel .pdf-nombre-archivo").text(nombreLegible || "Soporte");
+
     const modal = new bootstrap.Modal(document.getElementById("modalVisorPdf"));
     modal.show();
+
     fetchPDFDirecto(nombreArchivo);
 }
 
 function fetchPDFDirecto(nombreArchivo) {
-    let baseUrl = (window.apiBaseUrl || "http://localhost:5074").replace("/api/router-proxy/execute", "");
-    const url = `${baseUrl}/api/Descargas/descargar/${encodeURIComponent(nombreArchivo)}`;
-    fetch(url)
-        .then(r => { if (!r.ok) return r.text().then(t => { throw new Error(t || `Error HTTP ${r.status}`); }); return r.blob(); })
-        .then(blob => {
-            const pdfBlob = new Blob([blob], { type: "application/pdf" });
-            const blobUrl = URL.createObjectURL(pdfBlob);
-            $("#pdfIframe").attr("src", blobUrl); $("#pdfSpinner").hide(); $("#pdfVisorContenido").show();
-            const nombreLegible = obtenerNombreArchivo(nombreArchivo);
-            $("#btnDescargarPdf").data("blob-url", blobUrl).data("nombre-archivo", nombreLegible || "soporte.pdf").show();
-        })
-        .catch(error => { $("#pdfSpinner").hide(); $("#pdfVisorError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> ${error.message}`).show(); });
+    // Armamos el payload para el proxy de Apigee
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: `api/Descargas/descargar`,
+        client: "APL",
+        endpoint_query_params: `/${encodeURIComponent(nombreArchivo)}`
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            if (response && response.code_status === 200) {
+                try {
+                    // Parseamos el string del proxy si es necesario
+                    const data = typeof response.json_response === "string"
+                        ? JSON.parse(response.json_response)
+                        : response.json_response;
+
+                    // Extraemos los valores en MINÚSCULAS (solución al problema anterior)
+                    const base64 = data.archivobase64;
+                    const contentType = data.contenttype || "application/pdf";
+                    const nombre = data.nombrearchivo || "soporte.pdf";
+
+                    if (!base64) {
+                        throw new Error("El archivo base64 vino vacío o no se encontró.");
+                    }
+
+                    // Convertimos a binario usando la función auxiliar
+                    const blob = base64ToBlob(base64, contentType);
+                    const blobUrl = URL.createObjectURL(blob);
+
+                    // Mostramos el PDF
+                    $("#pdfIframe").attr("src", blobUrl);
+                    $("#pdfSpinner").hide();
+                    $("#pdfVisorContenido").show();
+
+                    // Configuramos el botón de descarga
+                    const nombreLegible = obtenerNombreArchivo(nombreArchivo);
+                    $("#btnDescargarPdf")
+                        .data("blob-url", blobUrl)
+                        .data("nombre-archivo", nombreLegible || nombre)
+                        .show();
+
+                    // Evento de descarga
+                    $("#btnDescargarPdf").off("click").on("click", function () {
+                        const a = document.createElement("a");
+                        a.href = $(this).data("blob-url");
+                        a.download = $(this).data("nombre-archivo");
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    });
+
+                } catch (e) {
+                    console.error("Error al procesar el PDF:", e);
+                    $("#pdfSpinner").hide();
+                    $("#pdfVisorError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> Error al visualizar: ${e.message}`).show();
+                }
+            } else {
+                $("#pdfSpinner").hide();
+                $("#pdfVisorError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> No se pudo obtener el documento.`).show();
+            }
+        },
+        error: function (xhr) {
+            $("#pdfSpinner").hide();
+            $("#pdfVisorError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> Error de conexión con el servidor.`).show();
+        }
+    });
 }
 
 function cerrarVisorPDF() {

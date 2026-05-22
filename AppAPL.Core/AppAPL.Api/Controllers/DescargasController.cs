@@ -8,6 +8,7 @@ namespace AppAPL.Api.Controllers
     [Route("api/[controller]")]
     public class DescargasController (IConfiguration config, ILogger<DescargasController> logger, IWebHostEnvironment env) : ControllerBase
     {
+        /*
         [HttpGet("descargar/{nombreArchivo}")]
         public async Task<IActionResult> DescargarArchivoAsync(string nombreArchivo)
         {
@@ -28,6 +29,7 @@ namespace AppAPL.Api.Controllers
             // 4. Construir la ruta completa al archivo solicitado
             string rutaCompleta = Path.Combine(carpetaBase, nombreArchivo);
 
+            logger.LogInformation($"rutaCompleta: {rutaCompleta}");
             // 5. Verificación de existencia del archivo
             if (!System.IO.File.Exists(rutaCompleta))
             {
@@ -56,6 +58,57 @@ namespace AppAPL.Api.Controllers
             var stream = new FileStream(rutaCompleta, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true);
 
             return File(stream, contentType, nombreArchivo);
+        }*/
+
+        [HttpGet("descargar/{nombreArchivo}")]
+        public async Task<IActionResult> DescargarArchivoAsync(string nombreArchivo)
+        {
+            string nombreCarpetaConfig = config.GetValue<string>("ConfiguracionArchivos:ArchivoSoportes") ?? "ArchivoSoportes";
+            string carpetaBase = Path.Combine(env.ContentRootPath, nombreCarpetaConfig);
+
+            if (!Directory.Exists(carpetaBase))
+            {
+                logger.LogWarning($"La carpeta configurada '{nombreCarpetaConfig}' no existe en el servidor.");
+                return NotFound("El almacén de archivos no ha sido creado o no existe.");
+            }
+
+            string rutaCompleta = Path.Combine(carpetaBase, nombreArchivo);
+            logger.LogInformation($"rutaCompleta: {rutaCompleta}");
+
+            if (!System.IO.File.Exists(rutaCompleta))
+            {
+                logger.LogWarning($"Archivo no encontrado: {rutaCompleta}");
+                return NotFound("El archivo solicitado no existe en el servidor.");
+            }
+
+            var extensionesPermitidas = config.GetSection("ConfiguracionArchivos:ExtensionesPermitidas").Get<List<string>>();
+            string extension = Path.GetExtension(rutaCompleta).ToLower();
+
+            if (extensionesPermitidas != null && !extensionesPermitidas.Contains(extension))
+            {
+                return BadRequest("El tipo de archivo solicitado no está permitido para descarga.");
+            }
+
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(rutaCompleta, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            // --- NUEVO PASO 8: Convertir a Base64 ---
+            // Leemos el archivo completo de forma asíncrona
+            byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(rutaCompleta);
+
+            // Lo convertimos a string Base64
+            string base64String = Convert.ToBase64String(fileBytes);
+
+            // Retornamos un JSON estructural que tu proxy de Apigee no tendrá problemas en procesar
+            return Ok(new
+            {
+                nombreArchivo = nombreArchivo,
+                contentType = contentType,
+                archivoBase64 = base64String
+            });
         }
     }
 }

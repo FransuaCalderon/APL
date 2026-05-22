@@ -353,6 +353,8 @@ $(function () {
 // ===================================================================
 // VISUALIZADOR DE PDF
 // ===================================================================
+
+/*
 function abrirVisualizadorPdf(nombreArchivo) {
     $("#pdfSpinner").show(); $("#pdfVisorContenido").hide(); $("#pdfError").hide(); $("#btnDescargarPdf").hide();
     $("#modalPdfLabel .pdf-nombre-archivo").text(obtenerNombreArchivo(nombreArchivo) || "Soporte");
@@ -374,6 +376,106 @@ function abrirVisualizadorPdf(nombreArchivo) {
         }).catch(error => {
             $("#pdfSpinner").hide(); $("#pdfError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> ${error.message}`).show();
         });
+}*/
+
+// Función auxiliar para convertir el Base64 a Blob
+function base64ToBlob(base64, contentType) {
+    const byteCharacters = atob(base64); // Decodifica el Base64
+    const byteArrays = [];
+
+    // Procesamos en fragmentos para no saturar la memoria con archivos grandes
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+    }
+    return new Blob(byteArrays, { type: contentType });
+}
+
+function abrirVisualizadorPdf(nombreArchivo) {
+    $("#pdfSpinner").show();
+    $("#pdfVisorContenido").hide();
+    $("#pdfError").hide();
+    $("#btnDescargarPdf").hide();
+    $("#modalPdfLabel .pdf-nombre-archivo").text(obtenerNombreArchivo(nombreArchivo) || "Soporte");
+
+    new bootstrap.Modal(document.getElementById("modalVisualizadorPdf")).show();
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: `api/Descargas/descargar`,
+        client: "APL",
+        endpoint_query_params: `/${encodeURIComponent(nombreArchivo)}`
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            // 1. Vemos la respuesta cruda de Apigee
+            console.log("1. Respuesta cruda de Apigee:", response);
+
+            if (response && response.code_status === 200) {
+                try {
+                    const data = typeof response.json_response === "string"
+                        ? JSON.parse(response.json_response)
+                        : response.json_response;
+
+                    // 2. Vemos cómo quedó el objeto parseado
+                    console.log("2. Objeto data parseado:", data);
+
+                    // Validamos temporalmente qué propiedades trae para evitar que se rompa
+                    const base64 = data.archivobase64;
+                    const contentType = data.contenttype || "application/pdf";
+                    const nombre = data.nombrearchivo || "soporte.pdf";
+
+                    if (!base64) {
+                        throw new Error("No se encontró la propiedad del Base64 en el JSON. Revisa la estructura en el console.log #2.");
+                    }
+
+                    // Reconstruimos el archivo binario
+                    const blob = base64ToBlob(base64, contentType);
+                    const blobUrl = URL.createObjectURL(blob);
+
+                    $("#pdfIframe").attr("src", blobUrl);
+                    $("#pdfSpinner").hide();
+                    $("#pdfVisorContenido").show();
+
+                    $("#btnDescargarPdf").data("blob-url", blobUrl)
+                        .data("nombre-archivo", nombre)
+                        .show();
+
+                    $("#btnDescargarPdf").off("click").on("click", function () {
+                        const a = document.createElement("a");
+                        a.href = $(this).data("blob-url");
+                        a.download = $(this).data("nombre-archivo");
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    });
+                } catch (e) {
+                    // 3. Imprimimos el error exacto en consola
+                    console.error("3. Error en el try/catch:", e.message);
+                    $("#pdfSpinner").hide();
+                    $("#pdfError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> Error interno: ${e.message}`).show();
+                }
+            } else {
+                $("#pdfSpinner").hide();
+                $("#pdfError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> Error del servidor: código no es 200.`).show();
+            }
+        },
+        error: function (xhr) {
+            $("#pdfSpinner").hide();
+            $("#pdfError").html(`<i class="fa-solid fa-triangle-exclamation me-2"></i> Error de conexión.`).show();
+        }
+    });
 }
 
 function cerrarVisorPDF() {
