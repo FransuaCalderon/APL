@@ -329,6 +329,9 @@ function abrirModalEditar(id) {
                 $("#modal-activo").prop("checked", d.idestado === 1);
                 $("#modal-etiqueta").val(d.idetiqueta);
 
+                // === AGREGAR ESTA LÍNEA PARA DESHABILITAR ===
+                $("#modal-etiqueta").prop("disabled", true);
+
                 new bootstrap.Modal(document.getElementById('editarModal')).show();
             }
         },
@@ -341,6 +344,11 @@ function abrirModalCrear() {
     $('#modal-idCatalogo').val('');
     $('#editarModalLabel').text('Crear Nuevo Catálogo');
     $('#btnGuardarCambios').html('<i class="fa-solid fa-plus me-2"></i> Crear').addClass('btn-success').removeClass('btn-primary');
+
+
+    // === AGREGAR ESTA LÍNEA PARA VOLVER A HABILITAR AL CREAR ===
+    $("#modal-etiqueta").prop("disabled", false);
+
     new bootstrap.Modal(document.getElementById('editarModal')).show();
 }
 
