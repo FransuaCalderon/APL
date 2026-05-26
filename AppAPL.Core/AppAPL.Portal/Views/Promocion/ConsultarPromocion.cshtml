@@ -46,6 +46,9 @@
                             <div class="promo-icon-btn" id="btnVerAprobaciones" title="Registro de Aprobaciones">
                                 <i class="fa-regular fa-calendar-check"></i>
                             </div>
+                            <div class="promo-icon-btn" id="btnVerEstructuraCombo" title="Ver Estructura del Combo" style="display:none;">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
                         </div>
                     </div>
 
@@ -286,6 +289,55 @@
                 </div>
             </div>
             <div class="modal-footer py-2"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalConsultaComboEstructura" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-pantalla-completa">
+        <div class="modal-content" style="height: 95vh;">
+            <div class="modal-header border-0 pb-0">
+                <h1 class="modal-title fs-5 fw-bold" id="tituloConsultaComboEstructura">
+                    <i class="fa-solid fa-layer-group text-primary me-2"></i>Estructura del Combo: <span id="lblNombreComboConsulta" class="text-secondary"></span>
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body pt-3 bg-light" style="overflow-y: auto;">
+                <div class="table-responsive small border bg-white" style="max-height: calc(95vh - 150px); overflow: auto;">
+                    <table class="table table-hover table-bordered table-sm w-auto mb-0" id="tablaConsultaComboEstructura">
+                        <thead class="sticky-top text-white text-nowrap" style="z-index: 2;">
+                            <tr class="text-center" id="trHeadersConsultaCombo">
+                                <th class="table-sticky-col custom-header-cons-bg border-1" style="min-width: 250px; z-index: 3;">Propiedad / Componente</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-nowrap tabla-items-body">
+                            <tr data-campo="art_codigo"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Código Artículo</td></tr>
+                            <tr data-campo="art_descripcion"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Descripción</td></tr>
+                            <tr data-campo="costo"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Costo</td></tr>
+                            <tr data-campo="stock_bodega"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Stock Bodega</td></tr>
+                            <tr data-campo="stock_tienda"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Stock Tiendas</td></tr>
+                            <tr data-campo="inv_optimo"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Inventario Óptimo</td></tr>
+                            <tr data-campo="excedentes_u"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Excedentes (u)</td></tr>
+                            <tr data-campo="excedentes_usd"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Excedentes ($)</td></tr>
+                            <tr data-campo="precio_lista_contado"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Precio Lista Contado</td></tr>
+                            <tr data-campo="precio_lista_credito"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Precio Lista Crédito</td></tr>
+                            <tr data-campo="promo_contado"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Precio Promo Contado</td></tr>
+                            <tr data-campo="promo_tc"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Precio Promo TC</td></tr>
+                            <tr data-campo="promo_credito"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Precio Promo Crédito</td></tr>
+                            <tr data-campo="dscto_contado"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Descuento Contado</td></tr>
+                            <tr data-campo="dscto_tc"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Descuento TC</td></tr>
+                            <tr data-campo="dscto_credito"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Descuento Crédito</td></tr>
+                            <tr data-campo="margen_promo_contado"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Margen Promo Contado</td></tr>
+                            <tr data-campo="margen_promo_tc"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Margen Promo TC</td></tr>
+                            <tr data-campo="margen_promo_cred"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Margen Promo Crédito</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar Visor</button>
+            </div>
         </div>
     </div>
 </div>

@@ -336,6 +336,7 @@ $(function () {
     // Botones Auditoría
     $("#btnVerLog").on("click", function () { const idPromocion = parseInt($("#lblIdPromocion").text(), 10); if (idPromocion) abrirModalLog(idPromocion); });
     $("#btnVerAprobaciones").on("click", function () { const idPromocion = parseInt($("#lblIdPromocion").text(), 10); if (idPromocion) abrirModalAprobaciones(idPromocion); });
+    $("#btnVerAprobaciones2").on("click", function () { const idPromocion = parseInt($("#lblIdPromocion").text(), 10); if (idPromocion) abrirModalAprobaciones(idPromocion); });
 
     // Evento dinámico Medios de Pago en Grilla
     $(document).on("click", ".btn-ver-mediopago-grid", function () {
@@ -347,6 +348,109 @@ $(function () {
     $(document).on("click", ".btn-ver-otroscostos-grid", function () {
         const detalles = $(this).data("detalles");
         abrirModalVisualizarSegmento("Otros Costos Seleccionados", detalles);
+    });
+
+
+
+    //LOGICA PARA MODAL DE ARTICULOS EN COMBO
+    // 1. Mostrar/Ocultar botón en la cabecera según tipo de promoción
+    // Para esto interceptamos la llamada de ajax original de 'abrirModalEditar'
+    const ajaxOriginal = $.ajax;
+    $.ajax = function (opciones) {
+        if (opciones.url === "/api/apigee-router-proxy" && opciones.data && opciones.data.includes("bandeja-general-id")) {
+            const successOriginal = opciones.success;
+            opciones.success = function (res) {
+                if (res && res.code_status === 200) {
+                    window.promocionConsultadaData = res.json_response; // Guardamos la data global
+
+                    // Validamos el campo clase_promocion
+                    const clasePromocion = (res.json_response.clase_promocion || "").toUpperCase();
+                    if (clasePromocion === "PRCOMBO") {
+                        $("#btnVerEstructuraCombo").show();
+                    } else {
+                        $("#btnVerEstructuraCombo").hide();
+                    }
+                }
+                if (successOriginal) successOriginal(res);
+            };
+        }
+        return ajaxOriginal.apply(this, arguments);
+    };
+
+    // 2. Manejo visual del radio button en la tabla de combos
+    $(document).on("change", ".combo-row-radio-cons", function () {
+        $("#dt-combos-detalle-completa tr").removeClass("table-active");
+        $(this).closest("tr").addClass("table-active");
+    });
+
+    // 3. Evento Click del botón de la cabecera
+    $("#btnVerEstructuraCombo").on("click", function () {
+        const $radioSeleccionado = $(".combo-row-radio-cons:checked");
+        if ($radioSeleccionado.length === 0) {
+            Swal.fire("Atención", "Seleccione un combo en la tabla inferior para ver su estructura.", "info");
+            return;
+        }
+
+        const codigoComboSeleccionado = $radioSeleccionado.closest("tr").data("codigo");
+        const nombreCombo = $radioSeleccionado.closest("tr").data("descripcion");
+
+        // Accedemos directamente al nodo 'articuloscomponente' según el esquema
+        const componentesTotales = window.promocionConsultadaData?.articuloscomponente || [];
+
+        // Filtramos solo los componentes que hacen match con el combo seleccionado en la grilla
+        const componentes = componentesTotales.filter(c => String(c.codigo_combo) === String(codigoComboSeleccionado));
+
+        if (componentes.length === 0) {
+            Swal.fire("Sin Detalle", "Este combo no tiene artículos estructurados registrados.", "info");
+            return;
+        }
+
+        $("#lblNombreComboConsulta").text(`[${codigoComboSeleccionado}] ${nombreCombo}`);
+
+        // Limpiar cabeceras y celdas previas para que no se acumulen al consultar varios combos
+        $("#trHeadersConsultaCombo").find("th:gt(0)").remove();
+        $("#tablaConsultaComboEstructura tbody tr").each(function () {
+            $(this).find("td:gt(0)").remove();
+        });
+
+        // Dibujar las columnas mapeando con los nombres exactos del payload
+        componentes.forEach(comp => {
+            const codItem = comp.componente_codigoitem || "-";
+
+            // Añadir cabecera dinámica con el código del ítem
+            const th = `<th class="table-dark text-center" style="min-width: 180px;">${codItem}</th>`;
+            $("#trHeadersConsultaCombo").append(th);
+
+            const formatCur = (val) => formatearMoneda(val);
+
+            const addTd = (campo, valor, alineacion = "text-end") => {
+                $(`#tablaConsultaComboEstructura tbody tr[data-campo='${campo}']`).append(`<td class="${alineacion}">${valor}</td>`);
+            };
+
+            // Inyectar datos en las filas correspondientes
+            addTd("art_codigo", codItem, "text-center");
+            addTd("art_descripcion", comp.componente_descripcion || "-", "text-start text-wrap");
+            addTd("costo", formatCur(comp.componente_costo));
+            addTd("stock_bodega", comp.componente_stock_bodega || 0);
+            addTd("stock_tienda", comp.componente_stock_tienda || 0);
+            addTd("inv_optimo", comp.componente_inventario_optimo || 0);
+            addTd("excedentes_u", comp.componente_excedente_unidad || 0);
+            addTd("excedentes_usd", formatCur(comp.componente_excedente_valor));
+            addTd("precio_lista_contado", formatCur(comp.componente_precio_lista_contado));
+            addTd("precio_lista_credito", formatCur(comp.componente_precio_lista_credito));
+            addTd("promo_contado", formatCur(comp.componente_precio_promo_contado));
+            addTd("promo_tc", formatCur(comp.componente_precio_promo_tc));
+            addTd("promo_credito", formatCur(comp.componente_precio_promo_credito));
+            addTd("dscto_contado", formatCur(comp.componente_desc_promo_contado));
+            addTd("dscto_tc", formatCur(comp.componente_desc_promo_tc));
+            addTd("dscto_credito", formatCur(comp.componente_desc_promo_credito));
+            addTd("margen_promo_contado", `${Number(comp.componente_margen_promo_contado || 0).toFixed(2)}%`);
+            addTd("margen_promo_tc", `${Number(comp.componente_margen_promo_tc || 0).toFixed(2)}%`);
+            addTd("margen_promo_cred", `${Number(comp.componente_margen_promo_credito || 0).toFixed(2)}%`);
+        });
+
+        // Mostrar el Modal
+        new bootstrap.Modal(document.getElementById("modalConsultaComboEstructura")).show();
     });
 });
 
@@ -917,6 +1021,7 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
             <table id="dt-combos-detalle-completa" class="table table-bordered table-sm table-hover mb-0" style="width:100%">
                 <thead class="sticky-top text-nowrap">
                     <tr class="text-center tabla-items-header">
+                        <th style="width: 40px; background-color: #a4c995;">Sel.</th>
                         <th class="custom-header-cons-bg" style="min-width: 220px;">Combo</th>
                         <th class="custom-header-cons-bg">Costo</th>
                         <th class="custom-header-cons-bg">Stock Bodega</th>
@@ -946,7 +1051,8 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
     combosArray.forEach(cmb => {
         const medioPagoHtml = generarHtmlMedioPagoCombo(articulossegmentos, cmb.id_promo_art, cmb.codigo);
 
-        html += `<tr>
+        html += `<tr data-codigo="${cmb.codigo}" data-descripcion="${cmb.descripcion}">
+            <td class="text-center align-middle"><input type="radio" class="form-check-input combo-row-radio-cons" name="comboRadioSelCons"></td>
             <td class="fw-bold text-start">${cmb.codigo} - ${cmb.descripcion}</td>
             <td class="text-end">${formatearMoneda(cmb.costo)}</td>
             <td class="text-end">${cmb.stock_bodega}</td>
