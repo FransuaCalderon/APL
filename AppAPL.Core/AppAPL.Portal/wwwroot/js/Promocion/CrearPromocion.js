@@ -1267,6 +1267,7 @@
                     data-m2s="${item.m2_s || item.m2_d || 0}"
                     data-m12u="${item.m12_u || 0}"
                     data-m12s="${item.m12_s || item.m12_d || 0}"
+                    data-igualarprecio="${item.igualar_precio || 0}"
                     data-diasantiguedad="${item.dias_antiguedad || 0}"
                     data-margenmincontado="${item.margen_min_contado || 0}"
                     data-margenmintc="${item.margen_min_tarjeta_credito || 0}"
@@ -1291,6 +1292,8 @@
                         formatCurrencySpanish(item.m12_s || item.m12_d || 0)
                     ];
                 });
+
+                //console.log("filas: ", data);
 
                 if (dtItemsConsultaPromo) {
                     dtItemsConsultaPromo.clear();
@@ -1317,6 +1320,7 @@
     // AGREGAR ITEMS A TABLA ARTÍCULOS
     // ==========================================
     function agregarItemsATablaArticulos(items) {
+        console.log();
         const $tbody = $("#tablaArticulosBody");
         let itemsNuevos = 0;
 
@@ -1343,8 +1347,8 @@
             <td class="align-middle text-end">${formatCurrencySpanish(item.m2s || 0)}</td>
             <td class="align-middle text-end">${item.m12u || 0}</td>
             <td class="align-middle text-end">${formatCurrencySpanish(item.m12s || 0)}</td>
-            <td class="align-middle text-end">0</td>
-            <td class="align-middle text-end">0</td>
+            <td class="align-middle text-end">${formatCurrencySpanish(item.igualarprecio || 0)}</td>
+            <td class="align-middle text-end">${item.diasantiguedad}</td>
             <td class="align-middle text-end">${item.margenmincontado}%</td>
             <td class="align-middle text-end">${item.margenmintc}%</td>
             <td class="align-middle text-end">${item.margenmincredito}%</td>
@@ -3593,6 +3597,7 @@
                 m0u: $c.data("m0u"), m0s: $c.data("m0s"), m1u: $c.data("m1u"), m1s: $c.data("m1s"),
                 m2u: $c.data("m2u"), m2s: $c.data("m2s"),
                 m12u: $c.data("m12u"), m12s: $c.data("m12s"),
+                igualarprecio: $c.data("igualarprecio"),
                 diasantiguedad: $c.data("diasantiguedad"),
                 margenmincontado: $c.data("margenmincontado"),
                 margenmintc: $c.data("margenmintc"),
@@ -3602,6 +3607,8 @@
                 preciolistacredito: $c.data("preciolistacredito")
             });
         });
+
+        console.log("items: ", items);
 
         if (items.length === 0) {
             Swal.fire("Atención", "Seleccione al menos un item.", "info"); return;

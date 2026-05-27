@@ -126,6 +126,7 @@ namespace AppAPL.Dto.Acuerdo
         public decimal M2_D { get; set; }
         public int M12_U { get; set; }
         public decimal M12_D { get; set; }
+        public decimal IGUALAR_PRECIO { get; set; }
         public int DIAS_ANTIGUEDAD { get; set; }
         public decimal PRECIO_LISTA_CONTADO { get; set; }
         public decimal PRECIO_LISTA_CREDITO { get; set; }
