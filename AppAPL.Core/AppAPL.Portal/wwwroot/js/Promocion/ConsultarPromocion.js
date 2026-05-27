@@ -377,27 +377,19 @@ $(function () {
         return ajaxOriginal.apply(this, arguments);
     };
 
-    // 2. Manejo visual del radio button en la tabla de combos
-    $(document).on("change", ".combo-row-radio-cons", function () {
-        $("#dt-combos-detalle-completa tr").removeClass("table-active");
-        $(this).closest("tr").addClass("table-active");
-    });
+    // Delegamos el evento click para los botones que se generan dinámicamente en la tabla
+    $(document).on("click", ".btn-ver-estructura-combo", function () {
+        // Obtenemos la fila a la que pertenece el botón
+        const $fila = $(this).closest("tr");
 
-    // 3. Evento Click del botón de la cabecera
-    $("#btnVerEstructuraCombo").on("click", function () {
-        const $radioSeleccionado = $(".combo-row-radio-cons:checked");
-        if ($radioSeleccionado.length === 0) {
-            Swal.fire("Atención", "Seleccione un combo en la tabla inferior para ver su estructura.", "info");
-            return;
-        }
+        // Obtenemos los datos desde los atributos data- que pusimos en el <tr>
+        const codigoComboSeleccionado = $fila.data("codigo");
+        const nombreCombo = $fila.data("descripcion");
 
-        const codigoComboSeleccionado = $radioSeleccionado.closest("tr").data("codigo");
-        const nombreCombo = $radioSeleccionado.closest("tr").data("descripcion");
-
-        // Accedemos directamente al nodo 'articuloscomponente' según el esquema
+        // Accedemos a la data global (articuloscomponente)
         const componentesTotales = window.promocionConsultadaData?.articuloscomponente || [];
 
-        // Filtramos solo los componentes que hacen match con el combo seleccionado en la grilla
+        // Filtramos solo los componentes que hacen match con el combo seleccionado
         const componentes = componentesTotales.filter(c => String(c.codigo_combo) === String(codigoComboSeleccionado));
 
         if (componentes.length === 0) {
@@ -407,7 +399,7 @@ $(function () {
 
         $("#lblNombreComboConsulta").text(`[${codigoComboSeleccionado}] ${nombreCombo}`);
 
-        // Limpiar cabeceras y celdas previas para que no se acumulen al consultar varios combos
+        // Limpiar cabeceras y celdas previas
         $("#trHeadersConsultaCombo").find("th:gt(0)").remove();
         $("#tablaConsultaComboEstructura tbody tr").each(function () {
             $(this).find("td:gt(0)").remove();
@@ -1021,7 +1013,7 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
             <table id="dt-combos-detalle-completa" class="table table-bordered table-sm table-hover mb-0" style="width:100%">
                 <thead class="sticky-top text-nowrap">
                     <tr class="text-center tabla-items-header">
-                        <th style="width: 40px; background-color: #a4c995;">Sel.</th>
+                        <th style="width: 50px; background-color: #a4c995;" class="text-center">Acción</th>
                         <th class="custom-header-cons-bg" style="min-width: 220px;">Combo</th>
                         <th class="custom-header-cons-bg">Costo</th>
                         <th class="custom-header-cons-bg">Stock Bodega</th>
@@ -1052,8 +1044,12 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
         const medioPagoHtml = generarHtmlMedioPagoCombo(articulossegmentos, cmb.id_promo_art, cmb.codigo);
 
         html += `<tr data-codigo="${cmb.codigo}" data-descripcion="${cmb.descripcion}">
-            <td class="text-center align-middle"><input type="radio" class="form-check-input combo-row-radio-cons" name="comboRadioSelCons"></td>
-            <td class="fw-bold text-start">${cmb.codigo} - ${cmb.descripcion}</td>
+            <td class="text-center align-middle">
+                <button type="button" class="btn btn-sm btn-outline-info btn-ver-estructura-combo" title="Ver Estructura">
+                    <i class="fa-solid fa-layer-group"></i>
+                </button>
+            </td>
+            <td class="fw-bold text-start align-middle">${cmb.codigo} - ${cmb.descripcion}</td>
             <td class="text-end">${formatearMoneda(cmb.costo)}</td>
             <td class="text-end">${cmb.stock_bodega}</td>
             <td class="text-end">${cmb.stock_tienda}</td>

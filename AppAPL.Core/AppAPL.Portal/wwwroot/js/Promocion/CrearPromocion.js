@@ -334,13 +334,8 @@
         uniqueAcceptBtns.forEach(btnAcceptSelector => {
             $(btnAcceptSelector).off("click.acceptMulti").on("click.acceptMulti", function () {
                 // Si el modal de crear combo está abierto, es para los selects dentro del modal
-                if ($("#modalCrearCombo").hasClass("show")) {
-                    return;
-                }
-
-                if (this.id === "btnAceptarMedioPago" && !$("#formGeneral").is(":visible")) {
-                    return;
-                }
+                if ($("#modalCrearCombo").hasClass("show")) return;
+                if (this.id === "btnAceptarMedioPago" && !$("#formGeneral").is(":visible")) return;
 
                 const targetBtnSelector = $(this).data("target-btn");
                 const targetBodySelector = $(this).data("target-body");
@@ -348,25 +343,57 @@
 
                 if (!targetBtnSelector) return;
 
-                const seleccionados = [];
-                $(`${targetBodySelector} input[type='checkbox']:checked`).each(function () {
-                    seleccionados.push($(this).val());
-                });
+                // --- NUEVA LÓGICA DE VALIDACIÓN DE "TODAS" ---
+                // Identificamos si hay un checkbox con valor TODAS/TODOS seleccionado
+                const $chkMaestro = $(`${targetBodySelector} input[type='checkbox'][value='TODAS'], ${targetBodySelector} input[type='checkbox'][value='TODOS']`);
+                const isTodasChecked = $chkMaestro.length > 0 && $chkMaestro.is(":checked");
+
+                // Validamos si seleccionó todos los checks uno por uno manualmente
+                const $todosItems = $(`${targetBodySelector} input[type='checkbox']`).not($chkMaestro);
+                const $itemsChecked = $(`${targetBodySelector} input[type='checkbox']:checked`).not($chkMaestro);
+                const todosSeleccionadosManualmente = ($todosItems.length > 0 && $todosItems.length === $itemsChecked.length);
 
                 const $btnTrigger = $(targetBtnSelector);
-                $btnTrigger.data("seleccionados", seleccionados);
+                const conf = CONFIG_MULTIPLE.find(c => c.id === targetId);
+                const $select = $(conf.select);
 
-                if (seleccionados.length > 0) {
-                    $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success")
-                        .html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+                if (isTodasChecked || todosSeleccionadosManualmente) {
+                    // Si quiere "Todas", forzamos el Select original a "TODAS/TODOS" 
+                    // Esto oculta el botón verde, pasa la validación y envía [] al API
+                    let valorTodas = $select.find("option[value='TODAS']").length > 0 ? "TODAS" :
+                        ($select.find("option[value='TODOS']").length > 0 ? "TODOS" : "");
+
+                    if (valorTodas !== "") {
+                        $select.val(valorTodas).trigger("change");
+                    } else {
+                        $select.val("").trigger("change");
+                    }
+                    $btnTrigger.removeData("seleccionados");
+
                 } else {
-                    $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary")
-                        .html(`<i class="fa-solid fa-list-check"></i>`);
+                    // Lógica normal para selección parcial (Varios)
+                    const seleccionados = [];
+                    $itemsChecked.each(function () {
+                        seleccionados.push($(this).val());
+                    });
+
+                    $btnTrigger.data("seleccionados", seleccionados);
+
+                    if (seleccionados.length > 0) {
+                        $btnTrigger.removeClass("btn-outline-secondary").addClass("btn-success")
+                            .html(`<i class="fa-solid fa-list-check"></i> (${seleccionados.length})`);
+                    } else {
+                        $btnTrigger.removeClass("btn-success").addClass("btn-outline-secondary")
+                            .html(`<i class="fa-solid fa-list-check"></i>`);
+                    }
+
+                    if (targetId === "marca" || targetId === "marcaArticulos") {
+                        validarBloqueoProveedor(seleccionados.length > 1);
+                    }
                 }
 
-                if (targetId === "marca" || targetId === "marcaArticulos") {
-                    validarBloqueoProveedor(seleccionados.length > 1);
-                }
+                // Cerramos el modal
+                $(this).closest('.modal').modal('hide');
             });
         });
     }
@@ -1149,7 +1176,9 @@
         });
     }
 
+    /*
     function initFiltrosModalItems() {
+        
         $(".filtro-todas").off("change").on("change", function () {
             const targetId = $(this).data("target");
             const isChecked = $(this).is(":checked");
@@ -1161,6 +1190,32 @@
             const $checkboxTodas = $container.find(".filtro-todas");
             const $todos = $container.find(".filtro-item-checkbox");
             $checkboxTodas.prop("checked", $todos.length === $todos.filter(":checked").length);
+        });
+    }*/
+
+    function initFiltrosModalItems() {
+
+        // 1. Evento para el checkbox de "Todas" / "Todos"
+        $(".filtro-todas").off("change").on("change", function () {
+            const targetId = $(this).data("target");
+            const isChecked = $(this).is(":checked");
+
+            // Si el usuario MARCA "Todas", desmarcamos todos los checks individuales de esa lista
+            if (isChecked) {
+                $(`#${targetId} .filtro-item-checkbox`).prop("checked", false);
+            }
+        });
+
+        // 2. Evento para los checkboxes individuales
+        $(document).off("change.filtroItem", ".filtro-item-checkbox").on("change.filtroItem", ".filtro-item-checkbox", function () {
+            const isChecked = $(this).is(":checked");
+
+            // Si el usuario MARCA cualquier item individual, desmarcamos el check de "Todas"
+            if (isChecked) {
+                const $container = $(this).closest(".border.rounded"); // Contenedor que agrupa la lista
+                const $checkboxTodas = $container.find(".filtro-todas");
+                $checkboxTodas.prop("checked", false);
+            }
         });
     }
 
