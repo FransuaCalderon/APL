@@ -310,12 +310,10 @@
                     <table class="table table-hover table-bordered table-sm w-auto mb-0" id="tablaConsultaComboEstructura">
                         <thead class="sticky-top text-white text-nowrap" style="z-index: 2;">
                             <tr class="text-center" id="trHeadersConsultaCombo">
-                                <th class="table-sticky-col custom-header-cons-bg border-1" style="min-width: 250px; z-index: 3;">Propiedad / Componente</th>
+                                <th class="table-sticky-col custom-header-cons-bg border-1" style="min-width: 250px; z-index: 3;">Artículo</th>
                             </tr>
                         </thead>
                         <tbody class="text-nowrap tabla-items-body">
-                            <tr data-campo="art_codigo"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Código Artículo</td></tr>
-                            <tr data-campo="art_descripcion"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Descripción</td></tr>
                             <tr data-campo="costo"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Costo</td></tr>
                             <tr data-campo="stock_bodega"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Stock Bodega</td></tr>
                             <tr data-campo="stock_tienda"><td class="table-sticky-col align-middle custom-header-cons-bg border-1 fw-bold">Stock Tiendas</td></tr>
@@ -333,12 +331,31 @@
                             <tr data-campo="margen_promo_contado"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Margen Promo Contado</td></tr>
                             <tr data-campo="margen_promo_tc"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Margen Promo TC</td></tr>
                             <tr data-campo="margen_promo_cred"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Margen Promo Crédito</td></tr>
+
+                            <tr data-campo="margen_pl_contado"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Margen Precio Lista Contado</td></tr>
+                            <tr data-campo="margen_pl_credito"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Margen Precio Lista Crédito</td></tr>
+                            <tr data-campo="aporte_prov"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte Proveedor Valor</td></tr>
+                            <tr data-campo="aporte_prov_id"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte Proveedor ID Acuerdo</td></tr>
+                            <tr data-campo="aporte_prov2"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte 2 Proveedor Valor</td></tr>
+                            <tr data-campo="aporte_prov2_id"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte 2 Proveedor ID Acuerdo</td></tr>
+                            <tr data-campo="aporte_rebate"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte Rebate Valor</td></tr>
+                            <tr data-campo="aporte_rebate_id"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte Rebate ID Acuerdo</td></tr>
+                            <tr data-campo="aporte_propio"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte Propio Valor</td></tr>
+                            <tr data-campo="aporte_propio_id"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte Propio ID Acuerdo</td></tr>
+                            <tr data-campo="aporte_propio2"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte 2 Propio Valor</td></tr>
+                            <tr data-campo="aporte_propio2_id"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Aporte 2 Propio ID Acuerdo</td></tr>
+                            <tr data-campo="comp_proveedor"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Valor Comprometido Proveedor</td></tr>
+                            <tr data-campo="comp_proveedor2"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Valor Comprometido 2 Proveedor</td></tr>
+                            <tr data-campo="comp_rebate"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Valor Comprometido Rebate</td></tr>
+                            <tr data-campo="comp_propio"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Valor Comprometido Propio</td></tr>
+                            <tr data-campo="comp_propio2"><td class="table-sticky-col align-middle custom-header-calc-bg border-1 fw-bold">Valor Comprometido 2 Propio</td></tr>
+                            <tr data-campo="regalo"><td class="table-sticky-col align-middle custom-header-ingr-bg border-1 fw-bold">Regalo</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="modal-footer bg-light border-top">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar Visor</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
