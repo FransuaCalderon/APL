@@ -1270,6 +1270,8 @@ function poblarCombosDesdeAPI(data) {
     // Helper para distinguir slot por numero_aporte
     const getNumAporte = (a) => String(a.numero_aporte ?? a.numeroaporte ?? "").trim();
 
+
+    console.log("articuloscomponentes: ", articuloscomponentes);
     // 2. Asociar componentes
     articuloscomponentes.forEach(comp => {
         const idCombo = comp.idpromocionarticulo;
@@ -1562,7 +1564,10 @@ function recalcularColumnaComboMod(colIndex) {
 }
 
 function recalcularTotalesComboMod() {
-    const camposNum = ["stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u"];
+    //const camposNum = ["stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u"];
+    const camposNum = [];
+
+
     const camposMoneda = [
         "costo", "excedentes_usd",
         "precio_lista_contado", "precio_lista_credito",
@@ -1573,6 +1578,16 @@ function recalcularTotalesComboMod() {
 
     const setComboVal = (campo, val) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(val);
     const getComboVal = (campo) => parseCurrencyToNumber($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
+
+    // 3. Forzamos el guion "-" en las filas que ya no queremos sumar
+    const camposGuion = [
+        "stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u", "excedentes_usd",
+        "m0_u", "m0_usd", "m1_u", "m1_usd", "m2_u", "m2_usd", "m12_u", "m12_usd",
+        "igualar_precio", "dias_antiguedad", "margen_min_cont", "margen_min_tc", "margen_min_cred", "margen_min_igual"
+    ];
+    camposGuion.forEach(campo => setComboVal(campo, "-"));
+
+
 
     camposNum.forEach(campo => {
         let suma = 0;
@@ -1694,6 +1709,38 @@ function agregarColumnaAComboMod(item) {
                 html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.excedenteu || 0}">`; break;
             case "excedentes_usd":
                 html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.excedentes || 0)}">`; break;
+
+            // --- NUEVAS FILAS MAPEADAS ---
+            case "m0_u":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.m0u || 0}">`; break;
+            case "m0_usd":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m0s || 0)}">`; break;
+            case "m1_u":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.m1u || 0}">`; break;
+            case "m1_usd":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m1s || 0)}">`; break;
+            case "m2_u":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.m2u || 0}">`; break;
+            case "m2_usd":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m2s || 0)}">`; break;
+            case "m12_u":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.m12u || 0}">`; break;
+            case "m12_usd":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.m12s || 0)}">`; break;
+            case "igualar_precio":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${formatCurrencySpanish(item.igualarprecio || 0)}">`; break;
+            case "dias_antiguedad":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.diasantiguedad || 0}">`; break;
+            case "margen_min_cont":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.margenmincontado || 0}%">`; break;
+            case "margen_min_tc":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.margenmintc || 0}%">`; break;
+            case "margen_min_cred":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.margenmincredito || 0}%">`; break;
+            case "margen_min_igual":
+                html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly value="${item.margenminigualar || 0}%">`; break;
+            // ---------------------------------
+
             case "unidades_limite":
             case "proyeccion_vta":
                 html += `<input type="text" class="form-control form-control-sm text-end custom-celda-bg" disabled placeholder="-">`; break;
@@ -1717,14 +1764,12 @@ function agregarColumnaAComboMod(item) {
                 html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="0.00">`; break;
             case "aporte_prov":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor aporte-proveedor-combo-mod" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor)}" ${item.idAcuerdoProveedor ? '' : 'disabled'}>`; break;
-            // ✅ FIX: Aporte 2 Proveedor input - DESHABILITADO por defecto si no hay acuerdo
             case "aporte_prov2":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor2)}" disabled>`; break;
             case "aporte_rebate":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteRebate)}" ${item.idAcuerdoRebate ? '' : 'disabled'}>`; break;
             case "aporte_propio":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio)}" ${item.idAcuerdoPropio ? '' : 'disabled'}>`; break;
-            // ✅ FIX: Aporte 2 Propio input - DESHABILITADO por defecto
             case "aporte_propio2":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio2)}" disabled>`; break;
             case "aporte_prov_id":
@@ -1734,7 +1779,6 @@ function agregarColumnaAComboMod(item) {
                         <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor || ''}">
                         <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
-            // ✅ FIX: Aporte 2 Proveedor ID - DESHABILITADO por defecto
             case "aporte_prov2_id":
                 html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="${item.idAcuerdoProveedor2 || ''}">
@@ -1756,7 +1800,6 @@ function agregarColumnaAComboMod(item) {
                         <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio || ''}">
                         <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>`; break;
-            // ✅ FIX: Aporte 2 Propio ID - DESHABILITADO por defecto
             case "aporte_propio2_id":
                 html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="${item.idAcuerdoPropio2 || ''}">
@@ -1879,6 +1922,24 @@ function extraerArticulosDelModalComboMod() {
                 case "inv_optimo": art.optimo = parseInt(val) || 0; break;
                 case "excedentes_u": art.excedenteu = parseInt(val) || 0; break;
                 case "excedentes_usd": art.excedentes = parseCurrencyToNumber(val); break;
+
+                // --- NUEVAS FILAS EXTRAÍDAS ---
+                case "m0_u": art.m0u = parseInt(val) || 0; break;
+                case "m0_usd": art.m0s = parseCurrencyToNumber(val); break;
+                case "m1_u": art.m1u = parseInt(val) || 0; break;
+                case "m1_usd": art.m1s = parseCurrencyToNumber(val); break;
+                case "m2_u": art.m2u = parseInt(val) || 0; break;
+                case "m2_usd": art.m2s = parseCurrencyToNumber(val); break;
+                case "m12_u": art.m12u = parseInt(val) || 0; break;
+                case "m12_usd": art.m12s = parseCurrencyToNumber(val); break;
+                case "igualar_precio": art.igualarprecio = parseCurrencyToNumber(val); break;
+                case "dias_antiguedad": art.diasantiguedad = parseInt(val) || 0; break;
+                case "margen_min_cont": art.margenmincontado = parseFloat(val) || 0; break;
+                case "margen_min_tc": art.margenmintc = parseFloat(val) || 0; break;
+                case "margen_min_cred": art.margenmincredito = parseFloat(val) || 0; break;
+                case "margen_min_igual": art.margenminigualar = parseFloat(val) || 0; break;
+                // ------------------------------
+
                 case "precio_lista_contado": art.preciolistacontado = parseCurrencyToNumber(val); break;
                 case "precio_lista_credito": art.preciolistacredito = parseCurrencyToNumber(val); break;
                 case "promo_contado": art.promoContado = parseCurrencyToNumber(val); break;

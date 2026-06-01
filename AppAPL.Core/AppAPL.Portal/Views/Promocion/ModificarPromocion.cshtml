@@ -606,6 +606,7 @@
                                 </th>
                             </tr>
                         </thead>
+                        
                         <tbody class="text-nowrap tabla-items-body">
                             <tr data-campo="art_codigo" class="d-none">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Artículo - Código</td>
@@ -639,6 +640,66 @@
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Excedentes ($)</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
                             </tr>
+
+                            <!-- NUEVAS FILAS DE HISTÓRICOS Y MÁRGENES MÍNIMOS -->
+                            <tr data-campo="m0_u">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-0 Unidades</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="m0_usd">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-0 Dólares</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="m1_u">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-1 Unidades</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="m1_usd">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-1 Dólares</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="m2_u">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-2 Unidades</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="m2_usd">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-2 Dólares</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="m12_u">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-12 Unidades</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="m12_usd">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">M-12 Dólares</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="igualar_precio">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Igualar Precio</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="dias_antiguedad">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Días de Antigüedad</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="-"></td>
+                            </tr>
+                            <tr data-campo="margen_min_cont">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Contado</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="0%"></td>
+                            </tr>
+                            <tr data-campo="margen_min_tc">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo TC</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="0%"></td>
+                            </tr>
+                            <tr data-campo="margen_min_cred">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Crédito</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="0%"></td>
+                            </tr>
+                            <tr data-campo="margen_min_igual">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Igualar Precio</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="0%"></td>
+                            </tr>
+                            <!-- FIN NUEVAS FILAS -->
+
                             <tr data-campo="unidades_limite">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Unidades Límite</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-end input-editable" placeholder="0"></td>
@@ -779,6 +840,8 @@
                                 </td>
                             </tr>
                         </tbody>
+
+
                     </table>
                 </div>
             </div>

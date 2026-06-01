@@ -3266,11 +3266,12 @@
     // RECALCULAR TOTALES DEL COMBO (COLUMNA PRINCIPAL)
     // ==========================================
     function recalcularTotalesCombo() {
-        const camposNum = ["stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u", "m0_u", "m1_u", "m2_u", "m12_u"];
+        //const camposNum = ["stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u", "m0_u", "m1_u", "m2_u", "m12_u"];
+        const camposNum = [];
 
         // Agregamos los Descuentos y Promociones para que se sumen solitos en la columna del Combo
         const camposMoneda = [
-            "costo", "excedentes_usd", "m0_usd", "m1_usd", "m2_usd", "m12_usd",
+            "costo", 
             "precio_lista_contado", "precio_lista_credito",
             "promo_contado", "promo_tc", "promo_credito",
             "dscto_contado", "dscto_tc", "dscto_credito",
@@ -3279,6 +3280,15 @@
 
         const setComboVal = (campo, val) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(val);
         const getComboVal = (campo) => parseCurrency($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
+
+        // 3. Forzamos el guion "-" en las filas que ya no queremos sumar
+        const camposGuion = [
+            "stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u", "excedentes_usd",
+            "m0_u", "m0_usd", "m1_u", "m1_usd", "m2_u", "m2_usd", "m12_u", "m12_usd"
+        ];
+        camposGuion.forEach(campo => setComboVal(campo, "-"));
+
+
 
         // 1. Sumar campos numéricos
         camposNum.forEach(campo => {

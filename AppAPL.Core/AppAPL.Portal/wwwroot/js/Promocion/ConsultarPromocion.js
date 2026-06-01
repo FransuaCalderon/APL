@@ -389,6 +389,8 @@ $(function () {
         // Accedemos a la data global (articuloscomponente)
         const componentesTotales = window.promocionConsultadaData?.articuloscomponente || [];
 
+        console.log("componentesTotales: ", componentesTotales);
+
         // Filtramos solo los componentes que hacen match con el combo seleccionado
         const componentes = componentesTotales.filter(c => String(c.codigo_combo) === String(codigoComboSeleccionado));
 
@@ -420,7 +422,7 @@ $(function () {
             };
 
             // Inyectar datos en las filas correspondientes
-            addTd("art_codigo", codItem, "text-center");
+            addTd("art_codigo", codItem, "text-center fw-bold");
             addTd("art_descripcion", comp.componente_descripcion || "-", "text-start text-wrap");
             addTd("costo", formatCur(comp.componente_costo));
             addTd("stock_bodega", comp.componente_stock_bodega || 0);
@@ -428,17 +430,69 @@ $(function () {
             addTd("inv_optimo", comp.componente_inventario_optimo || 0);
             addTd("excedentes_u", comp.componente_excedente_unidad || 0);
             addTd("excedentes_usd", formatCur(comp.componente_excedente_valor));
+
+            addTd("m0_u", comp.componente_m0_unidades || 0);
+            addTd("m0_usd", formatCur(comp.componente_m0_precio || 0));
+            addTd("m1_u", comp.componente_m1_unidades || 0);
+            addTd("m1_usd", formatCur(comp.componente_m1_precio || 0));
+            addTd("m2_u", comp.componente_m2_unidades || 0);
+            addTd("m2_usd", formatCur(comp.componente_m2_precio || 0));
+            addTd("m12_u", comp.componente_m12_unidades || 0);
+            addTd("m12_usd", formatCur(comp.componente_m12_precio || 0));
+
+            addTd("igualar_precio", formatCur(comp.componente_igualar_precio || 0));
+            addTd("dias_antiguedad", comp.componente_dias_antiguedad || 0);
+
+            addTd("margen_min_cont", `${Number(comp.componente_margen_min_contado || 0).toFixed(2)}%`);
+            addTd("margen_min_tc", `${Number(comp.componente_margen_min_tc || 0).toFixed(2)}%`);
+            addTd("margen_min_cred", `${Number(comp.componente_margen_min_credito || 0).toFixed(2)}%`);
+            addTd("margen_min_igual", `${Number(comp.componente_margen_min_igualar || 0).toFixed(2)}%`);
+
+            addTd("unidades_limite", comp.componente_unidades_limite || 0);
+            addTd("proyeccion_vta", comp.componente_proyeccion_vta || 0);
+
+            // Medio de pago (Check visual)
+            addTd("medio_pago", comp.componente_medio_pago ? "✓" : "-", "text-center fw-bold");
+
             addTd("precio_lista_contado", formatCur(comp.componente_precio_lista_contado));
             addTd("precio_lista_credito", formatCur(comp.componente_precio_lista_credito));
+
             addTd("promo_contado", formatCur(comp.componente_precio_promo_contado));
             addTd("promo_tc", formatCur(comp.componente_precio_promo_tc));
             addTd("promo_credito", formatCur(comp.componente_precio_promo_credito));
+
             addTd("dscto_contado", formatCur(comp.componente_desc_promo_contado));
             addTd("dscto_tc", formatCur(comp.componente_desc_promo_tc));
             addTd("dscto_credito", formatCur(comp.componente_desc_promo_credito));
+
+            // Aportes
+            addTd("aporte_prov", formatCur(comp.componente_aporte_proveedor || 0));
+            addTd("aporte_prov_id", comp.componente_id_acuerdo_proveedor || "-");
+            addTd("aporte_prov2", formatCur(comp.componente_aporte_proveedor2 || 0));
+            addTd("aporte_prov2_id", comp.componente_id_acuerdo_proveedor2 || "-");
+            addTd("aporte_rebate", formatCur(comp.componente_aporte_rebate || 0));
+            addTd("aporte_rebate_id", comp.componente_id_acuerdo_rebate || "-");
+            addTd("aporte_propio", formatCur(comp.componente_aporte_propio || 0));
+            addTd("aporte_propio_id", comp.componente_id_acuerdo_propio || "-");
+            addTd("aporte_propio2", formatCur(comp.componente_aporte_propio2 || 0));
+            addTd("aporte_propio2_id", comp.componente_id_acuerdo_propio2 || "-");
+
+            // Márgenes
+            addTd("margen_pl_contado", `${Number(comp.componente_margen_pl_contado || 0).toFixed(2)}%`);
+            addTd("margen_pl_credito", `${Number(comp.componente_margen_pl_credito || 0).toFixed(2)}%`);
             addTd("margen_promo_contado", `${Number(comp.componente_margen_promo_contado || 0).toFixed(2)}%`);
             addTd("margen_promo_tc", `${Number(comp.componente_margen_promo_tc || 0).toFixed(2)}%`);
             addTd("margen_promo_cred", `${Number(comp.componente_margen_promo_credito || 0).toFixed(2)}%`);
+
+            // Comprometidos
+            addTd("comp_proveedor", formatCur(comp.componente_comp_proveedor || 0));
+            addTd("comp_proveedor2", formatCur(comp.componente_comp_proveedor2 || 0));
+            addTd("comp_rebate", formatCur(comp.componente_comp_rebate || 0));
+            addTd("comp_propio", formatCur(comp.componente_comp_propio || 0));
+            addTd("comp_propio2", formatCur(comp.componente_comp_propio2 || 0));
+
+            const checkRegalo = comp.componente_marca_regalo === 'S' ? '✓' : '-';
+            addTd("regalo", checkRegalo, "text-center fw-bold");
         });
 
         // Mostrar el Modal
@@ -959,6 +1013,8 @@ function renderizarTablaCombos(combos) {
 
 function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
     const combosMap = {};
+
+    console.log("articulos: ", articulos);
 
     articulos.forEach((art, index) => {
         const cod = art.codigo_combo;
