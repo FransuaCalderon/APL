@@ -386,13 +386,17 @@ $(function () {
         const codigoComboSeleccionado = $fila.data("codigo");
         const nombreCombo = $fila.data("descripcion");
 
-        // Accedemos a la data global (articuloscomponente)
+        // Accedemos a la data global
         const componentesTotales = window.promocionConsultadaData?.articuloscomponente || [];
 
         console.log("componentesTotales: ", componentesTotales);
 
         // Filtramos solo los componentes que hacen match con el combo seleccionado
         const componentes = componentesTotales.filter(c => String(c.codigo_combo) === String(codigoComboSeleccionado));
+
+        // Buscamos el combo padre para saber si está marcado como regalo
+        const comboPadre = articulosTotales.find(a => String(a.codigo_combo) === String(codigoComboSeleccionado));
+        const comboEsRegalo = (comboPadre && comboPadre.combo_marca_regalo && comboPadre.combo_marca_regalo.toUpperCase() === 'S');
 
         if (componentes.length === 0) {
             Swal.fire("Sin Detalle", "Este combo no tiene artículos estructurados registrados.", "info");
@@ -410,12 +414,36 @@ $(function () {
         // Dibujar las columnas mapeando con los nombres exactos del payload
         componentes.forEach(comp => {
             const codItem = comp.componente_codigoitem || "-";
+            const descItem = comp.componente_descripcion || "-";
+            const idComp = comp.idpromocionarticulocomponente || 0;
 
-            // Añadir cabecera dinámica con el código del ítem
-            const th = `<th class="table-dark text-center" style="min-width: 180px;">${codItem}</th>`;
+            // Extraemos los acuerdos específicos de este componente
+            const misAcuerdos = acuerdosComponentesTotales.filter(a => a.idpromocionarticulocomponente === idComp);
+
+            const acProv = misAcuerdos.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR");
+            const acProv1 = acProv.length > 0 ? acProv[0] : null;
+            const acProv2 = acProv.length > 1 ? acProv[1] : null;
+
+            const acProp = misAcuerdos.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO");
+            const acProp1 = acProp.length > 0 ? acProp[0] : null;
+            const acProp2 = acProp.length > 1 ? acProp[1] : null;
+
+            const acRebate = misAcuerdos.find(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFREBATE");
+
+            // Añadir cabecera dinámica idéntica al diseño de Modificación (Código + Descripción)
+            const th = `
+            <th class="table-dark" style="min-width: 200px;">
+                <button class="btn btn-dark btn-sm border-0 w-100 header-combo-btn" type="button" title="${codItem} - ${descItem}" style="cursor: default; pointer-events: none;">
+                    <span class="header-combo-content d-flex flex-column align-items-center">
+                        <span class="header-combo-codigo fw-bold">${codItem}</span>
+                        <span class="header-combo-desc text-truncate fw-normal" style="max-width: 180px; font-size: 0.75rem;">${descItem}</span>
+                    </span>
+                </button>
+            </th>`;
             $("#trHeadersConsultaCombo").append(th);
 
             const formatCur = (val) => formatearMoneda(val);
+            const formatAcuerdo = (ac) => ac ? `${ac.idacuerdo} - ${ac.nombre_proveedor || ""}` : "-";
 
             const addTd = (campo, valor, alineacion = "text-end") => {
                 $(`#tablaConsultaComboEstructura tbody tr[data-campo='${campo}']`).append(`<td class="${alineacion}">${valor}</td>`);
@@ -483,16 +511,31 @@ $(function () {
             addTd("margen_promo_contado", `${Number(comp.componente_margen_promo_contado || 0).toFixed(2)}%`);
             addTd("margen_promo_tc", `${Number(comp.componente_margen_promo_tc || 0).toFixed(2)}%`);
             addTd("margen_promo_cred", `${Number(comp.componente_margen_promo_credito || 0).toFixed(2)}%`);
+            addTd("margen_pl_contado", `${Number(comp.componente_margen_pl_contado || 0).toFixed(2)}%`);
+            addTd("margen_pl_credito", `${Number(comp.componente_margen_pl_credito || 0).toFixed(2)}%`);
 
-            // Comprometidos
-            addTd("comp_proveedor", formatCur(comp.componente_comp_proveedor || 0));
-            addTd("comp_proveedor2", formatCur(comp.componente_comp_proveedor2 || 0));
-            addTd("comp_rebate", formatCur(comp.componente_comp_rebate || 0));
-            addTd("comp_propio", formatCur(comp.componente_comp_propio || 0));
-            addTd("comp_propio2", formatCur(comp.componente_comp_propio2 || 0));
+            addTd("aporte_prov", formatCur(acProv1 ? acProv1.valor_aporte : 0));
+            addTd("aporte_prov_id", formatAcuerdo(acProv1), "text-start text-nowrap");
+            addTd("aporte_prov2", formatCur(acProv2 ? acProv2.valor_aporte : 0));
+            addTd("aporte_prov2_id", formatAcuerdo(acProv2), "text-start text-nowrap");
 
-            const checkRegalo = comp.componente_marca_regalo === 'S' ? '✓' : '-';
-            addTd("regalo", checkRegalo, "text-center fw-bold");
+            addTd("aporte_rebate", formatCur(acRebate ? acRebate.valor_aporte : 0));
+            addTd("aporte_rebate_id", formatAcuerdo(acRebate), "text-start text-nowrap");
+
+            addTd("aporte_propio", formatCur(acProp1 ? acProp1.valor_aporte : 0));
+            addTd("aporte_propio_id", formatAcuerdo(acProp1), "text-start text-nowrap");
+            addTd("aporte_propio2", formatCur(acProp2 ? acProp2.valor_aporte : 0));
+            addTd("aporte_propio2_id", formatAcuerdo(acProp2), "text-start text-nowrap");
+
+            addTd("comp_proveedor", formatCur(acProv1 ? acProv1.valor_comprometido : 0));
+            addTd("comp_proveedor2", formatCur(acProv2 ? acProv2.valor_comprometido : 0));
+            addTd("comp_rebate", formatCur(acRebate ? acRebate.valor_comprometido : 0));
+            addTd("comp_propio", formatCur(acProp1 ? acProp1.valor_comprometido : 0));
+            addTd("comp_propio2", formatCur(acProp2 ? acProp2.valor_comprometido : 0));
+
+            // Validamos si el componente tiene marca de regalo O si el combo padre entero es un regalo
+            const esComponenteRegalo = (comp.componente_marca_regalo && comp.componente_marca_regalo.toUpperCase() === 'S') || comboEsRegalo;
+            addTd("regalo", esComponenteRegalo ? '<i class="fa-solid fa-check text-success"></i>' : "-", "text-center");
         });
 
         // Mostrar el Modal
