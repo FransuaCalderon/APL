@@ -427,6 +427,112 @@ $(function () {
         const detalles = $(this).data("detalles");
         abrirModalVisualizarSegmento("Otros Costos Seleccionados", detalles);
     });
+
+
+    // Evento dinámico para el modal de Estructura de Combo en Aprobaciones
+    $(document).on("click", ".btn-ver-estructura-combo", function () {
+        const $fila = $(this).closest("tr");
+        const codigoComboSeleccionado = $fila.data("codigo");
+        const nombreCombo = $fila.data("descripcion");
+
+        // 1. CAMBIO CLAVE: Leer directamente del arreglo 'articulos' en lugar de 'articuloscomponente'
+        const articulosTotales = window.promocionAprobacionData?.articulos || [];
+
+        // 2. Filtramos los registros de ese combo específico (ignorando los que no tengan código de ítem/artículo)
+        const componentes = articulosTotales.filter(art =>
+            String(art.codigo_combo) === String(codigoComboSeleccionado) &&
+            (art.comp_codigo_item || art.codigoarticulo || art.codigoitem)
+        );
+
+
+        if (componentes.length === 0) {
+            Swal.fire("Sin Detalle", "Este combo no tiene artículos estructurados registrados.", "info");
+            return;
+        }
+
+        $("#lblNombreComboConsulta").text(`[${codigoComboSeleccionado}] ${nombreCombo}`);
+
+        // Limpiar cabeceras y celdas previas
+        $("#trHeadersConsultaCombo").find("th:gt(0)").remove();
+        $("#tablaConsultaComboEstructura tbody tr").each(function () {
+            $(this).find("td:gt(0)").remove();
+        });
+
+        // Dibujar las columnas iterando los componentes
+        componentes.forEach(comp => {
+            const codItem = comp.comp_codigo_item || comp.codigoarticulo || comp.codigoitem || "-";
+
+            // Añadir cabecera
+            const th = `<th class="table-dark text-center" style="min-width: 180px;">${codItem}</th>`;
+            $("#trHeadersConsultaCombo").append(th);
+
+            const formatCur = (val) => formatearMoneda(val);
+            const addTd = (campo, valor, alineacion = "text-end") => {
+                $(`#tablaConsultaComboEstructura tbody tr[data-campo='${campo}']`).append(`<td class="${alineacion}">${valor}</td>`);
+            };
+
+            addTd("art_descripcion", comp.comp_descripcion || comp.descripcion || "-", "text-start text-wrap");
+            addTd("costo", formatCur(comp.comp_costo || comp.costo));
+            addTd("stock_bodega", comp.comp_stock_bodega || comp.stockbodega || 0);
+            addTd("stock_tienda", comp.comp_stock_tienda || comp.stocktienda || 0);
+            addTd("inv_optimo", comp.comp_inventario_optimo || comp.inventariooptimo || 0);
+            addTd("excedentes_u", comp.comp_excedente_unidad || comp.excedenteunidad || 0);
+            addTd("excedentes_usd", formatCur(comp.comp_excedente_valor || comp.excedentevalor));
+
+            addTd("m0_u", comp.comp_m0_unidades || comp.m0unidades || 0);
+            addTd("m0_usd", formatCur(comp.comp_m0_precio || comp.m0precio || 0));
+            addTd("m1_u", comp.comp_m1_unidades || comp.m1unidades || 0);
+            addTd("m1_usd", formatCur(comp.comp_m1_precio || comp.m1precio || 0));
+            addTd("m2_u", comp.comp_m2_unidades || comp.m2unidades || 0);
+            addTd("m2_usd", formatCur(comp.comp_m2_precio || comp.m2precio || 0));
+            addTd("m12_u", comp.comp_m12_unidades || comp.m12unidades || 0);
+            addTd("m12_usd", formatCur(comp.comp_m12_precio || comp.m12precio || 0));
+
+            addTd("igualar_precio", formatCur(comp.comp_igualar_precio || comp.igualarprecio || 0));
+            addTd("dias_antiguedad", comp.comp_dias_antiguedad || comp.diasantiguedad || 0);
+
+            addTd("margen_min_cont", `${Number(comp.comp_margen_min_contado || comp.margenminimocontado || 0).toFixed(2)}%`);
+            addTd("margen_min_tc", `${Number(comp.comp_margen_min_tc || comp.margenminimotarjetacredito || 0).toFixed(2)}%`);
+            addTd("margen_min_cred", `${Number(comp.comp_margen_min_credito || comp.margenminimocredito || 0).toFixed(2)}%`);
+            addTd("margen_min_igual", `${Number(comp.comp_margen_min_igualar || comp.margenminimoigualar || 0).toFixed(2)}%`);
+
+            addTd("precio_lista_contado", formatCur(comp.comp_precio_lista_contado || comp.preciolistacontado));
+            addTd("precio_lista_credito", formatCur(comp.comp_precio_lista_credito || comp.preciolistacredito));
+            addTd("promo_contado", formatCur(comp.comp_precio_promo_contado || comp.preciopromocioncontado));
+            addTd("promo_tc", formatCur(comp.comp_precio_promo_tc || comp.preciopromociontarjetacredito));
+            addTd("promo_credito", formatCur(comp.comp_precio_promo_credito || comp.preciopromocioncredito));
+
+            addTd("dscto_contado", formatCur(comp.comp_desc_promo_contado || comp.descuentopromocioncontado));
+            addTd("dscto_tc", formatCur(comp.comp_desc_promo_tc || comp.descuentopromociontarjetacredito));
+            addTd("dscto_credito", formatCur(comp.comp_desc_promo_credito || comp.descuentopromocioncredito));
+
+            addTd("aporte_prov", formatCur(comp.comp_aporte_proveedor || comp.aporteproveedor || 0));
+            addTd("aporte_prov_id", comp.comp_id_acuerdo_proveedor || comp.idacuerdoproveedor || "-");
+            addTd("aporte_prov2", formatCur(comp.comp_aporte_proveedor2 || comp.aporteproveedor2 || 0));
+            addTd("aporte_prov2_id", comp.comp_id_acuerdo_proveedor2 || comp.idacuerdoproveedor2 || "-");
+            addTd("aporte_rebate", formatCur(comp.comp_aporte_rebate || comp.aporterebate || 0));
+            addTd("aporte_rebate_id", comp.comp_id_acuerdo_rebate || comp.idacuerdorebate || "-");
+            addTd("aporte_propio", formatCur(comp.comp_aporte_propio || comp.aportepropio || 0));
+            addTd("aporte_propio_id", comp.comp_id_acuerdo_propio || comp.idacuerdopropio || "-");
+            addTd("aporte_propio2", formatCur(comp.comp_aporte_propio2 || comp.aportepropio2 || 0));
+            addTd("aporte_propio2_id", comp.comp_id_acuerdo_propio2 || comp.idacuerdopropio2 || "-");
+
+            addTd("margen_pl_contado", `${Number(comp.comp_margen_pl_contado || comp.margenpreciolistacontado || 0).toFixed(2)}%`);
+            addTd("margen_pl_credito", `${Number(comp.comp_margen_pl_credito || comp.margenpreciolistacredito || 0).toFixed(2)}%`);
+            addTd("margen_promo_contado", `${Number(comp.comp_margen_promo_contado || comp.margenpromocioncontado || 0).toFixed(2)}%`);
+            addTd("margen_promo_tc", `${Number(comp.comp_margen_promo_tc || comp.margenpromociontarjetacredito || 0).toFixed(2)}%`);
+            addTd("margen_promo_cred", `${Number(comp.comp_margen_promo_credito || comp.margenpromocioncredito || 0).toFixed(2)}%`);
+
+            addTd("comp_proveedor", formatCur(comp.comp_comp_proveedor || comp.valorcomprometidoproveedor || 0));
+            addTd("comp_proveedor2", formatCur(comp.comp_comp_proveedor2 || comp.valorcomprometidoproveedor2 || 0));
+            addTd("comp_rebate", formatCur(comp.comp_comp_rebate || comp.valorcomprometidorebate || 0));
+            addTd("comp_propio", formatCur(comp.comp_comp_propio || comp.valorcomprometidopropio || 0));
+            addTd("comp_propio2", formatCur(comp.comp_comp_propio2 || comp.valorcomprometidopropio2 || 0));
+        });
+
+        // Mostrar el Modal
+        new bootstrap.Modal(document.getElementById("modalConsultaComboEstructura")).show();
+    });
 });
 
 // ===================================================================
@@ -658,6 +764,10 @@ function abrirModalEditar(idPromocion, idAprobacion) {
         success: function (response) {
             if (response && response.code_status === 200) {
                 const data = response.json_response || {};
+
+                // --- AGREGAR ESTA LÍNEA AQUÍ ---
+                window.promocionAprobacionData = data;
+
                 const cab = data.cabecera || {};
                 const segmentos = data.segmentos || [];
                 const acuerdos = data.acuerdos || [];
@@ -959,6 +1069,8 @@ function renderizarTablaCombos(combos) {
 // RENDERIZAR TABLA COMBOS COMPLETA (Específica para PRCOMBO)
 // ===============================================================
 function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
+    console.log("articulos: ", articulos);
+
     const combosMap = {};
 
     articulos.forEach((art, index) => {
@@ -975,25 +1087,33 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
                 codigo: cod,
                 descripcion: art.descripcion_combo,
                 costo: art.costo_combo || 0,
+
+                margen_min_contado: art.combo_margen_min_contado || 0,
+                margen_min_tc: art.combo_margen_min_tc || 0,
+                margen_min_credito: art.combo_margen_min_credito || 0,
+                margen_min_igualar: art.combo_margen_min_igualar || 0,
+
                 unidades_limite: art.combo_unidades_limite || 0,
                 proyeccion: art.combo_unidades_proyeccion || 0,
+
                 pl_contado: art.combo_precio_lista_contado || 0,
                 pl_credito: art.combo_precio_lista_credito || 0,
                 promo_contado: art.combo_precio_promo_contado || 0,
                 promo_tc: art.combo_precio_promo_tc || 0,
                 promo_credito: art.combo_precio_promo_credito || 0,
+
                 dscto_contado: art.combo_desc_promo_contado || 0,
                 dscto_tc: art.combo_desc_promo_tc || 0,
                 dscto_credito: art.combo_desc_promo_credito || 0,
+
+                margen_pl_contado: art.combo_margen_pl_contado || 0,
+                margen_pl_credito: art.combo_margen_pl_credito || 0,
+
                 margen_contado: art.combo_margen_promo_contado || 0,
                 margen_tc: art.combo_margen_promo_tc || 0,
                 margen_credito: art.combo_margen_promo_credito || 0,
                 regalo: art.combo_marca_regalo === "S",
-                stock_bodega: 0,
-                stock_tienda: 0,
-                inv_optimo: 0,
-                excedente_u: 0,
-                excedente_usd: 0
+               
             };
         }
 
@@ -1009,6 +1129,8 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
 
     const combosArray = Object.values(combosMap);
 
+    console.log("combosArray: ", combosArray);
+
     let html = `
         <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
             <input type="text" id="buscarComboDetalleCompleto" class="form-control form-control-sm ms-auto" placeholder="Buscar combo..." style="width: 280px;">
@@ -1017,27 +1139,40 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
             <table id="dt-combos-detalle-completa" class="table table-bordered table-sm table-hover mb-0" style="width:100%">
                 <thead class="sticky-top text-nowrap">
                     <tr class="text-center tabla-items-header">
+                    <th style="width: 50px; background-color: #a4c995;" class="text-center">Acción</th>
                         <th class="custom-header-cons-bg" style="min-width: 220px;">Combo</th>
                         <th class="custom-header-cons-bg">Costo</th>
-                        <th class="custom-header-cons-bg">Stock Bodega</th>
-                        <th class="custom-header-cons-bg">Stock Tienda</th>
-                        <th class="custom-header-cons-bg">Inv. Óptimo</th>
-                        <th class="custom-header-cons-bg">Excedente(u)</th>
-                        <th class="custom-header-cons-bg">Excedente($)</th>
+
+
+                        <th class="custom-header-calc-bg">Margen Minimo Cont.</th>
+                        <th class="custom-header-calc-bg">Margen Minimo TC</th>
+                        <th class="custom-header-calc-bg">Margen Minimo Créd.</th>
+                        <th class="custom-header-calc-bg">Margen Minimo Igualar Precio</th>
+
                         <th class="custom-header-ingr-bg">Uds. Límite</th>
                         <th class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                         <th class="custom-header-ingr-bg">Medio de Pago</th>
+
+
                         <th class="custom-header-cons-bg">Precio Lista Cont.</th>
                         <th class="custom-header-cons-bg">Precio Lista Créd.</th>
                         <th class="custom-header-ingr-bg">Precio Promo Cont.</th>
                         <th class="custom-header-ingr-bg">Precio Promo TC</th>
                         <th class="custom-header-ingr-bg">Precio Promo Créd.</th>
+
+
                         <th class="custom-header-calc-bg">Dscto Promo Cont.</th>
                         <th class="custom-header-calc-bg">Dscto Promo TC</th>
                         <th class="custom-header-calc-bg">Dscto Promo Créd.</th>
+
+                        <th class="custom-header-calc-bg">Margen de Precio Lista Contado</th>
+                        <th class="custom-header-calc-bg">Margen de Precio Lista Credito</th>
+
                         <th class="custom-header-calc-bg">Margen Promo Cont.</th>
                         <th class="custom-header-calc-bg">Margen Promo TC</th>
                         <th class="custom-header-calc-bg">Margen Promo Créd.</th>
+
+
                         <th class="custom-header-ingr-bg">Regalo</th>
                     </tr>
                 </thead>
@@ -1046,25 +1181,39 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
     combosArray.forEach(cmb => {
         const medioPagoHtml = generarHtmlMedioPagoCombo(articulossegmentos, cmb.id_promo_art, cmb.codigo, cmb.id_promo_combo);
 
-        html += `<tr>
+        html += `<tr data-codigo="${cmb.codigo}" data-descripcion="${cmb.descripcion}">
+            
+            <td class="text-center align-middle">
+                <button type="button" class="btn btn-sm btn-outline-info btn-ver-estructura-combo" title="Ver Estructura">
+                    <i class="fa-solid fa-layer-group"></i>
+                </button>
+            </td>
             <td class="fw-bold text-start">${cmb.codigo} - ${cmb.descripcion}</td>
             <td class="text-end">${formatearMoneda(cmb.costo)}</td>
-            <td class="text-end">${cmb.stock_bodega}</td>
-            <td class="text-end">${cmb.stock_tienda}</td>
-            <td class="text-end">${cmb.inv_optimo}</td>
-            <td class="text-end">${cmb.excedente_u}</td>
-            <td class="text-end">${formatearMoneda(cmb.excedente_usd)}</td>
+            
+            <td class="text-end">${cmb.margen_min_contado}</td>
+            <td class="text-end">${cmb.margen_min_tc}</td>
+            <td class="text-end">${cmb.margen_min_credito}</td>
+            <td class="text-end">${cmb.margen_min_igualar}</td>
+
             <td class="text-end">${cmb.unidades_limite}</td>
             <td class="text-end">${cmb.proyeccion}</td>
             <td class="text-center align-middle">${medioPagoHtml}</td>
+
             <td class="text-end">${formatearMoneda(cmb.pl_contado)}</td>
             <td class="text-end">${formatearMoneda(cmb.pl_credito)}</td>
             <td class="text-end">${formatearMoneda(cmb.promo_contado)}</td>
             <td class="text-end">${formatearMoneda(cmb.promo_tc)}</td>
             <td class="text-end">${formatearMoneda(cmb.promo_credito)}</td>
+
+
             <td class="text-end">${formatearMoneda(cmb.dscto_contado)}</td>
             <td class="text-end">${formatearMoneda(cmb.dscto_tc)}</td>
             <td class="text-end">${formatearMoneda(cmb.dscto_credito)}</td>
+
+            <td class="text-end">${cmb.margen_pl_contado.toFixed(2)}%</td>
+            <td class="text-end">${cmb.margen_pl_credito.toFixed(2)}%</td>
+
             <td class="text-end">${cmb.margen_contado.toFixed(2)}%</td>
             <td class="text-end">${cmb.margen_tc.toFixed(2)}%</td>
             <td class="text-end">${cmb.margen_credito.toFixed(2)}%</td>

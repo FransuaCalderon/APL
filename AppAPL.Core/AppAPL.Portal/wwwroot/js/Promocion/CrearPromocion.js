@@ -2638,11 +2638,12 @@
             const getModalComboVal = (campo) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val() || "-";
 
             const modalCosto = getModalComboVal("costo");
-            const modalStock = getModalComboVal("stock_bodega");
-            const modalStockTienda = getModalComboVal("stock_tienda");
-            const modalOptimo = getModalComboVal("inv_optimo");
-            const modalExcU = getModalComboVal("excedentes_u");
-            const modalExcS = getModalComboVal("excedentes_usd");
+
+            const margenMinCont = getModalComboVal("margen_min_cont");
+            const margenMinTC = getModalComboVal("margen_min_tc");
+            const margenMinCred = getModalComboVal("margen_min_cred");
+            const margenMinIgual = getModalComboVal("margen_min_igual");
+            
 
             const modalUnidades = getModalComboVal("unidades_limite");
             const modalProyeccion = getModalComboVal("proyeccion_vta");
@@ -2651,17 +2652,28 @@
             const modalMedioPago = $selectMPModal.val();
             const modalMedioPagoSel = $selectMPModal.data("seleccionados");
 
+
             const modalPLContado = getModalComboVal("precio_lista_contado");
             const modalPLCredito = getModalComboVal("precio_lista_credito");
             const modalPromoContado = getModalComboVal("promo_contado");
             const modalPromoTC = getModalComboVal("promo_tc");
             const modalPromoCredito = getModalComboVal("promo_credito");
+
+
             const modalDsctoContado = getModalComboVal("dscto_contado");
             const modalDsctoTC = getModalComboVal("dscto_tc");
             const modalDsctoCredito = getModalComboVal("dscto_credito");
+
+
+            const modalMargenPLContado = getModalComboVal("margen_pl_contado");
+            const modalMargenPLCredito = getModalComboVal("margen_pl_credito");
+
+
             const modalMargenContado = getModalComboVal("margen_promo_contado");
             const modalMargenTC = getModalComboVal("margen_promo_tc");
             const modalMargenCredito = getModalComboVal("margen_promo_cred");
+
+
             const modalRegalo = $(`#tablaCreacionCombo tbody tr[data-campo='regalo'] td:eq(1) input[type='checkbox']`).is(":checked");
 
             let totalAporteProv = 0, totalAporteRebate = 0, totalAportePropio = 0;
@@ -2689,11 +2701,10 @@
                         <span class="text-nowrap"><span class="fw-bold">${codigo}</span> - ${nombre}</span>
                     </td>
                     <td class="text-end">${modalCosto}</td>
-                    <td class="text-end">${modalStock}</td>
-                    <td class="text-end">${modalStockTienda}</td>
-                    <td class="text-end">${modalOptimo}</td>
-                    <td class="text-end">${modalExcU}</td>
-                    <td class="text-end">${modalExcS}</td>
+                    <td class="text-end">${margenMinCont}</td>
+                    <td class="text-end">${margenMinTC}</td>
+                    <td class="text-end">${margenMinCred}</td>
+                    <td class="text-end">${margenMinIgual}</td>
                    <td><input type="number" class="form-control form-control-sm text-end val-unidades-combo" placeholder="0" value="${modalUnidades}" disabled></td>
                     <td><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo" placeholder="0" value="${modalProyeccion}" disabled></td>
                     <td>
@@ -2709,15 +2720,18 @@
                     <td class="text-end">${modalPromoContado}</td>
                     <td class="text-end">${modalPromoTC}</td>
                     <td class="text-end">${modalPromoCredito}</td>
+
                     <td class="text-end">${modalDsctoContado}</td>
                     <td class="text-end">${modalDsctoTC}</td>
                     <td class="text-end">${modalDsctoCredito}</td>
+
+
+                    <td class="text-end">${modalMargenPLContado}</td>
+                    <td class="text-end">${modalMargenPLCredito}</td>
                     <td class="text-end">${modalMargenContado}</td>
                     <td class="text-end">${modalMargenTC}</td>
                     <td class="text-end">${modalMargenCredito}</td>
-                    <td class="text-end">${formatCurrencySpanish(totalAporteProv)}</td>
-                    <td class="text-end">${formatCurrencySpanish(totalAporteRebate)}</td>
-                    <td class="text-end">${formatCurrencySpanish(totalAportePropio)}</td>
+
                     <td class="text-center"><input class="form-check-input" type="checkbox" disabled ${modalRegalo ? "checked" : ""}></td>
                 </tr>
             `;
@@ -3274,8 +3288,8 @@
             "costo", 
             "precio_lista_contado", "precio_lista_credito",
             "promo_contado", "promo_tc", "promo_credito",
-            "dscto_contado", "dscto_tc", "dscto_credito",
-            "aporte_prov", "aporte_prov2", "aporte_rebate", "aporte_propio", "aporte_propio2"
+            "dscto_contado", "dscto_tc", "dscto_credito"
+            
         ];
 
         const setComboVal = (campo, val) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(val);
@@ -3284,7 +3298,8 @@
         // 3. Forzamos el guion "-" en las filas que ya no queremos sumar
         const camposGuion = [
             "stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u", "excedentes_usd",
-            "m0_u", "m0_usd", "m1_u", "m1_usd", "m2_u", "m2_usd", "m12_u", "m12_usd"
+            "m0_u", "m0_usd", "m1_u", "m1_usd", "m2_u", "m2_usd", "m12_u", "m12_usd", "igualar_precio", "dias_antiguedad",
+            "aporte_prov", "aporte_prov2", "aporte_rebate", "aporte_propio", "aporte_propio2"
         ];
         camposGuion.forEach(campo => setComboVal(campo, "-"));
 
@@ -3346,6 +3361,7 @@
     }
 
     function agregarColumnaACombo(item) {
+        console.log("item: ", item);
         const formatVal = (val) => (val !== undefined && val !== null && val !== '') ? formatCurrencySpanish(val) : '';
 
         const thHtml = `

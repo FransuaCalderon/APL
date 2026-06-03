@@ -314,13 +314,11 @@
                             </tr>
                         </thead>
                         <tbody class="text-nowrap tabla-items-body">
-                            <tr data-campo="art_codigo" class="d-none">
-                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Artículo - Código</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="Auto"></td>
-                            </tr>
-                            <tr data-campo="art_descripcion" class="d-none">
-                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Artículo - Descripción</td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" readonly></td>
+                            
+
+                            <tr data-campo="art_descripcion">
+                                <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Descripción</td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" readonly value="-"></td>
                             </tr>
                             <tr data-campo="costo">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Costo</td>
@@ -402,6 +400,8 @@
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Margen mínimo Igualar Precio</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end total-combo" readonly value="0%"></td>
                             </tr>
+
+                            <!--
                             <tr data-campo="unidades_limite">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Unidades Límite</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-end custom-celda-bg" readonly placeholder="-"></td>
@@ -414,6 +414,8 @@
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Medio de Pago</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-center custom-celda-bg" readonly value="-"></td>
                             </tr>
+                            -->
+
                             <tr data-campo="precio_lista_contado">
                                 <td class="table-sticky-col align-middle custom-header-cons-bg border-1">Precio de Lista Contado</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm text-end total-combo" readonly value="$ 0.00"></td>
@@ -526,12 +528,16 @@
                                 <td class="table-sticky-col align-middle custom-header-calc-bg border-1">Valor Comprometido 2 Propio</td>
                                 <td class="align-middle"><input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="-"></td>
                             </tr>
+
+                            <!--
                             <tr data-campo="regalo">
                                 <td class="table-sticky-col align-middle custom-header-ingr-bg border-1">Regalo</td>
                                 <td class="align-middle text-center">
                                     <input class="form-check-input" type="checkbox" disabled>
                                 </td>
                             </tr>
+                            -->
+
                         </tbody>
                     </table>
                 </div>

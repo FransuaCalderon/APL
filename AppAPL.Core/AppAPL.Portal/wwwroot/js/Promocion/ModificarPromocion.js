@@ -1243,24 +1243,34 @@ function poblarCombosDesdeAPI(data) {
             codigocombo: art.codigo_combo || "",
             descripcion: art.descripcion_combo || "",
             costo: art.costo_combo || 0,
-            stockbodega: art.stockbodega || 0,
-            stocktienda: art.stocktienda || 0,
-            inventariooptimo: art.inventariooptimo || 0,
-            excedenteunidad: art.excedenteunidad || 0,
-            excedentevalor: art.excedentevalor || 0,
+
+            margen_min_contado: art.combo_margen_min_contado || 0,
+            margen_min_tc: art.combo_margen_min_tc || 0,
+            margen_min_credito: art.combo_margen_min_credito || 0,
+            margen_min_igualar: art.combo_margen_min_igualar || 0,
+
+
             unidadeslimite: art.combo_unidades_limite || 0,
             unidadesproyeccionventas: art.combo_unidades_proyeccion || 0,
+
             preciolistacontado: art.combo_precio_lista_contado || 0,
             preciolistacredito: art.combo_precio_lista_credito || 0,
             preciopromocioncontado: art.combo_precio_promo_contado || 0,
             preciopromociontarjetacredito: art.combo_precio_promo_tc || 0,
             preciopromocioncredito: art.combo_precio_promo_credito || 0,
+
             descuentopromocioncontado: art.combo_desc_promo_contado || 0,
             descuentopromociontarjetacredito: art.combo_desc_promo_tc || 0,
             descuentopromocioncredito: art.combo_desc_promo_credito || 0,
+
+            margen_pl_contado: art.combo_margen_pl_contado || 0, 
+            margen_pl_credito: art.combo_margen_pl_credito || 0,
+
             margenpromocioncontado: art.combo_margen_promo_contado || 0,
             margenpromociontarjetacredito: art.combo_margen_promo_tc || 0,
             margenpromocioncredito: art.combo_margen_promo_credito || 0,
+
+
             marcaregalo: (art.combo_marca_regalo || "N").toString().trim().toUpperCase() === "S",
             componentes: []
         };
@@ -1271,7 +1281,7 @@ function poblarCombosDesdeAPI(data) {
     const getNumAporte = (a) => String(a.numero_aporte ?? a.numeroaporte ?? "").trim();
 
 
-    console.log("articuloscomponentes: ", articuloscomponentes);
+    console.log("articulos: ", articulos);
     // 2. Asociar componentes
     articuloscomponentes.forEach(comp => {
         const idCombo = comp.idpromocionarticulo;
@@ -1412,11 +1422,10 @@ function poblarCombosDesdeAPI(data) {
                     <span class="text-nowrap"><span class="fw-bold">${codigoCombo}</span> - ${combo.descripcion}</span>
                 </td>
                 <td class="text-end">${formatCurrencySpanish(combo.costo)}</td>
-                <td class="text-end">${combo.stockbodega}</td>
-                <td class="text-end">${combo.stocktienda}</td>
-                <td class="text-end">${combo.inventariooptimo}</td>
-                <td class="text-end">${combo.excedenteunidad}</td>
-                <td class="text-end">${formatCurrencySpanish(combo.excedentevalor)}</td>
+                <td class="text-end">${combo.margen_min_contado}</td>
+                <td class="text-end">${combo.margen_min_tc}</td>
+                <td class="text-end">${combo.margen_min_credito}</td>
+                <td class="text-end">${combo.margen_min_igualar}</td>
                 <td><input type="number" class="form-control form-control-sm text-end val-unidades-combo-mod" placeholder="0" value="${combo.unidadeslimite}" disabled></td>
                 <td><input type="number" class="form-control form-control-sm text-end val-proyeccion-combo-mod" placeholder="0" value="${combo.unidadesproyeccionventas}" disabled></td>
                 <td>
@@ -1432,15 +1441,18 @@ function poblarCombosDesdeAPI(data) {
                 <td class="text-end">${formatCurrencySpanish(combo.preciopromocioncontado)}</td>
                 <td class="text-end">${formatCurrencySpanish(combo.preciopromociontarjetacredito)}</td>
                 <td class="text-end">${formatCurrencySpanish(combo.preciopromocioncredito)}</td>
+
+
                 <td class="text-end">${formatCurrencySpanish(combo.descuentopromocioncontado)}</td>
                 <td class="text-end">${formatCurrencySpanish(combo.descuentopromociontarjetacredito)}</td>
                 <td class="text-end">${formatCurrencySpanish(combo.descuentopromocioncredito)}</td>
+
+                <td class="text-end">${parseFloat(combo.margen_pl_contado).toFixed(2)}%</td>
+                <td class="text-end">${parseFloat(combo.margen_pl_credito).toFixed(2)}%</td>
+
                 <td class="text-end">${parseFloat(combo.margenpromocioncontado).toFixed(2)}%</td>
                 <td class="text-end">${parseFloat(combo.margenpromociontarjetacredito).toFixed(2)}%</td>
                 <td class="text-end">${parseFloat(combo.margenpromocioncredito).toFixed(2)}%</td>
-                <td class="text-end">${formatCurrencySpanish(0)}</td>
-                <td class="text-end">${formatCurrencySpanish(0)}</td>
-                <td class="text-end">${formatCurrencySpanish(0)}</td>
                 <td class="text-center"><input class="form-check-input" type="checkbox" disabled ${combo.marcaregalo ? "checked" : ""}></td>
             </tr>`;
         $tbody.append(filaCombo);
@@ -2034,6 +2046,8 @@ function initLogicaCombosMod() {
         $(`#tablaCreacionCombo tbody tr[data-campo='regalo'] td:eq(1) input[type='checkbox']`).prop("checked", regaloCombo);
 
         articulosGuardados.forEach(art => agregarColumnaAComboMod(art));
+
+        console.log("articulosGuardados: ", articulosGuardados);
     });
 
     // BOTÓN ELIMINAR COMBO

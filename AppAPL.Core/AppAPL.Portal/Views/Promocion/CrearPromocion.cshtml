@@ -10,13 +10,13 @@
     </script>
 
     <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="/css/jquery-ui-1.13.3/jquery-ui.css" asp-append-version="true">
+    <script src="/js/lib/jquery-ui.min.js" asp-append-version="true"></script>
     <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="/css/lib/select2.min.css" rel="stylesheet" asp-append-version="true" />
+    <script src="/js/lib/select2.min.js" asp-append-version="true"></script>
     <script src="~/js/datatables.min.js" asp-append-version="true"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/font-awesome-6.5.2/css/all.min.css" asp-append-version="true" />
     <script src="~/js/Promocion/CrearPromocion.js" asp-append-version="true"></script>
 }
 
@@ -714,28 +714,35 @@
                             <th scope="col" style="width: 40px; background-color: #a4c995;">Sel.</th>
                             <th scope="col" class="table-sticky-col" style="min-width: 220px; background-color: #a4c995;">Combo</th>
                             <th scope="col" class="custom-header-cons-bg">Costo</th>
-                            <th scope="col" class="custom-header-cons-bg">Stock Bodega</th>
-                            <th scope="col" class="custom-header-cons-bg">Stock Tienda</th>
-                            <th scope="col" class="custom-header-cons-bg">Inv. Óptimo</th>
-                            <th scope="col" class="custom-header-cons-bg">Excedente(u)</th>
-                            <th scope="col" class="custom-header-cons-bg">Excedente($)</th>
+
+                            <th scope="col" class="custom-header-calc-bg">Margen Minimo Contado</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Minimo TC</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Minimo Crédito</th>
+                            <th scope="col" class="custom-header-calc-bg">Margen Minimo Igualar Precio</th>
+
+                            
                             <th scope="col" class="custom-header-ingr-bg">Unidades Límite</th>
                             <th scope="col" class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                             <th scope="col" class="custom-header-ingr-bg">Medio de Pago</th>
+
                             <th scope="col" class="custom-header-cons-bg">Precio Lista Contado</th>
                             <th scope="col" class="custom-header-cons-bg">Precio Lista Crédito</th>
                             <th scope="col" class="custom-header-ingr-bg">Precio Promo Contado</th>
                             <th scope="col" class="custom-header-ingr-bg">Precio Promo TC</th>
                             <th scope="col" class="custom-header-ingr-bg">Precio Promo Crédito</th>
+
+
                             <th scope="col" class="custom-header-calc-bg">Dscto Promo Contado</th>
                             <th scope="col" class="custom-header-calc-bg">Dscto Promo TC</th>
                             <th scope="col" class="custom-header-calc-bg">Dscto Promo Crédito</th>
+
+                            <th scope="col" class="custom-header-cons-bg">Margen de Precio Lista Contado</th>
+                            <th scope="col" class="custom-header-cons-bg">Margen de Precio Lista Crédito</th>
+
                             <th scope="col" class="custom-header-calc-bg">Margen Promo Contado</th>
                             <th scope="col" class="custom-header-calc-bg">Margen Promo TC</th>
                             <th scope="col" class="custom-header-calc-bg">Margen Promo Crédito</th>
-                            <th scope="col" class="custom-header-calc-bg">Comp. Proveedor</th>
-                            <th scope="col" class="custom-header-calc-bg">Comp. Rebate</th>
-                            <th scope="col" class="custom-header-calc-bg">Comp. Propio</th>
+
                             <th scope="col" class="custom-header-ingr-bg">Regalo</th>
                         </tr>
                     </thead>

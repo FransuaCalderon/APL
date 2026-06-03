@@ -432,13 +432,13 @@ $(function () {
             addTd("excedentes_usd", formatCur(comp.componente_excedente_valor));
 
             addTd("m0_u", comp.componente_m0_unidades || 0);
-            addTd("m0_usd", formatCur(comp.componente_m0_dolares || 0));
+            addTd("m0_usd", formatCur(comp.componente_m0_precio || 0));
             addTd("m1_u", comp.componente_m1_unidades || 0);
-            addTd("m1_usd", formatCur(comp.componente_m1_dolares || 0));
+            addTd("m1_usd", formatCur(comp.componente_m1_precio || 0));
             addTd("m2_u", comp.componente_m2_unidades || 0);
-            addTd("m2_usd", formatCur(comp.componente_m2_dolares || 0));
+            addTd("m2_usd", formatCur(comp.componente_m2_precio || 0));
             addTd("m12_u", comp.componente_m12_unidades || 0);
-            addTd("m12_usd", formatCur(comp.componente_m12_dolares || 0));
+            addTd("m12_usd", formatCur(comp.componente_m12_precio || 0));
 
             addTd("igualar_precio", formatCur(comp.componente_igualar_precio || 0));
             addTd("dias_antiguedad", comp.componente_dias_antiguedad || 0);
@@ -448,11 +448,10 @@ $(function () {
             addTd("margen_min_cred", `${Number(comp.componente_margen_min_credito || 0).toFixed(2)}%`);
             addTd("margen_min_igual", `${Number(comp.componente_margen_min_igualar || 0).toFixed(2)}%`);
 
+            /*
             addTd("unidades_limite", comp.componente_unidades_limite || 0);
             addTd("proyeccion_vta", comp.componente_proyeccion_vta || 0);
-
-            // Medio de pago (Check visual)
-            addTd("medio_pago", comp.componente_medio_pago ? "✓" : "-", "text-center fw-bold");
+            addTd("medio_pago", comp.componente_medio_pago ? "✓" : "-", "text-center fw-bold");*/
 
             addTd("precio_lista_contado", formatCur(comp.componente_precio_lista_contado));
             addTd("precio_lista_credito", formatCur(comp.componente_precio_lista_credito));
@@ -490,9 +489,9 @@ $(function () {
             addTd("comp_rebate", formatCur(comp.componente_comp_rebate || 0));
             addTd("comp_propio", formatCur(comp.componente_comp_propio || 0));
             addTd("comp_propio2", formatCur(comp.componente_comp_propio2 || 0));
-
+            /*
             const checkRegalo = comp.componente_marca_regalo === 'S' ? '✓' : '-';
-            addTd("regalo", checkRegalo, "text-center fw-bold");
+            addTd("regalo", checkRegalo, "text-center fw-bold");*/
         });
 
         // Mostrar el Modal
@@ -1028,6 +1027,12 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
                 codigo: cod,
                 descripcion: art.descripcion_combo,
                 costo: art.costo_combo || 0,
+
+                margen_min_contado: art.combo_margen_min_contado || 0,
+                margen_min_tc: art.combo_margen_min_tc || 0,
+                margen_min_credito: art.combo_margen_min_credito || 0,
+                margen_min_igualar: art.combo_margen_min_igualar || 0,
+
                 unidades_limite: art.combo_unidades_limite || 0,
                 proyeccion: art.combo_unidades_proyeccion || 0,
                 pl_contado: art.combo_precio_lista_contado || 0,
@@ -1038,25 +1043,27 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
                 dscto_contado: art.combo_desc_promo_contado || 0,
                 dscto_tc: art.combo_desc_promo_tc || 0,
                 dscto_credito: art.combo_desc_promo_credito || 0,
+
+
+                margen_pl_contado: art.combo_margen_pl_contado || 0,
+                margen_pl_credito: art.combo_margen_pl_credito || 0,
+
+
                 margen_contado: art.combo_margen_promo_contado || 0,
                 margen_tc: art.combo_margen_promo_tc || 0,
                 margen_credito: art.combo_margen_promo_credito || 0,
                 regalo: art.combo_marca_regalo === "S",
-                stock_bodega: 0,
-                stock_tienda: 0,
-                inv_optimo: 0,
-                excedente_u: 0,
-                excedente_usd: 0
             };
         }
 
+        /*
         if (art.comp_codigo_item) {
             combosMap[key].stock_bodega += (art.comp_stock_bodega || 0);
             combosMap[key].stock_tienda += (art.comp_stock_tienda || 0);
             combosMap[key].inv_optimo += (art.comp_inventario_optimo || 0);
             combosMap[key].excedente_u += (art.comp_excedente_unidad || 0);
             combosMap[key].excedente_usd += (art.comp_excedente_valor || 0);
-        }
+        }*/
     });
 
     const combosArray = Object.values(combosMap);
@@ -1072,11 +1079,12 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
                         <th style="width: 50px; background-color: #a4c995;" class="text-center">Acción</th>
                         <th class="custom-header-cons-bg" style="min-width: 220px;">Combo</th>
                         <th class="custom-header-cons-bg">Costo</th>
-                        <th class="custom-header-cons-bg">Stock Bodega</th>
-                        <th class="custom-header-cons-bg">Stock Tienda</th>
-                        <th class="custom-header-cons-bg">Inv. Óptimo</th>
-                        <th class="custom-header-cons-bg">Excedente(u)</th>
-                        <th class="custom-header-cons-bg">Excedente($)</th>
+
+                        <th class="custom-header-calc-bg">Margen Minimo Cont.</th>
+                        <th class="custom-header-calc-bg">Margen Minimo TC</th>
+                        <th class="custom-header-calc-bg">Margen Minimo Precio Credito</th>
+                        <th class="custom-header-calc-bg">Margen Minimo Igualar Precio</th>
+                        
                         <th class="custom-header-ingr-bg">Uds. Límite</th>
                         <th class="custom-header-ingr-bg">Proyección Vtas(u)</th>
                         <th class="custom-header-ingr-bg">Medio de Pago</th>
@@ -1088,6 +1096,11 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
                         <th class="custom-header-calc-bg">Dscto Promo Cont.</th>
                         <th class="custom-header-calc-bg">Dscto Promo TC</th>
                         <th class="custom-header-calc-bg">Dscto Promo Créd.</th>
+
+                        <th class="custom-header-calc-bg">Margen Precio Lista Cont.</th>
+                        <th class="custom-header-calc-bg">Margen Precio Lista Credito TC</th>
+
+
                         <th class="custom-header-calc-bg">Margen Promo Cont.</th>
                         <th class="custom-header-calc-bg">Margen Promo TC</th>
                         <th class="custom-header-calc-bg">Margen Promo Créd.</th>
@@ -1107,11 +1120,13 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
             </td>
             <td class="fw-bold text-start align-middle">${cmb.codigo} - ${cmb.descripcion}</td>
             <td class="text-end">${formatearMoneda(cmb.costo)}</td>
-            <td class="text-end">${cmb.stock_bodega}</td>
-            <td class="text-end">${cmb.stock_tienda}</td>
-            <td class="text-end">${cmb.inv_optimo}</td>
-            <td class="text-end">${cmb.excedente_u}</td>
-            <td class="text-end">${formatearMoneda(cmb.excedente_usd)}</td>
+
+            <td class="text-end">${formatearMoneda(cmb.margen_min_contado)}</td>
+            <td class="text-end">${formatearMoneda(cmb.margen_min_tc)}</td>
+            <td class="text-end">${formatearMoneda(cmb.margen_min_credito)}</td>
+            <td class="text-end">${formatearMoneda(cmb.margen_min_igualar)}</td>
+
+
             <td class="text-end">${cmb.unidades_limite}</td>
             <td class="text-end">${cmb.proyeccion}</td>
             <td class="text-center align-middle">${medioPagoHtml}</td>
@@ -1123,6 +1138,11 @@ function renderizarTablaCombosCompleta(articulos, articulossegmentos) {
             <td class="text-end">${formatearMoneda(cmb.dscto_contado)}</td>
             <td class="text-end">${formatearMoneda(cmb.dscto_tc)}</td>
             <td class="text-end">${formatearMoneda(cmb.dscto_credito)}</td>
+
+            <td class="text-end">${cmb.margen_pl_contado.toFixed(2)}%</td>
+            <td class="text-end">${cmb.margen_pl_credito.toFixed(2)}%</td>
+
+
             <td class="text-end">${cmb.margen_contado.toFixed(2)}%</td>
             <td class="text-end">${cmb.margen_tc.toFixed(2)}%</td>
             <td class="text-end">${cmb.margen_credito.toFixed(2)}%</td>
