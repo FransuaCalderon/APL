@@ -457,7 +457,7 @@ namespace AppAPL.Api.Handlers
                     //proceso para obtener los proveedores de los acuerdos
                     foreach (var item in promocioninactivar.acuerdos)
                     {
-                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId(item.IDACUERDO);
+                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.idacuerdo);
 
                         var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
 
@@ -515,13 +515,13 @@ namespace AppAPL.Api.Handlers
                             { "MedioPago",  mediospagos4 },
                             
 
-                            { "AcuerdoProveedor",  acProveedorReg4?.IDACUERDO.ToString() ?? "" },
-                            { "PorcentajeProveedor",  acProveedorReg4?.porcentaje_descuento.ToString("N2") ?? "" },
-                            { "ValorComprometidoProveedor",  acProveedorReg4?.valor_comprometido.ToString("N2") ?? "" },
+                            { "AcuerdoProveedor",  acProveedorReg4?.idacuerdo.ToString() ?? "" },
+                            { "PorcentajeProveedor",  acProveedorReg4?.porcentaje_descuento.ToString() ?? "" },
+                            { "ValorComprometidoProveedor",  acProveedorReg4?.valor_comprometido.ToString() ?? "" },
 
-                            { "AcuerdoPropio",  acPropioReg4?.IDACUERDO.ToString() ?? "" },
-                            { "PorcentajePropio",  acPropioReg4?.porcentaje_descuento.ToString("N2") ?? "" },
-                            { "ValorComprometidoPropio",  acPropioReg4?.valor_comprometido.ToString("N2") ?? "" },
+                            { "AcuerdoPropio",  acPropioReg4?.idacuerdo.ToString() ?? "" },
+                            { "PorcentajePropio",  acPropioReg4?.porcentaje_descuento.ToString() ?? "" },
+                            { "ValorComprometidoPropio",  acPropioReg4?.valor_comprometido.ToString() ?? "" },
 
                             { "Firma",  "Sistema APL" },
                         };

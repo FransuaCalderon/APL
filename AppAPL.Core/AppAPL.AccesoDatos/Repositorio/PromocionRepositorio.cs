@@ -792,10 +792,20 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_art_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
+
+            parameters.Add("p_cursor_art_segmentodetalle", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
             parameters.Add("p_cursor_art_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_art_otros", OracleDbType.RefCursor, ParameterDirection.Output);
 
-            parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            parameters.Add("p_cursor_art_componentes", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_comp_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_comp_otros", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
+            parameters.Add("p_clase_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
             parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
 
@@ -812,10 +822,18 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var articulos = await multi.ReadAsync<ArticuloBandInacPromoDTO>();
             var articulosSegmentos = await multi.ReadAsync<ArticuloSegmentoInacDTO>();
+
+            var articulosSegmentosDetalle = await multi.ReadAsync<ArticuloSegmentoDetalleInacDTO>();
+
             var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoInacDTO>();
             var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosInacDTO>();
 
-            string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
+            var componentes = await multi.ReadAsync<ComponenteComboInactivacionDTO>();
+            var componenteAcuerdos = await multi.ReadAsync<ComponenteComboAcuerdoInactivacionDTO>();
+            var componenteOtrosCostos = await multi.ReadAsync<ComponenteComboOtrosCostosInactivacionDTO>();
+
+
+            string? tipoPromocion = parameters.Get<string>("p_clase_promocion");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
             int? codigoSalida = parameters.Get<int>("p_codigo_salida");
 
@@ -828,8 +846,16 @@ namespace AppAPL.AccesoDatos.Repositorio
                 acuerdos = acuerdos.ToList(),
                 articulos = articulos.ToList(),
                 articulosSegmentos = articulosSegmentos.ToList(),
+
+                articulosSegmentosDetalle = articulosSegmentosDetalle.ToList(),
+
                 articulosAcuerdos = articulosAcuerdos.ToList(),
                 articulosOtros = articulosOtros.ToList(),
+
+                Componentes = componentes.ToList(),
+                ComponenteAcuerdos = componenteAcuerdos.ToList(),
+                ComponenteOtrosCostos = componenteOtrosCostos.ToList(),
+
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida
@@ -858,8 +884,14 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor_articulos", OracleDbType.RefCursor, ParameterDirection.Output);
 
             parameters.Add("p_cursor_art_segmentos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_segmentodetalle", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_art_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_art_otros", OracleDbType.RefCursor, ParameterDirection.Output);
+
+
+            parameters.Add("p_cursor_art_componentes", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_comp_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_cursor_art_comp_otros", OracleDbType.RefCursor, ParameterDirection.Output);
 
             parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
@@ -878,8 +910,15 @@ namespace AppAPL.AccesoDatos.Repositorio
             var articulos = await multi.ReadAsync<ArticuloBandAproPromoDTO>();
 
             var articulosSegmentos = await multi.ReadAsync<ArticuloSegmentoAproDTO>();
+            var articulosSegmentoDetalle = await multi.ReadAsync<ArticuloSegmentoDetalleAproDTO>();
+
             var articulosAcuerdos = await multi.ReadAsync<ArticuloAcuerdoPromoAproDTO>();
             var articulosOtros = await multi.ReadAsync<ArticuloOtrosCostosAproDTO>();
+
+            var componentes = await multi.ReadAsync<ComponenteComboAproDTO>();
+            var componentesAcuerdos = await multi.ReadAsync<ComponenteComboAcuerdoAproDTO>();
+            var componentesOtrosCostos = await multi.ReadAsync<ComponenteComboOtrosCostosAproDTO>();
+
 
             string? tipoPromocion = parameters.Get<string>("p_tipo_promocion");
             string? mensajeSalida = parameters.Get<string>("p_mensaje_salida");
@@ -894,8 +933,14 @@ namespace AppAPL.AccesoDatos.Repositorio
                 segmentos = segmentos.ToList(),
                 articulos = articulos.ToList(),
                 articulosSegmentos = articulosSegmentos.ToList(),
+                articulosSegmentoDetalles = articulosSegmentoDetalle.ToList(),
                 articulosAcuerdos = articulosAcuerdos.ToList(),
                 articulosOtros = articulosOtros.ToList(),
+
+                Componentes = componentes.ToList(),
+                ComponenteAcuerdos = componentesAcuerdos.ToList(),
+                ComponenteOtrosCostos = componentesOtrosCostos.ToList(),
+
                 tipopromocion = tipoPromocion,
                 codigoSalida = codigoSalida,
                 mensajeSalida = mensajeSalida

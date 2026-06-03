@@ -386,10 +386,10 @@ $(function () {
         const codigoComboSeleccionado = $fila.data("codigo");
         const nombreCombo = $fila.data("descripcion");
 
-        // Accedemos a la data global (articuloscomponente)
-        const componentesTotales = window.promocionConsultadaData?.articuloscomponente || [];
-
-        console.log("componentesTotales: ", componentesTotales);
+        // Accedemos a la data global usando los nuevos nombres de arreglos del esquema
+        const dataGlobal = window.promocionConsultadaData || {};
+        const componentesTotales = dataGlobal.articuloscomponente || [];
+        const acuerdosTotales = dataGlobal.articuloscompacuerdos || [];
 
         // Filtramos solo los componentes que hacen match con el combo seleccionado
         const componentes = componentesTotales.filter(c => String(c.codigo_combo) === String(codigoComboSeleccionado));
@@ -422,7 +422,6 @@ $(function () {
             };
 
             // Inyectar datos en las filas correspondientes
-            addTd("art_codigo", codItem, "text-center fw-bold");
             addTd("art_descripcion", comp.componente_descripcion || "-", "text-start text-wrap");
             addTd("costo", formatCur(comp.componente_costo));
             addTd("stock_bodega", comp.componente_stock_bodega || 0);
@@ -448,11 +447,6 @@ $(function () {
             addTd("margen_min_cred", `${Number(comp.componente_margen_min_credito || 0).toFixed(2)}%`);
             addTd("margen_min_igual", `${Number(comp.componente_margen_min_igualar || 0).toFixed(2)}%`);
 
-            /*
-            addTd("unidades_limite", comp.componente_unidades_limite || 0);
-            addTd("proyeccion_vta", comp.componente_proyeccion_vta || 0);
-            addTd("medio_pago", comp.componente_medio_pago ? "✓" : "-", "text-center fw-bold");*/
-
             addTd("precio_lista_contado", formatCur(comp.componente_precio_lista_contado));
             addTd("precio_lista_credito", formatCur(comp.componente_precio_lista_credito));
 
@@ -464,34 +458,48 @@ $(function () {
             addTd("dscto_tc", formatCur(comp.componente_desc_promo_tc));
             addTd("dscto_credito", formatCur(comp.componente_desc_promo_credito));
 
-            // Aportes
-            addTd("aporte_prov", formatCur(comp.componente_aporte_proveedor || 0));
-            addTd("aporte_prov_id", comp.componente_id_acuerdo_proveedor || "-");
-            addTd("aporte_prov2", formatCur(comp.componente_aporte_proveedor2 || 0));
-            addTd("aporte_prov2_id", comp.componente_id_acuerdo_proveedor2 || "-");
-            addTd("aporte_rebate", formatCur(comp.componente_aporte_rebate || 0));
-            addTd("aporte_rebate_id", comp.componente_id_acuerdo_rebate || "-");
-            addTd("aporte_propio", formatCur(comp.componente_aporte_propio || 0));
-            addTd("aporte_propio_id", comp.componente_id_acuerdo_propio || "-");
-            addTd("aporte_propio2", formatCur(comp.componente_aporte_propio2 || 0));
-            addTd("aporte_propio2_id", comp.componente_id_acuerdo_propio2 || "-");
+            // =========================================================
+            // LÓGICA DE APORTES ACTUALIZADA (MÓDULO CONSULTA)
+            // =========================================================
+            const acuerdosComp = acuerdosTotales.filter(a => a.idpromocionarticulocomponente === comp.idpromocionarticulocomponente);
 
-            // Márgenes
+            const provs = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROVEDOR");
+            const propios = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFPROPIO");
+            const rebates = acuerdosComp.filter(a => (a.etiqueta_tipo_fondo || "").toUpperCase() === "TFREBATE");
+
+            const prov1 = provs[0] || {};
+            const prov2 = provs[1] || {};
+            const prop1 = propios[0] || {};
+            const prop2 = propios[1] || {};
+            const reb1 = rebates[0] || {};
+
+            // Aportes de acuerdos
+            addTd("aporte_prov", formatCur(prov1.valor_aporte || 0));
+            addTd("aporte_prov_id", prov1.idacuerdo || "-");
+            addTd("aporte_prov2", formatCur(prov2.valor_aporte || 0));
+            addTd("aporte_prov2_id", prov2.idacuerdo || "-");
+
+            addTd("aporte_rebate", formatCur(reb1.valor_aporte || 0));
+            addTd("aporte_rebate_id", reb1.idacuerdo || "-");
+
+            addTd("aporte_propio", formatCur(prop1.valor_aporte || 0));
+            addTd("aporte_propio_id", prop1.idacuerdo || "-");
+            addTd("aporte_propio2", formatCur(prop2.valor_aporte || 0));
+            addTd("aporte_propio2_id", prop2.idacuerdo || "-");
+
+            // Márgenes Proyectados
             addTd("margen_pl_contado", `${Number(comp.componente_margen_pl_contado || 0).toFixed(2)}%`);
             addTd("margen_pl_credito", `${Number(comp.componente_margen_pl_credito || 0).toFixed(2)}%`);
             addTd("margen_promo_contado", `${Number(comp.componente_margen_promo_contado || 0).toFixed(2)}%`);
             addTd("margen_promo_tc", `${Number(comp.componente_margen_promo_tc || 0).toFixed(2)}%`);
             addTd("margen_promo_cred", `${Number(comp.componente_margen_promo_credito || 0).toFixed(2)}%`);
 
-            // Comprometidos
-            addTd("comp_proveedor", formatCur(comp.componente_comp_proveedor || 0));
-            addTd("comp_proveedor2", formatCur(comp.componente_comp_proveedor2 || 0));
-            addTd("comp_rebate", formatCur(comp.componente_comp_rebate || 0));
-            addTd("comp_propio", formatCur(comp.componente_comp_propio || 0));
-            addTd("comp_propio2", formatCur(comp.componente_comp_propio2 || 0));
-            /*
-            const checkRegalo = comp.componente_marca_regalo === 'S' ? '✓' : '-';
-            addTd("regalo", checkRegalo, "text-center fw-bold");*/
+            // Valores Comprometidos
+            addTd("comp_proveedor", formatCur(prov1.valor_comprometido || 0));
+            addTd("comp_proveedor2", formatCur(prov2.valor_comprometido || 0));
+            addTd("comp_rebate", formatCur(reb1.valor_comprometido || 0));
+            addTd("comp_propio", formatCur(prop1.valor_comprometido || 0));
+            addTd("comp_propio2", formatCur(prop2.valor_comprometido || 0));
         });
 
         // Mostrar el Modal

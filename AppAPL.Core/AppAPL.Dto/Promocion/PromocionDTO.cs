@@ -304,8 +304,13 @@ namespace AppAPL.Dto.Promocion
 
         public List<ArticuloBandInacPromoDTO>? articulos { get; set; }
         public List<ArticuloSegmentoInacDTO>? articulosSegmentos { get; set; }
+        public List<ArticuloSegmentoDetalleInacDTO>? articulosSegmentosDetalle { get; set; }
         public List<ArticuloAcuerdoPromoInacDTO>? articulosAcuerdos { get; set; }
         public List<ArticuloOtrosCostosInacDTO>? articulosOtros { get; set; }
+
+        public List<ComponenteComboInactivacionDTO> Componentes { get; set; } = [];
+        public List<ComponenteComboAcuerdoInactivacionDTO> ComponenteAcuerdos { get; set; } = [];
+        public List<ComponenteComboOtrosCostosInactivacionDTO> ComponenteOtrosCostos { get; set; } = [];
 
 
         public string? tipopromocion { get; set; }
@@ -320,13 +325,13 @@ namespace AppAPL.Dto.Promocion
 
         public int? IdPromocion { get; set; }
         public string? Descripcion { get; set; }
-        public int id_motivo { get; set; }
-        public string nombre_motivo { get; set; }
-        public int id_clase_promocion { get; set; }
-        public string nombre_clase_promocion { get; set; }
-        public string etiqueta_clase_promocion { get; set; }
-        public string MarcaRegalo { get; set; }
-        public string MarcaProcesoAprobacion { get; set; }
+        public int? id_motivo { get; set; }
+        public string? nombre_motivo { get; set; }
+        public int? id_clase_promocion { get; set; }
+        public string? nombre_clase_promocion { get; set; }
+        public string? etiqueta_clase_promocion { get; set; }
+        public string? MarcaRegalo { get; set; }
+        public string? MarcaProcesoAprobacion { get; set; }
         public int? NumeroLoteAprobacion { get; set; }
         public string? ArchivoSoporte { get; set; }
 
@@ -338,9 +343,9 @@ namespace AppAPL.Dto.Promocion
         public DateTime? fecha_inicio { get; set; }
         public DateTime? fecha_fin { get; set; }
 
-        public int id_estado_promocion { get; set; }
-        public string nombre_estado_promocion { get; set; }
-        public string etiqueta_estado_promocion { get; set; }
+        public int? id_estado_promocion { get; set; }
+        public string? nombre_estado_promocion { get; set; }
+        public string? etiqueta_estado_promocion { get; set; }
 
     }
 
@@ -368,184 +373,146 @@ namespace AppAPL.Dto.Promocion
 
     public class AcuerdoBandInacDTO
     {
-        public int IDPROMOCIONACUERDO { get; set; }
-        public int IDPROMOCION { get; set; }
-        public int IDACUERDO { get; set; }
-        public string descripcion_acuerdo { get; set; }
-        public string nombre_proveedor { get; set; }
-        public decimal porcentaje_descuento { get; set; }
-        public decimal valor_comprometido { get; set; }
-        public decimal valor_disponible { get; set; }
-        public decimal valor_liquidado { get; set; }
-        public int id_estado_detalle { get; set; }
-        public string nombre_estado_detalle { get; set; }
-        public string etiqueta_estado_detalle { get; set; }
-        public string etiqueta_tipo_fondo { get; set; }
-        public string etiqueta_clase_acuerdo { get; set; }
+        public int? idpromocionacuerdo { get; set; }
+        public int? idpromocion { get; set; }
+        public int? idacuerdo { get; set; }
+        public string? descripcion_acuerdo { get; set; }
+        public string? nombre_proveedor { get; set; }
+        public decimal? porcentaje_descuento { get; set; }
+        public decimal? valor_comprometido { get; set; }
+        public decimal? valor_disponible { get; set; }
+        public decimal? valor_liquidado { get; set; }
+        public int? id_estado_acuerdo { get; set; }
+        public string? nombre_estado_acuerdo { get; set; }
+        public string? etiqueta_estado_acuerdo { get; set; }
+        public string? etiqueta_tipo_fondo { get; set; }
+        public string? etiqueta_clase_acuerdo { get; set; }
     }
 
     public class ArticuloBandInacPromoDTO
     {
-        public int idpromocionarticulo { get; set; }
-        public int idpromocion { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public int? idpromocion { get; set; }
         public int? idpromocioncombo { get; set; }
 
-        // --- Campos de Artículo (Caso PRARTICULO) ---
-        public string codigoitem { get; set; }
-        public string descripcion { get; set; }
+        // Mapeos según el caso (PRARTICULO / PRCOMBO)
+        public string? codigoitem { get; set; }
+        public string? codigo_combo { get; set; }
+        public string? descripcion { get; set; }
+        public string? descripcion_combo { get; set; }
         public decimal? costo { get; set; }
-        public int? stockbodega { get; set; }
-        public int? stocktienda { get; set; }
-        public int? inventariooptimo { get; set; }
-        public int? excedenteunidad { get; set; }
+        public decimal? costo_combo { get; set; }
+
+        public decimal? stockbodega { get; set; }
+        public decimal? stocktienda { get; set; }
+        public decimal? inventariooptimo { get; set; }
+        public decimal? excedenteunidad { get; set; }
         public decimal? excedentevalor { get; set; }
-
-        public int? m0unidades { get; set; }
+        public decimal? m0unidades { get; set; }
         public decimal? m0precio { get; set; }
-        public int? m1unidades { get; set; }
+        public decimal? m1unidades { get; set; }
         public decimal? m1precio { get; set; }
-        public int? m2unidades { get; set; }
+        public decimal? m2unidades { get; set; }
         public decimal? m2precio { get; set; }
-        public int? m12unidades { get; set; }
+        public decimal? m12unidades { get; set; }
         public decimal? m12precio { get; set; }
+        public string? igualarprecio { get; set; }
+        public int? diasantinguedad { get; set; }
 
-        public decimal? igualarprecio { get; set; }
-        public decimal? diasantinguedad { get; set; }
         public decimal? margenminimocontado { get; set; }
+        public decimal? combo_margen_min_contado { get; set; }
         public decimal? margenminimotarjetacredito { get; set; }
+        public decimal? combo_margen_min_tc { get; set; }
         public decimal? margenminimocredito { get; set; }
+        public decimal? combo_margen_min_credito { get; set; }
         public decimal? margenminimoigualar { get; set; }
+        public decimal? combo_margen_min_igualar { get; set; }
+
         public decimal? unidadeslimite { get; set; }
+        public decimal? combo_unidades_limite { get; set; }
         public decimal? unidadesproyeccionventas { get; set; }
+        public decimal? combo_unidades_proyeccion { get; set; }
 
         public decimal? preciolistacontado { get; set; }
+        public decimal? combo_precio_lista_contado { get; set; }
         public decimal? preciolistacredito { get; set; }
+        public decimal? combo_precio_lista_credito { get; set; }
         public decimal? preciopromocioncontado { get; set; }
+        public decimal? combo_precio_promo_contado { get; set; }
         public decimal? preciopromociontarjetacredito { get; set; }
+        public decimal? combo_precio_promo_tc { get; set; }
         public decimal? preciopromocioncredito { get; set; }
+        public decimal? combo_precio_promo_credito { get; set; }
         public decimal? precioigualarprecio { get; set; }
 
         public decimal? descuentopromocioncontado { get; set; }
+        public decimal? combo_desc_promo_contado { get; set; }
         public decimal? descuentopromociontarjetacredito { get; set; }
+        public decimal? combo_desc_promo_tc { get; set; }
         public decimal? descuentopromocioncredito { get; set; }
+        public decimal? combo_desc_promo_credito { get; set; }
         public decimal? descuentoigualarprecio { get; set; }
 
         public decimal? margenpreciolistacontado { get; set; }
-        public decimal? margenpreciolistacredito { get; set; }
-        public decimal? margenpromocioncontado { get; set; }
-        public decimal? margenpromociontarjetacredito { get; set; }
-        public decimal? margenpromocioncredito { get; set; }
-        public decimal? margenigualarprecio { get; set; }
-        public string marcaregalo { get; set; }
-        public int? id_estado_articulo { get; set; }
-        public string nombre_estado_articulo { get; set; }
-        public string etiqueta_estado_articulo { get; set; }
-
-        // --- Campos de Cabecera de Combo (Caso PRCOMBO) ---
-        public string? codigo_combo { get; set; }
-        public string? descripcion_combo { get; set; }
-        public decimal? costo_combo { get; set; }
-        public decimal? combo_margen_min_contado { get; set; }
-        public decimal? combo_margen_min_tc { get; set; }
-        public decimal? combo_margen_min_credito { get; set; }
-        public decimal? combo_margen_min_igualar { get; set; }
-        public int? combo_unidades_limite { get; set; }
-        public int? combo_unidades_proyeccion { get; set; }
-        public decimal? combo_precio_lista_contado { get; set; }
-        public decimal? combo_precio_lista_credito { get; set; }
-        public decimal? combo_precio_promo_contado { get; set; }
-        public decimal? combo_precio_promo_tc { get; set; }
-        public decimal? combo_precio_promo_credito { get; set; }
-        public decimal? combo_desc_promo_contado { get; set; }
-        public decimal? combo_desc_promo_tc { get; set; }
-        public decimal? combo_desc_promo_credito { get; set; }
         public decimal? combo_margen_pl_contado { get; set; }
+        public decimal? margenpreciolistacredito { get; set; }
         public decimal? combo_margen_pl_credito { get; set; }
+        public decimal? margenpromocioncontado { get; set; }
         public decimal? combo_margen_promo_contado { get; set; }
+        public decimal? margenpromociontarjetacredito { get; set; }
         public decimal? combo_margen_promo_tc { get; set; }
+        public decimal? margenpromocioncredito { get; set; }
         public decimal? combo_margen_promo_credito { get; set; }
-        public string? combo_marca_regalo { get; set; }
-        public int? id_estado_combo { get; set; }
-        public string? nombre_estado_combo { get; set; }
-        public string? etiqueta_estado_combo { get; set; }
+        public decimal? margenigualarprecio { get; set; }
 
-        // --- Campos de Componentes de Combo (Caso PRCOMBO - pac) ---
-        public int? idpromocionarticulocomponente { get; set; }
-        public string? comp_codigo_item { get; set; }
-        public string? comp_descripcion { get; set; }
-        public decimal? comp_costo { get; set; }
-        public int? comp_stock_bodega { get; set; }
-        public int? comp_stock_tienda { get; set; }
-        public int? comp_inventario_optimo { get; set; }
-        public int? comp_excedente_unidad { get; set; }
-        public decimal? comp_excedente_valor { get; set; }
-        public int? comp_m0_unidades { get; set; }
-        public decimal? comp_m0_precio { get; set; }
-        public int? comp_m1_unidades { get; set; }
-        public decimal? comp_m1_precio { get; set; }
-        public int? comp_m2_unidades { get; set; }
-        public decimal? comp_m2_precio { get; set; }
-        public int? comp_m12_unidades { get; set; }
-        public decimal? comp_m12_precio { get; set; }
-        public string? comp_igualar_precio { get; set; }
-        public int? comp_dias_antiguedad { get; set; }
-        public decimal? comp_margen_min_contado { get; set; }
-        public decimal? comp_margen_min_tc { get; set; }
-        public decimal? comp_margen_min_credito { get; set; }
-        public decimal? comp_margen_min_igualar { get; set; }
-        public decimal? comp_precio_lista_contado { get; set; }
-        public decimal? comp_precio_lista_credito { get; set; }
-        public decimal? comp_precio_promo_contado { get; set; }
-        public decimal? comp_precio_promo_tc { get; set; }
-        public decimal? comp_precio_promo_credito { get; set; }
-        public decimal? comp_desc_promo_contado { get; set; }
-        public decimal? comp_desc_promo_tc { get; set; }
-        public decimal? comp_desc_promo_credito { get; set; }
-        public decimal? comp_margen_pl_contado { get; set; }
-        public decimal? comp_margen_pl_credito { get; set; }
-        public decimal? comp_margen_promo_contado { get; set; }
-        public decimal? comp_margen_promo_tc { get; set; }
-        public decimal? comp_margen_promo_credito { get; set; }
-        public int? comp_id_estado { get; set; }
-        public string? comp_nombre_estado { get; set; }
-        public string? comp_etiqueta_estado { get; set; }
+        public string? marcaregalo { get; set; }
+        public string? combo_marca_regalo { get; set; }
+
+        public int? id_estado_articulo { get; set; }
+        public int? id_estado_combo { get; set; }
+        public string? nombre_estado_articulo { get; set; }
+        public string? nombre_estado_combo { get; set; }
+        public string? etiqueta_estado_articulo { get; set; }
+        public string? etiqueta_estado_combo { get; set; }
     }
 
     public class ArticuloSegmentoInacDTO
     {
-        public int idpromocionarticulosegmento { get; set; }
-        public int idpromocionarticulo { get; set; }
-
-        // Dependiendo de si es PRARTICULO o PRCOMBO vendrán poblados unos u otros
-        public string? codigoitem { get; set; }
-        public string? descripcion_articulo { get; set; }
-        public string? codigo_combo { get; set; }
-        public string? descripcion_combo { get; set; }
-
-        public int? idtiposegmento { get; set; }
-        public string? nombre_tipo_segmento { get; set; }
-        public string? etiqueta_tipo_segmento { get; set; }
+        public int? idpromocionarticulosegmento { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigo_combo { get; set; }             // Solo en PRCOMBO
+        public string? descripcion_combo { get; set; }         // Solo en PRCOMBO
+        public int? idtiposegmento { get; set; }              // Solo en PRCOMBO
+        public string? nombre_tipo_segmento { get; set; }      // Solo en PRCOMBO
+        public string? etiqueta_tipo_segmento { get; set; }    // Solo en PRCOMBO
         public string? tipoasignacion { get; set; }
         public string? descripcion_asignacion { get; set; }
         public int? id_estado_segmento { get; set; }
-        public string? nombre_estado_segmento { get; set; }
+        public string? nombre_estado_segmento { get; set; }    // Solo en PRCOMBO
+
+    }
+
+    public class ArticuloSegmentoDetalleInacDTO
+    {
         public int? idpromocionarticulosegmentodetalle { get; set; }
-        public string? codigo_detalle { get; set; }
+        public int? idpromocionarticulosegmento { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigoitem { get; set; }             // En PRARTICULO
+        public string? codigo_combo { get; set; }           // En PRCOMBO
+        public string? descripcion_articulo { get; set; }   // En PRARTICULO
+        public string? descripcion_combo { get; set; }      // En PRCOMBO
+        public string? codigo_medio_pago { get; set; }
         public string? nombre_medio_pago { get; set; }
         public int? id_estado_detalle { get; set; }
         public string? nombre_estado_detalle { get; set; }
-
     }
 
     public class ArticuloAcuerdoPromoInacDTO
     {
         public int? idpromocionarticuloacuerdo { get; set; }
-        public int? idpromocionarticulocomponenteacuerdo { get; set; }
         public int? idpromocionarticulo { get; set; }
-        public int? idpromocionarticulocomponente { get; set; }
         public string? codigoitem { get; set; }
         public string? descripcion_articulo { get; set; }
-
         public int? idacuerdo { get; set; }
         public string? descripcion_acuerdo { get; set; }
         public string? nombre_proveedor { get; set; }
@@ -553,40 +520,112 @@ namespace AppAPL.Dto.Promocion
         public string? nombre_tipo_fondo { get; set; }
         public string? etiqueta_clase_acuerdo { get; set; }
         public string? nombre_clase_acuerdo { get; set; }
-
         public decimal? valor_aporte { get; set; }
         public decimal? valor_comprometido { get; set; }
-        public decimal? valor_disponible { get; set; }
         public decimal? valor_liquidado { get; set; }
-
         public int? id_estado_detalle { get; set; }
         public string? nombre_estado_detalle { get; set; }
         public string? etiqueta_estado_detalle { get; set; }
-
-        //CAMPOS PARA COMBO
-        public string? codigo_combo { get; set; }
-        public string? descripcion_combo { get; set; }
-        public string? comp_codigo_item { get; set; }
-        public string? comp_descripcion { get; set; }
     }
 
     public class ArticuloOtrosCostosInacDTO
     {
         public int? idpromocionarticulootroscostos { get; set; }
-        public int? idpromocionarticulocomponenteotroscostos { get; set; }
-        public int idpromocionarticulo { get; set; }
-        public int? idpromocionarticulocomponente { get; set; }
-        public string codigoparametro { get; set; }
-        public string? descripcion { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigoitem { get; set; }
+        public string? descripcion_articulo { get; set; }
+        public string? codigoparametro { get; set; }
         public string? descripcion_parametro { get; set; }
-        public decimal costo { get; set; }
-        public int estadoregistro { get; set; }
-
-        //CAMPOS PARA COMBO
-        public string codigo_combo { get; set; }
-        public string comp_codigo_item { get; set; }
-        public string comp_descripcion { get; set; }
+        public decimal? costo { get; set; }
+        public int? id_estado_otros_costos { get; set; }
     }
+
+    public class ComponenteComboInactivacionDTO
+    {
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigo_combo { get; set; }
+        public string? descripcion_combo { get; set; }
+        public string? componente_codigoitem { get; set; }
+        public string? componente_descripcion { get; set; }
+        public decimal? componente_costo { get; set; }
+        public decimal? componente_stock_bodega { get; set; }
+        public decimal? componente_stock_tienda { get; set; }
+        public decimal? componente_inventario_optimo { get; set; }
+        public decimal? componente_excedente_unidad { get; set; }
+        public decimal? componente_excedente_valor { get; set; }
+        public decimal? componente_m0_unidades { get; set; }
+        public decimal? componente_m0_precio { get; set; }
+        public decimal? componente_m1_unidades { get; set; }
+        public decimal? componente_m1_precio { get; set; }
+        public decimal? componente_m2_unidades { get; set; }
+        public decimal? componente_m2_precio { get; set; }
+        public decimal? componente_m12_unidades { get; set; }
+        public decimal? componente_m12_precio { get; set; }
+        public string? componente_igualar_precio { get; set; }
+        public int? componente_dias_antiguedad { get; set; }
+        public decimal? componente_margen_min_contado { get; set; }
+        public decimal? componente_margen_min_tc { get; set; }
+        public decimal? componente_margen_min_credito { get; set; }
+        public decimal? componente_margen_min_igualar { get; set; }
+        public decimal? componente_precio_lista_contado { get; set; }
+        public decimal? componente_precio_lista_credito { get; set; }
+        public decimal? componente_precio_promo_contado { get; set; }
+        public decimal? componente_precio_promo_tc { get; set; }
+        public decimal? componente_precio_promo_credito { get; set; }
+        public decimal? componente_desc_promo_contado { get; set; }
+        public decimal? componente_desc_promo_tc { get; set; }
+        public decimal? componente_desc_promo_credito { get; set; }
+        public decimal? componente_margen_pl_contado { get; set; }
+        public decimal? componente_margen_pl_credito { get; set; }
+        public decimal? componente_margen_promo_contado { get; set; }
+        public decimal? componente_margen_promo_tc { get; set; }
+        public decimal? componente_margen_promo_credito { get; set; }
+        public int? componente_id_estado { get; set; }
+        public string? componente_nombre_estado { get; set; }
+        public string? componente_etiqueta_estado { get; set; }
+    }
+
+    public class ComponenteComboAcuerdoInactivacionDTO
+    {
+        public int? idpromocionarticulocomponenteacuerdo { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigo_combo { get; set; }
+        public string? descripcion_combo { get; set; }
+        public string? componente_codigoitem { get; set; }
+        public string? componente_descripcion { get; set; }
+        public int? idacuerdo { get; set; }
+        public string? descripcion_acuerdo { get; set; }
+        public string? nombre_proveedor { get; set; }
+        public string? etiqueta_tipo_fondo { get; set; }
+        public string? nombre_tipo_fondo { get; set; }
+        public string? etiqueta_clase_acuerdo { get; set; }
+        public string? nombre_clase_acuerdo { get; set; }
+        public decimal? valor_aporte { get; set; }
+        public decimal? valor_comprometido { get; set; }
+        public decimal? valor_disponible { get; set; }
+        public decimal? valor_liquidado { get; set; }
+        public int? id_estado_acuerdo { get; set; }
+        public string? nombre_estado_acuerdo { get; set; }
+        public string? etiqueta_estado_acuerdo { get; set; }
+    }
+
+    public class ComponenteComboOtrosCostosInactivacionDTO
+    {
+        public int? idpromocionarticulocomponenteotroscostos { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigo_combo { get; set; }
+        public string? descripcion_combo { get; set; }
+        public string? componente_codigoitem { get; set; }
+        public string? componente_descripcion { get; set; }
+        public string? codigoparametro { get; set; }
+        public string? descripcion_parametro { get; set; }
+        public decimal? costo { get; set; }
+        public int? estadoregistro { get; set; }
+    }
+
 
 
     //BANDEJA GENERAL POR ID
@@ -655,7 +694,7 @@ namespace AppAPL.Dto.Promocion
         public decimal? valor_comprometido { get; set; }
         public decimal? valor_disponible { get; set; }
         public decimal? valor_liquidado { get; set; }
-        public long? id_estado_acuerdo { get; set; }
+        public int? id_estado_acuerdo { get; set; }
         public string? nombre_estado_acuerdo { get; set; }
         public string? etiqueta_estado_acuerdo { get; set; }
         public string? etiqueta_tipo_fondo { get; set; }
@@ -664,9 +703,9 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloBandGenPromoDTO
     {
-        public long? idpromocionarticulo { get; set; }
-        public long? idpromocion { get; set; }
-        public long? idpromocioncombo { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public int? idpromocion { get; set; }
+        public int? idpromocioncombo { get; set; }
 
         // Alias que cambian según sea PRARTICULO o PRCOMBO
         public string? codigoitem { get; set; }
@@ -760,8 +799,8 @@ namespace AppAPL.Dto.Promocion
         public string? marcaregalo { get; set; }
         public string? combo_marca_regalo { get; set; }
 
-        public long? id_estado_articulo { get; set; }
-        public long? id_estado_combo { get; set; }
+        public int? id_estado_articulo { get; set; }
+        public int? id_estado_combo { get; set; }
 
         public string? nombre_estado_articulo { get; set; }
         public string? nombre_estado_combo { get; set; }
@@ -772,24 +811,24 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloSegmentoGenDTO
     {
-        public long? idpromocionarticulosegmento { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulosegmento { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigo_combo { get; set; }
         public string? descripcion_combo { get; set; }
-        public long? idtiposegmento { get; set; }
+        public int? idtiposegmento { get; set; }
         public string? nombre_tipo_segmento { get; set; }
         public string? etiqueta_tipo_segmento { get; set; }
         public string? tipoasignacion { get; set; }
         public string? descripcion_asignacion { get; set; }
-        public long? id_estado_segmento { get; set; }
+        public int? id_estado_segmento { get; set; }
         public string? nombre_estado_segmento { get; set; }
 
     }
     public class ArticuloSegmentoDetalleGenDTO
     {
-        public long? idpromocionarticulosegmentodetalle { get; set; }
-        public long? idpromocionarticulosegmento { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulosegmentodetalle { get; set; }
+        public int? idpromocionarticulosegmento { get; set; }
+        public int? idpromocionarticulo { get; set; }
 
         // Alias que varían según el tipo
         public string? codigoitem { get; set; }
@@ -799,17 +838,17 @@ namespace AppAPL.Dto.Promocion
 
         public string? codigo_medio_pago { get; set; }
         public string? nombre_medio_pago { get; set; }
-        public long? id_estado_detalle { get; set; }
+        public int? id_estado_detalle { get; set; }
         public string? nombre_estado_detalle { get; set; }
     }
 
     public class ArticuloAcuerdoPromoGenDTO
     {
-        public long? idpromocionarticuloacuerdo { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticuloacuerdo { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigoitem { get; set; }
         public string? descripcion_articulo { get; set; }
-        public long? idacuerdo { get; set; }
+        public int? idacuerdo { get; set; }
         public string? descripcion_acuerdo { get; set; }
         public string? nombre_proveedor { get; set; }
         public string? etiqueta_tipo_fondo { get; set; }
@@ -819,27 +858,27 @@ namespace AppAPL.Dto.Promocion
         public decimal? valor_aporte { get; set; }
         public decimal? valor_comprometido { get; set; }
         public decimal? valor_liquidado { get; set; }
-        public long? id_estado_acuerdo { get; set; }
+        public int? id_estado_acuerdo { get; set; }
         public string? nombre_estado_acuerdo { get; set; }
         public string? etiqueta_estado_acuerdo { get; set; }
     }
 
     public class ArticuloOtrosCostosGenDTO
     {
-        public long? idpromocionarticulootroscostos { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulootroscostos { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigoitem { get; set; }
         public string? descripcion_articulo { get; set; }
         public string? codigoparametro { get; set; }
         public string? descripcion_parametro { get; set; }
         public decimal? costo { get; set; }
-        public long? id_estado_otros_costos { get; set; }
+        public int? id_estado_otros_costos { get; set; }
     }
 
     public class ArticuloComponenteGenDTO
     {
-        public long? idpromocionarticulocomponente { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigo_combo { get; set; }
         public string? descripcion_combo { get; set; }
 
@@ -885,22 +924,22 @@ namespace AppAPL.Dto.Promocion
         public decimal? componente_margen_promo_tc { get; set; }
         public decimal? componente_margen_promo_credito { get; set; }
 
-        public long? componente_id_estado { get; set; }
+        public int? componente_id_estado { get; set; }
         public string? componente_nombre_estado { get; set; }
         public string? componente_etiqueta_estado { get; set; }
     }
 
     public class ArticuloCompAcuerdoGenDTO
     {
-        public long? idpromocionarticulocomponenteacuerdo { get; set; }
-        public long? idpromocionarticulocomponente { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulocomponenteacuerdo { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigo_combo { get; set; }
         public string? descripcion_combo { get; set; }
         public string? componente_codigoitem { get; set; }
         public string? componente_descripcion { get; set; }
 
-        public long? idacuerdo { get; set; }
+        public int? idacuerdo { get; set; }
         public string? descripcion_acuerdo { get; set; }
         public string? nombre_proveedor { get; set; }
         public string? etiqueta_tipo_fondo { get; set; }
@@ -913,16 +952,16 @@ namespace AppAPL.Dto.Promocion
         public decimal? valor_disponible { get; set; }
         public decimal? valor_liquidado { get; set; }
 
-        public long? id_estado_acuerdo { get; set; }
+        public int? id_estado_acuerdo { get; set; }
         public string? nombre_estado_acuerdo { get; set; }
         public string? etiqueta_estado_acuerdo { get; set; }
     }
 
     public class ArticuloCompOtrosCostosGenDTO
     {
-        public long? idpromocionarticulocomponenteotroscostos { get; set; }
-        public long? idpromocionarticulocomponente { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulocomponenteotroscostos { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigo_combo { get; set; }
         public string? descripcion_combo { get; set; }
         public string? componente_codigoitem { get; set; }
@@ -931,7 +970,7 @@ namespace AppAPL.Dto.Promocion
         public string? codigoparametro { get; set; }
         public string? descripcion_parametro { get; set; }
         public decimal? costo { get; set; }
-        public long? id_estado_otros_costos { get; set; }
+        public int? id_estado_otros_costos { get; set; }
     }
 
 
@@ -1039,9 +1078,9 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloBandModPromoDTO
     {
-        public long? idpromocionarticulo { get; set; }
-        public long? idpromocion { get; set; }
-        public long? idpromocioncombo { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public int? idpromocion { get; set; }
+        public int? idpromocioncombo { get; set; }
 
         public string? codigoitem { get; set; }
         public string? codigo_combo { get; set; }
@@ -1134,8 +1173,8 @@ namespace AppAPL.Dto.Promocion
         public string? marcaregalo { get; set; }
         public string? combo_marca_regalo { get; set; }
 
-        public long? id_estado_articulo { get; set; }
-        public long? id_estado_combo { get; set; }
+        public int? id_estado_articulo { get; set; }
+        public int? id_estado_combo { get; set; }
 
         public string? nombre_estado_articulo { get; set; }
         public string? nombre_estado_combo { get; set; }
@@ -1146,41 +1185,41 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloBandModSegmentoDTO
     {
-        public long? idpromocionarticulosegmento { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulosegmento { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigo_combo { get; set; }
         public string? descripcion_combo { get; set; }
-        public long? idtiposegmento { get; set; }
+        public int? idtiposegmento { get; set; }
         public string? nombre_tipo_segmento { get; set; }
         public string? etiqueta_tipo_segmento { get; set; }
         public string? tipoasignacion { get; set; }
         public string? descripcion_asignacion { get; set; }
-        public long? id_estado_segmento { get; set; }
+        public int? id_estado_segmento { get; set; }
         public string? nombre_estado_segmento { get; set; }
     }
 
     public class ArticuloBandModSegmentoDetalleDTO
     {
-        public long? idpromocionarticulosegmentodetalle { get; set; }
-        public long? idpromocionarticulosegmento { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulosegmentodetalle { get; set; }
+        public int? idpromocionarticulosegmento { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigoitem { get; set; }
         public string? codigo_combo { get; set; }
         public string? descripcion_articulo { get; set; }
         public string? descripcion_combo { get; set; }
         public string? codigo_medio_pago { get; set; }
         public string? nombre_medio_pago { get; set; }
-        public long? id_estado_detalle { get; set; }
+        public int? id_estado_detalle { get; set; }
         public string? nombre_estado_detalle { get; set; }
     }
 
     public class ArticuloAcuerdoModDTO
     {
-        public long? idpromocionarticuloacuerdo { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticuloacuerdo { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigoitem { get; set; }
         public string? descripcion_articulo { get; set; }
-        public long? idacuerdo { get; set; }
+        public int? idacuerdo { get; set; }
         public string? descripcion_acuerdo { get; set; }
         public string? nombre_proveedor { get; set; }
         public string? etiqueta_tipo_fondo { get; set; }
@@ -1190,27 +1229,27 @@ namespace AppAPL.Dto.Promocion
         public decimal? valor_aporte { get; set; }
         public decimal? valor_comprometido { get; set; }
         public decimal? valor_liquidado { get; set; }
-        public long? id_estado_acuerdo { get; set; }
+        public int? id_estado_acuerdo { get; set; }
         public string? nombre_estado_acuerdo { get; set; }
         public string? etiqueta_estado_acuerdo { get; set; }
     }
 
     public class ArticuloOtrosCostosModDTO
     {
-        public long? idpromocionarticulootroscostos { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulootroscostos { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigoitem { get; set; }
         public string? descripcion_articulo { get; set; }
         public string? codigoparametro { get; set; }
         public string? descripcion_parametro { get; set; }
         public decimal? costo { get; set; }
-        public long? id_estado_otros_costos { get; set; }
+        public int? id_estado_otros_costos { get; set; }
     }
 
     public class ArticuloComponenteModDTO
     {
-        public long? idpromocionarticulocomponente { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigo_combo { get; set; }
         public string? descripcion_combo { get; set; }
         public string? componente_codigoitem { get; set; }
@@ -1255,22 +1294,22 @@ namespace AppAPL.Dto.Promocion
         public decimal? componente_margen_promo_tc { get; set; }
         public decimal? componente_margen_promo_credito { get; set; }
 
-        public long? componente_id_estado { get; set; }
+        public int? componente_id_estado { get; set; }
         public string? componente_nombre_estado { get; set; }
         public string? componente_etiqueta_estado { get; set; }
     }
 
     public class ArticuloComponenteAcuerdoModDTO
     {
-        public long? idpromocionarticulocomponenteacuerdo { get; set; }
-        public long? idpromocionarticulocomponente { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulocomponenteacuerdo { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigo_combo { get; set; }
         public string? descripcion_combo { get; set; }
         public string? componente_codigoitem { get; set; }
         public string? componente_descripcion { get; set; }
 
-        public long? idacuerdo { get; set; }
+        public int? idacuerdo { get; set; }
         public string? descripcion_acuerdo { get; set; }
         public string? nombre_proveedor { get; set; }
         public string? etiqueta_tipo_fondo { get; set; }
@@ -1283,16 +1322,16 @@ namespace AppAPL.Dto.Promocion
         public decimal? valor_disponible { get; set; }
         public decimal? valor_liquidado { get; set; }
 
-        public long? id_estado_acuerdo { get; set; }
+        public int? id_estado_acuerdo { get; set; }
         public string? nombre_estado_acuerdo { get; set; }
         public string? etiqueta_estado_acuerdo { get; set; }
     }
 
     public class ArticuloComponenteOtrosCostosModDTO
     {
-        public long? idpromocionarticulocomponenteotroscostos { get; set; }
-        public long? idpromocionarticulocomponente { get; set; }
-        public long? idpromocionarticulo { get; set; }
+        public int? idpromocionarticulocomponenteotroscostos { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
         public string? codigo_combo { get; set; }
         public string? descripcion_combo { get; set; }
         public string? componente_codigoitem { get; set; }
@@ -1301,7 +1340,7 @@ namespace AppAPL.Dto.Promocion
         public string? codigoparametro { get; set; }
         public string? descripcion_parametro { get; set; }
         public decimal? costo { get; set; }
-        public long? id_estado_otros_costos { get; set; }
+        public int? id_estado_otros_costos { get; set; }
     }
 
 
@@ -1317,8 +1356,15 @@ namespace AppAPL.Dto.Promocion
         public List<ArticuloBandAproPromoDTO>? articulos { get; set; }
 
         public List<ArticuloSegmentoAproDTO>? articulosSegmentos { get; set; }
+
+        public List<ArticuloSegmentoDetalleAproDTO>? articulosSegmentoDetalles { get; set; }
+
         public List<ArticuloAcuerdoPromoAproDTO>? articulosAcuerdos { get; set; }
         public List<ArticuloOtrosCostosAproDTO>? articulosOtros { get; set; }
+
+        public List<ComponenteComboAproDTO> Componentes { get; set; } = [];                  // p_cursor_art_componentes (NUEVO)
+        public List<ComponenteComboAcuerdoAproDTO> ComponenteAcuerdos { get; set; } = [];    // p_cursor_art_comp_acuerdos (NUEVO)
+        public List<ComponenteComboOtrosCostosAproDTO> ComponenteOtrosCostos { get; set; } = []; // p_cursor_art_comp_otros (NUEVO)
 
         public string? tipopromocion { get; set; }
         [JsonIgnore]
@@ -1330,28 +1376,28 @@ namespace AppAPL.Dto.Promocion
     public class CabeceraBandAproPromoDTO
     {
         public string? Solicitud { get; set; }
-        public int IdPromocion { get; set; }
-        public string Descripcion { get; set; }
-        public int id_motivo { get; set; }
-        public string nombre_motivo { get; set; }
-        public int id_clase_promocion { get; set; }
-        public string nombre_clase_promocion { get; set; }
-        public string etiqueta_clase_promocion { get; set; }
+        public int? IdPromocion { get; set; }
+        public string? Descripcion { get; set; }
+        public int? id_motivo { get; set; }
+        public string? nombre_motivo { get; set; }
+        public int? id_clase_promocion { get; set; }
+        public string? nombre_clase_promocion { get; set; }
+        public string? etiqueta_clase_promocion { get; set; }
 
-        public string MarcaRegalo { get; set; }
-        public string MarcaProcesoAprobacion { get; set; }
+        public string? MarcaRegalo { get; set; }
+        public string? MarcaProcesoAprobacion { get; set; }
         public int? NumeroLoteAprobacion { get; set; }
-        public string ArchivoSoporte { get; set; }
+        public string? ArchivoSoporte { get; set; }
 
         public int? cantidad_acuerdos { get; set; }
         public int? cantidad_articulos { get; set; }
 
 
-        public DateTime fecha_inicio { get; set; }
-        public DateTime fecha_fin { get; set; }
-        public int id_estado_promocion { get; set; }
-        public string nombre_estado_promocion { get; set; }
-        public string etiqueta_estado_promocion { get; set; }
+        public DateTime? fecha_inicio { get; set; }
+        public DateTime? fecha_fin { get; set; }
+        public int? id_estado_promocion { get; set; }
+        public string? nombre_estado_promocion { get; set; }
+        public string? etiqueta_estado_promocion { get; set; }
 
 
         public int? nivelaprobacion { get; set; }
@@ -1366,31 +1412,32 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloBandAproPromoDTO
     {
-        public int idpromocionarticulo { get; set; }
-        public int idpromocion { get; set; }
+        // Usar int? previene errores si el procedimiento ejecuta el "abrir_cursores_vacios"
+        public int? idpromocionarticulo { get; set; }
+        public int? idpromocion { get; set; }
         public int? idpromocioncombo { get; set; }
 
         // --- Campos de Artículo (Caso PRARTICULO) ---
-        public string codigoitem { get; set; }
-        public string descripcion { get; set; }
+        public string? codigoitem { get; set; }
+        public string? descripcion { get; set; }
         public decimal? costo { get; set; }
-        public int? stockbodega { get; set; }
-        public int? stocktienda { get; set; }
-        public int? inventariooptimo { get; set; }
-        public int? excedenteunidad { get; set; }
+        public decimal? stockbodega { get; set; }       // Cambiado a decimal? por compatibilidad con Oracle NUMBER
+        public decimal? stocktienda { get; set; }        // Cambiado a decimal? por compatibilidad con Oracle NUMBER
+        public decimal? inventariooptimo { get; set; }    // Cambiado a decimal? por compatibilidad con Oracle NUMBER
+        public decimal? excedenteunidad { get; set; }     // Cambiado a decimal? por compatibilidad con Oracle NUMBER
         public decimal? excedentevalor { get; set; }
 
-        public int? m0unidades { get; set; }
+        public decimal? m0unidades { get; set; }
         public decimal? m0precio { get; set; }
-        public int? m1unidades { get; set; }
+        public decimal? m1unidades { get; set; }
         public decimal? m1precio { get; set; }
-        public int? m2unidades { get; set; }
+        public decimal? m2unidades { get; set; }
         public decimal? m2precio { get; set; }
-        public int? m12unidades { get; set; }
+        public decimal? m12unidades { get; set; }
         public decimal? m12precio { get; set; }
 
-        public decimal? igualarprecio { get; set; }
-        public decimal? diasantinguedad { get; set; }
+        public string? igualarprecio { get; set; }       // Corregido: de decimal? a string?
+        public int? diasantinguedad { get; set; }        // Corregido: de decimal? a int?
         public decimal? margenminimocontado { get; set; }
         public decimal? margenminimotarjetacredito { get; set; }
         public decimal? margenminimocredito { get; set; }
@@ -1416,10 +1463,10 @@ namespace AppAPL.Dto.Promocion
         public decimal? margenpromociontarjetacredito { get; set; }
         public decimal? margenpromocioncredito { get; set; }
         public decimal? margenigualarprecio { get; set; }
-        public string marcaregalo { get; set; }
+        public string? marcaregalo { get; set; }
         public int? id_estado_articulo { get; set; }
-        public string nombre_estado_articulo { get; set; }
-        public string etiqueta_estado_articulo { get; set; }
+        public string? nombre_estado_articulo { get; set; }
+        public string? etiqueta_estado_articulo { get; set; }
 
         // --- Campos de Cabecera de Combo (Caso PRCOMBO) ---
         public string? codigo_combo { get; set; }
@@ -1429,8 +1476,8 @@ namespace AppAPL.Dto.Promocion
         public decimal? combo_margen_min_tc { get; set; }
         public decimal? combo_margen_min_credito { get; set; }
         public decimal? combo_margen_min_igualar { get; set; }
-        public int? combo_unidades_limite { get; set; }
-        public int? combo_unidades_proyeccion { get; set; }
+        public decimal? combo_unidades_limite { get; set; }      // Consistencia: cambiado a decimal?
+        public decimal? combo_unidades_proyeccion { get; set; }  // Consistencia: cambiado a decimal?
         public decimal? combo_precio_lista_contado { get; set; }
         public decimal? combo_precio_lista_credito { get; set; }
         public decimal? combo_precio_promo_contado { get; set; }
@@ -1445,50 +1492,9 @@ namespace AppAPL.Dto.Promocion
         public decimal? combo_margen_promo_tc { get; set; }
         public decimal? combo_margen_promo_credito { get; set; }
         public string? combo_marca_regalo { get; set; }
-        public int? id_estado_combo { get; set; }
+        public int? id_estado_combo { get; set; }               // Cambiado a int?
         public string? nombre_estado_combo { get; set; }
         public string? etiqueta_estado_combo { get; set; }
-
-        // --- Campos de Componentes de Combo (Caso PRCOMBO - pac) ---
-        public int? idpromocionarticulocomponente { get; set; }
-        public string? comp_codigo_item { get; set; }
-        public string? comp_descripcion { get; set; }
-        public decimal? comp_costo { get; set; }
-        public int? comp_stock_bodega { get; set; }
-        public int? comp_stock_tienda { get; set; }
-        public int? comp_inventario_optimo { get; set; }
-        public int? comp_excedente_unidad { get; set; }
-        public decimal? comp_excedente_valor { get; set; }
-        public int? comp_m0_unidades { get; set; }
-        public decimal? comp_m0_precio { get; set; }
-        public int? comp_m1_unidades { get; set; }
-        public decimal? comp_m1_precio { get; set; }
-        public int? comp_m2_unidades { get; set; }
-        public decimal? comp_m2_precio { get; set; }
-        public int? comp_m12_unidades { get; set; }
-        public decimal? comp_m12_precio { get; set; }
-        public string? comp_igualar_precio { get; set; }
-        public int? comp_dias_antiguedad { get; set; }
-        public decimal? comp_margen_min_contado { get; set; }
-        public decimal? comp_margen_min_tc { get; set; }
-        public decimal? comp_margen_min_credito { get; set; }
-        public decimal? comp_margen_min_igualar { get; set; }
-        public decimal? comp_precio_lista_contado { get; set; }
-        public decimal? comp_precio_lista_credito { get; set; }
-        public decimal? comp_precio_promo_contado { get; set; }
-        public decimal? comp_precio_promo_tc { get; set; }
-        public decimal? comp_precio_promo_credito { get; set; }
-        public decimal? comp_desc_promo_contado { get; set; }
-        public decimal? comp_desc_promo_tc { get; set; }
-        public decimal? comp_desc_promo_credito { get; set; }
-        public decimal? comp_margen_pl_contado { get; set; }
-        public decimal? comp_margen_pl_credito { get; set; }
-        public decimal? comp_margen_promo_contado { get; set; }
-        public decimal? comp_margen_promo_tc { get; set; }
-        public decimal? comp_margen_promo_credito { get; set; }
-        public int? comp_id_estado { get; set; }
-        public string? comp_nombre_estado { get; set; }
-        public string? comp_etiqueta_estado { get; set; }
     }
 
 
@@ -1516,6 +1522,19 @@ namespace AppAPL.Dto.Promocion
         public int? id_estado_detalle { get; set; }
         public string? nombre_estado_detalle { get; set; }
         
+    }
+
+    public class ArticuloSegmentoDetalleAproDTO
+    {
+        public int? idpromocionarticulosegmentodetalle { get; set; }
+        public int? idpromocionarticulosegmento { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigo_combo { get; set; }
+        public string? descripcion_combo { get; set; }
+        public string? codigo_medio_pago { get; set; }
+        public string? nombre_medio_pago { get; set; }
+        public int? id_estado_detalle { get; set; }
+        public string? nombre_estado_detalle { get; set; }
     }
 
     public class ArticuloAcuerdoPromoAproDTO
@@ -1555,19 +1574,97 @@ namespace AppAPL.Dto.Promocion
     public class ArticuloOtrosCostosAproDTO
     {
         public int? idpromocionarticulootroscostos { get; set; }
-        public int? idpromocionarticulocomponenteotroscostos { get; set; }
-        public int idpromocionarticulo { get; set; }
-        public int? idpromocionarticulocomponente { get; set; }
-        public string codigoparametro { get; set; }
-        public string? descripcion { get; set; }
-        public string? descripcion_parametro { get; set; }
-        public decimal costo { get; set; }
-        public int estadoregistro { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigoparametro { get; set; }
+        public string? Descripcion { get; set; } // Nota: Alias 'Descripcion' con D mayúscula en el SP
+        public decimal? costo { get; set; }
+        public int? estadoregistro { get; set; }
+    }
 
-        //CAMPOS PARA COMBO
-        public string codigo_combo { get; set; }
-        public string comp_codigo_item { get; set; }
-        public string comp_descripcion { get; set; }
+    public class ComponenteComboAproDTO
+    {
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigo_combo { get; set; }
+        public string? descripcion_combo { get; set; }
+        public string? componente_codigoitem { get; set; }
+        public string? componente_descripcion { get; set; }
+        public decimal? componente_costo { get; set; }
+        public decimal? componente_stock_bodega { get; set; }
+        public decimal? componente_stock_tienda { get; set; }
+        public decimal? componente_inventario_optimo { get; set; }
+        public decimal? componente_excedente_unidad { get; set; }
+        public decimal? componente_excedente_valor { get; set; }
+        public decimal? componente_m0_unidades { get; set; }
+        public decimal? componente_m0_precio { get; set; }
+        public decimal? componente_m1_unidades { get; set; }
+        public decimal? componente_m1_precio { get; set; }
+        public decimal? componente_m2_unidades { get; set; }
+        public decimal? componente_m2_precio { get; set; }
+        public decimal? componente_m12_unidades { get; set; }
+        public decimal? componente_m12_precio { get; set; }
+        public string? componente_igualar_precio { get; set; }
+        public int? componente_dias_antiguedad { get; set; }
+        public decimal? componente_margen_min_contado { get; set; }
+        public decimal? componente_margen_min_tc { get; set; }
+        public decimal? componente_margen_min_credito { get; set; }
+        public decimal? componente_margen_min_igualar { get; set; }
+        public decimal? componente_precio_lista_contado { get; set; }
+        public decimal? componente_precio_lista_credito { get; set; }
+        public decimal? componente_precio_promo_contado { get; set; }
+        public decimal? componente_precio_promo_tc { get; set; }
+        public decimal? componente_precio_promo_credito { get; set; }
+        public decimal? componente_desc_promo_contado { get; set; }
+        public decimal? componente_desc_promo_tc { get; set; }
+        public decimal? componente_desc_promo_credito { get; set; }
+        public decimal? componente_margen_pl_contado { get; set; }
+        public decimal? componente_margen_pl_credito { get; set; }
+        public decimal? componente_margen_promo_contado { get; set; }
+        public decimal? componente_margen_promo_tc { get; set; }
+        public decimal? componente_margen_promo_credito { get; set; }
+        public int? componente_id_estado { get; set; }
+        public string? componente_nombre_estado { get; set; }
+        public string? componente_etiqueta_estado { get; set; }
+    }
+
+
+    public class ComponenteComboAcuerdoAproDTO
+    {
+        public int? idpromocionarticulocomponenteacuerdo { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigo_combo { get; set; }
+        public string? descripcion_combo { get; set; }
+        public string? componente_codigoitem { get; set; }
+        public string? componente_descripcion { get; set; }
+        public int? idacuerdo { get; set; }
+        public string? descripcion_acuerdo { get; set; }
+        public string? nombre_proveedor { get; set; }
+        public string? etiqueta_tipo_fondo { get; set; }
+        public string? nombre_tipo_fondo { get; set; }
+        public string? etiqueta_clase_acuerdo { get; set; }
+        public string? nombre_clase_acuerdo { get; set; }
+        public decimal? valor_aporte { get; set; }
+        public decimal? valor_comprometido { get; set; }
+        public decimal? valor_disponible { get; set; }
+        public decimal? valor_liquidado { get; set; }
+        public int? id_estado_acuerdo { get; set; }
+        public string? nombre_estado_acuerdo { get; set; }
+        public string? etiqueta_estado_acuerdo { get; set; }
+    }
+
+    public class ComponenteComboOtrosCostosAproDTO
+    {
+        public int? idpromocionarticulocomponenteotroscostos { get; set; }
+        public int? idpromocionarticulocomponente { get; set; }
+        public int? idpromocionarticulo { get; set; }
+        public string? codigo_combo { get; set; }
+        public string? componente_codigoitem { get; set; }
+        public string? componente_descripcion { get; set; }
+        public string? codigoparametro { get; set; }
+        public string? descripcion_parametro { get; set; }
+        public decimal? costo { get; set; }
+        public int? id_estado_otros_costos { get; set; }
     }
 
 
@@ -1848,20 +1945,20 @@ namespace AppAPL.Dto.Promocion
     
     public class AcuerdoBandAproDTO
     {
-        public int IDPROMOCIONACUERDO { get; set; }
-        public int IDPROMOCION { get; set; }
-        public int IDACUERDO { get; set; }
-        public string descripcion_acuerdo { get; set; }
-        public string nombre_proveedor { get; set; }
-        public decimal porcentaje_descuento { get; set; }
-        public decimal valor_comprometido { get; set; }
-        public decimal valor_disponible { get; set; }
-        public decimal valor_liquidado { get; set; }
-        public int id_estado_detalle { get; set; }
-        public string nombre_estado_detalle { get; set; }
-        public string etiqueta_estado_detalle { get; set; }
-        public string etiqueta_tipo_fondo { get; set; }
-        public string etiqueta_clase_acuerdo { get; set; }
+        public int? IDPROMOCIONACUERDO { get; set; }
+        public int? IDPROMOCION { get; set; }
+        public int? IDACUERDO { get; set; }
+        public string? descripcion_acuerdo { get; set; }
+        public string? nombre_proveedor { get; set; }
+        public decimal? porcentaje_descuento { get; set; }
+        public decimal? valor_comprometido { get; set; }
+        public decimal? valor_disponible { get; set; }
+        public decimal? valor_liquidado { get; set; }
+        public int? id_estado_detalle { get; set; }
+        public string? nombre_estado_detalle { get; set; }
+        public string? etiqueta_estado_detalle { get; set; }
+        public string? etiqueta_tipo_fondo { get; set; }
+        public string? etiqueta_clase_acuerdo { get; set; }
     }
 
     public class InactivarPromocionRequest
