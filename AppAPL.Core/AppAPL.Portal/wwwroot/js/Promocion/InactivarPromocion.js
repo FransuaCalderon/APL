@@ -171,18 +171,21 @@ function abrirModalVisualizarSegmento(titulo, detalles) {
     new bootstrap.Modal(document.getElementById("modalVerSegmento")).show();
 }
 
-function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
-    if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
-    const items = articulossegmentos.filter(s => s.codigoitem === codigoItem && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO");
-    if (items.length === 0) return "Todos";
 
-    const primerItem = items[0];
-    const tipoAsig = (primerItem.tipoasignacion || "").toString().toUpperCase();
-    if (tipoAsig === "T") return "Todos";
+function generarHtmlMedioPagoArticulo(articulossegmentodetalle, idPromocionArticulo) {
+    if (!articulossegmentodetalle || !Array.isArray(articulossegmentodetalle)) return "Todos";
+
+    // Filtramos los detalles específicos del artículo que tengan medio de pago
+    const items = articulossegmentodetalle.filter(s =>
+        s.idpromocionarticulo === idPromocionArticulo &&
+        (s.codigo_medio_pago || s.nombre_medio_pago || s.codigo_detalle)
+    );
+
+    if (items.length === 0) return "Todos";
 
     const mapa = {};
     items.forEach(i => {
-        const cod = (i.codigo_detalle || "").toString().trim();
+        const cod = (i.codigo_medio_pago || i.codigo_detalle || "").toString().trim();
         const nom = (i.nombre_medio_pago || i.nombre_detalle || "").toString().trim();
         if (cod.toUpperCase() === "TODOS") return;
 
@@ -201,10 +204,14 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
     });
 
     const detalles = Object.values(mapa);
+
+    // Si hay más de 1, dibujamos el botón verde
     if (detalles.length > 1) {
         const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
         return `<button type="button" class="btn btn-success btn-sm btn-ver-mediopago-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
     }
+
+    // Si solo es 1, mostramos texto normal
     if (detalles.length === 1) {
         let cod = detalles[0].codigo; let nom = detalles[0].nombre;
         if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
@@ -215,22 +222,23 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
     return "Todos";
 }
 
-function generarHtmlMedioPagoCombo(articulossegmentos, idPromocionArticulo) {
-    if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
+function generarHtmlMedioPagoCombo(articulossegmentodetalle, idPromocionArticulo, codigoCombo) {
+    if (!articulossegmentodetalle || !Array.isArray(articulossegmentodetalle)) return "Todos";
 
-    const items = articulossegmentos.filter(s =>
-        s.idpromocionarticulo === idPromocionArticulo && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO"
-    );
+    // Filtramos por combo
+    const items = articulossegmentodetalle.filter(s => {
+        let coincide = false;
+        if (codigoCombo && s.codigo_combo === codigoCombo) coincide = true;
+        else if (idPromocionArticulo && s.idpromocionarticulo === idPromocionArticulo) coincide = true;
+
+        return coincide && (s.codigo_medio_pago || s.nombre_medio_pago || s.codigo_detalle);
+    });
 
     if (items.length === 0) return "Todos";
 
-    const primerItem = items[0];
-    const tipoAsig = (primerItem.tipoasignacion || "").toString().toUpperCase();
-    if (tipoAsig === "T") return "Todos";
-
     const mapa = {};
     items.forEach(i => {
-        const cod = (i.codigo_detalle || "").toString().trim();
+        const cod = (i.codigo_medio_pago || i.codigo_detalle || "").toString().trim();
         const nom = (i.nombre_medio_pago || i.nombre_detalle || "").toString().trim();
 
         if (cod.toUpperCase() === "TODOS") return;
@@ -251,17 +259,19 @@ function generarHtmlMedioPagoCombo(articulossegmentos, idPromocionArticulo) {
 
     const detalles = Object.values(mapa);
 
+    // Si hay más de 1, dibujamos el botón verde
     if (detalles.length > 1) {
         const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
         return `<button type="button" class="btn btn-success btn-sm btn-ver-mediopago-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
     }
 
+    // Si solo es 1, mostramos texto normal
     if (detalles.length === 1) {
-        let cod = detalles[0].codigo;
-        let nom = detalles[0].nombre;
+        let cod = detalles[0].codigo; let nom = detalles[0].nombre;
         if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
         if (cod.toUpperCase() === "TODOS") return "Todos";
-        return nom || cod || "Todos";
+        if (cod && nom) return `${cod} - ${nom}`;
+        return cod || nom || "Todos";
     }
     return "Todos";
 }
@@ -734,7 +744,9 @@ function abrirModalEditar(idPromocion) {
                     configurarCampoSegmentoArticulo("#verTipoClienteArt", "#btnVerTipoClienteArt", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
 
                     if (data.articulos && data.articulos.length > 0) {
-                        renderizarTablaArticulosCompleta(data.articulos, data.articulossegmentos || [], data.articulosacuerdos || [], articulosotros);
+                        // SOLUCIÓN: Pasamos los 'detalles' en lugar del arreglo global de segmentos
+                        const detallesMedioPago = data.articulossegmentodetalles || data.articulossegmentosdetalle || data.articulossegmentodetalle || [];
+                        renderizarTablaArticulosCompleta(data.articulos, detallesMedioPago, data.articulosacuerdos || [], articulosotros);
                     } else {
                         $('#contenedor-tabla-articulos').html('<div class="alert alert-info text-center">No hay artículos en esta promoción.</div>').show();
                     }
@@ -750,7 +762,9 @@ function abrirModalEditar(idPromocion) {
                     configurarCampoSegmentoArticulo("#verTipoClienteComb", "#btnVerTipoClienteComb", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
 
                     if (data.articulos && data.articulos.length > 0) {
-                        renderizarTablaCombosCompleta(data.articulos, data.articulossegmentos || []);
+                        // SOLUCIÓN: Pasamos los 'detalles' en lugar del arreglo global de segmentos
+                        const detallesMedioPago = data.articulossegmentodetalles || data.articulossegmentosdetalle || data.articulossegmentodetalle || [];
+                        renderizarTablaCombosCompleta(data.articulos, detallesMedioPago);
                     } else {
                         $('#contenedor-tabla-combos-completa').html('<div class="alert alert-info text-center">No hay combos en esta promoción.</div>').show();
                     }

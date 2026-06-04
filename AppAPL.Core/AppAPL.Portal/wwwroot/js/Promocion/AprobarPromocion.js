@@ -202,22 +202,73 @@ function abrirModalVisualizarSegmento(titulo, detalles) {
     modal.show();
 }
 
-function generarHtmlMedioPagoArticulo(articulossegmentos, idPromocionArticulo) {
-    if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
+function generarHtmlMedioPagoArticulo(articulossegmentodetalle, idPromocionArticulo) {
+    if (!articulossegmentodetalle || !Array.isArray(articulossegmentodetalle)) return "Todos";
 
-    const items = articulossegmentos.filter(s =>
-        s.idpromocionarticulo === idPromocionArticulo && (s.etiqueta_tipo_segmento || "").toUpperCase() === "SEGMEDIOPAGO"
+    // Filtramos los detalles específicos del artículo que tengan medio de pago
+    const items = articulossegmentodetalle.filter(s =>
+        s.idpromocionarticulo === idPromocionArticulo &&
+        (s.codigo_medio_pago || s.nombre_medio_pago || s.codigo_detalle)
     );
 
     if (items.length === 0) return "Todos";
 
-    const primerItem = items[0];
-    const tipoAsig = (primerItem.tipoasignacion || "").toString().toUpperCase();
-    if (tipoAsig === "T") return "Todos";
+    const mapa = {};
+    items.forEach(i => {
+        const cod = (i.codigo_medio_pago || i.codigo_detalle || "").toString().trim();
+        const nom = (i.nombre_medio_pago || i.nombre_detalle || "").toString().trim();
+        if (cod.toUpperCase() === "TODOS") return;
+
+        if (cod.includes(",")) {
+            const cods = cod.split(",");
+            const noms = nom.split(",");
+            cods.forEach((c, idx) => {
+                const cTrim = c.trim();
+                const nTrim = (noms[idx] || "").trim();
+                if (cTrim && !mapa[cTrim]) mapa[cTrim] = { codigo: cTrim, nombre: nTrim };
+            });
+        } else {
+            const key = cod || nom;
+            if (key && !mapa[key]) mapa[key] = { codigo: cod, nombre: nom };
+        }
+    });
+
+    const detalles = Object.values(mapa);
+
+    // Si hay más de 1, dibujamos el botón verde
+    if (detalles.length > 1) {
+        const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
+        return `<button type="button" class="btn btn-success btn-sm btn-ver-mediopago-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
+    }
+
+    // Si solo es 1, mostramos texto normal
+    if (detalles.length === 1) {
+        let cod = detalles[0].codigo; let nom = detalles[0].nombre;
+        if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
+        if (cod.toUpperCase() === "TODOS") return "Todos";
+        if (cod && nom) return `${cod} - ${nom}`;
+        return cod || nom || "Todos";
+    }
+    return "Todos";
+}
+
+function generarHtmlMedioPagoCombo(articulossegmentodetalle, idPromocionArticulo, codigoCombo) {
+    if (!articulossegmentodetalle || !Array.isArray(articulossegmentodetalle)) return "Todos";
+
+    // Filtramos por combo
+    const items = articulossegmentodetalle.filter(s => {
+        let coincide = false;
+        if (codigoCombo && s.codigo_combo === codigoCombo) coincide = true;
+        else if (idPromocionArticulo && s.idpromocionarticulo === idPromocionArticulo) coincide = true;
+
+        return coincide && (s.codigo_medio_pago || s.nombre_medio_pago || s.codigo_detalle);
+    });
+
+    if (items.length === 0) return "Todos";
 
     const mapa = {};
     items.forEach(i => {
-        const cod = (i.codigo_detalle || "").toString().trim();
+        const cod = (i.codigo_medio_pago || i.codigo_detalle || "").toString().trim();
         const nom = (i.nombre_medio_pago || i.nombre_detalle || "").toString().trim();
 
         if (cod.toUpperCase() === "TODOS") return;
@@ -238,94 +289,27 @@ function generarHtmlMedioPagoArticulo(articulossegmentos, idPromocionArticulo) {
 
     const detalles = Object.values(mapa);
 
+    // Si hay más de 1, dibujamos el botón verde
     if (detalles.length > 1) {
         const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
         return `<button type="button" class="btn btn-success btn-sm btn-ver-mediopago-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
     }
 
+    // Si solo es 1, mostramos texto normal
     if (detalles.length === 1) {
-        let cod = detalles[0].codigo;
-        let nom = detalles[0].nombre;
-        if (!nom && !isNaN(cod) && parseInt(cod) > 1) {
-            return `Varios (${cod})`;
-        }
+        let cod = detalles[0].codigo; let nom = detalles[0].nombre;
+        if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
         if (cod.toUpperCase() === "TODOS") return "Todos";
         if (cod && nom) return `${cod} - ${nom}`;
         return cod || nom || "Todos";
     }
-
     return "Todos";
 }
 
 // ===============================================================
 // HELPER: Generar HTML Medio Pago para Combos
 // ===============================================================
-function generarHtmlMedioPagoCombo(articulossegmentos, idPromocionArticulo, codigoCombo, idPromocionCombo) {
-    if (!articulossegmentos || !Array.isArray(articulossegmentos)) return "Todos";
 
-    // Filtramos siendo ultra flexibles con las llaves de relación
-    const items = articulossegmentos.filter(s => {
-        const tag = (s.etiqueta_tipo_segmento || "").toUpperCase();
-        if (tag !== "SEGMEDIOPAGO") return false;
-
-        let coincide = false;
-        const targetCodigo = (codigoCombo || "").toString().trim().toUpperCase();
-        const sCodigo = (s.codigo_combo || s.codigocombo || "").toString().trim().toUpperCase();
-
-        // 1. Validar por coincidencia de Código del Combo
-        if (targetCodigo && sCodigo && targetCodigo === sCodigo) coincide = true;
-        // 2. Validar por coincidencia de ID Promoción Artículo
-        if (idPromocionArticulo && s.idpromocionarticulo === idPromocionArticulo) coincide = true;
-        // 3. Validar por coincidencia de ID Promoción Combo (por si el backend usa esta llave)
-        if (idPromocionCombo && (s.idpromocioncombo === idPromocionCombo || s.idpromocionarticulo === idPromocionCombo)) coincide = true;
-
-        return coincide;
-    });
-
-    if (items.length === 0) return "Todos";
-
-    const primerItem = items[0];
-    const tipoAsig = (primerItem.tipoasignacion || "").toString().toUpperCase();
-    if (tipoAsig === "T") return "Todos";
-
-    const mapa = {};
-    items.forEach(i => {
-        const cod = (i.codigo_detalle || "").toString().trim();
-        const nom = (i.nombre_medio_pago || i.nombre_detalle || "").toString().trim();
-
-        if (cod.toUpperCase() === "TODOS") return;
-
-        if (cod.includes(",")) {
-            const cods = cod.split(",");
-            const noms = nom.split(",");
-            cods.forEach((c, idx) => {
-                const cTrim = c.trim();
-                const nTrim = (noms[idx] || "").trim();
-                if (cTrim && !mapa[cTrim]) mapa[cTrim] = { codigo: cTrim, nombre: nTrim };
-            });
-        } else {
-            const key = cod || nom;
-            if (key && !mapa[key]) mapa[key] = { codigo: cod, nombre: nom };
-        }
-    });
-
-    const detalles = Object.values(mapa);
-
-    if (detalles.length > 1) {
-        const jsonDetalles = JSON.stringify(detalles).replace(/'/g, "&#39;");
-        return `<button type="button" class="btn btn-success btn-sm btn-ver-mediopago-grid" style="font-size:0.75rem; padding:2px 8px;" data-detalles='${jsonDetalles}'><i class="fa-solid fa-list-check"></i> (${detalles.length})</button>`;
-    }
-
-    if (detalles.length === 1) {
-        let cod = detalles[0].codigo;
-        let nom = detalles[0].nombre;
-        if (!nom && !isNaN(cod) && parseInt(cod) > 1) return `Varios (${cod})`;
-        if (cod.toUpperCase() === "TODOS") return "Todos";
-
-        return nom || cod || "Todos";
-    }
-    return "Todos";
-}
 
 // ===============================================================
 // Generar HTML para Otros Costos
@@ -831,7 +815,9 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                     configurarCampoSegmentoArticulo("#verTipoClienteArt", "#btnVerTipoClienteArt", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
 
                     if (data.articulos && data.articulos.length > 0) {
-                        renderizarTablaArticulosCompleta(data.articulos, data.articulossegmentos || [], data.articulosacuerdos || [], articulosotros);
+                        // SOLUCIÓN: Pasamos los 'detalles' en lugar del arreglo global de segmentos
+                        const detallesMedioPago = data.articulossegmentodetalles || data.articulossegmentosdetalle || data.articulossegmentodetalle || [];
+                        renderizarTablaArticulosCompleta(data.articulos, detallesMedioPago, data.articulosacuerdos || [], articulosotros);
                     } else {
                         $('#contenedor-tabla-articulos').html('<div class="alert alert-info text-center">No hay artículos en esta promoción.</div>').show();
                     }
@@ -847,7 +833,9 @@ function abrirModalEditar(idPromocion, idAprobacion) {
                     configurarCampoSegmentoArticulo("#verTipoClienteComb", "#btnVerTipoClienteComb", segmentos, "SEGTIPOCLIENTE", "Tipos de Cliente Seleccionados");
 
                     if (data.articulos && data.articulos.length > 0) {
-                        renderizarTablaCombosCompleta(data.articulos, data.articulossegmentos || []);
+                        // SOLUCIÓN: Pasamos los 'detalles' en lugar del arreglo global de segmentos
+                        const detallesMedioPago = data.articulossegmentodetalles || data.articulossegmentosdetalle || data.articulossegmentodetalle || [];
+                        renderizarTablaCombosCompleta(data.articulos, detallesMedioPago);
                     } else {
                         $('#contenedor-tabla-combos-completa').html('<div class="alert alert-info text-center">No hay combos en esta promoción.</div>').show();
                     }
