@@ -1576,30 +1576,28 @@ function recalcularColumnaComboMod(colIndex) {
 }
 
 function recalcularTotalesComboMod() {
-    //const camposNum = ["stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u"];
     const camposNum = [];
 
-
+    // Agregamos los campos de comp_proveedor, etc., a los campos de moneda para que se sumen
     const camposMoneda = [
         "costo", "excedentes_usd",
         "precio_lista_contado", "precio_lista_credito",
         "promo_contado", "promo_tc", "promo_credito",
         "dscto_contado", "dscto_tc", "dscto_credito",
-        "aporte_prov", "aporte_prov2", "aporte_rebate", "aporte_propio", "aporte_propio2"
+        "aporte_prov", "aporte_prov2", "aporte_rebate", "aporte_propio", "aporte_propio2",
+        "comp_proveedor", "comp_proveedor2", "comp_rebate", "comp_propio", "comp_propio2"
     ];
 
     const setComboVal = (campo, val) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(val);
     const getComboVal = (campo) => parseCurrencyToNumber($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
 
-    // 3. Forzamos el guion "-" en las filas que ya no queremos sumar
+    // Forzamos el guion "-" en las filas que NO queremos sumar
     const camposGuion = [
         "stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u", "excedentes_usd",
         "m0_u", "m0_usd", "m1_u", "m1_usd", "m2_u", "m2_usd", "m12_u", "m12_usd",
         "igualar_precio", "dias_antiguedad", "margen_min_cont", "margen_min_tc", "margen_min_cred", "margen_min_igual"
     ];
     camposGuion.forEach(campo => setComboVal(campo, "-"));
-
-
 
     camposNum.forEach(campo => {
         let suma = 0;
@@ -1616,9 +1614,6 @@ function recalcularTotalesComboMod() {
         });
         setComboVal(campo, formatCurrencySpanish(suma));
     });
-
-    const camposComprometidos = ["comp_proveedor", "comp_proveedor2", "comp_rebate", "comp_propio", "comp_propio2"];
-    camposComprometidos.forEach(campo => setComboVal(campo, ""));
 
     const totalCosto = getComboVal("costo");
     let totalOtrosCostos = 0;
@@ -1970,6 +1965,16 @@ function extraerArticulosDelModalComboMod() {
                 case "aporte_rebate": art.aporteRebate = parseCurrencyToNumber(val); break;
                 case "aporte_propio": art.aportePropio = parseCurrencyToNumber(val); break;
                 case "aporte_propio2": art.aportePropio2 = parseCurrencyToNumber(val); break;
+
+
+                // --- NUEVO: CAPTURAR VALORES COMPROMETIDOS ---
+                case "comp_proveedor": art.compProveedor = parseCurrencyToNumber(val); break;
+                case "comp_proveedor2": art.compProveedor2 = parseCurrencyToNumber(val); break;
+                case "comp_rebate": art.compRebate = parseCurrencyToNumber(val); break;
+                case "comp_propio": art.compPropio = parseCurrencyToNumber(val); break;
+                case "comp_propio2": art.compPropio2 = parseCurrencyToNumber(val); break;
+
+
                 case "aporte_prov_id":
                     art.idAcuerdoProveedor = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
                     art.displayAcuerdoProveedor = $td.find("input[type='text']").val();
@@ -3725,8 +3730,8 @@ async function guardarPromocionCombos() {
             unidadesproyeccionventas: proyeccionVtas,
             proyeccionventas: proyeccionVtas,
             unidadeslimite: unidadesLimite,
-            margenminimoigualar: 0,
-            margenminimoigualarprecio: 0,
+            margenminimoigualar: parseFloat($fila.find("td:eq(6)").text()) || 0,
+            margenminimoigualarprecio: parseFloat($fila.find("td:eq(6)").text()) || 0,
             precioigualarprecio: 0,
             descuentoigualarprecio: 0,
             margenigualarprecio: 0,
@@ -3744,22 +3749,29 @@ async function guardarPromocionCombos() {
             m12unidades: 0, m12precio: 0,
             igualarprecio: 0,
             diasantiguedad: 0,
-            margenminimocontado: 0,
-            margenminimotarjetacredito: 0,
-            margenminimocredito: 0,
-            preciolistacontado: parseCurrencyToNumber($fila.find("td:eq(11)").text()),
-            preciolistacredito: parseCurrencyToNumber($fila.find("td:eq(12)").text()),
-            preciopromocioncontado: parseCurrencyToNumber($fila.find("td:eq(13)").text()),
-            preciopromociontarjetacredito: parseCurrencyToNumber($fila.find("td:eq(14)").text()),
-            preciopromocioncredito: parseCurrencyToNumber($fila.find("td:eq(15)").text()),
-            descuentopromocioncontado: parseCurrencyToNumber($fila.find("td:eq(16)").text()),
-            descuentopromociontarjetacredito: parseCurrencyToNumber($fila.find("td:eq(17)").text()),
-            descuentopromocioncredito: parseCurrencyToNumber($fila.find("td:eq(18)").text()),
-            margenpreciolistacontado: 0,
-            margenpreciolistacredito: 0,
-            margenpromocioncontado: parseFloat($fila.find("td:eq(19)").text()) || 0,
-            margenpromociontarjetacredito: parseFloat($fila.find("td:eq(20)").text()) || 0,
-            margenpromocioncredito: parseFloat($fila.find("td:eq(21)").text()) || 0,
+
+            // Márgenes Mínimos
+            margenminimocontado: parseFloat($fila.find("td:eq(3)").text()) || 0,
+            margenminimotarjetacredito: parseFloat($fila.find("td:eq(4)").text()) || 0,
+            margenminimocredito: parseFloat($fila.find("td:eq(5)").text()) || 0,
+
+            // Precios y Descuentos (índices corregidos)
+            preciolistacontado: parseCurrencyToNumber($fila.find("td:eq(10)").text()),
+            preciolistacredito: parseCurrencyToNumber($fila.find("td:eq(11)").text()),
+            preciopromocioncontado: parseCurrencyToNumber($fila.find("td:eq(12)").text()),
+            preciopromociontarjetacredito: parseCurrencyToNumber($fila.find("td:eq(13)").text()),
+            preciopromocioncredito: parseCurrencyToNumber($fila.find("td:eq(14)").text()),
+            descuentopromocioncontado: parseCurrencyToNumber($fila.find("td:eq(15)").text()),
+            descuentopromociontarjetacredito: parseCurrencyToNumber($fila.find("td:eq(16)").text()),
+            descuentopromocioncredito: parseCurrencyToNumber($fila.find("td:eq(17)").text()),
+
+            // Márgenes de Precio de Lista y Promoción
+            margenpreciolistacontado: parseFloat($fila.find("td:eq(18)").text()) || 0,
+            margenpreciolistacredito: parseFloat($fila.find("td:eq(19)").text()) || 0,
+            margenpromocioncontado: parseFloat($fila.find("td:eq(20)").text()) || 0,
+            margenpromociontarjetacredito: parseFloat($fila.find("td:eq(21)").text()) || 0,
+            margenpromocioncredito: parseFloat($fila.find("td:eq(22)").text()) || 0,
+
             mediospago: mediospago,
             acuerdos: [],
             otroscostos: []
@@ -3770,58 +3782,13 @@ async function guardarPromocionCombos() {
             const idCompBD = art.idpromocionarticulocomponente || 0;
             const accionComp = idCompBD > 0 ? "U" : "I";
 
-            // ✅ FIX: Construir acuerdos con numero_aporte para distinguir slot 1 vs slot 2
+            // Acuerdos de este componente
             const acuerdosComponente = [];
-            if (art.idAcuerdoProveedor) {
-                acuerdosComponente.push({
-                    idacuerdo: art.idAcuerdoProveedor,
-                    valoraporte: art.aporteProveedor || 0,
-                    valorcomprometido: (art.aporteProveedor || 0) * unidadesParaCalculo,
-                    etiqueta_tipo_fondo: "TFPROVEDOR",
-                    numero_aporte: "1",
-                    numeroaporte: "1"
-                });
-            }
-            if (art.idAcuerdoProveedor2) {
-                acuerdosComponente.push({
-                    idacuerdo: art.idAcuerdoProveedor2,
-                    valoraporte: art.aporteProveedor2 || 0,
-                    valorcomprometido: (art.aporteProveedor2 || 0) * unidadesParaCalculo,
-                    etiqueta_tipo_fondo: "TFPROVEDOR",
-                    numero_aporte: "2",
-                    numeroaporte: "2"
-                });
-            }
-            if (art.idAcuerdoRebate) {
-                acuerdosComponente.push({
-                    idacuerdo: art.idAcuerdoRebate,
-                    valoraporte: art.aporteRebate || 0,
-                    valorcomprometido: (art.aporteRebate || 0) * unidadesParaCalculo,
-                    etiqueta_tipo_fondo: "TFREBATE",
-                    numero_aporte: "1",
-                    numeroaporte: "1"
-                });
-            }
-            if (art.idAcuerdoPropio) {
-                acuerdosComponente.push({
-                    idacuerdo: art.idAcuerdoPropio,
-                    valoraporte: art.aportePropio || 0,
-                    valorcomprometido: (art.aportePropio || 0) * unidadesParaCalculo,
-                    etiqueta_tipo_fondo: "TFPROPIO",
-                    numero_aporte: "1",
-                    numeroaporte: "1"
-                });
-            }
-            if (art.idAcuerdoPropio2) {
-                acuerdosComponente.push({
-                    idacuerdo: art.idAcuerdoPropio2,
-                    valoraporte: art.aportePropio2 || 0,
-                    valorcomprometido: (art.aportePropio2 || 0) * unidadesParaCalculo,
-                    etiqueta_tipo_fondo: "TFPROPIO",
-                    numero_aporte: "2",
-                    numeroaporte: "2"
-                });
-            }
+            if (art.idAcuerdoProveedor) { acuerdosComponente.push({ idacuerdo: art.idAcuerdoProveedor, valoraporte: art.aporteProveedor || 0, valorcomprometido: (art.aporteProveedor || 0) * unidadesParaCalculo, etiqueta_tipo_fondo: "TFPROVEDOR", numero_aporte: "1", numeroaporte: "1" }); }
+            if (art.idAcuerdoProveedor2) { acuerdosComponente.push({ idacuerdo: art.idAcuerdoProveedor2, valoraporte: art.aporteProveedor2 || 0, valorcomprometido: (art.aporteProveedor2 || 0) * unidadesParaCalculo, etiqueta_tipo_fondo: "TFPROVEDOR", numero_aporte: "2", numeroaporte: "2" }); }
+            if (art.idAcuerdoRebate) { acuerdosComponente.push({ idacuerdo: art.idAcuerdoRebate, valoraporte: art.aporteRebate || 0, valorcomprometido: (art.aporteRebate || 0) * unidadesParaCalculo, etiqueta_tipo_fondo: "TFREBATE", numero_aporte: "1", numeroaporte: "1" }); }
+            if (art.idAcuerdoPropio) { acuerdosComponente.push({ idacuerdo: art.idAcuerdoPropio, valoraporte: art.aportePropio || 0, valorcomprometido: (art.aportePropio || 0) * unidadesParaCalculo, etiqueta_tipo_fondo: "TFPROPIO", numero_aporte: "1", numeroaporte: "1" }); }
+            if (art.idAcuerdoPropio2) { acuerdosComponente.push({ idacuerdo: art.idAcuerdoPropio2, valoraporte: art.aportePropio2 || 0, valorcomprometido: (art.aportePropio2 || 0) * unidadesParaCalculo, etiqueta_tipo_fondo: "TFPROPIO", numero_aporte: "2", numeroaporte: "2" }); }
 
             const otrosCostosComponente = (art.otrosCostos || []).map(oc => ({
                 codigoparametro: parseInt(oc.codigo, 10) || 0,
@@ -3860,11 +3827,14 @@ async function guardarPromocionCombos() {
                 m12precio: art.m12s || 0,
                 igualarprecio: 0,
                 diasantiguedad: 0,
-                margenminimocontado: 0,
-                margenminimotarjetacredito: 0,
-                margenminimopreciocredito: 0,
-                margenminimocredito: 0,
-                margenminimoigualar: 0,
+
+                // --- APLICACIÓN DE VARIABLES EXTRAÍDAS ---
+                margenminimocontado: art.margenmincontado || 0,
+                margenminimotarjetacredito: art.margenmintc || 0,
+                margenminimopreciocredito: art.margenmincredito || 0,
+                margenminimocredito: art.margenmincredito || 0,
+                margenminimoigualar: art.margenminigualar || 0,
+
                 preciolistacontado: art.preciolistacontado || 0,
                 preciolistacredito: art.preciolistacredito || 0,
                 preciopromocioncontado: art.promoContado || 0,
@@ -3873,17 +3843,22 @@ async function guardarPromocionCombos() {
                 descuentopromocioncontado: art.dsctoContado || 0,
                 descuentopromociontarjetacredito: art.dsctoTC || 0,
                 descuentopromocioncredito: art.dsctoCredito || 0,
+
                 margenpreciolistacontado: art.margenPLContado || 0,
                 margenpreciolistacredito: art.margenPLCredito || 0,
                 margenpromocioncontado: art.margenPromoContado || 0,
                 margenpromociontarjetacredito: art.margenPromoTC || 0,
                 margenpromocioncredito: art.margenPromoCredito || 0,
+                // -----------------------------------------
+
                 acuerdos: acuerdosComponente,
                 otroscostos: otrosCostosComponente,
                 jsonacuerdos: acuerdosComponente,
                 jsonotroscostos: otrosCostosComponente
             };
         });
+
+
 
         articulos_componentes.push({
             accion: accion,
@@ -3973,6 +3948,8 @@ async function guardarPromocionCombos() {
         idcontrolinterfaz: "BTNGRABAR",
         ideventoetiqueta: "EVCLICK"
     };
+
+    console.log("body: ", body);
 
     enviarGuardado(body);
 }

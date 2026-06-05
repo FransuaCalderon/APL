@@ -2020,12 +2020,17 @@
                     "ventahistoricam2usd": art.m2s || 0,
                     "ventahistoricam12u": art.m12u || 0,
                     "ventahistoricam12usd": art.m12s || 0,
-                    "margenminimocontado": 0,
-                    "margenminimotarjetacredito": 0,
-                    "margenminimopreciocredito": 0,
-                    "margenminimoigualar": 0,
-                    "preciolistacontado": 0,
-                    "preciolistacredito": 0,
+
+
+                    // AQUÍ ESTÁ EL CAMBIO: Ya no envían 0, sino las variables extraídas
+                    "margenminimocontado": art.margenmincontado || 0,
+                    "margenminimotarjetacredito": art.margenmintc || 0,
+                    "margenminimopreciocredito": art.margenmincredito || 0,
+                    "margenminimoigualar": art.margenminigualar || 0,
+                    "preciolistacontado": art.preciolistacontado || 0,
+                    "preciolistacredito": art.preciolistacredito || 0,
+
+
                     "preciopromocioncontado": art.promoContado || 0,
                     "preciopromociontarjetacredito": art.promoTC || 0,
                     "preciopromocioncredito": art.promoCredito || 0,
@@ -2041,11 +2046,11 @@
                     "margenpromocioncredito": art.margenPromoCredito || 0,
 
                     "jsonacuerdos": [
-                        ...(art.idAcuerdoProveedor ? [{ "idacuerdo": art.idAcuerdoProveedor, "valoraporte": art.aporteProveedor, "valorcomprometido": 0 }] : []),
-                        ...(art.idAcuerdoProveedor2 ? [{ "idacuerdo": art.idAcuerdoProveedor2, "valoraporte": art.aporteProveedor2, "valorcomprometido": 0 }] : []),
-                        ...(art.idAcuerdoRebate ? [{ "idacuerdo": art.idAcuerdoRebate, "valoraporte": art.aporteRebate, "valorcomprometido": 0 }] : []),
-                        ...(art.idAcuerdoPropio ? [{ "idacuerdo": art.idAcuerdoPropio, "valoraporte": art.aportePropio, "valorcomprometido": 0 }] : []),
-                        ...(art.idAcuerdoPropio2 ? [{ "idacuerdo": art.idAcuerdoPropio2, "valoraporte": art.aportePropio2, "valorcomprometido": 0 }] : [])
+                        ...(art.idAcuerdoProveedor ? [{ "idacuerdo": art.idAcuerdoProveedor, "valoraporte": art.aporteProveedor, "valorcomprometido": art.compProveedor || 0 }] : []),
+                        ...(art.idAcuerdoProveedor2 ? [{ "idacuerdo": art.idAcuerdoProveedor2, "valoraporte": art.aporteProveedor2, "valorcomprometido": art.compProveedor2 || 0 }] : []),
+                        ...(art.idAcuerdoRebate ? [{ "idacuerdo": art.idAcuerdoRebate, "valoraporte": art.aporteRebate, "valorcomprometido": art.compRebate || 0 }] : []),
+                        ...(art.idAcuerdoPropio ? [{ "idacuerdo": art.idAcuerdoPropio, "valoraporte": art.aportePropio, "valorcomprometido": art.compPropio || 0 }] : []),
+                        ...(art.idAcuerdoPropio2 ? [{ "idacuerdo": art.idAcuerdoPropio2, "valoraporte": art.aportePropio2, "valorcomprometido": art.compPropio2 || 0 }] : [])
                     ],
                     //"jsonotroscostos": art.otrosCostos || []
                     "jsonotroscostos": (art.otrosCostos || []).map(oc => ({
@@ -2057,39 +2062,56 @@
                 const esRegalo = $fila.find("td:last-child input").is(":checked") ? "S" : "N";
 
                 //ARTICULOS
+                // ARTICULOS (CABECERA DEL COMBO)
                 combosParaAPI.push({
                     "codigoitem": codigoCombo,
                     "descripcion": nombreCombo,
                     "descripcioncombo": nombreCombo,
                     "costo": parseCurrency($fila.find("td:eq(2)").text()),
-                    "stockbodega": parseInt($fila.find("td:eq(3)").text()) || 0,
-                    "stocktienda": parseInt($fila.find("td:eq(4)").text()) || 0,
-                    "inventariooptimo": parseInt($fila.find("td:eq(5)").text()) || 0,
-                    "excedenteunidad": parseInt($fila.find("td:eq(6)").text()) || 0,
-                    "excedentevalor": parseCurrency($fila.find("td:eq(7)").text()),
+
+                    // Estos campos no se visualizan a nivel cabecera del combo, van en 0
+                    "stockbodega": 0, "stocktienda": 0, "inventariooptimo": 0,
+                    "excedenteunidad": 0, "excedentevalor": 0,
                     "m0unidades": 0, "m0precio": 0, "m1unidades": 0, "m1precio": 0,
                     "m2unidades": 0, "m2precio": 0, "m12unidades": 0, "m12precio": 0,
                     "igualarprecio": 0, "diasantiguedad": 0,
-                    "margenminimocontado": 0, "margenminimotarjetacredito": 0,
-                    "margenminimocredito": 0, "margenminimoigualar": 0,
-                    "margenminimoigualarprecio": 0,
+
+                    // Márgenes mínimos (Ya leyendo las columnas correctas)
+                    "margenminimocontado": parseFloat($fila.find("td:eq(3)").text()) || 0,
+                    "margenminimotarjetacredito": parseFloat($fila.find("td:eq(4)").text()) || 0,
+                    "margenminimocredito": parseFloat($fila.find("td:eq(5)").text()) || 0,
+                    "margenminimoigualar": parseFloat($fila.find("td:eq(6)").text()) || 0,
+                    "margenminimoigualarprecio": parseFloat($fila.find("td:eq(6)").text()) || 0,
+
+                    // Unidades y Proyección
                     "unidadeslimite": parseInt($fila.find(".val-unidades-combo").val()) || 0,
                     "unidadesproyeccionventas": parseInt($fila.find(".val-proyeccion-combo").val()) || 0,
                     "proyeccionventas": parseInt($fila.find(".val-proyeccion-combo").val()) || 0,
-                    "preciolistacontado": parseCurrency($fila.find("td:eq(11)").text()),
-                    "preciolistacredito": parseCurrency($fila.find("td:eq(12)").text()),
-                    "preciopromocioncontado": parseCurrency($fila.find("td:eq(13)").text()),
-                    "preciopromociontarjetacredito": parseCurrency($fila.find("td:eq(14)").text()),
-                    "preciopromocioncredito": parseCurrency($fila.find("td:eq(15)").text()),
+
+                    // Precios de Lista y Promoción
+                    "preciolistacontado": parseCurrency($fila.find("td:eq(10)").text()),
+                    "preciolistacredito": parseCurrency($fila.find("td:eq(11)").text()),
+                    "preciopromocioncontado": parseCurrency($fila.find("td:eq(12)").text()),
+                    "preciopromociontarjetacredito": parseCurrency($fila.find("td:eq(13)").text()),
+                    "preciopromocioncredito": parseCurrency($fila.find("td:eq(14)").text()),
                     "precioigualarprecio": 0,
-                    "descuentopromocioncontado": parseCurrency($fila.find("td:eq(16)").text()),
-                    "descuentopromociontarjetacredito": parseCurrency($fila.find("td:eq(17)").text()),
-                    "descuentopromocioncredito": parseCurrency($fila.find("td:eq(18)").text()),
-                    "descuentoigualarprecio": 0, "margenpreciolistacontado": 0, "margenpreciolistacredito": 0,
-                    "margenpromocioncontado": parseFloat($fila.find("td:eq(19)").text()) || 0,
-                    "margenpromociontarjetacredito": parseFloat($fila.find("td:eq(20)").text()) || 0,
-                    "margenpromocioncredito": parseFloat($fila.find("td:eq(21)").text()) || 0,
+
+                    // Descuentos
+                    "descuentopromocioncontado": parseCurrency($fila.find("td:eq(15)").text()),
+                    "descuentopromociontarjetacredito": parseCurrency($fila.find("td:eq(16)").text()),
+                    "descuentopromocioncredito": parseCurrency($fila.find("td:eq(17)").text()),
+                    "descuentoigualarprecio": 0,
+
+                    // Márgenes de Precio de Lista (AQUÍ ESTABAN LOS CEROS QUEMADOS)
+                    "margenpreciolistacontado": parseFloat($fila.find("td:eq(18)").text()) || 0,
+                    "margenpreciolistacredito": parseFloat($fila.find("td:eq(19)").text()) || 0,
+
+                    // Márgenes de Promoción
+                    "margenpromocioncontado": parseFloat($fila.find("td:eq(20)").text()) || 0,
+                    "margenpromociontarjetacredito": parseFloat($fila.find("td:eq(21)").text()) || 0,
+                    "margenpromocioncredito": parseFloat($fila.find("td:eq(22)").text()) || 0,
                     "margenigualarprecio": 0,
+
                     "marcaregalo": esRegalo,
                     "regalo": esRegalo,
                     "mediospago": (function () {
@@ -2100,10 +2122,8 @@
                         if (valMP && valMP !== "TODAS") return [{ "tipoasignacion": "C", "codigos": [valMP] }];
                         return [{ "tipoasignacion": "T", "codigos": [] }];
                     })(),
-                    // ELIMINADO: La propiedad jsonmediopago ya no está en el Swagger
                     "acuerdos": [],
                     "otroscostos": []
-                    // ELIMINADO: La propiedad jsonarticuloscomponentes ya no va aquí adentro
                 });
 
                 // PUSH AL NUEVO ARREGLO RAÍZ
@@ -2165,6 +2185,7 @@
             };
 
             console.log("body: ", body);
+
             $.ajax({
                 url: "/api/apigee-router-proxy",
                 method: "POST",
@@ -2430,6 +2451,15 @@
                     case "aporte_rebate": art.aporteRebate = parseCurrency(val); break;
                     case "aporte_propio": art.aportePropio = parseCurrency(val); break;
                     case "aporte_propio2": art.aportePropio2 = parseCurrency(val); break;
+
+
+                    // --- NUEVO: CAPTURAR VALORES COMPROMETIDOS ---
+                    case "comp_proveedor": art.compProveedor = parseCurrency(val); break;
+                    case "comp_proveedor2": art.compProveedor2 = parseCurrency(val); break;
+                    case "comp_rebate": art.compRebate = parseCurrency(val); break;
+                    case "comp_propio": art.compPropio = parseCurrency(val); break;
+                    case "comp_propio2": art.compPropio2 = parseCurrency(val); break;
+
                     case "aporte_prov_id":
                         art.idAcuerdoProveedor = parseInt($td.find(".acuerdo-id-hidden").val()) || 0;
                         art.displayAcuerdoProveedor = $td.find("input[type='text']").val(); // Mantiene el nombre del acuerdo
@@ -2535,7 +2565,7 @@
     }
 
     // ==========================================
-    // FUNCIÓN AUXILIAR DE CÁLCULO PARA COLUMNAS DEL COMBO
+    // FUNCIÓN AUXILIAR DE CÁLCULO PARA COLUMNAS DEL COMBO (COMPONENTES)
     // ==========================================
     function recalcularColumnaCombo(colIndex) {
         // Solo se calcula para columnas de artículos (índice 2 en adelante)
@@ -2550,19 +2580,20 @@
             $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td[data-colindex='${colIndex}'] ${selector}`).val(val);
         };
 
-        // 1. Obtener valores base del artículo
+        // 1. Obtener valores base del artículo componente
         const costo = getColVal("costo", "input");
         const precioListaContado = getColVal("precio_lista_contado", "input");
         const precioListaCredito = getColVal("precio_lista_credito", "input");
         const otrosCostos = parseFloat($(`#trHeadersCombo th:eq(${colIndex})`).data("total-otros-costos")) || 0;
 
-        // 2. Obtener Unidades desde la columna del COMBO (td:eq(1))
+        // 2. Obtener Unidades desde la columna general del COMBO (td:eq(1))
+        // AQUÍ TOMAMOS LA PROYECCIÓN DE VENTAS PARA MULTIPLICARLA
         const getComboVal = (campo) => parseCurrency($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
         const unidadesLimite = getComboVal("unidades_limite");
         const proyeccionVtas = getComboVal("proyeccion_vta");
         const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
 
-        // 3. Precios de Promoción ingresados
+        // 3. Precios de Promoción ingresados en el componente
         const promoContado = getColVal("promo_contado", "input");
         const promoTC = getColVal("promo_tc", "input");
         const promoCredito = getColVal("promo_credito", "input");
@@ -2572,14 +2603,14 @@
         setColVal("dscto_tc", "input", formatCurrencySpanish(precioListaContado - promoTC));
         setColVal("dscto_credito", "input", formatCurrencySpanish(precioListaCredito - promoCredito));
 
-        // 4. Aportes ingresados
+        // 4. Aportes ingresados en el componente
         const apProv = getColVal("aporte_prov", "input");
         const apProv2 = getColVal("aporte_prov2", "input");
         const apRebate = getColVal("aporte_rebate", "input");
         const apPropio = getColVal("aporte_propio", "input");
         const apPropio2 = getColVal("aporte_propio2", "input");
 
-        // --- FÓRMULAS DE VALORES COMPROMETIDOS ---
+        // --- FÓRMULAS DE VALORES COMPROMETIDOS (Aporte * Proyección Vtas) ---
         setColVal("comp_proveedor", "input", formatCurrencySpanish(apProv * unidades));
         setColVal("comp_proveedor2", "input", formatCurrencySpanish(apProv2 * unidades));
         setColVal("comp_rebate", "input", formatCurrencySpanish(apRebate * unidades));
@@ -3280,22 +3311,40 @@
     // RECALCULAR TOTALES DEL COMBO (COLUMNA PRINCIPAL)
     // ==========================================
     function recalcularTotalesCombo() {
-        //const camposNum = ["stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u", "m0_u", "m1_u", "m2_u", "m12_u"];
         const camposNum = [];
 
-        // Agregamos los Descuentos y Promociones para que se sumen solitos en la columna del Combo
         const camposMoneda = [
-            "costo", 
+            "costo",
             "precio_lista_contado", "precio_lista_credito",
             "promo_contado", "promo_tc", "promo_credito",
-            "dscto_contado", "dscto_tc", "dscto_credito"
-            
+            "dscto_contado", "dscto_tc", "dscto_credito",
+            "comp_proveedor", "comp_proveedor2", "comp_rebate", "comp_propio", "comp_propio2"
         ];
 
         const setComboVal = (campo, val) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val(val);
-        const getComboVal = (campo) => parseCurrency($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
 
-        // 3. Forzamos el guion "-" en las filas que ya no queremos sumar
+        // Helper interno SÚPER SEGURO para transformar monedas a número (Ignora miles)
+        const parsearMontoSeguro = (text) => {
+            if (!text) return 0;
+            let clean = text.toString().replace(/[^0-9.,-]/g, '');
+            let lastDot = clean.lastIndexOf('.');
+            let lastComma = clean.lastIndexOf(',');
+            let decimalIndex = Math.max(lastDot, lastComma);
+
+            if (decimalIndex > -1) {
+                let wholePart = clean.substring(0, decimalIndex).replace(/[.,]/g, '');
+                let decimalPart = clean.substring(decimalIndex + 1);
+                return parseFloat(wholePart + '.' + decimalPart) || 0;
+            }
+            return parseFloat(clean) || 0;
+        };
+
+        const getComboVal = (campo) => {
+            let text = $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val() || "0";
+            return parsearMontoSeguro(text);
+        };
+
+        // Forzamos el guion "-" en las filas que NO queremos sumar
         const camposGuion = [
             "stock_bodega", "stock_tienda", "inv_optimo", "excedentes_u", "excedentes_usd",
             "m0_u", "m0_usd", "m1_u", "m1_usd", "m2_u", "m2_usd", "m12_u", "m12_usd", "igualar_precio", "dias_antiguedad",
@@ -3303,9 +3352,6 @@
         ];
         camposGuion.forEach(campo => setComboVal(campo, "-"));
 
-
-
-        // 1. Sumar campos numéricos
         camposNum.forEach(campo => {
             let suma = 0;
             $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:gt(1) input`).each(function () {
@@ -3314,20 +3360,17 @@
             setComboVal(campo, suma);
         });
 
-        // 2. Sumar campos de moneda
         camposMoneda.forEach(campo => {
             let suma = 0;
             $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:gt(1) input`).each(function () {
-                suma += parseCurrency($(this).val());
+                suma += parsearMontoSeguro($(this).val());
             });
             setComboVal(campo, formatCurrencySpanish(suma));
         });
 
-        // 3. VACIAR Valores Comprometidos del Combo (para que no se vea nada)
-        const camposComprometidos = ["comp_proveedor", "comp_proveedor2", "comp_rebate", "comp_propio", "comp_propio2"];
-        camposComprometidos.forEach(campo => setComboVal(campo, ""));
-
-        // 4. Calcular MÁRGENES globales del Combo usando las sumas
+        // ==========================================================
+        // CÁLCULO DE MÁRGENES PROYECTADOS
+        // ==========================================================
         const totalCosto = getComboVal("costo");
         let totalOtrosCostos = 0;
         $("#trHeadersCombo th:gt(1)").each(function () {
@@ -3358,6 +3401,39 @@
         setComboVal("margen_promo_contado", calcMargenPromoCombo(totalPromoContado));
         setComboVal("margen_promo_tc", calcMargenPromoCombo(totalPromoTC));
         setComboVal("margen_promo_cred", calcMargenPromoCombo(totalPromoCredito));
+
+        // ==========================================================
+        // CÁLCULO DE MÁRGENES MÍNIMOS DEL COMBO
+        // (Toma los márgenes del artículo con el MAYOR COSTO real)
+        // ==========================================================
+        let maxCosto = -1;
+        let colIndexMaxCosto = -1;
+        const numColumnas = $("#trHeadersCombo th").length;
+
+        for (let i = 2; i < numColumnas; i++) {
+            let textCostoArt = $(`#tablaCreacionCombo tbody tr[data-campo='costo'] td:eq(${i}) input`).val();
+            let costoArt = parsearMontoSeguro(textCostoArt);
+
+            if (costoArt > maxCosto) {
+                maxCosto = costoArt;
+                colIndexMaxCosto = i;
+            }
+        }
+
+        if (colIndexMaxCosto !== -1 && maxCosto >= 0) {
+            // Obtenemos los strings exactos del artículo con mayor costo
+            let getMargenMax = (campo) => $(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(${colIndexMaxCosto}) input`).val() || "0.00%";
+
+            setComboVal("margen_min_cont", getMargenMax("margen_min_cont"));
+            setComboVal("margen_min_tc", getMargenMax("margen_min_tc"));
+            setComboVal("margen_min_cred", getMargenMax("margen_min_cred"));
+            setComboVal("margen_min_igual", getMargenMax("margen_min_igual"));
+        } else {
+            setComboVal("margen_min_cont", "0.00%");
+            setComboVal("margen_min_tc", "0.00%");
+            setComboVal("margen_min_cred", "0.00%");
+            setComboVal("margen_min_igual", "0.00%");
+        }
     }
 
     function agregarColumnaACombo(item) {
@@ -3655,7 +3731,7 @@
     });
 
     // ==========================================
-    // INIT
+    // INIT DOCUMENT READY
     // ==========================================
     $(function () {
         console.log("=== CrearPromocion JS Loaded ===");
@@ -4335,6 +4411,11 @@
                 }, 100);
             }
         });
+
+
+        
+
+
     });
 })();
 

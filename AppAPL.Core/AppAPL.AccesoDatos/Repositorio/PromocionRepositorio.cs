@@ -41,7 +41,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             
 
             // 🔹 Ejecutar el SP
@@ -75,7 +75,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             */
 
             // 🔹 Ejecutar el SP
@@ -109,7 +109,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             */
 
             // 🔹 Ejecutar el SP
@@ -143,7 +143,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             */
 
             // 🔹 Ejecutar el SP
@@ -177,7 +177,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             */
 
             // 🔹 Ejecutar el SP
@@ -222,7 +222,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_rc_almacen", OracleDbType.RefCursor, ParameterDirection.Output);
             //parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            //parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            //parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             
 
             // 🔹 Ejecutar el SP
@@ -257,7 +257,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             
 
             // 🔹 Ejecutar el SP
@@ -293,7 +293,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             /*
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);*/
             
 
             // 🔹 Ejecutar el SP
@@ -327,7 +327,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             */
 
             // 🔹 Ejecutar el SP
@@ -361,7 +361,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             */
 
             // 🔹 Ejecutar el SP
@@ -396,7 +396,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             /*
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);*/
             
 
             // 🔹 Ejecutar el SP
@@ -430,7 +430,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             */
 
             // 🔹 Ejecutar el SP
@@ -528,7 +528,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             
             parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<AcuerdoPromoDTO>(
@@ -558,7 +558,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
 
             // 🔹 Ejecutar el SP
@@ -593,7 +593,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             
             parameters.Add("p_codigo", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             parameters.Add("p_resultado", OracleDbType.RefCursor, ParameterDirection.Output);
 
 
@@ -627,7 +627,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_resp", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_resp", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_resp", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<BandInacPromocionDTO>(
@@ -656,7 +656,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_resp", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_resp", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_resp", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
 
             logger.LogInformation("ejecutando sp: sp_bandeja_liquidacion");
@@ -688,7 +688,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Agregar los parámetros de salida
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<BandModPromocionDTO>(
@@ -721,7 +721,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<BandAproPromocionDTO>(
@@ -756,7 +756,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             /*
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);*/
 
             // 🔹 Ejecutar el SP
             var datos = await connection.QueryAsync<AcuerdoPromocionArticuloDTO>(
@@ -805,9 +805,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor_art_comp_otros", OracleDbType.RefCursor, ParameterDirection.Output);
 
 
-            parameters.Add("p_clase_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_clase_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
 
             using var multi = await connection.QueryMultipleAsync(
@@ -893,9 +893,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor_art_comp_acuerdos", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_cursor_art_comp_otros", OracleDbType.RefCursor, ParameterDirection.Output);
 
-            parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
 
             using var multi = await connection.QueryMultipleAsync(
@@ -976,9 +976,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor_promocion_articulo_componente_otros_costos", OracleDbType.RefCursor, ParameterDirection.Output);
 
 
-            parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_tipo_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
 
             using var multi = await connection.QueryMultipleAsync(
@@ -1060,9 +1060,9 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
 
-            parameters.Add("p_clase_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_clase_promocion", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
 
             using var multi = await connection.QueryMultipleAsync(
@@ -1129,7 +1129,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
             /*
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);*/
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);*/
 
 
             // 🔹 Ejecutar el SP
@@ -1177,9 +1177,9 @@ namespace AppAPL.AccesoDatos.Repositorio
             var parameters = new OracleDynamicParameters(paramObject);
 
             parameters.Add("p_idpromocion_out", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            //parameters.Add("p_resultado", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            //parameters.Add("p_resultado", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
             //int filasAfectadas = 1;
             
@@ -1238,7 +1238,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             var parameters = new OracleDynamicParameters(paramObject);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
             int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_PROMOCIONES.sp_proceso_aprobacion_promocion",
@@ -1319,7 +1319,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             //parameters.Add("p_cursor_promociones", OracleDbType.RefCursor, ParameterDirection.Output);
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
             int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_PROMOCIONES.sp_proceso_inactivacion_promocion",
@@ -1382,7 +1382,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
             parameters.Add("p_codigo_salida", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_salida", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
             int filasAfectadas = await connection.ExecuteAsync(
                 "APL_PKG_PROMOCIONES.sp_modificar_promocion",
@@ -1442,7 +1442,7 @@ namespace AppAPL.AccesoDatos.Repositorio
 
             parameters.Add("p_resultado", OracleDbType.Clob, ParameterDirection.Output);
             parameters.Add("p_codigo_error", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
-            parameters.Add("p_mensaje_error", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+            parameters.Add("p_mensaje_error", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 4000);
 
             await connection.ExecuteAsync(
                 "APL_PKG_BUSCAR_PROMOCIONES.SP_BUSCAR_PROMOCIONES",
