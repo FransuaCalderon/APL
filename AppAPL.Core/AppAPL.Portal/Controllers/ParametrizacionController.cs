@@ -19,5 +19,19 @@ namespace AppAPL.Portal.Controllers
             ViewBag.UsuarioActual = usuario;
             return View();
         }
+
+
+        public IActionResult Aprobadores()
+        {
+            logger.LogInformation("Configuracion vista");
+            var usuario = HttpContext.Session.GetString("Usuario");
+            if (string.IsNullOrEmpty(usuario))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            ViewBag.UsuarioActual = usuario;
+            return View();
+        }
     }
 }

@@ -85,6 +85,7 @@ namespace AppAPL.AccesoDatos.Repositorio
         {
             p_opcion = "I",
             p_entidad = request.Entidad,
+            p_idetiquetaentidad = request.IdEtiquetaEntidad,
             p_idtipoproceso = request.IdTipoProceso,
             p_iduseraprobador = request.IdUserAprobador,
             p_nivelaprobacion = request.NivelAprobacion,

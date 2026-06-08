@@ -64,8 +64,9 @@ namespace AppAPL.Dto.Aprobador
     // ============================================================
     public class CrearAprobadorRequest
     {
-        public long Entidad { get; set; }
-        public long IdTipoProceso { get; set; }
+        public long? Entidad { get; set; }
+        public string? IdEtiquetaEntidad { get; set; } = string.Empty;
+        public string? IdTipoProceso { get; set; } = string.Empty;
         public string IdUserAprobador { get; set; } = string.Empty;
         public int NivelAprobacion { get; set; }     // 1 o 2
         public string IdUsuario { get; set; } = string.Empty;

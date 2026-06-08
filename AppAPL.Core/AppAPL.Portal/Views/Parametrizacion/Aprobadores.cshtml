@@ -1,0 +1,129 @@
+﻿@{
+    ViewData["Title"] = "Configuracion Parametrizacion";
+    var usuarioActual = ViewBag.UsuarioActual as string;
+}
+
+@section Scripts {
+    <script>window.usuarioActual = '@usuarioActual';</script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.3/i18n/datepicker-es.js"></script>
+    <script src="~/js/datatables.min.js" asp-append-version="true"></script>
+	<script src="~/js/Parametrizacion/Aprobadores.js" asp-append-version="true"></script>
+    
+}
+
+<link rel="stylesheet" href="~/css/datatables.css" asp-append-version="true" />
+
+
+<!-- Config. Aprobadores -->
+<div class="container-fluid mt-3">
+
+	<h4 class="mb-4">
+		<i class="fa-solid fa-user-check"></i>
+		Configuración de Aprobadores
+	</h4>
+
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+		<input type="text" id="apFiltroTexto" class="form-control form-control-sm" style="width:200px;" placeholder="Buscar aprobador...">
+
+		<button onclick="apAbrirModalNuevo()" class="btn btn-primary btn-sm ms-auto">
+			<i class="fa-solid fa-plus"></i> Nuevo aprobador
+		</button>
+	</div>
+
+	<div class="table-responsive shadow-sm bg-white p-2 rounded">
+		<table id="apTabla" class="table table-sm table-bordered table-hover w-100 mb-0">
+			<thead class="table-light">
+				<tr>
+					<th style="font-size:11px;">ENTIDAD</th>
+					<th style="font-size:11px;">TIPO DE PROCESO</th>
+					<th style="font-size:11px;">USUARIO APROBADOR</th>
+					<th style="font-size:11px;">NIVEL</th>
+					<th style="font-size:11px; text-align:center; width:90px;">ACCIONES</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+
+<!-- ===== MODAL INGRESO/EDICION/CONSULTA APROBADORES ===== -->
+<div id="apModalOverlay" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="apModalTitulo"></h5>
+				<button type="button" class="btn-close" onclick="apCerrarModal()"></button>
+			</div>
+			<div class="modal-body">
+				<div id="apAlertaModal" style="display:none;" class="mb-2"></div>
+				<div class="mb-3">
+					<label class="form-label fw-semibold" style="font-size:13px;">Entidad <span class="text-danger">*</span></label>
+					<select class="form-select form-select-sm" id="apMEntidad" onchange="apValidarCampo('apMEntidad')">
+						<!--<option value="">Seleccione una entidad</option>-->
+						<option value="ENTFONDO">Fondo</option>
+						<option value="ENTACUERDO">Acuerdo</option>
+						<option value="ENTPROMOCION">Promocion</option>
+					</select>
+					<div class="invalid-feedback">Seleccione una entidad.</div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label fw-semibold" style="font-size:13px;">Tipo de proceso <span class="text-danger">*</span></label>
+					<select class="form-select form-select-sm" id="apMTipoProceso" onchange="apValidarCampo('apMTipoProceso')">
+						<!--<option value="">Seleccione un tipo</option>-->
+						<option value="TPCREACION">Creacion</option>
+						<option value="TPMODIFICACION">Modificacion</option>
+						<option value="TPAPROBACION">Aprobacion</option>
+						<option value="TPINACTIVACION">Inactivacion</option>
+						<option value="TPAPROBACIONINACTIVACION">AprobacionInactivacion</option>
+					</select>
+					<div class="invalid-feedback">Seleccione un tipo.</div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label fw-semibold" style="font-size:13px;">Codigo de usuario <span class="text-danger">*</span></label>
+					<input type="text" class="form-control form-control-sm" id="apMUsuario" maxlength="100" placeholder="Ej: USR001" oninput="apValidarCampo('apMUsuario')">
+					<div class="form-text">Alfanumerico, maximo 100 caracteres.</div>
+					<div class="invalid-feedback">Ingrese el codigo de usuario.</div>
+				</div>
+				<div class="mb-1">
+					<label class="form-label fw-semibold" style="font-size:13px;">Nivel de aprobacion <span class="text-danger">*</span></label>
+					<select class="form-select form-select-sm" id="apMNivel" onchange="apValidarCampo('apMNivel')">
+						<!--<option value="">Seleccione un nivel</option>-->
+						<option value="1">Nivel 1</option>
+						<option value="2">Nivel 2</option>
+					</select>
+					<div class="invalid-feedback">Seleccione un nivel.</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary btn-sm" onclick="apCerrarModal()">Cancelar</button>
+				<button type="button" class="btn btn-primary btn-sm" id="apBtnGuardar" onclick="apGuardarRegistro()">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- ===== MODAL ELIMINAR APROBADORES ===== -->
+<div id="apModalEliminar" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-danger"><i class="fa-solid fa-trash"></i> Eliminar aprobador</h5>
+				<button type="button" class="btn-close" onclick="apCerrarModalElim()"></button>
+			</div>
+			<div class="modal-body">
+				<p style="font-size:13px;">&iquest;Est&aacute; seguro que desea eliminar este aprobador?</p>
+				<div id="apElimDetalle" class="bg-light rounded p-2 mb-2" style="font-size:12px; line-height:1.8;"></div>
+				<div class="alert alert-warning py-2 px-3 mb-0" style="font-size:12px;">Esta accion no se puede deshacer.</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary btn-sm" onclick="apCerrarModalElim()">Cancelar</button>
+				<button type="button" class="btn btn-danger btn-sm" onclick="apConfirmarEliminar()">Eliminar</button>
+			</div>
+		</div>
+	</div>
+</div>
