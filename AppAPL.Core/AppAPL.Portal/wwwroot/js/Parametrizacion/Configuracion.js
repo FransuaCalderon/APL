@@ -13,6 +13,18 @@ let tipoCostoSeleccionadoActual = {
 $(document).ready(function () {
     console.log("=== INICIO - Parametrizacion Configuracion ===");
 
+
+    // Bloquear botones de "Grabar" en los modales cuando inicie cualquier petición AJAX
+    $(document).ajaxStart(function () {
+        $('.modal .btn-primary').prop('disabled', true);
+    });
+
+    // Desbloquear los botones cuando la petición AJAX termine (ya sea por éxito o error)
+    $(document).ajaxStop(function () {
+        $('.modal .btn-primary').prop('disabled', false);
+    }); 
+
+
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
         cargarConfiguracion();

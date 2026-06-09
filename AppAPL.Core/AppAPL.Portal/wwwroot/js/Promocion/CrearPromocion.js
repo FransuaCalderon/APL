@@ -1465,8 +1465,10 @@
 
         const otrosCostos = parseFloat($fila.data("total-otros-costos")) || 0;
 
-        // Obtener unidades límite para los cálculos de compensación
+        // Obtener unidades para los cálculos de compensación
         const unidadesLimite = parseInt($fila.find("td:eq(22) input").val()) || 0;
+        const proyeccionVtas = parseInt($fila.find("td:eq(23) input").val()) || 0;
+        const unidadesTotales = unidadesLimite + proyeccionVtas; // Aplicando la suma de la matriz
 
         // 4. CÁLCULO DE DESCUENTOS
         const dsctoContado = precioListaContado - precioContado;
@@ -1487,11 +1489,13 @@
         $fila.find("td:eq(46)").text(margenPLCredito.toFixed(2) + "%");
 
         // 6. CÁLCULO DE MÁRGENES DE PROMOCIÓN
-        // Fórmula: (Precio Promo + Aporte Proveedor + Aporte Rebate – Costo – Otros Costos) / (Precio Promo + Aporte Proveedor + Aporte Rebate)
         const calcMargenPromo = (precioPromocion) => {
-            const denominador = precioPromocion + aporteProveedor + aporteRebate;
+            // Sumamos los aportes secundarios según la matriz
+            const sumaAportes = aporteProveedor + aporteProveedor2 + aporteRebate;
+            const denominador = precioPromocion + sumaAportes;
+
             if (denominador > 0) {
-                return ((precioPromocion + aporteProveedor + aporteRebate - costo - otrosCostos) / denominador) * 100;
+                return ((denominador - costo - otrosCostos) / denominador) * 100;
             }
             return 0;
         };
@@ -1501,12 +1505,12 @@
         $fila.find("td:eq(49)").text(calcMargenPromo(precioCredito).toFixed(2) + "%");
         $fila.find("td:eq(50)").text(calcMargenPromo(precioIgualar).toFixed(2) + "%");
 
-        // 7. CÁLCULO DE COMPENSACIONES (Valores Comprometidos x Unidades Límite)
-        $fila.find("td:eq(51)").text(formatCurrencySpanish(aporteProveedor * unidadesLimite));
-        $fila.find("td:eq(52)").text(formatCurrencySpanish(aporteProveedor2 * unidadesLimite));
-        $fila.find("td:eq(53)").text(formatCurrencySpanish(aporteRebate * unidadesLimite));
-        $fila.find("td:eq(54)").text(formatCurrencySpanish(aportePropio * unidadesLimite));
-        $fila.find("td:eq(55)").text(formatCurrencySpanish(aportePropio2 * unidadesLimite));
+        // 7. CÁLCULO DE COMPENSACIONES
+        $fila.find("td:eq(51)").text(formatCurrencySpanish(aporteProveedor * unidadesTotales));
+        $fila.find("td:eq(52)").text(formatCurrencySpanish(aporteProveedor2 * unidadesTotales));
+        $fila.find("td:eq(53)").text(formatCurrencySpanish(aporteRebate * unidadesTotales));
+        $fila.find("td:eq(54)").text(formatCurrencySpanish(aportePropio * unidadesTotales));
+        $fila.find("td:eq(55)").text(formatCurrencySpanish(aportePropio2 * unidadesTotales));
 
         // 8. PINTADO DE CELDAS SEGÚN VALOR POSITIVO/NEGATIVO
         $fila.find("td:eq(31), td:eq(32), td:eq(33), td:eq(34), td:eq(45), td:eq(46), td:eq(47), td:eq(48), td:eq(49), td:eq(50)").each(function () {
@@ -2589,9 +2593,14 @@
         // 2. Obtener Unidades desde la columna general del COMBO (td:eq(1))
         // AQUÍ TOMAMOS LA PROYECCIÓN DE VENTAS PARA MULTIPLICARLA
         const getComboVal = (campo) => parseCurrency($(`#tablaCreacionCombo tbody tr[data-campo='${campo}'] td:eq(1) input`).val());
+
+
+        // Tu código actual (Línea ~1025):
         const unidadesLimite = getComboVal("unidades_limite");
         const proyeccionVtas = getComboVal("proyeccion_vta");
-        const unidades = unidadesLimite > 0 ? unidadesLimite : proyeccionVtas;
+
+        // CÓDIGO CORREGIDO:
+        const unidades = unidadesLimite + proyeccionVtas;
 
         // 3. Precios de Promoción ingresados en el componente
         const promoContado = getColVal("promo_contado", "input");
@@ -2622,8 +2631,12 @@
             if (precioLista > 0) return (((precioLista - costo) / precioLista) * 100).toFixed(2) + "%";
             return "0.00%";
         };
+
         const calcMargenPromo = (precioPromo) => {
-            const denominador = precioPromo + apProv + apRebate;
+            // Incluir apProv2 en la sumatoria
+            const sumaAportes = apProv + apProv2 + apRebate;
+            const denominador = precioPromo + sumaAportes;
+
             if (denominador > 0) return (((denominador - costo - otrosCostos) / denominador) * 100).toFixed(2) + "%";
             return "0.00%";
         };
@@ -3382,8 +3395,11 @@
         const totalPromoContado = getComboVal("promo_contado");
         const totalPromoTC = getComboVal("promo_tc");
         const totalPromoCredito = getComboVal("promo_credito");
+
         const totalApProv = getComboVal("aporte_prov");
+        const totalApProv2 = getComboVal("aporte_prov2"); // <- Nuevo campo
         const totalApRebate = getComboVal("aporte_rebate");
+        const sumaAportesTotales = totalApProv + totalApProv2 + totalApRebate; // <- Sumatoria total
 
         const calcMargenPLCombo = (precioLista) => {
             if (precioLista > 0) return (((precioLista - totalCosto) / precioLista) * 100).toFixed(2) + "%";
@@ -3391,7 +3407,7 @@
         };
 
         const calcMargenPromoCombo = (precioPromo) => {
-            const denominador = precioPromo + totalApProv + totalApRebate;
+            const denominador = precioPromo + sumaAportesTotales;
             if (denominador > 0) return (((denominador - totalCosto - totalOtrosCostos) / denominador) * 100).toFixed(2) + "%";
             return "0.00%";
         };
