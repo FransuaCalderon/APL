@@ -1009,11 +1009,24 @@ function recalcularFilaArticulo($fila) {
     const calcMargenPromo = (precioPromocion) => {
         const sumaAportes = aporteProveedor + aporteProveedor2 + aporteRebate;
         const denominador = precioPromocion + sumaAportes;
+        const numerador = denominador - costo - otrosCostos;
+        const resultado = denominador > 0 ? (numerador / denominador) * 100 : 0;
 
-        if (denominador > 0) {
-            return ((denominador - costo - otrosCostos) / denominador) * 100;
+        // Solo se imprimirá si en la consola del navegador escribes: window.DEBUG_PROMO = true;
+        if (window.DEBUG_PROMO) {
+            console.table({
+                "Módulo": "Creación (o Modificación)", // Cambia esto según el archivo
+                "1. Precio Promo": precioPromocion,
+                "2. Aportes": sumaAportes,
+                "3. Denominador": denominador,
+                "4. Costo": costo,
+                "5. Otros Costos": otrosCostos,
+                "6. Numerador": numerador,
+                "7. Resultado (%)": resultado
+            });
         }
-        return 0;
+
+        return resultado;
     };
 
     $fila.find("td:eq(47)").text(calcMargenPromo(precioContado).toFixed(2) + "%");
