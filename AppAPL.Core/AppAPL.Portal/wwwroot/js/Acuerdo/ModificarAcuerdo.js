@@ -1,5 +1,9 @@
 ﻿// ~/js/Acuerdo/ModificarAcuerdo.js
 
+// ✅ VARIABLE PARA GUARDAR EL RUC DEL FONDO SELECCIONADO
+let rucFondoSeleccionado = null;
+let proveedorSeleccionado = null;
+
 // ===============================================================
 // Variables globales
 // ===============================================================
@@ -14,6 +18,66 @@ let dtItemsConsulta = null;
 // ✅ NUEVAS VARIABLES - DataTables y caché para proveedores
 let dtProveedoresAcuerdo = null;
 let cacheProveedoresAcuerdo = null;
+
+
+
+//-------------------------------------------------------------------
+// ✅ NUEVAS VARIABLES GLOBALES PARA PORCENTAJES
+let pctIncrementoTC = 0;
+let pctIncrementoCredito = 0;
+
+// -----------------------------
+// Cargar Porcentajes de Incremento
+// -----------------------------
+function cargarPorcentajesIncremento() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Parametrizacion/consultar-porcentaje-incremento",
+        client: "APL",
+        endpoint_query_params: ""
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            const data = response.json_response || [];
+            if (data.length > 0) {
+                pctIncrementoTC = parseFloat(data[0].porcentaje_incremento_tarjeta_credito) / 100 || 0;
+                pctIncrementoCredito = parseFloat(data[0].porcentaje_incremento_credito) / 100 || 0;
+                console.log(`✅ Porcentajes listos: TC=${pctIncrementoTC * 100}%, Crédito=${pctIncrementoCredito * 100}%`);
+            }
+        },
+        error: function (xhr) {
+            console.error("❌ Error cargando porcentajes de incremento:", xhr.responseText);
+        }
+    });
+}
+
+// -----------------------------
+// Actualizar etiquetas dinámicas según Tipo de Fondo
+// -----------------------------
+function actualizarEtiquetasDinamicasFondo(tipoFondo) {
+    if (!tipoFondo) return;
+
+    // 1. Actualizar encabezados de la tabla
+    const $thead = $("#tablaItemsBody").closest("table").find("thead");
+    $thead.find("th.custom-header-calc-bg").first().text(`Comprometido ${tipoFondo}`);
+    $thead.find("th").filter(function () {
+        return $(this).text().toLowerCase().includes("aporte");
+    }).first().text(`Aporte por Unidad - ${tipoFondo}`);
+
+    // 2. Actualizar Labels de los inputs (OJO: en modificar se usa acuerdoValorTotalItems)
+    $("#fondoProveedorItems").closest("div[class*='col-']").find("label").first().text(`ID Fondo - ${tipoFondo}`);
+    $("#acuerdoValorTotalItems").closest("div[class*='col-']").find("label").first().text(`${tipoFondo} - Valor Total`);
+
+    console.log(`✅ Etiquetas actualizadas dinámicamente a: "${tipoFondo}"`);
+}
+
+
 
 // ===============================================================
 // FUNCIONES HELPER
@@ -146,6 +210,9 @@ $(function () {
             cargarMotivosGeneral();
             cargarMotivosItems();
         });
+
+        // 👉 AÑADIR ESTA LÍNEA:
+        cargarPorcentajesIncremento();
     }).fail(function (xhr) {
         console.error("ERROR /config:", xhr.status, xhr.responseText);
         Swal.fire({
@@ -193,10 +260,14 @@ $(function () {
                 disponible: $selected.data("disponible"),
                 comprometido: $selected.data("comprometido"),
                 liquidado: $selected.data("liquidado"),
+                tipoFondo: $selected.data("tipofondo"),
+                valorfondo: $selected.data("valorfondo") // 👉 AÑADIR
             };
         }
 
         const display = `${proveedorTemporal.idFondo} - (${proveedorTemporal.proveedor})`;
+
+        proveedorSeleccionado = proveedorTemporal.proveedor;
 
         console.log("✅ Proveedor confirmado:", {
             idFondo: proveedorTemporal.idFondo,
@@ -211,7 +282,14 @@ $(function () {
             disponible: proveedorTemporal.disponible,
             comprometido: proveedorTemporal.comprometido,
             liquidado: proveedorTemporal.liquidado,
+            valorfondo: proveedorTemporal.valorfondo
         });
+
+
+        // 👉 AÑADIR ESTE BLOQUE:
+        if (getTipoAcuerdo() === "Items" && proveedorTemporal.tipoFondo) {
+            actualizarEtiquetasDinamicasFondo(proveedorTemporal.tipoFondo);
+        }
 
         Swal.fire({
             toast: true,
@@ -266,7 +344,7 @@ $(function () {
                              </div>`,
                     zeroRecords: "No se encontraron items.",
                     info: "Mostrando _START_ a _END_ de _TOTAL_ items",
-                    infoEmpty: "Sin items",
+                    infoEmpty: "Sin items para el RUC: " + rucFondoSeleccionado + " - " + proveedorSeleccionado,
                     paginate: { first: "«", last: "»", next: "›", previous: "‹" }
                 },
                 order: [[1, 'asc']],
@@ -296,6 +374,7 @@ $(function () {
         const clasesSeleccionadas = getSelectedFilterValues('filtroClase');
         const articuloBuscado = $("#filtroArticulo").val().trim();
 
+        /*
         if (marcasSeleccionadas.length === 0 &&
             divisionesSeleccionadas.length === 0 &&
             departamentosSeleccionados.length === 0 &&
@@ -309,7 +388,7 @@ $(function () {
                 confirmButtonColor: '#009845'
             });
             return;
-        }
+        }*/
 
         const filtros = {
             marcas: marcasSeleccionadas.length > 0 ? marcasSeleccionadas : [],
@@ -317,6 +396,8 @@ $(function () {
             departamentos: departamentosSeleccionados.length > 0 ? departamentosSeleccionados : [],
             clases: clasesSeleccionadas.length > 0 ? clasesSeleccionadas : [],
             codigoarticulo: articuloBuscado || '',
+            // 👉 AÑADIR ESTA LÍNEA: Mandamos el RUC guardado
+            ruc: rucFondoSeleccionado.toString() || ''
         };
 
         console.log("📋 Filtros aplicados:", filtros);
@@ -441,6 +522,9 @@ $(function () {
             cancelButtonText: 'No, Continuar'
         }).then((result) => {
             if (result.isConfirmed) {
+                // 👉 AÑADIR ESTA LÍNEA: Limpiar la variable
+                rucFondoSeleccionado = null;
+
                 $("#acuerdoTipoItems").val("");
                 $("#fondoProveedorItems").val("Seleccione...");
                 $("#fondoProveedorIdItems").val("");
@@ -449,6 +533,18 @@ $(function () {
                 $("#acuerdoFechaFinItems").val("");
                 $("#acuerdoValorTotalItems").val("");
                 $("#tablaItemsBody").empty();
+
+
+                // 👉 AÑADIR ESTE BLOQUE PARA RESETEAR TEXTOS:
+                const $thead = $("#tablaItemsBody").closest("table").find("thead");
+                $thead.find("th.custom-header-calc-bg").first().text("Comprometido Proveedor");
+                $thead.find("th").filter(function () {
+                    return $(this).text().toLowerCase().includes("aporte");
+                }).first().text("Aporte por Unidad - Proveedor");
+
+                $("#fondoProveedorItems").closest("div[class*='col-']").find("label").first().text("ID Fondo - Proveedor");
+                $("#acuerdoValorTotalItems").closest("div[class*='col-']").find("label").first().text("Proveedor - Valor Total");
+
 
                 $("#acuerdoTipo").val("General").trigger("change");
 
@@ -1217,6 +1313,8 @@ function cargarProveedorYMarcar(idFondo) {
 
             const display = `${prov.idFondo} - (${prov.proveedor})`;
 
+            proveedorSeleccionado = prov.proveedor;
+
             console.log("✅ Proveedor marcado desde datos:", prov);
 
             setFondoEnFormActivo({
@@ -1227,6 +1325,14 @@ function cargarProveedorYMarcar(idFondo) {
                 comprometido: prov.comprometido,
                 liquidado: prov.liquidado,
             });
+
+            // 👉 AÑADIR ESTE BLOQUE:
+            if (tipoAcuerdo === "CLAARTICULO") {
+                const tipoFondoDesc = pick(proveedorEncontrado, ["tipoFondo", "tipoFondoDescripcion", "descTipoFondo"], pick(proveedorEncontrado, ["nombre_tipo_fondo", "idtipofondo", "idTipoFondo"]));
+                actualizarEtiquetasDinamicasFondo(tipoFondoDesc);
+            }
+
+
         } else {
             console.warn("⚠️ No se encontró el proveedor con idFondo:", idFondo);
         }
@@ -1264,6 +1370,8 @@ function cargarProveedorYMarcar(idFondo) {
 }
 
 function cerrarDetalle() {
+    rucFondoSeleccionado = null; // 👉 Limpieza al volver a la bandeja principal
+    proveedorSeleccionado = null;
     $("#vistaDetalle").fadeOut(200, function () { $("#vistaTabla").fadeIn(200); });
 }
 
@@ -1428,7 +1536,7 @@ async function guardarItems() {
 
     console.log("tipoProceso:", tipoProceso);
 
-    const valorTotal = parseCurrencyToNumber($("#acuerdoValorTotalItems").val());
+    const valorTotalSuma = parseCurrencyToNumber($("#verValorAcuerdo").val());
 
     // ✅ LECTURA DIRECTA DEL CAMPO OCULTO
     const idFondoActualizado = parseInt($("#fondoProveedorIdItems").val(), 10) || 0;
@@ -1685,6 +1793,8 @@ function initProveedorRowSelection() {
             disponible: $selected.data("disponible"),
             comprometido: $selected.data("comprometido"),
             liquidado: $selected.data("liquidado"),
+            tipoFondo: $selected.data("tipofondo"),
+            valorfondo: $selected.data("valorfondo") // 👉 AÑADIR
         };
 
         console.log("✓ Proveedor seleccionado (temporal):", proveedorTemporal.idFondo);
@@ -1692,6 +1802,9 @@ function initProveedorRowSelection() {
 }
 
 function setFondoEnFormActivo(f) {
+    // 👉 AÑADIR ESTA LÍNEA: Guardamos el RUC globalmente
+    rucFondoSeleccionado = f.ruc || null;
+
     const tipo = getTipoAcuerdo();
 
     // ✅ ACTUALIZAMOS TANTO EL DISPLAY COMO LOS INPUTS OCULTOS
@@ -1702,6 +1815,11 @@ function setFondoEnFormActivo(f) {
     } else {
         $("#fondoProveedorItems").val(f.display);
         $("#fondoProveedorIdItems").val(f.idFondo);
+
+        // 👉 AÑADIR:
+        if (f.valorfondo !== undefined) {
+            $("#fondoValorTotalItems").val(formatCurrencySpanish(f.valorfondo));
+        }
     }
 
     // ✅ ACTUALIZAMOS EL TEMPORAL EN MEMORIA POR SEGURIDAD DE LA DATA
@@ -2003,7 +2121,8 @@ function calcularTotalesItems() {
         });
     });
 
-    $("#acuerdoValorTotalItems").val(formatCurrencySpanish(totalProveedor));
+    // Ya NO sobrescribimos el valor del fondo, lo mandamos al valor del acuerdo
+    $("#verValorAcuerdo").val(formatCurrencySpanish(totalProveedor));
 }
 
 function eliminarItemSeleccionado() {
@@ -2290,6 +2409,28 @@ function initCurrencyGeneral() {
 
 function initCurrencyItems() {
     const inputsDinamicos = ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte";
+
+    // 👉 AÑADIR ESTE BLOQUE COMPLETO:
+    $(document).on("input", ".item-precio-contado", function () {
+        if (!$(this).prop("disabled")) {
+            const $fila = $(this).closest("tr");
+            const valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+            const precioContado = parseCurrencyToNumber(valorLimpio);
+
+            if (precioContado > 0) {
+                const precioTC = precioContado * (1 + pctIncrementoTC);
+                const precioCredito = precioContado * (1 + pctIncrementoCredito);
+
+                $fila.find(".item-precio-tc").val(formatCurrencySpanish(precioTC));
+                $fila.find(".item-precio-credito").val(formatCurrencySpanish(precioCredito));
+            } else {
+                $fila.find(".item-precio-tc").val("");
+                $fila.find(".item-precio-credito").val("");
+            }
+
+            calcularTotalesItems();
+        }
+    });
 
     // 1. Limpiar formato al entrar
     $(document).on("focus", inputsDinamicos, function () {

@@ -3920,6 +3920,7 @@
                 case "margen_pl_contado":
                 case "margen_pl_credito":
                 case "margen_promo_contado":
+
                 case "margen_promo_tc":
                 case "margen_promo_cred":
                     html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end val-margen" readonly placeholder="0.00%">`; break;

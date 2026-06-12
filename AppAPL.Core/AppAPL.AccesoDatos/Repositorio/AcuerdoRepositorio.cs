@@ -125,7 +125,8 @@ namespace AppAPL.AccesoDatos.Repositorio
                 p_divisiones = String.Join(",", dto.Divisiones ?? Enumerable.Empty<string>()),
                 p_departamentos = String.Join(",", dto.Departamentos ?? Enumerable.Empty<string>()),
                 p_clases = String.Join(",", dto.Clases ?? Enumerable.Empty<string>()),
-                p_codigo = codigoArticuloParam
+                p_codigo = codigoArticuloParam,
+                p_ruc = dto.ruc
             };
 
             logger.LogInformation($"parametros antes de enviar a sp: {paramObject.ToString()}");

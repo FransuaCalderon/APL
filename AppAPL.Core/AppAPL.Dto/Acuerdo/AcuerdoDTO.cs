@@ -479,6 +479,9 @@ namespace AppAPL.Dto.Acuerdo
         public List<string>? Departamentos { get; set; }
         public List<string>? Clases { get; set; }
         public string? CodigoArticulo { get; set; }
+
+        [Required]
+        public string? ruc { get; set; }
     }
 
     public class ConsultarAcuerdoFondoDTO

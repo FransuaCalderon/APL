@@ -3,6 +3,10 @@
 (function () {
     "use strict";
 
+    // ✅ VARIABLE PARA GUARDAR EL RUC DEL FONDO SELECCIONADO
+    let rucFondoSeleccionado = null;
+    let proveedorSeleccionado = null;
+
     // ✅ VARIABLES GLOBALES para almacenar los IDs de catálogo
     let idCatalogoGeneral = null;
     let idCatalogoArticulo = null;
@@ -15,6 +19,46 @@
     // -----------------------------
     // Helpers base
     // -----------------------------
+
+
+    // ✅ Variables para almacenar los porcentajes del API
+    let pctIncrementoTC = 0;
+    let pctIncrementoCredito = 0;
+
+    // -----------------------------
+    // Cargar Porcentajes de Incremento
+    // -----------------------------
+    function cargarPorcentajesIncremento() {
+        const payload = {
+            code_app: "APP20260128155212346", // Mismo código de tus otras peticiones
+            http_method: "GET",
+            endpoint_path: "api/Parametrizacion/consultar-porcentaje-incremento",
+            client: "APL"
+            
+        };
+
+        $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (response) {
+                const data = response.json_response || [];
+
+                console.log("data porcentaje: ", data);
+                if (data.length > 0) {
+                    // Convertimos el "35" a 0.35 para hacer el cálculo matemáticamente más fácil
+                    pctIncrementoTC = parseFloat(data[0].porcentaje_incremento_tarjeta_credito) / 100 || 0;
+                    pctIncrementoCredito = parseFloat(data[0].porcentaje_incremento_credito) / 100 || 0;
+                    console.log(`✅ Porcentajes listos: TC=${pctIncrementoTC * 100}%, Crédito=${pctIncrementoCredito * 100}%`);
+                }
+            },
+            error: function (xhr) {
+                console.error("❌ Error cargando porcentajes de incremento:", xhr.responseText);
+            }
+        });
+    }
+
     function getUsuario() {
         return window.usuarioActual || "admin";
     }
@@ -469,6 +513,9 @@
             });
         }
 
+        // 👉 ¡AQUÍ DEBES LLAMARLA!
+        initProveedorRowSelection();
+
         // Si ya lo tenemos en caché, no volvemos a consultar a la API
         if (cacheProveedoresAcuerdo) {
             renderizarTabla(cacheProveedoresAcuerdo);
@@ -519,14 +566,21 @@
                 disponible: $selected.data("disponible"),
                 comprometido: $selected.data("comprometido"),
                 liquidado: $selected.data("liquidado"),
-                tipoFondo: $selected.data("tipofondo")
+                tipoFondo: $selected.data("tipofondo"),
+                valorfondo: $selected.data("valorfondo") // 👉 AÑADIR ESTO
             };
 
-            console.log("✓ Proveedor seleccionado (temporal):", proveedorTemporal.idFondo);
+            console.log("✓ Proveedor seleccionado (temporal):", proveedorTemporal);
         });
     }
 
     function setFondoEnFormActivo(f) {
+        console.log("f: ", f);
+
+        // 👉 AÑADIR ESTA LÍNEA: Guardamos el RUC globalmente
+        rucFondoSeleccionado = f.ruc || null;
+
+
         const tipo = getTipoAcuerdo();
 
         if (tipo === "General") {
@@ -536,6 +590,11 @@
         } else {
             $("#fondoProveedorItems").val(f.display);
             $("#fondoProveedorIdItems").val(f.idFondo);
+
+            // 👉 AÑADIR ESTA LÍNEA PARA MOSTRAR EL VALOR TOTAL
+            if (f.valorfondo !== undefined) {
+                $("#fondoValorTotalItems").val(formatCurrencySpanish(f.valorfondo));
+            }
         }
     }
 
@@ -543,6 +602,7 @@
     // Items (modal) - CON CHECKBOXES
     // -----------------------------
     function consultarItems(filtros = {}) {
+        console.log("proveedorTemporal: ", proveedorTemporal);
         const idOpcionActual = getIdOpcionSeguro();
 
         if (!idOpcionActual) {
@@ -974,7 +1034,10 @@
             });
         });
 
-        $("#fondoValorTotalItems").val(formatCurrencySpanish(totalProveedor));
+        //$("#fondoValorTotalItems").val(formatCurrencySpanish(totalProveedor));
+
+        // 👉 Redirigir la suma al input de "Valor Acuerdo" (Asegúrate de tener este input en tu CrearAcuerdo.cshtml)
+        $("#verValorAcuerdo").val(formatCurrencySpanish(totalProveedor));
     }
 
     // -----------------------------
@@ -1032,6 +1095,11 @@
                             $(endId).val("");
                         }
                     }
+
+
+                    // 👉 AÑADIR ESTA LÍNEA AQUÍ (Para el trigger de Fechas)
+                    if (typeof validarEstadoBotonAnadir === "function") validarEstadoBotonAnadir();
+
                 }
             });
 
@@ -1099,6 +1167,34 @@
 
     function initCurrencyItems() {
         const inputsDinamicos = ".item-precio-contado, .item-precio-tc, .item-precio-credito, .item-aporte";
+
+        // Evento específico para autocalcular TC y Crédito al escribir en Contado
+        $(document).on("input", ".item-precio-contado", function () {
+            if (!$(this).prop("disabled")) {
+                const $fila = $(this).closest("tr");
+
+                // Limpiamos el valor para poder hacer el cálculo matemático
+                const valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+                const precioContado = parseCurrencyToNumber(valorLimpio);
+
+                if (precioContado > 0) {
+                    // Aplicamos la fórmula: Precio * (1 + porcentaje)
+                    const precioTC = precioContado * (1 + pctIncrementoTC);
+                    const precioCredito = precioContado * (1 + pctIncrementoCredito);
+
+                    // Poblar las celdas formateando a moneda automáticamente
+                    $fila.find(".item-precio-tc").val(formatCurrencySpanish(precioTC));
+                    $fila.find(".item-precio-credito").val(formatCurrencySpanish(precioCredito));
+                } else {
+                    // Si el usuario borra el contenido de Contado, limpiamos las otras celdas
+                    $fila.find(".item-precio-tc").val("");
+                    $fila.find(".item-precio-credito").val("");
+                }
+
+                // Ejecutamos tu función existente para recalcular todos los márgenes de ganancia
+                calcularTotalesItems();
+            }
+        });
 
         $(document).on("input", inputsDinamicos, function () {
             let valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
@@ -1173,6 +1269,30 @@
     // -----------------------------
     // Validaciones
     // -----------------------------
+
+    // -----------------------------
+    // Validar estado del botón Añadir Items
+    // -----------------------------
+    function validarEstadoBotonAnadir() {
+        const motivo = $("#fondoTipoItems").val();
+        const desc = $("#fondoDescripcionItems").val();
+        const ini = $("#fondoFechaInicioItems").val();
+        const fin = $("#fondoFechaFinItems").val();
+        const idFondo = $("#fondoProveedorIdItems").val();
+
+        let esValido = true;
+
+        // Comprobamos que todos los campos requeridos tengan datos válidos
+        if (!motivo || String(motivo).trim() === "") esValido = false;
+        if (!desc || desc.trim().length < 3) esValido = false;
+        if (!isValidDateDDMMYYYY(ini)) esValido = false;
+        if (!isValidDateDDMMYYYY(fin)) esValido = false;
+        if (!idFondo || String(idFondo).trim() === "") esValido = false;
+
+        // Si todo es válido, habilitamos el botón; si no, lo bloqueamos
+        $("#btnAddItem").prop("disabled", !esValido);
+    }
+
     function validarGeneral() {
         const idFondo = $("#fondoProveedorIdGeneral").val();
         const motivo = $("#fondoTipoGeneral").val();
@@ -1361,7 +1481,11 @@
         const descripcion = $("#fondoDescripcionItems").val().trim();
         const fechaInicio = toISOFromDDMMYYYY($("#fondoFechaInicioItems").val());
         const fechaFin = toISOFromDDMMYYYY($("#fondoFechaFinItems").val());
-        const valorTotal = parseCurrencyToNumber($("#fondoValorTotalItems").val());
+
+        // 👉 Leer el total desde el input donde redirigiste la suma
+        const valorTotal = parseCurrencyToNumber($("#verValorAcuerdo").val());
+
+
         const articulos = leerDetalleItemsDesdeTabla();
 
         const body = {
@@ -1716,10 +1840,14 @@
     // -----------------------------
     // ✅ Init principal
     // -----------------------------
+    //DOCUMENT READY
     $(function () {
         console.log("=== CrearAcuerdo INIT (Estructura Post-REST) ===");
 
         toggleAcuerdoForm();
+        validarEstadoBotonAnadir(); // 👉 AÑADIR ESTO PARA BLOQUEARLO AL CARGAR.
+
+
         $("#acuerdoTipo").on("change", function () {
             toggleAcuerdoForm();
 
@@ -1738,6 +1866,9 @@
                     cargarMotivosGeneral();
                     cargarMotivosItems();
                 });
+
+                // Llamamos a nuestra nueva función aquí 👇
+                cargarPorcentajesIncremento();
             })
             .fail(function (xhr) {
                 console.error("ERROR /config:", xhr.status, xhr.responseText);
@@ -1778,11 +1909,14 @@
                     disponible: $selected.data("disponible"),
                     comprometido: $selected.data("comprometido"),
                     liquidado: $selected.data("liquidado"),
-                    tipoFondo: $selected.data("tipofondo")
+                    tipoFondo: $selected.data("tipofondo"),
+                    valorfondo: $selected.data("valorfondo") // 👉 AÑADIR ESTA LÍNEA
                 };
             }
 
             const display = `${proveedorTemporal.idFondo} - (${proveedorTemporal.proveedor})`;
+
+            proveedorSeleccionado = proveedorTemporal.proveedor;
 
             console.log("✅ Proveedor confirmado:", {
                 idFondo: proveedorTemporal.idFondo,
@@ -1798,12 +1932,16 @@
                 disponible: proveedorTemporal.disponible,
                 comprometido: proveedorTemporal.comprometido,
                 liquidado: proveedorTemporal.liquidado,
-                tipoFondo: proveedorTemporal.tipoFondo
+                tipoFondo: proveedorTemporal.tipoFondo,
+                valorfondo: proveedorTemporal.valorfondo, // 👉 AÑADIR ESTA LÍNEA
             });
 
             if (getTipoAcuerdo() === "Items" && proveedorTemporal.tipoFondo) {
                 actualizarEtiquetasDinamicasFondo(proveedorTemporal.tipoFondo);
             }
+
+            // 👉 AÑADIR ESTA LÍNEA AQUÍ: Validar el botón tras elegir el proveedor
+            validarEstadoBotonAnadir();
 
             Swal.fire({
                 toast: true,
@@ -1859,7 +1997,7 @@
                              </div>`,
                         zeroRecords: "No se encontraron items con los criterios seleccionados.",
                         info: "Mostrando _START_ a _END_ de _TOTAL_ items",
-                        infoEmpty: "Sin items",
+                        infoEmpty: "Sin items para el RUC: " + rucFondoSeleccionado + " - " + proveedorSeleccionado,
                         infoFiltered: "(filtrado de _MAX_ totales)",
                         paginate: { first: "«", last: "»", next: "›", previous: "‹" }
                     },
@@ -1897,6 +2035,7 @@
             const clasesSeleccionadas = getSelectedFilterValues('filtroClase');
             const articuloBuscado = $("#filtroArticulo").val().trim();
 
+            /*
             if (marcasSeleccionadas.length === 0 &&
                 divisionesSeleccionadas.length === 0 &&
                 departamentosSeleccionados.length === 0 &&
@@ -1910,7 +2049,7 @@
                     confirmButtonColor: '#009845'
                 });
                 return;
-            }
+            }*/
 
             const filtros = {
                 marcas: marcasSeleccionadas.length > 0 ? marcasSeleccionadas : [],
@@ -1918,6 +2057,8 @@
                 departamentos: departamentosSeleccionados.length > 0 ? departamentosSeleccionados : [],
                 clases: clasesSeleccionadas.length > 0 ? clasesSeleccionadas : [],
                 codigoarticulo: articuloBuscado || '',
+                // 👉 AÑADIR ESTA LÍNEA: Mandamos el RUC al API (Asegúrate de que la clave 'ruc' sea la que espera tu backend)
+                ruc: rucFondoSeleccionado.toString() || ''
             };
 
             console.log("📋 Filtros aplicados:", filtros);
@@ -2048,6 +2189,9 @@
                 cancelButtonText: 'No, Continuar'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // 👉 AÑADIR ESTA LÍNEA: Limpiar el RUC guardado
+                    rucFondoSeleccionado = null;
+
                     $("#fondoTipoItems").val("");
                     $("#fondoProveedorItems").val("Seleccione...");
                     $("#fondoProveedorIdItems").val("");
@@ -2056,6 +2200,10 @@
                     $("#fondoFechaFinItems").val("");
                     $("#fondoValorTotalItems").val("");
                     $("#tablaItemsBody").empty();
+
+                    // 👉 AÑADIR ESTA LÍNEA: Volver a bloquear el botón
+                    validarEstadoBotonAnadir();
+
 
                     $("#thComprometido").text("Comprometido Proveedor");
 
@@ -2093,7 +2241,15 @@
                 $(this).toggle($(this).find(".td-descripcion").text().toLowerCase().indexOf(value) > -1)
             });
         });
+
+        // 👉 AÑADIR ESTO: Escuchar cambios en los campos de la cabecera de ítems
+        $("#fondoTipoItems, #fondoDescripcionItems, #fondoFechaInicioItems, #fondoFechaFinItems").on("input change", function () {
+            validarEstadoBotonAnadir();
+        });
+
+
     });
+    //AQUI TERMINA EL DOCUMENT READY
 })();
 
 // Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL
