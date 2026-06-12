@@ -1691,17 +1691,26 @@
     }
 
     // -----------------------------
-    // Actualizar encabezado dinámico de Comprometido
+    // Actualizar etiquetas dinámicas según Tipo de Fondo
     // -----------------------------
-    function actualizarEncabezadoComprometido(tipoFondo) {
-        const nuevoTexto = `Comprometido ${tipoFondo}`;
+    function actualizarEtiquetasDinamicasFondo(tipoFondo) {
+        if (!tipoFondo) return;
 
-        $("#tablaItemsBody").closest("table")
-            .find("thead th.custom-header-calc-bg")
-            .first()
-            .text(nuevoTexto);
+        // 1. Actualizar encabezados de la tabla
+        const $thead = $("#tablaItemsBody").closest("table").find("thead");
 
-        console.log(`✅ Encabezado actualizado a: "${nuevoTexto}"`);
+        $thead.find("th.custom-header-calc-bg").first().text(`Comprometido ${tipoFondo}`);
+
+        $thead.find("th").filter(function () {
+            return $(this).text().toLowerCase().includes("aporte");
+        }).first().text(`Aporte por Unidad - ${tipoFondo}`);
+
+        // 2. Actualizar Labels de los inputs (Búsqueda relativa en el DOM)
+        // Buscamos la columna padre ("col-md-x") y dentro seleccionamos el <label>
+        $("#fondoProveedorItems").closest("div[class*='col-']").find("label").first().text(`ID Fondo - ${tipoFondo}`);
+        $("#fondoValorTotalItems").closest("div[class*='col-']").find("label").first().text(`${tipoFondo} - Valor Total`);
+
+        console.log(`✅ Etiquetas y encabezados actualizados dinámicamente a: "${tipoFondo}"`);
     }
 
     // -----------------------------
@@ -1793,7 +1802,7 @@
             });
 
             if (getTipoAcuerdo() === "Items" && proveedorTemporal.tipoFondo) {
-                actualizarEncabezadoComprometido(proveedorTemporal.tipoFondo);
+                actualizarEtiquetasDinamicasFondo(proveedorTemporal.tipoFondo);
             }
 
             Swal.fire({
@@ -2063,6 +2072,19 @@
                 }
             });
         });
+
+
+        // Restaurar los textos a su estado por defecto
+        const $thead = $("#tablaItemsBody").closest("table").find("thead");
+        $thead.find("th.custom-header-calc-bg").first().text("Comprometido Proveedor");
+        $thead.find("th").filter(function () {
+            return $(this).text().toLowerCase().includes("aporte");
+        }).first().text("Aporte por Unidad - Proveedor");
+
+        $("#fondoProveedorItems").closest("div[class*='col-']").find("label").first().text("ID Fondo - Proveedor");
+        $("#fondoValorTotalItems").closest("div[class*='col-']").find("label").first().text("Proveedor - Valor Total");
+
+
         // Activar el buscador de los items en "Detalle de los Artículos"
         $("#buscarItemAgregado").on("keyup", function () {
             const value = $(this).val().toLowerCase();

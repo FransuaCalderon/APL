@@ -58,6 +58,14 @@ function getIdOpcionSeguro() {
     }
 }
 
+function parseCurrency(str) {
+    if (!str) return 0;
+    let clean = str.toString().replace(/[^0-9.,-]/g, '');
+    if (clean.includes(',') && !clean.includes('.')) clean = clean.replace(',', '.');
+    else if (clean.includes(',') && clean.includes('.')) clean = clean.replace(/\./g, '').replace(',', '.');
+    return parseFloat(clean) || 0;
+}
+
 function generarHtmlMedioPagoArticulo(articulossegmentos, codigoItem) {
     if (!articulossegmentos) return "Todos";
     const items = articulossegmentos.filter(s => s.codigoitem === codigoItem && s.etiqueta_tipo_segmento === "SEGMEDIOPAGO");
@@ -1102,6 +1110,8 @@ function consultarAcuerdosPorArticulo(etiquetaTipoFondo, codigoItem, idAcuerdoAc
 function abrirModalAcuerdoArticulo(tipoFondo, tituloModal, codigoItem, $inputDisplay, $inputId, slot, $fila) {
     acuerdoArticuloTemporal = null;
     acuerdoArticuloContexto = { tipoFondo, codigoItem, $inputDisplay, $inputId, idActual: $inputId.val(), slot, $fila };
+    console.log("acuerdoArticuloContexto: ", acuerdoArticuloContexto);
+
     $("#tituloModalAcuerdoArticulo").text(tituloModal);
     $("#buscarAcuerdoArticuloInput").val("");
     $("#modalAcuerdoArticulo").modal("show");
@@ -1537,6 +1547,7 @@ function limpiarModalComboMod() {
     comboEnEdicion = null;
 }
 
+/*
 function recalcularColumnaComboMod(colIndex) {
     if (colIndex < 2) return;
 
@@ -1598,8 +1609,8 @@ function recalcularColumnaComboMod(colIndex) {
     setColVal("margen_promo_contado", "input", calcMargenPromo(promoContado));
     setColVal("margen_promo_tc", "input", calcMargenPromo(promoTC));
     setColVal("margen_promo_cred", "input", calcMargenPromo(promoCredito));
-}
-
+}*/
+/*
 function recalcularTotalesComboMod() {
     const camposNum = [];
 
@@ -1674,6 +1685,259 @@ function recalcularTotalesComboMod() {
     setComboVal("margen_promo_contado", calcMargenPromoCombo(totalPromoContado));
     setComboVal("margen_promo_tc", calcMargenPromoCombo(totalPromoTC));
     setComboVal("margen_promo_cred", calcMargenPromoCombo(totalPromoCredito));
+}*/
+
+// ==========================================================
+// FUNCIÓN MAESTRA: RECALCULAR MATRIZ COMPLETA DEL COMBO (MOD)
+// (Versión Blindada - Busca nombres flexibles de campos)
+// ==========================================================
+function recalcularMatrizCombo() {
+    const $tabla = $("#tablaCreacionCombo tbody");
+    const numColumnas = $tabla.find("tr:first td").length;
+
+    // --- 1. FUNCIONES DE AYUDA (Búsqueda Flexible) ---
+    const getCeldaVal = (camposArr, col) => {
+        const campos = Array.isArray(camposArr) ? camposArr : [camposArr];
+        for (let c of campos) {
+            const $input = $tabla.find(`tr[data-campo='${c}'] td:eq(${col}) input`);
+            if ($input.length > 0) {
+                const num = parseCurrency($input.val());
+                return isNaN(num) ? 0 : num;
+            }
+        }
+        return 0;
+    };
+
+    const parseMargen = (camposArr, col) => {
+        const campos = Array.isArray(camposArr) ? camposArr : [camposArr];
+        for (let c of campos) {
+            const $input = $tabla.find(`tr[data-campo='${c}'] td:eq(${col}) input`);
+            if ($input.length > 0) {
+                let val = $input.val() || "0";
+                return parseFloat(val.replace(/[^0-9.-]/g, '')) || 0;
+            }
+        }
+        return 0;
+    };
+
+    const setCeldaVal = (camposArr, col, valor) => {
+        const campos = Array.isArray(camposArr) ? camposArr : [camposArr];
+        const formato = (valor === 0 || isNaN(valor)) ? "-" : formatCurrencySpanish(valor);
+        campos.forEach(c => {
+            $tabla.find(`tr[data-campo='${c}'] td:eq(${col}) input`).val(formato);
+        });
+    };
+
+    const setCeldaTexto = (camposArr, col, texto) => {
+        const campos = Array.isArray(camposArr) ? camposArr : [camposArr];
+        const formato = (texto === "NaN%" || texto === "Infinity%" || texto === "-Infinity%" || texto === "0%" || texto === "0.00%" || texto === 0 || texto === "0") ? "-" : texto;
+        campos.forEach(c => {
+            $tabla.find(`tr[data-campo='${c}'] td:eq(${col}) input`).val(formato);
+        });
+    };
+
+    // --- 1.5 DICCIONARIO DE CAMPOS FLEXIBLES ---
+    const fPromoCont = ["promo_contado", "promo_cont"];
+    const fPromoTC = ["promo_tc"];
+    const fPromoCred = ["promo_credito", "promo_cred"];
+    const fPromoIgual = ["promo_igualar", "promo_igual"];
+
+    const fMargPromoCont = ["margen_promo_contado", "margen_promo_cont"];
+    const fMargPromoTC = ["margen_promo_tc"];
+    const fMargPromoCred = ["margen_promo_credito", "margen_promo_cred"];
+    const fMargPromoIgual = ["margen_promo_igualar", "margen_promo_igual"];
+
+    // --- 2. OBTENER UNIDADES DEL COMBO ---
+    const unidadesLimite = getCeldaVal(["unidades_limite", "unidades"], 1);
+    const proyeccionVtas = getCeldaVal(["proyeccion_vta", "proyeccion"], 1);
+    const unidadesTotalesCombo = unidadesLimite + proyeccionVtas;
+
+    let totalCosto = 0, totalOtrosCostos = 0;
+    let totalPLContado = 0, totalPLCredito = 0;
+    let totalApProv = 0, totalApProv2 = 0, totalApRebate = 0, totalApPropio = 0, totalApPropio2 = 0;
+    let totalPromoContado = 0, totalPromoTC = 0, totalPromoCredito = 0, totalPromoIgualar = 0;
+
+    let totalPrecioMinCont = 0, totalPrecioMinTC = 0, totalPrecioMinCred = 0, totalPrecioMinIgual = 0;
+
+    // --- 3. PROCESAR CADA ARTÍCULO INDIVIDUAL ---
+    for (let col = 2; col < numColumnas; col++) {
+        setCeldaTexto(["unidades_limite", "unidades"], col, "-");
+        setCeldaTexto(["proyeccion_vta", "proyeccion"], col, "-");
+
+        const costoArt = getCeldaVal("costo", col);
+        const otrosCostosArt = getCeldaVal(["otros_costos", "otros_cost"], col) || 0;
+        const costoTotalArt = costoArt + otrosCostosArt;
+
+        const plContadoArt = getCeldaVal(["precio_lista_contado", "precio_lista_cont", "pl_contado"], col);
+        const plCreditoArt = getCeldaVal(["precio_lista_credito", "precio_lista_cred", "pl_credito"], col);
+
+        const apProvArt = getCeldaVal("aporte_prov", col);
+        const apProv2Art = getCeldaVal("aporte_prov2", col);
+        const apRebateArt = getCeldaVal("aporte_rebate", col);
+        const apPropioArt = getCeldaVal("aporte_propio", col);
+        const apPropio2Art = getCeldaVal("aporte_propio2", col);
+
+        const promoContadoArt = getCeldaVal(fPromoCont, col);
+        const promoTCArt = getCeldaVal(fPromoTC, col);
+        const promoCreditoArt = getCeldaVal(fPromoCred, col);
+        const promoIgualarArt = getCeldaVal(fPromoIgual, col);
+
+        // A. Márgenes Precio Lista
+        const margenPLContadoArt = plContadoArt > 0 ? ((plContadoArt - costoTotalArt) / plContadoArt * 100) : null;
+        const margenPLCreditoArt = plCreditoArt > 0 ? ((plCreditoArt - costoTotalArt) / plCreditoArt * 100) : null;
+        setCeldaTexto(["margen_pl_contado", "margen_pl_cont"], col, margenPLContadoArt !== null ? margenPLContadoArt.toFixed(2) + "%" : "-");
+        setCeldaTexto(["margen_pl_credito", "margen_pl_cred"], col, margenPLCreditoArt !== null ? margenPLCreditoArt.toFixed(2) + "%" : "-");
+
+        // B. Valores Comprometidos
+        setCeldaVal(["comp_proveedor", "comp_prov"], col, apProvArt * unidadesTotalesCombo);
+        setCeldaVal(["comp_proveedor2", "comp_prov2"], col, apProv2Art * unidadesTotalesCombo);
+        setCeldaVal(["comp_rebate"], col, apRebateArt * unidadesTotalesCombo);
+        setCeldaVal(["comp_propio"], col, apPropioArt * unidadesTotalesCombo);
+        setCeldaVal(["comp_propio2"], col, apPropio2Art * unidadesTotalesCombo);
+
+        // C. Descuentos 
+        setCeldaVal(["dscto_contado", "dscto_cont"], col, plContadoArt > 0 ? plContadoArt - promoContadoArt : 0);
+        setCeldaVal(["dscto_tc"], col, plContadoArt > 0 ? plContadoArt - promoTCArt : 0);
+        setCeldaVal(["dscto_credito", "dscto_cred"], col, plCreditoArt > 0 ? plCreditoArt - promoCreditoArt : 0);
+        setCeldaVal(["dscto_igualar", "dscto_igual"], col, plContadoArt > 0 ? plContadoArt - promoIgualarArt : 0);
+
+        // D. Márgenes Promo
+        const calcMargenPromoArt = (precioPromo) => {
+            if (precioPromo <= 0) return "-";
+            const sumaAportes = apProvArt + apProv2Art + apRebateArt;
+            const denom = precioPromo + sumaAportes;
+            const num = denom - costoTotalArt;
+            return denom > 0 ? ((num / denom) * 100).toFixed(2) + "%" : "-";
+        };
+
+        setCeldaTexto(fMargPromoCont, col, calcMargenPromoArt(promoContadoArt));
+        setCeldaTexto(fMargPromoTC, col, calcMargenPromoArt(promoTCArt));
+        setCeldaTexto(fMargPromoCred, col, calcMargenPromoArt(promoCreditoArt));
+        setCeldaTexto(fMargPromoIgual, col, calcMargenPromoArt(promoIgualarArt));
+
+        // E. Ingeniería Inversa Márgenes Mínimos
+        let mMinContArt = parseMargen(["margen_min_contado", "margen_min_cont"], col);
+        let mMinTCArt = parseMargen(["margen_min_tc"], col);
+        let mMinCredArt = parseMargen(["margen_min_credito", "margen_min_cred"], col);
+        let mMinIgualArt = parseMargen(["margen_min_igualar", "margen_min_igual"], col);
+
+        let pMinContArt = mMinContArt < 100 && mMinContArt !== 0 ? costoTotalArt / (1 - (mMinContArt / 100)) : costoTotalArt;
+        let pMinTCArt = mMinTCArt < 100 && mMinTCArt !== 0 ? costoTotalArt / (1 - (mMinTCArt / 100)) : costoTotalArt;
+        let pMinCredArt = mMinCredArt < 100 && mMinCredArt !== 0 ? costoTotalArt / (1 - (mMinCredArt / 100)) : costoTotalArt;
+        let pMinIgualArt = mMinIgualArt < 100 && mMinIgualArt !== 0 ? costoTotalArt / (1 - (mMinIgualArt / 100)) : costoTotalArt;
+
+        // --- ACUMULAR SUMATORIAS PARA EL COMBO ---
+        totalCosto += costoArt;
+        totalOtrosCostos += otrosCostosArt;
+        totalPLContado += plContadoArt;
+        totalPLCredito += plCreditoArt;
+
+        totalApProv += apProvArt;
+        totalApProv2 += apProv2Art;
+        totalApRebate += apRebateArt;
+        totalApPropio += apPropioArt;
+        totalApPropio2 += apPropio2Art;
+
+        totalPromoContado += promoContadoArt;
+        totalPromoTC += promoTCArt;
+        totalPromoCredito += promoCreditoArt;
+        totalPromoIgualar += promoIgualarArt;
+
+        totalPrecioMinCont += pMinContArt;
+        totalPrecioMinTC += pMinTCArt;
+        totalPrecioMinCred += pMinCredArt;
+        totalPrecioMinIgual += pMinIgualArt;
+    }
+
+    // --- 4. INYECTAR LAS SUMAS EN EL COMBO (Columna 1) ---
+    setCeldaVal("costo", 1, totalCosto);
+    setCeldaVal(["otros_costos", "otros_cost"], 1, totalOtrosCostos);
+    setCeldaVal(["precio_lista_contado", "precio_lista_cont", "pl_contado"], 1, totalPLContado);
+    setCeldaVal(["precio_lista_credito", "precio_lista_cred", "pl_credito"], 1, totalPLCredito);
+
+    // Bloqueamos la visualización de los aportes en la columna Combo con un guion
+    setCeldaTexto("aporte_prov", 1, "-");
+    setCeldaTexto("aporte_prov2", 1, "-");
+    setCeldaTexto("aporte_rebate", 1, "-");
+    setCeldaTexto("aporte_propio", 1, "-");
+    setCeldaTexto("aporte_propio2", 1, "-");
+
+    setCeldaTexto("aporte_prov_id", 1, "-");
+    setCeldaTexto("aporte_prov2_id", 1, "-");
+    setCeldaTexto("aporte_rebate_id", 1, "-");
+    setCeldaTexto("aporte_propio_id", 1, "-");
+    setCeldaTexto("aporte_propio2_id", 1, "-");
+
+    setCeldaVal(fPromoCont, 1, totalPromoContado);
+    setCeldaVal(fPromoTC, 1, totalPromoTC);
+    setCeldaVal(fPromoCred, 1, totalPromoCredito);
+    setCeldaVal(fPromoIgual, 1, totalPromoIgualar);
+
+    // --- 5. CÁLCULOS EXCLUSIVOS DE LA COLUMNA COMBO (Columna 1) ---
+    const totalCostoComboFull = totalCosto + totalOtrosCostos;
+
+    // Bloqueamos los Valores Comprometidos del Combo con un guion
+    setCeldaTexto(["comp_proveedor", "comp_prov"], 1, "-");
+    setCeldaTexto(["comp_proveedor2", "comp_prov2"], 1, "-");
+    setCeldaTexto(["comp_rebate"], 1, "-");
+    setCeldaTexto(["comp_propio"], 1, "-");
+    setCeldaTexto(["comp_propio2"], 1, "-");
+
+    setCeldaVal(["dscto_contado", "dscto_cont"], 1, totalPLContado > 0 ? totalPLContado - totalPromoContado : 0);
+    setCeldaVal(["dscto_tc"], 1, totalPLContado > 0 ? totalPLContado - totalPromoTC : 0);
+    setCeldaVal(["dscto_credito", "dscto_cred"], 1, totalPLCredito > 0 ? totalPLCredito - totalPromoCredito : 0);
+    setCeldaVal(["dscto_igualar", "dscto_igual"], 1, totalPLContado > 0 ? totalPLContado - totalPromoIgualar : 0);
+
+    // A. Margen Mínimo Combo consolidado
+    const calcMargenMinCombo = (totalPrecioMin) => {
+        if (totalPrecioMin <= 0 || totalCostoComboFull === 0) return "-";
+        return (((totalPrecioMin - totalCostoComboFull) / totalPrecioMin) * 100).toFixed(2) + "%";
+    };
+    setCeldaTexto(["margen_min_contado", "margen_min_cont"], 1, calcMargenMinCombo(totalPrecioMinCont));
+    setCeldaTexto(["margen_min_tc"], 1, calcMargenMinCombo(totalPrecioMinTC));
+    setCeldaTexto(["margen_min_credito", "margen_min_cred"], 1, calcMargenMinCombo(totalPrecioMinCred));
+    setCeldaTexto(["margen_min_igualar", "margen_min_igual"], 1, calcMargenMinCombo(totalPrecioMinIgual));
+
+    // B. Bloqueo de Datos Históricos
+    setCeldaTexto(["igualar_precio", "precio_igualar"], 1, "-");
+    setCeldaTexto("stock_bodega", 1, "-");
+    setCeldaTexto("stock_tienda", 1, "-");
+    setCeldaTexto("inv_optimo", 1, "-");
+    setCeldaTexto("excedentes_u", 1, "-");
+    setCeldaTexto("excedentes_usd", 1, "-");
+    setCeldaTexto("m0_u", 1, "-");
+    setCeldaTexto("m0_usd", 1, "-");
+    setCeldaTexto("m1_u", 1, "-");
+    setCeldaTexto("m1_usd", 1, "-");
+    setCeldaTexto("m2_u", 1, "-");
+    setCeldaTexto("m2_usd", 1, "-");
+    setCeldaTexto("m12_u", 1, "-");
+    setCeldaTexto("m12_usd", 1, "-");
+    setCeldaTexto("dias_antiguedad", 1, "-");
+
+    // C. Márgenes de Lista Combo
+    const margenPLContadoCombo = totalPLContado > 0 ? ((totalPLContado - totalCostoComboFull) / totalPLContado * 100) : null;
+    const margenPLCreditoCombo = totalPLCredito > 0 ? ((totalPLCredito - totalCostoComboFull) / totalPLCredito * 100) : null;
+    setCeldaTexto(["margen_pl_contado", "margen_pl_cont"], 1, margenPLContadoCombo !== null ? margenPLContadoCombo.toFixed(2) + "%" : "-");
+    setCeldaTexto(["margen_pl_credito", "margen_pl_cred"], 1, margenPLCreditoCombo !== null ? margenPLCreditoCombo.toFixed(2) + "%" : "-");
+
+    // D. Márgenes de Promoción Combo
+    const calcMargenPromoCombo = (precioPromo) => {
+        if (precioPromo <= 0) return "-";
+        const sumaAportesTotales = totalApProv + totalApProv2 + totalApRebate;
+        const denominador = precioPromo + sumaAportesTotales;
+        const numerador = denominador - totalCostoComboFull;
+
+        if (denominador > 0) {
+            return ((numerador / denominador) * 100).toFixed(2) + "%";
+        }
+        return "-";
+    };
+
+    setCeldaTexto(fMargPromoCont, 1, calcMargenPromoCombo(totalPromoContado));
+    setCeldaTexto(fMargPromoTC, 1, calcMargenPromoCombo(totalPromoTC));
+    setCeldaTexto(fMargPromoCred, 1, calcMargenPromoCombo(totalPromoCredito));
+    setCeldaTexto(fMargPromoIgual, 1, calcMargenPromoCombo(totalPromoIgualar));
 }
 
 function agregarColumnaAComboMod(item) {
@@ -1801,28 +2065,49 @@ function agregarColumnaAComboMod(item) {
                 html += `<input type="text" class="form-control form-control-sm custom-celda-bg text-end" readonly placeholder="0.00">`; break;
             case "aporte_prov":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor aporte-proveedor-combo-mod" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor)}" ${item.idAcuerdoProveedor ? '' : 'disabled'}>`; break;
+
+
             case "aporte_prov2":
-                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor2)}" disabled>`; break;
+                // Nace bloqueado SOLO si no trae un ID de la base de datos
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteProveedor2)}" ${item.idAcuerdoProveedor2 ? "" : "disabled"}>`;
+                break;
+
+
             case "aporte_rebate":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aporteRebate)}" ${item.idAcuerdoRebate ? '' : 'disabled'}>`; break;
             case "aporte_propio":
                 html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio)}" ${item.idAcuerdoPropio ? '' : 'disabled'}>`; break;
+
+
             case "aporte_propio2":
-                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio2)}" disabled>`; break;
+                // Nace bloqueado SOLO si no trae un ID de la base de datos
+                html += `<input type="text" class="form-control form-control-sm text-end input-combo-art-mod aporte-valor" placeholder="$ 0.00" value="${formatVal(item.aportePropio2)}" ${item.idAcuerdoPropio2 ? "" : "disabled"}>`;
+                break;
+
+
             case "aporte_prov_id":
                 html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-prov1-hidden" value="${item.idAcuerdoProveedor || ''}">
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor || ''}">
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-idproveedor="${item.idProveedor}" data-idarticulo="${item.idArticulo}" data-slot="1" >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
                     </div>`; break;
+
+
+            // LUPA APORTE 2 PROVEEDOR (Clonada)
             case "aporte_prov2_id":
                 html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-prov2-hidden" value="${item.idAcuerdoProveedor2 || ''}">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor2 || ''}" disabled>
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm text-end input-combo-art-mod acuerdo-id-hidden" readonly placeholder="-" value="${item.idAcuerdoProveedor2 || ''}">
+                    <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROVEDOR" data-idproveedor="${item.idProveedor}" data-idarticulo="${item.idArticulo}" data-slot="2" >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                </div>`;
+                break;
+
+
             case "aporte_rebate_id":
                 html += `
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-rebate-hidden" value="${item.idAcuerdoRebate || ''}">
@@ -1835,15 +2120,24 @@ function agregarColumnaAComboMod(item) {
                     <input type="hidden" class="acuerdo-id-hidden acuerdo-propio1-hidden" value="${item.idAcuerdoPropio || ''}">
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio || ''}">
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-idproveedor="${item.idProveedor}" data-idarticulo="${item.idArticulo}" data-slot="1" >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
                     </div>`; break;
+
+
+            // LUPA APORTE 2 PROPIO
             case "aporte_propio2_id":
                 html += `
-                    <input type="hidden" class="acuerdo-id-hidden acuerdo-propio2-hidden" value="${item.idAcuerdoPropio2 || ''}">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoPropio2 || ''}" disabled>
-                        <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-slot="2" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>`; break;
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm text-end input-combo-art-mod acuerdo-id-hidden" readonly placeholder="-" value="${item.idAcuerdoPropio2 || ''}">
+                     <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo-mod" type="button" data-tipofondo="TFPROPIO" data-idproveedor="${item.idProveedor}" data-idarticulo="${item.idArticulo}" data-slot="2" >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                </div>`;
+                break;
+
+
             case "margen_pl_contado":
             case "margen_pl_credito":
             case "margen_promo_contado":
@@ -1863,8 +2157,9 @@ function agregarColumnaAComboMod(item) {
         $(this).append(html);
     });
 
-    recalcularColumnaComboMod(colIndex);
-    recalcularTotalesComboMod();
+    //recalcularColumnaComboMod(colIndex);
+    //recalcularTotalesComboMod();
+    recalcularMatrizCombo();
 
     // ============================================================
     // ✅ NUEVO: VALIDACIÓN AUTOMÁTICA APORTES SLOT 2 (Prov2 y Propio2)
@@ -2243,7 +2538,7 @@ function initLogicaCombosMod() {
                 $("#tablaCreacionCombo tbody tr").each(function () {
                     $(this).find(`td:eq(${colIndex})`).remove();
                 });
-                recalcularTotalesComboMod();
+                //recalcularTotalesComboMod();
             }
         });
     });
@@ -2262,8 +2557,9 @@ function initLogicaCombosMod() {
     // RECÁLCULO DE INPUTS EN MODAL COMBO
     $(document).off("input change", "#tablaCreacionCombo tbody input.input-combo-art-mod").on("input change", "#tablaCreacionCombo tbody input.input-combo-art-mod", function () {
         this.value = this.value.replace(/[^0-9.,]/g, '');
-        recalcularColumnaComboMod($(this).closest("td").data("colindex"));
-        recalcularTotalesComboMod();
+        //recalcularColumnaComboMod($(this).closest("td").data("colindex"));
+        //recalcularTotalesComboMod();
+        recalcularMatrizCombo();
     });
 
     // RECÁLCULO DE INPUTS EN MODAL COMBO (Costos y Aportes)
@@ -2288,8 +2584,9 @@ function initLogicaCombosMod() {
     });
 
     $(document).off("keyup change", "#tablaCreacionCombo tbody input.input-combo-art-mod").on("keyup change", "#tablaCreacionCombo tbody input.input-combo-art-mod", function () {
-        recalcularColumnaComboMod($(this).closest("td").data("colindex"));
-        recalcularTotalesComboMod();
+        //recalcularColumnaComboMod($(this).closest("td").data("colindex"));
+        //recalcularTotalesComboMod();
+        recalcularMatrizCombo();
     });
 
     // CAMBIO DE UNIDADES LÍMITE/PROYECCIÓN EN COLUMNA DEL COMBO (Solo enteros)
@@ -2316,69 +2613,12 @@ function initLogicaCombosMod() {
 
     $(document).off("keyup change", selectoresUnidadesMod).on("keyup change", selectoresUnidadesMod, function () {
         const numCols = $("#trHeadersCombo th").length;
-        for (let i = 2; i < numCols; i++) recalcularColumnaComboMod(i);
-        recalcularTotalesComboMod();
+        for (let i = 2; i < numCols; i++) recalcularMatrizCombo(); //recalcularColumnaComboMod(i);
+        //recalcularTotalesComboMod();
+        recalcularMatrizCombo();
     });
 
-    // BUSCAR Y REEMPLAZAR este bloque dentro de initLogicaCombosMod:
-    $(document).off("click", ".btn-buscar-acuerdo-combo-mod").on("click", ".btn-buscar-acuerdo-combo-mod", function () {
-        const $btn = $(this);
-        const colIndex = $btn.closest("td").data("colindex");
-        const tipoFondo = $btn.data("tipofondo");
-        const slot = parseInt($btn.data("slot")) || 1;
-        const $tdCodigo = $(`#tablaCreacionCombo tbody tr[data-campo='art_codigo'] td[data-colindex='${colIndex}']`);
-        const codigoItem = $tdCodigo.find(".art-codigo-hidden").val();
-
-        const $inputDisplay = $btn.closest(".input-group").find("input[type='text']");
-        const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
-
-        const titulos = { "TFPROVEDOR": "Acuerdos Proveedor", "TFREBATE": "Acuerdos Rebate", "TFPROPIO": "Acuerdos Propio" };
-
-        const ejecutarModal = () => {
-            abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slot, null);
-            acuerdoArticuloContexto.esCombo = true;
-            acuerdoArticuloContexto.colIndex = colIndex;
-            setTimeout(function () {
-                const $modalAcuerdo = $("#modalAcuerdoArticulo");
-                $("#modalCrearComboMod").css('z-index', 1055);
-                $modalAcuerdo.css('z-index', 1075);
-                setTimeout(function () {
-                    const $backdropsTras = $('.modal-backdrop');
-                    if ($backdropsTras.length > 0) { $backdropsTras.last().css('z-index', 1070); }
-                }, 100);
-            }, 100);
-        };
-
-        if (tipoFondo === "TFPROVEDOR" && slot === 2) {
-            let marcaSeleccionada = "";
-            const marcasModalChecked = [];
-            $("#filtroMarcaModal .filtro-item-checkbox:checked").each(function () { marcasModalChecked.push($(this).val()); });
-            if (marcasModalChecked.length > 0) {
-                marcaSeleccionada = marcasModalChecked[0];
-            } else {
-                const valMarca = $("#segMarca").val();
-                if (valMarca === "3") {
-                    const sel = $("#btnMarca").data("seleccionados") || [];
-                    marcaSeleccionada = sel.length > 0 ? sel[0] : "";
-                } else if (valMarca && valMarca !== "TODAS" && valMarca !== "") {
-                    marcaSeleccionada = valMarca;
-                }
-            }
-            validarAporte2ProveedorYEjecutar(marcaSeleccionada, ejecutarModal, function () {
-                $btn.prop("disabled", true);
-                $inputDisplay.prop("disabled", true);
-                $(`#tablaCreacionCombo tbody tr[data-campo='aporte_prov2'] td[data-colindex='${colIndex}'] input`).prop("disabled", true);
-            });
-        } else if (tipoFondo === "TFPROPIO" && slot === 2) {
-            validarAporte2PropioYEjecutar(codigoItem, ejecutarModal, function () {
-                $btn.prop("disabled", true);
-                $inputDisplay.prop("disabled", true);
-                $(`#tablaCreacionCombo tbody tr[data-campo='aporte_propio2'] td[data-colindex='${colIndex}'] input`).prop("disabled", true);
-            });
-        } else {
-            ejecutarModal();
-        }
-    });
+    
 
     // ← AGREGAR ESTOS NUEVOS HANDLERS JUSTO DESPUÉS:
 
@@ -2482,8 +2722,9 @@ function initLogicaCombosMod() {
             const $th = $(`#trHeadersCombo th:eq(${colIndexCostosActualMod})`);
             $th.data("total-otros-costos", totalOtrosCostos);
             $th.data("detalle-otros-costos", seleccionados);
-            recalcularColumnaComboMod(colIndexCostosActualMod);
-            recalcularTotalesComboMod();
+            //recalcularColumnaComboMod(colIndexCostosActualMod);
+            //recalcularTotalesComboMod();
+            recalcularMatrizCombo();
         }
         $("#modalOtrosCostos").modal("hide");
         if (totalOtrosCostos > 0) {
@@ -2864,79 +3105,139 @@ $(function () {
         }
     });
 
-    $("#btnAceptarAcuerdoArticulo").on("click", function () {
-        if (!acuerdoArticuloTemporal) { Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." }); return; }
-        if (acuerdoArticuloContexto) {
 
-            // ====== MANEJO PARA COMBOS ======
-            if (acuerdoArticuloContexto.esCombo) {
-                const tipo = acuerdoArticuloContexto.tipoFondo;
-                const slot = acuerdoArticuloContexto.slot;
-                const colIdx = acuerdoArticuloContexto.colIndex;
-                const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo);
-                const getVal = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input.acuerdo-id-hidden`).val();
+    // =====================================================================
+    // BOTÓN ACEPTAR ACUERDO (Totalmente blindado e independiente)
+    // =====================================================================
+    $("#btnAceptarAcuerdoArticulo").off("click").on("click", function (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
 
-                if (tipo === "TFPROVEDOR" && (slot === 1 ? getVal("aporte_prov2_id") : getVal("aporte_prov_id")) === idSeleccionado) {
-                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado" }); return;
-                }
-                if (tipo === "TFPROPIO" && (slot === 1 ? getVal("aporte_propio2_id") : getVal("aporte_propio_id")) === idSeleccionado) {
-                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado" }); return;
-                }
+        // 1. Rescate de Datatables
+        if (!acuerdoArticuloTemporal && typeof dtAcuerdosArticulo !== "undefined" && dtAcuerdosArticulo !== null) {
+            let rowData = dtAcuerdosArticulo.row('.selected').data();
+            if (rowData) {
+                acuerdoArticuloTemporal = rowData;
+            }
+        }
 
-                acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
-                acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
+        if (!acuerdoArticuloTemporal) {
+            Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo válido." });
+            return;
+        }
 
-                const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
-                const setInputAporte = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input.aporte-valor`).prop("disabled", false).attr("data-max", maxVal).val("");
+        const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo || acuerdoArticuloTemporal.IdAcuerdo || acuerdoArticuloTemporal.ID);
+        const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
 
-                if (tipo === "TFPROVEDOR") setInputAporte(slot === 1 ? "aporte_prov" : "aporte_prov2");
-                else if (tipo === "TFREBATE") setInputAporte("aporte_rebate");
-                else if (tipo === "TFPROPIO") setInputAporte(slot === 1 ? "aporte_propio" : "aporte_propio2");
+        // 2. BUSCAMOS LA LUPA MARCADA FÍSICAMENTE EN LA PANTALLA
+        const $lupaCombo = $('.lupa-activa-combo');
 
-                recalcularColumnaComboMod(colIdx);
-                recalcularTotalesComboMod();
-                $("#modalAcuerdoArticulo").modal("hide");
-                acuerdoArticuloTemporal = null;
-                acuerdoArticuloContexto = null;
+        // ========================================================
+        // 📌 FLUJO 1: SI ESTAMOS EN UN COMBO
+        // ========================================================
+        if ($lupaCombo.length > 0) {
+
+            // Leemos todo directo de la lupa, sin depender de la memoria inestable
+            let tipo = $lupaCombo.attr('data-tipo') || $lupaCombo.data('tipofondo') || $lupaCombo.attr('data-tipofondo');
+            let slot = parseInt($lupaCombo.attr('data-slot')) || 1;
+            let colIdx = $lupaCombo.closest('td').index();
+
+            // Validación de Duplicados en la columna
+            const getVal = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td`).eq(colIdx).find("input").val();
+            /*
+            if (tipo === "TFPROVEDOR" && (slot === 1 ? getVal("aporte_prov2_id") : getVal("aporte_prov_id")) === idSeleccionado) {
+                Swal.fire({ icon: "warning", title: "Duplicado", text: "Este acuerdo ya fue ingresado en esta columna." });
+                return;
+            }
+            if (tipo === "TFPROPIO" && (slot === 1 ? getVal("aporte_propio2_id") : getVal("aporte_propio_id")) === idSeleccionado) {
+                Swal.fire({ icon: "warning", title: "Duplicado", text: "Este acuerdo ya fue ingresado en esta columna." });
+                return;
+            }*/
+
+            // Inyectar IDs a las filas ocultas de la Matriz Combo
+            let campoIdTarget = "";
+            let campoTarget = "";
+
+            if (tipo === "TFPROVEDOR") {
+                campoIdTarget = slot === 1 ? "aporte_prov_id" : "aporte_prov2_id";
+                campoTarget = slot === 1 ? "aporte_prov" : "aporte_prov2";
+            } else if (tipo === "TFREBATE") {
+                campoIdTarget = "aporte_rebate_id";
+                campoTarget = "aporte_rebate";
+            } else if (tipo === "TFPROPIO") {
+                campoIdTarget = slot === 1 ? "aporte_propio_id" : "aporte_propio2_id";
+                campoTarget = slot === 1 ? "aporte_propio" : "aporte_propio2";
+            }
+
+            if (campoIdTarget !== "") {
+                $(`#tablaCreacionCombo tbody tr[data-campo='${campoIdTarget}'] td`).eq(colIdx).find("input").val(idSeleccionado);
+
+                // Forzar actualización de la caja oculta visual de la celda (si existe)
+                $lupaCombo.closest(".input-group").find("input.acuerdo-id-hidden").val(idSeleccionado);
+            }
+
+            // ¡QUITAR CANDADO A LA CELDA DE DINERO!
+            if (campoTarget !== "") {
+                let $cajaFondo = $(`#tablaCreacionCombo tbody tr[data-campo='${campoTarget}'] td`).eq(colIdx).find("input");
+                $cajaFondo.prop("disabled", false).attr("data-max", maxVal).val("");
+                setTimeout(() => $cajaFondo.focus(), 300);
+            }
+
+            // Refrescar cálculos y limpiar
+            if (typeof recalcularMatrizCombo === "function") recalcularMatrizCombo();
+
+            $("#modalAcuerdoArticulo").modal("hide");
+            acuerdoArticuloTemporal = null;
+            $lupaCombo.removeClass('lupa-activa-combo'); // Borramos el marcador
+
+        }
+        // ========================================================
+        // 📌 FLUJO 2: SI ESTAMOS EN UN ARTÍCULO NORMAL
+        // ========================================================
+        else if (acuerdoArticuloContexto && acuerdoArticuloContexto.$fila) {
+
+            const $fila = acuerdoArticuloContexto.$fila;
+            const tipo = acuerdoArticuloContexto.tipoFondo;
+            const slot = parseInt(acuerdoArticuloContexto.slot) || 1;
+
+            // Validación de Duplicados en fila normal
+            const getVal = (clase) => $fila.find(clase).val();
+
+            if (tipo === "TFPROVEDOR" && (slot === 1 ? getVal(".acuerdo-prov2-hidden") : getVal(".acuerdo-prov1-hidden")) === idSeleccionado) {
+                Swal.fire({ icon: "warning", title: "Duplicado", text: "Este acuerdo ya fue ingresado en esta fila." });
+                return;
+            }
+            if (tipo === "TFPROPIO" && (slot === 1 ? getVal(".acuerdo-propio2-hidden") : getVal(".acuerdo-propio1-hidden")) === idSeleccionado) {
+                Swal.fire({ icon: "warning", title: "Duplicado", text: "Este acuerdo ya fue ingresado en esta fila." });
                 return;
             }
 
-            // ====== MANEJO ORIGINAL PARA ARTÍCULOS (sin cambios) ======
-            const tipo = acuerdoArticuloContexto.tipoFondo;
-            const slot = acuerdoArticuloContexto.slot;
-            const $fila = acuerdoArticuloContexto.$fila;
-            const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo);
+            // Inyectar datos
+            if (acuerdoArticuloContexto.$inputDisplay) acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
+            if (acuerdoArticuloContexto.$inputId) acuerdoArticuloContexto.$inputId.val(idSeleccionado);
 
-            if (tipo === "TFPROVEDOR") {
-                const otroSlotClass = slot === 1 ? ".acuerdo-prov2-hidden" : ".acuerdo-prov1-hidden";
-                const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
-                if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
-                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en el otro slot.` });
-                    return;
-                }
-            } else if (tipo === "TFPROPIO") {
-                const otroSlotClass = slot === 1 ? ".acuerdo-propio2-hidden" : ".acuerdo-propio1-hidden";
-                const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
-                if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
-                    Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en el otro slot.` });
-                    return;
-                }
-            }
+            // Desbloquear celda
+            const setInputAporte = (claseFondo) => {
+                let $cajaFondo = $fila.find(claseFondo);
+                $cajaFondo.prop("disabled", false).attr("data-max", maxVal).val("");
+                setTimeout(() => $cajaFondo.focus(), 300);
+            };
 
-            acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
-            acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
+            if (tipo === "TFPROVEDOR") setInputAporte(slot === 1 ? ".aporte-proveedor" : ".aporte-proveedor2");
+            else if (tipo === "TFREBATE") setInputAporte(".aporte-rebate");
+            else if (tipo === "TFPROPIO") setInputAporte(slot === 1 ? ".aporte-propio" : ".aporte-propio2");
 
-            const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
-            if (tipo === "TFPROVEDOR" && slot === 1) $fila.find(".aporte-proveedor").prop("disabled", false).attr("data-max", maxVal).val("");
-            else if (tipo === "TFPROVEDOR" && slot === 2) $fila.find(".aporte-proveedor2").prop("disabled", false).attr("data-max", maxVal).val("");
-            else if (tipo === "TFREBATE") $fila.find(".aporte-rebate").prop("disabled", false).attr("data-max", maxVal).val("");
-            else if (tipo === "TFPROPIO" && slot === 1) $fila.find(".aporte-propio").prop("disabled", false).attr("data-max", maxVal).val("");
-            else if (tipo === "TFPROPIO" && slot === 2) $fila.find(".aporte-propio2").prop("disabled", false).attr("data-max", maxVal).val("");
+            if (typeof recalcularFilaArticulo === "function") recalcularFilaArticulo($fila);
 
-            recalcularFilaArticulo($fila);
+            $("#modalAcuerdoArticulo").modal("hide");
+            acuerdoArticuloTemporal = null;
+            acuerdoArticuloContexto = null;
         }
-        $("#modalAcuerdoArticulo").modal("hide");
-        acuerdoArticuloTemporal = null; acuerdoArticuloContexto = null;
+        else {
+            // Seguro contra fallos imprevistos
+            Swal.fire({ icon: "error", title: "Error", text: "No se pudo detectar la celda de destino. Intente seleccionar el acuerdo nuevamente." });
+            $("#modalAcuerdoArticulo").modal("hide");
+        }
     });
 
     // 1. Limitar a 10 millones en Artículos
@@ -3129,7 +3430,134 @@ $(function () {
         $("#modalOtrosCostos").modal("hide");
         if (totalOtrosCostos > 0) Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Otros costos: ${formatCurrencySpanish(totalOtrosCostos)}`, showConfirmButton: false, timer: 2000 });
     });
+
+
+    // ==========================================================
+    // 1. CAPTURAR DATOS DE LA LUPA ANTES DE ABRIR EL MODAL
+    // ==========================================================
+    $(document).on("click", ".btn-acuerdo-articulo", function () {
+        let tipo = $(this).attr("data-tipo");
+        let slot = $(this).attr("data-slot") || 1;
+
+        // Llenamos la memoria para que el modal sepa qué datos buscar y no diga "undefined"
+        acuerdoArticuloContexto = {
+            tipoFondo: tipo,
+            slot: parseInt(slot),
+            esCombo: $(this).attr("data-escombo") === "true" || $(this).data("escombo") === true,
+            colIndex: typeof colIndexCostosActualMod !== "undefined" && colIndexCostosActualMod !== null
+                ? colIndexCostosActualMod
+                : $(this).closest('td').index()
+        };
+    });
+
+    // ==========================================================
+    // 2. LIMPIEZA DE TABLA Y FIX DE CAPAS OSCURAS
+    // ==========================================================
+    $('#modalAcuerdoArticulo').on('show.bs.modal', function () {
+        // Rompemos el lazo con el acuerdo anterior
+        acuerdoArticuloTemporal = null;
+
+        // Despintamos cualquier fila azul
+        $(this).find('tbody tr').removeClass('selected table-active');
+        if (typeof dtAcuerdosArticulo !== "undefined" && dtAcuerdosArticulo !== null) {
+            try { dtAcuerdosArticulo.rows().deselect(); } catch (e) { }
+        }
+
+        // Forzamos que este modal salga siempre por encima
+        $(this).css('z-index', 1060);
+    });
+
+    $('#modalAcuerdoArticulo').on('shown.bs.modal', function () {
+        $('.modal-backdrop').last().css('z-index', 1059);
+    });
+
+    $('#modalAcuerdoArticulo').on('hidden.bs.modal', function () {
+        if ($('.modal.show').length > 0) {
+            $('body').addClass('modal-open');
+        }
+    });
+
+    // =====================================================================
+    // CLICK EN LA LUPA DEL COMBO (Abre el modal sin validaciones fantasma)
+    // =====================================================================
+    $(document).off("click", ".btn-buscar-acuerdo-combo-mod").on("click", ".btn-buscar-acuerdo-combo-mod", function (e) {
+        e.preventDefault();
+
+        // 1. MARCADOR FÍSICO: Pintamos esta lupa para que el botón "Aceptar" sepa cuál es
+        $(".btn-buscar-acuerdo-combo-mod").removeClass("lupa-activa-combo");
+        $(this).addClass("lupa-activa-combo");
+
+        const $btn = $(this);
+        const colIdx = $btn.closest('td').index();
+        colIndexCostosActualMod = colIdx;
+
+        const tipoFondo = $btn.data("tipofondo") || $btn.attr("data-tipofondo");
+        const slotLeido = $btn.data("slot") || $btn.attr("data-slot") || 1;
+
+        const $tdCodigo = $(`#tablaCreacionCombo tbody tr[data-campo='art_codigo'] td`).eq(colIdx);
+        const codigoItem = $tdCodigo.find(".art-codigo-hidden").val();
+
+        const $inputDisplay = $btn.closest(".input-group").find("input[type='text']");
+        const $inputId = $btn.closest("td").find("input.acuerdo-id-hidden");
+
+        const titulos = {
+            "TFPROVEDOR": "Acuerdos Proveedor" + (slotLeido == 2 ? " (2)" : ""),
+            "TFREBATE": "Acuerdos Rebate",
+            "TFPROPIO": "Acuerdos Propio" + (slotLeido == 2 ? " (2)" : "")
+        };
+
+        // 2. Ejecutar el Modal Directamente (Sabemos que esto formatea la memoria)
+        abrirModalAcuerdoArticulo(tipoFondo, titulos[tipoFondo], codigoItem, $inputDisplay, $inputId, slotLeido, null);
+
+        // 3. ¡EL FIX MAESTRO! Inyectamos las variables vitales DESPUÉS de que se reseteó la memoria
+        acuerdoArticuloContexto.esCombo = true;
+        acuerdoArticuloContexto.colIndex = colIdx;
+
+        // 4. Arreglar Capas y Sombras (Z-Index) para evitar que se congele la pantalla
+        setTimeout(function () {
+            const $modalAcuerdo = $("#modalAcuerdoArticulo");
+            $("#modalCrearComboMod").css('z-index', 1055);
+            $modalAcuerdo.css('z-index', 1075);
+            setTimeout(function () {
+                const $backdropsTras = $('.modal-backdrop');
+                if ($backdropsTras.length > 0) { $backdropsTras.last().css('z-index', 1070); }
+            }, 100);
+        }, 100);
+    });
+
+
+
+    // Activa el recálculo en vivo al escribir precios
+    $(document).off("input", ".input-combo-art-mod").on("input", ".input-combo-art-mod", function () {
+        if (typeof recalcularMatrizCombo === "function") recalcularMatrizCombo();
+    });
+
+
+    // ==========================================================
+    // LIMPIAR MODAL DE CONSULTA DE ITEMS AL CERRAR
+    // ==========================================================
+    $("#modalConsultaItems").on("hidden.bs.modal.limpieza", function () {
+        // 1. Limpiar cajones de texto de búsqueda
+        $("#filtroArticuloModal").val("");
+        $("#buscarItemModal").val("");
+
+        // 2. Desmarcar todos los checkboxes de filtros (Marcas, Divisiones, etc.) y colapsarlos
+        $(this).find(".filtro-todas, .filtro-item-checkbox").prop("checked", false);
+
+        // 3. Desmarcar el checkbox general "Todos" de la tabla
+        $("#checkTodosItems").prop("checked", false);
+
+        // 4. Limpiar la tabla de resultados (DataTable)
+        if (typeof dtItemsConsultaPromo !== "undefined" && dtItemsConsultaPromo !== null) {
+            dtItemsConsultaPromo.clear().draw();
+
+            // Restaurar el mensaje original con el ícono del filtro
+            $(this).find('.dataTables_empty').html('<div class="text-center text-muted p-4"><i class="fa-solid fa-filter"></i><br>Presione <strong>"Procesar Selección"</strong></div>');
+        }
+    });
 });
+//AQUI TERMINA EL DOCUMENT READY
+
 
 // ===================================================================
 // FUNCIONES DE CARGA (BANDEJA)

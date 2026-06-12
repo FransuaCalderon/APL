@@ -3881,6 +3881,7 @@
                     <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="1"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>`; break;
 
+
                 // ✅ Aporte 2 Proveedor ID - Input y Lupa nacen disabled
                 case "aporte_prov2_id":
                     html += `
@@ -3889,6 +3890,8 @@
                     <input type="text" class="form-control text-end" placeholder="Seleccione..." readonly value="${item.displayAcuerdoProveedor2 || item.idAcuerdoProveedor2 || ''}">
                     <button class="btn btn-outline-secondary btn-buscar-acuerdo-combo" type="button" data-tipofondo="TFPROVEDOR" data-slot="2"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>`; break;
+
+
 
                 case "aporte_rebate_id":
                     html += `
