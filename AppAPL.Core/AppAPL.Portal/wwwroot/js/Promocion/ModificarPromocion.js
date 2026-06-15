@@ -3,6 +3,39 @@
 // ===============================================================
 // VARIABLES GLOBALES
 // ===============================================================
+
+// ✅ VARIABLES GLOBALES PARA PORCENTAJES DE PROMOCIÓN
+let pctIncrementoTC = 0;
+let pctIncrementoCredito = 0;
+
+// -----------------------------
+// Cargar Porcentajes de Incremento
+// -----------------------------
+function cargarPorcentajesIncremento() {
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Parametrizacion/consultar-porcentaje-incremento",
+        client: "APL"
+        
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            const data = response.json_response || [];
+            if (data.length > 0) {
+                pctIncrementoTC = parseFloat(data[0].porcentaje_incremento_tarjeta_credito) / 100 || 0;
+                pctIncrementoCredito = parseFloat(data[0].porcentaje_incremento_credito) / 100 || 0;
+            }
+        }
+    });
+}
+
+
 let tabla;
 let promocionTemporal = null;
 let proveedorTemporal = null;
@@ -2961,6 +2994,9 @@ $(function () {
     initDatepickers();
     initLogicaCombosMod();
 
+    // 👉 AÑADIR ESTA LÍNEA AQUÍ
+    cargarPorcentajesIncremento();
+
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
         cargarBandeja();
@@ -3268,6 +3304,74 @@ $(function () {
         recalcularFilaArticulo($fila);
     });
 
+
+    // 👉 AUTOCALCULAR TC Y CRÉDITO AL ESCRIBIR
+    $(document).on("input", "#tablaArticulosBody input[type='text']", function () {
+        const $td = $(this).closest("td");
+        if ($td.index() === 27 && !$(this).prop("disabled")) {
+            const $fila = $(this).closest("tr");
+            const valorLimpio = $(this).val().replace(/[^\d.,]/g, '');
+            const precioContado = parseCurrencyToNumber(valorLimpio);
+
+            if (precioContado > 0) {
+                const precioTC = precioContado * (1 + pctIncrementoTC);
+                const precioCredito = precioContado * (1 + pctIncrementoCredito);
+                $fila.find("td:eq(28) input").val(formatCurrencySpanish(precioTC));
+                $fila.find("td:eq(29) input").val(formatCurrencySpanish(precioCredito));
+            } else {
+                $fila.find("td:eq(28) input").val("");
+                $fila.find("td:eq(29) input").val("");
+            }
+        }
+    });
+
+    // 👉 VALIDACIÓN VISUAL (BLUR) POR MEDIO DE PAGO
+    $(document).on("blur", "#tablaArticulosBody input[type='text']", function () {
+        const $td = $(this).closest("td");
+        const index = $td.index();
+
+        if ((index === 27 || index === 28 || index === 29) && !$(this).prop("disabled")) {
+            const $fila = $(this).closest("tr");
+            const precioIngresado = parseCurrencyToNumber($(this).val());
+            const precioListaContado = parseCurrencyToNumber($fila.find("td:eq(25)").text());
+            const precioListaCredito = parseCurrencyToNumber($fila.find("td:eq(26)").text());
+
+            const $selectMedioPago = $fila.find("td:eq(24) select");
+            const valMP = $selectMedioPago.val();
+            let formasPago = [];
+
+            if (valMP === "7") {
+                formasPago = $selectMedioPago.data("seleccionados") || [];
+            } else if (valMP && valMP !== "TODAS" && valMP !== "TODOS") {
+                formasPago.push(valMP);
+            }
+
+            let hayError = false;
+            const validaTodos = formasPago.length === 0;
+
+            if (index === 27 && (validaTodos || formasPago.includes('EF') || formasPago.includes('TD')) && precioIngresado > precioListaContado) {
+                hayError = true;
+            } else if (index === 28 && (validaTodos || formasPago.includes('TC')) && precioIngresado > precioListaContado) {
+                hayError = true;
+            } else if (index === 29 && (validaTodos || formasPago.includes('CR')) && precioIngresado > precioListaCredito) {
+                hayError = true;
+            }
+
+            if (hayError) {
+                Swal.fire({ icon: 'error', title: 'Error de Validación', text: 'Precio de promoción MAYOR al Precio de Lista' });
+                $(this).val("");
+                if (index === 27) {
+                    $fila.find("td:eq(28) input").val("");
+                    $fila.find("td:eq(29) input").val("");
+                }
+                if (typeof recalcularFilaArticulo === "function") recalcularFilaArticulo($fila);
+            }
+        }
+    });
+
+
+
+
     $(document).on("blur", "#tablaArticulosBody .aporte-proveedor, #tablaArticulosBody .aporte-proveedor2, #tablaArticulosBody .aporte-rebate, #tablaArticulosBody .aporte-propio, #tablaArticulosBody .aporte-propio2", function () {
         const max = parseFloat($(this).attr("data-max")) || 0;
         const valor = parseCurrencyToNumber($(this).val());
@@ -3326,7 +3430,7 @@ $(function () {
         if (marcas.length === 0 && divisiones.length === 0 && departamentos.length === 0 && clases.length === 0 && articulo === "") {
             Swal.fire({ icon: "warning", title: "Atención", text: "Seleccione al menos un criterio." }); return;
         }
-        consultarItemsPromocion({ marcas, divisiones, departamentos, clases, codigoarticulo: articulo });
+        consultarItemsPromocion({ marcas, divisiones, departamentos, clases, codigoarticulo: articulo, ruc: "" });
     });
 
     $("#checkTodosItems").on("change", function () {
@@ -3914,6 +4018,7 @@ async function guardarPromocionArticulos() {
 
     const articulos = [];
     let errorFila = "";
+    let requiereAprobacionNivel2 = false; // 👉 NUEVA VARIABLE
 
     $filas.each(function (index) {
         const $fila = $(this);
@@ -3962,6 +4067,28 @@ async function guardarPromocionArticulos() {
         const precioCredito = parseCurrencyToNumber($fila.find("td:eq(29) input").val());
         const precioIgualar = parseCurrencyToNumber($fila.find("td:eq(30) input").val());
 
+
+        // 👉 BLOQUEO ESTRICTO DE PRECIO POR MEDIO DE PAGO
+        let formasPago = [];
+        if (medioPagoVal === "7") {
+            formasPago = mediosPagoSeleccionados;
+        } else if (medioPagoVal && medioPagoVal !== "TODAS" && medioPagoVal !== "TODOS") {
+            formasPago.push(medioPagoVal);
+        }
+        const validaTodos = formasPago.length === 0;
+
+        let hayErrorPrecio = false;
+        if ((validaTodos || formasPago.includes('EF') || formasPago.includes('TD')) && precioContado > precioListaContado) hayErrorPrecio = true;
+        if ((validaTodos || formasPago.includes('TC')) && precioTC > precioListaContado) hayErrorPrecio = true;
+        if ((validaTodos || formasPago.includes('CR')) && precioCredito > precioListaCredito) hayErrorPrecio = true;
+
+        if (hayErrorPrecio) {
+            errorFila = `Fila ${numFila}: Precio de promoción MAYOR al Precio de Lista para la forma de pago seleccionada. No se puede guardar.`;
+            return false;
+        }
+
+
+
         const dsctoContado = parseFloat($fila.find("td:eq(31)").text()) || 0;
         const dsctoTC = parseFloat($fila.find("td:eq(32)").text()) || 0;
         const dsctoCredito = parseFloat($fila.find("td:eq(33)").text()) || 0;
@@ -3994,6 +4121,20 @@ async function guardarPromocionArticulos() {
         const margenTC = parseFloat($fila.find("td:eq(48)").text()) || 0;
         const margenCredito = parseFloat($fila.find("td:eq(49)").text()) || 0;
         const margenIgualar = parseFloat($fila.find("td:eq(50)").text()) || 0;
+
+
+        // 👉 EVALUACIÓN DE APROBACIÓN NIVEL 2 POR MEDIO DE PAGO
+        if (validaTodos || formasPago.includes('EF') || formasPago.includes('TD')) {
+            if (margenContado < margenMinIgualar) requiereAprobacionNivel2 = true;
+        }
+        if (validaTodos || formasPago.includes('TC')) {
+            if (margenTC < margenMinIgualar) requiereAprobacionNivel2 = true;
+        }
+        if (validaTodos || formasPago.includes('CR')) {
+            if (margenCredito < margenMinIgualar) requiereAprobacionNivel2 = true;
+        }
+
+
 
         const regalo = $fila.find("td:eq(56) input[type='checkbox']").is(":checked") ? "S" : "N";
 
@@ -4085,8 +4226,27 @@ async function guardarPromocionArticulos() {
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
         idopcion: getIdOpcionSeguro(), idcontrolinterfaz: "BTNGRABAR", ideventoetiqueta: "EVCLICK"
     };
-
-    enviarGuardado(body);
+    return;
+    // 👉 ALERTA DE NIVEL 2 ANTES DE GUARDAR
+    if (requiereAprobacionNivel2) {
+        Swal.fire({
+            title: 'Advertencia',
+            text: 'El margen calculado es menor al Margen Mínimo Igualar Precio y será aprobado por un usuario de Nivel 2.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                enviarGuardado(body);
+            }
+        });
+    } else {
+        enviarGuardado(body);
+    }
 }
 
 async function guardarPromocionCombos() {
