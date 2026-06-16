@@ -4226,7 +4226,7 @@ async function guardarPromocionArticulos() {
         idtipoproceso: tipoProceso ? tipoProceso.idcatalogo : 0,
         idopcion: getIdOpcionSeguro(), idcontrolinterfaz: "BTNGRABAR", ideventoetiqueta: "EVCLICK"
     };
-    return;
+
     // 👉 ALERTA DE NIVEL 2 ANTES DE GUARDAR
     if (requiereAprobacionNivel2) {
         Swal.fire({

@@ -1519,6 +1519,19 @@ async function guardarItems() {
     calcularTotalesItems();
     if (!validarItems()) return;
 
+    // --- INICIO NUEVA VALIDACIÓN GLOBAL ---
+    let hayMargenesNegativos = false;
+    $("#tablaItemsBody tr").each(function () {
+        if ($(this).find(".item-accion").val() !== "D") {
+            const mC = parseFloat($(this).find(".margen-contado").text()) || 0;
+            const mT = parseFloat($(this).find(".margen-tc").text()) || 0;
+            const mCr = parseFloat($(this).find(".margen-credito").text()) || 0;
+            if (mC < 0 || mT < 0 || mCr < 0) hayMargenesNegativos = true;
+        }
+    });
+    // --- FIN NUEVA VALIDACIÓN GLOBAL ---
+
+
     const idOpcionActual = getIdOpcionSeguro();
     if (!idOpcionActual) {
         Swal.fire("Error", "No se pudo obtener idOpcion.", "error");
@@ -1537,7 +1550,7 @@ async function guardarItems() {
     console.log("tipoProceso:", tipoProceso);
 
     const valorTotalSuma = parseCurrencyToNumber($("#verValorAcuerdo").val());
-
+    const valorTotal = parseCurrencyToNumber($("#acuerdoValorTotalItems").val());
     // ✅ LECTURA DIRECTA DEL CAMPO OCULTO
     const idFondoActualizado = parseInt($("#fondoProveedorIdItems").val(), 10) || 0;
 
@@ -1568,6 +1581,7 @@ async function guardarItems() {
         title: "Confirmar Guardado",
         html: `
             <p>¿Desea guardar el acuerdo POR ÍTEMS?</p>
+            ${hayMargenesNegativos ? '<p class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation"></i> Advertencia: Hay artículos con márgenes negativos.</p>' : ''}
             <p class="text-muted small">Se guardarán ${articulos.length} artículo(s)</p>
         `,
         icon: "warning",
@@ -2168,7 +2182,7 @@ function eliminarItemSeleccionado() {
         }
     });
 }
-
+/*
 function modificarItemSeleccionado() {
     const $radioSeleccionado = $("#tablaItemsBody .item-row-radio:checked");
 
@@ -2208,6 +2222,77 @@ function modificarItemSeleccionado() {
                     showConfirmButton: false,
                     timer: 1500
                 });
+            }
+        });
+    } else {
+        $fila.find(".celda-editable input").prop("disabled", false);
+        $fila.find('input[name="unidadesLimite"]').trigger("focus");
+
+        Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "info",
+            title: "Modo edición activado",
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
+}*/
+
+function modificarItemSeleccionado() {
+    const $radioSeleccionado = $("#tablaItemsBody .item-row-radio:checked");
+
+    if ($radioSeleccionado.length === 0) {
+        Swal.fire({
+            icon: "warning",
+            title: "Atención",
+            text: "Debe seleccionar un item para modificar.",
+            confirmButtonColor: "#009845"
+        });
+        return;
+    }
+
+    const $fila = $radioSeleccionado.closest("tr");
+    const yaEnEdicion = !$fila.find('input[name="unidadesLimite"]').prop("disabled");
+
+    if (yaEnEdicion) {
+        Swal.fire({
+            title: "Guardar Cambios",
+            text: "¿Desea guardar los cambios realizados?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#009845",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Sí, Guardar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $fila.find(".celda-editable input").prop("disabled", true);
+                calcularTotalesItems();
+
+                // --- INICIO NUEVA VALIDACIÓN DE MÁRGENES NEGATIVOS ---
+                const mContado = parseFloat($fila.find(".margen-contado").text()) || 0;
+                const mTC = parseFloat($fila.find(".margen-tc").text()) || 0;
+                const mCredito = parseFloat($fila.find(".margen-credito").text()) || 0;
+
+                if (mContado < 0 || mTC < 0 || mCredito < 0) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Márgenes Negativos",
+                        text: "Advertencia: El artículo presenta uno o más márgenes en negativo.",
+                        confirmButtonColor: "#f39c12"
+                    });
+                } else {
+                    Swal.fire({
+                        toast: true,
+                        position: "top-end",
+                        icon: "success",
+                        title: "Cambios guardados",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+                // --- FIN NUEVA VALIDACIÓN ---
             }
         });
     } else {
