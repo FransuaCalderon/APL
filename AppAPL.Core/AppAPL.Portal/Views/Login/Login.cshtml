@@ -2,6 +2,9 @@
 @{
     Layout = "_LoginLayout";
     ViewData["Title"] = "APL System - Login";
+    
+    // Verificamos si el usuario ya inició sesión en Microsoft (Fase 1 completada)
+    bool isSamlAuthenticated = User.Identity?.IsAuthenticated ?? false;
 }
 
 <div class="login-container">
@@ -11,66 +14,131 @@
             <h1 class="system-name">APL System</h1>
         </header>
 
-        <form class="login-form" method="post" asp-controller="Login" asp-action="Login">
-
-            @* Muestra el mensaje de error si existe, por ejemplo, si la validación falla *@
-            @if (ViewData["Error"] != null)
-            {
-                <div class="alert alert-danger" role="alert" style="font-size: 14px; margin-bottom: 15px;">
-                    @ViewData["Error"]
-                </div>
-            }
-
-            <div class="form-group">
-                <label for="pais">País</label>
-                <div class="input-container select-container">
-                    <select id="pais" name="pais" class="form-control">
-                        <option value="EC" selected>EC - Ecuador</option>
-                        <option value="MX">MX - México</option>
-                        <option value="CO">CO - Colombia</option>
-                        <option value="US">US - Estados Unidos</option>
-                        <option value="ES">ES - España</option>
+        @if (!isSamlAuthenticated)
+        {
+            <form class="login-form" method="get" action="/Auth/Login">
+                <div class="form-group">
+                    <label>País</label>
+                    <select class="form-control" disabled>
+                        <option selected>EC - Ecuador</option>
                     </select>
-                    <span class="select-arrow"></span>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label for="empresa">Empresa</label>
-                <input type="text" id="empresa" name="empresa" class="form-control" placeholder="Selecciona o escribe empresa">
-            </div>
-
-            <div class="form-group">
-                <label for="usuario">Usuario / Correo</label>
-                <input type="text" id="usuario" name="Usuario" class="form-control" placeholder="usuario@ejemplo.com" required>
-            </div>
-
-            <div class="form-group">
-                <label for="contrasena">Contraseña</label>
-                @* CLAVE: name="Clave" para el controlador *@
-                <input type="password" id="contrasena" name="Clave" class="form-control" value="" required>
-            </div>
-
-            <div class="form-options">
-                <div class="remember-me">
-                    <input type="checkbox" id="recordarme" name="recordarme">
-                    <label for="recordarme">Recordarme</label>
+                <div class="form-group">
+                    <label>Empresa</label>
+                    <input type="text" class="form-control" value="Artefacta" disabled>
                 </div>
-                <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
-            </div>
 
-            <button type="submit" class="btn btn-primary">Ingresar</button>
-        </form>
+                <button type="submit" class="btn btn-primary" style="background-color: #0078D4; border-color: #0078D4;">
+                    Iniciar sesión con Microsoft
+                </button>
+            </form>
+        }
+        else
+        {
+            <form class="login-form" id="legacyForm">
+                <div class="form-group">
+                    <label>País</label>
+                    <select class="form-control" disabled><option>EC - Ecuador</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Empresa</label>
+                    <input type="text" class="form-control" value="Artefacta" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="usuarioLegado">Seleccione su Usuario</label>
+                    <div class="input-container select-container">
+                        <select id="usuarioLegado" class="form-control" required>
+                            <option value="">Cargando usuarios...</option>
+                        </select>
+                        <span class="select-arrow"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contrasena">Contraseña</label>
+                    <input type="password" id="contrasena" class="form-control" required>
+                </div>
+
+                <div id="errorMsg" class="alert alert-danger" style="display:none; font-size: 14px; margin-bottom: 15px;"></div>
+
+                <button type="submit" id="btnIngresar" class="btn btn-primary" disabled>Validando...</button>
+            </form>
+            
+            <div class="text-center mt-3">
+                <a href="/Auth/Logout" class="text-muted" style="font-size: 12px;">Ingresar con otra cuenta de Microsoft</a>
+            </div>
+        }
 
         <div class="language-switch">
             <span>Cambiar idioma:</span>
-            <select class="language-select">
-                <option value="es" selected>ES</option>
-                <option value="en">EN</option>
-                <option value="pt">PT</option>
-            </select>
+            <select class="language-select"><option value="es" selected>ES</option><option value="en">EN</option></select>
         </div>
     </div>
 </div>
 
-<!-- Autor: JEAN FRANCOIS CALDERON VEAS | Empresa: BMTECSA | Proyecto: SOFTWARE APL -->
+@if (isSamlAuthenticated)
+{
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // 1. Consultar usuarios en Apigee usando el correo del claim SAML
+            $.ajax({
+                url: "/api/consultar-usuario",
+                method: "GET"
+            }).done(function (lista) {
+                var $select = $("#usuarioLegado");
+                $select.empty();
+                
+                if (lista && lista.length > 0) {
+                    lista.forEach(function (u) {
+                        $select.append(`<option value="${u.CodigoUsuario}">${u.NombreUsuario}</option>`);
+                    });
+                    $("#btnIngresar").prop("disabled", false).text("Ingresar");
+                } else {
+                    $("#errorMsg").text("No se encontraron usuarios legados para su correo.").show();
+                    $("#btnIngresar").text("Sin acceso");
+                }
+            }).fail(function () {
+                $("#errorMsg").text("Error al consultar el sistema legado en Apigee.").show();
+                $("#btnIngresar").text("Error de conexión");
+            });
+
+        // 2. Enviar contraseña al LegadosController
+        $("#legacyForm").on("submit", function (e) {
+        e.preventDefault();
+        $("#btnIngresar").prop("disabled", true).text("Comprobando credenciales...");
+        $("#errorMsg").hide();
+
+        // Capturamos AMBOS: el código (para Apigee) y el nombre (para tu sesión)
+        var codigoSeleccionado = $("#usuarioLegado").val();
+        var nombreSeleccionado = $("#usuarioLegado option:selected").text();
+
+        var payload = {
+        codigoUsuario: codigoSeleccionado,
+        password: $("#contrasena").val()
+        };
+
+        $.ajax({
+        url: "/api/obtener-usuario",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload)
+        }).done(function (usuarioAprobado) {
+        // ¡Éxito! Apigee validó la clave usando el código.
+        // AHORA enviamos el NOMBRE a tu controlador MVC
+        $.post("/Login/EstablecerSesionLegada", { nombreUsuario: nombreSeleccionado })
+        .done(function () {
+        window.location.href = "/Home/Index";
+        });
+        }).fail(function (xhr) {
+        var msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : "Usuario o contraseña inválidos.";
+        $("#errorMsg").text(msg).show();
+        $("#btnIngresar").prop("disabled", false).text("Ingresar");
+        });
+        });
+
+
+        });
+    </script>
+}

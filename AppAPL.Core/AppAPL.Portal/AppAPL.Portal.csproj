@@ -22,6 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.18.2" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AppAPL.Api\AppAPL.Api.csproj" />
     <ProjectReference Include="..\AppAPL.Dto\AppAPL.Dto.csproj" />
   </ItemGroup>

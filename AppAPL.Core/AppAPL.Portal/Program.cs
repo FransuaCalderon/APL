@@ -1,6 +1,13 @@
 ﻿using AppAPL.Portal.Configuration;
 using AppAPL.Portal.Extension;
 using AppAPL.Portal.Services;
+// ✅ AGREGAR ESTOS NAMESPACES PARA SAML:
+using ITfoxtec.Identity.Saml2;
+using ITfoxtec.Identity.Saml2.MvcCore;
+using ITfoxtec.Identity.Saml2.MvcCore.Configuration;
+using ITfoxtec.Identity.Saml2.Schemas;
+using ITfoxtec.Identity.Saml2.Schemas.Metadata;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Text;
@@ -55,6 +62,56 @@ builder.Services.AddHttpClient("ApiClient", (sp, client) =>
     }
 });
 
+
+
+
+// ✅ ============================================
+// ✅ AGREGAR SERVICIOS SAML Y AUTH (NUEVO)
+// ✅ ============================================
+builder.Services.AddHttpContextAccessor(); // Requerido para leer cookies
+builder.Services.AddHttpClient("apigee");  // Usado por LegadosController
+
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "AppAPL.Session"; // Nombre de tu cookie
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.Configure<Saml2Configuration>(builder.Configuration.GetSection("Saml2"));
+builder.Services.Configure<Saml2Configuration>(saml2Configuration =>
+{
+    saml2Configuration.AllowedAudienceUris.Add(saml2Configuration.Issuer);
+    saml2Configuration.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.None;
+
+    var entityDescriptor = new EntityDescriptor();
+    entityDescriptor.ReadIdPSsoDescriptorFromUrl(new Uri(builder.Configuration["Saml2:IdPMetadata"]!));
+
+    if (entityDescriptor.IdPSsoDescriptor != null)
+    {
+        saml2Configuration.SingleSignOnDestination = entityDescriptor.IdPSsoDescriptor.SingleSignOnServices.First().Location;
+        saml2Configuration.SingleLogoutDestination = entityDescriptor.IdPSsoDescriptor.SingleLogoutServices.First().Location;
+        saml2Configuration.SignatureValidationCertificates.AddRange(entityDescriptor.IdPSsoDescriptor.SigningCertificates);
+    }
+    else
+    {
+        throw new Exception("IdPSsoDescriptor not loaded from metadata.");
+    }
+});
+
+builder.Services.AddSaml2();
+// ✅ FIN DE SERVICIOS SAML ========================
+
+
+
+
+
 //agregamos contenedor de inyeccion de dependencias
 builder.Services.AddInforcloudScopedDependencies();
 
@@ -84,7 +141,14 @@ app.UseStaticFiles();
 app.UseSession();
 
 app.UseRouting();
-app.UseAuthorization();
+
+
+// ✅ ============================================
+// ✅ AUTENTICACIÓN (NUEVO: DEBE IR AQUÍ)
+// ✅ ============================================
+app.UseAuthentication(); // 1. Verifica la cookie (¿Quién eres?)
+
+app.UseAuthorization();  // 2. Verifica los permisos (¿Puedes entrar?)
 
 app.MapGet("/config", (IOptions<ApiSettings> options) =>
 {

@@ -60,6 +60,23 @@ namespace AppAPL.Portal.Controllers
             }
         }
 
+        // ESTE MÉTODO ES LLAMADO POR JQUERY DESPUÉS DE VALIDAR APIGEE CON ÉXITO
+        [HttpPost]
+        public IActionResult EstablecerSesionLegada(string nombreUsuario)
+        {
+            if (string.IsNullOrEmpty(nombreUsuario))
+            {
+                return BadRequest("Código de usuario inválido");
+            }
+
+            // Persistencia del Usuario Legado en tu MVC Session
+            HttpContext.Session.SetString("Usuario", nombreUsuario);
+            Console.WriteLine($"✅ Login completo. Usuario legado guardado en sesión: {nombreUsuario}");
+
+            // Retornamos un OK, el JavaScript (AJAX) se encargará de hacer la redirección al Home
+            return Ok();
+        }
+
         // --------------------------------------------------------
         // MÉTODO 3: Logout - Cerrar sesión
         // --------------------------------------------------------
@@ -68,6 +85,12 @@ namespace AppAPL.Portal.Controllers
             HttpContext.Session.Clear();
             Console.WriteLine("🚪 Usuario cerró sesión");
             return RedirectToAction("Login");
+        }
+
+
+        public IActionResult Auth()
+        {
+            return View();
         }
     }
 }

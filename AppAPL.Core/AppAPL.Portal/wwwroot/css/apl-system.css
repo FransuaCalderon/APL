@@ -1,0 +1,100 @@
+﻿body {
+    background: #eef1f5;
+}
+
+.login-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 32px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.05);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+    .brand .badge-bm {
+        background: #1e3a8a;
+        color: #fff;
+        font-weight: 700;
+        border-radius: 8px;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .brand h1 {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0;
+        color: #111827;
+    }
+
+.form-label {
+    color: #374151;
+    font-weight: 500;
+}
+
+.btn-ingresar {
+    background: #1d6ff2;
+    border: none;
+    font-weight: 600;
+    padding: 10px;
+}
+
+    .btn-ingresar:hover {
+        background: #1559c9;
+    }
+
+/* logged-in view */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.app-logo {
+    height: 42px;
+}
+
+.user-box {
+    cursor: pointer;
+    position: relative;
+    font-weight: 600;
+}
+
+.dropdown-panel {
+    position: absolute;
+    right: 0;
+    top: 38px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 16px;
+    width: 260px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.08);
+}
+
+.json-view {
+    padding: 24px;
+}
