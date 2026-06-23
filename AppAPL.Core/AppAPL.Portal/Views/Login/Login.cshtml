@@ -79,66 +79,100 @@
 
 @if (isSamlAuthenticated)
 {
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // 1. Consultar usuarios en Apigee usando el correo del claim SAML
-            $.ajax({
-                url: "/api/consultar-usuario",
-                method: "GET"
-            }).done(function (lista) {
-                var $select = $("#usuarioLegado");
-                $select.empty();
-                
-                if (lista && lista.length > 0) {
-                    lista.forEach(function (u) {
+
+    @section Scripts{
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                // 1. Consultar usuarios en Apigee usando el correo del claim SAML
+                $.ajax({
+                    url: "/api/consultar-usuario",
+                    method: "GET"
+                }).done(function (lista) {
+                    var $select = $("#usuarioLegado");
+                    $select.empty();
+
+                    if (lista && lista.length > 0) {
+                        lista.forEach(function (u) {
                         $select.append(`<option value="${u.CodigoUsuario}">${u.NombreUsuario}</option>`);
-                    });
-                    $("#btnIngresar").prop("disabled", false).text("Ingresar");
-                } else {
-                    $("#errorMsg").text("No se encontraron usuarios legados para su correo.").show();
-                    $("#btnIngresar").text("Sin acceso");
-                }
-            }).fail(function () {
-                $("#errorMsg").text("Error al consultar el sistema legado en Apigee.").show();
-                $("#btnIngresar").text("Error de conexión");
+                        });
+                        $("#btnIngresar").prop("disabled", false).text("Ingresar");
+                    } else {
+                        $("#errorMsg").text("No se encontraron usuarios legados para su correo.").show();
+                        $("#btnIngresar").text("Sin acceso");
+                    }
+                }).fail(function () {
+
+                    $("#errorMsg").text("Error al consultar el sistema legado en Apigee.").show();
+                    $("#btnIngresar").text("Error de conexión");
+
+                });
+
+            // 2. Enviar contraseña al LegadosController
+            $("#legacyForm").on("submit", function (e) {
+            e.preventDefault();
+            $("#btnIngresar").prop("disabled", true).text("Comprobando credenciales...");
+            $("#errorMsg").hide();
+
+            var codigoSeleccionado = $("#usuarioLegado").val();
+            var nombreSeleccionado = $("#usuarioLegado option:selected").text();
+
+            var payload = {
+            codigoUsuario: codigoSeleccionado,
+            password: $("#contrasena").val()
+            };
+
+            // Paso A: Validar credenciales del usuario
+            $.ajax({
+            url: "/api/obtener-usuario",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload)
+            }).done(function (usuarioAprobado) {
+            console.log("usuarioAprobado",usuarioAprobado);
+            // Se extrae el ID único del usuario retornado por Apigee
+            // (Adaptar la propiedad según la estructura exacta de tu JSON, ej: UsuarioId o Id)
+            var usuarioId = usuarioAprobado.UsuarioID || usuarioAprobado.UsuarioId || (usuarioAprobado[0] && usuarioAprobado[0].UsuarioId) || usuarioAprobado.id;
+            console.log("usuarioId",usuarioId);
+
+            $("#btnIngresar").text("Cargando accesos y permisos...");
+
+            // Paso B: Consultar los accesos asignados al UsuarioId
+            $.ajax({
+            url: "/api/accesos",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ usuarioId: usuarioId })
+            }).done(function (listaAccesos) {
+
+            // Paso C: Enviar el nombre y la lista de accesos serializada a la sesión de .NET
+            $.post("/Login/EstablecerSesionLegada", {
+            nombreUsuario: nombreSeleccionado,
+            accesos: JSON.stringify(listaAccesos) // Guardamos como cadena de texto JSON
+            })
+            .done(function () {
+            window.location.href = "/Home/Index";
             });
 
-        // 2. Enviar contraseña al LegadosController
-        $("#legacyForm").on("submit", function (e) {
-        e.preventDefault();
-        $("#btnIngresar").prop("disabled", true).text("Comprobando credenciales...");
-        $("#errorMsg").hide();
+            }).fail(function () {
+            $("#errorMsg").text("Error al cargar los permisos y accesos del sistema.").show();
+            $("#btnIngresar").prop("disabled", false).text("Ingresar");
+            });
 
-        // Capturamos AMBOS: el código (para Apigee) y el nombre (para tu sesión)
-        var codigoSeleccionado = $("#usuarioLegado").val();
-        var nombreSeleccionado = $("#usuarioLegado option:selected").text();
-
-        var payload = {
-        codigoUsuario: codigoSeleccionado,
-        password: $("#contrasena").val()
-        };
-
-        $.ajax({
-        url: "/api/obtener-usuario",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload)
-        }).done(function (usuarioAprobado) {
-        // ¡Éxito! Apigee validó la clave usando el código.
-        // AHORA enviamos el NOMBRE a tu controlador MVC
-        $.post("/Login/EstablecerSesionLegada", { nombreUsuario: nombreSeleccionado })
-        .done(function () {
-        window.location.href = "/Home/Index";
-        });
-        }).fail(function (xhr) {
-        var msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : "Usuario o contraseña inválidos.";
-        $("#errorMsg").text(msg).show();
-        $("#btnIngresar").prop("disabled", false).text("Ingresar");
-        });
-        });
+            }).fail(function (xhr) {
+            var msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : "Usuario o contraseña inválidos.";
+            $("#errorMsg").text(msg).show();
+            $("#btnIngresar").prop("disabled", false).text("Ingresar");
+            });
+            });
 
 
-        });
-    </script>
+            });
+        </script>
+    
+    
+    }
+
+
+   
 }

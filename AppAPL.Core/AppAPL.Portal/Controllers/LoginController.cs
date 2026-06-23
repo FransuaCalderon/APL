@@ -60,20 +60,31 @@ namespace AppAPL.Portal.Controllers
             }
         }
 
-        // ESTE MÉTODO ES LLAMADO POR JQUERY DESPUÉS DE VALIDAR APIGEE CON ÉXITO
+        // ESTE MÉTODO RECIBE LOS DATOS RECOLECTADOS POR AJAX TRAS LAS VALIDACIONES
         [HttpPost]
-        public IActionResult EstablecerSesionLegada(string nombreUsuario)
+        public IActionResult EstablecerSesionLegada(string nombreUsuario, string accesos)
         {
             if (string.IsNullOrEmpty(nombreUsuario))
             {
-                return BadRequest("Código de usuario inválido");
+                return BadRequest("Nombre de usuario inválido");
             }
 
-            // Persistencia del Usuario Legado en tu MVC Session
+            // 1. Guardar el nombre del usuario en sesión
             HttpContext.Session.SetString("Usuario", nombreUsuario);
-            Console.WriteLine($"✅ Login completo. Usuario legado guardado en sesión: {nombreUsuario}");
 
-            // Retornamos un OK, el JavaScript (AJAX) se encargará de hacer la redirección al Home
+            // 2. Guardar la estructura de accesos/permisos en sesión
+            if (!string.IsNullOrEmpty(accesos))
+            {
+                HttpContext.Session.SetString("Accesos", accesos);
+                Console.WriteLine("🔑 Permisos y accesos del usuario cargados exitosamente en memoria.");
+            }
+            else
+            {
+                HttpContext.Session.SetString("Accesos", "[]"); // Inicializador vacío por seguridad
+            }
+
+            Console.WriteLine($"✅ Login completo. Datos almacenados para: {nombreUsuario}");
+
             return Ok();
         }
 

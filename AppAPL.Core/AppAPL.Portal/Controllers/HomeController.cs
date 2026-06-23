@@ -24,7 +24,11 @@ namespace AppWebAPL.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
+            // 2. Extraemos los accesos de la memoria
+            string? jsonAccesos = HttpContext.Session.GetString("Accesos");
+
             ViewBag.UsuarioActual = usuario;
+            ViewBag.AccesosJson = jsonAccesos;
             return View();
         }
 
