@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace AppAPL.Portal.Controllers
 {
-    public class LoginController : Controller
+    public class LoginController (IConfiguration config) : Controller
     {
         // --------------------------------------------------------
         // MÉTODO 1: [HttpGet] - RENDERIZA LA VISTA DE LOGIN
@@ -18,6 +18,9 @@ namespace AppAPL.Portal.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
+
+            // Leemos el emisor válido y lo pasamos a la vista
+            ViewBag.EmisorIdValido = config["Apigee:EmisorID"] ?? "0";
 
             return View(); // Renderiza Login.cshtml
         }
@@ -62,7 +65,7 @@ namespace AppAPL.Portal.Controllers
 
         // ESTE MÉTODO RECIBE LOS DATOS RECOLECTADOS POR AJAX TRAS LAS VALIDACIONES
         [HttpPost]
-        public IActionResult EstablecerSesionLegada(string nombreUsuario, string accesos)
+        public IActionResult EstablecerSesionLegada(string nombreUsuario, string accesos, string usuarioAprobado)
         {
             if (string.IsNullOrEmpty(nombreUsuario))
             {
@@ -71,6 +74,7 @@ namespace AppAPL.Portal.Controllers
 
             // 1. Guardar el nombre del usuario en sesión
             HttpContext.Session.SetString("Usuario", nombreUsuario);
+            HttpContext.Session.SetString("usuarioAprobado", usuarioAprobado);
 
             // 2. Guardar la estructura de accesos/permisos en sesión
             if (!string.IsNullOrEmpty(accesos))

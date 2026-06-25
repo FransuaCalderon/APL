@@ -9,10 +9,12 @@ namespace AppWebAPL.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IConfiguration config;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IConfiguration config)
         {
             _logger = logger;
+            this.config = config;
         }
 
         public IActionResult Index()
@@ -26,9 +28,15 @@ namespace AppWebAPL.Controllers
 
             // 2. Extraemos los accesos de la memoria
             string? jsonAccesos = HttpContext.Session.GetString("Accesos");
+            string? usuarioAprobado = HttpContext.Session.GetString("usuarioAprobado");
 
             ViewBag.UsuarioActual = usuario;
             ViewBag.AccesosJson = jsonAccesos;
+            ViewBag.usuarioAprobadoJson = usuarioAprobado;
+
+            // Leer del appsettings y mandarlo al ViewBag
+            ViewBag.ModuloFiltroId = config["Apigee:ModuloFiltroId"];
+
             return View();
         }
 

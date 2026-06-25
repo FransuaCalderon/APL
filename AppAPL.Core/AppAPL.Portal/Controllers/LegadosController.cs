@@ -1,9 +1,10 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace AppAPL.Portal.Controllers
 {
@@ -12,11 +13,15 @@ namespace AppAPL.Portal.Controllers
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _config;
+        private readonly ApigeeTokenService tokenService;
+        private readonly ILogger<LegadosController> logger;
 
-        public LegadosController(IHttpClientFactory httpClientFactory, IConfiguration config)
+        public LegadosController(IHttpClientFactory httpClientFactory, IConfiguration config, ApigeeTokenService tokenService, ILogger<LegadosController> logger)
         {
             _httpClientFactory = httpClientFactory;
             _config = config;
+            this.tokenService = tokenService;
+            this.logger = logger;
         }
 
         // PASO 1: Captura el email del usuario logueado (claim SAML) y consulta el
@@ -26,9 +31,14 @@ namespace AppAPL.Portal.Controllers
         [HttpGet("/api/consultar-usuario")]
         public async Task<IActionResult> ConsultarUsuario(CancellationToken cancellationToken)
         {
-            var email = "dahe@outlook.com";//GetEmailClaim();
+            //var email = GetEmailClaim();
+            var email = "dahe@outlook.com";
+            logger.LogInformation($"email obtenido: {email}");
+
+
             if (string.IsNullOrWhiteSpace(email))
             {
+                logger.LogError("No se encontró el claim de email del usuario.");
                 return BadRequest(new { error = "No se encontró el claim de email del usuario." });
             }
 
@@ -39,13 +49,17 @@ namespace AppAPL.Portal.Controllers
 
             if (status != System.Net.HttpStatusCode.OK || string.IsNullOrWhiteSpace(body))
             {
+                logger.LogError($"Error al llamar al servicio legado (HTTP {(int)status}).");
                 return StatusCode((int)status, new { error = $"Error al llamar al servicio legado (HTTP {(int)status}).", raw = body });
             }
 
             var columns = ExtractAllColumns(body);
+
+
             if (columns is null || columns.Count == 0)
             {
-                return NotFound(new { error = "No se encontró un usuario para el email indicado.", raw = body });
+                logger.LogError("No se encontró un usuario para el email indicado.");
+                //return NotFound(new { error = "No se encontró un usuario para el email indicado.", raw = body });
             }
 
             return Ok(columns);
@@ -132,17 +146,26 @@ namespace AppAPL.Portal.Controllers
 
             var json = JsonSerializer.Serialize(payload);
 
+
+            var token = await tokenService.GetTokenAsync();
+
             var client = _httpClientFactory.CreateClient("apigee");
+
+            //logger.LogInformation($"token obtenido: {token}");
+
+
             using var request = new HttpRequestMessage(HttpMethod.Post, _config["Apigee:Url"])
             {
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
-
+            /*
             var authHeader = _config["Apigee:AuthorizationHeader"];
             if (!string.IsNullOrWhiteSpace(authHeader))
             {
                 request.Headers.TryAddWithoutValidation("Authorization", authHeader);
-            }
+            }*/
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await client.SendAsync(request, cancellationToken);
             var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);

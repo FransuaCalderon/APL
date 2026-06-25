@@ -6,6 +6,32 @@ $(function () {
     let apiBaseUrl = null;
     let apigeeToken = null;
 
+    let opcionesCorporativas = null;
+
+
+    console.log("window.appConfig: ", window.appConfig);
+    if (window.appConfig) {
+        moduloIdFiltro = window.appConfig.moduloIdFiltro;
+        misAccesos = window.appConfig.misAccesos;
+        usuarioAprobado = window.appConfig.usuarioAprobado;
+
+        // Aplicamos el filtrado usando la variable dinámica
+        accesosFiltrados = misAccesos.filter(x => x.ModuloID === moduloIdFiltro);
+
+        console.log("Mis permisos totales:", misAccesos);
+        console.log("Usuario Aprobado:", usuarioAprobado);
+        console.log(`Accesos Filtrados (Módulo ${moduloIdFiltro}):`, accesosFiltrados);
+
+        opcionesCorporativas = accesosFiltrados.map(item => ({
+            idopcion: item.SecuenciaID
+        }));
+
+        console.log("opcionesCorporativas: ", opcionesCorporativas);
+
+        // Aquí podrías usar 'accesosFiltrados' para ocultar botones o columnas en tu DataTable
+        // Ejemplo: if (!accesosFiltrados.some(a => a.PermiteCrear)) { $('#btnAgregarNuevo').hide(); }
+    }
+
     /* ======================================================
      * 1. OBTENER CONFIGURACIÓN (Api Router)
      * ====================================================== */
@@ -64,6 +90,8 @@ $(function () {
     /* ======================================================
      * 3. CONSUMIR APIGEE API ROUTER (POST)
      * ====================================================== */
+
+    
     function consumirApigeeMenu() {
         const payload = {
             code_app: "APP20260128155212346",
@@ -95,6 +123,49 @@ $(function () {
             }
         });
     }
+
+    /*
+    function consumirApigeeMenu() {
+
+        const body = {
+            idusuario: usuarioAprobado.UsuarioID,
+            opcioneslista: opcionesCorporativas
+        }
+
+        console.log("body para el menu: ", body);
+
+
+        const payload = {
+            code_app: "APP20260128155212346",
+            http_method: "POST",
+            endpoint_path: "api/Opciones/listarOpcionesAutorizadasCorporativa",
+            client: "APL",
+            body_request: body
+            //endpoint_query_params: `/${window.usuarioActual}`
+        };
+
+        return $.ajax({
+            url: "/api/apigee-router-proxy",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function (resp) {
+                console.log("✅ Menú cargado correctamente");
+                // Aquí puedes llamar a tu función que renderiza el menú
+            },
+            error: function (xhr) {
+                // Validamos si el código de estado es 500 o superior (errores de servidor)
+                if (xhr.status >= 500) {
+                    console.error("❌ Error Crítico en el Servidor:", xhr.status);
+                    alert("El servicio de Apigee no está disponible actualmente. Por favor, contacte a soporte.");
+                } else if (xhr.status === 400) {
+                    console.warn("⚠️ Error de Validación (400): Revise los parámetros enviados.");
+                } else {
+                    console.error("❌ Error inesperado:", xhr.status, xhr.responseText);
+                }
+            }
+        });
+    }*/
 
     /* ======================================================
      * 4. RENDERIZAR MENÚ

@@ -35,7 +35,12 @@
         }
         else
         {
-            <form class="login-form" id="legacyForm">
+            <div id="loadingData" class="text-center" style="margin: 30px 0;">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                <p id="loadingText" class="mt-3" style="color: #555; font-weight: 500;">Buscando usuarios vinculados...</p>
+            </div>
+
+            <form class="login-form" id="legacyForm" style="display:none;">
                 <div class="form-group">
                     <label>País</label>
                     <select class="form-control" disabled><option>EC - Ecuador</option></select>
@@ -64,16 +69,17 @@
 
                 <button type="submit" id="btnIngresar" class="btn btn-primary" disabled>Validando...</button>
             </form>
-            
+
             <div class="text-center mt-3">
                 <a href="/Auth/Logout" class="text-muted" style="font-size: 12px;">Ingresar con otra cuenta de Microsoft</a>
             </div>
         }
 
+        <!--
         <div class="language-switch">
             <span>Cambiar idioma:</span>
             <select class="language-select"><option value="es" selected>ES</option><option value="en">EN</option></select>
-        </div>
+        </div>-->
     </div>
 </div>
 
@@ -84,90 +90,154 @@
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script>
             $(document).ready(function () {
+                var $form = $("#legacyForm");
+                var $loader = $("#loadingData");
+                var $loaderText = $("#loadingText");
+                var $errorMsg = $("#errorMsg");
+
+                // 1. Capturamos el Emisor Válido desde el servidor
+                var emisorIdValido = '@ViewBag.EmisorIdValido';
+
                 // 1. Consultar usuarios en Apigee usando el correo del claim SAML
                 $.ajax({
                     url: "/api/consultar-usuario",
                     method: "GET"
                 }).done(function (lista) {
-                    var $select = $("#usuarioLegado");
-                    $select.empty();
+                    console.log("lista usuarios: ", lista);
 
-                    if (lista && lista.length > 0) {
+                    //prueba para simular un solo usuario
+                    /*
+                    const lista = listaapi.filter((item, indice) => indice == 0);
+                    console.log("lista: ", lista);*/
+
+                    if (lista && lista.length === 1) {
+                        // ==========================================
+                        // CASO 1: UN SOLO USUARIO (Auto-Login)
+                        // ==========================================
+                        $loaderText.text("Usuario detectado. Cargando accesos...");
+
+                        var u = lista[0];
+                        var nombreSeleccionado = u.NombreUsuario;
+                        // Extraemos el ID directamente del primer usuario de la lista
+                        var usuarioId = u.UsuarioID || u.UsuarioId || u.id || u.CodigoUsuario;
+
+                        // Saltamos directo a cargar accesos
+                        cargarAccesosYRedirigir(usuarioId, nombreSeleccionado, u);
+
+                    } else if (lista && lista.length > 1) {
+                        // ==========================================
+                        // CASO 2: MÚLTIPLES USUARIOS (Mostrar Combo)
+                        // ==========================================
+                        var $select = $("#usuarioLegado");
+                        $select.empty();
+
                         lista.forEach(function (u) {
                         $select.append(`<option value="${u.CodigoUsuario}">${u.NombreUsuario}</option>`);
                         });
+
+                        // Ocultamos el loader y mostramos el formulario
+                        $loader.hide();
+                        $form.fadeIn();
                         $("#btnIngresar").prop("disabled", false).text("Ingresar");
+
                     } else {
-                        $("#errorMsg").text("No se encontraron usuarios legados para su correo.").show();
+                        // ==========================================
+                        // CASO 3: CERO USUARIOS
+                        // ==========================================
+                        $loader.hide();
+                        $form.fadeIn();
+                        $errorMsg.text("No se encontraron usuarios legados para su correo.").show();
                         $("#btnIngresar").text("Sin acceso");
                     }
                 }).fail(function () {
-
-                    $("#errorMsg").text("Error al consultar el sistema legado en Apigee.").show();
+                    $loader.hide();
+                    $form.fadeIn();
+                    $errorMsg.text("Error al consultar el sistema legado en Apigee.").show();
                     $("#btnIngresar").text("Error de conexión");
-
                 });
 
-            // 2. Enviar contraseña al LegadosController
-            $("#legacyForm").on("submit", function (e) {
-            e.preventDefault();
-            $("#btnIngresar").prop("disabled", true).text("Comprobando credenciales...");
-            $("#errorMsg").hide();
+                // 2. Enviar contraseña al LegadosController (SOLO SE EJECUTA SI HUBO > 1 USUARIO)
+                $form.on("submit", function (e) {
+                    e.preventDefault();
+                    $("#btnIngresar").prop("disabled", true).text("Comprobando credenciales...");
+                    $errorMsg.hide();
 
-            var codigoSeleccionado = $("#usuarioLegado").val();
-            var nombreSeleccionado = $("#usuarioLegado option:selected").text();
+                    var codigoSeleccionado = $("#usuarioLegado").val();
+                    var nombreSeleccionado = $("#usuarioLegado option:selected").text();
 
-            var payload = {
-            codigoUsuario: codigoSeleccionado,
-            password: $("#contrasena").val()
-            };
+                    var payload = {
+                        codigoUsuario: codigoSeleccionado,
+                        password: $("#contrasena").val()
+                    };
 
-            // Paso A: Validar credenciales del usuario
-            $.ajax({
-            url: "/api/obtener-usuario",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(payload)
-            }).done(function (usuarioAprobado) {
-            console.log("usuarioAprobado",usuarioAprobado);
-            // Se extrae el ID único del usuario retornado por Apigee
-            // (Adaptar la propiedad según la estructura exacta de tu JSON, ej: UsuarioId o Id)
-            var usuarioId = usuarioAprobado.UsuarioID || usuarioAprobado.UsuarioId || (usuarioAprobado[0] && usuarioAprobado[0].UsuarioId) || usuarioAprobado.id;
-            console.log("usuarioId",usuarioId);
+                    // Paso A: Validar credenciales de la contraseña manual
+                    $.ajax({
+                        url: "/api/obtener-usuario",
+                        method: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(payload)
+                    }).done(function (usuarioAprobado) {
+                        console.log("usuarioAprobado", usuarioAprobado);
 
-            $("#btnIngresar").text("Cargando accesos y permisos...");
 
-            // Paso B: Consultar los accesos asignados al UsuarioId
-            $.ajax({
-            url: "/api/accesos",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify({ usuarioId: usuarioId })
-            }).done(function (listaAccesos) {
+                        // Buscamos el EmisorID en la respuesta (Ajusta 'EmisorID' si en tu JSON viene en minúsculas)
+                        var emisorUsuario = usuarioAprobado.EmisorID || usuarioAprobado.emisorID ||
+                            (usuarioAprobado[0] && (usuarioAprobado[0].EmisorID || usuarioAprobado[0].emisorID));
 
-            // Paso C: Enviar el nombre y la lista de accesos serializada a la sesión de .NET
-            $.post("/Login/EstablecerSesionLegada", {
-            nombreUsuario: nombreSeleccionado,
-            accesos: JSON.stringify(listaAccesos) // Guardamos como cadena de texto JSON
-            })
-            .done(function () {
-            window.location.href = "/Home/Index";
+                        // 🔴 VALIDACIÓN DEL EMISOR 🔴
+                        // Convertimos ambos a String por seguridad antes de comparar
+                        if (String(emisorUsuario) !== String(emisorIdValido)) {
+                            $errorMsg.text("Acceso denegado: El usuario no pertenece al emisor autorizado.").show();
+                            $("#btnIngresar").prop("disabled", false).text("Ingresar");
+                            return; // Detenemos la ejecución aquí, no avanza al Home
+                        }
+
+
+
+                        var usuarioId = usuarioAprobado.UsuarioID || usuarioAprobado.UsuarioId ||
+                        (usuarioAprobado[0] && usuarioAprobado[0].UsuarioId) || usuarioAprobado.id;
+
+                        $("#btnIngresar").text("Cargando accesos y permisos...");
+
+                        // Cargar accesos
+                        cargarAccesosYRedirigir(usuarioId, nombreSeleccionado, usuarioAprobado);
+
+                    }).fail(function (xhr) {
+                        var msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : "Usuario o contraseña inválidos.";
+                        $errorMsg.text(msg).show();
+                        $("#btnIngresar").prop("disabled", false).text("Ingresar");
+                    });
+                });
+
+                // ==========================================
+                // FUNCIÓN REUTILIZABLE: Cargar Accesos y Redirigir
+                // ==========================================
+                function cargarAccesosYRedirigir(usuarioId, nombreSeleccionado, usuarioAprobado) {
+                    $.ajax({
+                        url: "/api/accesos",
+                        method: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ usuarioId: usuarioId })
+                    }).done(function (listaAccesos) {
+
+                        // Enviar datos finales a la sesión de .NET
+                        $.post("/Login/EstablecerSesionLegada", {
+                        nombreUsuario: nombreSeleccionado,
+                        accesos: JSON.stringify(listaAccesos),
+                        usuarioAprobado: JSON.stringify(usuarioAprobado)
+                        }).done(function () {
+                        window.location.href = "/Home/Index";
+                        });
+
+                    }).fail(function () {
+                        $loader.hide();
+                        $form.show();
+                        $errorMsg.text("Error al cargar los permisos y accesos del sistema.").show();
+                        $("#btnIngresar").prop("disabled", false).text("Ingresar");
+                    });
+                }
             });
 
-            }).fail(function () {
-            $("#errorMsg").text("Error al cargar los permisos y accesos del sistema.").show();
-            $("#btnIngresar").prop("disabled", false).text("Ingresar");
-            });
-
-            }).fail(function (xhr) {
-            var msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : "Usuario o contraseña inválidos.";
-            $("#errorMsg").text(msg).show();
-            $("#btnIngresar").prop("disabled", false).text("Ingresar");
-            });
-            });
-
-
-            });
         </script>
     
     

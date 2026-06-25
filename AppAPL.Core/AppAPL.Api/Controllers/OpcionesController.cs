@@ -40,6 +40,29 @@ namespace AppAPL.Api.Controllers
             return grupoOpciones;
         }
 
+
+        [HttpPost("listarOpcionesAutorizadasCorporativa")]
+        public async Task<ActionResult<GrupoOpcionDTO>> listarCorporativo(ListarOpcionesAutorizadasRequestDTO requestDTO)
+        {
+            var listaCorporativo = await servicio.ListarOpcionesAutorizadasCorporativa(requestDTO);
+
+            var grupos = listaCorporativo
+                .Select(x => new GrupoDistinctDTO { IdGrupo = x.IdGrupo, Grupo = x.Grupo })
+                .DistinctBy(x => new { x.IdGrupo, x.Grupo }) // 👈 necesitas System.Linq (NET 6+)
+                .ToList();
+
+            //var listaConvertido = listaOpcionesPorRol.ToList();
+
+
+            var grupoOpciones = new GrupoOpcionDTO()
+            {
+                Grupos = grupos,
+                Opciones = listaCorporativo
+            };
+
+            return grupoOpciones;
+        }
+
         [HttpGet("ConsultarCombos/{etiqueta}")]
         public async Task<ActionResult<List<ComboDTO>>> ConsultarCombos(string etiqueta)
         {

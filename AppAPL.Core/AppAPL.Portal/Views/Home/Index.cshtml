@@ -6,12 +6,27 @@
 <script>
     window.usuarioActual = '@usuarioActual';
 
+    
+
 
     // Tomamos el JSON de accesos que el Controlador puso en el ViewBag
     // El Html.Raw evita que .NET codifique las comillas del JSON
+
+    /*
     var misAccesos = @Html.Raw(ViewBag.AccesosJson ?? "[]");
 
+    var usuarioAprobado = @Html.Raw(ViewBag.usuarioAprobadoJson ?? "[]");
+
+    // Leemos el ViewBag directamente en JS
+    var moduloIdFiltro = @ViewBag.ModuloFiltroId;
+
+
+
+    var accesosFiltrados = misAccesos.filter(x => x.ModuloID == moduloIdFiltro);
+
     console.log("Mis permisos cargados en el front son:", misAccesos);
+    console.log("usuarioAprobado: ", usuarioAprobado);
+    console.log("accesosFiltrados: ", accesosFiltrados);*/
 
     // Aquí ya puedes hacer lógica en el front, por ejemplo:
     // si (!misAccesos.some(a => a.Modulo === 'Reportes')) { $('#btnReportes').hide(); }

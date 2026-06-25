@@ -11,5 +11,6 @@ namespace AppAPL.Negocio.Abstracciones
         Task<OpcionDTO?> ObtenerPorIdAsync(int idOpcion);
         Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(string NombreUsuario);
         Task<IEnumerable<ComboDTO>> ConsultarCombos(string etiqueta);
+        Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasCorporativa(ListarOpcionesAutorizadasRequestDTO requestDTO);
     }
 }

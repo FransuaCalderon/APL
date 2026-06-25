@@ -6,6 +6,15 @@
 let tabla;
 let ultimaFilaModificada = null;
 
+
+// Nuevas variables alimentadas desde el servidor (HTML)
+let moduloIdFiltro;
+let misAccesos = [];
+let accesosFiltrados = [];
+let usuarioAprobado = {};
+
+
+
 // ===============================================================
 // FUNCIÓN HELPER PARA OBTENER USUARIO
 // ===============================================================
@@ -20,6 +29,12 @@ function obtenerUsuarioActual() {
 // ===============================================================
 $(function () {
     console.log("=== INICIO DE CARGA - Opciones (Estructura Post-REST) ===");
+
+    // 2. LEER EL PUENTE: Capturamos las variables de window.appConfig
+
+    
+
+
 
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;

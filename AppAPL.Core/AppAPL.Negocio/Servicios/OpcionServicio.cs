@@ -26,5 +26,8 @@ namespace AppAPL.Negocio.Servicios
 
         public Task<IEnumerable<ComboDTO>> ConsultarCombos(string etiqueta)
             => repo.ConsultarCombos(etiqueta);
+
+        public Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasCorporativa(ListarOpcionesAutorizadasRequestDTO requestDTO)
+            => repo.ListarOpcionesAutorizadasCorporativa(requestDTO);
     }
 }

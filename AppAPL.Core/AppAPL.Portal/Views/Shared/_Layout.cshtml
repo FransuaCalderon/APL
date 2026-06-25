@@ -110,6 +110,19 @@
         </div>
     </div>
 
+
+    <script>
+
+        // Creamos el objeto de configuración con los datos del servidor
+        window.appConfig = {
+        moduloIdFiltro: @(ViewBag.ModuloFiltroId ?? "0"),
+        misAccesos: @Html.Raw(ViewBag.AccesosJson ?? "[]"),
+        usuarioAprobado: @Html.Raw(ViewBag.usuarioAprobadoJson ?? "{}")
+        };
+
+
+    </script>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

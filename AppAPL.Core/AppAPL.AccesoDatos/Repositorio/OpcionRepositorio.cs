@@ -1,15 +1,18 @@
 ﻿
-using System.Data;
 using AppAPL.AccesoDatos.Abstracciones;
 using AppAPL.AccesoDatos.Oracle;
+using AppAPL.AccesoDatos.Utilidades;
 using AppAPL.Dto.Catalogo;
 using AppAPL.Dto.Opciones;
 using Dapper;
+using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
+using System.Data;
+using System.Text.Json;
 
 namespace AppAPL_AccesoDatos.Repositorio
 {
-    public sealed class OpcionRepositorio(OracleConnectionFactory factory) : IOpcionRepositorio
+    public sealed class OpcionRepositorio(OracleConnectionFactory factory, ILogger<OpcionRepositorio> logger) : IOpcionRepositorio
     {
         public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasInternas(string NombreUsuario)
         {
@@ -30,6 +33,37 @@ namespace AppAPL_AccesoDatos.Repositorio
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
+
+            return opciones;
+        }
+
+
+        public async Task<IEnumerable<OpcionJoinDTO>> ListarOpcionesAutorizadasCorporativa(ListarOpcionesAutorizadasRequestDTO requestDTO)
+        {
+            using var connection = factory.CreateOpenConnection();
+            var options = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = new LowerCaseNamingPolicy() };
+
+            // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
+            var paramObject = new
+            {
+                p_idusuario = requestDTO.IdUsuario,
+                p_idopcionlista = JsonSerializer.Serialize(requestDTO.OpcionesLista, options)
+            };
+
+
+            logger.LogInformation($"parametros a enviar al sp: {paramObject.ToString()}");
+
+            var parameters = new OracleDynamicParameters(paramObject);
+
+            parameters.Add("p_opciones_out", OracleDbType.RefCursor, ParameterDirection.Output);
+
+            var opciones = await connection.QueryAsync<OpcionJoinDTO>(
+                "APL_PKG_OPCIONES.listarOpcionesAutorizadasCorporativa", // Nombre completo del procedimiento
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            logger.LogInformation($"opciones consultadas: {opciones.Count()}");
 
             return opciones;
         }
