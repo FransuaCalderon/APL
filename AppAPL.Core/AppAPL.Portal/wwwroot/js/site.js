@@ -91,7 +91,7 @@ $(function () {
      * 3. CONSUMIR APIGEE API ROUTER (POST)
      * ====================================================== */
 
-    
+    /*
     function consumirApigeeMenu() {
         const payload = {
             code_app: "APP20260128155212346",
@@ -122,9 +122,9 @@ $(function () {
                 }
             }
         });
-    }
+    }*/
 
-    /*
+    
     function consumirApigeeMenu() {
 
         const body = {
@@ -145,11 +145,12 @@ $(function () {
         };
 
         return $.ajax({
-            url: "/api/apigee-router-proxy",
+            url: "/api/apigee-router-proxy",  //RUTA TEMPORAL HASTA Q ESTE EL API GEE
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify(payload),
             success: function (resp) {
+                //console.log("resp: ", resp);
                 console.log("✅ Menú cargado correctamente");
                 // Aquí puedes llamar a tu función que renderiza el menú
             },
@@ -165,7 +166,7 @@ $(function () {
                 }
             }
         });
-    }*/
+    }
 
     /* ======================================================
      * 4. RENDERIZAR MENÚ
