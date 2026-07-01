@@ -113,11 +113,11 @@
 
     <script>
 
-        // Creamos el objeto de configuración con los datos del servidor
-        window.appConfig = {
-        moduloIdFiltro: @(ViewBag.ModuloFiltroId ?? "0"),
-        misAccesos: @Html.Raw(ViewBag.AccesosJson ?? "[]"),
-        usuarioAprobado: @Html.Raw(ViewBag.usuarioAprobadoJson ?? "{}")
+        // Guardamos lo que viene del servidor en una variable temporal
+        const serverConfig = {
+        moduloIdFiltro: "@(ViewBag.ModuloFiltroId ?? "")",
+        misAccesos: @Html.Raw(ViewBag.AccesosJson ?? "null"),
+        usuarioAprobado: @Html.Raw(ViewBag.usuarioAprobadoJson ?? "null")
         };
 
 

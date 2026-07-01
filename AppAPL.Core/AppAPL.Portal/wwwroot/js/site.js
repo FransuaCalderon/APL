@@ -8,15 +8,51 @@ $(function () {
 
     let opcionesCorporativas = null;
 
+    let moduloIdFiltro = null;
+    let misAccesos = null;
+    let usuarioAprobado = null;
+    let accesosFiltrados = null;
 
-    console.log("window.appConfig: ", window.appConfig);
-    if (window.appConfig) {
+
+    // Función para inicializar y mantener la configuración
+    function inicializarAppConfig() {
+        // 1. Si el servidor envió datos reales (misAccesos no es null)
+        if (typeof serverConfig !== 'undefined' && serverConfig.misAccesos !== null) {
+            // Los guardamos en sessionStorage convertido a texto
+            sessionStorage.setItem('appConfig', JSON.stringify(serverConfig));
+            return serverConfig;
+        }
+
+        // 2. Si el servidor NO envió datos (cambio de vista), buscamos en caché
+        const configGuardada = sessionStorage.getItem('appConfig');
+        if (configGuardada) {
+            return JSON.parse(configGuardada); // Convertimos de texto a objeto JS
+        }
+
+        // 3. Fallback en caso de que no haya ni datos del servidor ni en caché
+        return {
+            moduloIdFiltro: "0",
+            misAccesos: [],
+            usuarioAprobado: {}
+        };
+    }
+
+
+
+    // Asignamos a window.appConfig
+    window.appConfig = inicializarAppConfig();
+
+    console.log("window.appConfig recuperado: ", window.appConfig);
+
+    // Tu lógica original de filtrado
+    if (window.appConfig && window.appConfig.misAccesos.length > 0) {
         moduloIdFiltro = window.appConfig.moduloIdFiltro;
         misAccesos = window.appConfig.misAccesos;
         usuarioAprobado = window.appConfig.usuarioAprobado;
 
         // Aplicamos el filtrado usando la variable dinámica
-        accesosFiltrados = misAccesos.filter(x => x.ModuloID === moduloIdFiltro);
+        // Asegúrate de parsear moduloIdFiltro si en tu BD ModuloID es un entero
+        accesosFiltrados = misAccesos.filter(x => x.ModuloID == moduloIdFiltro);
 
         console.log("Mis permisos totales:", misAccesos);
         console.log("Usuario Aprobado:", usuarioAprobado);
@@ -28,8 +64,10 @@ $(function () {
 
         console.log("opcionesCorporativas: ", opcionesCorporativas);
 
-        // Aquí podrías usar 'accesosFiltrados' para ocultar botones o columnas en tu DataTable
-        // Ejemplo: if (!accesosFiltrados.some(a => a.PermiteCrear)) { $('#btnAgregarNuevo').hide(); }
+        // Lógica para DataTables o botones (Ejemplo)
+        // if (!accesosFiltrados.some(a => a.PermiteCrear)) { $('#btnAgregarNuevo').hide(); }
+    } else {
+        console.warn("No se encontraron accesos en el servidor ni en sessionStorage.");
     }
 
     /* ======================================================
@@ -126,6 +164,8 @@ $(function () {
 
     
     function consumirApigeeMenu() {
+        console.log("consumirApigeeMenu");
+        console.log("usuarioAprobado: ",usuarioAprobado);
 
         const body = {
             idusuario: usuarioAprobado.UsuarioID,

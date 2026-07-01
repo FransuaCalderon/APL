@@ -2367,6 +2367,7 @@ function leerDetalleItemsDesdeTabla() {
 // ===================================================================
 
 function initDatepickers() {
+    console.log("initDatepickers");
     if (!$.datepicker) {
         console.warn("jQuery UI Datepicker no está disponible.");
         return;

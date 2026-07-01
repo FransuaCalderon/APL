@@ -317,6 +317,42 @@ $(function () {
 
         console.log("click btnGuardarFondos");
 
+
+        // 1. Obtener y limpiar los valores de los campos
+        const tipoFondo = $("#fondoTipo").val();
+        const proveedorId = $("#fondoProveedorId").val();
+        const descripcion = $("#fondoDescripcion").val().trim();
+        const fechaInicio = $("#fondoFechaInicio").val().trim();
+        const fechaFin = $("#fondoFechaFin").val().trim();
+        const valorTotal = parsearMoneda($("#fondoValorTotal").val());
+
+        // 2. Validar que no estén vacíos
+        if (!tipoFondo || tipoFondo === "") {
+            return Swal.fire('Atención', 'Por favor, seleccione un Tipo de Fondo.', 'warning');
+        }
+
+        if (!proveedorId || proveedorId === "") {
+            return Swal.fire('Atención', 'Por favor, busque y seleccione un Proveedor.', 'warning');
+        }
+
+        if (descripcion === "") {
+            return Swal.fire('Atención', 'El campo Descripción no puede estar vacío.', 'warning');
+        }
+
+        if (fechaInicio === "") {
+            return Swal.fire('Atención', 'Debe establecer una Fecha de Inicio.', 'warning');
+        }
+
+        if (fechaFin === "") {
+            return Swal.fire('Atención', 'Debe establecer una Fecha de Fin.', 'warning');
+        }
+
+        if (valorTotal <= 0) {
+            return Swal.fire('Atención', 'El Valor Total debe ser mayor a $ 0,00.', 'warning');
+        }
+
+
+
         Swal.fire({
             title: '¿Confirmar guardado?',
             icon: 'question',

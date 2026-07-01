@@ -26,6 +26,8 @@ function obtenerUsuarioActual() {
 $(function () {
     console.log("=== INICIO DE CARGA DE PÁGINA - ModificarFondo (Estructura Post-REST) ===");
 
+    console.log("window.appConfig: ", window.appConfig);
+
     const usuarioFinal = obtenerUsuarioActual();
     console.log("Usuario actual capturado:", usuarioFinal);
 
@@ -328,8 +330,42 @@ function guardarCambiosFondo() {
 
     console.log('Guardando cambios con idOpcion:', idOpcionActual, 'y usuario:', usuario);
 
+    // 1. Obtener y limpiar los valores de los campos
     const id = $("#modal-fondo-id").val();
+    const descripcion = $("#modal-fondo-descripcion").val().trim();
+    const idproveedor = $("#modal-fondo-idproveedor-hidden").val().trim();
+    const idtipofondo = $("#modal-fondo-tipofondo").val();
+    const fechainiciovigencia = $("#modal-fondo-fechainicio").val().trim();
+    const fechafinvigencia = $("#modal-fondo-fechafin").val().trim();
     const valorFondo = desformatearMoneda($("#modal-fondo-valor").val());
+
+
+    // 2. Validaciones de campos vacíos
+    if (!descripcion || descripcion === "") {
+        return Swal.fire('Atención', 'El campo Descripción no puede estar vacío.', 'warning');
+    }
+
+    if (!idproveedor || idproveedor === "") {
+        return Swal.fire('Atención', 'Debe tener un Proveedor seleccionado.', 'warning');
+    }
+
+    if (!idtipofondo || idtipofondo === "") {
+        return Swal.fire('Atención', 'Por favor, seleccione un Tipo de Fondo.', 'warning');
+    }
+
+    if (!fechainiciovigencia || fechainiciovigencia === "") {
+        return Swal.fire('Atención', 'Debe establecer una Fecha de Inicio.', 'warning');
+    }
+
+    if (!fechafinvigencia || fechafinvigencia === "") {
+        return Swal.fire('Atención', 'Debe establecer una Fecha de Fin.', 'warning');
+    }
+
+    if (valorFondo <= 0) {
+        return Swal.fire('Atención', 'El Valor Fondo debe ser mayor a $ 0,00.', 'warning');
+    }
+
+
 
     const body = {
         idfondo: parseInt(id),
@@ -348,6 +384,9 @@ function guardarCambiosFondo() {
     };
 
     console.log("Datos a guardar:", body);
+
+    // Habilitar antes de enviar
+    $('#modal-fondo-tipofondo').prop('disabled', false);
 
     Swal.fire({
         title: 'Guardando...',
@@ -660,6 +699,8 @@ function abrirModalFondo(datos) {
 
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+
+    $('#modal-fondo-tipofondo').prop('disabled', true);
 }
 
 function cerrarModalFondo() {
