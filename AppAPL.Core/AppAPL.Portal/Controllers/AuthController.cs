@@ -19,10 +19,16 @@ namespace AppAPL.Portal.Controllers
     {
         private const string RelayStateReturnUrl = "returnUrl";
         private readonly Saml2Configuration _config;
+        private readonly IConfiguration configuration;
+        private readonly ILogger<AuthController> logger;
+        private string baseUrl;
 
-        public AuthController(IOptionsMonitor<Saml2Configuration> configAccessor)
+        public AuthController(IOptionsMonitor<Saml2Configuration> configAccessor, IConfiguration configuration, ILogger<AuthController> logger)
         {
             _config = configAccessor.CurrentValue;
+            this.configuration = configuration;
+            this.logger = logger;
+            baseUrl = configuration["Saml2:BaseUrl"];
         }
 
         // SP-initiated login
@@ -31,10 +37,13 @@ namespace AppAPL.Portal.Controllers
         public IActionResult Login([FromQuery] string? returnUrl = null)
         {
             var binding = new Saml2RedirectBinding();
+
+            logger.LogInformation($"baseUrl: {baseUrl}");
+
             binding.SetRelayStateQuery(new Dictionary<string, string?>
-        {
-            { RelayStateReturnUrl, string.IsNullOrWhiteSpace(returnUrl) ? "https://localhost:5443/" : returnUrl }
-        });
+            {
+                { RelayStateReturnUrl, string.IsNullOrWhiteSpace(returnUrl) ? baseUrl : returnUrl }
+            });
 
             var request = new Saml2AuthnRequest(_config);
             return binding.Bind(request).ToActionResult();
@@ -47,15 +56,13 @@ namespace AppAPL.Portal.Controllers
             var httpRequest = Request.ToGenericHttpRequest(validate: true);
             var saml2AuthnResponse = new Saml2AuthnResponse(_config);
 
+            // Mantenlo con el Unbind normal
             httpRequest.Binding.Unbind(httpRequest, saml2AuthnResponse);
-
-            //await saml2AuthnResponse.CreateSession(HttpContext,
-            //    ClaimsTransform: (claimsPrincipal) => ClaimsTransform.Transform(claimsPrincipal));
 
             await saml2AuthnResponse.CreateSession(HttpContext);
 
             var returnUrl = httpRequest.Binding.GetRelayStateQuery()[RelayStateReturnUrl];
-            return Redirect(string.IsNullOrWhiteSpace(returnUrl) ? "https://localhost:5173/" : returnUrl);
+            return Redirect(string.IsNullOrWhiteSpace(returnUrl) ? baseUrl : returnUrl);
         }
 
         [HttpGet("/auth/logout")]
@@ -63,7 +70,7 @@ namespace AppAPL.Portal.Controllers
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return Redirect("https://localhost:5173/");
+                return Redirect(baseUrl);
             }
 
             var binding = new Saml2PostBinding();
@@ -80,7 +87,7 @@ namespace AppAPL.Portal.Controllers
         [HttpPost("/auth/loggedout")]
         public IActionResult LoggedOut()
         {
-            return Redirect("https://localhost:5173/");
+            return Redirect(baseUrl);
         }
 
     }

@@ -126,6 +126,7 @@ namespace AppAPL.Portal.Controllers
                 return NotFound(new { error = "El usuario no tiene accesos configurados." });
             }
 
+            //HttpContext.Session.SetString("Usuario", body.UsuarioId.ToString());
             return Ok(columns);
         }
 

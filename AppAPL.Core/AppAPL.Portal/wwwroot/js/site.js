@@ -50,6 +50,8 @@ $(function () {
         misAccesos = window.appConfig.misAccesos;
         usuarioAprobado = window.appConfig.usuarioAprobado;
 
+        window.usuarioActual = window.appConfig.usuarioAprobado.CodigoUsuario;
+
         // Aplicamos el filtrado usando la variable dinámica
         // Asegúrate de parsear moduloIdFiltro si en tu BD ModuloID es un entero
         accesosFiltrados = misAccesos.filter(x => x.ModuloID == moduloIdFiltro);
@@ -57,6 +59,7 @@ $(function () {
         console.log("Mis permisos totales:", misAccesos);
         console.log("Usuario Aprobado:", usuarioAprobado);
         console.log(`Accesos Filtrados (Módulo ${moduloIdFiltro}):`, accesosFiltrados);
+        console.log("window.usuarioActual: ", window.usuarioActual);
 
         opcionesCorporativas = accesosFiltrados.map(item => ({
             idopcion: item.SecuenciaID
