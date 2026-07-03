@@ -88,6 +88,7 @@ namespace AppAPL.Portal.Controllers
         public IActionResult LoggedOut()
         {
             return Redirect(baseUrl);
+            //return RedirectToAction("Login", "Login");
         }
 
     }

@@ -31,8 +31,8 @@ namespace AppAPL.Portal.Controllers
         [HttpGet("/api/consultar-usuario")]
         public async Task<IActionResult> ConsultarUsuario(CancellationToken cancellationToken)
         {
-            //var email = GetEmailClaim();
-            var email = "dahe@outlook.com";
+            var email = GetEmailClaim();
+            //var email = "dahe@outlook.com";
             logger.LogInformation($"email obtenido: {email}");
 
 

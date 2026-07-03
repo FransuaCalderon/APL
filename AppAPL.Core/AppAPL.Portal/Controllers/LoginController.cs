@@ -1,7 +1,9 @@
 ﻿// Controllers/LoginController.cs
 
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AppAPL.Portal.Controllers
 {
@@ -95,10 +97,21 @@ namespace AppAPL.Portal.Controllers
         // --------------------------------------------------------
         // MÉTODO 3: Logout - Cerrar sesión
         // --------------------------------------------------------
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
+            // 1. Limpias la sesión local (variables temporales, carrito, etc.)
             HttpContext.Session.Clear();
+
+            // 2. Destruyes la cookie de autenticación principal
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // IMPORTANTE: Si estás usando un esquema específico para SAML o OpenID, 
+            // debes cerrar sesión explícitamente en ese esquema también. 
+            // Descomenta la siguiente línea y reemplaza el string por el nombre de tu esquema si es necesario:
+            // await HttpContext.SignOutAsync("TuEsquemaMicrosoftOSAML");
+
             Console.WriteLine("🚪 Usuario cerró sesión");
+
             return RedirectToAction("Login");
         }
 
