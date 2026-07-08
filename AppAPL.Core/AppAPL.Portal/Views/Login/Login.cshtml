@@ -95,6 +95,36 @@
             var $loaderText = $("#loadingText");
             var $errorMsg = $("#errorMsg");
 
+            var ipCLiente = null;
+
+
+            async function obtenerIpCliente() {
+            try {
+            // Recuerda cambiar la URL por la ruta real o puerto de tu API en .NET 9
+            const response = await $.ajax({
+            url: '/api/mi-ip',
+            type: 'GET',
+            dataType: 'json'
+            });
+
+            // Retornamos directamente el valor que vino del JSON {"ip": "::1"}
+            return response.ip;
+
+            } catch (error) {
+            console.error("Error al consumir el endpoint consultar ip:", error);
+            return null;
+            }
+            }
+
+
+            obtenerIpCliente().then(ip => {
+                if (ip) {
+                    
+                    ipCLiente = ip;
+                    console.log("IP retornada:", ipCLiente);
+                }
+            });
+
             // 1. Capturamos el Emisor Válido desde el servidor
             var emisorIdValido = '@ViewBag.EmisorIdValido';
 
@@ -117,6 +147,8 @@
             $loaderText.text("Usuario detectado. Cargando accesos...");
 
             var u = lista[0];
+
+            u.ip = ipCLiente;
             var nombreSeleccionado = u.NombreUsuario;
             // Extraemos el ID directamente del primer usuario de la lista
             //var usuarioId = u.UsuarioID || u.UsuarioId || u.id || u.CodigoUsuario;
@@ -133,6 +165,7 @@
             $select.empty();
 
             lista.forEach(function (u) {
+            u.ip = ipCLiente;
             $select.append(`<option value="${u.CodigoUsuario}">${u.NombreUsuario}</option>`);
             });
 
@@ -221,6 +254,8 @@
             data: JSON.stringify({ usuarioId: usuarioId })
             }).done(function (listaAccesos) {
 
+            console.log("listaAccesos: ", listaAccesos);
+
             // Enviar datos finales a la sesión de .NET
             $.post("/Login/EstablecerSesionLegada", {
             nombreUsuario: nombreSeleccionado,
@@ -236,7 +271,13 @@
             $errorMsg.text("Error al cargar los permisos y accesos del sistema.").show();
             $("#btnIngresar").prop("disabled", false).text("Ingresar");
             });
+            
+            
+
             }
+
+
+
             });
 
         </script>

@@ -95,3 +95,19 @@
 	font-size: 1rem !important;
 	border: none !important;
 }
+
+.icono-circular {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px; /* Ancho del círculo */
+	height: 20px; /* Alto del círculo (debe ser igual al ancho) */
+	border-radius: 50%; /* Esto convierte el cuadro en un círculo perfecto */
+	font-size: 1px; /* Tamaño del ícono */
+	background-color: #212529; /* Color de fondo del círculo */
+	color: #ffffff; /* Color del ícono */
+	/* opcional: si quieres solo un borde en lugar de fondo relleno, usa esto: */
+	/* border: 3px solid #212529; */
+	/* background-color: transparent; */
+	/* color: #212529; */
+}

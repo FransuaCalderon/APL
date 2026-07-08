@@ -36,6 +36,7 @@ namespace AppWebAPL.Controllers
 
             // Leer del appsettings y mandarlo al ViewBag
             ViewBag.ModuloFiltroId = config["Apigee:ModuloFiltroId"];
+            
 
             return View();
         }

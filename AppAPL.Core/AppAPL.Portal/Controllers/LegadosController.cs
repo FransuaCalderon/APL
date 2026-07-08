@@ -24,6 +24,53 @@ namespace AppAPL.Portal.Controllers
             this.logger = logger;
         }
 
+        [HttpGet("/api/mi-ip")]
+        public async Task<ActionResult> ObtenerIpCliente()
+        {
+            string ipCliente = ObtenerIpReal();
+
+            // Retornamos un objeto JSON limpio para el front
+            return Ok(new { ip = ipCliente });
+        }
+
+        private string ObtenerIpReal()
+        {
+            // 1. Si usas Cloudflare, este encabezado siempre tiene la IP real del cliente
+            if (Request.Headers.TryGetValue("CF-Connecting-IP", out var cloudflareIp))
+            {
+                return cloudflareIp.ToString();
+            }
+
+            // 2. Si estás detrás de Nginx, IIS, Docker o un balanceador de carga estándar
+            if (Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
+            {
+                // X-Forwarded-For puede devolver una lista separada por comas: "ip_cliente, ip_proxy1, ip_proxy2"
+                // La primera siempre es la del cliente original
+                var ipList = forwardedFor.ToString().Split(',');
+                if (ipList.Length > 0 && !string.IsNullOrWhiteSpace(ipList[0]))
+                {
+                    return ipList[0].Trim();
+                }
+            }
+
+            // 3. Conexión directa (Desarrollo local sin proxy o conexión expuesta directamente)
+            var remoteIp = HttpContext.Connection.RemoteIpAddress;
+
+            if (remoteIp != null)
+            {
+                // Si la IP viene en formato IPv4 mapeado a IPv6 (ej. ::ffff:192.168.1.1), la limpiamos a IPv4
+                if (remoteIp.IsIPv4MappedToIPv6)
+                {
+                    remoteIp = remoteIp.MapToIPv4();
+                }
+                return remoteIp.ToString();
+            }
+
+            return "IP no disponible";
+        }
+
+
+
         // PASO 1: Captura el email del usuario logueado (claim SAML) y consulta el
         // sistema legado (ConsultarUsuarioXEmail). Devuelve la LISTA de usuarios (Columns)
         // para poblar el combo (un email puede tener varios usuarios).

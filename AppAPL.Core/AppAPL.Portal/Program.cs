@@ -8,11 +8,23 @@ using ITfoxtec.Identity.Saml2.MvcCore.Configuration;
 using ITfoxtec.Identity.Saml2.Schemas;
 using ITfoxtec.Identity.Saml2.Schemas.Metadata;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 1. Configurar los servicios para confiar en los encabezados del proxy
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    // Por seguridad, puedes limpiar estas listas si tu proxy está en la misma máquina o red
+    // Si no conoces la IP de tu proxy de antemano, puedes vaciar las redes conocidas (con precaución)
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // ✅ Logging
 builder.Logging.ClearProviders();
@@ -69,6 +81,7 @@ builder.Services.AddHttpClient("ApiClient", (sp, client) =>
 // ✅ AGREGAR SERVICIOS SAML Y AUTH (NUEVO)
 // ✅ ============================================
 builder.Services.AddHttpContextAccessor(); // Requerido para leer cookies
+builder.Services.AddSession();
 builder.Services.AddHttpClient("apigee");  // Usado por LegadosController
 
 builder.Services
@@ -141,6 +154,10 @@ app.UseStaticFiles();
 app.UseSession();
 
 app.UseRouting();
+
+
+// 2. ¡IMPORTANTE! Debe ir ANTES de UseRouting, UseAuthentication, UseAuthorization, etc.
+app.UseForwardedHeaders();
 
 
 // ✅ ============================================

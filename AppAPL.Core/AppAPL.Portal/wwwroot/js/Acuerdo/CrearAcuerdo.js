@@ -1586,6 +1586,8 @@
                             $("#fondoFechaFinItems").val("");
                             $("#fondoValorTotalItems").val("");
                             $("#tablaItemsBody").empty();
+
+                            restaurarEtiquetasPorDefecto(); // 👈 AÑADIR AQUÍ
                         });
                     } else {
                         const mensajeError = response.json_response?.mensaje || 'Error al guardar el acuerdo';
@@ -1712,6 +1714,8 @@
                         $("#fondoFechaFinGeneral").val("");
                         $("#fondoValorTotalGeneral").val("");
                         $("#fondoDisponibleGeneral").val("");
+
+                        restaurarEtiquetasPorDefecto(); // 👈 AÑADIR AQUÍ
                     } else {
                         const mensajeError = response.json_response?.mensaje || 'Error al guardar el acuerdo';
                         Swal.fire({
@@ -1899,26 +1903,52 @@
     }
 
     // -----------------------------
-    // Actualizar etiquetas dinámicas según Tipo de Fondo
+    // Actualizar etiquetas dinámicas según Tipo de Fondo (General e Items)
     // -----------------------------
     function actualizarEtiquetasDinamicasFondo(tipoFondo) {
         if (!tipoFondo) return;
 
-        // 1. Actualizar encabezados de la tabla
+        const tipoAcuerdo = getTipoAcuerdo();
+
+        if (tipoAcuerdo === "Items") {
+            // 1. Actualizar encabezados de la tabla en Items
+            const $thead = $("#tablaItemsBody").closest("table").find("thead");
+            $thead.find("th.custom-header-calc-bg").first().text(`Comprometido ${tipoFondo}`);
+            $thead.find("th").filter(function () {
+                return $(this).text().toLowerCase().includes("aporte");
+            }).first().text(`Aporte por Unidad - ${tipoFondo}`);
+
+            // 2. Actualizar Labels de los inputs en Items
+            $("#fondoProveedorItems").closest("div[class*='col-']").find("label").first().text(`ID Fondo - ${tipoFondo}`);
+            $("#fondoValorTotalItems").closest("div[class*='col-']").find("label").first().text(`${tipoFondo} - Valor Total`);
+
+        } else if (tipoAcuerdo === "General") {
+            // 3. Actualizar Label en el formulario General
+            $("#fondoProveedorGeneral").closest("div[class*='col-']").find("label").first().text(`ID Fondo - ${tipoFondo}`);
+        }
+
+        console.log(`✅ Etiquetas actualizadas dinámicamente a: "${tipoFondo}" para el acuerdo tipo: "${tipoAcuerdo}"`);
+    }
+
+    // -----------------------------
+    // Restaurar etiquetas a su estado inicial en blanco (sin tipo de fondo)
+    // -----------------------------
+    function restaurarEtiquetasPorDefecto() {
+        // Restaurar en formulario General
+        $("#fondoProveedorGeneral").closest("div[class*='col-']").find("label").first().text("ID Fondo");
+
+        // Restaurar en formulario Items
+        $("#fondoProveedorItems").closest("div[class*='col-']").find("label").first().text("ID Fondo");
+        $("#fondoValorTotalItems").closest("div[class*='col-']").find("label").first().text("Valor Total");
+
+        // Restaurar encabezados de la tabla de Items
         const $thead = $("#tablaItemsBody").closest("table").find("thead");
-
-        $thead.find("th.custom-header-calc-bg").first().text(`Comprometido ${tipoFondo}`);
-
+        $thead.find("th.custom-header-calc-bg").first().text("Comprometido");
         $thead.find("th").filter(function () {
             return $(this).text().toLowerCase().includes("aporte");
-        }).first().text(`Aporte por Unidad - ${tipoFondo}`);
+        }).first().text("Aporte por Unidad");
 
-        // 2. Actualizar Labels de los inputs (Búsqueda relativa en el DOM)
-        // Buscamos la columna padre ("col-md-x") y dentro seleccionamos el <label>
-        $("#fondoProveedorItems").closest("div[class*='col-']").find("label").first().text(`ID Fondo - ${tipoFondo}`);
-        $("#fondoValorTotalItems").closest("div[class*='col-']").find("label").first().text(`${tipoFondo} - Valor Total`);
-
-        console.log(`✅ Etiquetas y encabezados actualizados dinámicamente a: "${tipoFondo}"`);
+        console.log("🧹 Etiquetas restauradas a su estado inicial (sin tipo de fondo)");
     }
 
     // -----------------------------
@@ -2020,7 +2050,7 @@
                 valorfondo: proveedorTemporal.valorfondo, // 👉 AÑADIR ESTA LÍNEA
             });
 
-            if (getTipoAcuerdo() === "Items" && proveedorTemporal.tipoFondo) {
+            if (proveedorTemporal.tipoFondo) {
                 actualizarEtiquetasDinamicasFondo(proveedorTemporal.tipoFondo);
             }
 
@@ -2247,6 +2277,8 @@
                     $("#fondoValorTotalGeneral").val("");
                     $("#fondoDisponibleGeneral").val("");
 
+                    restaurarEtiquetasPorDefecto(); // 👈 AÑADIR AQUÍ
+
                     Swal.fire({
                         toast: true,
                         position: 'top-end',
@@ -2293,6 +2325,8 @@
 
                     $("#acuerdoTipo").val("General").trigger("change");
 
+                    restaurarEtiquetasPorDefecto(); // 👈 AÑADIR AQUÍ (y puedes borrar las líneas donde cambiabas el texto manualmente ahí dentro)
+
                     Swal.fire({
                         toast: true,
                         position: 'top-end',
@@ -2306,15 +2340,7 @@
         });
 
 
-        // Restaurar los textos a su estado por defecto
-        const $thead = $("#tablaItemsBody").closest("table").find("thead");
-        $thead.find("th.custom-header-calc-bg").first().text("Comprometido Proveedor");
-        $thead.find("th").filter(function () {
-            return $(this).text().toLowerCase().includes("aporte");
-        }).first().text("Aporte por Unidad - Proveedor");
-
-        $("#fondoProveedorItems").closest("div[class*='col-']").find("label").first().text("ID Fondo - Proveedor");
-        $("#fondoValorTotalItems").closest("div[class*='col-']").find("label").first().text("Proveedor - Valor Total");
+        restaurarEtiquetasPorDefecto();
 
 
         // Activar el buscador de los items en "Detalle de los Artículos"

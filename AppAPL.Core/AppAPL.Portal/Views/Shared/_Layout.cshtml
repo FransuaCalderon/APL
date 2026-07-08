@@ -1,8 +1,26 @@
 ﻿@using Microsoft.AspNetCore.Http
 
+@* 1. Inyectamos los servicios en la parte superior del Layout *@
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
+
 @{
+    // 2. Extraemos los datos directamente de la sesión (sobrevivirán en todas las vistas)
+    var session = HttpContextAccessor.HttpContext?.Session;
+
+    var accesosJson = session?.GetString("Accesos") ?? "[]";
+    var usuarioAprobadoJson = session?.GetString("usuarioAprobado") ?? "null";
+    var moduloFiltroId = Config["Apigee:ModuloFiltroId"] ?? "0";
+}
+
+@{
+    // 2. Extraemos los datos de la sesión y configuración directamente en el Layout
+    var httpContext = HttpContextAccessor.HttpContext;
+
+
     // Leemos el usuario desde la sesión
     var usuarioActual = Context.Session.GetString("Usuario") ?? "Usuario";
+    
 }
 
 <!DOCTYPE html>
@@ -47,6 +65,7 @@
 
     <script src="~/js/sweetalert2.all.min.js"></script>
     <script src="~/js/font-awesome/7.2.0/all.js"></script>
+    <script src="~/js/jquery-3.7.1.min.js" asp-append-version="true"></script>
 </head>
 
 <body>
@@ -55,14 +74,22 @@
             <div class="container-fluid">
                 <div class="d-flex align-items-center justify-content-between">
                     <a href="/" class="d-flex align-items-center text-white text-decoration-none">
-                        <span class="logo-text me-2">BM</span>
-                        <span style="font-size: 1.25rem; font-weight: bold;">APL Software</span>
+                        <!-- 1. Quitamos el 50% y usamos me-3 (margin-end) para dar una separación elegante -->
+                        <span class="logo-text me-3">BM</span>
+                        <!-- 2. Agregamos la clase text-nowrap para impedir que el texto se divida en dos líneas -->
+                        <span class="text-nowrap" style="font-size: 1.25rem; font-weight: bold;">APL Software</span>
+                    </a>
+
+                    <a class="dropdown-item text-dark text-right text-white" href="#" style="text-align:right">
+                        <b>@usuarioActual</b>
                     </a>
 
                     <ul class="nav text-small mb-0">
+
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link text-white dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="https://github.com/mdo.png" alt="Perfil" width="32" height="32" class="rounded-circle">
+                              
+                                <i class="fa-regular fa-circle-user fa-2x"></i>
                             </a>
 
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -71,12 +98,28 @@
                                         @usuarioActual
                                     </a>
                                 </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Configuración</a></li>
-                                <li><a class="dropdown-item" href="#">Perfil</a></li>
+
+
+
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                                        <i class="fa-regular fa-user text-secondary"></i>
+                                        <span id="user_id"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                                        <i class="fa-solid fa-desktop"></i>
+                                        <span id="ip"></span>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+
+
+                                <li>
                                     <a class="dropdown-item" asp-controller="Login" asp-action="Logout">
+                                        <i class="fa-solid fa-right-from-bracket"></i>
                                         Cerrar Sesión
                                     </a>
                                 </li>
@@ -112,15 +155,27 @@
 
 
     <script>
+        // 1. Asignamos al objeto 'window' leyendo desde la Sesión del servidor
+        window.misAccesos = @Html.Raw(accesosJson);
+        window.usuarioAprobado = @Html.Raw(usuarioAprobadoJson);
+        window.moduloIdFiltro = "@moduloFiltroId";
 
-        // Guardamos lo que viene del servidor en una variable temporal
-        const serverConfig = {
-        moduloIdFiltro: "@(ViewBag.ModuloFiltroId ?? "")",
-        misAccesos: @Html.Raw(ViewBag.AccesosJson ?? "null"),
-        usuarioAprobado: @Html.Raw(ViewBag.usuarioAprobadoJson ?? "null")
-        };
+        // 2. Filtramos usando las variables
+        window.accesosFiltrados = window.misAccesos.filter(x => x.ModuloID == window.moduloIdFiltro);
 
+        console.log("✅ Permisos cargados en esta vista:", window.misAccesos);
+        console.log("✅ Accesos filtrados:", window.accesosFiltrados);
+        console.log("✅ usuarioAprobado:", window.usuarioAprobado);
 
+        // 3. Esperamos a que el DOM esté listo para pintar en los elementos HTML
+        document.addEventListener("DOMContentLoaded", function () {
+        if (window.usuarioAprobado) {
+        $("#user_id").text(window.usuarioAprobado.CodigoUsuario || "Sin Usuario");
+        $("#ip").text(window.usuarioAprobado.ip || "IP no detectada");
+        } else {
+        console.warn("⚠️ No hay usuario aprobado en sesión.");
+        }
+        });
     </script>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

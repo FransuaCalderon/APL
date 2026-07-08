@@ -5,15 +5,31 @@ $(function () {
 
     let apiBaseUrl = null;
     let apigeeToken = null;
-
     let opcionesCorporativas = null;
+    console.log("🚀 Accediendo a los datos desde Index.cshtml");
 
-    let moduloIdFiltro = null;
-    let misAccesos = null;
-    let usuarioAprobado = null;
+    // Ya puedes leerlas directamente desde window
+    console.log("Total de accesos en Index:", window.misAccesos);
+    console.log("Accesos filtrados en Index:", window.accesosFiltrados);
+
+    opcionesCorporativas = window.accesosFiltrados.map(item => ({
+        idopcion: item.SecuenciaID
+    }));
+
+    console.log("opcionesCorporativas:", opcionesCorporativas);
+
+    /*
+    
+
+    let moduloIdFiltro = @ViewBag.ModuloFiltroId;
+    var misAccesos = @Html.Raw(ViewBag.AccesosJson ?? "[]");
+
+    var usuarioAprobado = @Html.Raw(ViewBag.usuarioAprobadoJson ?? "[]");
     let accesosFiltrados = null;
 
 
+
+    /*
     // Función para inicializar y mantener la configuración
     function inicializarAppConfig() {
         // 1. Si el servidor envió datos reales (misAccesos no es null)
@@ -35,12 +51,17 @@ $(function () {
             misAccesos: [],
             usuarioAprobado: {}
         };
-    }
+    }*/
 
 
 
     // Asignamos a window.appConfig
-    window.appConfig = inicializarAppConfig();
+    //window.appConfig = inicializarAppConfig();
+    /*
+    window.appConfig.moduloIdFiltro = moduloIdFiltro;
+    window.appConfig.usuarioAprobado = usuarioAprobado;
+    window.appConfig.misAccesos = misAccesos;
+
 
     console.log("window.appConfig recuperado: ", window.appConfig);
 
@@ -71,7 +92,7 @@ $(function () {
         // if (!accesosFiltrados.some(a => a.PermiteCrear)) { $('#btnAgregarNuevo').hide(); }
     } else {
         console.warn("No se encontraron accesos en el servidor ni en sessionStorage.");
-    }
+    }*/
 
     /* ======================================================
      * 1. OBTENER CONFIGURACIÓN (Api Router)
@@ -168,10 +189,10 @@ $(function () {
     
     function consumirApigeeMenu() {
         console.log("consumirApigeeMenu");
-        console.log("usuarioAprobado: ",usuarioAprobado);
+        console.log("usuarioAprobado: ", window.usuarioAprobado);
 
         const body = {
-            idusuario: usuarioAprobado.UsuarioID,
+            idusuario: window.usuarioAprobado.CodigoUsuario,
             opcioneslista: opcionesCorporativas
         }
 
