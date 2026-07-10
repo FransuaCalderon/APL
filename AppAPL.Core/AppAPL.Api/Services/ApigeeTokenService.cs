@@ -8,8 +8,12 @@ public class ApigeeTokenService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _config;
     private readonly ILogger<ApigeeTokenService> logger;
+
     private static string _token;
     private static DateTime _expiresAt;
+
+    private static string _tokenReal;
+    private static DateTime _expiresAtReal;
 
     public ApigeeTokenService(
         IHttpClientFactory httpClientFactory,
@@ -32,7 +36,7 @@ public class ApigeeTokenService
         logger.LogInformation("--> [Apigee] Token expirado o inexistente. Solicitando uno nuevo...");
 
         // 2. Preparar el cliente y la petición
-        var client = _httpClientFactory.CreateClient();
+        var client = _httpClientFactory.CreateClient("ApigeeTokenClient");
 
         var tokenUrl = _config["Apigee:TokenUrl"];
         var clientId = _config["Apigee:ClientId"];
@@ -78,6 +82,67 @@ public class ApigeeTokenService
         _expiresAt = DateTime.UtcNow.AddSeconds(authData.ExpiresIn - 60);
 
         return _token;
+    }
+
+
+    public async Task<string> GetTokenRealAsync()
+    {
+        // 1. Validar si ya tenemos un token válido en caché
+        if (!string.IsNullOrEmpty(_tokenReal) && DateTime.UtcNow < _expiresAtReal)
+        {
+            logger.LogInformation("--> [Apigee] Usando token de caché (Aún vigente)");
+            return _tokenReal;
+        }
+
+        logger.LogInformation("--> [Apigee] Token expirado o inexistente. Solicitando uno nuevo...");
+
+        // 2. Preparar el cliente y la petición
+        var client = _httpClientFactory.CreateClient("ApigeeTokenClient");
+
+        var tokenUrl = _config["Apigee:TokenUrlReal"];
+        var clientId = _config["Apigee:ClientId"];
+        var clientSecret = _config["Apigee:ClientSecret"];
+
+        logger.LogInformation($"tokenUrl: {tokenUrl}");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, tokenUrl);
+
+        // 3. Configurar Auth Básica (ClientId:ClientSecret en Base64)
+        var authBytes = Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}");
+        var authHeader = Convert.ToBase64String(authBytes);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authHeader);
+
+        // 4. Configurar el cuerpo de la petición
+        request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["grant_type"] = "client_credentials"
+        });
+
+        // 5. Enviar y procesar respuesta
+        var response = await client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorDetails = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"Error obteniendo token de Apigee: {response.StatusCode}. Detalle: {errorDetails}");
+        }
+
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+
+        // 6. Deserializar usando opciones flexibles para el tipo de dato de expires_in
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var authData = JsonSerializer.Deserialize<ApigeeAuthResponse>(jsonResponse, options);
+
+        if (authData == null || string.IsNullOrEmpty(authData.AccessToken))
+        {
+            throw new Exception("La respuesta de Apigee no contiene un access_token válido.");
+        }
+
+        // 7. Guardar en caché (restamos 60 segundos por seguridad/latencia)
+        _tokenReal = authData.AccessToken;
+        _expiresAtReal = DateTime.UtcNow.AddSeconds(authData.ExpiresIn - 60);
+
+        return _tokenReal;
     }
 
     /// <summary>

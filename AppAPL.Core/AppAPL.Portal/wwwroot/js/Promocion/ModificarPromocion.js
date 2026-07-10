@@ -1156,6 +1156,10 @@ function abrirModalAcuerdoArticulo(tipoFondo, tituloModal, codigoItem, $inputDis
 // ===============================================================
 function cargarFiltrosItemsPromocion() {
     const data = window._filtrosJerarquiaData || {};
+
+    // Limpiamos los inputs de búsqueda rápida
+    $(".input-buscar-filtro").val("");
+
     const llenarFiltro = (containerId, items, label) => {
         const $container = $(`#${containerId}`);
         $container.empty();
@@ -1167,21 +1171,60 @@ function cargarFiltrosItemsPromocion() {
             $container.html(`<small class="text-muted">No hay ${label}</small>`);
         }
     };
+
     llenarFiltro("filtroMarcaModal", data.marcas, "marcas");
     llenarFiltro("filtroDivisionModal", data.divisiones, "divisiones");
     llenarFiltro("filtroDepartamentoModal", data.departamentos, "departamentos");
     llenarFiltro("filtroClaseModal", data.clases, "clases");
 
+    // Evento para "Todas"
     $(".filtro-todas").off("change").on("change", function () {
         const targetId = $(this).data("target");
         $(`#${targetId} .filtro-item-checkbox`).prop("checked", $(this).is(":checked"));
     });
+
+    // Evento para checkboxes individuales
+    $(document).off("change.filtroItemMod", ".filtro-item-checkbox").on("change.filtroItemMod", ".filtro-item-checkbox", function () {
+        const $container = $(this).closest(".border.rounded");
+        const $checkboxTodas = $container.find(".filtro-todas");
+        const $todosLosItems = $container.find(".filtro-item-checkbox");
+
+        if ($todosLosItems.filter(":checked").length === $todosLosItems.length && $todosLosItems.length > 0) {
+            $checkboxTodas.prop("checked", true);
+        } else {
+            $checkboxTodas.prop("checked", false);
+        }
+    });
+
+    // Filtrado en tiempo real en la caja
+    $(document).off("input", ".input-buscar-filtro").on("input", ".input-buscar-filtro", function () {
+        const targetId = $(this).data("target");
+        const textoBuscado = $(this).val().toLowerCase().trim();
+
+        $(`#${targetId} .form-check`).each(function () {
+            const textoOpcion = $(this).text().toLowerCase();
+            if (textoOpcion.includes(textoBuscado)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
 }
 
 function consultarItemsPromocion(filtros) {
+    const spinnerHtml = `
+        <div class="text-center py-4 w-100">
+            <div class="spinner-border text-primary mb-2" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+            <div class="text-muted fw-semibold mt-2">Consultando artículos, por favor espere...</div>
+        </div>
+    `;
+
     if (dtItemsConsultaPromo) {
+        dtItemsConsultaPromo.context[0].oLanguage.sEmptyTable = spinnerHtml;
         dtItemsConsultaPromo.clear().draw();
-        $('.dataTables_empty').text("Cargando resultados...");
+    } else {
+        $("#tablaItemsConsulta tbody").empty().append(`<tr><td colspan="16" class="text-center align-middle">${spinnerHtml}</td></tr>`);
     }
 
     const payload = {
@@ -1199,7 +1242,6 @@ function consultarItemsPromocion(filtros) {
         data: JSON.stringify(payload),
         success: function (res) {
             const data = res.json_response || [];
-
             const filas = data.map(item => {
                 return [
                     `<input type="checkbox" class="form-check-input item-checkbox"
@@ -1244,6 +1286,16 @@ function consultarItemsPromocion(filtros) {
 
             if (dtItemsConsultaPromo) {
                 dtItemsConsultaPromo.clear();
+
+                if (filas.length === 0) {
+                    dtItemsConsultaPromo.context[0].oLanguage.sEmptyTable = `
+                        <div class="text-center text-muted p-4 w-100">
+                            <i class="fa-solid fa-folder-open mb-2 fs-3"></i><br>
+                            No se encontraron artículos con los criterios seleccionados.
+                        </div>
+                    `;
+                }
+
                 dtItemsConsultaPromo.rows.add(filas);
                 dtItemsConsultaPromo.draw();
             }
@@ -1255,9 +1307,17 @@ function consultarItemsPromocion(filtros) {
             });
         },
         error: function () {
+            const errorHtml = `
+                <div class="text-center text-danger p-4 fw-bold w-100">
+                    <i class="fa-solid fa-triangle-exclamation fs-3 mb-2"></i><br>
+                    Ocurrió un error al cargar los artículos. Intente nuevamente.
+                </div>
+            `;
             if (dtItemsConsultaPromo) {
+                dtItemsConsultaPromo.context[0].oLanguage.sEmptyTable = errorHtml;
                 dtItemsConsultaPromo.clear().draw();
-                $('.dataTables_empty').html('<span class="text-danger">Error al cargar items.</span>');
+            } else {
+                $("#tablaItemsConsulta tbody").empty().append(`<tr><td colspan="16" class="text-center align-middle">${errorHtml}</td></tr>`);
             }
         }
     });
@@ -3424,12 +3484,33 @@ $(function () {
     });
 
     $("#btnProcesarFiltros").on("click", function () {
-        const getVals = (id) => { const v = []; $(`#${id} .filtro-item-checkbox:checked`).each(function () { v.push($(this).val()); }); return v; };
-        const marcas = getVals("filtroMarcaModal"), divisiones = getVals("filtroDivisionModal"), departamentos = getVals("filtroDepartamentoModal"), clases = getVals("filtroClaseModal");
+        // Función optimizada que devuelve un arreglo vacío [] si todo está marcado
+        const getVals = (id) => {
+            const $checkboxTodas = $(`.filtro-todas[data-target="${id}"]`);
+            const $todosLosItems = $(`#${id} .filtro-item-checkbox`);
+            const $itemsMarcados = $todosLosItems.filter(":checked");
+
+            if ($checkboxTodas.is(":checked") || ($todosLosItems.length > 0 && $itemsMarcados.length === $todosLosItems.length)) {
+                return [];
+            }
+
+            const v = [];
+            $itemsMarcados.each(function () { v.push($(this).val()); });
+            return v;
+        };
+
+        const marcas = getVals("filtroMarcaModal"),
+            divisiones = getVals("filtroDivisionModal"),
+            departamentos = getVals("filtroDepartamentoModal"),
+            clases = getVals("filtroClaseModal");
+
         const articulo = $("#filtroArticuloModal").val().trim();
+
+        /*
         if (marcas.length === 0 && divisiones.length === 0 && departamentos.length === 0 && clases.length === 0 && articulo === "") {
             Swal.fire({ icon: "warning", title: "Atención", text: "Seleccione al menos un criterio." }); return;
-        }
+        }*/
+
         consultarItemsPromocion({ marcas, divisiones, departamentos, clases, codigoarticulo: articulo, ruc: "" });
     });
 
@@ -3644,6 +3725,9 @@ $(function () {
         // 1. Limpiar cajones de texto de búsqueda
         $("#filtroArticuloModal").val("");
         $("#buscarItemModal").val("");
+
+        // ✅ NUEVO: Restablecer todos los checks ocultos disparando el evento de texto vacío
+        $(".input-buscar-filtro").val("").trigger("input");
 
         // 2. Desmarcar todos los checkboxes de filtros (Marcas, Divisiones, etc.) y colapsarlos
         $(this).find(".filtro-todas, .filtro-item-checkbox").prop("checked", false);

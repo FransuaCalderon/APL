@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
+using System.Security.Authentication;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,7 +65,10 @@ builder.Services.AddHttpClient("ApiClient", (sp, client) =>
         return new HttpClientHandler
         {
             // Esta línea acepta cualquier certificado, sin importar errores
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+
+            // ✅ FORZAR O PERMITIR DIFERENTES VERSIONES DE TLS:
+    SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13 | SslProtocols.Tls11 | SslProtocols.Tls
         };
     }
     else
@@ -73,6 +77,24 @@ builder.Services.AddHttpClient("ApiClient", (sp, client) =>
         return new HttpClientHandler();
     }
 });
+
+
+builder.Services.AddHttpClient("ApigeeTokenClient")
+    .ConfigurePrimaryHttpMessageHandler(sp =>
+    {
+        var settings = sp.GetRequiredService<IOptions<ApiSettings>>().Value;
+        if (settings.DeshabilitarValidacionSSL)
+        {
+            return new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+
+                // ✅ FORZAR O PERMITIR DIFERENTES VERSIONES DE TLS:
+    SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13 | SslProtocols.Tls11 | SslProtocols.Tls
+            };
+        }
+        return new HttpClientHandler();
+    });
 
 
 
@@ -151,13 +173,15 @@ app.UseStaticFiles();
 // ✅ ============================================
 // ✅ USAR SESIÓN (DEBE IR ANTES DE UseRouting)
 // ✅ ============================================
+
+// 2. ¡IMPORTANTE! Debe ir ANTES de UseRouting, UseAuthentication, UseAuthorization, etc.
+app.UseForwardedHeaders();
 app.UseSession();
 
 app.UseRouting();
 
 
-// 2. ¡IMPORTANTE! Debe ir ANTES de UseRouting, UseAuthentication, UseAuthorization, etc.
-app.UseForwardedHeaders();
+
 
 
 // ✅ ============================================
@@ -196,6 +220,7 @@ app.MapPost("/api/apigee-router-proxy", async (
     ) =>
 {
     var token = await tokenService.GetTokenAsync();
+    Console.WriteLine($"TOKEN ROUTER PROXY: {token}");
     var client = clientFactory.CreateClient("ApiClient");
     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
     var urlUnicomer = config["ApiSettings:BaseUrl"];

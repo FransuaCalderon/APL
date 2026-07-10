@@ -1180,6 +1180,9 @@
             success: function (res) {
                 const data = res.json_response || {};
 
+                // ✅ NUEVO: Limpiamos los inputs de búsqueda rápida al abrir el modal
+                $(".input-buscar-filtro").val("");
+
                 const llenarFiltro = (containerId, items, label) => {
                     const $container = $(`#${containerId}`);
                     $container.empty();
@@ -1250,20 +1253,64 @@
                 $checkboxTodas.prop("checked", false);
             }
         });
+
+
+        // ✅ NUEVO: Filtrado en tiempo real de los checkboxes
+        $(document).off("input", ".input-buscar-filtro").on("input", ".input-buscar-filtro", function () {
+            const targetId = $(this).data("target");
+            const textoBuscado = $(this).val().toLowerCase().trim();
+
+            $(`#${targetId} .form-check`).each(function () {
+                const textoOpcion = $(this).text().toLowerCase();
+                if (textoOpcion.includes(textoBuscado)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+
     }
 
     function getSelectedFilterValuesPromo(containerId) {
+        const $todosLosItems = $(`#${containerId} .filtro-item-checkbox`);
+        const $itemsMarcados = $todosLosItems.filter(":checked");
+
+        // ✅ NUEVO: Buscamos el checkbox general de "Todas" correspondiente a esta caja
+        const $checkboxTodas = $(`.filtro-todas[data-target="${containerId}"]`);
+
+        // Si la casilla "Todas" está marcada, o si marcó todas manualmente, retornamos []
+        if ($checkboxTodas.is(":checked") || ($todosLosItems.length > 0 && $itemsMarcados.length === $todosLosItems.length)) {
+            console.log(`⚡ [${containerId}] Todas marcadas -> Enviando arreglo vacío [] al API`);
+            return [];
+        }
+
         const valores = [];
-        $(`#${containerId} .filtro-item-checkbox:checked`).each(function () {
+        $itemsMarcados.each(function () {
             valores.push($(this).val());
         });
         return valores;
     }
 
     function consultarItemsPromocion(filtros) {
+        const esc = (s) => String(s ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+
+        // ✅ HTML del Spinner limpio (centrado nativo)
+        const spinnerHtml = `
+        <div class="text-center py-4 w-100">
+            <div class="spinner-border text-primary mb-2" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+            <div class="text-muted fw-semibold mt-2">Consultando artículos, por favor espere...</div>
+        </div>
+    `;
+
         if (dtItemsConsultaPromo) {
+            // ✅ MÉTODO INFALIBLE: Le decimos a DataTables que el mensaje de tabla vacía ahora es el spinner
+            dtItemsConsultaPromo.context[0].oLanguage.sEmptyTable = spinnerHtml;
+            // Limpiamos y dibujamos para que DataTables lo inyecte por nosotros
             dtItemsConsultaPromo.clear().draw();
-            $('.dataTables_empty').text("Cargando resultados...");
+        } else {
+            $("#tablaItemsConsulta tbody").empty().append(`<tr><td colspan="14" class="text-center align-middle">${spinnerHtml}</td></tr>`);
         }
 
         const payload = {
@@ -1330,21 +1377,40 @@
 
                 if (dtItemsConsultaPromo) {
                     dtItemsConsultaPromo.clear();
+
+                    // ✅ Si viene vacío, restauramos el mensaje de "Sin resultados" ANTES de dibujar
+                    if (filas.length === 0) {
+                        dtItemsConsultaPromo.context[0].oLanguage.sEmptyTable = `
+                        <div class="text-center text-muted p-4 w-100">
+                            <i class="fa-solid fa-folder-open mb-2 fs-3"></i><br>
+                            No se encontraron artículos con los criterios seleccionados.
+                        </div>
+                    `;
+                    }
+
                     dtItemsConsultaPromo.rows.add(filas);
                     dtItemsConsultaPromo.draw();
                 }
-
-                $("#buscarItemModal").off("keyup").on("keyup", function () {
-                    if (dtItemsConsultaPromo) {
-                        dtItemsConsultaPromo.search($(this).val()).draw();
-                    }
-                });
             },
             error: function () {
+                console.error("❌ Error al consultar artículos de promoción:", xhr.responseText);
+
+                // ✅ En caso de error, mostramos el ícono de alerta nativamente
+                const errorHtml = `
+                <div class="text-center text-danger p-4 fw-bold w-100">
+                    <i class="fa-solid fa-triangle-exclamation fs-3 mb-2"></i><br>
+                    Ocurrió un error al cargar los artículos. Intente nuevamente.
+                </div>
+            `;
+
                 if (dtItemsConsultaPromo) {
+                    dtItemsConsultaPromo.context[0].oLanguage.sEmptyTable = errorHtml;
                     dtItemsConsultaPromo.clear().draw();
-                    $('.dataTables_empty').html('<span class="text-danger">Error al cargar items.</span>');
+                } else {
+                    $("#tablaItemsConsulta tbody").empty().append(`<tr><td colspan="14" class="text-center">${errorHtml}</td></tr>`);
                 }
+
+
             }
         });
     }
@@ -4591,10 +4657,11 @@
             const clases = getSelectedFilterValuesPromo("filtroClaseModal");
             const articulo = $("#filtroArticuloModal").val().trim();
 
+            /*
             if (marcas.length === 0 && divisiones.length === 0 && departamentos.length === 0 && clases.length === 0 && articulo === "") {
                 Swal.fire({ icon: "warning", title: "Atención", text: "Debe seleccionar al menos un criterio de búsqueda." });
                 return;
-            }
+            }*/
 
             consultarItemsPromocion({
                 marcas: marcas, divisiones: divisiones, departamentos: departamentos,
@@ -4895,6 +4962,9 @@
             // 4. Limpiar cualquier input de texto extra que haya quedado (filtros manuales, etc.)
             // Exceptuamos los checkboxes y radios para no dañar su estado base si los hay
             $(this).find('input:not([type="checkbox"]):not([type="radio"])').val('');
+
+            // ✅ NUEVO: Restablecer todos los checks ocultos disparando el evento de texto vacío
+            $(".input-buscar-filtro").val("").trigger("input");
         });
 
         

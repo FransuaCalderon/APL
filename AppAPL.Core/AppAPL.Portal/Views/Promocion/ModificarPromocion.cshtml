@@ -450,35 +450,70 @@
                         <div class="card-body">
                             <form class="row g-2">
                                 <div class="col-md-2">
-                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Marca</label>
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block mb-1">Marca</label>
+                                    <input type="text" class="form-control form-control-sm mb-1 input-buscar-filtro" data-target="filtroMarcaModal" placeholder="Buscar...">
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
-                                        <div class="form-check"><input class="form-check-input filtro-todas" type="checkbox" data-target="filtroMarcaModal"><label class="form-check-label fw-bold">Todas</label></div><hr class="my-1"><div id="filtroMarcaModal"></div>
+                                        <div class="form-check">
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroMarcaModal">
+                                            <label class="form-check-label fw-bold">Todas</label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroMarcaModal"></div>
                                     </div>
                                 </div>
+
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">División</label>
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block mb-1">División</label>
+                                    <input type="text" class="form-control form-control-sm mb-1 input-buscar-filtro" data-target="filtroDivisionModal" placeholder="Buscar...">
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
-                                        <div class="form-check"><input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDivisionModal"><label class="form-check-label fw-bold">Todas</label></div><hr class="my-1"><div id="filtroDivisionModal"></div>
+                                        <div class="form-check">
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDivisionModal">
+                                            <label class="form-check-label fw-bold">Todas</label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroDivisionModal"></div>
                                     </div>
                                 </div>
+
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Departamento</label>
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block mb-1">Departamento</label>
+                                    <input type="text" class="form-control form-control-sm mb-1 input-buscar-filtro" data-target="filtroDepartamentoModal" placeholder="Buscar...">
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
-                                        <div class="form-check"><input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDepartamentoModal"><label class="form-check-label fw-bold">Todos</label></div><hr class="my-1"><div id="filtroDepartamentoModal"></div>
+                                        <div class="form-check">
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroDepartamentoModal">
+                                            <label class="form-check-label fw-bold">Todos</label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroDepartamentoModal"></div>
                                     </div>
                                 </div>
+
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Clase</label>
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block mb-1">Clase</label>
+                                    <input type="text" class="form-control form-control-sm mb-1 input-buscar-filtro" data-target="filtroClaseModal" placeholder="Buscar...">
                                     <div class="border rounded p-2" style="height: 100px; overflow-y: auto; background-color: #f8f9fa;">
-                                        <div class="form-check"><input class="form-check-input filtro-todas" type="checkbox" data-target="filtroClaseModal"><label class="form-check-label fw-bold">Todas</label></div><hr class="my-1"><div id="filtroClaseModal"></div>
+                                        <div class="form-check">
+                                            <input class="form-check-input filtro-todas" type="checkbox" data-target="filtroClaseModal">
+                                            <label class="form-check-label fw-bold">Todas</label>
+                                        </div>
+                                        <hr class="my-1">
+                                        <div id="filtroClaseModal"></div>
                                     </div>
                                 </div>
+
                                 <div class="col-md-1">
-                                    <label class="form-label fw-bold col-form-label-sm text-center d-block">Artículo</label>
-                                    <input type="text" id="filtroArticuloModal" class="form-control form-control-sm" placeholder="Buscar...">
+                                    <label class="form-label fw-bold col-form-label-sm text-center d-block mb-1">Artículo</label>
+                                    <input type="text" id="filtroArticuloModal" class="form-control form-control-sm mt-4" placeholder="Buscar...">
                                 </div>
-                                <div class="col-12 mt-2"><button type="button" id="btnProcesarFiltros" class="btn btn-secondary btn-sm w-100"><i class="fa-solid fa-filter"></i> Procesar Selección</button></div>
+
+                                <div class="col-12 mt-2">
+                                    <button type="button" id="btnProcesarFiltros" class="btn btn-secondary btn-sm w-100">
+                                        <i class="fa-solid fa-filter"></i> Procesar Selección
+                                    </button>
+                                </div>
                             </form>
+
+
                         </div>
                     </div>
                 </div>

@@ -849,6 +849,7 @@ function consultarProveedor() {
 
 function consultarItems(filtros = {}) {
     const idOpcionActual = getIdOpcionSeguro();
+
     if (!idOpcionActual) {
         Swal.fire({ icon: "error", title: "Error", text: "No se pudo obtener el ID de la opción." });
         return;
@@ -856,9 +857,20 @@ function consultarItems(filtros = {}) {
 
     const esc = (s) => String(s ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 
+    // ✅ HTML del Spinner limpio y centrado nativamente
+    const spinnerHtml = `
+        <div class="text-center py-4 w-100">
+            <div class="spinner-border text-primary mb-2" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+            <div class="text-muted fw-semibold mt-2">Consultando ítems, por favor espere...</div>
+        </div>
+    `;
+
+    // Inyectamos el spinner antes de llamar al API
     if (dtItemsConsulta) {
+        dtItemsConsulta.context[0].oLanguage.sEmptyTable = spinnerHtml;
         dtItemsConsulta.clear().draw();
-        $('.dataTables_empty').text("Cargando resultados...");
+    } else {
+        $("#tablaItemsConsulta tbody").empty().append(`<tr><td colspan="16" class="text-center align-middle">${spinnerHtml}</td></tr>`);
     }
 
     const payload = {
@@ -884,40 +896,76 @@ function consultarItems(filtros = {}) {
                         data-descripcion="${esc(item.descripcion || item.nombre || "")}"
                         data-costo="${esc(item.costo || 0)}"
                         data-stock="${esc(item.stock || 0)}"
-                        data-optimo="${esc(item.optimo || 0)}">`,
+                        data-optimo="${esc(item.optimo || 0)}"
+                        data-excedenteu="${esc(item.excedente_u || 0)}"
+                        data-excedentes="${esc(item.excedente_s || item.excedente_d || 0)}"
+                        data-m0u="${esc(item.m0_u || 0)}"
+                        data-m0s="${esc(item.m0_s || item.m0_d || 0)}"
+                        data-m1u="${esc(item.m1_u || 0)}"
+                        data-m1s="${esc(item.m1_s || item.m1_d || 0)}"
+                        data-m2u="${esc(item.m2_u || 0)}"
+                        data-m2s="${esc(item.m2_s || item.m2_d || 0)}"
+                        data-m12u="${esc(item.m12_u || 0)}"
+                        data-m12d="${esc(item.m12_d || 0)}">`,
                     esc(item.codigo || item.iditem || ""),
                     esc(item.descripcion || item.nombre || ""),
                     formatCurrencySpanish(item.costo || 0),
                     esc(item.stock || 0),
                     esc(item.optimo || 0),
                     esc(item.excedente_u || 0),
-                    formatCurrencySpanish(item.excedente_s || 0),
+                    formatCurrencySpanish(item.excedente_s || item.excedente_d || 0),
                     esc(item.m0_u || 0),
-                    formatCurrencySpanish(item.m0_s || 0),
+                    formatCurrencySpanish(item.m0_s || item.m0_d || 0),
                     esc(item.m1_u || 0),
-                    formatCurrencySpanish(item.m1_s || 0),
+                    formatCurrencySpanish(item.m1_s || item.m1_d || 0),
                     esc(item.m2_u || 0),
-                    formatCurrencySpanish(item.m2_s || 0)
+                    formatCurrencySpanish(item.m2_s || item.m2_d || 0),
+                    esc(item.m12_u || 0),
+                    formatCurrencySpanish(item.m12_d || 0)
                 ];
             });
 
             if (dtItemsConsulta) {
                 dtItemsConsulta.clear();
+
+                // ✅ Si viene vacío, restauramos el mensaje de "Sin resultados"
+                if (filas.length === 0) {
+                    dtItemsConsulta.context[0].oLanguage.sEmptyTable = `
+                        <div class="text-center text-muted p-4 w-100">
+                            <i class="fa-solid fa-folder-open mb-2 fs-3"></i><br>
+                            No se encontraron ítems con los criterios seleccionados.
+                        </div>
+                    `;
+                }
+
                 dtItemsConsulta.rows.add(filas);
                 dtItemsConsulta.draw();
-                if (filas.length === 0) $('.dataTables_empty').text("No se encontraron items con los criterios seleccionados.");
             }
 
             $("#buscarItemInputAcuerdo").off("keyup").on("keyup", function () {
-                if (dtItemsConsulta) dtItemsConsulta.search($(this).val()).draw();
+                if (dtItemsConsulta) {
+                    dtItemsConsulta.search($(this).val()).draw();
+                }
             });
         },
-        error: (xhr) => {
+        error: function (xhr) {
+            console.error("Error consultando items:", xhr.responseText);
+
+            // ✅ En caso de error, mostramos el ícono de alerta nativamente
+            const errorHtml = `
+                <div class="text-center text-danger p-4 fw-bold w-100">
+                    <i class="fa-solid fa-triangle-exclamation fs-3 mb-2"></i><br>
+                    Ocurrió un error al cargar los ítems. Intente nuevamente.
+                </div>
+            `;
+
             if (dtItemsConsulta) {
+                dtItemsConsulta.context[0].oLanguage.sEmptyTable = errorHtml;
                 dtItemsConsulta.clear().draw();
-                $('.dataTables_empty').html('<span class="text-danger">Error al cargar items.</span>');
+            } else {
+                $("#tablaItemsConsulta tbody").empty().append(`<tr><td colspan="16" class="text-center align-middle">${errorHtml}</td></tr>`);
             }
-        }
+        },
     });
 }
 
@@ -949,6 +997,9 @@ function cargarFiltrosItems() {
         success: function (response) {
             const data = response.json_response || {};
             console.log("✅ Datos de combos recibidos:", data);
+
+            // ✅ NUEVO: Limpiar los inputs de búsqueda al cargar nuevos datos
+            $(".input-buscar-filtro").val("");
 
             $("#filtroMarca").empty();
             $("#filtroDivision").empty();
@@ -1868,11 +1919,42 @@ function initMultiSelectFilters() {
         const targetId = $checkboxTodas.data("target");
         console.log(`📊 ${targetId}: ${itemsMarcados}/${totalItems} seleccionados`);
     });
+
+
+    // ✅ NUEVO: Filtrado en tiempo real de los checkboxes dentro de cada caja
+    $(document).off("input", ".input-buscar-filtro").on("input", ".input-buscar-filtro", function () {
+        const targetId = $(this).data("target");
+        const textoBuscado = $(this).val().toLowerCase().trim();
+
+        $(`#${targetId} .form-check`).each(function () {
+            const textoOpcion = $(this).text().toLowerCase();
+            if (textoOpcion.includes(textoBuscado)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+
 }
 
 function getSelectedFilterValues(containerId) {
+    const $todosLosItems = $(`#${containerId} .filtro-item-checkbox`);
+    const $itemsMarcados = $todosLosItems.filter(":checked");
+
+    // ✅ NUEVO: Buscamos el checkbox general de "Todas" correspondiente a esta caja
+    const $checkboxTodas = $(`.filtro-todas[data-target="${containerId}"]`);
+
+    // Si la casilla "Todas" está marcada, o si se marcó manualmente el 100% de las casillas,
+    // retornamos un arreglo vacío [] para que el API interprete que no hay restricción de filtro.
+    if ($checkboxTodas.is(":checked") || ($todosLosItems.length > 0 && $itemsMarcados.length === $todosLosItems.length)) {
+        console.log(`⚡ [${containerId}] Todas marcadas -> Enviando arreglo vacío [] al API`);
+        return [];
+    }
+
     const valores = [];
-    $(`#${containerId} .filtro-item-checkbox:checked`).each(function () {
+    $itemsMarcados.each(function () {
         valores.push($(this).val());
     });
     return valores;
@@ -1881,6 +1963,10 @@ function getSelectedFilterValues(containerId) {
 function limpiarFiltros() {
     $(".filtro-todas").prop("checked", true).trigger("change");
     $("#filtroArticulo").val("");
+
+    // ✅ NUEVO: Vaciar los inputs de búsqueda y mostrar de nuevo todos los checks ocultos
+    $(".input-buscar-filtro").val("").trigger("input");
+
     console.log("🧹 Filtros limpiados");
 
     Swal.fire({

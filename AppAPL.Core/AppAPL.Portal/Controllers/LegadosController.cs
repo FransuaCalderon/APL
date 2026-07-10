@@ -195,7 +195,7 @@ namespace AppAPL.Portal.Controllers
             var json = JsonSerializer.Serialize(payload);
 
 
-            var token = await tokenService.GetTokenAsync();
+            var token = await tokenService.GetTokenRealAsync();
 
             var client = _httpClientFactory.CreateClient("apigee");
 

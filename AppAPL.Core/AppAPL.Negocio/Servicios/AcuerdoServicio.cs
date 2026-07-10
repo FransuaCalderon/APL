@@ -26,8 +26,8 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto)
             => repo.ConsultarArticulos(dto);
 
-        public Task<FiltrosItemsDTO> CargarCombosFiltrosItems()
-            => repo.CargarCombosFiltrosItems();
+        public Task<FiltrosItemsDTO> CargarCombosFiltrosItems(string? rucProveedor = null)
+            => repo.CargarCombosFiltrosItems(rucProveedor);
 
         public Task<ControlErroresDTO> CrearAsync(CrearAcuerdoGrupoDTO acuerdo)
             => repo.CrearAsync(acuerdo);

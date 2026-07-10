@@ -185,12 +185,27 @@ namespace AppAPL.AccesoDatos.Repositorio
 
 
 
-        public async Task<FiltrosItemsDTO> CargarCombosFiltrosItems()
+        public async Task<FiltrosItemsDTO> CargarCombosFiltrosItems(string? rucProveedor = null)
         {
             using var connection = factory.CreateOpenConnection();
 
+
+            var paramObject = new
+            {
+                p_ruc_proveedor = string.IsNullOrWhiteSpace(rucProveedor) ? null : rucProveedor,
+            };
+
+            if (string.IsNullOrWhiteSpace(rucProveedor))
+            {
+                logger.LogInformation("rucProveedor es nulo");
+            }
+            else
+            {
+                logger.LogInformation($"rucProveedor tiene valor: {rucProveedor}");
+            }
+
             // 🔹 Parámetros de Salida (RefCursors)
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters(paramObject);
 
             // Agregar los 4 RefCursors como parámetros de salida
             parameters.Add("p_cur_marcas", OracleDbType.RefCursor, ParameterDirection.Output);

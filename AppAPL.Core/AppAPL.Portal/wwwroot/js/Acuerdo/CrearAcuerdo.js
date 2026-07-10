@@ -602,35 +602,30 @@
     // Items (modal) - CON CHECKBOXES
     // -----------------------------
     function consultarItems(filtros = {}) {
-        console.log("proveedorTemporal: ", proveedorTemporal);
         const idOpcionActual = getIdOpcionSeguro();
 
         if (!idOpcionActual) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "No se pudo obtener el ID de la opción.",
-            });
+            Swal.fire({ icon: "error", title: "Error", text: "No se pudo obtener el ID de la opción." });
             return;
         }
 
-        const esc = (s) =>
-            String(s ?? "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#39;");
+        const esc = (s) => String(s ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 
-        // Limpiar o preparar la tabla antes de llamar al API
+        // ✅ HTML del Spinner limpio y centrado nativamente
+        const spinnerHtml = `
+        <div class="text-center py-4 w-100">
+            <div class="spinner-border text-primary mb-2" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+            <div class="text-muted fw-semibold mt-2">Consultando ítems, por favor espere...</div>
+        </div>
+    `;
+
+        // Inyectamos el spinner antes de llamar al API
         if (dtItemsConsulta) {
+            dtItemsConsulta.context[0].oLanguage.sEmptyTable = spinnerHtml;
             dtItemsConsulta.clear().draw();
-            $('.dataTables_empty').text("Cargando resultados...");
         } else {
-            $("#tablaItemsConsulta tbody").empty().append('<tr><td colspan="16" class="text-center">Cargando...</td></tr>');
+            $("#tablaItemsConsulta tbody").empty().append(`<tr><td colspan="16" class="text-center align-middle">${spinnerHtml}</td></tr>`);
         }
-
-        console.log("filtros: ", filtros);
 
         const payload = {
             code_app: "APP20260128155212346",
@@ -647,27 +642,25 @@
             data: JSON.stringify(payload),
             success: function (response) {
                 const data = response.json_response || [];
-                console.log("Datos items:", data);
 
-                // Mapeo de datos al formato requerido por DataTables
                 const filas = data.map((item) => {
                     return [
                         `<input type="checkbox" class="form-check-input item-checkbox"
-                    data-codigo="${esc(item.codigo || item.iditem || "")}"
-                    data-descripcion="${esc(item.descripcion || item.nombre || "")}"
-                    data-costo="${esc(item.costo || 0)}"
-                    data-stock="${esc(item.stock || 0)}"
-                    data-optimo="${esc(item.optimo || 0)}"
-                    data-excedenteu="${esc(item.excedente_u || 0)}"
-                    data-excedentes="${esc(item.excedente_s || item.excedente_d || 0)}"
-                    data-m0u="${esc(item.m0_u || 0)}"
-                    data-m0s="${esc(item.m0_s || item.m0_d || 0)}"
-                    data-m1u="${esc(item.m1_u || 0)}"
-                    data-m1s="${esc(item.m1_s || item.m1_d || 0)}"
-                    data-m2u="${esc(item.m2_u || 0)}"
-                    data-m2s="${esc(item.m2_s || item.m2_d || 0)}"
-                    data-m12u="${esc(item.m12_u || 0)}"
-                    data-m12d="${esc(item.m12_d || 0)}">`,
+                        data-codigo="${esc(item.codigo || item.iditem || "")}"
+                        data-descripcion="${esc(item.descripcion || item.nombre || "")}"
+                        data-costo="${esc(item.costo || 0)}"
+                        data-stock="${esc(item.stock || 0)}"
+                        data-optimo="${esc(item.optimo || 0)}"
+                        data-excedenteu="${esc(item.excedente_u || 0)}"
+                        data-excedentes="${esc(item.excedente_s || item.excedente_d || 0)}"
+                        data-m0u="${esc(item.m0_u || 0)}"
+                        data-m0s="${esc(item.m0_s || item.m0_d || 0)}"
+                        data-m1u="${esc(item.m1_u || 0)}"
+                        data-m1s="${esc(item.m1_s || item.m1_d || 0)}"
+                        data-m2u="${esc(item.m2_u || 0)}"
+                        data-m2s="${esc(item.m2_s || item.m2_d || 0)}"
+                        data-m12u="${esc(item.m12_u || 0)}"
+                        data-m12d="${esc(item.m12_d || 0)}">`,
                         esc(item.codigo || item.iditem || ""),
                         esc(item.descripcion || item.nombre || ""),
                         formatCurrencySpanish(item.costo || 0),
@@ -681,19 +674,26 @@
                         formatCurrencySpanish(item.m1_s || item.m1_d || 0),
                         esc(item.m2_u || 0),
                         formatCurrencySpanish(item.m2_s || item.m2_d || 0),
-                        esc(item.m12_u || 0), // ✅ NUEVA COLUMNA M-12(u)
-                        formatCurrencySpanish(item.m12_d || 0) // ✅ NUEVA COLUMNA M-12($)
+                        esc(item.m12_u || 0),
+                        formatCurrencySpanish(item.m12_d || 0)
                     ];
                 });
 
                 if (dtItemsConsulta) {
                     dtItemsConsulta.clear();
+
+                    // ✅ Si viene vacío, restauramos el mensaje de "Sin resultados"
+                    if (filas.length === 0) {
+                        dtItemsConsulta.context[0].oLanguage.sEmptyTable = `
+                        <div class="text-center text-muted p-4 w-100">
+                            <i class="fa-solid fa-folder-open mb-2 fs-3"></i><br>
+                            No se encontraron ítems con los criterios seleccionados.
+                        </div>
+                    `;
+                    }
+
                     dtItemsConsulta.rows.add(filas);
                     dtItemsConsulta.draw();
-
-                    if (filas.length === 0) {
-                        $('.dataTables_empty').text("No se encontraron items con los criterios seleccionados.");
-                    }
                 }
 
                 $("#buscarItemInputAcuerdo").off("keyup").on("keyup", function () {
@@ -704,19 +704,26 @@
             },
             error: function (xhr) {
                 console.error("Error consultando items:", xhr.responseText);
+
+                // ✅ En caso de error, mostramos el ícono de alerta nativamente
+                const errorHtml = `
+                <div class="text-center text-danger p-4 fw-bold w-100">
+                    <i class="fa-solid fa-triangle-exclamation fs-3 mb-2"></i><br>
+                    Ocurrió un error al cargar los ítems. Intente nuevamente.
+                </div>
+            `;
+
                 if (dtItemsConsulta) {
+                    dtItemsConsulta.context[0].oLanguage.sEmptyTable = errorHtml;
                     dtItemsConsulta.clear().draw();
-                    $('.dataTables_empty').html('<span class="text-danger">Error al cargar items.</span>');
                 } else {
-                    $("#tablaItemsConsulta tbody").empty().append(
-                        '<tr><td colspan="16" class="text-center text-danger">Error al cargar items.</td></tr>'
-                    );
+                    $("#tablaItemsConsulta tbody").empty().append(`<tr><td colspan="16" class="text-center align-middle">${errorHtml}</td></tr>`);
                 }
             },
         });
     }
 
-    function cargarFiltrosItems() {
+    function cargarFiltrosItems(rucProveedor = null) {
         const idOpcionActual = getIdOpcionSeguro();
 
         if (!idOpcionActual) return;
@@ -733,7 +740,7 @@
             http_method: "GET",
             endpoint_path: "api/Acuerdo/consultar-combos",
             client: "APL",
-            endpoint_query_params: ""
+            endpoint_query_params: `/${rucProveedor}`
         };
 
         $.ajax({
@@ -745,6 +752,9 @@
                 const data = response.json_response || {};
 
                 console.log("✅ Datos de combos recibidos:", data);
+
+                // ✅ NUEVO: Limpiamos los inputs de búsqueda rápida al cargar nuevos datos
+                $(".input-buscar-filtro").val("");
 
                 $("#filtroMarca").empty();
                 $("#filtroDivision").empty();
@@ -865,11 +875,44 @@
             const targetId = $checkboxTodas.data("target");
             console.log(`📊 ${targetId}: ${itemsMarcados}/${totalItems} seleccionados`);
         });
+
+
+        // ✅ NUEVO: Filtrado en tiempo real de los checkboxes dentro de cada caja
+        $(document).off("input", ".input-buscar-filtro").on("input", ".input-buscar-filtro", function () {
+            const targetId = $(this).data("target");
+            const textoBuscado = $(this).val().toLowerCase().trim();
+
+            // Oculta o muestra el div .form-check según si coincide el texto
+            $(`#${targetId} .form-check`).each(function () {
+                const textoOpcion = $(this).text().toLowerCase();
+                if (textoOpcion.includes(textoBuscado)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+
     }
 
     function getSelectedFilterValues(containerId) {
+        const $todosLosItems = $(`#${containerId} .filtro-item-checkbox`);
+        const $itemsMarcados = $todosLosItems.filter(":checked");
+
+        // ✅ NUEVO: Buscamos el checkbox general de "Todas" correspondiente a esta caja
+        const $checkboxTodas = $(`.filtro-todas[data-target="${containerId}"]`);
+
+        // Si la casilla "Todas" está marcada, o si el usuario marcó manualmente el 100% de las casillas,
+        // retornamos un arreglo vacío [] para que el API interprete que no hay restricción de filtro.
+        if ($checkboxTodas.is(":checked") || ($todosLosItems.length > 0 && $itemsMarcados.length === $todosLosItems.length)) {
+            console.log(`⚡ [${containerId}] Todas marcadas -> Enviando arreglo vacío [] al API`);
+            return [];
+        }
+
+        // Caso contrario, si solo hay algunas seleccionadas, extraemos sus valores
         const valores = [];
-        $(`#${containerId} .filtro-item-checkbox:checked`).each(function () {
+        $itemsMarcados.each(function () {
             valores.push($(this).val());
         });
         return valores;
@@ -878,6 +921,10 @@
     function limpiarFiltros() {
         $(".filtro-todas").prop("checked", true).trigger("change");
         $("#filtroArticulo").val("");
+
+        // ✅ NUEVO: Blanquear los inputs y disparar el evento para que se muestren todos los checks ocultos
+        $(".input-buscar-filtro").val("").trigger("input");
+
         console.log("🧹 Filtros limpiados");
 
         Swal.fire({
@@ -2075,7 +2122,7 @@
         });
 
         $("#modalConsultaItems").on("show.bs.modal", function () {
-            cargarFiltrosItems();
+            cargarFiltrosItems(rucFondoSeleccionado.toString() || null);
 
             // Inicializamos DataTables una sola vez aquí
             if (!dtItemsConsulta) {

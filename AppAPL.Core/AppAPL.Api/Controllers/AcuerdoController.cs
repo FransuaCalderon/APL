@@ -5,6 +5,7 @@ using AppAPL.Dto.Fondos;
 using AppAPL.Negocio.Abstracciones;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace AppAPL.Api.Controllers
@@ -57,10 +58,14 @@ namespace AppAPL.Api.Controllers
             return listaArticulos.ToList();
         }
 
-        [HttpGet("consultar-combos")]
-        public async Task<ActionResult<FiltrosItemsDTO>> CargarCombosFiltrosItems()
+        [HttpGet("consultar-combos/{rucProveedor?}")]
+        public async Task<ActionResult<FiltrosItemsDTO>> CargarCombosFiltrosItems(
+            [SwaggerParameter(Description = "Parámetro opcional", Required = false)] string? rucProveedor = null)
         {
-            var combos = await servicio.CargarCombosFiltrosItems();
+            string? rucProveedorReal = (string.IsNullOrWhiteSpace(rucProveedor) || rucProveedor == "{rucProveedor}") ? null : rucProveedor.Trim();
+            logger.LogInformation($"valor de rucProveedor: {rucProveedorReal}");
+
+            var combos = await servicio.CargarCombosFiltrosItems(rucProveedorReal);
 
             return combos;
         }

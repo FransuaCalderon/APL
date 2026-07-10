@@ -12,7 +12,7 @@ namespace AppAPL.AccesoDatos.Abstracciones
     {
         Task<IEnumerable<ConsultarAcuerdoFondoDTO>> ConsultarAcuerdoFondo(int idFondo);
 
-        Task<FiltrosItemsDTO> CargarCombosFiltrosItems();
+        Task<FiltrosItemsDTO> CargarCombosFiltrosItems(string? rucProveedor = null);
         Task<IEnumerable<ArticuloDTO>> ConsultarArticulos(ConsultarArticuloDTO dto);
        
 
