@@ -11,6 +11,7 @@
     var accesosJson = session?.GetString("Accesos") ?? "[]";
     var usuarioAprobadoJson = session?.GetString("usuarioAprobado") ?? "null";
     var moduloFiltroId = Config["Apigee:ModuloFiltroId"] ?? "0";
+    var simulate = Config.GetValue<bool>("Apigee:Simulate");
 }
 
 @{
@@ -159,13 +160,16 @@
         window.misAccesos = @Html.Raw(accesosJson);
         window.usuarioAprobado = @Html.Raw(usuarioAprobadoJson);
         window.moduloIdFiltro = "@moduloFiltroId";
+        window.simulate = "@simulate";
 
         // 2. Filtramos usando las variables
         window.accesosFiltrados = window.misAccesos.filter(x => x.ModuloID == window.moduloIdFiltro);
 
+
         console.log("✅ Permisos cargados en esta vista:", window.misAccesos);
         console.log("✅ Accesos filtrados:", window.accesosFiltrados);
         console.log("✅ usuarioAprobado:", window.usuarioAprobado);
+        console.log("apigee simulado: ", window.simulate);
 
         // 3. Esperamos a que el DOM esté listo para pintar en los elementos HTML
         document.addEventListener("DOMContentLoaded", function () {

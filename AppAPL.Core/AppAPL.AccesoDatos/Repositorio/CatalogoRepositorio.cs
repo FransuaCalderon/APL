@@ -81,6 +81,34 @@ namespace AppAPL.AccesoDatos.Repositorio
             return datos;
         }
 
+        public async Task<IEnumerable<CatalogoDTO>> FiltrarPorEtiqueta(string idEtiqueta)
+        {
+            using var connection = factory.CreateOpenConnection();
+
+            var paramObject = new
+            {
+                p_idetiqueta = idEtiqueta
+            };
+
+            var parameters = new OracleDynamicParameters(paramObject);
+            parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+            parameters.Add("p_codigoretorno", OracleDbType.Int32, ParameterDirection.InputOutput, value: 0);
+            parameters.Add("p_mensaje", OracleDbType.Varchar2, ParameterDirection.InputOutput, value: "", size: 250);
+
+            var datos = await connection.QueryAsync<CatalogoDTO>(
+                "APL_SP_CONSULTA_CATALOGO_POR_TIPO",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            int? codigoSalida = parameters.Get<int>("p_codigoretorno");
+            string? mensajeSalida = parameters.Get<string>("p_mensaje");
+
+            logger.LogInformation($"codigoSalida: {codigoSalida}, mensajeSalida: {mensajeSalida}");
+
+            return datos;
+        }
+
 
 
         public async Task<CatalogoDTO?> ObtenerPorIdAsync(int idCatalogo)

@@ -15,6 +15,7 @@ namespace AppAPL.Negocio.Abstracciones
         Task<IEnumerable<CatalogoDTO>> ListarAsync(string? nombre = null, int? idCatalogoTipo = null, int? idEstado = null, DateTime? creadoDesde = null, DateTime? creadoHasta = null, int pageNumber = 1, int pageSize = 50);
         Task<CatalogoDTO?> ObtenerPorIdAsync(int idCatalogo);
         Task<IEnumerable<CatalogoDTO>> FiltrarPorTipo(int idCatalogoTipo);
+        Task<IEnumerable<CatalogoDTO>> FiltrarPorEtiqueta(string idEtiqueta);
 
     }
 }

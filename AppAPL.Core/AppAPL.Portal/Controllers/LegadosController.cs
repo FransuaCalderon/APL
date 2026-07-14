@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace AppAPL.Portal.Controllers
 {
@@ -194,8 +195,19 @@ namespace AppAPL.Portal.Controllers
 
             var json = JsonSerializer.Serialize(payload);
 
+            string? token = null;
 
-            var token = await tokenService.GetTokenRealAsync();
+            if (_config.GetValue<bool>("Apigee:Simulate"))
+            {
+                token = await tokenService.GetTokenRealAsync();
+                logger.LogInformation("simulacion activada de token");
+            }
+            else
+            {
+                token = await tokenService.GetTokenAsync();
+                logger.LogInformation("simulacion desactivada de token");
+            }
+                
 
             var client = _httpClientFactory.CreateClient("apigee");
 

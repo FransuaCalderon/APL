@@ -32,6 +32,7 @@ namespace AppAPL.Negocio.Servicios
         public Task<IEnumerable<CatalogoDTO>> FiltrarPorTipo(int idCatalogoTipo)
             => repo.FiltrarPorTipo(idCatalogoTipo);
 
-
+        public Task<IEnumerable<CatalogoDTO>> FiltrarPorEtiqueta(string idEtiqueta)
+            => repo.FiltrarPorEtiqueta(idEtiqueta);
     }
 }

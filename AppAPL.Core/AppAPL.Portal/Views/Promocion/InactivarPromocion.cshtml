@@ -87,6 +87,25 @@
                             <div class="promo-col"><div class="promo-col-header" style="white-space: nowrap; text-align: center;">% Dscto Total</div><div class="promo-col-value"><input type="text" id="verDsctoTotal" readonly></div></div>
                             <div class="promo-col col-xs"><div class="promo-col-header" style="text-align: center;">Regalo</div><div class="promo-col-value center-value"><input type="checkbox" id="verRegalo" onclick="return false;"></div></div>
                         </div>
+
+
+
+                        <!-- Nueva fila fuera del conflicto de promo-col -->
+                        <div class="row g-1 mt-3 px-2">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold col-form-label-sm mb-1 text-center d-block" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-bottom: none; padding: 4px; border-radius: 4px 4px 0 0;">
+                                    Motivo de inactivación
+                                </label>
+                                <select id="MtvInactiva" class="form-select form-select-sm bg-white shadow-sm" style="border-radius: 0 0 4px 4px;">
+                                    <option value="">Cargando...</option>
+                                    <option value="1">Motivo 1</option>
+                                    <option value="2">Motivo 2</option>
+                                    <option value="3">Motivo 3</option>
+                                </select>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
 
@@ -119,6 +138,16 @@
                                 <button id="btnVerTipoClienteArt" class="btn btn-outline-secondary btn-sm d-none" type="button"><i class="fa-solid fa-list-check"></i></button>
                                 <input type="text" class="form-control form-control-sm" id="verTipoClienteArt" readonly disabled>
                             </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold col-form-label-sm">Motivo de inactivacion</label>
+                            <select id="MtvInactiva" class="form-select form-select-sm">
+                                <option value="">Cargando...</option>
+                                <option value="1">Motivo 1</option>
+                                <option value="2">Motivo 2</option>
+                                <option value="3">Motivo 3</option>
+                            </select>
                         </div>
                     </div>
 
@@ -164,6 +193,16 @@
                                 </button>
                                 <input type="text" class="form-control form-control-sm" id="verTipoClienteComb" readonly disabled>
                             </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold col-form-label-sm">Motivo de inactivacion</label>
+                            <select id="MtvInactiva" class="form-select form-select-sm">
+                                <option value="">Cargando...</option>
+                                <option value="1">Motivo 1</option>
+                                <option value="2">Motivo 2</option>
+                                <option value="3">Motivo 3</option>
+                            </select>
                         </div>
                     </div>
 

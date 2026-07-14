@@ -153,8 +153,8 @@ $(function () {
      * 3. CONSUMIR APIGEE API ROUTER (POST)
      * ====================================================== */
 
-    /*
-    function consumirApigeeMenu() {
+    
+    function loginPrueba() {
         const payload = {
             code_app: "APP20260128155212346",
             http_method: "GET",
@@ -184,10 +184,25 @@ $(function () {
                 }
             }
         });
-    }*/
+    }
 
-    
     function consumirApigeeMenu() {
+        let simulado = window.simulate;
+
+        console.log("consumirApigeeMenu");
+
+        if (simulado) {
+            console.log("loginPrueba");
+            return loginPrueba();
+            
+        } else {
+            console.log("loginCorporativo");
+            return loginCorporativo();
+            
+        }
+    }
+    
+    function loginCorporativo() {
         console.log("consumirApigeeMenu");
         console.log("usuarioAprobado: ", window.usuarioAprobado);
 

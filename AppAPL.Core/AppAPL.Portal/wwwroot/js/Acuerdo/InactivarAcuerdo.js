@@ -6,6 +6,8 @@
 let tabla;
 let ultimaFilaModificada = null;
 
+let listaMotivosInactivacion = null;
+
 // ===============================================================
 // FUNCIONES HELPER
 // ===============================================================
@@ -59,6 +61,7 @@ $(function () {
     $.get("/config", function (config) {
         window.apiBaseUrl = config.apiBaseUrl;
         cargarBandeja();
+        cargarListaMotivo();
     }).fail(function () {
         Swal.fire({ icon: "error", title: "Error", text: "No se pudo cargar la configuración (/config)." });
     });
@@ -80,6 +83,56 @@ $(function () {
         inactivarAcuerdo();
     });
 });
+
+
+//funcion de cargar para lista de motivo de inactivacion
+function cargarListaMotivo() {
+    const $select = $("#MtvInactiva");
+    $select.empty().append($("<option>").val("").text("Cargando..."));
+
+
+    const payload = {
+        code_app: "APP20260128155212346",
+        http_method: "GET",
+        endpoint_path: "api/Catalogo/FiltrarPorEtiqueta",
+        client: "APL",
+        endpoint_query_params: "/INACMOTIVO"
+    };
+
+    $.ajax({
+        url: "/api/apigee-router-proxy",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            console.log("motivos inactivacion: ", response.json_response);
+            if (response && response.code_status === 200) {
+                listaMotivosInactivacion = response.json_response || [];
+
+                $select.empty();
+
+                if (Array.isArray(listaMotivosInactivacion) && listaMotivosInactivacion.length > 0) {
+
+                    listaMotivosInactivacion.forEach((i) => {
+                        $select.append(
+                            $("<option>")
+                                .val(i.idcatalogo)
+                                .text(i.nombre)
+                                .attr("data-idcatalogo", i.idcatalogo)
+                        );
+                    });
+
+                    
+                }
+             
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: "No se pudo cargar lista de motivos de inactivacion" });
+            }
+        },
+        error: (xhr) => manejarErrorGlobal(xhr, "cargar la motivos de inactivacion")
+    });
+}
+
 
 // ===================================================================
 // FUNCIONES DE CARGA (BANDEJA) - MIGRADAS A APIGEE PROXY
@@ -505,6 +558,11 @@ function inactivarAcuerdo() {
     const usuario = obtenerUsuarioActual();
     const idOpcionActual = getIdOpcionSeguro();
     const idAcuerdo = parseInt($("#lblIdAcuerdo").text(), 10);
+    const motivoinactivacion = parseInt($("#MtvInactiva").val(), 10) || 0;
+
+    /*
+    console.log("motivoinactivacion", motivoinactivacion);
+    return;*/
 
     // Validación de seguridad
     if (!idAcuerdo || isNaN(idAcuerdo)) {
