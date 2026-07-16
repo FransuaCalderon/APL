@@ -7,7 +7,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ParametroController (ILogger<ParametroController> logger, IParametroServicio servicio) : ControllerBase
+    public class ParametroController (IParametroServicio servicio) : ControllerBase
     {
         [HttpGet("listar")]
         public async Task<ActionResult<List<ParametroDTO>>> ObtenerTodos([FromQuery] string? nombre = null,

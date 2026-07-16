@@ -20,7 +20,15 @@ namespace AppAPL.Negocio.IoC
             services.AddScoped<IAprobacionServicio, AprobacionServicio>();
             services.AddScoped<IAcuerdoServicio, AcuerdoServicio>();
             services.AddScoped<IPromocionServicio, PromocionServicio>();
-            services.AddAutoMapper(typeof(BusinessServiceCollectionExtensions));
+
+
+            // Sintaxis actualizada para AutoMapper v13+
+            services.AddAutoMapper(config =>
+            {
+                config.AddMaps(typeof(BusinessServiceCollectionExtensions).Assembly);
+            });
+
+
             services.AddScoped<IParametrizacionServicio, ParametrizacionServicio>();
             services.AddScoped<IValidacionAporteServicio, ValidacionAporteServicio>();
             services.AddScoped<IAprobadorServicio, AprobadorServicio>();

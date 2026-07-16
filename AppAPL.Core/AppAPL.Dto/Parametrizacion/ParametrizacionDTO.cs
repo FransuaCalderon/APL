@@ -15,7 +15,7 @@ namespace AppAPL.Dto.Parametrizacion
        
         public int codigoparametro { get; set; }
 
-        public string nombre { get; set; }
+        public string? nombre { get; set; }
     }
 
     public class GruposAlmacenConfigDTO
@@ -184,11 +184,11 @@ namespace AppAPL.Dto.Parametrizacion
 
         public int codigoparametro { get; set; }
 
-        public string nombre_parametro { get; set; }
+        public string? nombre_parametro { get; set; }
 
-        public string codigo_articulo { get; set; }
+        public string? codigo_articulo { get; set; }
 
-        public string nombre_articulo { get; set; }
+        public string? nombre_articulo { get; set; }
 
         public decimal costo { get; set; }
     }

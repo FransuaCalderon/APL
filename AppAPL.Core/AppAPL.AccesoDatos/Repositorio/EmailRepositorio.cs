@@ -84,8 +84,8 @@ namespace AppAPL.AccesoDatos.Repositorio
             // 🔹 Inicializar OracleDynamicParameters con objeto anónimo
             var paramObject = new 
             {
-                p_entidad = request.Entidad.ToUpper(),
-                p_tproceso = request.TipoProceso.ToUpper(),
+                p_entidad = request.Entidad?.ToUpper(),
+                p_tproceso = request.TipoProceso?.ToUpper(),
                 p_iddocumento = request.IdDocumento
             };
 

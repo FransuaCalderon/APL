@@ -33,7 +33,7 @@ namespace AppAPL.Api.Handlers
             // 1. Declaramos las variables que llenará el switch
             //List<string> proveedores = new List<string>();
             string IdProveedor = "";
-            Dictionary<string, string> camposPlantilla = null;
+            Dictionary<string, string>? camposPlantilla = null;
             string notificacion = "";
 
             logger.LogInformation($"[AcuerdosHandler] Enviando correo para proceso: {tipoProceso}.");
@@ -48,11 +48,25 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
+                    // 1. Primero validamos que el string tenga contenido
+                    if (string.IsNullOrWhiteSpace(responseBody))
+                    {
+                        logger.LogWarning("No existe Response body o está vacío");
+                        return;
+                    }
+
                     var retorno = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
                     if (retorno == null)
                     {
                         logger.LogWarning("No existe Response body");
                         return;
+                    }
+
+
+                    if (reqCreacion.Fondo == null)
+                    {
+                        logger.LogWarning("El objeto Fondo no fue proporcionado en la solicitud.");
+                        return; // Considera devolver un BadRequest() si estás en un controlador
                     }
 
 
@@ -63,13 +77,33 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
+
+
+                    if (string.IsNullOrWhiteSpace(fondo.IdProveedor))
+                    {
+                        logger.LogWarning($"no se encontro el fondo con el id: {fondo.IdProveedor}");
+                        return;
+                    }
+
+
                     IdProveedor = fondo.IdProveedor;
+
+                    
+
                     //proveedores.Add(fondo.IdProveedor);
                     var proveedor = await proveedorRepo.ObtenerPorIdAsync(fondo.IdProveedor);
 
                     if (proveedor == null)
                     {
                         logger.LogWarning($"no se encontro proveedor con el idproveedor: {fondo.IdProveedor}");
+                        return;
+                    }
+
+
+
+                    if (fondo.IdTipoFondo == null)
+                    {
+                        logger.LogWarning($"fondo.IdTipoFondo es nulo {fondo.IdTipoFondo}");
                         return;
                     }
 
@@ -83,14 +117,15 @@ namespace AppAPL.Api.Handlers
                     camposPlantilla = new Dictionary<string, string>
                     {
                         { "Nombre", "" },
-                        { "IdAcuerdo", retorno.Id.ToString() },
-                        { "NombreProveedor", proveedor.Nombre },
-                        { "ValorAcuerdo", this.FormatearAMoneda(reqCreacion.Fondo.ValorAporte) },
-                        { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(reqCreacion.Fondo.ValorAporte) },
-                        { "FechaInicio", reqCreacion.Acuerdo.FechaInicioVigencia.ToString() },
-                        { "FechaFin", reqCreacion.Acuerdo.FechaFinVigencia.ToString() },
-                        { "IdFondo", reqCreacion.Fondo.IdFondo.ToString() },
-                        { "TipoFondo", catalogo.Nombre },
+                        
+                        { "IdAcuerdo", retorno.Id.ToString() ?? "" },
+                        { "NombreProveedor", proveedor.Nombre ?? "" },
+                        { "ValorAcuerdo", this.FormatearAMoneda(reqCreacion.Fondo.ValorAporte) ?? "" },
+                        { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(reqCreacion.Fondo.ValorAporte) ?? "" },
+                        { "FechaInicio", reqCreacion.Acuerdo?.FechaInicioVigencia.ToString() ?? "" },
+                        { "FechaFin", reqCreacion.Acuerdo?.FechaFinVigencia.ToString() ?? "" },
+                        { "IdFondo", reqCreacion.Fondo.IdFondo.ToString() ?? "" },
+                        { "TipoFondo", catalogo.Nombre ?? "" },
                         { "Firma", "" },
                         // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                     };
@@ -113,14 +148,23 @@ namespace AppAPL.Api.Handlers
                     }
 
                     var fondoNuevo = await fondoRepo.ObtenerPorIdAsync(reqModificacion.IdFondo);
-                    if (fondoNuevo == null)
+                    if (fondoNuevo == null || fondoNuevo.IdProveedor == null)
                     {
                         logger.LogWarning($"no se encontro el fondo con el id: {reqModificacion.IdFondo}");
                         return;
                     }
 
+
+                    // 1. Validamos que ni el acuerdo ni su cabecera sean nulos
+                    if (acuerdoAntiguo == null || acuerdoAntiguo.cabecera == null)
+                    {
+                        logger.LogWarning("No se encontró el acuerdo antiguo o su cabecera está vacía.");
+                        return; // O devuelve un NotFound(), BadRequest(), etc., según el contexto.
+                    }
+
+
                     var fondoAntiguo = await fondoRepo.ObtenerPorIdAsync(acuerdoAntiguo.cabecera.idfondo);
-                    if (fondoAntiguo == null)
+                    if (fondoAntiguo == null || fondoAntiguo.IdProveedor == null)
                     {
                         logger.LogWarning($"no se encontro el fondo con el id: {acuerdoAntiguo.cabecera.idfondo}");
                         return;
@@ -140,8 +184,8 @@ namespace AppAPL.Api.Handlers
                         {
                             { "Nombre", "" },
                             { "IdAcuerdo", reqModificacion.IdAcuerdo.ToString() },
-                            { "NombreProveedor", proveedorAntiguo.Nombre },
-                            { "NuevoNombreProveedor", proveedorNuevo.Nombre },
+                            { "NombreProveedor", proveedorAntiguo.Nombre ?? ""},
+                            { "NuevoNombreProveedor", proveedorNuevo.Nombre ?? "" },
                             { "ValorAcuerdo", this.FormatearAMoneda(acuerdoAntiguo.cabecera.valor_total) },
                             { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdoAntiguo.cabecera.valor_total) },
                             { "NuevoValorAcuerdo", this.FormatearAMoneda(reqModificacion.ValorAporte) },
@@ -179,17 +223,19 @@ namespace AppAPL.Api.Handlers
                     string estadoCorreo = reqAprobacion.IdEtiquetaEstado switch
                     {
                         "ESTADOAPROBADO" => "APROBADO",
-                        "ESTADONEGADO" => "NEGADO"
+                        "ESTADONEGADO" => "NEGADO",
+                        _ => "DESCONOCIDO" // Este es el caso por defecto obligatorio
                     };
 
                     string etiquetaTipoProceso = reqAprobacion.IdEtiquetaTipoProceso switch
                     {
                         "TPCREACION" => "CREACION",
-                        "TPINACTIVACION" => "INACTIVACION"
+                        "TPINACTIVACION" => "INACTIVACION",
+                        _ => "OTRO" // Aquí manejas cualquier otro valor inesperado
                     };
 
                     var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)reqAprobacion.Identidad);
-                    if (acuerdo == null)
+                    if (acuerdo == null || acuerdo.cabecera == null)
                     {
                         logger.LogWarning($"no se encontro el acuerdo con el idacuerdo: {reqAprobacion.Identidad}");
                         return;
@@ -197,7 +243,7 @@ namespace AppAPL.Api.Handlers
 
                     
                     var fondo2 = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
-                    if (fondo2 == null)
+                    if (fondo2 == null || fondo2.IdProveedor == null || fondo2.IdTipoFondo == null)
                     {
                         logger.LogWarning($"no se encontro el fondo con el id: {acuerdo.cabecera.idfondo}");
                         return;
@@ -218,15 +264,15 @@ namespace AppAPL.Api.Handlers
                             { "Nombre", "" },
                             { "Estado", estadoCorreo },
                             { "TipoProceso", etiquetaTipoProceso },
-                            { "IdAcuerdo", reqAprobacion.Identidad.ToString() },
-                            { "NombreProveedor", acuerdo.cabecera.fondo_proveedor },
+                            { "IdAcuerdo", reqAprobacion.Identidad.ToString() ?? "" },
+                            { "NombreProveedor", acuerdo.cabecera.fondo_proveedor ?? "" },
                             
                             { "ValorAcuerdo", this.FormatearAMoneda(acuerdo.cabecera.valor_total) },
                             { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdo.cabecera.valor_total) },
                             { "FechaInicio", acuerdo.cabecera.fecha_inicio.ToString() },
                             { "FechaFin", acuerdo.cabecera.fecha_fin.ToString() },
                             { "IdFondo", acuerdo.cabecera.idfondo.ToString() },
-                            { "TipoFondo", catalogo2.Nombre },
+                            { "TipoFondo", catalogo2.Nombre ?? ""},
                             { "Firma", "" },
                             
                         };
@@ -236,14 +282,14 @@ namespace AppAPL.Api.Handlers
 
                 case TipoProceso.Inactivacion:
                     var reqInactivacion = JsonSerializer.Deserialize<InactivarAcuerdoRequest>(requestBody, jsonOptions);
-                    if (reqInactivacion == null || reqInactivacion.IdAcuerdo == null)
+                    if (reqInactivacion == null)
                     {
                         logger.LogWarning("⚠️ [AcuerdosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
                         return;
                     }
 
                     var acuerdo2 = await acuerdoRepo.ObtenerBandejaConsultaPorId(reqInactivacion.IdAcuerdo);
-                    if (acuerdo2 == null)
+                    if (acuerdo2 == null || acuerdo2.cabecera == null)
                     {
                         logger.LogWarning($"no se encontro el acuerdo con el idacuerdo: {reqInactivacion.IdAcuerdo}");
                         return;
@@ -251,9 +297,10 @@ namespace AppAPL.Api.Handlers
 
                     var fondo3 = await fondoRepo.ObtenerPorIdAsync(acuerdo2.cabecera.idfondo);
 
-                    if (fondo3 == null)
+                    if (fondo3 == null || fondo3.IdProveedor == null || fondo3.ValorFondo == null)
                     {
                         logger.LogWarning($"no se encontro el fondo con el id: {acuerdo2.cabecera.idfondo}");
+                        return;
                     }
 
                     IdProveedor = fondo3.IdProveedor;
@@ -264,7 +311,7 @@ namespace AppAPL.Api.Handlers
                         {
                             { "Nombre", "" },
                             { "IdAcuerdo", acuerdo2.cabecera.idacuerdo.ToString() },
-                            { "NombreProveedor", acuerdo2.cabecera.fondo_proveedor },
+                            { "NombreProveedor", acuerdo2.cabecera.fondo_proveedor ?? "" },
 
                             { "ValorAcuerdo", this.FormatearAMoneda(acuerdo2.cabecera.valor_total) },
                             { "ValorAcuerdoLetras", this.ConvertirDecimalAPalabras(acuerdo2.cabecera.valor_total) },

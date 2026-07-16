@@ -71,9 +71,9 @@ namespace AppAPL.Api.Middlewares
 
 
 
-            FondoDTO fondoAntiguo = null;
-            BandConsAcuerdoPorIDDTO acuerdoAntiguo = null;
-            BandModPromocionIDDTO promocionAntiguo = null;
+            FondoDTO? fondoAntiguo = null;
+            BandConsAcuerdoPorIDDTO? acuerdoAntiguo = null;
+            BandModPromocionIDDTO? promocionAntiguo = null;
             //logica para sacar el fondo antiguo antes de modificar
             if (emailAttr.Entidad == "ENTFONDO" && emailAttr.TipoProceso == TipoProceso.Modificacion)
             {

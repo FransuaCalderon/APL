@@ -114,7 +114,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             using var connection = factory.CreateOpenConnection();
 
             // 🎯 Lógica para determinar el valor de p_codigo
-            string codigoArticuloParam = string.IsNullOrWhiteSpace(dto.CodigoArticulo)
+            string? codigoArticuloParam = string.IsNullOrWhiteSpace(dto.CodigoArticulo)
                 ? null // Si está vacío, se envía NULL
                 : dto.CodigoArticulo; // De lo contrario, se envía el valor
 

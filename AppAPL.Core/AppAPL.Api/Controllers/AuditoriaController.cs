@@ -7,7 +7,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuditoriaController (ILogger<AuditoriaController> logger, ILogServicio servicio) : ControllerBase
+    public class AuditoriaController (ILogServicio servicio) : ControllerBase
     {
         [HttpGet("consultar-logs-general/{entidad}/{identidad:int}")]
         public async Task<ActionResult<List<LogDTO>>> ConsultarPromocion(string entidad, int identidad)

@@ -90,7 +90,7 @@ namespace AppAPL.Api.Controllers
             }
 
             var provider = new FileExtensionContentTypeProvider();
-            if (!provider.TryGetContentType(rutaCompleta, out string contentType))
+            if (!provider.TryGetContentType(rutaCompleta, out string? contentType))
             {
                 contentType = "application/octet-stream";
             }

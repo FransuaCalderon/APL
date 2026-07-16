@@ -16,7 +16,7 @@ namespace AppAPL.Api.Controllers
     [Route("api/[controller]")]
     //[ApiExplorerSettings(IgnoreApi = true)]
 
-    public class PromocionController(ILogger<PromocionController> logger, IPromocionServicio servicio, IConfiguration configuration) : ControllerBase
+    public class PromocionController(ILogger<PromocionController> logger, IPromocionServicio servicio) : ControllerBase
     {
 
         [HttpGet("consultar-promocion")]
@@ -172,6 +172,14 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandAproPromoPorId(idPromocion, idAprobacion);
+
+            // Comprobar si el resultado es nulo
+            if (item == null)
+            {
+                return NotFound(new { mensaje = "No se encontró la información solicitada." });
+            }
+
+
             if (item.codigoSalida == 0)
             {
                 logger.LogInformation(item.mensajeSalida);
@@ -208,6 +216,13 @@ namespace AppAPL.Api.Controllers
             
             var item = await servicio.ObtenerBandInacPromoPorId(idPromocion);
 
+            // Comprobar si el resultado es nulo
+            if (item == null)
+            {
+                return NotFound(new { mensaje = "No se encontró la información solicitada." });
+            }
+
+
             if (item.codigoSalida == 0)
             {
                 logger.LogInformation(item.mensajeSalida);
@@ -234,6 +249,14 @@ namespace AppAPL.Api.Controllers
         public async Task<ActionResult<BandModPromocionIDDTO>> ObtenerBandModPromoPorId(int idPromocion)
         {
             var item = await servicio.ObtenerBandModPromoPorId(idPromocion);
+
+            // Comprobar si el resultado es nulo
+            if (item == null)
+            {
+                return NotFound(new { mensaje = "No se encontró la información solicitada." });
+            }
+
+
             if (item.codigoSalida == 0)
             {
                 logger.LogInformation(item.mensajeSalida);
@@ -261,6 +284,12 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandGenPromoPorId(idPromocion);
+
+            // Comprobar si el resultado es nulo
+            if (item == null)
+            {
+                return NotFound(new { mensaje = "No se encontró la información solicitada." });
+            }
 
             if (item.codigoSalida == 0)
             {
@@ -408,7 +437,7 @@ namespace AppAPL.Api.Controllers
 
         
         [HttpPost("buscar-promociones")]
-        public async Task<ActionResult<BuscarPromocionesResponse>> BuscarPromociones(BuscarPromocionesRequest request)
+        public async Task<ActionResult<BuscarPromocionesResponse?>> BuscarPromociones(BuscarPromocionesRequest request)
         {
             // 1. Validación rápida de entrada
             if (string.IsNullOrWhiteSpace(request.codigoarticulo))
@@ -431,7 +460,7 @@ namespace AppAPL.Api.Controllers
             var response = await servicio.LiquidarPromocion(request);
 
             // 2. Evaluamos la respuesta según tu regla
-            if (response.CodigoRespuesta != 0)
+            if (response?.CodigoRespuesta != 0)
             {
                 // Retorna 400 Bad Request con el mensaje de error devuelto por Oracle
                 return BadRequest(response);

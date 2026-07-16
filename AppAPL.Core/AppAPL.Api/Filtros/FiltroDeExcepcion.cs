@@ -113,7 +113,7 @@ namespace AppAPL.Api.Filtros
                 {
                     var fileName = frame.GetFileName();
                     var lineNumber = frame.GetFileLineNumber();
-                    logger.LogError($"[hilo: {this.processId}] Clase: {className}, Método: {method.Name}, Línea: {lineNumber}");
+                    logger.LogError($"[hilo: {this.processId}] Clase: {className}, Método: {method?.Name}, Línea: {lineNumber}");
                 }
             }
         }

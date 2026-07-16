@@ -21,7 +21,7 @@ namespace AppAPL.Portal.Controllers
         private readonly Saml2Configuration _config;
         private readonly IConfiguration configuration;
         private readonly ILogger<AuthController> logger;
-        private string baseUrl;
+        private string? baseUrl;
 
         public AuthController(IOptionsMonitor<Saml2Configuration> configAccessor, IConfiguration configuration, ILogger<AuthController> logger)
         {
@@ -62,13 +62,21 @@ namespace AppAPL.Portal.Controllers
             await saml2AuthnResponse.CreateSession(HttpContext);
 
             var returnUrl = httpRequest.Binding.GetRelayStateQuery()[RelayStateReturnUrl];
-            return Redirect(string.IsNullOrWhiteSpace(returnUrl) ? baseUrl : returnUrl);
+            // Si baseUrl es nulo, usará "/" como salvavidas
+            return Redirect(string.IsNullOrWhiteSpace(returnUrl) ? (baseUrl ?? "/") : returnUrl);
         }
 
         [HttpGet("/auth/logout")]
         public async Task<IActionResult> Logout()
         {
-            if (!User.Identity.IsAuthenticated)
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                logger.LogWarning($"baseUrl es nulo: {baseUrl}");
+                return NotFound($"baseUrl es nulo: {baseUrl}");
+            }
+
+
+            if (!User.Identity!.IsAuthenticated)
             {
                 return Redirect(baseUrl);
             }
@@ -87,6 +95,13 @@ namespace AppAPL.Portal.Controllers
         [HttpPost("/auth/loggedout")]
         public IActionResult LoggedOut()
         {
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                logger.LogWarning($"baseUrl es nulo: {baseUrl}");
+                return NotFound($"baseUrl es nulo: {baseUrl}");
+            }
+
+
             return Redirect(baseUrl);
             //return RedirectToAction("Login", "Login");
         }

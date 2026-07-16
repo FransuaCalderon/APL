@@ -105,7 +105,7 @@ namespace AppAPL.Api.Handlers
             // ... (Tu lógica para toList y ccList no cambia) ...
             var toList = destinatarios
                 .Where(d => !string.IsNullOrWhiteSpace(d.para)) // Filtramos nulos primero
-                .SelectMany(d => d.para.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                .SelectMany(d => d.para!.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
                 .Select(email => email.Trim()) // Quitamos espacios en blanco extra
                 .Distinct() // Ahora sí elimina correos duplicados reales
                 .ToList();
@@ -137,9 +137,9 @@ namespace AppAPL.Api.Handlers
 
             await emailRepo.SendEmailAsync(
                 toList,
-                notificacion,
-                plantilla.nombrearchivo,
-                camposPlantilla, // Usamos el diccionario llenado en el switch
+                notificacion!,
+                plantilla.nombrearchivo!,
+                camposPlantilla!, // Usamos el diccionario llenado en el switch
                 ccList
             );
         }

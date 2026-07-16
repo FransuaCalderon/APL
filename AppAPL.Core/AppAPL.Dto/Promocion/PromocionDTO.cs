@@ -14,15 +14,15 @@ namespace AppAPL.Dto.Promocion
     public class PromocionDTO
     {
         public int IDPROMOCION { get; set; }
-        public string DESCRIPCION { get; set; }
-        public string nombre_motivo { get; set; }
-        public string clase_promocion { get; set; }
+        public string? DESCRIPCION { get; set; }
+        public string? nombre_motivo { get; set; }
+        public string? clase_promocion { get; set; }
         public DateTime fecha_inicio { get; set; }
         public DateTime fecha_fin { get; set; }
-        public string regalo { get; set; }
-        public string soporte { get; set; }
-        public string estado { get; set; }
-        public string estado_etiqueta { get; set; }
+        public string? regalo { get; set; }
+        public string? soporte { get; set; }
+        public string? estado { get; set; }
+        public string? estado_etiqueta { get; set; }
     }
 
     public class PromocionAcuerdoDTO
@@ -42,8 +42,8 @@ namespace AppAPL.Dto.Promocion
         public int IDPROMOCIONARTICULO { get; set; }
         public int IDPROMOCION { get; set; }
         public int IDPROMOCIONCOMBO { get; set; }
-        public string CODIGOITEM { get; set; }
-        public string DESCRIPCION { get; set; }
+        public string? CODIGOITEM { get; set; }
+        public string? DESCRIPCION { get; set; }
         public decimal COSTO { get; set; }
         public int STOCKDISPONIBLE { get; set; }
         public int INVENTARIOOPTIMO { get; set; }
@@ -72,8 +72,8 @@ namespace AppAPL.Dto.Promocion
     {
         public int IDPROMOCIONSEGMENTO { get; set; }
         public int IDPROMOCION { get; set; }
-        public string IDTIPOSEGMENTO { get; set; }
-        public string TIPOASIGNACION { get; set; }
+        public string? IDTIPOSEGMENTO { get; set; }
+        public string? TIPOASIGNACION { get; set; }
         public int ESTADOREGISTRO { get; set; }
     }
 
@@ -81,49 +81,49 @@ namespace AppAPL.Dto.Promocion
     {
         public int IDPROMOCIONSEGMENTODETALLE { get; set; }
         public int IDPROMOCIONSEGMENTO { get; set; }
-        public string CODIGO { get; set; }
+        public string? CODIGO { get; set; }
         public int ESTADOREGISTRO { get; set; }
     }
 
     public class TipoClienteDTO
     {
-        public string CODIGO { get; set; }
-        public string NOMBRE { get; set; }
+        public string? CODIGO { get; set; }
+        public string? NOMBRE { get; set; }
     }
 
     public class OtrosCostosDTO
     {
         public int CODIGO { get; set; }
-        public string NOMBRE { get; set; }
+        public string? NOMBRE { get; set; }
         public decimal VALOR { get; set; }
 
     }
 
     public class GrupoAlmacenDTO
     {
-        public string CODIGOGRUPO { get; set; }
-        public string NOMBREGRUPO { get; set; }
-        //public string CODIGOALMACEN { get; set; }
-        //public string NOMBREALMACEN { get; set; }
+        public string? CODIGOGRUPO { get; set; }
+        public string? NOMBREGRUPO { get; set; }
+        //public string? CODIGOALMACEN { get; set; }
+        //public string? NOMBREALMACEN { get; set; }
     }
 
     public class CanalDTO
     {
-        public string CODIGO { get; set; }
-        public string NOMBRE { get; set; }
+        public string? CODIGO { get; set; }
+        public string? NOMBRE { get; set; }
     }
 
     public class ArticuloPrecioCompetenciaDTO
     {
-        public string ARTICULO { get; set; }
-        public string NOMBRE_COMPETENCIA { get; set; }
+        public string? ARTICULO { get; set; }
+        public string? NOMBRE_COMPETENCIA { get; set; }
         public decimal PRECIO_CONTADO { get; set; }
     }
 
     public class ArticuloEquivalenteDTO
     {
-        public string codigo { get; set; }
-        public string descripcion { get; set; }
+        public string? codigo { get; set; }
+        public string? descripcion { get; set; }
         public decimal costo { get; set; }
         public int stock_bodega { get; set; }
         public int stock_tiendas { get; set; }
@@ -152,24 +152,24 @@ namespace AppAPL.Dto.Promocion
         public decimal precio_lista_contado { get; set; }
         public decimal precio_lista_credito { get; set; }
 
-        public string marca { get; set; }
-        public string division { get; set; }
-        public string departamento { get; set; }
-        public string clase { get; set; }
+        public string? marca { get; set; }
+        public string? division { get; set; }
+        public string? departamento { get; set; }
+        public string? clase { get; set; }
     }
 
     public class AlmacenDTO
     {
-        //public string CODIGOGRUPO { get; set; }
-        //public string NOMBREGRUPO { get; set; }
-        public string CODIGOALMACEN { get; set; }
-        public string NOMBREALMACEN { get; set; }
+        //public string? CODIGOGRUPO { get; set; }
+        //public string? NOMBREGRUPO { get; set; }
+        public string? CODIGOALMACEN { get; set; }
+        public string? NOMBREALMACEN { get; set; }
     }
 
     public class MedioPagoDTO
     {
-        public string CODIGO { get; set; }
-        public string DESCRIPCION { get; set; }
+        public string? CODIGO { get; set; }
+        public string? DESCRIPCION { get; set; }
     }
 
 
@@ -184,14 +184,14 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloPromocionDTO
     {
-        public string codigo_marca { get; set; }
-        public string nombre_marca { get; set; }
-        public string codigo_division { get; set; }
-        public string nombre_division { get; set; }
-        public string codigo_departamento { get; set; }
-        public string nombre_departamento { get; set; }
-        public string codigo_clase { get; set; }
-        public string nombre_clase { get; set; }
+        public string? codigo_marca { get; set; }
+        public string? nombre_marca { get; set; }
+        public string? codigo_division { get; set; }
+        public string? nombre_division { get; set; }
+        public string? codigo_departamento { get; set; }
+        public string? nombre_departamento { get; set; }
+        public string? codigo_clase { get; set; }
+        public string? nombre_clase { get; set; }
     }
 
     public class ConsultarCombosPromocionesDTO
@@ -224,46 +224,46 @@ namespace AppAPL.Dto.Promocion
     public class BandInacPromocionDTO
     {
         public int IDPROMOCION { get; set; }
-        public string DESCRIPCION { get; set; }
-        public string MOTIVO { get; set; }
-        public string CLASE_PROMOCION { get; set; }
+        public string? DESCRIPCION { get; set; }
+        public string? MOTIVO { get; set; }
+        public string? CLASE_PROMOCION { get; set; }
         public DateTime FECHA_INICIO { get; set; }
         public DateTime FECHA_FIN { get; set; }
-        public string REGALO { get; set; }
+        public string? REGALO { get; set; }
         
-        public string SOPORTE { get; set; }
-        public string ESTADO { get; set; }
+        public string? SOPORTE { get; set; }
+        public string? ESTADO { get; set; }
     }
 
     public class BandLiquiPromocionDTO
     {
         public int IDPROMOCION { get; set; }
-        public string DESCRIPCION { get; set; }
-        public string MOTIVO { get; set; }
-        public string CLASE_PROMOCION { get; set; }
+        public string? DESCRIPCION { get; set; }
+        public string? MOTIVO { get; set; }
+        public string? CLASE_PROMOCION { get; set; }
         public DateTime FECHA_INICIO { get; set; }
         public DateTime FECHA_FIN { get; set; }
-        public string REGALO { get; set; }
+        public string? REGALO { get; set; }
 
-        public string SOPORTE { get; set; }
-        public string ESTADO { get; set; }
+        public string? SOPORTE { get; set; }
+        public string? ESTADO { get; set; }
     }
 
     public class BandModPromocionDTO
     {
         public int idpromocion { get; set; }
-        public string descripcion { get; set; }
-        public string motivo { get; set; }
-        public string clase_promocion { get; set; }
+        public string? descripcion { get; set; }
+        public string? motivo { get; set; }
+        public string? clase_promocion { get; set; }
         public DateTime fecha_inicio { get; set; }
         public DateTime fecha_fin { get; set; }
-        public string marcaregalo { get; set; }
-        public string archivosoporte { get; set; }
-        public string estado { get; set; }
-        public string estado_etiqueta { get; set; }
+        public string? marcaregalo { get; set; }
+        public string? archivosoporte { get; set; }
+        public string? estado { get; set; }
+        public string? estado_etiqueta { get; set; }
         public int idaprobacion { get; set; }
-        public string idusersolicitud { get; set; }
-        public string nombreusersolicitud { get; set; }
+        public string? idusersolicitud { get; set; }
+        public string? nombreusersolicitud { get; set; }
         public DateTime fechasolicitud { get; set; }
         public int nivelaprobacion { get; set; }
         public int numeroloteaprobacion { get; set; }
@@ -271,23 +271,23 @@ namespace AppAPL.Dto.Promocion
 
     public class BandAproPromocionDTO
     {
-        public string solicitud { get; set; }
+        public string? solicitud { get; set; }
         public int idpromocion { get; set; }
-        public string descripcion { get; set; }
+        public string? descripcion { get; set; }
         public int motivo { get; set; }
         public int id_clase_promocion { get; set; }
-        public string nombre_clase_promocion { get; set; }
+        public string? nombre_clase_promocion { get; set; }
         public DateTime fechahorainicio { get; set; }
         public DateTime fechahorafin { get; set; }
-        public string nombreusersolicitud { get; set; }
+        public string? nombreusersolicitud { get; set; }
         public DateTime fechasolicitud { get; set; }
-        public string marcaregalo { get; set; }
+        public string? marcaregalo { get; set; }
         public int idestado_promocion { get; set; }
-        public string nombre_estado { get; set; }
-        public string id_etiqueta_estado { get; set; }
-        public string archivosoporte { get; set; }
+        public string? nombre_estado { get; set; }
+        public string? id_etiqueta_estado { get; set; }
+        public string? archivosoporte { get; set; }
         public int nivelaprobacion { get; set; }
-        public string aprobador { get; set; }
+        public string? aprobador { get; set; }
         public int idaprobacion { get; set; }
         public int tiene_aprobador { get; set; }
     }
@@ -299,7 +299,7 @@ namespace AppAPL.Dto.Promocion
     {
         // Lista para capturar el cursor p_cursor_cabecera
         public CabeceraBandInacPromoDTO? cabecera { get; set; }
-        public List<SegmentoBandejaDTO> segmentos { get; set; }
+        public List<SegmentoBandejaDTO>? segmentos { get; set; }
         public List<AcuerdoBandInacDTO>? acuerdos { get; set; }
 
         public List<ArticuloBandInacPromoDTO>? articulos { get; set; }
@@ -660,12 +660,12 @@ namespace AppAPL.Dto.Promocion
         public int? IdPromocion { get; set; }
         public string? Descripcion { get; set; }
         public int id_motivo { get; set; }
-        public string nombre_motivo { get; set; }
+        public string? nombre_motivo { get; set; }
         public int id_clase_promocion { get; set; }
-        public string nombre_clase_promocion { get; set; }
-        public string etiqueta_clase_promocion { get; set; }
-        public string MarcaRegalo { get; set; }
-        public string MarcaProcesoAprobacion { get; set; }
+        public string? nombre_clase_promocion { get; set; }
+        public string? etiqueta_clase_promocion { get; set; }
+        public string? MarcaRegalo { get; set; }
+        public string? MarcaProcesoAprobacion { get; set; }
         public int? NumeroLoteAprobacion { get; set; }
         public string? ArchivoSoporte { get; set; }
 
@@ -678,8 +678,8 @@ namespace AppAPL.Dto.Promocion
         public DateTime? fecha_fin { get; set; }
 
         public int id_estado_promocion { get; set; }
-        public string nombre_estado_promocion { get; set; }
-        public string etiqueta_estado_promocion { get; set; }
+        public string? nombre_estado_promocion { get; set; }
+        public string? etiqueta_estado_promocion { get; set; }
 
     }
 
@@ -1010,7 +1010,7 @@ namespace AppAPL.Dto.Promocion
 
     public class CabeceraBandModPromoDTO
     {
-        //public string Solicitud { get; set; }
+        //public string? Solicitud { get; set; }
         public int? IdPromocion { get; set; }
         public string? Descripcion { get; set; }
         public int? id_motivo { get; set; }
@@ -1675,14 +1675,14 @@ namespace AppAPL.Dto.Promocion
     public class AcuerdoPromoDTO
     {
         public int idacuerdo { get; set; }
-        public string descripcion { get; set; }
+        public string? descripcion { get; set; }
         public int idtipofondo { get; set; }
         public int idfondo { get; set; }
-        public string nombre_tipo_fondo { get; set; }
-        public string etiqueta_tipo_fondo { get; set; }
-        public string nombre_proveedor { get; set; }
-        public string clase_acuerdo { get; set; }
-        public string etiqueta_clase_acuerdo { get; set; }
+        public string? nombre_tipo_fondo { get; set; }
+        public string? etiqueta_tipo_fondo { get; set; }
+        public string? nombre_proveedor { get; set; }
+        public string? clase_acuerdo { get; set; }
+        public string? etiqueta_clase_acuerdo { get; set; }
         public int idtipoacuerdo { get; set; }
         public int cantidad_articulos { get; set; }
         public decimal valor_acuerdo { get; set; }
@@ -1691,22 +1691,22 @@ namespace AppAPL.Dto.Promocion
         public decimal valor_disponible { get; set; }
         public decimal valor_comprometido { get; set; }
         public decimal valor_liquidado { get; set; }
-        public string estado { get; set; }
-        public string estado_etiqueta { get; set; }
+        public string? estado { get; set; }
+        public string? estado_etiqueta { get; set; }
     }
 
 
     public class AcuerdoPromocionArticuloDTO
     {
         public int idacuerdo { get; set; }
-        public string descripcion { get; set; }
+        public string? descripcion { get; set; }
         public int idtipofondo { get; set; }
         public int idfondo { get; set; }
-        public string nombre_tipo_fondo { get; set; }
-        public string etiqueta_tipo_fondo { get; set; }
-        public string nombre_proveedor { get; set; }
-        public string clase_acuerdo { get; set; }
-        public string etiqueta_clase_acuerdo { get; set; }
+        public string? nombre_tipo_fondo { get; set; }
+        public string? etiqueta_tipo_fondo { get; set; }
+        public string? nombre_proveedor { get; set; }
+        public string? clase_acuerdo { get; set; }
+        public string? etiqueta_clase_acuerdo { get; set; }
         public int idtipoacuerdo { get; set; }
         public decimal valor_acuerdo { get; set; }
         public DateTime fecha_inicio { get; set; }
@@ -1714,8 +1714,8 @@ namespace AppAPL.Dto.Promocion
         public decimal valor_disponible { get; set; }
         public decimal valor_comprometido { get; set; }
         public decimal valor_liquidado { get; set; }
-        public string estado { get; set; }
-        public string estado_etiqueta { get; set; }
+        public string? estado { get; set; }
+        public string? estado_etiqueta { get; set; }
         public decimal valor_aporte_por_items { get; set; }
         public decimal valor_comprometido_items { get; set; }
         public int unidades_limite { get; set; }
@@ -1742,33 +1742,33 @@ namespace AppAPL.Dto.Promocion
     public class CrearPromocionRequestDTO
     {
         // Parámetros directos
-        public string TipoClaseEtiqueta { get; set; } = string.Empty;
+        public string? TipoClaseEtiqueta { get; set; } = string.Empty;
         public int IdOpcion { get; set; }
-        public string IdControlInterfaz { get; set; } = string.Empty;
-        public string IdEventoEtiqueta { get; set; } = string.Empty;
+        public string? IdControlInterfaz { get; set; } = string.Empty;
+        public string? IdEventoEtiqueta { get; set; } = string.Empty;
 
         public string? NombreArchivoSoporte { get; set; }
         public string? ArchivoSoporteBase64 { get; set; }
 
         // Objetos que se enviarán como JSON (CLOB) al SP
-        public PromocionDataDTO Promocion { get; set; }
-        public List<AcuerdoDTO> Acuerdos { get; set; }
-        public List<SegmentoDTO> Segmentos { get; set; }
+        public PromocionDataDTO? Promocion { get; set; }
+        public List<AcuerdoDTO>? Acuerdos { get; set; }
+        public List<SegmentoDTO>? Segmentos { get; set; }
         public List<ArticuloDTO>? Articulos { get; set; }
         public List<ArticuloComponenteWrapperDto>? articulos_componentes { get; set; }
     }
 
     public class PromocionDataDTO
     {
-        public string descripcion { get; set; } = string.Empty;
+        public string? descripcion { get; set; } = string.Empty;
         public int motivo { get; set; }
         public int clasePromocion { get; set; }
         public DateTime fechaHoraInicio { get; set; }
         public DateTime fechaHoraFin { get; set; }
         public string? marcaRegalo { get; set; }
         public string? marcaProcesoAprobacion { get; set; }
-        public string idUsuarioIngreso { get; set; } = string.Empty;
-        public string nombreUsuario { get; set; } = string.Empty;
+        public string? idUsuarioIngreso { get; set; } = string.Empty;
+        public string? nombreUsuario { get; set; } = string.Empty;
     }
 
     public class AcuerdoDTO
@@ -1782,8 +1782,8 @@ namespace AppAPL.Dto.Promocion
 
     public class SegmentoDTO
     {
-        public string tipoSegmento { get; set; } = string.Empty;
-        public string tipoAsignacion { get; set; } = string.Empty;
+        public string? tipoSegmento { get; set; } = string.Empty;
+        public string? tipoAsignacion { get; set; } = string.Empty;
         public List<string>? codigos { get; set; }
     }
 
@@ -1859,7 +1859,7 @@ namespace AppAPL.Dto.Promocion
 
     public class MedioPagoArticuloDto
     {
-        public string tipoAsignacion { get; set; } = string.Empty;
+        public string? tipoAsignacion { get; set; } = string.Empty;
         public List<string>? codigos { get; set; }
     }
 
@@ -1894,8 +1894,8 @@ namespace AppAPL.Dto.Promocion
 
     public class ComponenteDetalleDto
     {
-        public string codigoArticulo { get; set; } = string.Empty;
-        public string descripcion { get; set; } = string.Empty;
+        public string? codigoArticulo { get; set; } = string.Empty;
+        public string? descripcion { get; set; } = string.Empty;
         public decimal costo { get; set; }
 
         public int? stockBodega { get; set; }
@@ -1977,10 +1977,10 @@ namespace AppAPL.Dto.Promocion
     public class ActualizarPromocionRequest
     {
         public int IdPromocion { get; set; }
-        public string ClasePromocion { get; set; } // 'PRGENERAL', 'PRARTICULO' o 'PRCOMBO'
-        public PromocionModDto Promocion { get; set; }
-        public List<AcuerdoModDto> Acuerdos { get; set; }
-        public List<SegmentoDTO> Segmentos { get; set; }
+        public string? ClasePromocion { get; set; } // 'PRGENERAL', 'PRARTICULO' o 'PRCOMBO'
+        public PromocionModDto? Promocion { get; set; }
+        public List<AcuerdoModDto>? Acuerdos { get; set; }
+        public List<SegmentoDTO>? Segmentos { get; set; }
         public List<ArticuloModPromocionDTO>? Articulos { get; set; }
         public List<ComponenteRootModDto>? articulos_componentes { get; set; }
 
@@ -1993,13 +1993,13 @@ namespace AppAPL.Dto.Promocion
 
         // Parámetros para el LOG
         public int IdOpcion { get; set; }
-        public string IdControlInterfaz { get; set; }
-        public string IdEventoEtiqueta { get; set; }
+        public string? IdControlInterfaz { get; set; }
+        public string? IdEventoEtiqueta { get; set; }
     }
 
     public class PromocionModDto
     {
-        public string Descripcion { get; set; } = string.Empty;
+        public string? Descripcion { get; set; } = string.Empty;
         public int Motivo { get; set; }
         public DateTime FechaHoraInicio { get; set; } // Formato ISO: YYYY-MM-DDTHH:mm:ss.fffZ
         public DateTime FechaHoraFin { get; set; }
@@ -2011,7 +2011,7 @@ namespace AppAPL.Dto.Promocion
 
     public class AcuerdoModDto
     {
-        public string Accion { get; set; } // 'I', 'U', 'D'
+        public string? Accion { get; set; } // 'I', 'U', 'D'
         public int? IdPromocionAcuerdo { get; set; } // Solo para 'U' y 'D'
         public int? IdAcuerdo { get; set; }
         public decimal? PorcentajeDescuento { get; set; }
@@ -2021,7 +2021,7 @@ namespace AppAPL.Dto.Promocion
 
     public class ArticuloModPromocionDTO
     {
-        public string accion { get; set; }
+        public string? accion { get; set; }
         public int? idPromocionArticulo { get; set; }
 
         // Nombres extraídos para PRARTICULO
@@ -2083,7 +2083,7 @@ namespace AppAPL.Dto.Promocion
 
     public class MedioPagoArticuloModDto
     {
-        public string tipoAsignacion { get; set; } = string.Empty;
+        public string? tipoAsignacion { get; set; } = string.Empty;
         public List<string>? codigos { get; set; }
     }
 
@@ -2104,7 +2104,7 @@ namespace AppAPL.Dto.Promocion
 
     public class ComponenteRootModDto
     {
-        public string accion { get; set; } = string.Empty;
+        public string? accion { get; set; } = string.Empty;
         public List<ComponenteDetalleModDto>? jsonArticulosComponentes { get; set; }
     }
 
@@ -2179,7 +2179,7 @@ namespace AppAPL.Dto.Promocion
 
     public class BuscarPromocionesRequest
     {
-        public string codigoarticulo { get; set; }
+        public string? codigoarticulo { get; set; }
         public DateTime? fechahora { get; set; }
         public string? canal { get; set; }
         public string? almacen { get; set; }
@@ -2191,7 +2191,7 @@ namespace AppAPL.Dto.Promocion
     {
         public bool exito { get; set; }
         public int totalRegistros { get; set; }
-        public List<object> data { get; set; }
+        public List<object>? data { get; set; }
 
         
         public int? codigoError { get; set; }

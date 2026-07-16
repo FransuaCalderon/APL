@@ -9,11 +9,12 @@ public class ApigeeTokenService
     private readonly IConfiguration _config;
     private readonly ILogger<ApigeeTokenService> logger;
 
-    private static string _token;
+    private static string? _token;
     private static DateTime _expiresAt;
 
+    /*
     private static string _tokenReal;
-    private static DateTime _expiresAtReal;
+    private static DateTime _expiresAtReal;*/
 
     public ApigeeTokenService(
         IHttpClientFactory httpClientFactory,

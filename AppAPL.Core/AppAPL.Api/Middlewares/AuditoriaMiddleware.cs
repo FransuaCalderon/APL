@@ -3,7 +3,7 @@ using AppAPL.Negocio.Abstracciones;
 
 namespace AppAPL.Api.Middlewares
 {
-    public class AuditoriaMiddleware (RequestDelegate next, ILogger<AuditoriaMiddleware> logger, IServiceProvider serviceProvider) //inyectar aqui el servicio para 
+    public class AuditoriaMiddleware (RequestDelegate next, ILogger<AuditoriaMiddleware> logger) //inyectar aqui el servicio para 
     {
         public async Task InvokeAsync(HttpContext context)
         {

@@ -3,7 +3,7 @@
     public class CatalogoTipoDTO
     {
         public int? IdCatalogoTipo { get; set; }
-        public string Nombre { get; set; }
+        public string? Nombre { get; set; }
         public string? Descripcion { get; set; }
         public int IdUsuarioCreacion { get; set; }
         public DateTime FechaCreacion { get; set; }
@@ -16,7 +16,7 @@
 
     public class CrearActualizarCatalogoTipoRequest
     {
-        public string Nombre { get; set; }
+        public string? Nombre { get; set; }
         public string? Descripcion { get; set; }
         public int? IdUsuarioCreacion { get; set; }
         public DateTime? FechaCreacion { get; set; }

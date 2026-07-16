@@ -10,11 +10,11 @@ namespace AppAPL.Dto.Log
     {
         public long IdLog { get; set; }               
         public DateTime? Fecha { get; set; }
-        public string Usuario { get; set; }
-        public string Opción { get; set; }
-        public string Acción { get; set; }
-        public string Entidad { get; set; }
-        public string Tipo_Proceso { get; set; }
-        public string Datos { get; set; }
+        public string? Usuario { get; set; }
+        public string? Opción { get; set; }
+        public string? Acción { get; set; }
+        public string? Entidad { get; set; }
+        public string? Tipo_Proceso { get; set; }
+        public string? Datos { get; set; }
     }
 }

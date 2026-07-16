@@ -46,7 +46,7 @@ namespace AppAPL.Api.Handlers
                     var reqCreacion = JsonSerializer.Deserialize<CrearPromocionRequestDTO>(requestBody, jsonOptions);
                     
 
-                    var retorno = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
+                    var retorno = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody ?? "", jsonOptions);
                     if (retorno == null)
                     {
                         logger.LogWarning("No existe Response body");
@@ -56,7 +56,7 @@ namespace AppAPL.Api.Handlers
 
 
                     // 1. Validación de seguridad para los Acuerdos
-                    if (reqCreacion.Acuerdos == null || !reqCreacion.Acuerdos.Any())
+                    if (reqCreacion == null || reqCreacion.Acuerdos == null || !reqCreacion.Acuerdos.Any())
                     {
                         logger.LogWarning("No se puede procesar el envío: La lista de acuerdos es nula o está vacía.");
                         return;
@@ -67,11 +67,17 @@ namespace AppAPL.Api.Handlers
                     {
                         var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId(item.IdAcuerdo);
 
+                        if (acuerdo == null || acuerdo.cabecera == null)
+                        {
+                            logger.LogWarning("acuerdo es nulo");
+                            return;
+                        }
+
                         var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
 
                         var proveedor = new ProveedorDTO
                         {
-                            Identificacion = fondo.IdProveedor,
+                            Identificacion = fondo!.IdProveedor,
                             Nombre = fondo.nombre_proveedor
                         };
 
@@ -81,41 +87,47 @@ namespace AppAPL.Api.Handlers
                     
                     notificacion = $"apl solicitud {tipoProceso} promocion".ToUpper();
 
-                    var promocionCreacion = await promocionRepo.ObtenerBandGenPromoPorId((int)retorno.Id);
+                    var promocionCreacion = await promocionRepo.ObtenerBandGenPromoPorId((int)retorno.Id!);
 
-                    string marcas = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGMARCA");
-                    string divisiones = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGDIVISION");
-                    string clases = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGCLASE");
-                    string departamentos = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGDEPARTAMENTO");
+                    string marcas = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion!.segmentos!, "SEGMARCA");
+                    string divisiones = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos!, "SEGDIVISION");
+                    string clases = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos!, "SEGCLASE");
+                    string departamentos = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos!, "SEGDEPARTAMENTO");
 
-                    string canales = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGCANAL");
-                    string gruposalmacenes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGGRUPOALMACEN");
-                    string almacenes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGALMACEN");
-                    string tiposclientes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGTIPOCLIENTE");
-                    string mediospagos = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos, "SEGMEDIOPAGO");
+                    string canales = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos!, "SEGCANAL");
+                    string gruposalmacenes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos!, "SEGGRUPOALMACEN");
+                    string almacenes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos!, "SEGALMACEN");
+                    string tiposclientes = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos!, "SEGTIPOCLIENTE");
+                    string mediospagos = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionCreacion.segmentos!, "SEGMEDIOPAGO");
 
-                    var motivo = await catalogoRepo.ObtenerPorIdAsync(reqCreacion.Promocion.motivo);
+                    var motivo = await catalogoRepo.ObtenerPorIdAsync(reqCreacion.Promocion!.motivo);
+
+                    if (motivo == null)
+                    {
+                        logger.LogWarning("motivo es nulo");
+                        return;
+                    }
 
 
                     var descuentoTotal = reqCreacion.Acuerdos?.Sum(a => a.ValorComprometido) ?? 0;
 
                     // Extraemos los acuerdos de forma segura (si no existen, serán null en lugar de dar error)
-                    var acProveedorReg = reqCreacion.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
-                    var acPropioReg = reqCreacion.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+                    var acProveedorReg = reqCreacion.Acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acPropioReg = reqCreacion.Acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
                    
 
 
                     var camposBase = new Dictionary<string, string>
                         {
                            
-                            { "IdPromocion",  retorno.Id.ToString() },
-                            { "Descripcion",  reqCreacion.Promocion.descripcion },
-                            { "Motivo",  motivo.Nombre },
+                            { "IdPromocion",  retorno.Id.ToString() ?? "" },
+                            { "Descripcion",  reqCreacion.Promocion.descripcion ?? "" },
+                            { "Motivo",  motivo.Nombre ?? "" },
                             { "FechaInicio",  reqCreacion.Promocion.fechaHoraInicio.ToString() },
                             { "FechaFin",  reqCreacion.Promocion.fechaHoraFin.ToString() },
                             { "Estado",  "Nuevo" },
                             { "DescuentoTotal",  descuentoTotal.ToString("N2") },
-                            { "Regalo",  reqCreacion.Promocion.marcaRegalo },
+                            { "Regalo",  reqCreacion.Promocion.marcaRegalo ?? "" },
 
                             { "Marca",  marcas },
                             { "Division",  divisiones },
@@ -136,7 +148,7 @@ namespace AppAPL.Api.Handlers
                             { "PorcentajePropio",  acPropioReg?.PorcentajeDescuento.ToString("N2") ?? "" },
                             { "ValorComprometidoPropio",  acPropioReg?.ValorComprometido.ToString("N2") ?? "" },
 
-                            { "Firma",  reqCreacion.Promocion.nombreUsuario },
+                            { "Firma",  reqCreacion.Promocion.nombreUsuario ?? "" },
                         };
 
                     foreach (var proveedor in proveedores)
@@ -146,10 +158,10 @@ namespace AppAPL.Api.Handlers
                         var camposPlantilla = new Dictionary<string, string>(camposBase);
 
                         // 3. Solo agregamos/actualizamos lo que cambia
-                        camposPlantilla["Nombre"] = proveedor.Nombre;
+                        camposPlantilla["Nombre"] = proveedor.Nombre!;
 
                         // 4. Enviamos el correo
-                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion, tipoProceso, camposPlantilla, notificacion);
+                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion!, tipoProceso, camposPlantilla, notificacion);
 
                         logger.LogInformation($"Enviando correo a {proveedor.Nombre}");
 
@@ -186,13 +198,13 @@ namespace AppAPL.Api.Handlers
                     //proceso para obtener los proveedores de los acuerdos
                     foreach (var item in reqModif.Acuerdos)
                     {
-                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.IdAcuerdo);
+                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.IdAcuerdo!);
 
-                        var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
+                        var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo!.cabecera!.idfondo);
 
                         var proveedor = new ProveedorDTO
                         {
-                            Identificacion = fondo.IdProveedor,
+                            Identificacion = fondo!.IdProveedor,
                             Nombre = fondo.nombre_proveedor
                         };
 
@@ -202,41 +214,41 @@ namespace AppAPL.Api.Handlers
 
                     var promocionModificacion = await promocionRepo.ObtenerBandGenPromoPorId(reqModif.IdPromocion);
 
-                    string marcas2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGMARCA");
-                    string divisiones2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGDIVISION");
-                    string clases2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGCLASE");
-                    string departamentos2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGDEPARTAMENTO");
+                    string marcas2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion!.segmentos!, "SEGMARCA");
+                    string divisiones2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos!, "SEGDIVISION");
+                    string clases2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos!, "SEGCLASE");
+                    string departamentos2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos!, "SEGDEPARTAMENTO");
 
-                    string canales2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGCANAL");
-                    string gruposalmacenes2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGGRUPOALMACEN");
-                    string almacenes2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGALMACEN");
-                    string tiposclientes2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGTIPOCLIENTE");
-                    string mediospagos2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos, "SEGMEDIOPAGO");
+                    string canales2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos!, "SEGCANAL");
+                    string gruposalmacenes2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos!, "SEGGRUPOALMACEN");
+                    string almacenes2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos!, "SEGALMACEN");
+                    string tiposclientes2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos!, "SEGTIPOCLIENTE");
+                    string mediospagos2 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionModificacion.segmentos!, "SEGMEDIOPAGO");
 
-                    var motivo2 = await catalogoRepo.ObtenerPorIdAsync(reqModif.Promocion.Motivo);
+                    var motivo2 = await catalogoRepo.ObtenerPorIdAsync(reqModif.Promocion!.Motivo);
 
                     var descuentoTotal3 = reqModif.Acuerdos?.Sum(a => a.ValorComprometido) ?? 0;
 
                     // Extraemos los acuerdos de forma segura (si no existen, serán null en lugar de dar error)
-                    var acProveedorReg2 = reqModif.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
-                    var acProveedorAnt2 = promocionAntiguo.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo.Trim().ToUpper() == "TFPROVEDOR");
+                    var acProveedorReg2 = reqModif.Acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acProveedorAnt2 = promocionAntiguo.acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo!.Trim().ToUpper() == "TFPROVEDOR");
 
-                    var acPropioReg2 = reqModif.Acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
-                    var acPropioAnt2 = promocionAntiguo.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo.Trim().ToUpper() == "TFPROPIO");
+                    var acPropioReg2 = reqModif.Acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+                    var acPropioAnt2 = promocionAntiguo.acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo!.Trim().ToUpper() == "TFPROPIO");
 
 
                     var camposBase3 = new Dictionary<string, string>
                     {
-                        { "IdPromocion", Comparar(reqModif.IdPromocion.ToString(), promocionAntiguo.cabecera.IdPromocion.ToString()) },
-                        { "Descripcion", Comparar(reqModif.Promocion.Descripcion, promocionAntiguo.cabecera.Descripcion) },
-                        { "Motivo", Comparar(motivo2?.Nombre ?? "", promocionAntiguo.cabecera.nombre_motivo) },
+                        { "IdPromocion", Comparar(reqModif.IdPromocion.ToString(), promocionAntiguo.cabecera!.IdPromocion.ToString() ?? "") },
+                        { "Descripcion", Comparar(reqModif.Promocion.Descripcion ?? "", promocionAntiguo.cabecera.Descripcion ?? "") },
+                        { "Motivo", Comparar(motivo2?.Nombre ?? "", promocionAntiguo.cabecera.nombre_motivo ?? "") },
                         { "FechaInicio", Comparar(reqModif.Promocion.FechaHoraInicio.ToString("yyyy-MM-dd HH:mm"),
-                                                  promocionAntiguo.cabecera.fecha_inicio) },
+                                                  promocionAntiguo.cabecera.fecha_inicio ?? "") },
                         { "FechaFin", Comparar(reqModif.Promocion.FechaHoraFin.ToString("yyyy-MM-dd HH:mm"),
-                                               promocionAntiguo.cabecera.fecha_fin) },
+                                               promocionAntiguo.cabecera.fecha_fin ?? "") },
                         { "Estado", "Modificado" },
                         { "DescuentoTotal", descuentoTotal3.ToString("N2")},
-                        { "Regalo", Comparar(reqModif.Promocion.MarcaRegalo, promocionAntiguo.cabecera.MarcaRegalo) },
+                        { "Regalo", Comparar(reqModif.Promocion.MarcaRegalo ?? "", promocionAntiguo.cabecera.MarcaRegalo ?? "") },
 
 
                         { "Marca",  marcas2 },
@@ -270,7 +282,7 @@ namespace AppAPL.Api.Handlers
 
                         { "ValorComprometidoPropio", Comparar(acPropioReg2?.ValorComprometido.ToString() ?? "0.00",
                                                              acPropioAnt2?.valor_comprometido.ToString() ?? "0.00") },
-                        { "Firma", reqModif.Promocion.NombreUsuario } // Este no suele compararse, es quien firma la modif.
+                        { "Firma", reqModif.Promocion.NombreUsuario ?? "" } // Este no suele compararse, es quien firma la modif.
                     };
 
                     
@@ -286,10 +298,10 @@ namespace AppAPL.Api.Handlers
                         var camposPlantilla = new Dictionary<string, string>(camposBase3);
 
                         // 3. Solo agregamos/actualizamos lo que cambia
-                        camposPlantilla["Nombre"] = proveedor.Nombre;
+                        camposPlantilla["Nombre"] = proveedor.Nombre ?? "";
 
                         // 4. Enviamos el correo
-                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion, tipoProceso, camposPlantilla, notificacion);
+                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion ?? "", tipoProceso, camposPlantilla, notificacion);
 
                         logger.LogInformation($"Enviando correo a {proveedor.Nombre}");
 
@@ -304,7 +316,7 @@ namespace AppAPL.Api.Handlers
                     var reqAprobacion = JsonSerializer.Deserialize<AprobarPromocionRequest>(requestBody, jsonOptions);
 
 
-                    var retorno2 = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
+                    var retorno2 = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody ?? "", jsonOptions);
                     if (retorno2 == null)
                     {
                         logger.LogWarning("No existe Response body");
@@ -321,14 +333,10 @@ namespace AppAPL.Api.Handlers
                     string estadoCorreo = reqAprobacion.IdEtiquetaEstado switch
                     {
                         "ESTADOAPROBADO" => "APROBADO",
-                        "ESTADONEGADO" => "NEGADO"
+                        "ESTADONEGADO" => "NEGADO",
+                        _ => "OTRO" // Aquí manejas cualquier otro valor inesperado
                     };
-                    /*
-                    string etiquetaTipoProceso = reqAprobacion.IdEtiquetaTipoProceso switch
-                    {
-                        "TPCREACION" => "CREACION",
-                        "TPINACTIVACION" => "INACTIVACION"
-                    };*/
+
 
                     if (reqAprobacion.IdEtiquetaTipoProceso == "TPINACTIVACION")
                     {
@@ -337,20 +345,20 @@ namespace AppAPL.Api.Handlers
                     }
 
 
-                    var promocionAprobacion = await promocionRepo.ObtenerBandGenPromoPorId((int)reqAprobacion.Identidad);
+                    var promocionAprobacion = await promocionRepo.ObtenerBandGenPromoPorId((int)reqAprobacion.Identidad!);
 
                     
 
                     //proceso para obtener los proveedores de los acuerdos
-                    foreach (var item in promocionAprobacion.acuerdos)
+                    foreach (var item in promocionAprobacion!.acuerdos!)
                     {
-                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.IDACUERDO);
+                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.IDACUERDO!);
 
-                        var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
+                        var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo!.cabecera!.idfondo);
 
                         var proveedor = new ProveedorDTO
                         {
-                            Identificacion = fondo.IdProveedor,
+                            Identificacion = fondo!.IdProveedor,
                             Nombre = fondo.nombre_proveedor
                         };
 
@@ -358,35 +366,35 @@ namespace AppAPL.Api.Handlers
                     }
 
 
-                    string marcas5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGMARCA");
-                    string divisiones5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGDIVISION");
-                    string clases5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGCLASE");
-                    string departamentos5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGDEPARTAMENTO");
+                    string marcas5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos!, "SEGMARCA");
+                    string divisiones5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos!, "SEGDIVISION");
+                    string clases5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos!, "SEGCLASE");
+                    string departamentos5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos!, "SEGDEPARTAMENTO");
 
-                    string canales5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGCANAL");
-                    string gruposalmacenes5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGGRUPOALMACEN");
-                    string almacenes5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGALMACEN");
-                    string tiposclientes5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGTIPOCLIENTE");
-                    string mediospagos5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos, "SEGMEDIOPAGO");
+                    string canales5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos!, "SEGCANAL");
+                    string gruposalmacenes5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos!, "SEGGRUPOALMACEN");
+                    string almacenes5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos!, "SEGALMACEN");
+                    string tiposclientes5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos!, "SEGTIPOCLIENTE");
+                    string mediospagos5 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion.segmentos!, "SEGMEDIOPAGO");
 
 
                     var descuentoTotal2 = promocionAprobacion.acuerdos?.Sum(a => a.valor_comprometido) ?? 0;
 
-                    var acProveedorReg3 = promocionAprobacion.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acProveedorReg3 = promocionAprobacion.acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
                     var acPropioReg3 = promocionAprobacion.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
 
                     var camposBase2 = new Dictionary<string, string>
                         {
                         //nombre
                             { "estadoCorreo", estadoCorreo },
-                            { "IdPromocion",  promocionAprobacion.cabecera.IdPromocion.ToString() },
-                            { "Descripcion",  promocionAprobacion.cabecera.Descripcion },
-                            { "Motivo",  promocionAprobacion.cabecera.nombre_motivo },
-                            { "FechaInicio",  promocionAprobacion.cabecera.fecha_inicio.ToString() },
-                            { "FechaFin",  promocionAprobacion.cabecera.fecha_fin.ToString() },
+                            { "IdPromocion",  promocionAprobacion.cabecera.IdPromocion.ToString() ?? "" },
+                            { "Descripcion",  promocionAprobacion.cabecera.Descripcion ?? "" },
+                            { "Motivo",  promocionAprobacion.cabecera.nombre_motivo ?? "" },
+                            { "FechaInicio",  promocionAprobacion.cabecera.fecha_inicio.ToString() ?? "" },
+                            { "FechaFin",  promocionAprobacion.cabecera.fecha_fin.ToString() ?? "" },
                             { "Estado",  estadoCorreo }, 
                             { "DescuentoTotal",  descuentoTotal2.ToString("N2") },
-                            { "Regalo",  promocionAprobacion.cabecera.MarcaRegalo },
+                            { "Regalo",  promocionAprobacion.cabecera.MarcaRegalo ?? "" },
 
                             
                             { "Marca",  marcas5 },
@@ -409,7 +417,7 @@ namespace AppAPL.Api.Handlers
                             { "PorcentajePropio",  acPropioReg3?.porcentaje_descuento.ToString() ?? "" },
                             { "ValorComprometidoPropio",  acPropioReg3?.valor_comprometido.ToString() ?? "" },
 
-                            { "Firma",  reqAprobacion.NombreUsuario },
+                            { "Firma",  reqAprobacion.NombreUsuario ?? "" },
                         };
 
 
@@ -423,10 +431,10 @@ namespace AppAPL.Api.Handlers
                         var camposPlantilla = new Dictionary<string, string>(camposBase2);
 
                         // 3. Solo agregamos/actualizamos lo que cambia
-                        camposPlantilla["Nombre"] = proveedor.Nombre;
+                        camposPlantilla["Nombre"] = proveedor.Nombre ?? "";
 
                         // 4. Enviamos el correo
-                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion, tipoProceso, camposPlantilla, notificacion);
+                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion ?? "", tipoProceso, camposPlantilla, notificacion);
 
                         logger.LogInformation($"Enviando correo a {proveedor.Nombre}");
 
@@ -445,7 +453,7 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    var retorno3 = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
+                    var retorno3 = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody ?? "", jsonOptions);
                     if (retorno3 == null)
                     {
                         logger.LogWarning("No existe Response body");
@@ -455,15 +463,15 @@ namespace AppAPL.Api.Handlers
                     var promocioninactivar = await promocionRepo.ObtenerBandInacPromoPorId(reqInactivacion.IdPromocion);
 
                     //proceso para obtener los proveedores de los acuerdos
-                    foreach (var item in promocioninactivar.acuerdos)
+                    foreach (var item in promocioninactivar!.acuerdos!)
                     {
-                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.idacuerdo);
+                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.idacuerdo!);
 
-                        var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
+                        var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo!.cabecera!.idfondo);
 
                         var proveedor = new ProveedorDTO
                         {
-                            Identificacion = fondo.IdProveedor,
+                            Identificacion = fondo!.IdProveedor,
                             Nombre = fondo.nombre_proveedor
                         };
 
@@ -473,34 +481,34 @@ namespace AppAPL.Api.Handlers
                     
                     
 
-                    string marcas4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGMARCA");
-                    string divisiones4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGDIVISION");
-                    string clases4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGCLASE");
-                    string departamentos4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGDEPARTAMENTO");
+                    string marcas4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos!, "SEGMARCA");
+                    string divisiones4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos!, "SEGDIVISION");
+                    string clases4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos!, "SEGCLASE");
+                    string departamentos4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos!, "SEGDEPARTAMENTO");
 
-                    string canales4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGCANAL");
-                    string gruposalmacenes4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGGRUPOALMACEN");
-                    string almacenes4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGALMACEN");
-                    string tiposclientes4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGTIPOCLIENTE");
-                    string mediospagos4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos, "SEGMEDIOPAGO");
+                    string canales4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos!, "SEGCANAL");
+                    string gruposalmacenes4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos!, "SEGGRUPOALMACEN");
+                    string almacenes4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos!, "SEGALMACEN");
+                    string tiposclientes4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos!, "SEGTIPOCLIENTE");
+                    string mediospagos4 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocioninactivar.segmentos!, "SEGMEDIOPAGO");
 
 
                     var descuentoTotal4 = promocioninactivar.acuerdos?.Sum(a => a.valor_comprometido) ?? 0;
-                    var acProveedorReg4 = promocioninactivar.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
-                    var acPropioReg4 = promocioninactivar.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+                    var acProveedorReg4 = promocioninactivar.acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acPropioReg4 = promocioninactivar.acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
 
 
                     var camposBase4 = new Dictionary<string, string>
                         {
                             //nombre
                             { "IdPromocion",  reqInactivacion.IdPromocion.ToString() },
-                            { "Descripcion",  promocioninactivar.cabecera.Descripcion },
-                            { "Motivo",  promocioninactivar.cabecera.nombre_motivo },
-                            { "FechaInicio",  promocioninactivar.cabecera.fecha_inicio.ToString() },
-                            { "FechaFin",  promocioninactivar.cabecera.fecha_fin.ToString() },
+                            { "Descripcion",  promocioninactivar.cabecera!.Descripcion ?? "" },
+                            { "Motivo",  promocioninactivar.cabecera.nombre_motivo ?? "" },
+                            { "FechaInicio",  promocioninactivar.cabecera.fecha_inicio.ToString() ?? "" },
+                            { "FechaFin",  promocioninactivar.cabecera.fecha_fin.ToString() ?? "" },
                             { "Estado",  "Inactivo" },
                             { "DescuentoTotal",  descuentoTotal4.ToString("N2") },
-                            { "Regalo",  promocioninactivar.cabecera.MarcaRegalo },
+                            { "Regalo",  promocioninactivar.cabecera.MarcaRegalo ?? "" },
 
                             
                             { "Marca",  marcas4 },
@@ -536,10 +544,10 @@ namespace AppAPL.Api.Handlers
                         var camposPlantilla = new Dictionary<string, string>(camposBase4);
 
                         // 3. Solo agregamos/actualizamos lo que cambia
-                        camposPlantilla["Nombre"] = proveedor.Nombre;
+                        camposPlantilla["Nombre"] = proveedor.Nombre ?? "";
 
                         // 4. Enviamos el correo
-                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion, tipoProceso, camposPlantilla, notificacion);
+                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion ?? "", tipoProceso, camposPlantilla, notificacion);
 
                         logger.LogInformation($"Enviando correo a {proveedor.Nombre}");
 
@@ -553,7 +561,7 @@ namespace AppAPL.Api.Handlers
                     var reqAprobacion2 = JsonSerializer.Deserialize<AprobarPromocionRequest>(requestBody, jsonOptions);
 
 
-                    var retorno4 = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
+                    var retorno4 = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody ?? "", jsonOptions);
                     if (retorno4 == null)
                     {
                         logger.LogWarning("No existe Response body");
@@ -570,29 +578,31 @@ namespace AppAPL.Api.Handlers
                     string estadoCorreo2 = reqAprobacion2.IdEtiquetaEstado switch
                     {
                         "ESTADOAPROBADO" => "APROBADO",
-                        "ESTADONEGADO" => "NEGADO"
+                        "ESTADONEGADO" => "NEGADO",
+                        _ => "OTRO" // Aquí manejas cualquier otro valor inesperado
                     };
 
                     string etiquetaTipoProceso2 = reqAprobacion2.IdEtiquetaTipoProceso switch
                     {
                         "TPCREACION" => "CREACION",
-                        "TPINACTIVACION" => "INACTIVACION"
+                        "TPINACTIVACION" => "INACTIVACION",
+                        _ => "OTRO" // Aquí manejas cualquier otro valor inesperado
                     };
 
 
-                    var promocionAprobacion2 = await promocionRepo.ObtenerBandGenPromoPorId((int)reqAprobacion2.Identidad);
+                    var promocionAprobacion2 = await promocionRepo.ObtenerBandGenPromoPorId((int)reqAprobacion2.Identidad!);
 
 
                     //proceso para obtener los proveedores de los acuerdos
-                    foreach (var item in promocionAprobacion2.acuerdos)
+                    foreach (var item in promocionAprobacion2!.acuerdos!)
                     {
-                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.IDACUERDO);
+                        var acuerdo = await acuerdoRepo.ObtenerBandejaConsultaPorId((int)item.IDACUERDO!);
 
-                        var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo.cabecera.idfondo);
+                        var fondo = await fondoRepo.ObtenerPorIdAsync(acuerdo!.cabecera!.idfondo);
 
                         var proveedor = new ProveedorDTO
                         {
-                            Identificacion = fondo.IdProveedor,
+                            Identificacion = fondo!.IdProveedor,
                             Nombre = fondo.nombre_proveedor
                         };
 
@@ -600,33 +610,33 @@ namespace AppAPL.Api.Handlers
                     }
 
 
-                    string marcas6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGMARCA");
-                    string divisiones6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGDIVISION");
-                    string clases6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGCLASE");
-                    string departamentos6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGDEPARTAMENTO");
+                    string marcas6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos!, "SEGMARCA");
+                    string divisiones6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos!, "SEGDIVISION");
+                    string clases6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos!, "SEGCLASE");
+                    string departamentos6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos!, "SEGDEPARTAMENTO");
 
-                    string canales6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGCANAL");
-                    string gruposalmacenes6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGGRUPOALMACEN");
-                    string almacenes6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGALMACEN");
-                    string tiposclientes6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGTIPOCLIENTE");
-                    string mediospagos6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos, "SEGMEDIOPAGO");
+                    string canales6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos!, "SEGCANAL");
+                    string gruposalmacenes6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos!, "SEGGRUPOALMACEN");
+                    string almacenes6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos!, "SEGALMACEN");
+                    string tiposclientes6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos!, "SEGTIPOCLIENTE");
+                    string mediospagos6 = this.ObtenerDetalleSegmentoBandejaPorTipo(promocionAprobacion2.segmentos!, "SEGMEDIOPAGO");
 
 
                     var descuentoTotal5 = promocionAprobacion2.acuerdos?.Sum(a => a.valor_comprometido) ?? 0;
-                    var acProveedorReg5 = promocionAprobacion2.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
-                    var acPropioReg5 = promocionAprobacion2.acuerdos.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
+                    var acProveedorReg5 = promocionAprobacion2.acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROVEDOR");
+                    var acPropioReg5 = promocionAprobacion2.acuerdos!.FirstOrDefault(a => a.etiqueta_tipo_fondo?.Trim().ToUpper() == "TFPROPIO");
 
                     var camposBase5 = new Dictionary<string, string>
                         {
                             //nombre
-                            { "IdPromocion",  promocionAprobacion2.cabecera.IdPromocion.ToString() },
-                            { "Descripcion",  promocionAprobacion2.cabecera.Descripcion },
-                            { "Motivo",  promocionAprobacion2.cabecera.nombre_motivo },
-                            { "FechaInicio",  promocionAprobacion2.cabecera.fecha_inicio.ToString() },
-                            { "FechaFin",  promocionAprobacion2.cabecera.fecha_fin.ToString() },
+                            { "IdPromocion",  promocionAprobacion2.cabecera!.IdPromocion.ToString() ?? "" },
+                            { "Descripcion",  promocionAprobacion2.cabecera.Descripcion ?? "" },
+                            { "Motivo",  promocionAprobacion2.cabecera.nombre_motivo ?? "" },
+                            { "FechaInicio",  promocionAprobacion2.cabecera.fecha_inicio.ToString() ?? "" },
+                            { "FechaFin",  promocionAprobacion2.cabecera.fecha_fin.ToString() ?? "" },
                             { "Estado",  estadoCorreo2 },
                             { "DescuentoTotal",  descuentoTotal5.ToString("N2") },
-                            { "Regalo",  promocionAprobacion2.cabecera.MarcaRegalo },
+                            { "Regalo",  promocionAprobacion2.cabecera.MarcaRegalo ?? "" },
 
 
                             { "Marca",  marcas6 },
@@ -649,7 +659,7 @@ namespace AppAPL.Api.Handlers
                             { "PorcentajePropio",  acPropioReg5?.porcentaje_descuento.ToString() ?? "" },
                             { "ValorComprometidoPropio",  acPropioReg5?.valor_comprometido.ToString() ?? "" },
 
-                            { "Firma",  reqAprobacion2.NombreUsuario },
+                            { "Firma",  reqAprobacion2.NombreUsuario ?? "" },
                         };
 
 
@@ -663,10 +673,10 @@ namespace AppAPL.Api.Handlers
                         var camposPlantilla = new Dictionary<string, string>(camposBase5);
 
                         // 3. Solo agregamos/actualizamos lo que cambia
-                        camposPlantilla["Nombre"] = proveedor.Nombre;
+                        camposPlantilla["Nombre"] = proveedor.Nombre ?? "";
 
                         // 4. Enviamos el correo
-                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion, tipoProceso, camposPlantilla, notificacion);
+                        await EnviarCorreo(entidad, tipoProcEtiqueta, proveedor.Identificacion ?? "", tipoProceso, camposPlantilla, notificacion);
 
                         logger.LogInformation($"Enviando correo a {proveedor.Nombre}");
 
@@ -694,6 +704,7 @@ namespace AppAPL.Api.Handlers
             }*/
         }
 
+        /*
         private string ObtenerDetalleSegmentoPorTipo(List<SegmentoDTO> segmentos, string tipoSegmentoBusqueda)
         {
             // 1. Buscamos el segmento específico dentro de la lista del DTO
@@ -716,7 +727,7 @@ namespace AppAPL.Api.Handlers
             }
 
             return "Sin códigos";
-        }
+        }*/
 
 
         private string ObtenerDetalleSegmentoBandejaPorTipo(List<SegmentoBandejaDTO> segmentos, string tipoSegmentoBusqueda)
@@ -725,7 +736,7 @@ namespace AppAPL.Api.Handlers
 
             // 1. Filtramos primero por el tipo de segmento
             var filtrados = segmentos
-                .Where(s => s.etiqueta_tipo_segmento.Equals(tipoSegmentoBusqueda, StringComparison.OrdinalIgnoreCase))
+                .Where(s => s.etiqueta_tipo_segmento!.Equals(tipoSegmentoBusqueda, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             if (!filtrados.Any()) return string.Empty;

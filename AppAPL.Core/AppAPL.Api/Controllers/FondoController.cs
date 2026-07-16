@@ -77,7 +77,7 @@ namespace AppAPL.Api.Controllers
         }
 
         [HttpGet("bandeja-inactivacion-id/{idFondo:int}")]
-        public async Task<ActionResult<BandejaFondoDTO>> ObtenerBandejaInactivacionPorId(int idFondo)
+        public async Task<ActionResult<BandejaFondoDTO?>> ObtenerBandejaInactivacionPorId(int idFondo)
         {
             
             var listaFondos = await servicio.ObtenerBandejaInactivacion();

@@ -7,7 +7,7 @@ namespace AppAPL.Api.Controllers
 {
         [ApiController]
     [Route("api/[controller]")]
-    public class AprobadorController(ILogger<AprobadorController> logger, IAprobadorServicio servicio) : ControllerBase
+    public class AprobadorController( IAprobadorServicio servicio) : ControllerBase
     {
         [HttpGet("listar")]
         public async Task<ActionResult<List<AprobadorDTO>>> ObtenerTodos()

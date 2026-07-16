@@ -7,7 +7,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CatalogoController (ICatalogoServicio servicio, ILogger<CatalogoController> logger) : ControllerBase
+    public class CatalogoController (ICatalogoServicio servicio) : ControllerBase
     {
         [HttpGet("listar")]
         public async Task<ActionResult<List<CatalogoDTO>>> ObtenerTodos([FromQuery] string? nombre = null,

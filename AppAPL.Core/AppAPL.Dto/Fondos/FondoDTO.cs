@@ -13,7 +13,7 @@ namespace AppAPL.Dto.Fondos
         public string? IdProveedor { get; set; }
         public string? nombre_proveedor { get; set; }
         public int? IdTipoFondo { get; set; }
-        public string nombre_tipo_fondo { get; set; }
+        public string? nombre_tipo_fondo { get; set; }
         public decimal? ValorFondo { get; set; }
         public DateTime? FechaInicioVigencia { get; set; }
         public DateTime? FechaFinVigencia { get; set; }
@@ -34,15 +34,15 @@ namespace AppAPL.Dto.Fondos
 
     public class BandejaAprobacionDTO
     {
-        public string Solicitud { get; set; }
-        public string idetiquetatipoproceso { get; set; }
+        public string? Solicitud { get; set; }
+        public string? idetiquetatipoproceso { get; set; }
         public int idtipoproceso { get; set; }
         public int idfondo { get; set; }
-        public string descripcion { get; set; }
-        public string proveedor { get; set; }
-        public string nombre_tipo_fondo { get; set; }
-        public string nombre_proveedor { get; set; }
-        public string tipo_fondo { get; set; }
+        public string? descripcion { get; set; }
+        public string? proveedor { get; set; }
+        public string? nombre_tipo_fondo { get; set; }
+        public string? nombre_proveedor { get; set; }
+        public string? tipo_fondo { get; set; }
         public decimal valor_fondo { get; set; }
         public DateTime fecha_inicio { get; set; }
         public DateTime fecha_fin { get; set; }
@@ -50,15 +50,15 @@ namespace AppAPL.Dto.Fondos
         public decimal valor_comprometido { get; set; }
         public decimal valor_liquidado { get; set; }
         public int idestados_fondo { get; set; }
-        public string nombre_estado_fondo { get; set; }
-        public string id_etiqueta_estado_fondo { get; set; }
+        public string? nombre_estado_fondo { get; set; }
+        public string? id_etiqueta_estado_fondo { get; set; }
         public int nivelaprobacion { get; set; }
-        public string aprobador { get; set; }
+        public string? aprobador { get; set; }
         public int idaprobacion { get; set; }
         public int entidad { get; set; }
-        public string entidad_etiqueta { get; set; }
-        public string tipo_proceso_etiqueta { get; set; }
-        public string estado_aprob_etiqueta { get; set; }
+        public string? entidad_etiqueta { get; set; }
+        public string? tipo_proceso_etiqueta { get; set; }
+        public string? estado_aprob_etiqueta { get; set; }
     }
 
     public class BandejaFondoDTO

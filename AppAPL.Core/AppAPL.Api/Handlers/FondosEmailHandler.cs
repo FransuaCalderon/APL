@@ -33,7 +33,7 @@ namespace AppAPL.Api.Handlers
             // 1. Declaramos las variables que llenará el switch
             //List<string> proveedores = new List<string>();
             string IdProveedor = "";
-            Dictionary<string, string> camposPlantilla = null;
+            Dictionary<string, string>? camposPlantilla = null;
             string notificacion = "";
 
             // 2. Aplicamos el "Strategy Pattern". 
@@ -50,7 +50,7 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    var retorno = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody, jsonOptions);
+                    var retorno = JsonSerializer.Deserialize<ControlErroresDTO>(responseBody ?? "", jsonOptions);
                     if (retorno == null)
                     {
                         logger.LogWarning("No existe Response body");
@@ -69,15 +69,15 @@ namespace AppAPL.Api.Handlers
 
                     camposPlantilla = new Dictionary<string, string>
                     {
-                        { "Nombre", reqCreacion.NombreUsuarioIngreso },
-                        { "IdFondo", retorno.Id.ToString() },
-                        { "IdProveedor", proveedor.Identificacion },
-                        { "NombreProveedor", proveedor.Nombre }, 
+                        { "Nombre", reqCreacion.NombreUsuarioIngreso ?? "" },
+                        { "IdFondo", retorno.Id.ToString() ?? "" },
+                        { "IdProveedor", proveedor.Identificacion ?? "" },
+                        { "NombreProveedor", proveedor.Nombre ?? "" }, 
                         { "ValorFondo", this.FormatearAMoneda(reqCreacion.ValorFondo) },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras(reqCreacion.ValorFondo) },
-                        { "FechaInicio", reqCreacion.FechaInicioVigencia.ToString() },
-                        { "FechaFin", reqCreacion.FechaFinVigencia.ToString() },
-                        { "Firma", reqCreacion.NombreUsuarioIngreso },
+                        { "FechaInicio", reqCreacion.FechaInicioVigencia.ToString() ?? "" },
+                        { "FechaFin", reqCreacion.FechaFinVigencia.ToString() ?? "" },
+                        { "Firma", reqCreacion.NombreUsuarioIngreso ?? "" },
                         // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                     };
 
@@ -93,7 +93,8 @@ namespace AppAPL.Api.Handlers
                         return;
                     }
 
-                    if(fondoAntiguo == null)
+                    if(fondoAntiguo == null || fondoAntiguo.IdProveedor == null || fondoAntiguo.ValorFondo == null || fondoAntiguo.ValorDisponible == null || fondoAntiguo.ValorComprometido == null ||
+                        fondoAntiguo.ValorLiquidado == null)
                     {
                         logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener fondo antiguo");
                         return;
@@ -113,27 +114,27 @@ namespace AppAPL.Api.Handlers
 
                     camposPlantilla = new Dictionary<string, string>
                     {
-                        { "Nombre", reqModif.NombreUsuarioModifica },
+                        { "Nombre", reqModif.NombreUsuarioModifica ?? "" },
                         { "IdFondo", fondoAntiguo.IdFondo.ToString() },
-                        { "NombreProveedor", proveedorAntiguo.Nombre },
-                        { "IdProveedor", proveedorAntiguo.Identificacion },
-                        { "NuevoNombreProveedor", proveedorNuevo.Nombre },
-                        { "NuevoIdProveedor", proveedorNuevo.Identificacion },
+                        { "NombreProveedor", proveedorAntiguo.Nombre ?? "" },
+                        { "IdProveedor", proveedorAntiguo.Identificacion ?? "" },
+                        { "NuevoNombreProveedor", proveedorNuevo.Nombre ?? "" },
+                        { "NuevoIdProveedor", proveedorNuevo.Identificacion ?? "" },
                         { "ValorFondo", this.FormatearAMoneda((decimal)fondoAntiguo.ValorFondo) },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondoAntiguo.ValorFondo) },
                         { "NuevoValorFondo", this.FormatearAMoneda(reqModif.ValorFondo) },
                         { "NuevoValorFondoLetras", this.ConvertirDecimalAPalabras(reqModif.ValorFondo) },
-                        { "FechaInicio", fondoAntiguo.FechaInicioVigencia.ToString() },
-                        { "NuevaFechaInicio", reqModif.FechaInicioVigencia.ToString() },
-                        { "FechaFin", fondoAntiguo.FechaFinVigencia.ToString() },
-                        { "NuevaFechaFin", reqModif.FechaFinVigencia.ToString() },
+                        { "FechaInicio", fondoAntiguo.FechaInicioVigencia.ToString() ?? "" },
+                        { "NuevaFechaInicio", reqModif.FechaInicioVigencia.ToString() ?? "" },
+                        { "FechaFin", fondoAntiguo.FechaFinVigencia.ToString() ?? "" },
+                        { "NuevaFechaFin", reqModif.FechaFinVigencia.ToString() ?? "" },
                         { "ValorDisponible", this.FormatearAMoneda((decimal)fondoAntiguo.ValorDisponible) },
                         { "NuevoValorDisponible", this.FormatearAMoneda(reqModif.ValorFondo) },
                         { "ValorComprometido", this.FormatearAMoneda((decimal)fondoAntiguo.ValorComprometido) },
                         { "NuevoValorComprometido", "0.00" },
                         { "ValorLiquidado", this.FormatearAMoneda((decimal)fondoAntiguo.ValorLiquidado) },
                         { "NuevoValorLiquidado", "0.00" },
-                        { "Firma", reqModif.NombreUsuarioModifica },
+                        { "Firma", reqModif.NombreUsuarioModifica ?? "" },
                     };
 
                     notificacion = $"apl solicitud {tipoProceso} fondo".ToUpper();
@@ -162,7 +163,7 @@ namespace AppAPL.Api.Handlers
 
                     var fondo = await fondoRepo.ObtenerPorIdAsync((int)reqAprobacion.Identidad);
 
-                    if (fondo == null)
+                    if (fondo == null || fondo.IdProveedor == null || fondo.ValorFondo == null)
                     {
                         logger.LogWarning($"no se encontro el fondo con el id: {reqAprobacion.Identidad}");
                         return;
@@ -180,15 +181,15 @@ namespace AppAPL.Api.Handlers
 
                     camposPlantilla = new Dictionary<string, string>
                       {
-                        { "Nombre", fondo.IdUsuarioIngreso },
+                        { "Nombre", fondo.IdUsuarioIngreso ?? "" },
                         { "IdFondo", fondo.IdFondo.ToString() },
-                        { "NombreProveedor", proveedor3.Nombre },
-                        { "IdProveedor", proveedor3.Identificacion },
+                        { "NombreProveedor", proveedor3.Nombre ?? "" },
+                        { "IdProveedor", proveedor3.Identificacion ?? "" },
                         { "ValorFondo", this.FormatearAMoneda((decimal)fondo.ValorFondo) },
                         { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo.ValorFondo) },
-                        { "FechaInicio", fondo.FechaInicioVigencia.ToString() },
-                        { "FechaFin", fondo.FechaFinVigencia.ToString() },
-                        { "Firma", reqAprobacion.UsuarioAprobador },
+                        { "FechaInicio", fondo.FechaInicioVigencia.ToString() ?? "" },
+                        { "FechaFin", fondo.FechaFinVigencia.ToString() ?? "" },
+                        { "Firma", reqAprobacion.UsuarioAprobador ?? "" },
                         { "Estado", estadoCorreo },
                         { "TipoProceso", etiquetaTipoProceso },
                       };
@@ -199,7 +200,7 @@ namespace AppAPL.Api.Handlers
                     
                 case TipoProceso.Inactivacion:
                     var reqInactivacion = JsonSerializer.Deserialize<InactivarFondoRequest>(requestBody, jsonOptions);
-                    if (reqInactivacion == null || reqInactivacion.IdFondo == null)
+                    if (reqInactivacion == null)
                     {
                         logger.LogWarning("⚠️ [FondosHandler] No se pudo obtener Identidad de AprobarFondoRequest.");
                         return;
@@ -208,7 +209,8 @@ namespace AppAPL.Api.Handlers
                     
                     var fondo2 = await fondoRepo.ObtenerPorIdAsync((int)reqInactivacion.IdFondo);
 
-                    if (fondo2 == null)
+                    if (fondo2 == null || fondo2.IdProveedor == null || fondo2.ValorFondo == null || fondo2.ValorDisponible == null || fondo2.ValorComprometido == null 
+                        || fondo2.ValorLiquidado == null)
                     {
                         logger.LogWarning($"no se encontro el fondo con el id: {reqInactivacion.IdFondo}");
                         return;
@@ -226,18 +228,18 @@ namespace AppAPL.Api.Handlers
 
                     camposPlantilla = new Dictionary<string, string>
                         {
-                            { "Nombre", fondo2.IdUsuarioIngreso },
+                            { "Nombre", fondo2.IdUsuarioIngreso ?? "" },
                             { "IdFondo", fondo2.IdProveedor },
-                            { "NombreProveedor", proveedor4.Nombre },
-                            { "IdProveedor", proveedor4.Identificacion },
+                            { "NombreProveedor", proveedor4.Nombre ?? "" },
+                            { "IdProveedor", proveedor4.Identificacion ?? "" },
                             { "ValorFondo", this.FormatearAMoneda((decimal)fondo2.ValorFondo) },
                             { "ValorFondoLetras", this.ConvertirDecimalAPalabras((decimal)fondo2.ValorFondo) },
-                            { "FechaInicio", fondo2.FechaInicioVigencia.ToString() },
-                            { "FechaFin", fondo2.FechaFinVigencia.ToString() },
+                            { "FechaInicio", fondo2.FechaInicioVigencia.ToString() ?? "" },
+                            { "FechaFin", fondo2.FechaFinVigencia.ToString() ?? "" },
                             { "ValorDisponible", this.FormatearAMoneda((decimal)fondo2.ValorDisponible) },
                             { "ValorComprometido", this.FormatearAMoneda((decimal)fondo2.ValorComprometido) },
                             { "ValorLiquidado", this.FormatearAMoneda((decimal)fondo2.ValorLiquidado) },
-                            { "Firma", reqInactivacion.NombreUsuarioIngreso },
+                            { "Firma", reqInactivacion.NombreUsuarioIngreso ?? "" },
                             // { "OtroCampoDeCreacion", reqCreacion.OtroCampo } // Ejemplo
                         };
 

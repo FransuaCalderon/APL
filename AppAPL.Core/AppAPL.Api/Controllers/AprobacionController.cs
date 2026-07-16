@@ -7,7 +7,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AprobacionController (ILogger<AprobacionController> logger, IAprobacionServicio servicio) : ControllerBase
+    public class AprobacionController ( IAprobacionServicio servicio) : ControllerBase
     {
         [HttpGet("consultar-aprobaciones-generales/{entidad}/{identidad:int}")]
         //[SwaggerOperation(Summary = "Obtiene id tipo proceso, con parámetro extra opcional.")]

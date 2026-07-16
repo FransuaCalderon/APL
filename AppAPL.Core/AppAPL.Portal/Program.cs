@@ -68,7 +68,7 @@ builder.Services.AddHttpClient("ApiClient", (sp, client) =>
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
 
             // ✅ FORZAR O PERMITIR DIFERENTES VERSIONES DE TLS:
-    SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13 | SslProtocols.Tls11 | SslProtocols.Tls
+            SslProtocols = SslProtocols.None
         };
     }
     else
@@ -90,7 +90,7 @@ builder.Services.AddHttpClient("ApigeeTokenClient")
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
 
                 // ✅ FORZAR O PERMITIR DIFERENTES VERSIONES DE TLS:
-    SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13 | SslProtocols.Tls11 | SslProtocols.Tls
+                SslProtocols = SslProtocols.None
             };
         }
         return new HttpClientHandler();

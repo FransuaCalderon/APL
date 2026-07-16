@@ -13,7 +13,7 @@ namespace AppAPL.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    public class AcuerdoController(ILogger<AcuerdoController> logger, IAcuerdoServicio servicio, IMapper mapper) : ControllerBase
+    public class AcuerdoController(ILogger<AcuerdoController> logger, IAcuerdoServicio servicio) : ControllerBase
     {
 
         [HttpGet("consultar-acuerdo-fondo/{idFondo:int}")]
@@ -86,6 +86,15 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaAprobacionPorId(idAcuerdo, idAprobacion);
+
+            // Comprobar si el resultado es nulo
+            if (item == null)
+            {
+                logger.LogWarning("No se encontró la bandeja de aprobación para idAcuerdo: {IdAcuerdo}", idAcuerdo);
+                return NotFound(new { mensaje = "No se encontró la información solicitada." });
+            }
+
+
             if (item.codigoSalida == 0)
             {
                 logger.LogInformation(item.mensajeSalida);
@@ -114,6 +123,15 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaModificacionPorId(idAcuerdo);
+
+            // Comprobar si el resultado es nulo
+            if (item == null)
+            {
+                logger.LogWarning("No se encontró la bandeja de aprobación para idAcuerdo: {IdAcuerdo}", idAcuerdo);
+                return NotFound(new { mensaje = "No se encontró la información solicitada." });
+            }
+
+
             if (item.codigoSalida == 0)
             {
                 logger.LogInformation(item.mensajeSalida);
@@ -140,6 +158,15 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaInactivacionPorId(idAcuerdo);
+
+            // Comprobar si el resultado es nulo
+            if (item == null)
+            {
+                logger.LogWarning("No se encontró la bandeja de aprobación para idAcuerdo: {IdAcuerdo}", idAcuerdo);
+                return NotFound(new { mensaje = "No se encontró la información solicitada." });
+            }
+
+
             if (item.codigoSalida == 0)
             {
                 logger.LogInformation(item.mensajeSalida);
@@ -166,6 +193,13 @@ namespace AppAPL.Api.Controllers
         {
 
             var item = await servicio.ObtenerBandejaConsultaPorId(idAcuerdo);
+
+            // Comprobar si el resultado es nulo
+            if (item == null)
+            {
+                logger.LogWarning("No se encontró la bandeja de aprobación para idAcuerdo: {IdAcuerdo}", idAcuerdo);
+                return NotFound(new { mensaje = "No se encontró la información solicitada." });
+            }
 
             if (item.codigoSalida == 0 )
             {

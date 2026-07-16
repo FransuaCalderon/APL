@@ -7,7 +7,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OpcionesController(IOpcionServicio servicio, ILogger<OpcionesController> logger) : ControllerBase
+    public class OpcionesController(IOpcionServicio servicio) : ControllerBase
     {
         [HttpGet("listar/{NombreUsuario}")]
         public async Task<ActionResult<List<OpcionJoinDTO>>> ObtenerTodos(string NombreUsuario)

@@ -8,7 +8,7 @@ namespace AppAPL.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [SinFormatoRouter]
-    public class TestController (ILogger<TestController> logger, IConfiguration configuration) : ControllerBase
+    public class TestController (IConfiguration configuration) : ControllerBase
     {
         private readonly string connectionString = configuration.GetConnectionString("Oracle")!;
 

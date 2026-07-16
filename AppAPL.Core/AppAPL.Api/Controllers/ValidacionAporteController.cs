@@ -6,7 +6,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ValidacionAporteController(ILogger<ValidacionAporteController> logger, IValidacionAporteServicio servicio) : ControllerBase
+    public class ValidacionAporteController(IValidacionAporteServicio servicio) : ControllerBase
     {
         [HttpGet("consultar-aporte-por-marca/{codigoMarca}")]
         public async Task<ActionResult<List<AportesPorMarcaDTO>>> ConsultarAportesPorMarca(string codigoMarca)

@@ -8,8 +8,7 @@ namespace AppAPL.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CatalogoTipoController (ICatalogoTipoServicio servicio,
-        ILogger<CatalogoTipoController> logger) : ControllerBase
+    public class CatalogoTipoController (ICatalogoTipoServicio servicio) : ControllerBase
     {
 
         // 🔹 GET: Obtener todos

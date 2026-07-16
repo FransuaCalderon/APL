@@ -1262,7 +1262,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             return retorno;
         }
 
-        private async Task<string> ProcesarArchivoBase64(string base64String, string nombreOriginal)
+        private async Task<string> ProcesarArchivoBase64(string? base64String, string? nombreOriginal)
         {
             //if (string.IsNullOrEmpty(base64String)) return string.Empty;
             if (string.IsNullOrEmpty(base64String)) return "sin archivo";
