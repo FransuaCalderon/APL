@@ -368,6 +368,25 @@ function abrirModalEditar(idAcuerdo, idAprobacion) {
                 $("#verValorComprometido").val(formatearMoneda(data.cabecera?.valor_comprometido));
                 $("#verValorLiquidado").val(formatearMoneda(data.cabecera?.valor_liquidado));
 
+
+
+                // Obtener los datos relacionados a la inactivación
+                const motivoInactivacion = data.cabecera?.nombre_motivo_inactivacion || "";
+                const tipoProceso = (data.cabecera?.tipo_proceso_etiqueta || "").toUpperCase();
+
+                // Asignar el valor al input
+                $("#verMotivoInactiva").val(motivoInactivacion);
+
+                // Mostrar el contenedor SOLO si la etiqueta del proceso es exactamente TPINACTIVACION
+                if (tipoProceso === "TPINACTIVACION") {
+                    $("#contenedorMotivoInactiva").show();
+                } else {
+                    $("#contenedorMotivoInactiva").hide();
+                }
+
+
+
+
                 // =================================================================
                 // LOGICA DE ARTÍCULOS
                 // =================================================================

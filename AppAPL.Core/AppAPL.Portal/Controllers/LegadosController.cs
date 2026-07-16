@@ -195,6 +195,9 @@ namespace AppAPL.Portal.Controllers
 
             var json = JsonSerializer.Serialize(payload);
 
+            var token = await tokenService.GetTokenAsync();
+
+            /*
             string? token = null;
 
             if (_config.GetValue<bool>("Apigee:Simulate"))
@@ -206,8 +209,8 @@ namespace AppAPL.Portal.Controllers
             {
                 token = await tokenService.GetTokenAsync();
                 logger.LogInformation("simulacion desactivada de token");
-            }
-                
+            }*/
+
 
             var client = _httpClientFactory.CreateClient("apigee");
 

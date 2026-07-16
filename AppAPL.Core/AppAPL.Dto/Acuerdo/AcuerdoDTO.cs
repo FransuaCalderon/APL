@@ -149,6 +149,8 @@ namespace AppAPL.Dto.Acuerdo
         public string Solicitud { get; set; }
         public int IdAcuerdo { get; set; }
         public string Descripcion { get; set; }
+        public int? motivo_inactivacion { get; set; }
+        public string? nombre_motivo_inactivacion { get; set; }
         public int Id_Fondo { get; set; }
         public int Id_Tipo_Fondo { get; set; }
         public string nombre_tipo_fondo { get; set; }
@@ -630,6 +632,7 @@ namespace AppAPL.Dto.Acuerdo
     public class InactivarAcuerdoRequest
     {
         public int IdAcuerdo { get; set; }
+        public int IdMotivoInactivacion { get; set; }
         public string? NombreUsuarioIngreso { get; set; }
 
         public int? IdOpcion { get; set; }

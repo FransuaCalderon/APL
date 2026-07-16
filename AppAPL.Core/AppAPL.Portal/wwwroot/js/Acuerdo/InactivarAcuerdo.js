@@ -582,12 +582,14 @@ function inactivarAcuerdo() {
     // Construir el body para el request
     const body = {
         idacuerdo: idAcuerdo,
+        idmotivoinactivacion: motivoinactivacion,
         nombreusuarioingreso: usuario,
         idopcion: idOpcionActual,
         idcontrolinterfaz: "BTNINACTIVAR",
         idevento: "EVCLICK",
         nombreusuario: usuario
     };
+
 
     Swal.fire({
         icon: "question",

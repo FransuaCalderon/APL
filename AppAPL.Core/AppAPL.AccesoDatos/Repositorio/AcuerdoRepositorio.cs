@@ -720,6 +720,7 @@ namespace AppAPL.AccesoDatos.Repositorio
             var paramObject = new
             {
                 p_idacuerdo = acuerdo.IdAcuerdo,
+                p_idmotivoinactivacion = acuerdo.IdMotivoInactivacion,
                 p_nombreusuarioingreso = acuerdo.NombreUsuarioIngreso,
 
                 p_idopcion = acuerdo.IdOpcion,

@@ -84,7 +84,7 @@ public class ApigeeTokenService
         return _token;
     }
 
-
+    /*
     public async Task<string> GetTokenRealAsync()
     {
         // 1. Validar si ya tenemos un token válido en caché
@@ -143,7 +143,7 @@ public class ApigeeTokenService
         _expiresAtReal = DateTime.UtcNow.AddSeconds(authData.ExpiresIn - 60);
 
         return _tokenReal;
-    }
+    }*/
 
     /// <summary>
     /// Clase interna para mapear la respuesta de Apigee
