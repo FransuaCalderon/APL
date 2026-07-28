@@ -2113,6 +2113,7 @@
             // 5. 👉 AVISO DE NIVEL 2 CON PROMESA (sweetAlert)
             // Si la alarma se encendió, mostramos la advertencia
             if (requiereAprobacionNivel2) {
+                console.log('entrando al if requiereAprobacionNivel2');
                 Swal.fire({
                     title: 'Advertencia',
                     text: 'Margen menor al Margen Mínimo (Contado, TC o Crédito) y será aprobado por usuario de Nivel 2',
@@ -2124,6 +2125,7 @@
                     cancelButtonText: 'Cancelar',
                     allowOutsideClick: false
                 }).then((result) => {
+                    console.log('then swal fire');
                     if (result.isConfirmed) {
                         // Si el usuario dijo Continuar, mandamos a grabar al API
                         $.ajax({
@@ -2144,6 +2146,26 @@
                                 Swal.fire("Error", "Error de comunicación: " + xhr.statusText, "error");
                             }
                         });
+                    }
+                });
+            } else {
+                // Si el usuario dijo Continuar, mandamos a grabar al API
+                $.ajax({
+                    url: "/api/apigee-router-proxy",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(payload),
+                    success: function (res) {
+                        const respuesta = res.json_response || res;
+                        if (respuesta.codigoretorno == 1) {
+                            Swal.fire("Éxito", "Promoción por Artículos Guardada: " + respuesta.mensaje, "success")
+                                .then(() => resetearFormulario("Articulos"));
+                        } else {
+                            Swal.fire("Atención", respuesta.mensaje || "Error en base de datos", "warning");
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire("Error", "Error de comunicación: " + xhr.statusText, "error");
                     }
                 });
             }
