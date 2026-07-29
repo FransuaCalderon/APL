@@ -3719,6 +3719,7 @@
             }
         });
 
+        /*
         $("#btnAceptarAcuerdoArticulo").on("click", function (e) {
             if (acuerdoArticuloContexto && acuerdoArticuloContexto.esCombo) {
                 e.stopImmediatePropagation();
@@ -3751,7 +3752,110 @@
                 acuerdoArticuloTemporal = null;
                 acuerdoArticuloContexto = null;
             }
+        });*/
+
+
+        // =====================================================================
+        // UNIFICACIÓN: Evento Aceptar Acuerdo (Artículos y Combos)
+        // =====================================================================
+        $(document).off("click", "#btnAceptarAcuerdoArticulo").on("click", "#btnAceptarAcuerdoArticulo", function (e) {
+            e.preventDefault();
+
+            // 1. Validar que exista un acuerdo seleccionado
+            if (!acuerdoArticuloTemporal) {
+                Swal.fire({ icon: "info", title: "Atención", text: "Debe seleccionar un acuerdo." });
+                return;
+            }
+
+            // 2. Validar que el contexto exista
+            if (acuerdoArticuloContexto) {
+                // Extraemos las variables comunes para ambos flujos
+                const tipo = acuerdoArticuloContexto.tipoFondo;
+                const slot = acuerdoArticuloContexto.slot;
+                const idSeleccionado = String(acuerdoArticuloTemporal.idAcuerdo);
+                const maxVal = acuerdoArticuloTemporal.valorAcuerdo || 0;
+
+                // ==========================================
+                // LÓGICA: PROMOCIÓN COMBOS
+                // ==========================================
+                if (acuerdoArticuloContexto.esCombo) {
+                    const colIdx = acuerdoArticuloContexto.colIndex;
+                    const getVal = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input.acuerdo-id-hidden`).val();
+
+                    // Validar duplicados en combos
+                    if (tipo === "TFPROVEDOR" && (slot === 1 ? getVal("aporte_prov2_id") : getVal("aporte_prov_id")) === idSeleccionado) {
+                        Swal.fire({ icon: "warning", title: "Duplicado", text: "Este acuerdo ya fue seleccionado en el otro slot del Proveedor." });
+                        return;
+                    }
+                    if (tipo === "TFPROPIO" && (slot === 1 ? getVal("aporte_propio2_id") : getVal("aporte_propio_id")) === idSeleccionado) {
+                        Swal.fire({ icon: "warning", title: "Duplicado", text: "Este acuerdo ya fue seleccionado en el otro slot Propio." });
+                        return;
+                    }
+
+                    // Asignar display e ID
+                    acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
+                    acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
+
+                    // Activar el input de aporte
+                    const setInputAporte = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input.aporte-valor`).prop("disabled", false).attr("data-max", maxVal).val("");
+
+                    if (tipo === "TFPROVEDOR") setInputAporte(slot === 1 ? "aporte_prov" : "aporte_prov2");
+                    else if (tipo === "TFREBATE") setInputAporte("aporte_rebate");
+                    else if (tipo === "TFPROPIO") setInputAporte(slot === 1 ? "aporte_propio" : "aporte_propio2");
+
+                    recalcularColumnaCombo(colIdx);
+                    recalcularTotalesCombo();
+                }
+                // ==========================================
+                // LÓGICA: PROMOCIÓN ARTÍCULOS
+                // ==========================================
+                else {
+                    const $fila = acuerdoArticuloContexto.$fila;
+
+                    // Validar duplicados en artículos
+                    if (tipo === "TFPROVEDOR") {
+                        const otroSlotClass = slot === 1 ? ".acuerdo-prov2-hidden" : ".acuerdo-prov1-hidden";
+                        const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
+                        if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
+                            Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en Aporte ${slot === 1 ? "2" : ""} Proveedor. Debe elegir un acuerdo diferente.` });
+                            return;
+                        }
+                    } else if (tipo === "TFPROPIO") {
+                        const otroSlotClass = slot === 1 ? ".acuerdo-propio2-hidden" : ".acuerdo-propio1-hidden";
+                        const idOtroSlot = String($fila.find(otroSlotClass).val() || "");
+                        if (idOtroSlot && idOtroSlot !== "" && idOtroSlot === idSeleccionado) {
+                            Swal.fire({ icon: "warning", title: "Acuerdo Duplicado", text: `El acuerdo ${idSeleccionado} ya fue seleccionado en Aporte ${slot === 1 ? "2" : ""} Propio. Debe elegir un acuerdo diferente.` });
+                            return;
+                        }
+                    }
+
+                    // Asignar display e ID
+                    acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
+                    acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
+
+                    // Activar el input de aporte
+                    if (tipo === "TFPROVEDOR" && slot === 1) {
+                        $fila.find(".aporte-proveedor").prop("disabled", false).attr("data-max", maxVal).val("");
+                    } else if (tipo === "TFPROVEDOR" && slot === 2) {
+                        $fila.find(".aporte-proveedor2").prop("disabled", false).attr("data-max", maxVal).val("");
+                    } else if (tipo === "TFREBATE") {
+                        $fila.find(".aporte-rebate").prop("disabled", false).attr("data-max", maxVal).val("");
+                    } else if (tipo === "TFPROPIO" && slot === 1) {
+                        $fila.find(".aporte-propio").prop("disabled", false).attr("data-max", maxVal).val("");
+                    } else if (tipo === "TFPROPIO" && slot === 2) {
+                        $fila.find(".aporte-propio2").prop("disabled", false).attr("data-max", maxVal).val("");
+                    }
+
+                    recalcularFilaArticulo($fila);
+                }
+            }
+
+            // 3. Ocultar modal y limpiar contextos
+            $("#modalAcuerdoArticulo").modal("hide");
+            acuerdoArticuloTemporal = null;
+            acuerdoArticuloContexto = null;
         });
+
 
         $(document).off("input change", "#tablaCreacionCombo tbody").on("input change", "#tablaCreacionCombo tbody input", function (e) {
             if (e.type === "input") {
