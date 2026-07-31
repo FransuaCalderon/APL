@@ -2394,6 +2394,8 @@
                     "clasepromocion": parseInt($("#promocionTipo").val(), 10) || 0,
                     "fechahorainicio": fechaInicio,
                     "fechahorafin": fechaFin,
+                    "marcaregalo": "N",
+                    "marcaprocesoaprobacion": "N",
                     "idusuarioingreso": getUsuario(),
                     "nombreusuario": getUsuario()
                 },
@@ -3796,15 +3798,15 @@
                     acuerdoArticuloContexto.$inputDisplay.val(acuerdoArticuloTemporal.display);
                     acuerdoArticuloContexto.$inputId.val(acuerdoArticuloTemporal.idAcuerdo);
 
-                    // Activar el input de aporte
-                    const setInputAporte = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input.aporte-valor`).prop("disabled", false).attr("data-max", maxVal).val("");
+                    // Activar el input de aporte (CORRECCIÓN: Buscamos genéricamente el input de texto)
+                    const setInputAporte = (c) => $(`#tablaCreacionCombo tbody tr[data-campo='${c}'] td[data-colindex='${colIdx}'] input[type='text']`).prop("disabled", false).attr("data-max", maxVal).val("");
 
                     if (tipo === "TFPROVEDOR") setInputAporte(slot === 1 ? "aporte_prov" : "aporte_prov2");
                     else if (tipo === "TFREBATE") setInputAporte("aporte_rebate");
                     else if (tipo === "TFPROPIO") setInputAporte(slot === 1 ? "aporte_propio" : "aporte_propio2");
 
-                    recalcularColumnaCombo(colIdx);
-                    recalcularTotalesCombo();
+                    // CORRECCIÓN: Llamamos a tu nueva función maestra
+                    recalcularMatrizCombo();
                 }
                 // ==========================================
                 // LÓGICA: PROMOCIÓN ARTÍCULOS

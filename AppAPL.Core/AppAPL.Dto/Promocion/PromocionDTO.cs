@@ -1842,7 +1842,7 @@ namespace AppAPL.Dto.Promocion
         public decimal? margenPromocionCredito { get; set; }
         public decimal? margenIgualarPrecio { get; set; }
 
-        public string? marcaRegalo { get; set; }
+        public string? MarcaRegalo { get; set; }
         public string? regalo { get; set; } // Viene en PRCOMBO
 
         public List<MedioPagoArticuloDto>? mediosPago { get; set; }
